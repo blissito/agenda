@@ -1,12 +1,16 @@
-# fly.toml app configuration file generated for agenda-spring-tree-5443 on 2024-06-24T16:53:27-06:00
+# fly.toml app configuration file generated for denik on 2024-06-24T23:03:37-06:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'agenda-spring-tree-5443'
+app = 'denik'
 primary_region = 'qro'
 
 [build]
+
+[experimental]
+  cmd = "start_with_migrations.sh"
+  entrypoint = "sh"
 
 [http_service]
   internal_port = 3000
@@ -17,11 +21,12 @@ primary_region = 'qro'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
+  size = 'shared-cpu-1x'
+
+[env]
+  DATABASE_URL="file:/db/sqlite.db"
 
 [mounts]
-  source = "data"
-  destination = "/mnt/data"
-  processes= ["app"]
+  source = "data_volume"
+  destination = "/db"
+
