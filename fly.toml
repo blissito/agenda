@@ -20,3 +20,7 @@ primary_region = 'qro'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+
+[mounts]
+  source = "sqlite"
+  destination = "/prisma"
