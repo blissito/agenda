@@ -8,10 +8,6 @@ primary_region = 'qro'
 
 [build]
 
-[experimental]
-  cmd = "start_with_migrations.sh"
-  entrypoint = "sh"
-
 [http_service]
   internal_port = 3000
   force_https = true

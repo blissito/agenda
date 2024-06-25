@@ -4,6 +4,9 @@
 ARG NODE_VERSION=20.8.0
 FROM node:${NODE_VERSION}-slim as base
 
+# Install openssl for Prisma
+RUN apt-get update && apt-get install -y openssl
+
 LABEL fly_launch_runtime="Remix"
 
 # Remix app lives here
