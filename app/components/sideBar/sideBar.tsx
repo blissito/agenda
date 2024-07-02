@@ -13,13 +13,13 @@ export function SideBar({
   props?: unknown;
 }) {
   return (
-    <article className="min-h-screen bg-brand_light_gray grid " {...props}>
-      <aside className="w-[270px] bg-white min-h-screen rounded-e-3xl flex flex-col">
-        <Header user={user} className="pl-10" />
+    <article className="min-h-screen bg-brand_light_gray flex " {...props}>
+      <aside className="w-[320px] bg-white min-h-screen rounded-e-3xl flex flex-col">
+        <Header user={user} className="pl-6" />
         <MainMenu />
         <Footer />
       </aside>
-      <section>{children}</section>
+      <section className="pl-10 py-10 w-full">{children}</section>
     </article>
   );
 }
@@ -88,7 +88,7 @@ const MenuButton = ({
     >
       <div
         className={twMerge(
-          "mr-5 w-1 h-11",
+          "mr-2 w-1 h-11",
           isActive && "bg-brand_blue rounded-e-lg"
         )}
       />
@@ -137,7 +137,7 @@ MenuButton.Title = Title;
 const MainMenu = () => {
   return (
     <div className="">
-      <h3 className="pl-10 pb-3 uppercase text-xs text-gray-300">Tu negocio</h3>
+      <h3 className="pl-6 pb-3 uppercase text-xs text-gray-300">Tu negocio</h3>
       <section className="grid gap-1">
         <MenuButton isActive={true}>
           <MenuButton.Icon isActive>
