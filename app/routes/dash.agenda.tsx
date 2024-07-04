@@ -1,4 +1,3 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
 import { Suspense, useState } from "react";
 import { useLoaderData } from "react-router";
 import {
@@ -25,21 +24,22 @@ const MONTHS = [
   "noviembre",
   "diciembre",
 ];
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const loader = async (_: LoaderFunctionArgs) => ({
-  fromHour: 19,
-  toHour: 24,
-  daysShown: [
-    "lunes",
-    "martes",
-    "miércoles",
-    "viernes",
-    "jueves",
-    "sábado",
-    // "domingo",
-  ],
-});
+export const loader = async () => {
+  return {
+    fromHour: 19,
+    toHour: 24,
+    daysShown: [
+      "lunes",
+      "martes",
+      "miércoles",
+      "viernes",
+      "jueves",
+      "sábado",
+      // "domingo",
+    ],
+  };
+};
 
 export default function Page() {
   const { fromHour, toHour, daysShown } = useLoaderData<typeof loader>();
