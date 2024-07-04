@@ -1,4 +1,5 @@
 import { type User } from "@prisma/client";
+import { Link, useLocation } from "@remix-run/react";
 import { Children, cloneElement, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { Dashboard } from "~/components/icons/dashboard";
@@ -70,32 +71,37 @@ const MenuButton = ({
   isActive = false,
   className,
   children,
+  to = "",
   ...props
 }: {
+  to?: string;
   className?: string;
   props?: unknown;
   isActive?: boolean;
   children?: ReactNode;
 }) => {
+  const Element = to ? Link : "button";
   return (
-    <button
+    <Element
+      to={to}
       className={twMerge(
         isActive && "text-brand_blue",
         className,
-        "relative h-12 flex items-center gap-3"
+        "relative h-12 flex items-center gap-3 cursor-pointer"
       )}
       {...props}
     >
-      <div
+      <span
         className={twMerge(
           "mr-2 w-1 h-11",
           isActive && "bg-brand_blue rounded-e-lg"
         )}
       />
       {children}
-    </button>
+    </Element>
   );
 };
+
 const Icon = ({
   children,
   isActive,
@@ -135,21 +141,26 @@ MenuButton.Icon = Icon;
 MenuButton.Title = Title;
 
 const MainMenu = () => {
+  const location = useLocation();
+  const match = (string: string) => location.pathname.includes(string);
+  const matchIndex = (string: string = location.pathname) =>
+    /^\/dash$/.test(string);
+
   return (
     <div className="">
       <h3 className="pl-6 pb-3 uppercase text-xs text-gray-300">Tu negocio</h3>
       <section className="grid gap-1">
-        <MenuButton isActive={true}>
-          <MenuButton.Icon isActive>
+        <MenuButton isActive={matchIndex()} to="/dash">
+          <MenuButton.Icon isActive={matchIndex()}>
             <Dashboard />
           </MenuButton.Icon>
-          <MenuButton.Title isActive>Dashboard</MenuButton.Title>
+          <MenuButton.Title isActive={matchIndex()}>Dashboard</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/agenda" isActive={match("agenda")}>
+          <MenuButton.Icon isActive={match("agenda")}>
             <Dashboard />
           </MenuButton.Icon>
-          <MenuButton.Title>Agenda</MenuButton.Title>
+          <MenuButton.Title isActive={match("agenda")}>Agenda</MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
