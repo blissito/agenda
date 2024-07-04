@@ -57,7 +57,7 @@ export const Paginator = ({
           </button>
         )}
       </div>
-      <select className="rounded-3xl border-none">
+      <select className="rounded-3xl border- mr-10">
         <option value="">General</option>
       </select>
     </nav>

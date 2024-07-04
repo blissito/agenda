@@ -2,6 +2,7 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { useState } from "react";
 import { useLoaderData } from "react-router";
 import {
+  addDaysToDate,
   generateHours,
   generateWeek,
   getMonday,
@@ -36,7 +37,7 @@ export const loader = async (_: LoaderFunctionArgs) => ({
     "viernes",
     "jueves",
     "sábado",
-    //   "domingo",
+    // "domingo",
   ],
 });
 
@@ -46,29 +47,28 @@ export default function Page() {
   const [monday, setMonday] = useState<Date>(getMonday());
   const week = generateWeek(monday, 7);
 
-  const updateMonday = (numberOfWeeks: number) => {
-    const days = numberOfWeeks * 7;
-    const newDate = monday.getDate() + days;
-    setMonday(new Date(monday.setDate(newDate)));
-  };
+  const updateMonday = (direction: number) =>
+    setMonday(
+      new Date(monday.setDate(addDaysToDate(direction > 0 ? 7 : -7, monday)))
+    );
 
   return (
-    <article className="">
+    <>
       <RouteTitle>Mi agenda {week[4].date.getFullYear()}</RouteTitle>
       <Paginator
         monday={monday}
-        month={MONTHS[week[daysShown.length].date.getMonth()]}
+        month={MONTHS[week[daysShown.length - 1].date.getMonth()]}
         onToday={() => setMonday(getMonday())}
         start={monday.getDate()}
-        end={week[daysShown.length].date?.getDate()}
-        onPrev={() => updateMonday(-1)}
-        onNext={() => updateMonday(1)}
+        end={week[daysShown.length - 1].date?.getDate()}
+        onPrev={() => updateMonday(1)}
+        onNext={() => updateMonday(-1)}
       />
       <CalendarGrid
         hours={generateHours({ fromHour, toHour })}
         week={week}
         days={daysShown}
       />
-    </article>
+    </>
   );
 }

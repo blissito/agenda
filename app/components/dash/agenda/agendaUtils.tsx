@@ -67,3 +67,6 @@ export const generateWeek = (
   fillWeek();
   return [...days];
 };
+
+export const addDaysToDate = (days: number, date: Date) =>
+  date.getDate() + days;
