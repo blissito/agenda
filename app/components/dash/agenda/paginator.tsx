@@ -58,7 +58,8 @@ export const Paginator = ({
         )}
       </div>
       <select className="rounded-3xl border- mr-10">
-        <option value="">General</option>
+        <option value="">Semanal</option>
+        <option disabled>Mensual</option>
       </select>
     </nav>
   );

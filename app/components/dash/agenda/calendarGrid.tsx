@@ -82,7 +82,12 @@ export const Indicator = ({
   index?: number;
   length?: number;
 }) => {
-  const today = new Date();
+  const today = new Date(
+    new Date().toLocaleString("en", { timeZone: "America/Mexico_City" })
+  );
+
+  console.log("TODAY: ", today);
+
   const hour = today.getHours();
   const minutes = today.getMinutes();
 
