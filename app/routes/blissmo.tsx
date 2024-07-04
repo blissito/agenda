@@ -31,7 +31,7 @@ export const loader = async (props: LoaderFunctionArgs) => {
 
 export default function Page() {
   const { myEvents } = useLoaderData<typeof loader>();
-  // console.log("EVENTS: ", myEvents);
+
   // const localizer = momentLocalizer(moment);
   // const { defaultDate } = useMemo(
   //   () => ({

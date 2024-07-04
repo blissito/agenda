@@ -26,7 +26,6 @@ export const Paginator = ({
       day.date.getMonth() === today.getMonth()
   );
 
-  console.log("TODA? ", isTodayInWeek);
   return (
     <nav className="flex items-center justify-between">
       <div className="flex items-center gap-2 ">
