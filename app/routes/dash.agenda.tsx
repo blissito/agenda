@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useLoaderData } from "react-router";
 import {
   addDaysToDate,
@@ -7,7 +7,7 @@ import {
   generateWeek,
   getMonday,
 } from "~/components/dash/agenda/agendaUtils";
-import { CalendarGrid } from "~/components/dash/agenda/calendarGrid";
+import { CalendarGrid } from "~/components/dash/agenda/calendarGrid.client";
 import { Paginator } from "~/components/dash/agenda/paginator";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 
@@ -64,11 +64,19 @@ export default function Page() {
         onPrev={() => updateMonday(1)}
         onNext={() => updateMonday(-1)}
       />
-      <CalendarGrid
-        hours={generateHours({ fromHour, toHour })}
-        week={week}
-        days={daysShown}
-      />
+      <Suspense
+        fallback={
+          <div className="h-screen flex items-center justify-center text-brand_blue opacity-70">
+            Cargando calendario...
+          </div>
+        }
+      >
+        <CalendarGrid
+          hours={generateHours({ fromHour, toHour })}
+          week={week}
+          days={daysShown}
+        />
+      </Suspense>
     </>
   );
 }
