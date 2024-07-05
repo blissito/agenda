@@ -7,8 +7,8 @@
     "build": "remix vite:build",
     "dev": "prisma generate && remix vite:dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "prisma-stuff": "prisma generate && prisma migrate deploy",
-    "start": "npm run prisma-stuff && remix-serve ./build/server/index.js",
+    "prisma-setup": "prisma generate && prisma migrate deploy",
+    "start": "npm run prisma-setup && npm run build && remix-serve ./build/server/index.js",
     "typecheck": "tsc"
   },
   "dependencies": {

@@ -1,18 +1,23 @@
 import { twMerge } from "tailwind-merge";
-import { defaultDays } from "./agendaUtils";
-import { useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
+import { BasicBoxType, Day } from "./agendaUtils";
+import { HourOrDay, useCoordinates } from "~/components/hooks/useCoordinates";
 
-export interface Day {
-  day: string;
-  date: Date;
-  meta?: any;
-}
+export const GridContext = createContext<{
+  hours: HourOrDay[];
+  days: HourOrDay[];
+}>({
+  hours: [],
+  days: [],
+});
 
 export const CalendarGrid = ({
+  boxes = [],
   week = [...defaultDays],
-  days = ["lunes", "martes", "miércoles", "jueves", "viernes"],
+  days = [],
   hours,
 }: {
+  boxes: BasicBoxType[];
   hours: string[];
   week: Day[];
   days?: string[];
@@ -22,7 +27,24 @@ export const CalendarGrid = ({
     date.getMonth() === new Date().getMonth();
 
   return (
-    <>
+    <GridContext.Provider
+      value={{
+        hours: hours.map((h) => ({
+          number: Number(h.replace(":00", "")),
+          string: h,
+        })),
+        days: week
+          .map((w) =>
+            days.includes(w.day) // filtering not required days
+              ? {
+                  number: new Date(w.date).getDate(),
+                  string: w.day,
+                }
+              : null
+          )
+          .filter(Boolean),
+      }}
+    >
       <div className="bg-white rounded-2xl mt-6 mr-10 pr-6 pb-6 shadow-md ">
         {/* days and date */}
         <div className="flex pl-20">
@@ -41,13 +63,19 @@ export const CalendarGrid = ({
                   <span className={twMerge(isToday && "text-brand_blue")}>
                     {day}
                   </span>
-                  <span>{new Date(date).getDate()}</span>
+                  <span
+                    className={twMerge(
+                      isToday && "bg-brand_blue rounded-full text-white"
+                    )}
+                  >
+                    {new Date(date).getDate()}
+                  </span>
                 </h6>
               );
             })}
         </div>
 
-        <article className="flex items-center">
+        <article className="flex">
           {/* Times */}
           <section>
             {hours.map((hour, index) => (
@@ -56,16 +84,23 @@ export const CalendarGrid = ({
               </p>
             ))}
           </section>
-          {/* Rowns drawer */}
+          {/* Grid container */}
           <section className="flex-1 relative">
-            <Indicator week={week} hours={hours} length={days.length} />
+            {/* Events */}
+            <VirtualMatrix>
+              {boxes.map((box) => (
+                <BasicBox box={box} key={box.id} />
+              ))}
+            </VirtualMatrix>
+            {/* Actual grid */}
             {hours.map((_, index) => (
               <Row length={days.length} key={index} isFirst={index === 0} />
             ))}
+            {/* <Indicator week={week} hours={hours} length={days.length} /> */}
           </section>
         </article>
       </div>
-    </>
+    </GridContext.Provider>
   );
 };
 
@@ -127,7 +162,6 @@ export const Indicator = ({
 
 export const Row = ({
   length = 7,
-
   isFirst,
   ...props
 }: {
@@ -135,15 +169,82 @@ export const Row = ({
   isFirst?: boolean;
   props?: any;
 }) => (
-  <div {...props} className="flex border-l">
-    {Array.from({ length }).map((_, index) => (
-      <div
-        key={index}
-        className={twMerge(
-          "w-full h-24 bg-white border border-l-0 border-gray-200 border-t-0",
-          isFirst && "border-t"
-        )}
-      />
-    ))}
-  </div>
+  <article className="relative">
+    {/* @TODO: move this to global CSS */}
+    <style>
+      {`
+    .dashed-bottom-border{
+      border-bottom: 1px dashed #e5e7eb;
+    }
+    .dashed-top-border{
+      border-top: 1px dashed #e5e7eb;
+    }
+    `}
+    </style>
+
+    <div {...props} className="flex border-l bg-red-500 min-w-[100px]">
+      {Array.from({ length }).map((_, index) => (
+        <div
+          key={index}
+          className={twMerge(
+            "dashed-bottom-border",
+            "w-full h-24 bg-white border border-l-0 border-gray-200 border-t-0",
+            isFirst && "border-t dashed-top-border"
+          )}
+        />
+      ))}
+    </div>
+  </article>
 );
+
+const VirtualMatrix = ({ children }: { children: ReactNode }) => {
+  const { hours, days } = useContext(GridContext);
+  console.log("HOURS;DAYS", hours, days);
+
+  return (
+    <div
+      className={twMerge(
+        "grid gap-[1px]",
+        "z-10",
+        "h-full absolute top-0 left-0 w-full"
+      )}
+      style={{
+        gridTemplateColumns: `repeat(${days.length}, 1fr)`,
+        gridTemplateRows: `repeat(${hours.length}, 1fr)`,
+      }}
+      id="virtual-row-blissmo"
+    >
+      {children}
+    </div>
+  );
+};
+
+// necesitamos transladar date => {day(date), time(hour)} =>x,y
+
+const BasicBox = ({
+  box = { date: new Date() },
+  ...props
+}: {
+  props?: any;
+  box: BasicBoxType;
+}) => {
+  const { x, y } = useCoordinates({ date: box.date });
+  return (
+    <div
+      {...props}
+      style={{
+        gridColumnStart: x,
+        gridRowStart: y,
+      }}
+      className={twMerge(
+        "relative rounded-xl overflow-hidden bg-brand_yellow pb-4 px-3",
+        // "w-full h-[90%]",
+        ""
+      )}
+    >
+      <h6 className="text-sm"> {box.title}</h6>
+      <p className="text-gray-400 text-xs truncate">{box.text}</p>
+      <div className="absolute left-0 top-0 w-[5px] bg-yellow-500 h-full" />
+    </div>
+  );
+};

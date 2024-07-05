@@ -1,3 +1,16 @@
+export interface Day {
+  day: string;
+  date: Date;
+  meta?: any;
+}
+
+export type BasicBoxType = {
+  id?: number;
+  date: Date;
+  title: string;
+  text?: string;
+};
+
 export const defaultDays: Day[] = [
   {
     day: "lunes",
@@ -29,16 +42,21 @@ export const defaultDays: Day[] = [
   },
 ];
 
+export const toNumber = (string: string) => Number(string.replace(":00", ""));
+
 export const generateHours = ({
   fromHour,
   toHour,
+  justNumbers = false,
 }: {
   fromHour: number;
   toHour: number;
-}) =>
-  Array.from({ length: toHour - fromHour }).map((_, index) =>
+  justNumbers?: boolean;
+}) => {
+  return Array.from({ length: toHour - fromHour }).map((_, index) =>
     fromHour + index < 10 ? `0${fromHour + index}:00` : `${fromHour + index}:00`
   );
+};
 
 export const getMonday = (today: Date = new Date()) => {
   const day = today.getDay();

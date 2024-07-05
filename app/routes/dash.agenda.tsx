@@ -2,6 +2,7 @@ import { Suspense, useState } from "react";
 import { useLoaderData } from "react-router";
 import {
   addDaysToDate,
+  BasicBoxType,
   generateHours,
   generateWeek,
   getMonday,
@@ -27,8 +28,34 @@ const MONTHS = [
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loader = async () => {
   return {
-    fromHour: 19,
-    toHour: 24,
+    events: [
+      {
+        id: 1,
+        title: "Charles Chaplin",
+        text: "Clase de música",
+        date: new Date(2024, 6, 1, 10),
+      },
+      {
+        id: 2,
+        title: "Julio Cortazar",
+        text: "Clase de literatura",
+        date: new Date(2024, 6, 5, 13),
+      },
+      {
+        id: 3,
+        title: "Jorge Luis Borges",
+        text: "Clase de literatura inglesa",
+        date: new Date(2024, 6, 4, 14),
+      },
+      {
+        id: 3,
+        title: "Roberto Bolaño",
+        text: "Clase de ensayo",
+        date: new Date(2024, 6, 2, 12),
+      },
+    ] as BasicBoxType[],
+    fromHour: 9,
+    toHour: 19,
     daysShown: [
       "lunes",
       "martes",
@@ -42,7 +69,8 @@ export const loader = async () => {
 };
 
 export default function Page() {
-  const { fromHour, toHour, daysShown } = useLoaderData<typeof loader>();
+  const { events, fromHour, toHour, daysShown } =
+    useLoaderData<typeof loader>();
 
   const [monday, setMonday] = useState<Date>(getMonday());
   const week = generateWeek(monday, 7);
@@ -72,6 +100,7 @@ export default function Page() {
         }
       >
         <CalendarGrid
+          boxes={events}
           hours={generateHours({ fromHour, toHour })}
           week={week}
           days={daysShown}

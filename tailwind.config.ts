@@ -8,6 +8,7 @@ export default {
         brand_light_gray: "#F8F8F8",
         brand_blue: "#5158F6",
         brand_dark: "#11151A",
+        brand_yellow: "#FFD75E",
       },
     },
   },
