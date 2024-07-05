@@ -38,7 +38,7 @@ export const Paginator = ({
           className="px-4 py-2 shadow flex bg-white rounded-xl items-center justify-center"
         >
           &#60;
-        </button>{" "}
+        </button>
         <button
           onClick={onNext}
           className="px-4 py-2 shadow flex bg-white rounded-xl items-center justify-center"

@@ -6,101 +6,105 @@ import { HourOrDay, useCoordinates } from "~/components/hooks/useCoordinates";
 export const GridContext = createContext<{
   hours: HourOrDay[];
   days: HourOrDay[];
+  week: Day[];
 }>({
+  week: [],
   hours: [],
   days: [],
 });
 
 export const CalendarGrid = ({
   boxes = [],
-  week = [...defaultDays],
+  week = [],
   days = [],
-  hours,
+  hours = [],
 }: {
   boxes: BasicBoxType[];
   hours: string[];
   week: Day[];
-  days?: string[];
+  days: string[];
 }) => {
   const checkIfIsToday = (date: Date) =>
     date.getDate() === new Date().getDate() &&
     date.getMonth() === new Date().getMonth();
 
   return (
-    <GridContext.Provider
-      value={{
-        hours: hours.map((h) => ({
-          number: Number(h.replace(":00", "")),
-          string: h,
-        })),
-        days: week
-          .map((w) =>
-            days.includes(w.day) // filtering not required days
-              ? {
-                  number: new Date(w.date).getDate(),
-                  string: w.day,
-                }
-              : null
-          )
-          .filter(Boolean),
-      }}
-    >
-      <div className="bg-white rounded-2xl mt-6 mr-10 pr-6 pb-6 shadow-md ">
-        {/* days and date */}
-        <div className="flex pl-20">
-          {week
-            .filter((d) => days.includes(d.day))
-            .map(({ day, date }, index) => {
-              const isToday = checkIfIsToday(date);
-
-              return (
-                <h6
-                  key={index}
-                  className={twMerge(
-                    "w-full text-center grid gap-2 mt-5 mb-3 text-gray-500 "
-                  )}
-                >
-                  <span className={twMerge(isToday && "text-brand_blue")}>
-                    {day}
-                  </span>
-                  <span
+    <>
+      <GridContext.Provider
+        value={{
+          week,
+          hours: hours.map((h) => ({
+            number: Number(h.replace(":00", "")),
+            string: h,
+          })),
+          days: week
+            .map((w) =>
+              days.includes(w.day) // filtering not required days
+                ? {
+                    number: new Date(w.date).getDate(),
+                    string: w.day,
+                  }
+                : null
+            )
+            .filter(Boolean),
+        }}
+      >
+        <div className="bg-white rounded-2xl mt-6 mr-10 pr-6 pb-6 shadow-md ">
+          {/* days and date */}
+          <div className="flex pl-20">
+            {week
+              .filter((d) => days.includes(d.day))
+              .map(({ day, date }, index) => {
+                const isToday = checkIfIsToday(date);
+                return (
+                  <h6
+                    key={index}
                     className={twMerge(
-                      isToday && "bg-brand_blue rounded-full text-white"
+                      "w-full text-center grid gap-2 mt-5 mb-3 text-gray-500 "
                     )}
                   >
-                    {new Date(date).getDate()}
-                  </span>
-                </h6>
-              );
-            })}
-        </div>
+                    <span className={twMerge(isToday && "text-brand_blue")}>
+                      {day}
+                    </span>
+                    <span
+                      className={twMerge(
+                        isToday && "bg-brand_blue rounded-full text-white"
+                      )}
+                    >
+                      {new Date(date).getDate()}
+                    </span>
+                  </h6>
+                );
+              })}
+          </div>
 
-        <article className="flex">
-          {/* Times */}
-          <section>
-            {hours.map((hour, index) => (
-              <p key={index} className="h-24 pl-6 pr-3 py-2 text-gray-700">
-                <span>{hour}</span>
-              </p>
-            ))}
-          </section>
-          {/* Grid container */}
-          <section className="flex-1 relative">
-            {/* Events */}
-            <VirtualMatrix>
-              {boxes.map((box) => (
-                <BasicBox box={box} key={box.id} />
+          <article className="flex">
+            {/* Times */}
+            <section>
+              {hours.map((hour, index) => (
+                <p key={index} className="h-24 pl-6 pr-3 py-2 text-gray-700">
+                  <span>{hour}</span>
+                </p>
               ))}
-            </VirtualMatrix>
-            {/* Actual grid */}
-            {hours.map((_, index) => (
-              <Row length={days.length} key={index} isFirst={index === 0} />
-            ))}
-            {/* <Indicator week={week} hours={hours} length={days.length} /> */}
-          </section>
-        </article>
-      </div>
-    </GridContext.Provider>
+            </section>
+            {/* Grid container */}
+            <section className="flex-1 relative">
+              {/* Events */}
+              <VirtualMatrix>
+                {boxes.map((box) => (
+                  <BasicBox box={box} key={box.id} />
+                ))}
+              </VirtualMatrix>
+              {/* Actual grid */}
+              {hours.map((_, index) => (
+                <Row length={days.length} key={index} isFirst={index === 0} />
+              ))}
+              {/* <Indicator week={week} hours={hours} length={days.length} /> */}
+            </section>
+          </article>
+        </div>
+      </GridContext.Provider>
+    </>
   );
 };
 
@@ -199,7 +203,6 @@ export const Row = ({
 
 const VirtualMatrix = ({ children }: { children: ReactNode }) => {
   const { hours, days } = useContext(GridContext);
-  console.log("HOURS;DAYS", hours, days);
 
   return (
     <div
@@ -228,7 +231,9 @@ const BasicBox = ({
   props?: any;
   box: BasicBoxType;
 }) => {
-  const { x, y } = useCoordinates({ date: box.date });
+  const { x, y, isVisible } = useCoordinates({ date: box.date });
+
+  if (!isVisible) return null;
   return (
     <div
       {...props}

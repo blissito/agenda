@@ -7,7 +7,7 @@ import {
   generateWeek,
   getMonday,
 } from "~/components/dash/agenda/agendaUtils";
-import { CalendarGrid } from "~/components/dash/agenda/calendarGrid.client";
+import { CalendarGrid } from "~/components/dash/agenda/calendarGrid";
 import { Paginator } from "~/components/dash/agenda/paginator";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 
@@ -89,23 +89,23 @@ export default function Page() {
         onToday={() => setMonday(getMonday())}
         start={monday.getDate()}
         end={week[daysShown.length - 1].date?.getDate()}
-        onPrev={() => updateMonday(1)}
-        onNext={() => updateMonday(-1)}
+        onPrev={() => updateMonday(-1)}
+        onNext={() => updateMonday(1)}
       />
-      <Suspense
+      {/* <Suspense
         fallback={
           <div className="h-screen flex items-center justify-center text-brand_blue opacity-70">
             Cargando calendario...
           </div>
         }
-      >
-        <CalendarGrid
-          boxes={events}
-          hours={generateHours({ fromHour, toHour })}
-          week={week}
-          days={daysShown}
-        />
-      </Suspense>
+      > */}
+      <CalendarGrid
+        boxes={events}
+        hours={generateHours({ fromHour, toHour })}
+        week={week}
+        days={daysShown}
+      />
+      {/* </Suspense> */}
     </>
   );
 }
