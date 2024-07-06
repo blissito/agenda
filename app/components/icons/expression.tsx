@@ -12,7 +12,7 @@ export const Expression = ({
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <g clip-path="url(#clip0_475_2049)">
+    <g clipPath="url(#clip0_475_2049)">
       <mask
         id="mask0_475_2049"
         style={{ maskType: "luminance" }}
@@ -31,9 +31,9 @@ export const Expression = ({
         <path
           d="M31.548 14.5828C29.4274 11.5553 26.994 8.08154 25.3576 5.74548M24.2276 18.3802C20.5326 15.7192 16.2928 12.6659 13.4416 10.6127M22.1678 26.7121C18.649 26.0912 14.6112 25.3788 11.8959 24.8997"
           stroke="#5158F6"
-          stroke-width="4"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </g>
     </g>

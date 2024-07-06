@@ -1,12 +1,14 @@
+import { twMerge } from "tailwind-merge";
+
 export const Rocket = ({
   fill = "#5158F6",
-  ...props
+  className = "className",
 }: {
   fill?: string;
-  props?: unknown;
+  className?: string;
 }) => (
   <svg
-    {...props}
+    className={twMerge(className)}
     width="64"
     height="64"
     viewBox="0 0 64 64"
