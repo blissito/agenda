@@ -1,10 +1,12 @@
+import { transform } from "framer-motion";
 import type { Config } from "tailwindcss";
 
 export default {
   content: ["./app/**/*.{js,jsx,ts,tsx}"],
   theme: {
     fontFamily: {
-      body: ['"Satoshi Medium"'],
+      body: ['"Satoshi"'],
+      body_bold: ['"Satoshi Medium"'],
     },
     extend: {
       colors: {
@@ -19,6 +21,7 @@ export default {
       },
       animation: {
         "meteor-effect": "meteor 5s linear infinite",
+        "vibration-effect": "vibration .5s ease",
       },
       keyframes: {
         meteor: {
@@ -28,6 +31,13 @@ export default {
             transform: "rotate(215deg) translateX(-500px)",
             opacity: "0",
           },
+        },
+        vibration: {
+          "0%": { transform: "rotate(10deg)" },
+          "25%": { transform: "rotate(-10deg)" },
+          "50%": { transform: "rotate(10deg)" },
+          "75%": { transform: "rotate(-10deg)" },
+          "100%": { transform: "rotate(0deg)" },
         },
       },
     },

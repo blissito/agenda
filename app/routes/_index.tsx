@@ -1,7 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Calendar } from "~/components/icons/calendar";
-import { PrimaryButton } from "~/components/common/primaryButton";
+import { PrimaryButton } from "~/components/common/PrimaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { TopBar } from "~/components/common/topBar";
 import { LineSteak } from "~/components/icons/lineSteak";
@@ -12,6 +12,10 @@ import { Meteors } from "~/components/home/Meteors";
 import { Banner } from "~/components/home/Banner";
 import { Benefits } from "~/components/home/Benefits";
 import { CompaniesScroll } from "~/components/home/CompaniesScroll";
+import { BlogPreview } from "~/components/home/BlogPreview";
+import { FinalCta } from "~/components/home/FinalCta";
+import { Footer } from "~/components/common/Footer";
+import { twMerge } from "tailwind-merge";
 
 export const meta: MetaFunction = () => {
   return [
@@ -22,23 +26,29 @@ export const meta: MetaFunction = () => {
 
 export default function Index() {
   return (
-    <main>
-      <TopBar />
-      <Hero />
-      <ScrollReviews />
-      <Features />
-      <Banner />
-      <Benefits />
-      <CompaniesScroll />
-      <Benefits />
+    <main className="bg-brand_dark">
+      <div className="bg-white rounded-b-[40px]">
+        <TopBar />
+        <Hero />
+        <ScrollReviews />
+        <Features />
+        <Banner />
+        <Benefits />
+        <CompaniesScroll />
+        <BlogPreview />
+        <FinalCta />
+      </div>
+      <Footer />
     </main>
   );
 }
 
 export const Features = ({ ...props }: { props?: unknown }) => (
   <section className="max-w-7xl mx-auto pt-[240px]">
-    <h2 className="text-6xl font-bold text-center">
-      Impulsa tu negocio con Deník
+    <h2 className="group text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+      <span className="mr-4"> Impulsa</span>
+      <Rocket className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
+      <span className="ml-4"> tu </span> negocio con Deník
     </h2>
     <div className="flex justify-between items-center mt-[120px]">
       <div className="pr-12">
@@ -91,7 +101,7 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
       <div className="w-[320px] flex justify-center">
         <LineSteak />
       </div>
-      <CardSmall />
+      <CardSmall className="" />
       <CardImage />
       <CardLarge />
     </div>
@@ -110,8 +120,19 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
   </section>
 );
 
-export const CardSmall = ({ ...props }: { props?: unknown }) => (
-  <section className="shadow-[0px_12px_32px_0px_#00000014] w-[340px] rounded-lg	p-6 relative  ">
+export const CardSmall = ({
+  className,
+  ...props
+}: {
+  props?: unknown;
+  className?: string;
+}) => (
+  <section
+    className={twMerge(
+      "shadow-[0px_12px_32px_0px_#00000014] w-[340px] rounded-lg	p-6 relative",
+      className
+    )}
+  >
     <article className="flex gap-3">
       <img
         className="w-10 h-10 rounded-full object-cover"

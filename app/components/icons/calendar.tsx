@@ -1,13 +1,18 @@
+import { twMerge } from "tailwind-merge";
+
 export const Calendar = ({
   fill = "#5158F6",
+  className = "className",
 }: {
   fill?: string;
   props?: unknown;
+  className?: string;
 }) => (
   <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
+    className={twMerge(className)}
+    width="64"
+    height="64"
+    viewBox="0 0 64 64"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
   >
