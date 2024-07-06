@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
+
+@font-face {
+  font-family: "Satoshi Medium";
+  src: url("/fonts/Satoshi-Regular.ttf");
+}
+
+html {
+  --bg-mask-color: red;
+}
+
+/* Header for all website titles */
+h1,
+h2,
+h3 {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.overlay {
+  background-color: white;
+  padding: 80px;
+  mask-image: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    black 40%,
+    transparent 50%
+  );
+}
