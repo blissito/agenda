@@ -1,7 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Calendar } from "~/components/icons/calendar";
-import { PrimaryButton } from "~/components/common/PrimaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { TopBar } from "~/components/common/topBar";
 import { LineSteak } from "~/components/icons/lineSteak";
@@ -16,6 +15,7 @@ import { BlogPreview } from "~/components/home/BlogPreview";
 import { FinalCta } from "~/components/home/FinalCta";
 import { Footer } from "~/components/common/Footer";
 import { twMerge } from "tailwind-merge";
+import { PrimaryButton } from "~/components/common/primaryButton";
 
 export const meta: MetaFunction = () => {
   return [

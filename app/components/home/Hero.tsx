@@ -1,4 +1,4 @@
-import { PrimaryButton } from "../common/PrimaryButton";
+import { PrimaryButton } from "../common/primaryButton";
 import { SecondaryButton } from "../common/secondaryButton";
 import { ArrowRight } from "../icons/arrowRight";
 import { Calendar } from "../icons/calendar";
