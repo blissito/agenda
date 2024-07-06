@@ -2,7 +2,7 @@ import { CardLarge, CardSmall } from "~/routes/_index";
 import { LineSteak } from "../icons/lineSteak";
 import { ArrowRight } from "../icons/arrowRight";
 import { People } from "../icons/people";
-import { PrimaryButton } from "../common/PrimaryButton";
+import { PrimaryButton } from "../common/primaryButton";
 
 export const FinalCta = ({ ...props }: { props?: unknown }) => (
   <section className="max-w-7xl w-full mx-auto  text-center h-[800px] overflow-hidden relative">

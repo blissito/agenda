@@ -1,7 +1,8 @@
 import { type ReactNode } from "react";
 import { Denik } from "../icons/denik";
-import { PrimaryButton } from "./PrimaryButton";
+
 import { ArrowRight } from "../icons/arrowRight";
+import { PrimaryButton } from "./primaryButton";
 
 export const TopBar = ({ ...props }: { props?: unknown }) => (
   <section className=" fixed flex justify-center w-full z-50">
