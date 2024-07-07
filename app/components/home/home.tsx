@@ -7,7 +7,7 @@ import { twMerge } from "tailwind-merge";
 import { Rocket } from "../icons/rocket";
 import { Expression } from "../icons/expression";
 
-export const Hero = ({ ...props }: { props?: unknown }) => (
+export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center ">
     <div className="w-full h-full px-[18%]">
       <h1 className="group text-7xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
@@ -62,6 +62,7 @@ export const CardSmall = ({
   className?: string;
 }) => (
   <section
+    {...props}
     className={twMerge(
       "shadow-[0px_12px_32px_0px_#00000014] w-[340px] rounded-lg	p-6 relative",
       className
@@ -87,7 +88,7 @@ export const CardSmall = ({
     </span>
   </section>
 );
-export const CardLarge = ({ ...props }: { props?: unknown }) => (
+export const CardLarge = () => (
   <section className="shadow-[0px_12px_32px_0px_#00000014] w-[240px] h-[380px] rounded-lg	p-6 relative ">
     <article className="flex gap-3">
       <img
@@ -110,7 +111,7 @@ export const CardLarge = ({ ...props }: { props?: unknown }) => (
   </section>
 );
 
-export const CardImage = ({ ...props }: { props?: unknown }) => (
+export const CardImage = () => (
   <section className=" w-[420px] rounded-lg	p-6 h-[280px]  relative">
     <span className=" absolute -left-2 -top-2">
       <Expression />
@@ -120,5 +121,57 @@ export const CardImage = ({ ...props }: { props?: unknown }) => (
       className="w-full h-full object-cover"
       src="https://images.pexels.com/photos/3993472/pexels-photo-3993472.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
     />
+  </section>
+);
+
+export const Features = () => (
+  <section className="max-w-7xl mx-auto pt-[240px]">
+    <h2 className="group text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+      <span className="mr-4"> Impulsa</span>
+      <Rocket className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
+      <span className="ml-4"> tu </span> negocio con Deník
+    </h2>
+    <div className="flex justify-between items-center mt-[120px]">
+      <div className="pr-12">
+        <h2 className="font-bold text-4xl text-brand_dark">
+          No más citas olvidadas: Controla y automatiza tu agenda{" "}
+        </h2>
+        <p className="text-brand_gray text-2xl font-body mt-6 mb-16">
+          Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
+          ¡Ahora tienes el control!
+        </p>
+        <PrimaryButton>
+          Crear agenda <ArrowRight />
+        </PrimaryButton>
+      </div>
+      <img alt="" className="w-[50%]" src="/images/agenda.png" />
+    </div>
+    <div className="flex justify-between items-center mt-[160px]">
+      <img alt="" className="w-[50%]" src="/images/notification.png" />
+      <div className="pl-12">
+        <h2 className="font-bold text-4xl text-brand_dark">
+          ¡Que no te dejen plantado! Envía recordatorios por email y whats app
+        </h2>
+        <p className="text-brand_gray text-2xl font-body mt-6 mb-16">
+          Evita pérdidas de tiempo y dinero: confirmamos tus citas y enviamos
+          recordatorios a tus clientes para que no las olviden.
+        </p>
+      </div>
+    </div>
+    <div className="flex justify-between items-center mt-[160px]">
+      <div className="pr-12">
+        <h2 className="font-bold text-4xl text-brand_dark">
+          No pierdas más clientes, recibe pagos en línea
+        </h2>
+        <p className="text-brand_gray text-2xl font-body mt-6 mb-16">
+          Ofrece más alternativas de pago a tus clientes o pacientes con pagos
+          desde tu sitio web.
+        </p>
+        <PrimaryButton>
+          Probar gratis <ArrowRight />
+        </PrimaryButton>
+      </div>
+      <img alt="" className="w-[50%]" src="/images/payment.png" />
+    </div>
   </section>
 );

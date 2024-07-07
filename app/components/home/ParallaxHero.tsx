@@ -16,11 +16,13 @@ export const ParallaxHero = ({ children }: { children: ReactNode }) => {
   });
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]); // when Y=0 => scale=1
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "150%"]); // when Y=1 => y=150%
+  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.3], [1, 1, 0]);
 
   return (
     <motion.div ref={target} className="">
       <motion.div
         style={{
+          opacity,
           scale: scale,
           y,
         }}
@@ -30,7 +32,7 @@ export const ParallaxHero = ({ children }: { children: ReactNode }) => {
       <motion.div
         className="bg-white"
         style={{
-          y: -1,
+          y: -1, // in order to cover hero with bg
         }}
       >
         {section}
