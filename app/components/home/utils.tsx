@@ -53,8 +53,9 @@ export const icons = [
 //   <Item icon={<Barbershop />} title="Barbería" />
 // ));
 
-export const muchos = Array.from({ length: 1 })
+export const muchos: ReactNode[] = Array.from({ length: 1 })
   .concat(icons)
   .concat(icons)
-  .concat(icons);
+  .concat(icons) as ReactNode[];
+
 // .concat(icons.slice(0, 20));
