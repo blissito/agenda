@@ -59,6 +59,4 @@ export const muchos: ReactNode[] = icons
 
 export const pocos: ReactNode[] = icons.concat(icons) as ReactNode[];
 
-console.log(muchos);
-
 // .concat(icons.slice(0, 20));
