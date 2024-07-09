@@ -27,35 +27,55 @@ const MONTHS = [
 ];
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loader = async () => {
+  const date = new Date();
+  const today = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    9
+  );
+  const tomorrow = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + 1,
+    10
+  );
+  const pastTomorrow = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate() + 2,
+    12
+  );
+
   return {
     events: [
       {
         id: 1,
         title: "Charles Chaplin",
         text: "Clase de música",
-        date: new Date(2024, 6, 1, 10),
+        date: today,
       },
       {
         id: 2,
         title: "Julio Cortazar",
         text: "Clase de literatura",
-        date: new Date(2024, 6, 5, 13),
+        date: tomorrow,
       },
       {
         id: 3,
         title: "Jorge Luis Borges",
         text: "Clase de literatura inglesa",
-        date: new Date(2024, 6, 4, 14),
+        date: pastTomorrow,
       },
       {
-        id: 3,
+        id: 4,
         title: "Roberto Bolaño",
         text: "Clase de ensayo",
-        date: new Date(2024, 6, 2, 12),
+        date: new Date(2024, 6, 9, 9),
       },
     ] as BasicBoxType[],
-    fromHour: 9,
-    toHour: 19,
+    fromHour: 12,
+    toHour: 17,
     daysShown: [
       "lunes",
       "martes",

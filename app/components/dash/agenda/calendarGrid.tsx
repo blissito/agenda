@@ -1,7 +1,16 @@
 import { twMerge } from "tailwind-merge";
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  createRef,
+  ReactNode,
+  Ref,
+  useContext,
+  useState,
+} from "react";
 import { BasicBoxType, Day } from "./agendaUtils";
 import { HourOrDay, useCoordinates } from "~/components/hooks/useCoordinates";
+// animation stuff
+import { motion, useDragControls } from "framer-motion";
 
 export const GridContext = createContext<{
   hours: HourOrDay[];
@@ -24,6 +33,7 @@ export const CalendarGrid = ({
   week: Day[];
   days: string[];
 }) => {
+  const virtualMatrixRef = createRef();
   const checkIfIsToday = (date: Date) =>
     date.getDate() === new Date().getDate() &&
     date.getMonth() === new Date().getMonth();
@@ -91,9 +101,17 @@ export const CalendarGrid = ({
             <section className="flex-1 relative">
               {/* Events */}
               <VirtualMatrix>
-                {boxes.map((box) => (
-                  <BasicBox box={box} key={box.id} />
-                ))}
+                {/* {boxes.map((box, i) => (
+                  <BasicBox box={box} key={i} />
+                ))} */}
+                <BasicBox
+                  constrains={virtualMatrixRef}
+                  key="perro"
+                  box={{
+                    date: new Date("2024-07-10T01:00:00.000+06:00"),
+                    title: "BLISSMO",
+                  }}
+                />
               </VirtualMatrix>
               {/* Actual grid */}
               {hours.map((_, index) => (
@@ -125,7 +143,7 @@ export const Indicator = ({
     new Date().toLocaleString("en", { timeZone: "America/Mexico_City" })
   );
 
-  console.log("TODAY: ", today);
+  // console.log("TODAY: ", today);
 
   const hour = today.getHours();
   const minutes = today.getMinutes();
@@ -225,17 +243,46 @@ const VirtualMatrix = ({ children }: { children: ReactNode }) => {
 // necesitamos transladar date => {day(date), time(hour)} =>x,y
 
 const BasicBox = ({
+  // constrains,
   box = { date: new Date() },
   ...props
 }: {
+  // constrains: Ref;
   props?: any;
   box: BasicBoxType;
 }) => {
   const { x, y, isVisible } = useCoordinates({ date: box.date });
 
+  const dragControls = useDragControls();
+
+  function startDrag(event) {
+    dragControls.start(event, { snapToCursor: true });
+  }
+
+  console.log("CONTROLS: ", dragControls);
+
   if (!isVisible) return null;
   return (
-    <div
+    <motion.div
+      drag
+      // dragConstraints={{ top: 200 }}
+      whileTap={{ boxShadow: "0px 0px 15px rgba(0,0,0,0.2)" }}
+      dragControls={dragControls}
+      dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
+      dragSnapToOrigin
+      whileDrag={{ scale: 1.1 }}
+      onDragStart={(e) => {
+        e.target.classList.remove("cursor-grab");
+        e.target.classList.add("bg-gray-200");
+        e.target.classList.add("cursor-grabbing");
+      }}
+      onDragEnd={(e) => {
+        e.target.classList.remove("bg-gray-200");
+        e.target.classList.remove("cursor-grabbing");
+        e.target.classList.add("cursor-grab");
+        e.target.classList.add("bg-brand_yyellow");
+      }}
+      // dragConstraints={constrains}
       {...props}
       style={{
         gridColumnStart: x,
@@ -244,12 +291,12 @@ const BasicBox = ({
       className={twMerge(
         "relative rounded-xl overflow-hidden bg-brand_yellow pb-4 px-3",
         // "w-full h-[90%]",
-        ""
+        "cursor-grab"
       )}
     >
       <h6 className="text-sm"> {box.title}</h6>
       <p className="text-gray-400 text-xs truncate">{box.text}</p>
       <div className="absolute left-0 top-0 w-[5px] bg-yellow-500 h-full" />
-    </div>
+    </motion.div>
   );
 };

@@ -11,7 +11,7 @@ export const useCoordinates = ({ date }: { date: Date }) => {
   const { hours, days, week } = useContext(GridContext);
   const monthWeek = new Date(date).getMonth();
   const dateMonth = new Date(week[4].date).getMonth(); // @TODO maybe week need to know the months?
-  const day = new Date(date).getDay();
+  const day = new Date(date).getDate();
   const hour = new Date(date).getHours() === 0 ? 24 : new Date(date).getHours();
   const y = hours.findIndex((h) => h.number === hour) + 1;
   const x = days.findIndex((d) => d.number === day) + 1;
