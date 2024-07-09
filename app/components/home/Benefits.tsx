@@ -3,20 +3,20 @@ import { Star } from "../icons/star";
 export const Benefits = ({ ...props }: { props?: unknown }) => (
   <section className="overflow-hidden relative">
     <img
-      className="absolute -left-20 hover:animate-pulse transition-all"
+      className="absolute -left-20 hover:animate-pulse transition-all w-[148px] lg:w-[298px]"
       src="/images/line.svg"
     />
     <img
-      className="absolute -right-20 bottom-0 rotate-180 hover:animate-pulse transition-all"
+      className="absolute -right-20 bottom-0 rotate-180 hover:animate-pulse transition-all w-[148px] lg:w-[298px]"
       src="/images/line.svg"
     />
     <div className="max-w-7xl w-full mx-auto my-[160px] text-center">
-      <h2 className="group text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+      <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
         <span className="mr-4"> Todo lo que tu negocio</span>
-        <Star className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
+        <Star className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
         <span className="ml-4">necesita </span>
       </h2>
-      <div className="mt-20 flex justify-between flex-wrap gap-y-12">
+      <div className="mt-20 flex justify-center md:justify-between flex-wrap gap-y-12">
         <ItemCard
           image="/images/ilustration/agenda.svg"
           title="Agenda en línea"

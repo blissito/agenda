@@ -30,7 +30,7 @@ export const ParallaxHero = ({ children }: { children: ReactNode }) => {
         {hero}
       </motion.div>
       <motion.div
-        className="bg-white"
+        className=" bg-white"
         style={{
           y: -1, // in order to cover hero with bg
         }}

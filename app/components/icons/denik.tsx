@@ -1,10 +1,12 @@
 export const Denik = ({
   fill = "#5158F6",
+  className,
 }: {
   fill?: string;
-  props?: unknown;
+  className?: string;
 }) => (
   <svg
+    className={className}
     width="124"
     height="56"
     viewBox="0 0 124 56"
