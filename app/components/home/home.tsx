@@ -10,9 +10,14 @@ import { Expression } from "../icons/expression";
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center ">
     <div className="w-full h-full px-[5%] xl:px-[18%]">
-      <h1 className="group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
-        <span>Administra la</span>
+      <h1 className="md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+        <span>Administra la agenda</span>
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4" />{" "}
+        de tu negocio en un solo lugar
+      </h1>
+      <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex-wrap items-center text-center justify-center ">
+        <span>Administra la</span>
+        <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4 lg:w-16 lg:h-16" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
       <p className="text-xl lg:text-2xl text-brand_gray font-body mt-6">
@@ -30,8 +35,8 @@ export const Hero = () => (
 );
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-28 z-60 overflow-hidden pb-12 w-full items-center ">
-    <div className="flex justify-center xl:justify-between pr-0   gap-10 lg:gap-20 ">
+  <section className="flex flex-col gap-0 md:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:justify-center ">
+    <div className="flex justify-center xl:justify-between pr-0  gap-10 lg:gap-20 ">
       <div className="w-[120px] lg:w-[320px] flex justify-center">
         <LineSteak />
       </div>
@@ -209,7 +214,7 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No más citas olvidadas: Controla y automatiza tu agenda{" "}
         </h2>
-        <p className="text-brand_gray text-lg lg:text-2xl font-body mt-3 lg:mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-3 lg:mt-6 mb-16">
           Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
           ¡Ahora tienes el control!
         </p>
@@ -233,7 +238,7 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           ¡Que no te dejen plantado! Envía recordatorios por email y whats app
         </h2>
-        <p className="text-brand_gray text-lg lg:text-2xl font-body mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-6 mb-16">
           Evita pérdidas de tiempo y dinero: confirmamos tus citas y enviamos
           recordatorios a tus clientes para que no las olviden.
         </p>
@@ -244,7 +249,7 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No pierdas más clientes, recibe pagos en línea
         </h2>
-        <p className="text-brand_gray text-lg lg:text-2xl font-body mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-6 mb-16">
           Ofrece más alternativas de pago a tus clientes o pacientes con pagos
           desde tu sitio web.
         </p>

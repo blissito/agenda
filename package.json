@@ -12,6 +12,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.2",
     "@prisma/client": "^5.16.1",
     "@remix-run/node": "^2.9.2",
     "@remix-run/react": "^2.9.2",

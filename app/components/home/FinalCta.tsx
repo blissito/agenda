@@ -3,19 +3,13 @@ import { ArrowRight } from "../icons/arrowRight";
 import { People } from "../icons/people";
 import { PrimaryButton } from "../common/primaryButton";
 import { CardLarge, CardSmall } from "./home";
+import { ReactNode } from "react";
 
-export const FinalCta = ({ ...props }: { props?: unknown }) => (
+export const FinalCta = ({ children }: { children?: ReactNode }) => (
   <section className="w-full h-[640px] md:h-[800px] overflow-hidden">
     <section className="max-w-7xl w-full mx-auto h-[640px] md:h-[800px]  text-center  relative ">
       <div className="flex flex-col justify-center h-full items-center -mt-20 md:-mt-16 leading-normal ">
-        <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
-          <span className="mr-4">Tu agenda. </span>
-          <People className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
-          <span className="ml-4"> Tus clientes.</span>
-        </h2>
-        <h2 className="text-4xl lg:text-6xl font-bold  text-brand_dark mb-16 leading-normal ">
-          Tu negocio.
-        </h2>
+        {children}
         <PrimaryButton>
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton>

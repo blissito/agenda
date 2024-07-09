@@ -20,6 +20,9 @@ h2,
 h3 {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
+p {
+  font-family: "Satoshi ";
+}
 
 .overlay {
   background-color: white;
