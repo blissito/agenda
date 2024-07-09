@@ -18,47 +18,47 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
       </h2>
       <div className="mt-20 flex justify-center md:justify-between flex-wrap gap-y-12">
         <ItemCard
-          image="/images/ilustration/agenda.svg"
+          image="/images/illustrations/agenda.svg"
           title="Agenda en línea"
           description="Digitaliza tu agenda y organiza tu día a día. Facilita a tus clientes la agenda en línea"
         />
         <ItemCard
-          image="/images/ilustration/TV.svg"
+          image="/images/illustrations/TV.svg"
           title="Sitio web para citas"
           description="Personaliza tu sitio web, permite que tus clientes te conozcan y agenden por internet"
         />
         <ItemCard
-          image="/images/ilustration/announcement.svg"
+          image="/images/illustrations/announcement.svg"
           title="Recordatorios automáticos"
           description="Automatiza el envío de recordatorios a tus clientes después de cada cita"
         />
         <ItemCard
-          image="/images/ilustration/banking-app.svg"
+          image="/images/illustrations/banking-app.svg"
           title="Pagos en línea"
           description="Permite que tus clientes paguen en línea, de contado o a meses sin intereses"
         />
         <ItemCard
-          image="/images/ilustration/chill.svg"
+          image="/images/illustrations/chill.svg"
           title="Fidelización de clientes"
           description="Utiliza nuestro programa de lealtad y ofrece descuentos o recompensas a tus clientes"
         />
         <ItemCard
-          image="/images/ilustration/messages.svg"
+          image="/images/illustrations/messages.svg"
           title="Encuestas de satisfacción"
           description="No dejes de mejorar tus servicios, y programa encuestas después de cada cita"
         />
         <ItemCard
-          image="/images/ilustration/ticket.svg"
+          image="/images/illustrations/ticket.svg"
           title="Tarjetas de regalo"
           description="Ofrece recompensas a tus clientes más fieles, escoge entre más de 20 tarjetas de regalo"
         />
         <ItemCard
-          image="/images/ilustration/atm-machine.svg"
+          image="/images/illustrations/atm-machine.svg"
           title="Sistema de caja"
           description="Lleva un registro diario, semanal o mensual de tus pagos "
         />
         <ItemCard
-          image="/images/ilustration/medical-folder.svg"
+          image="/images/illustrations/medical-folder.svg"
           title="Expediente para tus clientes"
           description="Administra la información de tus clientes/pacientes de forma digital, segura y accesible"
         />
