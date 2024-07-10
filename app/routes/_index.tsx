@@ -8,10 +8,11 @@ import { FinalCta } from "~/components/home/FinalCta";
 import { Footer } from "~/components/common/Footer";
 import { ParallaxHero } from "~/components/home/ParallaxHero";
 import { Features, Hero, ScrollReviews } from "~/components/home/home";
+import { People } from "~/components/icons/people";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
+    { title: "Deník | Tu agenda en un solo lugar" },
     { name: "description", content: "Welcome to Remix!" },
   ];
 };
@@ -30,7 +31,16 @@ export default function Index() {
         <Benefits />
         <CompaniesScroll />
         <BlogPreview />
-        <FinalCta />
+        <FinalCta>
+          <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+            <span className="mr-4">Tu agenda. </span>
+            <People className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
+            <span className="ml-4"> Tus clientes.</span>
+          </h2>
+          <h2 className="text-4xl lg:text-6xl font-bold  text-brand_dark mb-16 leading-normal ">
+            Tu negocio.
+          </h2>
+        </FinalCta>
       </div>
       <Footer />
     </main>
