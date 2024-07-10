@@ -63,9 +63,9 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         img="https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
     </div>
-    <div className="flex justify-between   gap-10 md:gap-20">
+    <div className="flex justify-between gap-10 md:gap-20">
       <CardSmall
-        className="rotate-[4deg] -mt-28 "
+        className="rotate-[4deg] mt-0 md:-mt-28 "
         name="Catalina López"
         rol="Maestra de inglés"
         comment="Deník es un sistema completo de administración que me ha permitido organizar mis citas de forma digital."
@@ -149,7 +149,7 @@ export const CardSmall = ({
         <p className="text-xs lg:text-sm text-brand_gray font-satoshi">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-satoshi">
+    <p className="text-lg lg:text-2xl font-satoMedium text-brand_dark ">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
@@ -195,7 +195,7 @@ export const CardLarge = ({
         <p className="text-xs lg:text-sm text-brand_gray">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-satoshi">
+    <p className="text-lg lg:text-2xl font-satoMedium text-brand_dark ">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
