@@ -52,7 +52,7 @@ export const Faq = () => (
       <Bubble className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
       <span className="ml-4"> frecuentes</span>
     </h2>
-    <div className="mt-12 md:mt-20">
+    <div className="mt-20">
       <Question
         question="¿Cómo funciona la suscripción?"
         answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
@@ -86,38 +86,36 @@ export const Question = ({
   answer,
 }: {
   question: string;
-  answer: ReactNode;
+  answer: string;
 }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="w-full border-b-[1px] border-brand_pale">
-      <AnimatePresence>
-        <button
-          className="w-full px-6 py-8 text-xl md:text-2xl font-medium text-left flex justify-between"
-          onClick={() => {
-            setOpen((o) => !o);
-          }}
-        >
-          <h3 className="w-[90%]">{question}</h3>
-          {open ? (
-            <ArrowCollapse className="rotate-180 transition-all" />
-          ) : (
-            <ArrowCollapse className="transition-all" />
-          )}
-        </button>
-
+    <div className="border-b-brand_pale border-b-[1px]">
+      <button
+        className="w-full px-6 py-8 text-xl md:text-2xl font-medium text-left flex justify-between"
+        onClick={() => {
+          setOpen((o) => !o);
+        }}
+      >
+        <p className="w-[90%]">{question}</p>
+        {open ? (
+          <ArrowCollapse className="rotate-180 transition-all" />
+        ) : (
+          <ArrowCollapse className="transition-all" />
+        )}
+      </button>
+      <AnimatePresence initial={false}>
         {open && (
           <motion.div
-            key={question}
-            layout
-            className="pb-8 px-6 text-lg text-brand_gray font-body"
-            initial={{ opacity: 0, y: -24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -24, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: easeOut }}
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ type: "spring", duration: 0.4, bounce: 0 }}
           >
-            {answer}
+            <p className="text-lg text-brand_gray font-body px-6 pb-8">
+              {answer}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
