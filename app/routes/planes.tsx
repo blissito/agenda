@@ -5,19 +5,14 @@ import { Footer } from "~/components/common/Footer";
 import { Rocket } from "~/components/icons/rocket";
 import { HandShake } from "~/components/icons/handshake";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Check } from "~/components/icons/check";
 import { Lamp } from "~/components/icons/lamp";
 import { Banner } from "~/components/home/Banner";
-import {
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-} from "@headlessui/react";
 import { AnimatePresence, easeOut, motion } from "framer-motion";
-import { ArrowDown } from "~/components/icons/ArrowDown";
 import { Bubble } from "~/components/icons/Bubble";
+import { ArrowCollapse } from "~/components/icons/arrowCollapse";
 
 export const meta: MetaFunction = () => {
   return [
@@ -40,7 +35,7 @@ export default function Index() {
             <Lamp className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
             <span className="ml-4"> más.</span>
           </h2>
-          <h2 className="text-4xl lg:text-6xl font-bold  text-brand_dark mb-16 leading-normal ">
+          <h2 className="text-4xl lg:text-6xl font-bold  text-brand_dark mb-16 mt-4 leading-normal ">
             ¡Empieza ahora!
           </h2>
         </FinalCta>
@@ -55,31 +50,31 @@ export const Faq = () => (
     <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4">Preguntas </span>
       <Bubble className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
-      <span className="ml-4"> Frecuentes</span>
+      <span className="ml-4"> frecuentes</span>
     </h2>
     <div className="mt-12 md:mt-20">
       <Question
-        question="¿Cómo se realiza el cobro?"
+        question="¿Cómo funciona la suscripción?"
         answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
       />
       <Question
-        question="¿Cómo se realiza el cobro?"
+        question="¿Puedo cambiar mi plan en cualquier momento?"
         answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
       />
       <Question
-        question="¿Cómo se realiza el cobro?"
+        question="¿Qué formas de pago aceptan?"
         answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
       />
       <Question
-        question="¿Cómo se realiza el cobro?"
+        question="¿Cuál es la comisión de los pagos en línea?"
         answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
       />
       <Question
-        question="¿Cómo se realiza el cobro?"
+        question="¿Puedo cancelar mi plan cuando yo quiera?"
         answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
       />
       <Question
-        question="¿Cómo se realiza el cobro?"
+        question="¿Qué hago si ya no tengo acceso al correo con el que creé mi cuenta?"
         answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
       />
     </div>
@@ -92,41 +87,49 @@ export const Question = ({
 }: {
   question: string;
   answer: ReactNode;
-}) => (
-  <Disclosure as="div" className="w-full ">
-    {({ open }) => (
-      <div className=" ">
-        <DisclosureButton className="w-full text-xl md:text-2xl  font-medium text-left border-b pb-2 flex justify-between px-6 py-8">
-          <h3>{question}</h3>
-          <ArrowDown />
-        </DisclosureButton>
-        <div className="overflow-hidden py-2 text-brand_gray text-lg px-6 font-body">
-          <AnimatePresence>
-            {open && (
-              <DisclosurePanel
-                static
-                as={motion.div}
-                initial={{ opacity: 0, y: -24 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -24 }}
-                transition={{ duration: 0.2, ease: easeOut }}
-                className="origin-top"
-              >
-                {answer}
-              </DisclosurePanel>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
-    )}
-  </Disclosure>
-);
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="w-full border-b-[1px] border-brand_pale">
+      <AnimatePresence>
+        <button
+          className="w-full px-6 py-8 text-xl md:text-2xl font-medium text-left flex justify-between"
+          onClick={() => {
+            setOpen((o) => !o);
+          }}
+        >
+          <h3 className="w-[90%]">{question}</h3>
+          {open ? (
+            <ArrowCollapse className="rotate-180 transition-all" />
+          ) : (
+            <ArrowCollapse className="transition-all" />
+          )}
+        </button>
+
+        {open && (
+          <motion.div
+            key={question}
+            layout
+            className="pb-8 px-6 text-lg text-brand_gray font-body"
+            initial={{ opacity: 0, y: -24, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -24, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: easeOut }}
+          >
+            {answer}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 export const Pricing = () => (
   <section className=" flex flex-col  justify-center text-center max-w-[90%] lg:max-w-7xl mx-auto pt-[160px] lg:pt-[16%] ">
     <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Digitaliza </span>
-      <HandShake className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
+      <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />{" "}
       tu negocio
     </h2>
     <p className="text-xl lg:text-2xl text-brand_gray font-body mt-6 w-full mx-auto md:w-[90%]">

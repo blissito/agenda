@@ -6,6 +6,7 @@ export const HandShake = ({
   className?: string;
 }) => (
   <svg
+    className={className}
     width="64"
     height="64"
     viewBox="0 0 64 64"

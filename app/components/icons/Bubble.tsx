@@ -1,10 +1,12 @@
 export const Bubble = ({
   fill = "#5158F6",
+  className,
 }: {
   fill?: string;
-  props?: unknown;
+  className?: string;
 }) => (
   <svg
+    className={className}
     width="64"
     height="64"
     viewBox="0 0 64 64"

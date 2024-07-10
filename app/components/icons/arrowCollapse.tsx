@@ -1,10 +1,12 @@
-export const ArrowDown = ({
+export const ArrowCollapse = ({
   fill = "#5158F6",
+  className,
 }: {
   fill?: string;
-  props?: unknown;
+  className?: string;
 }) => (
   <svg
+    className={className}
     width="40"
     height="40"
     viewBox="0 0 40 40"

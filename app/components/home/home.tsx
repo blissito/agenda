@@ -6,6 +6,12 @@ import { LineSteak } from "../icons/lineSteak";
 import { twMerge } from "tailwind-merge";
 import { Rocket } from "../icons/rocket";
 import { Expression } from "../icons/expression";
+import { Waves } from "../icons/waves";
+import { Arrow } from "../icons/arrow";
+import { ReactNode } from "react";
+import { Search } from "../icons/search";
+import { Thunder } from "../icons/thunder";
+import { Comment } from "../icons/comment";
 
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center ">
@@ -35,7 +41,7 @@ export const Hero = () => (
 );
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-0 md:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:justify-center ">
+  <section className="flex flex-col gap-0 md:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
     <div className="flex justify-center xl:justify-between pr-0  gap-10 lg:gap-20 ">
       <div className="w-[120px] lg:w-[320px] flex justify-center">
         <LineSteak />
@@ -52,14 +58,16 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         name="Luis Escobedo"
         rol="Entrenador"
         comment="Descubrí Deník hace poco, y es la agenda en línea más completa que he utilizado. "
+        icon={<Search />}
       />
     </div>
-    <div className="flex justify-between  pr-0  xl:pr-20 gap-10">
+    <div className="flex justify-between   gap-10 md:gap-20">
       <CardSmall
-        className="rotate-[4deg] "
+        className="rotate-[4deg] -mt-28 "
         name="Catalina López"
         rol="Maestra de inglés"
         comment="Deník es un sistema completo de administración que me ha permitido organizar mis citas de forma digital."
+        icon={<Thunder />}
       />
       <CardImage className="-rotate-[4deg] " img="/images/img1.jpg" />
       <CardLarge
@@ -67,16 +75,24 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         name="Georgina Hernández"
         rol="Estilista"
         comment="Deník me permite tener mis citas, clientes y ventas en solo lugar."
+        icon={<Comment />}
       />
       <CardImage className="-rotate-[4deg] " img="/images/img4.jpg" />
     </div>
-    <div className="flex justify-between  items-center  pr-0  xl:pr-20 gap-10">
-      <CardImage className="rotate-[4deg] " img="/images/img3.jpg" />
+    <div className="flex justify-between  items-center  gap-10 md:gap-20 relative">
+      <span className="absolute left-20  bottom-0">
+        <Arrow />
+      </span>
+      <span className="absolute right-28 -top-28">
+        <Waves />
+      </span>
+      <CardImage className="rotate-[4deg] -mt-28 " img="/images/img3.jpg" />
       <CardLarge
         className="-rotate-[4deg] "
         name="Jose Luis González"
         rol="Médico general"
         comment="Los recordatorios de Deník son la parte favorita de mis clientes, ahora ni ellos ni yo olvidamos las citas."
+        icon={<Search />}
       />
       <CardImage className="rotate-[4deg] " img="/images/img2.jpg" />
       <CardSmall
@@ -95,16 +111,18 @@ export const CardSmall = ({
   name,
   rol,
   comment,
+  icon,
 }: {
   img?: string;
   name: string;
   rol: string;
   comment: string;
   className?: string;
+  icon?: ReactNode;
 }) => (
   <section
     className={twMerge(
-      "group transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[240px] lg:w-[340px] h-[300px] lg:h-[400px] rounded-lg	p-6 relative flex flex-col justify-between",
+      " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[240px] lg:w-[340px] h-[300px] lg:h-[400px] rounded-lg	p-6 relative flex flex-col justify-between",
       className
     )}
   >
@@ -122,12 +140,14 @@ export const CardSmall = ({
         <h3 className="text-brand_dark font-bold text-sm xl:text-base">
           {name}
         </h3>
-        <p className="text-xs lg:text-sm text-brand_gray">{rol}</p>
+        <p className="text-xs lg:text-sm text-brand_gray font-body">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark">{comment}</p>
-    <span className=" absolute right-6 -bottom-8 group-hover:scale-75">
-      <Rocket />
+    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-body">
+      {comment}
+    </p>
+    <span className=" absolute right-6 -bottom-8 ">
+      {icon ? icon : <Rocket />}
     </span>
   </section>
 );
@@ -137,16 +157,18 @@ export const CardLarge = ({
   name,
   rol,
   comment,
+  icon,
 }: {
   className: string;
   img?: string;
   name: string;
   rol: string;
   comment: string;
+  icon?: ReactNode;
 }) => (
   <section
     className={twMerge(
-      "group transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[220px] lg:w-[280px] h-[380px] rounded-lg	p-6 relative flex flex-col justify-between",
+      " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[220px] lg:w-[280px] h-[380px] rounded-lg	p-6 relative flex flex-col justify-between",
       className
     )}
   >
@@ -167,9 +189,11 @@ export const CardLarge = ({
         <p className="text-xs lg:text-sm text-brand_gray">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark">{comment}</p>
-    <span className=" absolute right-6 -bottom-8 group-hover:scale-75">
-      <Rocket />
+    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-body">
+      {comment}
+    </p>
+    <span className=" absolute right-6 -bottom-8 ">
+      {icon ? icon : <Rocket />}
     </span>
   </section>
 );
@@ -183,11 +207,11 @@ export const CardImage = ({
 }) => (
   <section
     className={twMerge(
-      "group transition-all cursor-pointer w-[210px] h-[280px] lg:w-[420px] rounded-lg	p-6 xl:h-[280px]  relative",
+      " hover:scale-95 transition-all cursor-pointer w-[210px] h-[280px] lg:w-[420px] rounded-lg	p-6 xl:h-[280px]  relative",
       className
     )}
   >
-    <span className=" absolute -left-2 -top-2 group-hover:scale-125">
+    <span className=" absolute -left-2 -top-2 ">
       <Expression />
     </span>
     <img
