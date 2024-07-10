@@ -1,20 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer base {
-  @font-face {
-    font-family: "Satoshi";
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("/public/fonts/Satoshi-Regular.ttf") format("ttf");
-  }
-  @font-face {
-    font-family: "Satoshi Medium";
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url("/public/fonts/Satoshi-Medium.ttf") format("ttf");
-  }
-}

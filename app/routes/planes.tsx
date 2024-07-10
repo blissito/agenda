@@ -113,7 +113,7 @@ export const Question = ({
             exit={{ opacity: 0, height: 0 }}
             transition={{ type: "spring", duration: 0.4, bounce: 0 }}
           >
-            <p className="text-lg text-brand_gray font-body px-6 pb-8">
+            <p className="text-lg text-brand_gray font-satoshi px-6 pb-8">
               {answer}
             </p>
           </motion.div>
@@ -130,14 +130,14 @@ export const Pricing = () => (
       <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />{" "}
       tu negocio
     </h2>
-    <p className="text-xl lg:text-2xl text-brand_gray font-body mt-6 w-full mx-auto md:w-[90%]">
+    <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[90%]">
       Olvídate de los problemas administrativos. Únete a cientos de negocios que
       usan Deník. ¿Listo para empezar hoy mismo?
     </p>
     <div>
       <div className="flex gap-12 justify-center mt-16 flex-wrap">
         <PriceCard plan="Profesional" price="$199 mxn">
-          <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-body ">
+          <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
             <li className="flex gap-3">
               {" "}
               <Check /> Agenda en línea
@@ -171,7 +171,7 @@ export const Pricing = () => (
           </PrimaryButton>
         </PriceCard>
         <PriceCard plan="Enterprisse" price="$499 mxn">
-          <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-body  ">
+          <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi  ">
             <li className="flex gap-3">
               <Check /> Agenda en línea
             </li>
@@ -223,10 +223,12 @@ export const PriceCard = ({
       className="absolute w-[200px] -right-16 -top-12 md:-right-20 md:-top-10 opacity-0 group-hover:opacity-100  transition-all"
       src="/images/Rocket.gif"
     />
-    <span className="text-xl uppercase font-body_bold text-brand_blue ">
+    <span className="text-xl uppercase font-satoshi_bold text-brand_blue ">
       {plan}
     </span>
-    <p className="text-5xl md:text-6xl	font-body_bold font-bold mt-4">{price}</p>
+    <p className="text-5xl md:text-6xl	font-satoshi_bold font-bold mt-4">
+      {price}
+    </p>
     <div className="mt-8 h- w-full grow flex flex-col justify-between gap-12">
       {children}
     </div>

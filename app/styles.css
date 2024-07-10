@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 
-/* @font-face {
+@font-face {
   font-family: "Satoshi ";
   src: url("/fonts/Satoshi-Regular.ttf");
 }
@@ -8,7 +8,7 @@
 @font-face {
   font-family: "Satoshi Medium ";
   src: url("/fonts/Satoshi-Medium.ttf");
-} */
+}
 
 html {
   --bg-mask-color: red;
@@ -20,9 +20,14 @@ h2,
 h3 {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
-/* p {
+
+.font-satoshi {
   font-family: "Satoshi ";
-} */
+}
+
+.font-satoshiBold {
+  font-family: "Satoshi Medium";
+}
 
 .overlay {
   background-color: white;

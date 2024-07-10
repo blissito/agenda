@@ -8,7 +8,7 @@ export const Banner = ({ ...props }: { props?: unknown }) => (
     <h2 className="text-2xl lg:text-4xl text-white font-bold">
       ¡Prueba Deník y crece tu negocio!
     </h2>
-    <p className="text-xl lg:text-2xl text-brand_ash/80 mt-6 font-body">
+    <p className="text-xl lg:text-2xl text-brand_ash/80 mt-6 font-satoshi">
       Si tienes alguna duda, agenda un demo en línea para que nuestro equipo te
       muestres todo lo que puedes hacer con Denik. ¡Escríbenos!
     </p>

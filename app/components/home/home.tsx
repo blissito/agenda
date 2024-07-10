@@ -26,7 +26,7 @@ export const Hero = () => (
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4 md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
-      <p className="text-xl lg:text-2xl text-brand_gray font-body mt-6">
+      <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
         Agenda de manera sencilla, realiza cobros, manda recordatorios a tus
         clientes y envía encuestas de satisfacción
       </p>
@@ -146,10 +146,10 @@ export const CardSmall = ({
         <h3 className="text-brand_dark font-bold text-sm xl:text-base">
           {name}
         </h3>
-        <p className="text-xs lg:text-sm text-brand_gray font-body">{rol}</p>
+        <p className="text-xs lg:text-sm text-brand_gray font-satoshi">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-body">
+    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-satoshi">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
@@ -195,7 +195,7 @@ export const CardLarge = ({
         <p className="text-xs lg:text-sm text-brand_gray">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-body">
+    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-satoshi">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
@@ -244,7 +244,7 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No más citas olvidadas: Controla y automatiza tu agenda{" "}
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-3 lg:mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-3 lg:mt-6 mb-16">
           Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
           ¡Ahora tienes el control!
         </p>
@@ -268,7 +268,7 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           ¡Que no te dejen plantado! Envía recordatorios por email y whats app
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-16">
           Evita pérdidas de tiempo y dinero: confirmamos tus citas y enviamos
           recordatorios a tus clientes para que no las olviden.
         </p>
@@ -279,7 +279,7 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No pierdas más clientes, recibe pagos en línea
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-16">
           Ofrece más alternativas de pago a tus clientes o pacientes con pagos
           desde tu sitio web.
         </p>

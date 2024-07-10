@@ -82,6 +82,6 @@ export const ItemCard = ({
       src={image}
     />
     <h3 className="text-brand_dark text-2xl font-bold mt-6">{title}</h3>
-    <p className="text-brand_gray text-xl font-body mt-4">{description}</p>
+    <p className="text-brand_gray text-xl font-satoshi mt-4">{description}</p>
   </section>
 );
