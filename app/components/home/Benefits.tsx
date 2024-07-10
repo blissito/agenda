@@ -3,7 +3,7 @@ import { Star } from "../icons/star";
 export const Benefits = ({ ...props }: { props?: unknown }) => (
   <section className="overflow-hidden relative">
     <img
-      className="absolute -left-20 hover:animate-pulse transition-all w-[148px] lg:w-[298px]"
+      className="absolute -left-20 hover:animate-pulse transition-all w-[148px] lg:w-[298px "
       src="/images/line.svg"
     />
     <img
@@ -16,7 +16,7 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
         <Star className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
         <span className="ml-4">necesita </span>
       </h2>
-      <div className="mt-20 flex justify-center md:justify-between flex-wrap gap-y-12">
+      <div className="mt-20 flex justify-center xl:justify-between flex-wrap gap-y-12">
         <ItemCard
           image="/images/illustrations/agenda.svg"
           title="Agenda en línea"
@@ -76,7 +76,7 @@ export const ItemCard = ({
   title: string;
   description: string;
 }) => (
-  <section className="w-[400px] text-center group  transition-all cursor-pointer">
+  <section className="w-[320px] lg:w-[400px] text-center group  transition-all cursor-pointer">
     <img
       className="w-[100px] mx-auto group-hover:scale-90 transition-all"
       src={image}
