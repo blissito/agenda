@@ -32,13 +32,20 @@ const GridGallery = ({ images }: { images: string[] }) => {
       if (key === "Escape") {
         handleClose();
       }
+      if (key === "ArrowLeft") {
+        const n = selected - 1;
+        console.log("left: ", n);
+        set(n);
+      }
+      if (key === "ArrowRight") {
+        const n = selected + 1;
+        console.log("right: ", selected, n);
+        handleSelect(n);
+      }
     };
     addEventListener("keydown", handleKeyDown);
     return () => removeEventListener("keydown", handleKeyDown);
   }, []);
-
-  console.log("CACHE: ", cache);
-  console.log("Selected: ", selected);
 
   return (
     <article className="flex justify-center items-center h-screen bg-slate-950">
@@ -102,7 +109,7 @@ const Image = ({
               <>
                 <button
                   onClick={onClose}
-                  className="absolute inset-0 flex items-center bg-slate-950/80 transition-all px-[5%]"
+                  className="absolute inset-0 flex justify-center items-center bg-slate-950/80 transition-all px-[5%]"
                 >
                   <motion.img
                     role="button"
@@ -126,7 +133,6 @@ const Image = ({
               layoutId={src}
               className={twMerge(
                 "rounded-xl w-full h-full object-cover",
-                "absolute inset-0",
                 imageClassName
               )}
               alt="gallery pic"
