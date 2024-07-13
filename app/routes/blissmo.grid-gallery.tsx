@@ -109,12 +109,7 @@ const Image = ({
                     role="button"
                     onClick={onClick}
                     layoutId={src}
-                    className={twMerge(
-                      "rounded-xl object-cover",
-                      "z-20",
-                      "w-full",
-                      "h-full"
-                    )}
+                    className={twMerge("object-contain", "z-20")}
                     alt="gallery pic"
                     src={src}
                   />
