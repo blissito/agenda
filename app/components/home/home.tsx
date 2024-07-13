@@ -23,10 +23,10 @@ export const Hero = () => (
       </h1>
       <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
-        <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4 lg:w-16 lg:h-16" />{" "}
+        <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4 md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
-      <p className="text-xl lg:text-2xl text-brand_gray font-body mt-6">
+      <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
         Agenda de manera sencilla, realiza cobros, manda recordatorios a tus
         clientes y envía encuestas de satisfacción
       </p>
@@ -41,7 +41,7 @@ export const Hero = () => (
 );
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-0 md:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
+  <section className="flex flex-col gap-0 md:gap-16 lg:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
     <div className="flex justify-center xl:justify-between pr-0  gap-10 lg:gap-20 ">
       <div className="w-[120px] lg:w-[320px] flex justify-center">
         <LineSteak />
@@ -51,6 +51,7 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         name="Paola Alvarado"
         rol="Nutrióloga"
         comment="Desde que uso Deník, administrar mis citas es más fácil. Mis clientes agendan directamente en cualquier momento. "
+        img="https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
       <CardImage className="-rotate-[4deg]" />
       <CardLarge
@@ -59,15 +60,17 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         rol="Entrenador"
         comment="Descubrí Deník hace poco, y es la agenda en línea más completa que he utilizado. "
         icon={<Search />}
+        img="https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
     </div>
-    <div className="flex justify-between   gap-10 md:gap-20">
+    <div className="flex justify-between gap-10 md:gap-20">
       <CardSmall
-        className="rotate-[4deg] -mt-28 "
+        className="rotate-[4deg] mt-0 md:-mt-28 "
         name="Catalina López"
         rol="Maestra de inglés"
         comment="Deník es un sistema completo de administración que me ha permitido organizar mis citas de forma digital."
         icon={<Thunder />}
+        img="https://images.pexels.com/photos/3856027/pexels-photo-3856027.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
       <CardImage className="-rotate-[4deg] " img="/images/img1.jpg" />
       <CardLarge
@@ -75,6 +78,7 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         name="Georgina Hernández"
         rol="Estilista"
         comment="Deník me permite tener mis citas, clientes y ventas en solo lugar."
+        img="https://images.pexels.com/photos/3268732/pexels-photo-3268732.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         icon={<Comment />}
       />
       <CardImage className="-rotate-[4deg] " img="/images/img4.jpg" />
@@ -93,12 +97,14 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         rol="Médico general"
         comment="Los recordatorios de Deník son la parte favorita de mis clientes, ahora ni ellos ni yo olvidamos las citas."
         icon={<Search />}
+        img="https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
       <CardImage className="rotate-[4deg] " img="/images/img2.jpg" />
       <CardSmall
         className="-rotate-[4deg] "
         name="Paola Alvarado"
         rol="Couch"
+        img="https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg?auto=compress&cs=tinysrgb&w=800"
         comment="Desde que empecé a utilizar Deník he recibido más clientes, ya que para ellos es más fácil agendar y pagar citas en línea."
       />
     </div>
@@ -140,10 +146,10 @@ export const CardSmall = ({
         <h3 className="text-brand_dark font-bold text-sm xl:text-base">
           {name}
         </h3>
-        <p className="text-xs lg:text-sm text-brand_gray font-body">{rol}</p>
+        <p className="text-xs lg:text-sm text-brand_gray font-satoshi">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-body">
+    <p className="text-lg lg:text-2xl font-satoMedium text-brand_dark ">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
@@ -189,7 +195,7 @@ export const CardLarge = ({
         <p className="text-xs lg:text-sm text-brand_gray">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-bold text-brand_dark font-body">
+    <p className="text-lg lg:text-2xl font-satoMedium text-brand_dark ">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
@@ -227,18 +233,18 @@ export const CardImage = ({
 );
 
 export const Features = () => (
-  <section className="max-w-[90%] lg:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
+  <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
     <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Impulsa</span>
       <Rocket className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
       <span className="ml-4"> tu </span> negocio con Deník
     </h2>
-    <div className="flex justify-between items-center mt-[80px] lg:mt-[120px] flex-wrap-reverse lg:flex-nowrap">
-      <div className="pr-12">
+    <div className="flex justify-between items-center mt-[80px] lg:mt-[120px] flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
+      <div className="pr-0 lg:pr-12">
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No más citas olvidadas: Controla y automatiza tu agenda{" "}
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-3 lg:mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-3 lg:mt-6 mb-16">
           Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
           ¡Ahora tienes el control!
         </p>
@@ -248,32 +254,32 @@ export const Features = () => (
       </div>
       <img
         alt="vista de agenda"
-        className="w-full xl:w-[50%]"
+        className="w-full md:w-[80%] mx-auto lg:w-[50%]"
         src="/images/agenda.png"
       />
     </div>
-    <div className="flex justify-between items-center mt-[80px] lg:mt-[160px] flex-wrap lg:flex-nowrap">
+    <div className="flex justify-between items-center mt-[80px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0">
       <img
         alt="notificación"
-        className="w-full xl:w-[50%]"
+        className="w-full md:w-[80%] mx-auto lg:w-[50%]"
         src="/images/notification.png"
       />
       <div className="pl-0 lg:pl-12">
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           ¡Que no te dejen plantado! Envía recordatorios por email y whats app
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-16">
           Evita pérdidas de tiempo y dinero: confirmamos tus citas y enviamos
           recordatorios a tus clientes para que no las olviden.
         </p>
       </div>
     </div>
-    <div className="flex justify-between items-center mt-[80px] lg:mt-[160px]  flex-wrap-reverse lg:flex-nowrap">
-      <div className="pr-12">
+    <div className="flex justify-between items-center mt-[80px] lg:mt-[160px]  flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
+      <div className="pr-0 lg:pr-12">
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No pierdas más clientes, recibe pagos en línea
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-body mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-16">
           Ofrece más alternativas de pago a tus clientes o pacientes con pagos
           desde tu sitio web.
         </p>
@@ -283,7 +289,7 @@ export const Features = () => (
       </div>
       <img
         alt=" payment card"
-        className="w-full xl:w-[50%]"
+        className="w-full md:w-[80%] mx-auto lg:w-[50%]"
         src="/images/payment.png"
       />
     </div>

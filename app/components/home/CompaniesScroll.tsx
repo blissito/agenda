@@ -11,12 +11,12 @@ export const CompaniesScroll = ({ ...props }: { props?: unknown }) => (
         <span className="ml-4">tu negocio </span>
       </span>
     </h2>{" "}
-    <div className="hidden md:grid max-w-7xl grid-cols-2 lg:grid-cols-4 gap-y-16 gap-x-10 mx-auto my-0 text-center mt-20 pl-6 lg:pl-20 ">
+    <div className="hidden md:grid max-w-7xl overflow-hidden grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-16 gap-x-10 mx-auto my-0 text-center mt-20 pl-6 lg:pl-20 ">
       {muchos.map((icon, index) => (
         <span key={index}>{icon}</span>
       ))}
     </div>
-    <div className="md:hidden max-w-[90%] overflow-hidden box-border lg:max-w-7xl grid grid-cols-2  gap-y-16 gap-x-10 mx-auto my-0 text-center mt-20   ">
+    <div className="md:hidden max-w-[90%] overflow-hidden box-border xl:max-w-7xl grid grid-cols-2  gap-y-16 gap-x-10 mx-auto my-0 text-center mt-20   ">
       {pocos.map((icon, index) => (
         <span key={index}>{icon}</span>
       ))}

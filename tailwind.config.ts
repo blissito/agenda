@@ -4,10 +4,6 @@ import type { Config } from "tailwindcss";
 export default {
   content: ["./app/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    fontFamily: {
-      body: ['"Satoshi"'],
-      body_bold: ['"Satoshi Medium"'],
-    },
     extend: {
       colors: {
         brand_light_gray: "#F8F8F8",

@@ -6,8 +6,9 @@
 }
 
 @font-face {
-  font-family: "Satoshi Medium ";
-  src: url("/fonts/Satoshi-Medium.ttf");
+  font-family: "Denik bold ";
+  src: url("/fonts/Satoshi-Bold.ttf");
+  font-weight: bold;
 }
 
 html {
@@ -20,8 +21,13 @@ h2,
 h3 {
   font-family: "Plus Jakarta Sans", sans-serif;
 }
-p {
+
+.font-satoshi {
   font-family: "Satoshi ";
+}
+
+.font-satoMedium {
+  font-family: "Denik bold ";
 }
 
 .overlay {

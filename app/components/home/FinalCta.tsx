@@ -18,27 +18,31 @@ export const FinalCta = ({ children }: { children?: ReactNode }) => (
         <LineSteak />
         <CardSmall
           className="rotate-[4deg] justify-start gap-10 w-[360px]"
-          name="Georgina Hernández"
-          rol="Estilista"
-          comment="Desde que empecé a utilizar Deník he recibido más clientes, ya que para ellos es más fácil agendar y pagar citas en línea."
+          name="Mariana Palmar"
+          rol="Agente turístico"
+          comment="Con la agenda he podido organizar los tours de mi agencia de forma ordenada."
+          img="https://images.pexels.com/photos/994605/pexels-photo-994605.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         />
         <CardLarge
           className="-rotate-[4deg] justify-start gap-10 w-[320px]"
-          name="Georgina Hernández"
-          rol="Estilista"
-          comment="Deník me permite tener mis citas, clientes y ventas en solo lugar."
+          name="Rossalba Ahumada"
+          rol="Galerista"
+          comment="Poder cobrar en línea al reservar citas ha aumentado la ocupación de mi agenda."
+          img="https://images.pexels.com/photos/20967/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         />
         <CardLarge
           className="rotate-[4deg] justify-start gap-10 hidden md:flex"
-          name="Georgina Hernández"
-          rol="Estilista"
-          comment="Deník me permite tener mis citas, clientes y ventas en solo lugar."
+          name="Mauricio Baños"
+          rol="Veterinario"
+          comment="Desde que uso Deník y administro las notificaciones de citas, ha disminuido la inasistencia y cancelación de citas."
+          img="https://images.pexels.com/photos/6235116/pexels-photo-6235116.jpeg?auto=compress&cs=tinysrgb&w=800"
         />
         <CardSmall
           className="-rotate-[4deg] justify-start gap-10 hidden md:flex"
           name="Georgina Hernández"
           rol="Estilista"
-          comment="Desde que empecé a utilizar Deník he recibido más clientes, ya que para ellos es más fácil agendar y pagar citas en línea."
+          comment="Deník me permite tener mis citas, clientes y ventas en solo lugar."
+          img="https://images.pexels.com/photos/3268732/pexels-photo-3268732.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
         />
       </div>
     </section>
