@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { createPortal } from "react-dom";
-
-// @TODO: preserving z-20 until animation done
 
 export default function Page() {
   return (
@@ -98,30 +96,26 @@ const Image = ({
   return (
     <>
       <section className={twMerge("", className)}>
-        <div
-          className={twMerge("relative w-full h-full", isSelected ? "" : "")}
-        >
+        <div className={twMerge("relative w-full h-full")}>
           {isSelected ? (
             createPortal(
               <>
-                <div className="py-[10%] px-[10%] absolute inset-0 flex">
+                <button
+                  onClick={onClose}
+                  className="absolute inset-0 flex items-center bg-slate-950/80 transition-all px-[5%]"
+                >
                   <motion.img
                     role="button"
-                    onClick={onClick}
+                    onClick={(e) => e.stopPropagation()}
                     layoutId={src}
-                    className={twMerge("object-contain", "z-20")}
+                    className={twMerge(
+                      "rounded-xl object-cover relative",
+                      "z-20"
+                    )}
                     alt="gallery pic"
                     src={src}
                   />
-                </div>
-                <motion.button
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.7 }}
-                  onClick={onClose}
-                  className={twMerge(
-                    "absolute inset-0 z-10 p-44 bg-slate-100 cursor-pointer"
-                  )}
-                />
+                </button>
               </>,
               document.body
             )
