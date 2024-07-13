@@ -103,13 +103,21 @@ const WhiteCard = ({
         //     width.set("auto");
         //   }}
         className={cn(
-          "text-3xl rounded-2xl shadow hover:shadow-2xl bg-white h-full flex justify-center items-center overflow-hidden hover:z-20 relative"
+          "text-3xl rounded-2xl shadow hover:shadow-2xl bg-white h-full flex justify-center items-center overflow-hidden"
           // itemClassName
           // "hover:w-[400px] w-[60px] hover:z-10 relative transition-all"
         )}
         //   onClick={() => set((v) => !v)}
       >
-        {children}
+        <motion.button
+          initial={{ scale: 1.3 }}
+          className="w-full h-full "
+          whileHover={{ scale: 1 }}
+          transition={{ type: "spring", bounce: 0 }}
+        >
+          {" "}
+          {children}
+        </motion.button>
       </motion.button>
       {/* </CardContainer> */}
     </>
