@@ -3,9 +3,12 @@ import {
   Children,
   createContext,
   createRef,
+  MouseEvent,
   ReactNode,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { BasicBoxType, Day } from "./agendaUtils";
@@ -157,49 +160,81 @@ export const ColumnsContainer = ({
   columnNumber?: number;
   children: ReactNode;
 }) => {
-  const { days } = useContext(GridContext);
+  const [created, setCreated] = useState<ReactNode[]>([]);
+  const { days, hours } = useContext(GridContext);
   // here, we need to know the column based in day of week or date?
   const getColumnFromDate = (date: Date): number | undefined => {
     const theDate = new Date(date);
     const dateNumber = theDate.getDate();
     return days.findIndex((day) => day.number === dateNumber);
   };
-
+  const factor = grid === "quarter" ? 4 : grid === "half" ? 2 : 1;
   // const eventNodes = Children.toArray(children).filter(
   //   (child) => child.props.type === "Event"
   // );
+  const handleClick = (x: number, y: number) => {
+    console.log({ x, y });
+    const hourIndex = Math.ceil(y / factor) - 1;
+    console.log("HOURS: ", hours[hourIndex]);
+
+    const event: BasicBoxType = {
+      // date: new Date(2024, 6, date, hours, mins),
+      title: "Nuevo",
+      id: Date.now(),
+    };
+    setCreated((elements) => [
+      ...elements,
+      <Event key={event.id} event={event} />,
+    ]);
+  };
 
   return (
     <section
       className="grid w-full rounded-lg relative border-b border-dotted border-r"
       style={{
         gridTemplateColumns: `repeat(${columnNumber}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rowNumber}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rowNumber * factor}, minmax(0, 1fr))`,
       }}
     >
       <VirtualGrid
+        onClick={handleClick}
         columnNumber={columnNumber}
         rowNumber={rowNumber}
-        grid={grid}
+        factor={factor}
       />
       {/* Events */}
       {children}
+      {created}
     </section>
   );
+};
+
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 };
 
 export const VirtualGrid = ({
   rowNumber = 4,
   columnNumber = 7,
-  children,
-  grid,
+  onClick,
+  factor = 1,
 }: {
-  grid?: "quarter" | "half";
+  factor?: number;
   rowNumber?: number;
   columnNumber?: number;
-  children?: ReactNode;
+  onClick?: (x: number, y: number) => void;
 }) => {
-  const factor = grid === "quarter" ? 4 : grid === "half" ? 2 : 1;
+  const map = useRef([]);
+
+  const setCurrentCell = (index: number) => {
+    map.current.unshift(index);
+    map.current = [...new Set(map.current)];
+    // console.log("current: ", index, map);
+  };
+
   return (
     <div
       className="absolute inset-0 bg-white grid rounded-lg z-0"
@@ -208,13 +243,56 @@ export const VirtualGrid = ({
         gridTemplateRows: `repeat(${rowNumber * factor}, minmax(0, 1fr))`,
       }}
     >
-      {[...Array(columnNumber * rowNumber * factor).keys()].map((i) => (
-        <div
-          key={i}
-          className="border-l-[.5px] border-t-[.5px] border-dotted"
-        />
-      ))}
+      {[...Array(columnNumber * rowNumber * factor).keys()].map((i) => {
+        const x = i % columnNumber;
+        const y = Math.ceil(i / columnNumber);
+        return (
+          <Cell
+            style={{
+              gridColumnStart: x,
+              gridRowStart: y,
+            }}
+            key={i}
+            onClick={() => onClick?.(x, y)}
+            // time={`${}`}
+          />
+        );
+      })}
     </div>
+  );
+};
+
+function isColliding(source, sample, threshold = 0.5) {
+  return (
+    source.x < sample.x + sample.width - threshold * sample.width &&
+    source.x + source.width > sample.x + threshold * sample.width &&
+    source.y < sample.y + sample.height - threshold * sample.height &&
+    source.y + source.height > sample.y + threshold * sample.height
+  );
+}
+
+export const Cell = ({
+  index,
+  onHover,
+  onClick,
+  ...props
+}: {
+  onHover?: () => void;
+  index?: number;
+  onClick?: () => void;
+  props?: any;
+}) => {
+  const ref = useRef<HTMLButtonElement>(null);
+
+  return (
+    <motion.button
+      {...props}
+      onClick={onClick}
+      onHoverStart={onHover}
+      ref={ref}
+      whileHover={{ backgroundColor: "#232323", opacity: 0.2 }}
+      className="border-l-[.5px] border-t-[.5px] border-dotted cursor-crosshair"
+    />
   );
 };
 
@@ -371,7 +449,7 @@ const BasicBox = ({
     dragControls.start(event, { snapToCursor: true });
   }
 
-  console.log("CONTROLS: ", dragControls);
+  // console.log("CONTROLS: ", dragControls);
 
   if (!isVisible) return null;
   return (
