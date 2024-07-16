@@ -1,10 +1,11 @@
 import { twMerge } from "tailwind-merge";
 import {
+  Children,
   createContext,
   createRef,
   ReactNode,
-  Ref,
   useContext,
+  useMemo,
   useState,
 } from "react";
 import { BasicBoxType, Day } from "./agendaUtils";
@@ -23,20 +24,33 @@ export const GridContext = createContext<{
 });
 
 export const CalendarGrid = ({
-  boxes = [],
+  events = [],
   week = [],
   days = [],
   hours = [],
+  grid,
 }: {
-  boxes: BasicBoxType[];
+  grid?: "half" | "quarter";
+  events: BasicBoxType[];
   hours: string[];
   week: Day[];
   days: string[];
 }) => {
-  const virtualMatrixRef = createRef();
+  // const virtualMatrixRef = createRef();
   const checkIfIsToday = (date: Date) =>
     date.getDate() === new Date().getDate() &&
     date.getMonth() === new Date().getMonth();
+
+  const filteredDays = week
+    .map((w) =>
+      days.includes(w.day) // filtering not required days
+        ? {
+            number: new Date(w.date).getDate(),
+            string: w.day,
+          }
+        : null
+    )
+    .filter(Boolean) as HourOrDay[];
 
   return (
     <>
@@ -47,16 +61,8 @@ export const CalendarGrid = ({
             number: Number(h.replace(":00", "")),
             string: h,
           })),
-          days: week
-            .map((w) =>
-              days.includes(w.day) // filtering not required days
-                ? {
-                    number: new Date(w.date).getDate(),
-                    string: w.day,
-                  }
-                : null
-            )
-            .filter(Boolean),
+          days: filteredDays,
+          events,
         }}
       >
         <div className="bg-white rounded-2xl mt-6 mr-10 pr-6 pb-6 shadow-md ">
@@ -98,31 +104,146 @@ export const CalendarGrid = ({
               ))}
             </section>
             {/* Grid container */}
-            <section className="flex-1 relative">
-              {/* Events */}
-              <VirtualMatrix>
-                {/* {boxes.map((box, i) => (
-                  <BasicBox box={box} key={i} />
-                ))} */}
-                <BasicBox
-                  constrains={virtualMatrixRef}
-                  key="perro"
-                  box={{
-                    date: new Date("2024-07-10T01:00:00.000+06:00"),
-                    title: "BLISSMO",
-                  }}
-                />
-              </VirtualMatrix>
-              {/* Actual grid */}
-              {hours.map((_, index) => (
-                <Row length={days.length} key={index} isFirst={index === 0} />
+            <ColumnsContainer
+              grid={grid}
+              rowNumber={hours.length}
+              columnNumber={days.length}
+            >
+              {events.map((event) => (
+                <Event key={event.id} event={event} />
               ))}
-              {/* <Indicator week={week} hours={hours} length={days.length} /> */}
-            </section>
+            </ColumnsContainer>
           </article>
         </div>
       </GridContext.Provider>
     </>
+  );
+};
+
+export const Event = ({
+  event,
+  type = "Event",
+}: {
+  type?: string;
+  event: BasicBoxType;
+}) => {
+  const { days, hours } = useContext(GridContext);
+  const columnIndex =
+    days.findIndex((day) => new Date(event.date).getDate() === day.number) + 1; // from date.getDate() + 1
+  const rowIndex =
+    hours.findIndex((hour) => new Date(event.date).getHours() === hour.number) +
+    1; // from date.getHours()
+  return (
+    <motion.button
+      drag
+      dragSnapToOrigin
+      className="bg-brand_yellow w-full h-full rounded-lg relative z-10 overflow-hidden"
+      style={{ gridColumnStart: columnIndex, gridRowStart: rowIndex }}
+    >
+      <div className="absolute left-0 top-0 w-[5px] bg-yellow-500 h-full" />
+      {/* Evento {date.toLocaleDateString()} */}
+    </motion.button>
+  );
+};
+
+export const ColumnsContainer = ({
+  rowNumber = 4,
+  columnNumber = 7,
+  children,
+  grid,
+}: {
+  grid?: "quarter" | "half";
+  rowNumber?: number;
+  columnNumber?: number;
+  children: ReactNode;
+}) => {
+  const { days } = useContext(GridContext);
+  // here, we need to know the column based in day of week or date?
+  const getColumnFromDate = (date: Date): number | undefined => {
+    const theDate = new Date(date);
+    const dateNumber = theDate.getDate();
+    return days.findIndex((day) => day.number === dateNumber);
+  };
+
+  // const eventNodes = Children.toArray(children).filter(
+  //   (child) => child.props.type === "Event"
+  // );
+
+  return (
+    <section
+      className="grid w-full rounded-lg relative border-b border-dotted border-r"
+      style={{
+        gridTemplateColumns: `repeat(${columnNumber}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rowNumber}, minmax(0, 1fr))`,
+      }}
+    >
+      <VirtualGrid
+        columnNumber={columnNumber}
+        rowNumber={rowNumber}
+        grid={grid}
+      />
+      {/* Events */}
+      {children}
+    </section>
+  );
+};
+
+export const VirtualGrid = ({
+  rowNumber = 4,
+  columnNumber = 7,
+  children,
+  grid,
+}: {
+  grid?: "quarter" | "half";
+  rowNumber?: number;
+  columnNumber?: number;
+  children?: ReactNode;
+}) => {
+  const factor = grid === "quarter" ? 4 : grid === "half" ? 2 : 1;
+  return (
+    <div
+      className="absolute inset-0 bg-white grid rounded-lg z-0"
+      style={{
+        gridTemplateColumns: `repeat(${columnNumber}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rowNumber * factor}, minmax(0, 1fr))`,
+      }}
+    >
+      {[...Array(columnNumber * rowNumber * factor).keys()].map((i) => (
+        <div
+          key={i}
+          className="border-l-[.5px] border-t-[.5px] border-dotted"
+        />
+      ))}
+    </div>
+  );
+};
+
+export const Column = ({
+  rowStart = 1,
+  rowNumber,
+  index,
+}: {
+  index: number;
+  rowStart?: number;
+  rowNumber?: number;
+}) => {
+  // here, we need to know row based in time and mins
+  return (
+    <section
+      className="bg-indigo-500 grid"
+      style={{ gridRow: `${rowStart} / span ${rowNumber}` }}
+    >
+      {[...Array(rowNumber).keys()].map((i: number) => (
+        <motion.div
+          drag
+          dragConstraints={{ top: -100, bottom: 100, left: -100, right: 100 }}
+          className="bg-yellow-400 border-orange-500 border flex items-center justify-center"
+          key={i}
+        >
+          X: {index}, Y: {i}
+        </motion.div>
+      ))}
+    </section>
   );
 };
 
@@ -185,13 +306,15 @@ export const Indicator = ({
 export const Row = ({
   length = 7,
   isFirst,
+  grid,
   ...props
 }: {
   length?: number;
   isFirst?: boolean;
   props?: any;
+  grid?: "half" | "quarter";
 }) => (
-  <article className="relative">
+  <article>
     {/* @TODO: move this to global CSS */}
     <style>
       {`
@@ -204,18 +327,7 @@ export const Row = ({
     `}
     </style>
 
-    <div {...props} className="flex border-l bg-red-500 min-w-[100px]">
-      {Array.from({ length }).map((_, index) => (
-        <div
-          key={index}
-          className={twMerge(
-            "dashed-bottom-border",
-            "w-full h-24 bg-white border border-l-0 border-gray-200 border-t-0",
-            isFirst && "border-t dashed-top-border"
-          )}
-        />
-      ))}
-    </div>
+    <div {...props} className=""></div>
   </article>
 );
 
