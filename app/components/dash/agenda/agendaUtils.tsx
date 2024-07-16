@@ -1,3 +1,5 @@
+import { HourOrDay } from "~/components/hooks/useCoordinates";
+
 export interface Day {
   day: string;
   date: Date;
@@ -5,9 +7,11 @@ export interface Day {
 }
 
 export type BasicBoxType = {
+  x?: number;
+  y?: number;
   id?: number;
-  date: Date;
-  title: string;
+  date: Date | string | number;
+  title?: string;
   text?: string;
 };
 
@@ -88,3 +92,40 @@ export const generateWeek = (
 
 export const addDaysToDate = (days: number, date: Date) =>
   date.getDate() + days;
+
+export const generateWeekGrid = ({
+  factor,
+  week,
+  hours,
+  days,
+}: {
+  days: string[];
+  factor: number;
+  week: Day[];
+  hours: HourOrDay[];
+}) => {
+  return [...Array(hours.length * factor * days.length).keys()].map((index) => {
+    const y = Math.floor(index / days.length); // auto? D:
+    const x = Math.floor(index % days.length);
+    const hoursY = Math.floor(index / days.length / factor);
+    const mins = (y % factor) * 15;
+    return {
+      y,
+      x,
+      day: days[x],
+      dateNumber: new Date(week[x].date).getDate(),
+      date: new Date(
+        new Date(week[x].date).getFullYear(),
+        new Date(week[x].date).getMonth(),
+        new Date(week[x].date).getDate(),
+        new Date(week[x].date).getHours(),
+        mins
+      ),
+      hour: Number(hours[hoursY]?.replace(":00", "")), // improve
+      mins: mins === 0 ? "00" : mins,
+      month: new Date(week[x].date).getMonth(),
+      year: new Date(week[x].date).getFullYear(),
+      rect: null,
+    };
+  });
+};

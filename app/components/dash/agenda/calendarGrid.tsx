@@ -11,10 +11,30 @@ import {
   useRef,
   useState,
 } from "react";
-import { BasicBoxType, Day } from "./agendaUtils";
+import { BasicBoxType, Day, generateWeekGrid } from "./agendaUtils";
 import { HourOrDay, useCoordinates } from "~/components/hooks/useCoordinates";
 // animation stuff
 import { motion, useDragControls } from "framer-motion";
+
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type Cell = {
+  dateNumber: number;
+  date: Date;
+  day: string;
+  hour: number;
+  mins: number;
+  month: number;
+  x: number;
+  y: number;
+  year: number;
+  rect: Rect;
+};
 
 export const GridContext = createContext<{
   hours: HourOrDay[];
@@ -39,21 +59,63 @@ export const CalendarGrid = ({
   week: Day[];
   days: string[];
 }) => {
+  const factor = grid === "quarter" ? 4 : grid === "half" ? 2 : 1;
+  // =====
+  const [list, setList] = useState(
+    generateWeekGrid({ daysLength: days.length, days, factor, hours, week })
+  );
+  const [rects, setRects] = useState<Rect[]>(
+    [...Array(list.length).keys()].fill({})
+  );
+  const [extra, setExtra] = useState<BasicBoxType[]>([]);
+  const [blocks, setBlocks] = useState<BasicBoxType[]>([]);
+
+  useEffect(() => {
+    setList(
+      generateWeekGrid({ daysLength: days.length, days, factor, hours, week })
+    );
+  }, [week]);
+  // =====
   // const virtualMatrixRef = createRef();
   const checkIfIsToday = (date: Date) =>
     date.getDate() === new Date().getDate() &&
     date.getMonth() === new Date().getMonth();
 
-  const filteredDays = week
-    .map((w) =>
-      days.includes(w.day) // filtering not required days
-        ? {
-            number: new Date(w.date).getDate(),
-            string: w.day,
-          }
-        : null
-    )
-    .filter(Boolean) as HourOrDay[];
+  const handleClick = (index: number) => {
+    const selected = list[index];
+    // console.log("Selected", selected);
+    setExtra((ex) => [
+      ...ex,
+      {
+        ...selected,
+        x: selected.x + 1, //offset
+        y: selected.y + 1, //offset
+      },
+    ]);
+  };
+
+  const updateListElement = (index: number, rect: Rect) => {
+    rects[index] = rect;
+    setRects(rects);
+  };
+
+  // const onDragEnd = (point: { x: number; y: number }) => {
+  //   rects.forEach((rect, index) => {
+  //     if (isColliding(rect, { width: 1, height: 1, ...point })) {
+  //       // console.log("COLLIDING", index, list[index]);
+  //       const item = { ...list[index] };
+  //       item.x += 1;
+  //       item.y += 1;
+  //       console.log("ITEM", item);
+  //       setExtra([item]);
+  //     }
+  //   });
+  // };
+
+  const handleBlock = (cube: Cell) => {
+    setBlocks((blocks) => [...blocks, cube]);
+    setExtra([]);
+  };
 
   return (
     <>
@@ -64,7 +126,7 @@ export const CalendarGrid = ({
             number: Number(h.replace(":00", "")),
             string: h,
           })),
-          days: filteredDays,
+          days,
           events,
         }}
       >
@@ -107,7 +169,7 @@ export const CalendarGrid = ({
               ))}
             </section>
             {/* Grid container */}
-            <ColumnsContainer
+            {/* <ColumnsContainer
               grid={grid}
               rowNumber={hours.length}
               columnNumber={days.length}
@@ -115,20 +177,148 @@ export const CalendarGrid = ({
               {events.map((event) => (
                 <Event key={event.id} event={event} />
               ))}
-            </ColumnsContainer>
+            </ColumnsContainer> */}
+
+            <div
+              className="grid w-full border-r border-b border-dotted relative"
+              style={{
+                gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`,
+                gridTemplateRows: `repeat(${hours.length * 4}, minmax(0, 1fr))`,
+              }}
+            >
+              {/* Overlay */}
+              <div
+                className="absolute inset-0 grid"
+                style={{
+                  gridTemplateColumns: `repeat(${days.length}, minmax(0, 1fr))`,
+                  gridTemplateRows: `repeat(${
+                    hours.length * 4
+                  }, minmax(0, 1fr))`,
+                }}
+              >
+                {extra.map((cube, i) => (
+                  <SelectionCube
+                    onBlock={() => handleBlock(cube)}
+                    cube={cube}
+                    key={i}
+                    onCancel={() => setExtra([])}
+                  />
+                ))}
+                {blocks.map((cell, i) => (
+                  <Blocked factor={factor} key={i} cell={cell} />
+                ))}
+                {/* {extra.map((event) => (
+                  <Event
+                    transition={{ type: "linear" }}
+                    event={event}
+                    onDragEnd={(_, { point }) => onDragEnd(point)}
+                    layout
+                    drag
+                    // dragSnapToOrigin
+                    key={event.title}
+                    style={{
+                      gridColumnStart: event.x,
+                      gridRowStart: event.y,
+                      gridRowEnd: event.y + factor,
+                      // gridRowEnd: event.y,
+                      resize: "vertical",
+                    }}
+                  />
+                ))} */}
+              </div>
+
+              {/* Hovered grid  */}
+              {list.map((it, i) => (
+                <Cell
+                  index={i}
+                  key={i}
+                  onClick={() => handleClick(i)}
+                  updateRect={(rect) => updateListElement(i, rect)}
+                ></Cell>
+              ))}
+            </div>
           </article>
         </div>
       </GridContext.Provider>
     </>
   );
 };
+// @TODO: rezise observer api
+export const Blocked = ({
+  cell,
+  factor = 0,
+}: {
+  factor: number;
+  cell: BasicBoxType;
+}) => {
+  const ref = useRef();
+
+  useEffect(() => {
+    ref.current.addEventListener("resize", () => {
+      console.log("listener");
+    });
+  }, []);
+  return (
+    <motion.div
+      ref={ref}
+      style={{
+        // resize: "vertical",
+        gridRowStart: cell.y,
+        gridColumnStart: cell.x,
+        gridRowEnd: cell.y + factor, // @TODO: reizable
+      }}
+      className="bg-gray-400 w-full h-full rounded-lg relative z-20 overflow-hidden cursor-grab active:cursor-grabbing active:z-50"
+    ></motion.div>
+  );
+};
+
+export const SelectionCube = ({
+  cube,
+  onCancel,
+  onBlock,
+}: {
+  onBlock?: () => void;
+  onCancel?: () => void;
+  cube: Cell;
+}) => {
+  useEffect(() => {
+    const handleKeyDown = ({ key }) => {
+      if (key === "Escape") {
+        onCancel?.();
+      }
+    };
+    addEventListener("keydown", handleKeyDown);
+    return () => removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  return (
+    <div
+      className="bg-indigo-100/80 relative z-50"
+      style={{ gridColumnStart: cube.x, gridRowStart: cube.y }}
+    >
+      <div className="absolute bottom-[-300%] rounded-2xl shadow-xl flex flex-col items-center w-full bg-white z-10 border">
+        <button
+          onClick={onBlock}
+          className="active:bg-indigo-100/50  hover:bg-indigo-100/30 w-full rounded-lg p-2"
+        >
+          Bloquear
+        </button>
+        <button className="active:bg-indigo-100/50  hover:bg-indigo-100/30 w-full p-2">
+          Reservar
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export const Event = ({
   event,
   type = "Event",
+  ...props
 }: {
   type?: string;
   event: BasicBoxType;
+  props?: unknown;
 }) => {
   const { days, hours } = useContext(GridContext);
   const columnIndex =
@@ -140,8 +330,9 @@ export const Event = ({
     <motion.button
       drag
       dragSnapToOrigin
-      className="bg-brand_yellow w-full h-full rounded-lg relative z-10 overflow-hidden"
+      className="bg-brand_yellow w-full h-full rounded-lg relative z-20 overflow-hidden cursor-grab active:cursor-grabbing active:z-50"
       style={{ gridColumnStart: columnIndex, gridRowStart: rowIndex }}
+      {...props}
     >
       <div className="absolute left-0 top-0 w-[5px] bg-yellow-500 h-full" />
       {/* Evento {date.toLocaleDateString()} */}
@@ -172,10 +363,18 @@ export const ColumnsContainer = ({
   // const eventNodes = Children.toArray(children).filter(
   //   (child) => child.props.type === "Event"
   // );
+
+  const getMinsByFactor = () =>
+    grid === "quarter" ? 45 : grid === "half" ? 30 : 0;
+
   const handleClick = (x: number, y: number) => {
     console.log({ x, y });
     const hourIndex = Math.ceil(y / factor) - 1;
-    console.log("HOURS: ", hours[hourIndex]);
+    const residuo = y / factor + 1;
+    let mins = (residuo % Math.floor(residuo)) * 60 - 15;
+    mins = mins < 0 ? getMinsByFactor() : mins;
+    const hour = hours[hourIndex];
+    console.log("Time:", `${hour.number}:${mins}`);
 
     const event: BasicBoxType = {
       // date: new Date(2024, 6, date, hours, mins),
@@ -207,13 +406,6 @@ export const ColumnsContainer = ({
       {created}
     </section>
   );
-};
-
-type Rect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 };
 
 export const VirtualGrid = ({
@@ -253,7 +445,7 @@ export const VirtualGrid = ({
               gridRowStart: y,
             }}
             key={i}
-            onClick={() => onClick?.(x, y)}
+            onClick={() => onClick?.(x, y, i)}
             // time={`${}`}
           />
         );
@@ -273,25 +465,37 @@ function isColliding(source, sample, threshold = 0.5) {
 
 export const Cell = ({
   index,
-  onHover,
+  updateRect,
   onClick,
   ...props
 }: {
-  onHover?: () => void;
+  updateRect?: (arg0: Rect) => void;
   index?: number;
   onClick?: () => void;
   props?: any;
 }) => {
   const ref = useRef<HTMLButtonElement>(null);
 
+  useEffect(() => {
+    let rect: Rect | DOMRect | undefined = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    rect = {
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height,
+    } as Rect;
+    updateRect?.(rect);
+  }, []);
+
   return (
     <motion.button
-      {...props}
-      onClick={onClick}
-      onHoverStart={onHover}
       ref={ref}
-      whileHover={{ backgroundColor: "#232323", opacity: 0.2 }}
-      className="border-l-[.5px] border-t-[.5px] border-dotted cursor-crosshair"
+      initial={{ opacity: 1 }}
+      onClick={onClick}
+      whileHover={{ backgroundColor: "#ddd", opacity: 0.2 }}
+      className="border-l-[.5px] border-t-[.5px] border-dotted cursor-crosshair z-10"
+      {...props}
     />
   );
 };
