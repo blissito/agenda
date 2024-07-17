@@ -1,142 +1,89 @@
-import React, { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import { cn } from "~/utils/cd";
+import { useState } from "react";
+import { twMerge } from "tailwind-merge";
+import {
+  CellData,
+  CellDrawer,
+  Draggable,
+  testItems,
+} from "~/components/dash/agenda/draggableGrid";
 
-const Image = (props) => <img {...props} />;
+export default function Page() {
+  const [items, set] = useState<CellData[]>(testItems);
+  // const [draggingOverIndex, setDOI] = useState<number | null>(null);
 
-type Card = {
-  id: number;
-  content: JSX.Element | React.ReactNode | string;
-  className: string;
-  thumbnail: string;
-};
-
-export const LayoutGrid = () => {
-  const cards: Card[] = [
-    {
-      id: 0,
-      content: "Blissmo 1",
-      className: "",
-      thumbnail:
-        "https://images.pexels.com/photos/903171/pexels-photo-903171.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    },
-    {
-      id: 0,
-      content: "Blissmo 2",
-      className: "",
-      thumbnail:
-        "https://images.pexels.com/photos/903171/pexels-photo-903171.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    },
-    {
-      id: 0,
-      content: "Blissmo 3",
-      className: "",
-      thumbnail:
-        "https://images.pexels.com/photos/903171/pexels-photo-903171.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    },
-    {
-      id: 0,
-      content: "Blissmo 4",
-      className: "",
-      thumbnail:
-        "https://images.pexels.com/photos/903171/pexels-photo-903171.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    },
-  ];
-  const [selected, setSelected] = useState<Card | null>(null);
-  const [lastSelected, setLastSelected] = useState<Card | null>(null);
-
-  const handleClick = (card: Card) => {
-    setLastSelected(selected);
-    setSelected(card);
+  const handleDrop = ({
+    originIndex,
+    dropIndex,
+  }: {
+    originIndex: number;
+    dropIndex: number | undefined;
+  }) => {
+    const itemLocalIndex = items.findIndex((it) => it.index === originIndex); // ?? improve?
+    const item = items[itemLocalIndex];
+    // console.log("ITEM", item);
+    item.index = dropIndex ?? originIndex;
+    // console.log("MUTATED", item);
+    const mapped = items.map((it, i) => (i === itemLocalIndex ? item : it));
+    // console.log("MAPPED", mapped);
+    set(mapped);
+    // setDOI(null);
   };
 
-  const handleOutsideClick = () => {
-    setLastSelected(selected);
-    setSelected(null);
-  };
-
+  // const handleDrag = (index: number) => {
+  //   setDOI(index);
+  // };
+  // need to turn off dragging over index when drag end
   return (
-    <div className="w-full h-full p-10 grid grid-cols-1 md:grid-cols-3  max-w-7xl mx-auto gap-4 relative">
-      {cards.map((card, i) => (
-        <div key={i} className={cn(card.className, "")}>
-          <motion.div
-            onClick={() => handleClick(card)}
-            className={cn(
-              card.className,
-              "relative overflow-hidden",
-              selected?.id === card.id
-                ? "rounded-lg cursor-pointer absolute inset-0 h-1/2 w-full md:w-1/2 m-auto z-50 flex justify-center items-center flex-wrap flex-col"
-                : lastSelected?.id === card.id
-                ? "z-40 bg-white rounded-xl h-full w-full"
-                : "bg-white rounded-xl h-full w-full"
-            )}
-            layout
-          >
-            {selected?.id === card.id && <SelectedCard selected={selected} />}
-            <BlurImage card={card} />
-          </motion.div>
-        </div>
-      ))}
-      <motion.div
-        onClick={handleOutsideClick}
-        className={cn(
-          "absolute h-full w-full left-0 top-0 bg-red-500 opacity-0 z-10",
-          selected?.id ? "pointer-events-auto" : "pointer-events-none"
-        )}
-        animate={{ opacity: selected?.id ? 0.3 : 0 }}
-      />
-    </div>
-  );
-};
+    <>
+      <section className="mx-auto bg-slate-100 h-screen overflow-hidden">
+        <h1 className="px-3 m-2">Blissmo draggable and interactive grid</h1>
+        <CellDrawer cols={5} numberOfItems={15} className="py-20" showCoords>
+          {(data) => {
+            // draw your defined items
+            const findItem = (searchIndex: number) => {
+              return items.find((it) => it.index === searchIndex);
+            };
 
-const BlurImage = ({ card }: { card: Card }) => {
-  const [loaded, setLoaded] = useState(false);
-  return (
-    <Image
-      src={card.thumbnail}
-      height="500"
-      width="500"
-      onLoad={() => setLoaded(true)}
-      className={cn(
-        "object-cover object-top absolute inset-0 h-full w-full transition duration-200",
-        loaded ? "blur-none" : "blur-md"
-      )}
-      alt="thumbnail"
-    />
-  );
-};
+            const item = findItem(data.index);
 
-const SelectedCard = ({ selected }: { selected: Card | null }) => {
-  return (
-    <div className="bg-transparent h-full w-full flex flex-col justify-end rounded-lg shadow-2xl relative z-[60]">
-      <motion.div
-        initial={{
-          opacity: 0,
-        }}
-        animate={{
-          opacity: 0.6,
-        }}
-        className="absolute inset-0 h-full w-full bg-black opacity-60 z-10"
-      />
-      <motion.div
-        initial={{
-          opacity: 0,
-          y: 100,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        transition={{
-          duration: 0.3,
-          ease: "easeInOut",
-        }}
-        className="relative px-8 pb-4 z-[70]"
-      >
-        {selected?.content}
-      </motion.div>
-    </div>
-  );
-};
+            if (item) {
+              return (
+                <Draggable
+                  key={item.id}
+                  id={item.id}
+                  index={Number(data.index)}
+                  onDrop={handleDrop}
+                  onDrag={data.updateOverIndex}
+                  whileDrag={{
+                    backgroundColor: "#222",
+                    opacity: 1,
+                    scale: 0.8,
+                  }}
+                >
+                  {item.id}
+                </Draggable>
+              );
+            }
 
-export default LayoutGrid;
+            // Draw based on coords
+            const findItemByCoords = (x: number, y: number) => {
+              return items.find((it) => it.x === x && it.y === y);
+            };
+
+            const itemByCoords = findItemByCoords(data.x, data.y);
+
+            if (itemByCoords) {
+              return (
+                <div
+                  className={twMerge("bg-orange-500 text-xs")}
+                  children={JSON.stringify(data)}
+                />
+              );
+            }
+            // if function doesn't return i'll render coord if showCoords true
+          }}
+        </CellDrawer>
+      </section>
+    </>
+  );
+}

@@ -94,6 +94,19 @@ export const generateWeek = (
 export const addDaysToDate = (days: number, date: Date) =>
   date.getDate() + days;
 
+export const getCoord = ({
+  coord = "x",
+  index,
+  colsLength,
+}: {
+  coord?: "x" | "y";
+  index: number;
+  colsLength: number;
+}) =>
+  coord.toLocaleLowerCase() === "y"
+    ? Math.floor(index / colsLength)
+    : Math.floor(index % colsLength);
+
 export const generateWeekGrid = ({
   factor,
   week,

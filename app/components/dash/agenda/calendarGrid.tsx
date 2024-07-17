@@ -292,21 +292,50 @@ export const Blocked = ({
     return elem?.y;
   }
 
-  const containerRef = useRef(null);
   const handleRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const height = useMotionValue(rects[0].height * factor);
+  // const bg = useMotionValue("rgba(256,256,256)");
 
-  let draggable;
+  let nodes = [];
+  const backToNormal = (node) => {
+    nodes.map((n) => {
+      n.style.background = "inherit";
+    });
+    nodes = [];
+  };
 
   console.log("UPDATED:", updated);
-
   return (
     <motion.div
       layout
       transition={{ type: "spring", bounce: 0 }}
       drag
+      // draggable
+      onDrag={async (e) => {
+        if (e.target.dataset.index) {
+          e.target.style.backgroundColor = "#F5F5F5";
+          nodes.push(e.target);
+          await new Promise((r) => setTimeout(r, 300));
+          backToNormal(e.target);
+          // experiemnt
+          const index = e.target.dataset.index;
+
+          // setUpdated({
+          //   ...list[index],
+          //   startDate: new Date( // @todo save endDate correctly
+          //     list[index].year,
+          //     list[index].month,
+          //     list[index].dateNumber,
+          //     list[index].hour,
+          //     list[index].mins
+          //   ),
+          // });
+        }
+      }}
+      // whileDrag={{ scale: 0.7 }}
+      // whileTap={{ scale: 0.7 }}
       onDragStart={(e) => {
         setIsDragging(true);
       }}
@@ -338,22 +367,22 @@ export const Blocked = ({
       // }}
       // dragConstraints={{ top: -5, bottom: 5, left: -5, right: 5 }}
       dragSnapToOrigin
+      dragMomentum={false}
       ref={handleRef}
       style={{
+        originY: 0,
         height,
         gridColumnStart: updated.x + 1,
         gridRowStart: updated.y + 1,
-        // gridRowEnd: cell.y + factor, // @TODO: reizable
-        // gridRowEnd: y.get() + factor, // why +1?
-        // gridRowEnd: y.get() + factor,
-        // gridColumnEnd: 1,
+        // gridRowEnd: cell.y + factor, // @TODO: respect
       }}
       className={twMerge(
         "bg-gray-400 w-full h-full rounded-lg relative z-20 cursor-grab active:cursor-grabbing active:z-50 overflow-hidden",
-        isDragging && "pointer-events-none",
+        isDragging && "pointer-events-none", // trick to catch overHoverElement
         "min-h-7"
       )}
     >
+      <span className="text-xs text-gray-500 px-2">Blockeado</span>
       <motion.div
         drag="y"
         dragSnapToOrigin
@@ -378,31 +407,12 @@ export const Blocked = ({
             cell.hour,
             cell.mins
           );
+          const portion = Math.floor(height.get() / rects[0].height);
+          height.set(portion < 1 ? rects[0].height : portion * rects[0].height);
           setUpdated((up) => ({ ...up, endDate })); // update enddate
-
-          // const portion = Math.floor(
-          //   containerRef.current?.getBoundingClientRect().height /
-          //     rects[0].height
-          // );
-          // height.set(portion < 1 ? rects[0].height : portion * rects[0].height);
-          // const index = e.target.dataset.index;
-          // const elem = getElementByCoords({
-          //   list,
-          //   x: updated.x - 1,
-          //   y: updated.y + portion - 2,
-          // });
-          // if (!elem) return;
-          // const endDate = new Date(
-          //   elem.year,
-          //   elem.month,
-          //   elem.dateNumber,
-          //   elem.hour,
-          //   elem.mins
-          // );
-          // setUpdated({ ...updated, endDate });
         }}
         className={twMerge(
-          "h-2 bg-indigo-500 absolute left-0 right-0 bottom-0 z-30 cursor-move",
+          "h-2 bg-indigo-500 absolute left-0 right-0 bottom-0 z-30 cursor-row-resize",
           isDragging && "pointer-events-none"
         )}
       />
@@ -613,7 +623,6 @@ export const Cell = ({
   props?: any;
 }) => {
   const ref = useRef<HTMLButtonElement>(null);
-  const [isOver, setIsOver] = useState(false);
 
   useEffect(() => {
     let rect: Rect | DOMRect | undefined = ref.current?.getBoundingClientRect();
@@ -651,8 +660,8 @@ export const Cell = ({
       onClick={onClick}
       whileHover={{ backgroundColor: "#ddd", opacity: 0.2 }}
       className={twMerge(
-        "border-l-[.5px] border-t-[.5px] border-dotted cursor-crosshair z-10",
-        isOver && "bg-blue-500"
+        "border-l-[.5px] border-t-[.5px] border-dotted cursor-crosshair z-10"
+        // "hover:bg-blue-500"
       )}
       {...props}
     />
@@ -823,7 +832,7 @@ const BasicBox = ({
       dragControls={dragControls}
       dragTransition={{ bounceStiffness: 600, bounceDamping: 20 }}
       dragSnapToOrigin
-      whileDrag={{ scale: 1.1 }}
+      // whileDrag={{ scale: 1.1 }}
       onDragStart={(e) => {
         e.target.classList.remove("cursor-grab");
         e.target.classList.add("bg-gray-200");
