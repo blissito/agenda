@@ -1,4 +1,5 @@
 import { HourOrDay } from "~/components/hooks/useCoordinates";
+import { type Cell } from "./calendarGrid";
 
 export interface Day {
   day: string;
@@ -110,11 +111,12 @@ export const generateWeekGrid = ({
     const hoursY = Math.floor(index / days.length / factor);
     const mins = (y % factor) * 15;
     return {
+      index,
       y,
       x,
       day: days[x],
       dateNumber: new Date(week[x].date).getDate(),
-      date: new Date(
+      startDate: new Date(
         new Date(week[x].date).getFullYear(),
         new Date(week[x].date).getMonth(),
         new Date(week[x].date).getDate(),
@@ -126,6 +128,13 @@ export const generateWeekGrid = ({
       month: new Date(week[x].date).getMonth(),
       year: new Date(week[x].date).getFullYear(),
       rect: null,
+      endDate: new Date(
+        new Date(week[x].date).getFullYear(),
+        new Date(week[x].date).getMonth(),
+        new Date(week[x].date).getDate(),
+        new Date(week[x].date).getHours() + 1,
+        mins
+      ),
     };
   });
 };

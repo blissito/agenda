@@ -14,7 +14,12 @@ import {
 import { BasicBoxType, Day, generateWeekGrid } from "./agendaUtils";
 import { HourOrDay, useCoordinates } from "~/components/hooks/useCoordinates";
 // animation stuff
-import { motion, useDragControls } from "framer-motion";
+import {
+  motion,
+  useDragControls,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 
 type Rect = {
   x: number;
@@ -24,8 +29,10 @@ type Rect = {
 };
 
 export type Cell = {
+  index: number;
   dateNumber: number;
-  date: Date;
+  startDate: Date;
+  endDate: Date;
   day: string;
   hour: number;
   mins: number;
@@ -45,6 +52,18 @@ export const GridContext = createContext<{
   hours: [],
   days: [],
 });
+
+const getElementByCoords = ({
+  list,
+  x,
+  y,
+}: {
+  x: number;
+  y: number;
+  list: Cell[];
+}) => {
+  return list.find((el) => el.x === x && el.y === y);
+};
 
 export const CalendarGrid = ({
   events = [],
@@ -82,8 +101,27 @@ export const CalendarGrid = ({
     date.getMonth() === new Date().getMonth();
 
   const handleClick = (index: number) => {
+    // fixind date
     const selected = list[index];
-    // console.log("Selected", selected);
+    const startDate = new Date(
+      selected.year,
+      selected.month,
+      selected.dateNumber,
+      selected.hour,
+      Number(selected.mins)
+    );
+    const endDate = new Date(
+      selected.year,
+      selected.month,
+      selected.dateNumber,
+      selected.hour + 1,
+      Number(selected.mins)
+    );
+    selected.startDate = startDate;
+    selected.endDate = endDate;
+
+    console.log("SELECTED", selected);
+
     setExtra((ex) => [
       ...ex,
       {
@@ -99,21 +137,11 @@ export const CalendarGrid = ({
     setRects(rects);
   };
 
-  // const onDragEnd = (point: { x: number; y: number }) => {
-  //   rects.forEach((rect, index) => {
-  //     if (isColliding(rect, { width: 1, height: 1, ...point })) {
-  //       // console.log("COLLIDING", index, list[index]);
-  //       const item = { ...list[index] };
-  //       item.x += 1;
-  //       item.y += 1;
-  //       console.log("ITEM", item);
-  //       setExtra([item]);
-  //     }
-  //   });
-  // };
-
   const handleBlock = (cube: Cell) => {
-    setBlocks((blocks) => [...blocks, cube]);
+    console.log("CUBE: ", cube);
+    setBlocks((blocks) => {
+      return [...blocks, cube];
+    });
     setExtra([]);
   };
 
@@ -128,6 +156,7 @@ export const CalendarGrid = ({
           })),
           days,
           events,
+          rects,
         }}
       >
         <div className="bg-white rounded-2xl mt-6 mr-10 pr-6 pb-6 shadow-md ">
@@ -205,7 +234,7 @@ export const CalendarGrid = ({
                   />
                 ))}
                 {blocks.map((cell, i) => (
-                  <Blocked factor={factor} key={i} cell={cell} />
+                  <Blocked list={list} factor={factor} key={i} cell={cell} />
                 ))}
                 {/* {extra.map((event) => (
                   <Event
@@ -243,34 +272,92 @@ export const CalendarGrid = ({
     </>
   );
 };
+
 // @TODO: rezise observer api
 export const Blocked = ({
   cell,
-  factor = 0,
+  list,
+  factor = 1,
 }: {
+  list: Cell[];
   factor: number;
-  cell: BasicBoxType;
+  cell: Cell;
 }) => {
   const ref = useRef();
+  const { rects, days } = useContext(GridContext);
+  const [updated, setUpdated] = useState(cell);
 
-  useEffect(() => {
-    ref.current.addEventListener("resize", () => {
-      console.log("listener");
-    });
-  }, []);
+  function getIndexByEndDate(endDate: Date) {
+    const endHours = new Date(endDate).getHours();
+    const endMinutes = new Date(endDate).getMinutes();
+    const elem = list.find(
+      (el) => el.hour === endHours && Number(el.mins) === endMinutes
+    );
+    return elem?.y;
+  }
+
+  const y = useMotionValue(getIndexByEndDate(cell.endDate));
+  const height = useMotionValue("auto");
+
+  // const findCollidingIndex = ({ x, y }: { x: number; y: number }) => {
+  //   return rects.findIndex((rect: Rect) =>
+  //     isColliding(rect, { width: 10, height: 10, x, y }, 1)
+  //   );
+  // };
+
+  console.log("UPDATED: ", updated);
+
   return (
     <motion.div
+      layout
       drag
       dragConstraints={{ top: -5, bottom: 5, left: -5, right: 5 }}
       ref={ref}
       style={{
-        // resize: "vertical",
+        height,
         gridRowStart: cell.y,
         gridColumnStart: cell.x,
-        gridRowEnd: cell.y + factor, // @TODO: reizable
+        // gridRowEnd: cell.y + factor, // @TODO: reizable
+        // gridRowEnd: y.get() + factor, // why +1?
+        gridRowEnd: y.get() + factor,
+        // gridColumnEnd: 1,
       }}
-      className="bg-gray-400 w-full h-full rounded-lg relative z-20 overflow-hidden cursor-grab active:cursor-grabbing active:z-50"
-    ></motion.div>
+      className="bg-gray-400 w-full h-full rounded-lg relative z-20 cursor-grab active:cursor-grabbing active:z-50 overflow-hidden"
+    >
+      <motion.div
+        drag="y"
+        dragSnapToOrigin
+        dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
+        dragElastic={0}
+        onDrag={(obj: MouseEvent, { delta }) => {
+          const bound = ref.current.getBoundingClientRect();
+          height.set(
+            height.get() === "auto" ? bound.height : height.get() + delta.y
+          );
+        }}
+        onDragEnd={(_, { point }) => {
+          const portion = Math.floor(
+            ref.current.getBoundingClientRect().height / rects[0].height
+          );
+          height.set(portion < 1 ? rects[0].height : portion * rects[0].height);
+          const elem = getElementByCoords({
+            list,
+            x: cell.x - 1,
+            y: cell.y + portion - 2,
+          });
+          if (!elem) return;
+          const endDate = new Date(
+            elem.year,
+            elem.month,
+            elem.dateNumber,
+            elem.hour,
+            elem.mins
+          );
+          setUpdated({ ...cell, endDate });
+        }}
+        className="h-2 bg-indigo-500 absolute left-0 right-0 bottom-0 z-30 cursor-move"
+      />
+    </motion.div>
   );
 };
 
@@ -370,13 +457,13 @@ export const ColumnsContainer = ({
     grid === "quarter" ? 45 : grid === "half" ? 30 : 0;
 
   const handleClick = (x: number, y: number) => {
-    console.log({ x, y });
+    // console.log({ x, y });
     const hourIndex = Math.ceil(y / factor) - 1;
     const residuo = y / factor + 1;
     let mins = (residuo % Math.floor(residuo)) * 60 - 15;
     mins = mins < 0 ? getMinsByFactor() : mins;
     const hour = hours[hourIndex];
-    console.log("Time:", `${hour.number}:${mins}`);
+    // console.log("Time:", `${hour.number}:${mins}`);
 
     const event: BasicBoxType = {
       // date: new Date(2024, 6, date, hours, mins),
