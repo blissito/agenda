@@ -3,25 +3,15 @@ import { twMerge } from "tailwind-merge";
 import { getCoord } from "~/components/dash/agenda/agendaUtils";
 import { motion, Point } from "framer-motion";
 
-export type CellData =
-  | {
-      index?: number;
-      id?: string;
-      x: number;
-      y: number;
-      overIndex?: number | null;
-      getOverIndex?: () => number | null;
-      updateOverIndex?: (index: number) => void;
-    }
-  | {
-      overIndex?: number | null;
-      updateOverIndex?: (index: number) => void;
-      getOverIndex?: () => number | null;
-      index: number;
-      id: string;
-      x?: number;
-      y?: number;
-    };
+export type CellData = {
+  overIndex?: number | null;
+  updateOverIndex?: (index: number) => void;
+  getOverIndex?: () => number | null;
+  index: number;
+  id: string;
+  x?: number;
+  y?: number;
+};
 
 export const testItems: CellData[] = [
   {
