@@ -120,8 +120,6 @@ export const CalendarGrid = ({
     selected.startDate = startDate;
     selected.endDate = endDate;
 
-    console.log("SELECTED", selected);
-
     setExtra((ex) => [
       ...ex,
       {
@@ -138,9 +136,8 @@ export const CalendarGrid = ({
   };
 
   const handleBlock = (cube: Cell) => {
-    console.log("CUBE: ", cube);
     setBlocks((blocks) => {
-      return [...blocks, cube];
+      return [...blocks, { ...cube, x: cube.x - 1, y: cube.y - 1 }]; // offset improve @todo
     });
     setExtra([]);
   };
@@ -283,7 +280,6 @@ export const Blocked = ({
   factor: number;
   cell: Cell;
 }) => {
-  const ref = useRef();
   const { rects, days } = useContext(GridContext);
   const [updated, setUpdated] = useState(cell);
 
@@ -296,66 +292,119 @@ export const Blocked = ({
     return elem?.y;
   }
 
-  const y = useMotionValue(getIndexByEndDate(cell.endDate));
-  const height = useMotionValue("auto");
+  const containerRef = useRef(null);
+  const handleRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
 
-  // const findCollidingIndex = ({ x, y }: { x: number; y: number }) => {
-  //   return rects.findIndex((rect: Rect) =>
-  //     isColliding(rect, { width: 10, height: 10, x, y }, 1)
-  //   );
-  // };
+  const height = useMotionValue(rects[0].height * factor);
 
-  console.log("UPDATED: ", updated);
+  let draggable;
+
+  console.log("UPDATED:", updated);
 
   return (
     <motion.div
       layout
+      transition={{ type: "spring", bounce: 0 }}
       drag
-      dragConstraints={{ top: -5, bottom: 5, left: -5, right: 5 }}
-      ref={ref}
+      onDragStart={(e) => {
+        setIsDragging(true);
+      }}
+      onDragEnd={(e) => {
+        // @TODO endDate must be generateds
+        const index = e.target.dataset.index;
+        setIsDragging(false);
+        if (!index) return;
+
+        setUpdated({
+          ...list[index],
+          startDate: new Date( // @todo save endDate correctly
+            list[index].year,
+            list[index].month,
+            list[index].dateNumber,
+            list[index].hour,
+            list[index].mins
+          ),
+          // endDate: new Date( // @todo save endDate correctly
+          //   list[index].year,
+          //   list[index].month,
+          //   list[index].dateNumber,
+          //   list[index].hour
+          // ),
+        });
+      }}
+      // onDrag={(e) => {
+      //   e.target.style.border = "2px solid yellow";
+      // }}
+      // dragConstraints={{ top: -5, bottom: 5, left: -5, right: 5 }}
+      dragSnapToOrigin
+      ref={handleRef}
       style={{
         height,
-        gridRowStart: cell.y,
-        gridColumnStart: cell.x,
+        gridColumnStart: updated.x + 1,
+        gridRowStart: updated.y + 1,
         // gridRowEnd: cell.y + factor, // @TODO: reizable
         // gridRowEnd: y.get() + factor, // why +1?
-        gridRowEnd: y.get() + factor,
+        // gridRowEnd: y.get() + factor,
         // gridColumnEnd: 1,
       }}
-      className="bg-gray-400 w-full h-full rounded-lg relative z-20 cursor-grab active:cursor-grabbing active:z-50 overflow-hidden"
+      className={twMerge(
+        "bg-gray-400 w-full h-full rounded-lg relative z-20 cursor-grab active:cursor-grabbing active:z-50 overflow-hidden",
+        isDragging && "pointer-events-none",
+        "min-h-7"
+      )}
     >
       <motion.div
         drag="y"
         dragSnapToOrigin
         dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
         dragElastic={0}
+        onDragStart={(e) => {
+          setIsDragging(true);
+        }}
         onDrag={(obj: MouseEvent, { delta }) => {
-          const bound = ref.current.getBoundingClientRect();
-          height.set(
-            height.get() === "auto" ? bound.height : height.get() + delta.y
-          );
+          const h = height.get() + delta.y;
+          height.set(h < rects[0].height ? rects[0].height : h);
         }}
-        onDragEnd={(_, { point }) => {
-          const portion = Math.floor(
-            ref.current.getBoundingClientRect().height / rects[0].height
-          );
-          height.set(portion < 1 ? rects[0].height : portion * rects[0].height);
-          const elem = getElementByCoords({
-            list,
-            x: cell.x - 1,
-            y: cell.y + portion - 2,
-          });
-          if (!elem) return;
+        onDragEnd={(e) => {
+          const index = Number(e.target.dataset.index);
+          setIsDragging(false);
+          const cell = list[index];
+          if (!cell) return;
           const endDate = new Date(
-            elem.year,
-            elem.month,
-            elem.dateNumber,
-            elem.hour,
-            elem.mins
+            cell.year,
+            cell.month,
+            cell.dateNumber,
+            cell.hour,
+            cell.mins
           );
-          setUpdated({ ...cell, endDate });
+          setUpdated((up) => ({ ...up, endDate })); // update enddate
+
+          // const portion = Math.floor(
+          //   containerRef.current?.getBoundingClientRect().height /
+          //     rects[0].height
+          // );
+          // height.set(portion < 1 ? rects[0].height : portion * rects[0].height);
+          // const index = e.target.dataset.index;
+          // const elem = getElementByCoords({
+          //   list,
+          //   x: updated.x - 1,
+          //   y: updated.y + portion - 2,
+          // });
+          // if (!elem) return;
+          // const endDate = new Date(
+          //   elem.year,
+          //   elem.month,
+          //   elem.dateNumber,
+          //   elem.hour,
+          //   elem.mins
+          // );
+          // setUpdated({ ...updated, endDate });
         }}
-        className="h-2 bg-indigo-500 absolute left-0 right-0 bottom-0 z-30 cursor-move"
+        className={twMerge(
+          "h-2 bg-indigo-500 absolute left-0 right-0 bottom-0 z-30 cursor-move",
+          isDragging && "pointer-events-none"
+        )}
       />
     </motion.div>
   );
@@ -543,14 +592,14 @@ export const VirtualGrid = ({
   );
 };
 
-function isColliding(source, sample, threshold = 0.5) {
-  return (
-    source.x < sample.x + sample.width - threshold * sample.width &&
-    source.x + source.width > sample.x + threshold * sample.width &&
-    source.y < sample.y + sample.height - threshold * sample.height &&
-    source.y + source.height > sample.y + threshold * sample.height
-  );
-}
+// function isColliding(source, sample, threshold = 0.5) {
+//   return (
+//     source.x < sample.x + sample.width - threshold * sample.width &&
+//     source.x + source.width > sample.x + threshold * sample.width &&
+//     source.y < sample.y + sample.height - threshold * sample.height &&
+//     source.y + source.height > sample.y + threshold * sample.height
+//   );
+// }
 
 export const Cell = ({
   index,
@@ -564,6 +613,7 @@ export const Cell = ({
   props?: any;
 }) => {
   const ref = useRef<HTMLButtonElement>(null);
+  const [isOver, setIsOver] = useState(false);
 
   useEffect(() => {
     let rect: Rect | DOMRect | undefined = ref.current?.getBoundingClientRect();
@@ -579,11 +629,31 @@ export const Cell = ({
 
   return (
     <motion.button
+      data-index={index}
+      onDrop={() => console.log("drop")}
+      onDragEnter={(e) => {
+        e.preventDefault();
+        console.log("enter?");
+        setIsOver(true);
+      }}
+      onDragOver={(e) => {
+        console.log("over?");
+        e.preventDefault();
+        setIsOver(true);
+      }}
+      onDragLeave={(e) => {
+        console.log("leave?");
+        e.preventDefault();
+        setIsOver(false);
+      }}
       ref={ref}
       initial={{ opacity: 1 }}
       onClick={onClick}
       whileHover={{ backgroundColor: "#ddd", opacity: 0.2 }}
-      className="border-l-[.5px] border-t-[.5px] border-dotted cursor-crosshair z-10"
+      className={twMerge(
+        "border-l-[.5px] border-t-[.5px] border-dotted cursor-crosshair z-10",
+        isOver && "bg-blue-500"
+      )}
       {...props}
     />
   );

@@ -132,7 +132,7 @@ export const generateWeekGrid = ({
         new Date(week[x].date).getFullYear(),
         new Date(week[x].date).getMonth(),
         new Date(week[x].date).getDate(),
-        new Date(week[x].date).getHours() + 1,
+        new Date(week[x].date).getHours(),
         mins
       ),
     };
