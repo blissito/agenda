@@ -127,7 +127,7 @@ export const Draggable = ({
 
   return (
     <motion.div
-      transition={{ type: "spring", bounce: 0.6, duration: 0.2 }}
+      transition={{ type: "spring", bounce: 0.6, duration: 1 }}
       whileDrag={whileDrag}
       layoutId={id}
       dragElastic={0.2}
@@ -178,8 +178,13 @@ export const Grid = ({
   return (
     <>
       <section
-        className={twMerge("h-full grid-flow-col-dense", className)}
-        style={{ display: "grid", boxSizing: "border-box" }}
+        className={twMerge("h-full", className)}
+        style={{
+          display: "grid",
+          boxSizing: "border-box",
+          gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gridTemplateRows: `repeat(${numberOfItems / cols}, 1fr)`,
+        }}
       >
         {[
           ...Array(
@@ -221,9 +226,7 @@ export const Grid = ({
                   <p
                     data-index={index}
                     className={twMerge(overIndex === index && "bg-pink-500")}
-                  >
-                    X: {x}, Y: {y}, Index: {index}, overIndex: {overIndex}
-                  </p>
+                  />
                 ))}
             </Cell>
           );

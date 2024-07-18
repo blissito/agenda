@@ -9,6 +9,8 @@ import {
 
 export default function Page() {
   const [items, set] = useState<CellData[]>(testItems);
+  // demo only
+  const [showCoords, setShowCoords] = useState(false);
   // custom drop mutation for this example
   const handleDrop = ({
     originIndex,
@@ -19,7 +21,7 @@ export default function Page() {
   }) => {
     const itemLocalIndex = items.findIndex((it) => it.index === originIndex); // ?? improve?
     const item = items[itemLocalIndex];
-    item.index = dropIndex ?? originIndex;
+    item.index = dropIndex ?? originIndex; // mutando el index
     const mapped = items.map((it, i) => (i === itemLocalIndex ? item : it));
     set(mapped);
   };
@@ -85,10 +87,33 @@ export default function Page() {
   return (
     <>
       <section className="mx-auto bg-slate-100 h-screen overflow-hidden">
-        <h1 className="px-3 m-2">Blissmo draggable and interactive grid</h1>
-        <Grid cols={3} numberOfItems={18} className="py-20 px-4" showCoords>
-          {drawExample}
-        </Grid>
+        <h1 className="px-3 m-2 text-4xl">
+          Blissmo draggable and interactive grid
+        </h1>
+        <button
+          className="px-4 py-2 bg-indigo-500 text-white rounded-lg my-8"
+          onClick={() => setShowCoords((v) => !v)}
+        >
+          Toggle coords {showCoords ? "off" : "on"}
+        </button>
+        <div className="h-full relative">
+          <Grid
+            cols={5}
+            numberOfItems={120}
+            // rows={4}
+            // className="px-4 pb-[20%] absolute inset-0 z-10"
+            showCoords={showCoords}
+          >
+            {drawExample}
+          </Grid>
+          {/* <Grid
+            cols={3}
+            numberOfItems={18}
+            className="absolute inset-0 px-4 py-20 z-20"
+          >
+            {() => <div className="flex justify-center items-center">👽</div>}
+          </Grid> */}
+        </div>
       </section>
     </>
   );

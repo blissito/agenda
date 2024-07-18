@@ -18,10 +18,11 @@
     "@remix-run/react": "^2.9.2",
     "@remix-run/serve": "^2.9.2",
     "clsx": "^2.1.1",
-    "framer-motion": "^11.2.13",
+    "framer-motion": "^11.3.7",
     "isbot": "^4.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.2.1",
     "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {
