@@ -3,11 +3,11 @@ import { twMerge } from "tailwind-merge";
 import { getCoord } from "~/components/dash/agenda/agendaUtils";
 import { motion, Point } from "framer-motion";
 
+// @TODO Allow multiple in same cell
 export type CellData = {
   overIndex?: number | null;
   updateOverIndex?: (index: number) => void;
-  getOverIndex?: () => number | null;
-  index: number;
+  index?: number;
   id: string;
   x?: number;
   y?: number;
@@ -15,7 +15,7 @@ export type CellData = {
 
 export const testItems: CellData[] = [
   {
-    x: 4,
+    x: 1,
     y: 2,
     id: "coords",
   },
@@ -31,8 +31,11 @@ export const testItems: CellData[] = [
     index: 0,
     id: "Unnamed",
   },
+  //   {
+  //     index: 17,
+  //     id: "Uno nuevo",
+  //   },
 ];
-// @TODO Allow multiple in same cell
 
 export const Draggable = ({
   id = "",
@@ -142,7 +145,6 @@ export const Draggable = ({
       <div
         className={twMerge(
           "flex justify-center items-center h-full pointer-events-none text-white bg-blend-exclusion",
-
           className
         )}
       >
@@ -152,7 +154,7 @@ export const Draggable = ({
   );
 };
 
-export const CellDrawer = ({
+export const Grid = ({
   numberOfItems,
   showCoords,
   cols = 2,
@@ -160,7 +162,7 @@ export const CellDrawer = ({
   className,
   children,
 }: {
-  children?: (arg0: CellData) => ReactNode;
+  children?: (arg0: Partial<CellData>) => ReactNode;
   className?: string;
   numberOfItems?: number;
   showCoords?: boolean;
@@ -176,8 +178,8 @@ export const CellDrawer = ({
   return (
     <>
       <section
-        className={twMerge("h-full", className)}
-        style={{ display: "grid" }}
+        className={twMerge("h-full grid-flow-col-dense", className)}
+        style={{ display: "grid", boxSizing: "border-box" }}
       >
         {[
           ...Array(
@@ -215,42 +217,19 @@ export const CellDrawer = ({
                   >
                     X: {x}, Y: {y}, Index: {index}, overIndex: {overIndex}
                   </p>
-                ) : null)}
+                ) : (
+                  <p
+                    data-index={index}
+                    className={twMerge(overIndex === index && "bg-pink-500")}
+                  >
+                    X: {x}, Y: {y}, Index: {index}, overIndex: {overIndex}
+                  </p>
+                ))}
             </Cell>
           );
         })}
       </section>
     </>
-  );
-};
-
-export const Grid = ({
-  className,
-  ...props
-}: {
-  cols: number;
-  rows?: number;
-  className?: string;
-  [x: string]: unknown;
-}) => {
-  return (
-    <div
-      className={twMerge("p-4", className)}
-      style={{
-        // backgroundImage: `repeating-linear-gradient(#ccc 0 1px, transparent 1px 100%),
-        // repeating-linear-gradient(90deg, #ccc 0 1px, transparent 1px 100%)`,
-        backgroundSize: `7px 7px`,
-        width: "100%",
-        height: "100%",
-
-        display: "grid",
-        gridTemplateColumns: "auto",
-        gridTemplateRows: "auto",
-        // gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
-        // gridTemplateRows: `repeat(${4}, minmax(0, 1fr))`,
-      }}
-      {...props}
-    />
   );
 };
 

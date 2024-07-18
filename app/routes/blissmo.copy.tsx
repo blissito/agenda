@@ -2,15 +2,13 @@ import { useState } from "react";
 import { twMerge } from "tailwind-merge";
 import {
   CellData,
-  CellDrawer,
   Draggable,
+  Grid,
   testItems,
 } from "~/components/dash/agenda/draggableGrid";
 
 export default function Page() {
   const [items, set] = useState<CellData[]>(testItems);
-  // const [draggingOverIndex, setDOI] = useState<number | null>(null);
-
   // custom drop mutation for this example
   const handleDrop = ({
     originIndex,
@@ -26,7 +24,7 @@ export default function Page() {
     set(mapped);
   };
 
-  const drawExample = (data: CellData) => {
+  const drawExample = (data: Partial<CellData>) => {
     // draw your defined items
     const findItem = (searchIndex: number) => {
       return items.find((it) => it.index === searchIndex);
@@ -43,9 +41,9 @@ export default function Page() {
           onDrop={handleDrop}
           onDrag={data.updateOverIndex}
           whileDrag={{
-            backgroundColor: "#222",
-            opacity: 1,
-            scale: 0.8,
+            // backgroundColor: "rgb(99 102 241 / var(--tw-bg-opacity))",
+            opacity: 0.9,
+            scale: 0.9,
           }}
         >
           {item.id}
@@ -63,9 +61,22 @@ export default function Page() {
     if (itemByCoords) {
       return (
         <div
-          className={twMerge("bg-orange-500 text-xs")}
-          children={JSON.stringify(data)}
-        />
+          data-index={data.index}
+          style={{
+            boxSizing: "border-box",
+          }}
+          className={twMerge(
+            "bg-orange-500 text-xs rounded-2xl",
+            data.overIndex === data.index && "bg-pink-500"
+          )}
+        >
+          <p
+            className={twMerge("flex justify-center items-center h-full px-4")}
+          >
+            X: {data.x}, Y: {data.y}, Index: {data.index}, overIndex:
+            {data.overIndex}
+          </p>
+        </div>
       );
     }
     // if function doesn't return i'll render coord if showCoords true
@@ -75,9 +86,9 @@ export default function Page() {
     <>
       <section className="mx-auto bg-slate-100 h-screen overflow-hidden">
         <h1 className="px-3 m-2">Blissmo draggable and interactive grid</h1>
-        <CellDrawer cols={5} numberOfItems={15} className="py-20" showCoords>
+        <Grid cols={3} numberOfItems={18} className="py-20 px-4" showCoords>
           {drawExample}
-        </CellDrawer>
+        </Grid>
       </section>
     </>
   );
