@@ -2,6 +2,7 @@ import { twMerge } from "tailwind-merge";
 import { FaArrowRight, FaArrowLeft, FaLinkedin } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { generatePics } from "~/utils/generatePics";
 
 export type Pic = {
   src: string;
@@ -11,12 +12,12 @@ export type Pic = {
   link: string;
 };
 export type SimpeAnimatedGalleryProps = {
-  pics: Pic[]; // Should be 8 minimum
+  pics?: Pic[]; // Should be 8 minimum
   delay?: number;
 };
 
 export const SimpleAnimatedGallery = ({
-  pics,
+  pics = generatePics(),
   delay = 5,
 }: SimpeAnimatedGalleryProps) => {
   const [gallery, setGallery] = useState<Pic[]>(pics);
@@ -73,9 +74,10 @@ export const SimpleAnimatedGallery = ({
             const isActive = i === gallery.length - 2;
             return (
               <Image
+                id={pic.text}
                 link={pic.link}
                 src={pic.src}
-                key={pic.src + pic.link}
+                key={pic.text}
                 isActive={isActive}
                 onClick={() => handlePicClick(i)}
               />
@@ -137,7 +139,9 @@ const Image = ({
   link,
   src,
   className,
+  id,
 }: {
+  id?: string;
   index?: string | number;
   onClick?: () => void;
   isActive?: boolean;
@@ -147,7 +151,7 @@ const Image = ({
 }) => {
   return (
     <motion.button
-      key={src + link}
+      key={id}
       layout
       transition={{ type: "spring", bounce: 0.3 }}
       onClick={onClick}

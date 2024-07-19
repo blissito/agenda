@@ -11,10 +11,10 @@ export default function Page() {
 
   return (
     <article className="bg-slate-100 grid place-content-center h-screen">
-      <h1 className="text-2xl font-bold py-2 text-center">
+      <h1 className="text-4xl font-bold py-2 text-center">
         Qué opinan nuestros estudiantes
       </h1>
-      <p className="text-center text-xs pb-6">
+      <p className="text-center text-xl pb-6 font-thin">
         Si las imagenes se repiten se buguea 🤬
       </p>
       <SimpleAnimatedGallery delay={2} pics={pics} />
