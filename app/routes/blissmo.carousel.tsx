@@ -88,7 +88,7 @@ export default function Page() {
   };
 
   return (
-    <article className="bg-slate-100 h-full grid place-content-center h-screen">
+    <article className="bg-slate-100 grid place-content-center h-screen">
       <h1 className="text-2xl font-bold py-8 text-center">
         Qué opinan nuestros estudiantes
       </h1>
@@ -172,7 +172,7 @@ const Image = ({
 }) => {
   return (
     <motion.button
-      key={link}
+      //   key={link}
       layout
       initial={{ opacity: 0, x: -20 }}
       animate={{ scale: 1, opacity: 1, x: 0 }}
@@ -180,16 +180,18 @@ const Image = ({
       transition={{ type: "spring", bounce: 0.3 }}
       onClick={onClick}
       className={twMerge(
-        "relative h-44 min-w-28 rounded-lg overflow-hidden",
+        "relative h-44 min-w-28 rounded-lg",
         isLast && "h-[95%] min-w-40",
         className
       )}
       //   style={{ originY: "bottom" }}
       whileHover={{ scaleY: 1.03, top: -2 }}
     >
-      <img
+      <motion.img
+        drag
+        dragSnapToOrigin
         className={twMerge(
-          "w-full h-full object-cover object-center",
+          "w-full h-full object-cover object-center rounded-xl active:cursor-grabbing hover:cursor-grab",
           isLast && "object-center"
         )}
         src={src}
