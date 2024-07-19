@@ -23,16 +23,19 @@ export const SimpleAnimatedGallery = ({
   const saved = useRef<Pic | null | undefined>(null);
   const interval = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
+  const placeInterval = () => {
     interval.current && clearInterval(interval.current);
     interval.current = setInterval(() => {
       handleNext();
     }, delay * 1000);
+    return removeInterval;
+  };
 
-    return () =>
-      (interval.current && clearInterval(interval.current)) ?? undefined;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gallery]);
+  const removeInterval = () => {
+    (interval.current && clearInterval(interval.current)) ?? undefined;
+  };
+
+  useEffect(placeInterval, [gallery]);
 
   const handleNext = () => {
     const cloned = [...gallery];
@@ -58,7 +61,12 @@ export const SimpleAnimatedGallery = ({
   const active = useMemo(() => gallery[gallery.length - 2], [gallery]);
 
   return (
-    <main className="bg-white block box-content max-w-5xl overflow-hidden">
+    <main
+      className="bg-white block box-content max-w-5xl overflow-hidden"
+      onMouseLeave={placeInterval}
+      onFocus={removeInterval}
+      onMouseOver={removeInterval}
+    >
       <article className="flex justify-center items-center h-[40vh]">
         <section className="flex gap-2 justify-end w-[60%] items-end h-full translate-x-[117px] z-10 relative">
           {gallery.map((pic, i) => {
