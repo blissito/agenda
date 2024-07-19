@@ -79,7 +79,7 @@ export const SimpleAnimatedGallery = ({
           <motion.div
             initial={{ opacity: 0, scale: 1.2 }}
             animate={{ opacity: 1, scale: 1 }}
-            key={active.name}
+            key={active.text}
             className="absolute inset-0 flex flex-col px-8 justify-center box-border"
           >
             <h2 className="font-bold text-sm"> {active.name}</h2>
