@@ -95,49 +95,45 @@ export default function Page() {
       <main className="bg-white block box-content">
         <article className="flex justify-center items-center overflow-hidden h-[40vh]">
           <ul className="flex gap-2 justify-end w-[60%] items-end h-full">
-            <AnimatePresence mode="popLayout">
-              {gallery.map((pic, i) => {
-                const isLast = i === gallery.length - 1;
-                return (
-                  <Image
-                    link={pic.link}
-                    src={pic.src}
-                    key={pic.src}
-                    //   isLast={i === activeIndex}
-                    isLast={isLast}
-                    onClick={() => handlePicClick(i)}
-                  />
-                );
-              })}
-            </AnimatePresence>
+            {gallery.map((pic, i) => {
+              const isLast = i === gallery.length - 1;
+              return (
+                <Image
+                  link={pic.link}
+                  src={pic.src}
+                  key={pic.src}
+                  //   isLast={i === activeIndex}
+                  isLast={isLast}
+                  onClick={() => handlePicClick(i)}
+                />
+              );
+            })}
           </ul>
 
           <section className="w-[40%] pl-8 pr-4 relative h-full">
-            <AnimatePresence mode="popLayout">
-              <motion.div
-                transition={{ type: "spring", duration: 0.5 }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                key={gallery[gallery.length - 1].src}
-                className="absolute inset-0 flex flex-col px-8 justify-center box-border"
-              >
-                <h2 className="font-bold text-sm">
-                  {" "}
-                  {gallery[gallery.length - 1].name}
-                </h2>
-                <p className="font-thin text-xs mb-6">
-                  {" "}
-                  {gallery[gallery.length - 1].title}
-                </p>
-                <strong className="text-5xl">"</strong>
-                <p className="text-xs pr-8 text-center">
-                  {gallery[gallery.length - 1].text}
-                </p>
-                <br />
-                <strong className="text-5xl block text-right pr-12">" </strong>
-              </motion.div>
-            </AnimatePresence>
+            <motion.div
+              transition={{ type: "spring", duration: 0.5 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              //   exit={{ opacity: 0, scale: 0.8 }}
+              key={gallery[gallery.length - 1].src}
+              className="absolute inset-0 flex flex-col px-8 justify-center box-border"
+            >
+              <h2 className="font-bold text-sm">
+                {" "}
+                {gallery[gallery.length - 1].name}
+              </h2>
+              <p className="font-thin text-xs mb-6">
+                {" "}
+                {gallery[gallery.length - 1].title}
+              </p>
+              <strong className="text-5xl">"</strong>
+              <p className="text-xs pr-8 text-center">
+                {gallery[gallery.length - 1].text}
+              </p>
+              <br />
+              <strong className="text-5xl block text-right pr-12">" </strong>
+            </motion.div>
           </section>
         </article>
         <div className="flex justify-center items-center gap-12 my-2">
