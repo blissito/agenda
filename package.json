@@ -26,6 +26,7 @@
     "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@flydotio/dockerfile": "^0.5.7",
     "@remix-run/dev": "^2.9.2",
     "@tailwindcss/forms": "^0.5.7",
