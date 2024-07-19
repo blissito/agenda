@@ -58,8 +58,8 @@ export default function Page() {
   useEffect(() => {
     interval.current && clearInterval(interval.current);
     interval.current = setInterval(() => {
-      handlePrev();
-      //   handleNext();
+      //   handlePrev();
+      handleNext();
     }, 3000);
     return () =>
       (interval.current && clearInterval(interval.current)) ?? undefined;
@@ -82,8 +82,9 @@ export default function Page() {
   };
 
   const handlePicClick = (index: number) => {
-    const clicked = gallery.splice(index, 1)[0];
-    setGallery([...gallery, clicked]);
+    const cloned = [...gallery];
+    cloned.splice(cloned.length - 2, 0, cloned.splice(index, 1)[0]);
+    setGallery(cloned);
   };
 
   return (
@@ -93,10 +94,10 @@ export default function Page() {
       </h1>
 
       <main className="bg-white block box-content">
-        <article className="flex justify-center items-center overflow-hidden h-[40vh]">
-          <ul className="flex gap-2 justify-end w-[60%] items-end h-full">
+        <article className="flex justify-center items-center h-[40vh]">
+          <ul className="flex gap-2 justify-end w-[60%] items-end h-full translate-x-[117px] z-10 relative">
             {gallery.map((pic, i) => {
-              const isLast = i === gallery.length - 1;
+              const isLast = i === gallery.length - 2;
               return (
                 <Image
                   link={pic.link}
@@ -110,7 +111,7 @@ export default function Page() {
             })}
           </ul>
 
-          <section className="w-[40%] pl-8 pr-4 relative h-full">
+          <section className="w-[40%] pl-8 pr-4 h-full relative z-20 bg-white">
             <motion.div
               transition={{ type: "spring", duration: 0.5 }}
               initial={{ opacity: 0, scale: 0.8 }}
@@ -136,7 +137,7 @@ export default function Page() {
             </motion.div>
           </section>
         </article>
-        <div className="flex justify-center items-center gap-12 my-2">
+        <section className="flex justify-center items-center gap-12 my-2 relative z-10">
           <button
             onClick={handlePrev}
             className="hover:scale-105 active:scale-100 rounded-full h-12 w-12 box-border bg-gray-200 grid place-content-center text-gray-800 transition-all"
@@ -149,7 +150,7 @@ export default function Page() {
           >
             <FaArrowRight />
           </button>
-        </div>
+        </section>
       </main>
     </article>
   );
@@ -173,10 +174,10 @@ const Image = ({
     <motion.button
       key={link}
       layout
-      initial={{ scale: 1.05, opacity: 0, y: -50 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ scale: 1, opacity: 1, x: 0 }}
       //   exit={{ scale: 0.8, opacity: 0 }}
-      transition={{ type: "spring", bounce: 0.4 }}
+      transition={{ type: "spring", bounce: 0.3 }}
       onClick={onClick}
       className={twMerge(
         "relative h-44 min-w-28 rounded-lg overflow-hidden",
