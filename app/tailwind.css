@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 * {
-  boxsizing: "border-box";
+  box-sizing: "border-box";
 }

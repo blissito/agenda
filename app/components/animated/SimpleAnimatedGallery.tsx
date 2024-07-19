@@ -62,7 +62,7 @@ export const SimpleAnimatedGallery = ({
 
   return (
     <main
-      className="bg-white block box-content max-w-5xl overflow-hidden"
+      className="bg-white block box-content max-w-5xl overflow-hidden rounded-2xl"
       onMouseLeave={placeInterval}
       onFocus={removeInterval}
       onMouseOver={removeInterval}
