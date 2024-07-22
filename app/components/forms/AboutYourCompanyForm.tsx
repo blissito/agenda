@@ -77,7 +77,11 @@ export const AboutYourCompanyForm = () => {
           registerOptions={{ required: REQUIRED_MESSAGE }}
         />
         <AbsoluteCentered className="px-2 pb-8">
-          <PrimaryButton isDisabled={isDisabled} type="submit">
+          <PrimaryButton
+            isDisabled={isDisabled}
+            isLoading={fetcher.state !== "idle"}
+            type="submit"
+          >
             Continuar
           </PrimaryButton>
         </AbsoluteCentered>
