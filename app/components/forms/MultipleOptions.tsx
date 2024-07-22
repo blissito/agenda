@@ -81,10 +81,11 @@ export const Option = ({
       // Im doing this because of the ability of the label of activate the radio on click
       htmlFor={option}
       className={twMerge(
+        "active:scale-95 active:shadow-inner",
         "relative",
         "flex items-center gap-4",
-        "py-2 rounded-lg px-4 border border-gray-100"
-        // "checked:border-blue-600"
+        "py-2 rounded-lg px-4 border border-gray-100 shadow"
+        // "checked:border-blue-600" // no funciona U_U
         //   "overflow-hidden"
       )}
       key={option}
