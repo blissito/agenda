@@ -14,50 +14,59 @@ const MouseEnterContext = createContext<
 
 export default function Page() {
   return (
-    <article className="flex bg-slate-100 h-screen gap-1 p-24 overflow-hidden justify-evenly">
-      <WhiteCard id="one">
+    <>
+      <article className="flex bg-slate-100 h-screen gap-1 p-24 overflow-hidden justify-evenly">
+        <WhiteCard id="one">
+          <img
+            className="object-cover w-full h-full flex-1"
+            src="https://images.pexels.com/photos/386025/pexels-photo-386025.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            alt="playa"
+          />
+        </WhiteCard>
+        <WhiteCard id="two">
+          <img
+            className="object-cover w-full h-full flex-1"
+            src="https://images.pexels.com/photos/206359/pexels-photo-206359.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            alt="playa"
+          />
+        </WhiteCard>
+        <WhiteCard id="three">
+          <img
+            className="object-cover w-full h-full flex-1"
+            src="https://images.pexels.com/photos/269583/pexels-photo-269583.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            alt="playa"
+          />
+        </WhiteCard>
+        <WhiteCard id="pig" className="col-span-2 row-span-2 z-10">
+          <img
+            className="object-cover w-full h-full flex-1"
+            src="https://images.pexels.com/photos/66258/staniel-cay-swimming-pig-seagull-fish-66258.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            alt="playa"
+          />
+        </WhiteCard>
+        <WhiteCard id="five">
+          <img
+            className="object-cover w-full h-full flex-1"
+            src="https://images.pexels.com/photos/356807/pexels-photo-356807.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            alt="playa"
+          />
+        </WhiteCard>
+        <WhiteCard id="six">
+          <img
+            className="object-cover w-full h-full flex-1"
+            src="https://images.pexels.com/photos/163872/italy-cala-gonone-air-sky-163872.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+            alt="playa"
+          />
+        </WhiteCard>
+      </article>
+      <CardContainer>
         <img
-          className="object-cover w-full h-full flex-1"
-          src="https://images.pexels.com/photos/386025/pexels-photo-386025.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          alt="playa"
-        />
-      </WhiteCard>
-      <WhiteCard id="two">
-        <img
-          className="object-cover w-full h-full flex-1"
-          src="https://images.pexels.com/photos/206359/pexels-photo-206359.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          alt="playa"
-        />
-      </WhiteCard>
-      <WhiteCard id="three">
-        <img
-          className="object-cover w-full h-full flex-1"
-          src="https://images.pexels.com/photos/269583/pexels-photo-269583.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          alt="playa"
-        />
-      </WhiteCard>
-      <WhiteCard id="pig" className="col-span-2 row-span-2 z-10">
-        <img
-          className="object-cover w-full h-full flex-1"
-          src="https://images.pexels.com/photos/66258/staniel-cay-swimming-pig-seagull-fish-66258.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          alt="playa"
-        />
-      </WhiteCard>
-      <WhiteCard id="five">
-        <img
-          className="object-cover w-full h-full flex-1"
-          src="https://images.pexels.com/photos/356807/pexels-photo-356807.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-          alt="playa"
-        />
-      </WhiteCard>
-      <WhiteCard id="six">
-        <img
-          className="object-cover w-full h-full flex-1"
+          className="object-cover max-w-40 h-96 flex-1"
           src="https://images.pexels.com/photos/163872/italy-cala-gonone-air-sky-163872.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
           alt="playa"
         />
-      </WhiteCard>
-    </article>
+      </CardContainer>
+    </>
   );
 }
 
