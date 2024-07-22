@@ -88,7 +88,7 @@ export default function Page() {
 export const MiniHero = ({ title }: { title: ReactNode }) => {
   return (
     <div className="flex flex-col justify-between max-w-xl mx-auto h-[80%] ">
-      <h2 className="text-white lg:text-6xl text-4xl font-bold mt-auto">
+      <h2 className="text-white lg:text-6xl text-5xl font-bold mt-auto">
         {title}
       </h2>
       <img
