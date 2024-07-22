@@ -20,7 +20,7 @@ export const AboutYourCompanyForm = () => {
     mode: "onChange",
     defaultValues: {
       name: "",
-      shopkeeper: "",
+      shopKeeper: "",
       numberOfEmployees: "",
       address: "",
     },
@@ -54,11 +54,11 @@ export const AboutYourCompanyForm = () => {
           registerOptions={{ required: REQUIRED_MESSAGE }}
         />
         <BasicInput
-          name="shopkeeper"
+          name="shopKeeper"
           register={register}
           registerOptions={{ required: REQUIRED_MESSAGE }}
           label="Tu nombre o del profesional que atiende tu negocio"
-          error={errors["shopkeeper"]}
+          error={errors["shopKeeper"]}
         />
         <BasicInput
           name="address"

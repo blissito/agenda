@@ -18,10 +18,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (intent === SLUGS[0]) {
     const data = JSON.parse(formData.get("data") as string);
     console.log("SAVING: " + SLUGS[0], data);
+    // @TODO: zod validation and parsing
   }
   // tipo-de-negocio
   if (intent === SLUGS[1]) {
     const data = JSON.parse(formData.get("data") as string);
+    // @TODO: zod validation and parsing
     console.log("SAVING: " + SLUGS[1], data);
   }
   console.log("REDIRECTING:::");
@@ -106,9 +108,9 @@ export const BackButton = () => {
       onClick={() => navigate(-1)}
       className={twMerge(
         "mb-12 h-4 w-full",
-        "active:scale-95", // Improve please! 🥶
         "transition-all rounded-full top-0 left-0 text-white text-3xl justify-center items-center block",
-        "max-w-xl mx-auto"
+        "max-w-xl mx-auto",
+        "active:opacity-50" // Improve please! 🥶
       )}
     >
       <HiOutlineArrowNarrowLeft />
