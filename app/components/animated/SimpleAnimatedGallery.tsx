@@ -36,6 +36,7 @@ export const SimpleAnimatedGallery = ({
     (interval.current && clearInterval(interval.current)) ?? undefined;
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(placeInterval, [gallery]);
 
   const handleNext = () => {

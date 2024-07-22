@@ -1,25 +1,17 @@
 import { twMerge } from "tailwind-merge";
 import {
-  Children,
   createContext,
-  createRef,
   MouseEvent,
   ReactNode,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { BasicBoxType, Day, generateWeekGrid } from "./agendaUtils";
 import { HourOrDay, useCoordinates } from "~/components/hooks/useCoordinates";
 // animation stuff
-import {
-  motion,
-  useDragControls,
-  useMotionValue,
-  useTransform,
-} from "framer-motion";
+import { motion, useDragControls, useMotionValue } from "framer-motion";
 
 type Rect = {
   x: number;
@@ -93,6 +85,7 @@ export const CalendarGrid = ({
     setList(
       generateWeekGrid({ daysLength: days.length, days, factor, hours, week })
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [week]);
   // =====
   // const virtualMatrixRef = createRef();
@@ -437,6 +430,7 @@ export const SelectionCube = ({
     };
     addEventListener("keydown", handleKeyDown);
     return () => removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -634,6 +628,7 @@ export const Cell = ({
       height: rect.height,
     } as Rect;
     updateRect?.(rect);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

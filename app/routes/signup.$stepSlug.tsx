@@ -1,19 +1,41 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import {
+  Form,
+  redirect,
+  useFetcher,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { BasicInput } from "~/components/formInputs/BasicInput";
 import { MultipleOptions } from "~/components/formInputs/MultipleOptions";
+import { FieldValues, useForm } from "react-hook-form";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { useMemo } from "react";
 
 const OPTIONS = ["Solo yo", "2", "3 a 5", "6 a 14", "15 o más"];
 const SLUGS = ["sobre-tu-negocio", "tipo-de-negocio"];
+export const REQUIRED_MESSAGE = "Este campo es requerido";
+const FORM_COMPONENT_NAMES = ["AboutYourCompanyForm", "BussinesTypeForm"];
+// @TODO: saving with real user
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  if (intent === SLUGS[0]) {
+    const data = JSON.parse(formData.get("data") as string);
+    console.log("SAVING: ", data);
+  }
+  console.log("REDIRECTING:::");
+  return redirect("/signup/" + SLUGS[1]);
+};
 
 const getStepComponentNameByStepSlug = (slug?: string) => {
   switch (slug) {
     case SLUGS[1]:
-      return "BussinesType";
+      return FORM_COMPONENT_NAMES[1];
     default:
-      return "AboutYourCompany";
+      return FORM_COMPONENT_NAMES[0];
   }
 };
 
@@ -28,34 +50,40 @@ const getTitleByStepSlug = (slug?: string) => {
 
 export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
   return {
-    stepSlug,
+    // stepSlug,
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
     title: getTitleByStepSlug(stepSlug),
   };
 };
 export default function Page() {
-  const { stepSlug, stepComponentName, title } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const { stepComponentName, title } = useLoaderData<typeof loader>();
 
-  const Component = () => {
+  const FormComponent = useMemo(() => {
     switch (stepComponentName) {
+      case FORM_COMPONENT_NAMES[1]:
+        return BussinesTypeForm;
       default:
-        return <AboutYourCompany />;
+        return AboutYourCompanyForm;
     }
-  };
-
-  console.log("stepSlug: ", stepSlug);
+  }, [stepComponentName]);
 
   return (
     <>
       <article className="h-screen flex">
         <section
           // style={{ display: "none" }}
-          className={twMerge(
-            "px-2",
-
-            "bg-brand_blue flex-1 md:grid hidden"
-          )}
+          className={twMerge("px-2", "bg-brand_blue flex-1 md:grid hidden")}
         >
+          <AbsoluteCentered className="top-0 left-0 p-8 text-white text-3xl">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-4 active:shadow max-w-min rounded-full"
+            >
+              <HiOutlineArrowNarrowLeft />
+            </button>
+          </AbsoluteCentered>
+
           <div className="flex flex-col items-center justify-center max-w-xl mx-auto">
             <h2 className="text-white lg:text-6xl text-4xl font-bold">
               {title}
@@ -71,35 +99,86 @@ export default function Page() {
           </div>
         </section>
         <section className="flex-1 overflow-hidden">
-          <Component />
+          <FormComponent />
         </section>
       </article>
     </>
   );
 }
 
-const AboutYourCompany = () => {
+const BussinesTypeForm = () => <h1>Form Para tipo de negocio WIP 🚧</h1>;
+
+const AboutYourCompanyForm = () => {
+  const fetcher = useFetcher();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isValid },
+    // watch,
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      name: "",
+      shopkeeper: "",
+      numberOfEmployees: "",
+      address: "",
+    },
+  });
+
+  const onSubmit = (values: FieldValues) => {
+    fetcher.submit(
+      // about-your-company
+      { intent: SLUGS[0], data: JSON.stringify(values) },
+      { method: "post" }
+    );
+  };
+
+  const isDisabled = !isValid;
+  console.log("Disabled: ", isDisabled);
+
   return (
     <>
       <Form
+        onSubmit={handleSubmit(onSubmit)}
         className={twMerge(
           "relative",
           "flex flex-col mx-auto max-w-xl h-full justify-center px-2"
         )}
       >
-        <BasicInput name="name" label="¿Cómo se llama tu negocio?" />
+        <BasicInput
+          label="¿Cómo se llama tu negocio?"
+          name="name"
+          error={errors["name"]}
+          register={register}
+          registerOptions={{ required: REQUIRED_MESSAGE }}
+        />
         <BasicInput
           name="shopkeeper"
-          label="Tu nombre o del profesional que atiende tu negocio "
+          register={register}
+          registerOptions={{ required: REQUIRED_MESSAGE }}
+          label="Tu nombre o del profesional que atiende tu negocio"
+          error={errors["shopkeeper"]}
         />
-        <BasicInput name="address" label="Ubicación de tu negocio (opcional)" />
+        <BasicInput
+          name="address"
+          registerOptions={{ required: false }}
+          label="Dirección de tu negocio (opcional)"
+          error={errors["address"]}
+          register={register}
+        />
         <MultipleOptions
+          defaultValue={null}
+          error={errors["numberOfEmployees"]}
           label="¿Cuantas personas trabajan en tu negocio?"
           name="numberOfEmployees"
           options={OPTIONS}
+          register={register}
+          registerOptions={{ required: REQUIRED_MESSAGE }}
         />
-        <AbsoluteCentered className="px-24 pb-8">
-          <PrimaryButton>Continuar</PrimaryButton>
+        <AbsoluteCentered className="px-2 pb-8">
+          <PrimaryButton isDisabled={isDisabled} type="submit">
+            Continuar
+          </PrimaryButton>
         </AbsoluteCentered>
       </Form>
     </>

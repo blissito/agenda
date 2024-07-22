@@ -1,35 +1,41 @@
-import { ReactNode } from "react";
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
+import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
 
+type Props = {
+  name: string;
+  register: UseFormRegister<FieldValues> | any;
+  error?: FieldError;
+  label?: string;
+  className?: string;
+  registerOptions?: { required: string | boolean };
+};
 export const BasicInput = ({
-  type = "text",
+  className,
+  registerOptions = { required: REQUIRED_MESSAGE },
+  error,
   label,
   name,
-  className,
+  register = () => undefined,
   ...props
-}: {
-  className?: string;
-  name: string;
-  label?: string;
-  type?: string;
-  [props: string]: string | number | ReactNode | unknown;
-}) => {
+}: Props) => {
   return (
     <>
-      <label
-        className={twMerge("mb-1 text-neutral-950", className)}
-        htmlFor={name}
-      >
+      <label className={twMerge(" text-neutral-950", className)} htmlFor={name}>
         {label}
       </label>
       <input
-        className={twMerge("rounded-xl border-gray-200")}
+        className={twMerge(
+          "focus:border-brand_blue",
+          "rounded-xl border-gray-200",
+          !!error && "border-red-500"
+        )}
         {...props}
-        name={name}
-        id={name}
-        type={type}
+        {...register(name, registerOptions)}
       />
-      <p className="mb-6">{/* Error  */}</p>
+      <p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>
     </>
   );
 };
+
+BasicInput.displayName = "BasicInput";
