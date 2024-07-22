@@ -19,6 +19,7 @@ const SLUGS = ["sobre-tu-negocio", "tipo-de-negocio"];
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 const FORM_COMPONENT_NAMES = ["AboutYourCompanyForm", "BussinesTypeForm"];
 // @TODO: saving with real user
+// @TODO: Show saved values when return (edit)
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
@@ -70,32 +71,32 @@ export default function Page() {
 
   return (
     <>
-      <article className="h-screen flex">
+      <article className={twMerge("h-screen flex", "md:flex-row", "flex-col")}>
         <section
-          // style={{ display: "none" }}
-          className={twMerge("px-2", "bg-brand_blue flex-1 md:grid hidden")}
+          className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}
         >
-          <AbsoluteCentered className="top-0 left-0 p-8 text-white text-3xl">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-4 active:shadow max-w-min rounded-full"
-            >
-              <HiOutlineArrowNarrowLeft />
-            </button>
-          </AbsoluteCentered>
+          <button
+            onClick={() => navigate(-1)}
+            className={twMerge(
+              "mb-12 h-4 w-full",
+              "active:scale-95", // Improve please! 🥶
+              "transition-all rounded-full top-0 left-0 text-white text-3xl justify-center items-center block",
+              "max-w-xl mx-auto"
+            )}
+          >
+            <HiOutlineArrowNarrowLeft />
+          </button>
 
-          <div className="flex flex-col items-center justify-center max-w-xl mx-auto">
-            <h2 className="text-white lg:text-6xl text-4xl font-bold">
+          <div className="flex flex-col justify-between max-w-xl mx-auto h-[80%] ">
+            <h2 className="text-white lg:text-6xl text-4xl font-bold mt-auto">
               {title}
             </h2>
-            <AbsoluteCentered className="pb-8 px-2">
-              <img
-                width={80}
-                className="mt-auto"
-                src="/images/brand/logo_white.svg"
-                alt="logo"
-              />
-            </AbsoluteCentered>
+            <img
+              className="mt-auto"
+              width={80}
+              src="/images/brand/logo_white.svg"
+              alt="logo"
+            />
           </div>
         </section>
         <section className="flex-1 overflow-hidden">
