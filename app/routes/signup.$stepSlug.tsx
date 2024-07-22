@@ -1,21 +1,12 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import {
-  Form,
-  redirect,
-  useFetcher,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import { redirect, useLoaderData, useNavigate } from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { BasicInput } from "~/components/formInputs/BasicInput";
-import { MultipleOptions } from "~/components/formInputs/MultipleOptions";
-import { FieldValues, useForm } from "react-hook-form";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
+import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm";
+import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 
-const OPTIONS = ["Solo yo", "2", "3 a 5", "6 a 14", "15 o más"];
-const SLUGS = ["sobre-tu-negocio", "tipo-de-negocio"];
+export const SLUGS = ["sobre-tu-negocio", "tipo-de-negocio"];
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 const FORM_COMPONENT_NAMES = ["AboutYourCompanyForm", "BussinesTypeForm"];
 // @TODO: saving with real user
@@ -23,9 +14,15 @@ const FORM_COMPONENT_NAMES = ["AboutYourCompanyForm", "BussinesTypeForm"];
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
+  // sobre-tu-negocio
   if (intent === SLUGS[0]) {
     const data = JSON.parse(formData.get("data") as string);
-    console.log("SAVING: ", data);
+    console.log("SAVING: " + SLUGS[0], data);
+  }
+  // tipo-de-negocio
+  if (intent === SLUGS[1]) {
+    const data = JSON.parse(formData.get("data") as string);
+    console.log("SAVING: " + SLUGS[1], data);
   }
   console.log("REDIRECTING:::");
   return redirect("/signup/" + SLUGS[1]);
@@ -40,6 +37,7 @@ const getStepComponentNameByStepSlug = (slug?: string) => {
   }
 };
 
+// Section titles
 const getTitleByStepSlug = (slug?: string) => {
   switch (slug) {
     case SLUGS[1]:
@@ -57,7 +55,6 @@ export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
   };
 };
 export default function Page() {
-  const navigate = useNavigate();
   const { stepComponentName, title } = useLoaderData<typeof loader>();
 
   const FormComponent = useMemo(() => {
@@ -71,33 +68,12 @@ export default function Page() {
 
   return (
     <>
-      <article className={twMerge("h-screen flex", "md:flex-row", "flex-col")}>
+      <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
         <section
           className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}
         >
-          <button
-            onClick={() => navigate(-1)}
-            className={twMerge(
-              "mb-12 h-4 w-full",
-              "active:scale-95", // Improve please! 🥶
-              "transition-all rounded-full top-0 left-0 text-white text-3xl justify-center items-center block",
-              "max-w-xl mx-auto"
-            )}
-          >
-            <HiOutlineArrowNarrowLeft />
-          </button>
-
-          <div className="flex flex-col justify-between max-w-xl mx-auto h-[80%] ">
-            <h2 className="text-white lg:text-6xl text-4xl font-bold mt-auto">
-              {title}
-            </h2>
-            <img
-              className="mt-auto"
-              width={80}
-              src="/images/brand/logo_white.svg"
-              alt="logo"
-            />
-          </div>
+          <BackButton />
+          <MiniHero title={title} />
         </section>
         <section className="flex-1 overflow-hidden">
           <FormComponent />
@@ -107,97 +83,35 @@ export default function Page() {
   );
 }
 
-const BussinesTypeForm = () => <h1>Form Para tipo de negocio WIP 🚧</h1>;
-
-const AboutYourCompanyForm = () => {
-  const fetcher = useFetcher();
-  const {
-    handleSubmit,
-    register,
-    formState: { errors, isValid },
-    // watch,
-  } = useForm({
-    mode: "onChange",
-    defaultValues: {
-      name: "",
-      shopkeeper: "",
-      numberOfEmployees: "",
-      address: "",
-    },
-  });
-
-  const onSubmit = (values: FieldValues) => {
-    fetcher.submit(
-      // about-your-company
-      { intent: SLUGS[0], data: JSON.stringify(values) },
-      { method: "post" }
-    );
-  };
-
-  const isDisabled = !isValid;
-  console.log("Disabled: ", isDisabled);
-
+export const MiniHero = ({ title }: { title: ReactNode }) => {
   return (
-    <>
-      <Form
-        onSubmit={handleSubmit(onSubmit)}
-        className={twMerge(
-          "relative",
-          "flex flex-col mx-auto max-w-xl h-full justify-center px-2"
-        )}
-      >
-        <BasicInput
-          label="¿Cómo se llama tu negocio?"
-          name="name"
-          error={errors["name"]}
-          register={register}
-          registerOptions={{ required: REQUIRED_MESSAGE }}
-        />
-        <BasicInput
-          name="shopkeeper"
-          register={register}
-          registerOptions={{ required: REQUIRED_MESSAGE }}
-          label="Tu nombre o del profesional que atiende tu negocio"
-          error={errors["shopkeeper"]}
-        />
-        <BasicInput
-          name="address"
-          registerOptions={{ required: false }}
-          label="Dirección de tu negocio (opcional)"
-          error={errors["address"]}
-          register={register}
-        />
-        <MultipleOptions
-          defaultValue={null}
-          error={errors["numberOfEmployees"]}
-          label="¿Cuantas personas trabajan en tu negocio?"
-          name="numberOfEmployees"
-          options={OPTIONS}
-          register={register}
-          registerOptions={{ required: REQUIRED_MESSAGE }}
-        />
-        <AbsoluteCentered className="px-2 pb-8">
-          <PrimaryButton isDisabled={isDisabled} type="submit">
-            Continuar
-          </PrimaryButton>
-        </AbsoluteCentered>
-      </Form>
-    </>
+    <div className="flex flex-col justify-between max-w-xl mx-auto h-[80%] ">
+      <h2 className="text-white lg:text-6xl text-4xl font-bold mt-auto">
+        {title}
+      </h2>
+      <img
+        className="mt-auto"
+        width={80}
+        src="/images/brand/logo_white.svg"
+        alt="logo"
+      />
+    </div>
   );
 };
 
-export const AbsoluteCentered = ({
-  className,
-  ...props
-}: {
-  className?: string;
-  [props: string]: any;
-}) => (
-  <div
-    className={twMerge(
-      "absolute bottom-0 w-full left-0 flex flex-col",
-      className
-    )}
-    {...props}
-  />
-);
+export const BackButton = () => {
+  const navigate = useNavigate();
+  return (
+    <button
+      onClick={() => navigate(-1)}
+      className={twMerge(
+        "mb-12 h-4 w-full",
+        "active:scale-95", // Improve please! 🥶
+        "transition-all rounded-full top-0 left-0 text-white text-3xl justify-center items-center block",
+        "max-w-xl mx-auto"
+      )}
+    >
+      <HiOutlineArrowNarrowLeft />
+    </button>
+  );
+};
