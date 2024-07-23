@@ -18,6 +18,7 @@ const FORM_COMPONENT_NAMES = [
 // @TODO: saving with real user
 // @TODO: Show saved values when return (edit)
 export const action = async ({ request }: ActionFunctionArgs) => {
+  console.log("REDIRECTING:::");
   const formData = await request.formData();
   const intent = formData.get("intent");
   // sobre-tu-negocio
@@ -25,6 +26,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const data = JSON.parse(formData.get("data") as string);
     console.log("SAVING: " + SLUGS[0], data);
     // @TODO: zod validation and parsing
+    return redirect("/signup/" + SLUGS[1]);
   }
   // tipo-de-negocio
   if (intent === SLUGS[1]) {
@@ -33,8 +35,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     console.log("SAVING: " + SLUGS[1], data);
     return redirect("/signup/" + SLUGS[2]);
   }
-  console.log("REDIRECTING:::");
-  return redirect("/signup/" + SLUGS[1]);
+  // horario
+  if (intent === SLUGS[2]) {
+    const data = JSON.parse(formData.get("data") as string);
+    // @TODO: zod validation and parsing
+    console.log("SAVING: " + SLUGS[2], data);
+    return redirect("/signup/" + SLUGS[0]);
+  }
+
+  return null;
 };
 
 const getStepComponentNameByStepSlug = (slug?: string) => {
@@ -53,8 +62,8 @@ const getTitleByStepSlug = (slug?: string) => {
   switch (slug) {
     case SLUGS[2]:
       return `
-          Ya casi terminamos...
-          ¿Cuál es el horario de tu negocio?`;
+          Y por último...
+          ¿Qué días abre tu negocio?`;
     case SLUGS[1]:
       return "¿Qué tipo de negocio tienes?";
     default:
@@ -73,7 +82,7 @@ export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
 };
 export default function Page() {
   const { stepComponentName, title } = useLoaderData<typeof loader>();
-
+  // Components here ==================================================================
   const FormComponent = useMemo(() => {
     switch (stepComponentName) {
       case FORM_COMPONENT_NAMES[2]:
