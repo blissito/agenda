@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Barbershop } from "../icons/business/barbershop";
 import { MultipleOptions, Option, Otro } from "./MultipleOptions";
 import { Sports } from "../icons/business/sports";
@@ -15,7 +15,7 @@ const OPTIONS = [
   "consultorio médico",
   "estudios clínicos",
   "clases",
-  "centro de idiomas",
+  "podólogo",
   "nutriologo",
   "crossfit",
   "danza / baile",
@@ -91,6 +91,7 @@ export const BussinesTypeForm = () => {
   return (
     <>
       <Form
+        method="post"
         onSubmit={handleSubmit(onSubmit)}
         className="gap-4 px-4 h-full flex flex-col place-content-center pt-8 max-w-xl mx-auto"
       >

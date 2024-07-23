@@ -5,10 +5,16 @@ import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { ReactNode, useMemo } from "react";
 import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm";
 import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
+import { TimesForm } from "~/components/forms/TimesForm";
 
-export const SLUGS = ["sobre-tu-negocio", "tipo-de-negocio"];
+export const SLUGS = ["sobre-tu-negocio", "tipo-de-negocio", "horario"];
 export const REQUIRED_MESSAGE = "Este campo es requerido";
-const FORM_COMPONENT_NAMES = ["AboutYourCompanyForm", "BussinesTypeForm"];
+const FORM_COMPONENT_NAMES = [
+  "AboutYourCompanyForm",
+  "BussinesTypeForm",
+  "TimesForm",
+];
+// @TODO: check mobile sizes
 // @TODO: saving with real user
 // @TODO: Show saved values when return (edit)
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -25,6 +31,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const data = JSON.parse(formData.get("data") as string);
     // @TODO: zod validation and parsing
     console.log("SAVING: " + SLUGS[1], data);
+    return redirect("/signup/" + SLUGS[2]);
   }
   console.log("REDIRECTING:::");
   return redirect("/signup/" + SLUGS[1]);
@@ -32,6 +39,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 const getStepComponentNameByStepSlug = (slug?: string) => {
   switch (slug) {
+    case SLUGS[2]:
+      return FORM_COMPONENT_NAMES[2];
     case SLUGS[1]:
       return FORM_COMPONENT_NAMES[1];
     default:
@@ -42,6 +51,10 @@ const getStepComponentNameByStepSlug = (slug?: string) => {
 // Section titles
 const getTitleByStepSlug = (slug?: string) => {
   switch (slug) {
+    case SLUGS[2]:
+      return `
+          Ya casi terminamos...
+          ¿Cuál es el horario de tu negocio?`;
     case SLUGS[1]:
       return "¿Qué tipo de negocio tienes?";
     default:
@@ -50,6 +63,8 @@ const getTitleByStepSlug = (slug?: string) => {
 };
 
 export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
+  // @TODO: keyboard support
+  console.log("STEP: ", stepSlug);
   return {
     // stepSlug,
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
@@ -61,6 +76,8 @@ export default function Page() {
 
   const FormComponent = useMemo(() => {
     switch (stepComponentName) {
+      case FORM_COMPONENT_NAMES[2]:
+        return TimesForm;
       case FORM_COMPONENT_NAMES[1]:
         return BussinesTypeForm;
       default:

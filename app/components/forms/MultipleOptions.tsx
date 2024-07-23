@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
 import { BasicInput } from "./BasicInput";
@@ -48,7 +48,15 @@ export const MultipleOptions = ({
   return (
     <>
       <p className="mb-1">{label}</p>
-      <div
+      {/* <AnimatePresence > */}
+      <motion.div
+        transition={{
+          type: "spring",
+          bounce: 0,
+          duration: 0.7,
+          delayChildren: 0.3,
+          staggerChildren: 0.05,
+        }}
         className={twMerge(
           "grid grid-cols-3 gap-1",
           !!error && "border-red-500 border rounded-2xl p-1 transition-all",
@@ -56,9 +64,10 @@ export const MultipleOptions = ({
         )}
         style={{ gridTemplateRows: "50px 50px" }}
       >
-        {options.map((option) => {
+        {options.map((option, index) => {
           return (
             <Option
+              index={index}
               key={option}
               name={name}
               option={option}
@@ -69,8 +78,9 @@ export const MultipleOptions = ({
             />
           );
         })}
-      </div>
+      </motion.div>
       <p className="h-1 text-red-500 text-xs pl-1 my-1">{error?.message}</p>
+      {/* </AnimatePresence> */}
     </>
   );
 };
@@ -78,6 +88,7 @@ export const MultipleOptions = ({
 export const Option = ({
   capitalize,
   transition,
+  index,
   name,
   option,
   onClick,
@@ -87,6 +98,7 @@ export const Option = ({
   icon,
   ...props
 }: {
+  index?: number;
   capitalize?: boolean;
   transition?: any;
   icon?: ReactNode;
@@ -100,7 +112,10 @@ export const Option = ({
 }) => {
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-    <label
+    <motion.label
+      key={index}
+      initial={{ y: -10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
       onClick={onClick}
       // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
       role="button"
@@ -141,7 +156,7 @@ export const Option = ({
         {...props}
         {...register?.(name, registerOptions)}
       />
-    </label>
+    </motion.label>
   );
 };
 
@@ -164,7 +179,11 @@ export const Otro = ({
 }) => {
   if (isActive) {
     return (
-      <div className={twMerge("flex items-center gap-4", className)}>
+      <motion.div
+        initial={{ y: -10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className={twMerge("flex items-center gap-4", className)}
+      >
         <div className="w-full">
           <BasicInput
             className="w-full"
@@ -179,7 +198,7 @@ export const Otro = ({
         <button onClick={onCancel} className="active:opacity-50">
           Cancelar
         </button>
-      </div>
+      </motion.div>
     );
   }
   return (
