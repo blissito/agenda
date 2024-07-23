@@ -2,42 +2,62 @@ import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 import { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
+import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
+import { BasicInput } from "./BasicInput";
 
 export const MultipleOptions = ({
+  className,
   defaultValue = "Solo yo",
   options,
   name,
   label,
   error,
-  renderFunction = (arg0) => arg0,
+  renderFunction,
   registerOptions = { required: REQUIRED_MESSAGE },
   register = () => undefined,
 }: {
+  className?: string;
   defaultValue?: string | null;
   error?: FieldError;
-  renderFunction?: (arg0: ReactNode) => ReactNode;
+  renderFunction?: (arg0: string, arg1: number) => ReactNode;
   name: string;
   label?: string;
   options: string[];
   registerOptions?: { required: string | boolean };
-  register: UseFormRegister<FieldValues> | any;
+  register?: UseFormRegister<FieldValues> | any;
 }) => {
   // const inputRef = useRef<HTMLInputElement>(null);
   const [current, set] = useState<null | string>(defaultValue);
-
+  if (renderFunction) {
+    return (
+      <>
+        <p className="mb-1">{label}</p>
+        <div
+          className={twMerge(
+            "grid grid-cols-3 gap-1",
+            !!error && "border-red-500 border rounded-2xl p-1 transition-all",
+            className
+          )}
+          style={{ gridTemplateRows: "50px 50px" }}
+        >
+          {options.map(renderFunction)}
+        </div>
+      </>
+    );
+  }
   return (
     <>
       <p className="mb-1">{label}</p>
       <div
         className={twMerge(
           "grid grid-cols-3 gap-1",
-
-          !!error && "border-red-500 border rounded-2xl p-1 transition-all"
+          !!error && "border-red-500 border rounded-2xl p-1 transition-all",
+          className
         )}
         style={{ gridTemplateRows: "50px 50px" }}
       >
         {options.map((option) => {
-          return renderFunction(
+          return (
             <Option
               key={option}
               name={name}
@@ -56,20 +76,26 @@ export const MultipleOptions = ({
 };
 
 export const Option = ({
+  capitalize,
+  transition,
   name,
   option,
   onClick,
   isCurrent,
   registerOptions = { required: REQUIRED_MESSAGE },
   register = () => undefined,
+  icon,
   ...props
 }: {
+  capitalize?: boolean;
+  transition?: any;
+  icon?: ReactNode;
   name: string;
   option: string;
   onClick?: () => void;
   isCurrent?: boolean;
   [x: string]: unknown;
-  register: UseFormRegister<FieldValues> | any;
+  register?: UseFormRegister<FieldValues> | any;
   registerOptions?: { required: string | boolean };
 }) => {
   return (
@@ -84,21 +110,27 @@ export const Option = ({
         "active:scale-95 active:shadow-inner",
         "relative",
         "flex items-center gap-4",
-        "py-2 rounded-lg px-4 border border-gray-100 shadow"
+        "py-2 rounded-lg px-4 border border-gray-200"
         // "checked:border-blue-600" // no funciona U_U
         //   "overflow-hidden"
       )}
-      key={option}
+      // key={option}
     >
       {isCurrent ? (
         <motion.div
-          transition={{ type: "spring" }}
+          transition={transition ? transition : { type: "spring" }}
           layoutId="highlighter"
           className={twMerge(
             "rounded-lg absolute inset-0 bg-brand_blue/10 border border-brand_blue"
           )}
         />
       ) : null}
+      {icon && icon}
+      <span
+        className={twMerge("relative z-10", capitalize ? "capitalize" : null)}
+      >
+        {option}
+      </span>
       <input
         value={option}
         // ref={inputRef}
@@ -107,9 +139,56 @@ export const Option = ({
         name={name}
         className="peer opacity-0"
         {...props}
-        {...register(name, registerOptions)}
+        {...register?.(name, registerOptions)}
       />
-      <span className="relative z-10">{option}</span>
     </label>
+  );
+};
+
+export const Otro = ({
+  className,
+  name,
+  label,
+  onClick,
+  register,
+  isActive,
+  onCancel,
+}: {
+  className?: string;
+  onCancel?: () => void;
+  label?: string;
+  name: string;
+  isActive?: boolean;
+  onClick?: () => void;
+  register?: any;
+}) => {
+  if (isActive) {
+    return (
+      <div className={twMerge("flex items-center gap-4", className)}>
+        <div className="w-full">
+          <BasicInput
+            className="w-full"
+            label={label}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+            placeholder="¿Qué tipo de negocio?"
+            name={name}
+            register={register}
+          />
+        </div>
+        <button onClick={onCancel} className="active:opacity-50">
+          Cancelar
+        </button>
+      </div>
+    );
+  }
+  return (
+    <>
+      <button onClick={onClick}>
+        <h2 className="shadow rounded-lg h-full flex justify-center items-center">
+          Otro
+        </h2>
+      </button>
+    </>
   );
 };

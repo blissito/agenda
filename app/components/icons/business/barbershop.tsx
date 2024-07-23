@@ -1,10 +1,13 @@
 export const Barbershop = ({
+  className,
   fill = "#8391A1",
 }: {
+  className?: string;
   fill?: string;
   props?: unknown;
 }) => (
   <svg
+    className={className}
     width="24"
     height="24"
     viewBox="0 0 24 24"

@@ -35,11 +35,11 @@ export const AboutYourCompanyForm = () => {
   };
 
   const isDisabled = !isValid;
-  console.log("Disabled: ", isDisabled);
 
   return (
     <>
       <Form
+        method="post"
         onSubmit={handleSubmit(onSubmit)}
         className={twMerge(
           "relative",
@@ -68,13 +68,13 @@ export const AboutYourCompanyForm = () => {
           register={register}
         />
         <MultipleOptions
+          className="grid grid-cols-3 gap-4 md:py-20"
           defaultValue={null}
           error={errors["numberOfEmployees"]}
           label="¿Cuantas personas trabajan en tu negocio?"
           name="numberOfEmployees"
           options={OPTIONS}
           register={register}
-          registerOptions={{ required: REQUIRED_MESSAGE }}
         />
         <AbsoluteCentered className="px-2 pb-8">
           <PrimaryButton
