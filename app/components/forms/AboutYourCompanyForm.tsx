@@ -68,7 +68,7 @@ export const AboutYourCompanyForm = () => {
           register={register}
         />
         <MultipleOptions
-          className="grid grid-cols-3 gap-4 md:py-20"
+          className="grid grid-cols-3 gap-4"
           defaultValue={null}
           error={errors["numberOfEmployees"]}
           label="¿Cuantas personas trabajan en tu negocio?"

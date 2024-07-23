@@ -40,7 +40,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const data = JSON.parse(formData.get("data") as string);
     // @TODO: zod validation and parsing
     console.log("SAVING: " + SLUGS[2], data);
-    return redirect("/signup/" + SLUGS[0]);
+    // return redirect("/signup/" + SLUGS[0]);
   }
 
   return null;
