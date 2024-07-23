@@ -3,6 +3,17 @@ import { Link, useLocation } from "@remix-run/react";
 import { Children, cloneElement, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { Dashboard } from "~/components/icons/dashboard";
+import { Agenda } from "../icons/menu/agenda";
+import { Services } from "../icons/menu/services";
+import { Website } from "../icons/menu/webiste";
+import { Financial } from "../icons/menu/financial";
+import { Clients } from "../icons/menu/clients";
+import { Loyalty } from "../icons/menu/loyalty";
+import { Rank } from "../icons/menu/rank";
+import { Settings } from "../icons/menu/settings";
+import { Profile } from "../icons/menu/profile";
+import { Help } from "../icons/menu/help";
+import { Out } from "../icons/menu/out";
 
 export function SideBar({
   user,
@@ -47,19 +58,19 @@ const Footer = () => {
       <h3 className="pl-10 pb-3 uppercase text-xs text-gray-300">Ajustes</h3>
       <MenuButton>
         <MenuButton.Icon>
-          <Dashboard />
+          <Profile />
         </MenuButton.Icon>
         <MenuButton.Title>Perfil</MenuButton.Title>
       </MenuButton>
       <MenuButton>
         <MenuButton.Icon>
-          <Dashboard />
+          <Help />
         </MenuButton.Icon>
         <MenuButton.Title>Ayuda</MenuButton.Title>
       </MenuButton>
       <MenuButton>
         <MenuButton.Icon>
-          <Dashboard />
+          <Out />
         </MenuButton.Icon>
         <MenuButton.Title>Cerrar sesión</MenuButton.Title>
       </MenuButton>
@@ -158,49 +169,51 @@ const MainMenu = () => {
         </MenuButton>
         <MenuButton to="/dash/agenda" isActive={match("agenda")}>
           <MenuButton.Icon isActive={match("agenda")}>
-            <Dashboard />
+            <Agenda />
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("agenda")}>Agenda</MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
-            <Dashboard />
+            <Website />
           </MenuButton.Icon>
           <MenuButton.Title>Sitio web</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
-            <Dashboard />
+        <MenuButton to="/dash/services" isActive={match("services")}>
+          <MenuButton.Icon isActive={match("services")}>
+            <Services />
           </MenuButton.Icon>
-          <MenuButton.Title>Servicios</MenuButton.Title>
+          <MenuButton.Title isActive={match("services")}>
+            Servicios
+          </MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
-            <Dashboard />
+            <Financial />
           </MenuButton.Icon>
           <MenuButton.Title>Pagos</MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
-            <Dashboard />
+            <Clients />
           </MenuButton.Icon>
           <MenuButton.Title>Clientes</MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
-            <Dashboard />
+            <Loyalty />
           </MenuButton.Icon>
           <MenuButton.Title>Lealtad</MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
-            <Dashboard />
+            <Rank />
           </MenuButton.Icon>
           <MenuButton.Title>Evaluaciones</MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
-            <Dashboard />
+            <Settings />
           </MenuButton.Icon>
           <MenuButton.Title>Ajustes</MenuButton.Title>
         </MenuButton>
