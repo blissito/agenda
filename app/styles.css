@@ -11,6 +11,12 @@
   font-weight: bold;
 }
 
+@font-face {
+  font-family: "Medium Font ";
+  src: url("/fonts/Satoshi-Medium.ttf");
+  font-weight: bold;
+}
+
 html {
   --bg-mask-color: red;
 }
@@ -20,6 +26,13 @@ h1,
 h2,
 h3 {
   font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+.font-title {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+.font-satoMiddle {
+  font-family: "Medium Font ", sans-serif;
 }
 
 .font-satoshi {

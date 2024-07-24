@@ -12,6 +12,7 @@ import { ReactNode } from "react";
 import { Search } from "../icons/search";
 import { Thunder } from "../icons/thunder";
 import { Comment } from "../icons/comment";
+import { WobbleCard } from "../animated/WoobleCard";
 
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center ">
@@ -237,7 +238,7 @@ export const Features = () => (
     <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Impulsa</span>
       <Rocket className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
-      <span className="ml-4"> tu </span> negocio con Deník
+      <span className="ml-4 mr-4"> tu </span> negocio con Deník
     </h2>
     <div className="flex justify-between items-center mt-[80px] lg:mt-[120px] flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
       <div className="pr-0 lg:pr-12">
@@ -252,18 +253,22 @@ export const Features = () => (
           Crear agenda <ArrowRight />
         </PrimaryButton>
       </div>
-      <img
-        alt="vista de agenda"
-        className="w-full md:w-[80%] mx-auto lg:w-[50%]"
-        src="/images/agenda.png"
-      />
+      <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%]">
+        <img
+          alt="vista de agenda"
+          className="w-full "
+          src="/images/agenda.svg"
+        />
+      </WobbleCard>
     </div>
     <div className="flex justify-between items-center mt-[80px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0">
-      <img
-        alt="notificación"
-        className="w-full md:w-[80%] mx-auto lg:w-[50%]"
-        src="/images/notification.png"
-      />
+      <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
+        <img
+          alt="notificación"
+          className="w-full"
+          src="/images/notification.svg"
+        />
+      </WobbleCard>
       <div className="pl-0 lg:pl-12">
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           ¡Que no te dejen plantado! Envía recordatorios por email y whats app
@@ -287,11 +292,10 @@ export const Features = () => (
           Probar gratis <ArrowRight />
         </PrimaryButton>
       </div>
-      <img
-        alt=" payment card"
-        className="w-full md:w-[80%] mx-auto lg:w-[50%]"
-        src="/images/payment.png"
-      />
+
+      <WobbleCard className="w-full  lg:w-[90%] mx-auto min-h-auto lg:min-h-[520px] flex justify-center items-center">
+        <img alt=" payment card" className="w-full" src="/images/payment.svg" />
+      </WobbleCard>
     </div>
   </section>
 );

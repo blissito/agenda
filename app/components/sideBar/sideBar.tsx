@@ -14,6 +14,7 @@ import { Settings } from "../icons/menu/settings";
 import { Profile } from "../icons/menu/profile";
 import { Help } from "../icons/menu/help";
 import { Out } from "../icons/menu/out";
+import { Denik } from "../icons/denik";
 
 export function SideBar({
   user,
@@ -26,12 +27,12 @@ export function SideBar({
 }) {
   return (
     <article className="min-h-screen bg-brand_light_gray flex " {...props}>
-      <aside className="w-[320px] bg-white min-h-screen rounded-e-3xl flex flex-col">
+      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl flex flex-col">
         <Header user={user} className="pl-6" />
         <MainMenu />
         <Footer />
       </aside>
-      <section className="pl-10 py-10 w-full">{children}</section>
+      <section className="pl-[360px] pr-10 py-10 w-full ">{children}</section>
     </article>
   );
 }
@@ -45,7 +46,7 @@ const Header = ({
 }) => {
   return (
     <header className={twMerge(className)}>
-      <span className="text-indigo-500 text-3xl block py-6">Denik</span>
+      <Denik className="mb-8 mt-6" />
       {user && <User user={user} />}
       <hr className="my-6 max-w-[80%]" />
     </header>
@@ -53,14 +54,16 @@ const Header = ({
 };
 
 const Footer = () => {
+  const location = useLocation();
+  const match = (string: string) => location.pathname.includes(string);
   return (
     <div className="mt-auto">
       <h3 className="pl-10 pb-3 uppercase text-xs text-gray-300">Ajustes</h3>
-      <MenuButton>
-        <MenuButton.Icon>
+      <MenuButton to="/dash/profile" isActive={match("profile")}>
+        <MenuButton.Icon isActive={match("profile")}>
           <Profile />
         </MenuButton.Icon>
-        <MenuButton.Title>Perfil</MenuButton.Title>
+        <MenuButton.Title isActive={match("profile")}>Perfil</MenuButton.Title>
       </MenuButton>
       <MenuButton>
         <MenuButton.Icon>
@@ -173,11 +176,13 @@ const MainMenu = () => {
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("agenda")}>Agenda</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/website" isActive={match("website")}>
+          <MenuButton.Icon isActive={match("website")}>
             <Website />
           </MenuButton.Icon>
-          <MenuButton.Title>Sitio web</MenuButton.Title>
+          <MenuButton.Title isActive={match("website")}>
+            Sitio web
+          </MenuButton.Title>
         </MenuButton>
         <MenuButton to="/dash/services" isActive={match("services")}>
           <MenuButton.Icon isActive={match("services")}>
