@@ -14,6 +14,7 @@ import {
   TimePicker,
 } from "./TimePicker";
 import { nanoid } from "nanoid";
+import { en } from "@faker-js/faker";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
@@ -39,7 +40,7 @@ const ENTIRE_WEEK = [
 const initialValues: WeekTuples = {
   lunes: [
     ["09:00", "16:00"],
-    ["17:00", "18:00"],
+    // ["17:00", "18:00"],
   ],
   // martes: [
   //   ["10:00", "16:00"],
@@ -128,12 +129,17 @@ export const TimesForm = () => {
     if (data[dayString]?.length) {
       // if (data[dayString].length > 5) return console.error("ONLY 6 PERMITED");
       setData((d) => {
-        console.log("DATA_INSIDE", d);
-        const lastRange = d[dayString][d[dayString].length - 1];
+        const dd = JSON.parse(JSON.stringify(d));
+        const lastRange = dd[dayString].pop();
+        const nextH = getStringFromMinutes(
+          getMinutesFromString(lastRange[1]) + 30
+        );
+
         if (!Array.isArray(lastRange)) return d;
         const nextRange = [
+          nextH,
+          // getStringFromMinutes(getMinutesFromString(lastRange[1])),
           getStringFromMinutes(getMinutesFromString(lastRange[1]) + 60),
-          getStringFromMinutes(getMinutesFromString(lastRange[1]) + 120),
         ];
         return {
           ...d,
@@ -145,30 +151,18 @@ export const TimesForm = () => {
 
   const removeRange = (day: string, index: number) => {
     const arr = [...data[day]];
-    const r = arr.splice(index, 1);
+    arr.splice(index, 1);
     // console.log("REMOVED? ", r);
     setData((d) => ({ ...d, [day]: arr }));
   };
 
   const handleUpdate = (day: string, ranges: string[][]) => {
+    // console.log("UPDATE", day, ranges);
     setData((d) => ({ ...d, [day]: ranges }));
   };
 
-  const handleFill = () => {
-    setValue("weekDays", ENTIRE_WEEK);
-    setData((d) => ({
-      ...d,
-      martes: d.lunes,
-      miércoles: d.lunes,
-      jueves: d.lunes,
-      viernes: d.lunes,
-      sábado: d.lunes,
-      domingo: d.lunes,
-    }));
-  };
-
   useEffect(() => {
-    console.log("DATA: ", data);
+    // console.log("DATA: ", data);
   }, [data]);
 
   const isDisabled = !isValid || (errors.weekDays ? true : false);
@@ -181,19 +175,6 @@ export const TimesForm = () => {
         "flex flex-col justify-evenly h-full gap-5"
       )}
     >
-      {
-        <button
-          type="button"
-          disabled={isDisabled || !getValues().weekDays.includes("lunes")}
-          onClick={handleFill}
-          className={twMerge(
-            "disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed",
-            "border py-2 px-4 rounded-xl hover:bg-gray-100 active:bg-transparent"
-          )}
-        >
-          Copiar lunes para todos
-        </button>
-      }
       {/* Switches */}
       {ENTIRE_WEEK.map((dayString: string) => (
         <DayTimesSelector
@@ -241,8 +222,8 @@ const DayTimesSelector = ({
   updateRanges,
 }: {
   id: string;
-  ranges: string[][];
-  addRange?: (arg0: string[]) => void;
+  ranges: DayTuple;
+  addRange?: () => void;
   removeRange?: (arg0: number) => void;
   updateRanges?: (ranges: string[][]) => void;
   range?: string[];
@@ -255,10 +236,16 @@ const DayTimesSelector = ({
     updateRanges?.(arr);
   };
 
+  // const r = [...ranges];
+  // const lastRange = r.pop();
+  // console.log("ranges?: ", lastRange, ranges);
+  // const lastHourMins = getMinutesFromString(lastRange?.[1]);
+
+  // console.log("LAst Hot", lastHourMins, getStringFromMinutes(lastHourMins));
+
   return (
     <div>
       {children}
-
       {isActive && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -266,34 +253,34 @@ const DayTimesSelector = ({
           exit={{ y: -10, opacity: 0 }}
           className={twMerge(
             "gap-4",
-            isActive && "grid grid-cols-2",
+            isActive && "grid",
             "text-brand_gray mt-2"
           )}
         >
           {ranges.map((range, index) => (
-            <RangeTimePicker
-              index={index}
-              onChange={(range) => handleChange(index, range)}
-              key={nanoid()}
-              startTime={range[0]}
-              endTime={range[1]}
-              onDelete={
-                ranges.length - 1 === index
-                  ? undefined
-                  : () => removeRange?.(index)
-              }
-            />
+            <div className="flex gap-2" key={nanoid()}>
+              <RangeTimePicker
+                index={index}
+                onChange={(range) => handleChange(index, range)}
+                startTime={range[0]}
+                endTime={range[1]}
+                onDelete={() => removeRange?.(index)}
+              />
+              {index === 0 &&
+                Number(ranges[ranges.length - 1][1].split(":")[0]) < 23 && (
+                  <button
+                    type="button"
+                    onClick={addRange}
+                    className={twMerge(
+                      // "col-start-2 row-start-1",
+                      "active:text-brand_gray text-brand_gray/70 hover:text-brand_gray/90 lg:text-left"
+                    )}
+                  >
+                    + Agregar
+                  </button>
+                )}
+            </div>
           ))}
-
-          {ranges.length < MAX_RANGES_PERMITED && (
-            <button
-              type="button"
-              onClick={addRange}
-              className="active:text-brand_gray text-brand_gray/70 hover:text-brand_gray/90 lg:text-left"
-            >
-              + Agregar
-            </button>
-          )}
         </motion.div>
       )}
     </div>
@@ -313,42 +300,44 @@ export const RangeTimePicker = ({
   endTime: string;
   onChange?: (arg0: string[]) => void;
 }) => {
-  const handleChange = (st: string, et: string, isStartTime: boolean) => {
-    onChange?.(isStartTime ? [st, endTime] : [startTime, st]);
+  // console.log("???WTF", startTime, endTime);
+  const changeStartTime = (time: string) => {
+    onChange?.([time, endTime]);
+  };
+
+  const changeEndTime = (time: string) => {
+    // console.log("ora?", time, [startTime, time]);
+    onChange?.([startTime, time]);
   };
 
   // console.log("St end: ", startTime, endTime);
+  const getTime = (startTime: string) => {
+    // return "12:00";
+    const mins = getMinutesFromString(startTime);
+    return getStringFromMinutes(mins);
+  };
 
   return (
-    <motion.div
-      // layoutId={startTime + endTime}
-      // initial={{ opacity: 0, x: 20 }}
-      // animate={{ opacity: 1, x: 0 }}
-      // exit={{ opacity: 0 }}
-      className={onDelete ? "col-span-2" : null}
-    >
-      {" "}
+    <div>
       <div className="relative flex items-center gap-3">
         <span>De</span>
-        <TimePicker
-          startTime={startTime}
-          onChange={(a, b) => handleChange(a, b, true)}
-        />
+        <TimePicker startTime={startTime} onChange={changeStartTime} all />
         <span>a</span>
         <TimePicker
-          startTime={endTime}
-          onChange={(a, b) => handleChange(a, b, false)}
+          selected={endTime}
+          startTime={getTime(startTime)}
+          onChange={changeEndTime}
         />
-        {onDelete && (
+        {index !== 0 && (
           <button
             onClick={onDelete}
             type="button"
-            className=" active:text-red-500 right-0 top-[28%] text-red-100 hover:text-red-300 transition-all"
+            className=" active:text-red-500 right-0 top-[28%] text-red-400 hover:text-red-500 transition-all"
           >
             <FaRegTrashCan />
           </button>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 };
