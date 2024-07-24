@@ -4,11 +4,7 @@ primary_region = 'qro'
 [build]
 
 [env]
-  DATABASE_URL = 'file:/data/prod.db'
-
-[[mounts]]
-  source = 'data'
-  destination = '/data'
+  DATABASE_URL = 'mongodb+srv://denik_app:3ma68CaPwZwYVOl7@cluster0.ahniito.mongodb.net/denik?retryWrites=true&w=majority&appName=Cluster0'
 
 [http_service]
   internal_port = 3000
