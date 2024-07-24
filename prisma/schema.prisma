@@ -17,19 +17,21 @@ model Org {
 }
 
 model User {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  role        String  @default("GUEST")
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  role          String  @default("GUEST")
   // UNIQUE
-  email       String  @unique
+  email         String  @unique
+  emailVerified Boolean @default(false)
   // LOGIN
-  displayName String?
-  providerId  String?
-  phoneNumber String?
-  photoURL    String?
-  uid         String?
+  accessToken   String?
+  displayName   String?
+  providerId    String?
+  phoneNumber   String?
+  photoURL      String?
+  uid           String?
   // ADMIN 
-  orgId       Int?
-  Org         Org[]
+  orgId         Int?
+  Org           Org[]
 }
 
 model Event {

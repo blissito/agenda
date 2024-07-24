@@ -4,7 +4,11 @@ import { ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { getOrCreateUser, redirectIfUser } from "~/db/userGetters";
 import { commitSession, destroySession, getSession } from "~/sessions";
-import { FirebaseUserData, startMicrosoftLogin } from "~/utils/lib/firebase";
+import {
+  FirebaseUserData,
+  startGoogleLogin,
+  startMicrosoftLogin,
+} from "~/utils/lib/firebase";
 
 export const MICROSOFT_BRAND_NAME = "microsoft";
 export const GOOGLE_BRAND_NAME = "google";
@@ -15,6 +19,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
   console.log("SIGNIN_INTENT ::: ", intent);
   if (intent === MICROSOFT_BRAND_NAME) {
+    const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
+    const user = await getOrCreateUser(data);
+    session.set("userId", user.id); // @TODO: move this to a reusable function
+    return redirect("/dash", {
+      headers: { "Set-Cookie": await commitSession(session) },
+    });
+  }
+  if (intent === GOOGLE_BRAND_NAME) {
     const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
     const user = await getOrCreateUser(data);
     session.set("userId", user.id); // @TODO: move this to a reusable function
@@ -52,10 +64,40 @@ export default function Pape() {
     );
     console.log("Client ok=>", userData);
   };
+
+  const handleGoogle = async () => {
+    const {
+      user: {
+        accessToken,
+        uid,
+        email,
+        displayName,
+        phoneNumber,
+        emailVerified,
+        providerId,
+      },
+    } = await startGoogleLogin();
+    // console.log("RESULT GOOGLE: ", accessToken);
+    const userData = {
+      accessToken,
+      uid,
+      email,
+      displayName,
+      phoneNumber,
+      emailVerified,
+      providerId,
+    };
+    fetcher.submit(
+      { data: JSON.stringify(userData), intent: GOOGLE_BRAND_NAME },
+      { method: "post" }
+    );
+    console.log("sent from client=>", userData);
+  };
+
   const isLoading = fetcher.state !== "idle";
 
   // monitor
-  console.log(fetcher);
+  // console.log(fetcher);
 
   return (
     <>
@@ -69,7 +111,7 @@ export default function Pape() {
           Inicia sesión o crea una cuenta
         </h1>
 
-        <LoginButton>
+        <LoginButton onClick={handleGoogle}>
           <img alt="microsoft logo" src="/images/logos/google.svg" />
           <span className="font-medium text-xs">Continua con Gmail</span>
         </LoginButton>
