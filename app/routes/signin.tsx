@@ -2,6 +2,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { Spinner } from "~/components/common/Spinner";
 import { getOrCreateUser, redirectIfUser } from "~/db/userGetters";
 import { commitSession, destroySession, getSession } from "~/sessions";
 import {
@@ -12,6 +13,7 @@ import {
 
 export const MICROSOFT_BRAND_NAME = "microsoft";
 export const GOOGLE_BRAND_NAME = "google";
+const REDIRECT_AFTER_LOGIN = "/signup/sobre-tu-negocio";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -22,7 +24,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
     const user = await getOrCreateUser(data);
     session.set("userId", user.id); // @TODO: move this to a reusable function
-    return redirect("/dash", {
+    return redirect(REDIRECT_AFTER_LOGIN, {
       headers: { "Set-Cookie": await commitSession(session) },
     });
   }
@@ -30,7 +32,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
     const user = await getOrCreateUser(data);
     session.set("userId", user.id); // @TODO: move this to a reusable function
-    return redirect("/dash", {
+    return redirect(REDIRECT_AFTER_LOGIN, {
       headers: { "Set-Cookie": await commitSession(session) },
     });
   }
@@ -78,9 +80,10 @@ export default function Pape() {
         phoneNumber,
         emailVerified,
         providerId,
+        photoURL,
       },
     } = await startGoogleLogin();
-    // console.log("RESULT GOOGLE: ", accessToken);
+
     const userData = {
       accessToken,
       uid,
@@ -89,6 +92,7 @@ export default function Pape() {
       phoneNumber,
       emailVerified,
       providerId,
+      photoURL,
     };
     fetcher.submit(
       { data: JSON.stringify(userData), intent: GOOGLE_BRAND_NAME },
@@ -98,9 +102,6 @@ export default function Pape() {
   };
 
   const isLoading = fetcher.state !== "idle";
-
-  // monitor
-  // console.log(fetcher);
 
   return (
     <>
@@ -116,13 +117,15 @@ export default function Pape() {
 
         <LoginButton
           onClick={handleGoogle}
-          isLoading={provider === GOOGLE_BRAND_NAME && isLoading}
+          // isLoading={provider === GOOGLE_BRAND_NAME && isLoading}
+          spinner={<Spinner />}
         >
           <img alt="microsoft logo" src="/images/logos/google.svg" />
           <span className="font-medium text-xs">Continua con Gmail</span>
         </LoginButton>
 
         <LoginButton
+          spinner={<Spinner />}
           isLoading={provider === MICROSOFT_BRAND_NAME && isLoading}
           onClick={handleMicrosoft}
           type="button"
@@ -138,10 +141,12 @@ export default function Pape() {
 
 const LoginButton = ({
   intent,
+  spinner,
   isLoading,
   children,
   ...props
 }: {
+  spinner?: ReactNode;
   children?: ReactNode;
   isLoading?: boolean;
   intent?: typeof GOOGLE_BRAND_NAME | typeof MICROSOFT_BRAND_NAME;
@@ -159,9 +164,11 @@ const LoginButton = ({
       )}
       {...props}
     >
-      {isLoading && (
-        <div className="h-6 w-6 rounded-full border-4 animate-spin border-brand_blue border-l-brand_light_gray" />
-      )}
+      {isLoading && spinner
+        ? spinner
+        : isLoading && (
+            <div className="h-6 w-6 rounded-full border-4 animate-spin border-brand_blue border-l-brand_light_gray" />
+          )}
       {!isLoading && children}
     </button>
   );

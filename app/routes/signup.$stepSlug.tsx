@@ -87,11 +87,12 @@ const getTitleByStepSlug = (slug?: string) => {
     case SLUGS[1]:
       return title[1];
     default:
-      return;
+      return title[0];
   }
 };
 
 export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
+  // @TODO: Check if start or redirect
   // @TODO: keyboard support
   return {
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
