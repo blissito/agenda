@@ -15,17 +15,29 @@ import {
 } from "./TimePicker";
 import { nanoid } from "nanoid";
 
+export type DayTuple = [string, string][];
+export type WeekTuples = {
+  lunes?: DayTuple;
+  martes?: DayTuple;
+  miércoles?: DayTuple;
+  jueves?: DayTuple;
+  viernes?: DayTuple;
+  sábado?: DayTuple;
+  domingo?: DayTuple;
+};
+const initialValues: WeekTuples = {
+  lunes: [
+    ["09:00", "14:00"],
+    ["15:00", "18:00"],
+  ],
+};
+
 const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
 export const TimesForm = () => {
   const fetcher = useFetcher();
-  const [data, setData] = useState({
-    lunes: [
-      ["09:00", "14:00"],
-      ["15:00", "18:00"],
-    ],
-  });
+  const [data, setData] = useState<WeekTuples>(initialValues);
   const {
     clearErrors,
     setValue,
@@ -67,7 +79,6 @@ export const TimesForm = () => {
     if (!values.length) {
       setError(node.name, { message: ERROR_MESSAGE });
     }
-
     // copy ranges for new active day
     toggleRange(action, node.id);
   };
@@ -77,7 +88,7 @@ export const TimesForm = () => {
       const dayValues = Object.values(data);
       const copy = dayValues.length
         ? dayValues[dayValues.length - 1]
-        : RANGE_TEMPLATE;
+        : [RANGE_TEMPLATE];
       setData((data) => ({ ...data, [dayString]: copy }));
     } else if (action === "removing") {
       const d = { ...data };
@@ -89,7 +100,9 @@ export const TimesForm = () => {
   const addRange = (dayString: string) => {
     if (data[dayString]?.length) {
       setData((d) => {
+        console.log("DATA_INSIDE", d);
         const lastRange = d[dayString][d[dayString].length - 1];
+        if (!Array.isArray(lastRange)) return d;
         const nextRange = [
           getStringFromMinutes(getMinutesFromString(lastRange[1]) + 60),
           getStringFromMinutes(getMinutesFromString(lastRange[1]) + 120),
@@ -100,10 +113,6 @@ export const TimesForm = () => {
         };
       });
     }
-  };
-
-  const handleRange = (day: string, range: string[]) => {
-    setData((data) => ({ ...data, [day]: range }));
   };
 
   const removeRange = (day: string, index: number) => {
