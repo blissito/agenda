@@ -267,7 +267,7 @@ const DayTimesSelector = ({
                 onDelete={() => removeRange?.(index)}
               />
               {index === 0 &&
-                Number(ranges[ranges.length - 1][1].split(":")[0]) < 23 && (
+                Number(ranges[ranges.length - 1][1].split(":")[0]) < 22 && (
                   <button
                     type="button"
                     onClick={addRange}
@@ -300,19 +300,15 @@ export const RangeTimePicker = ({
   endTime: string;
   onChange?: (arg0: string[]) => void;
 }) => {
-  // console.log("???WTF", startTime, endTime);
   const changeStartTime = (time: string) => {
     onChange?.([time, endTime]);
   };
 
   const changeEndTime = (time: string) => {
-    // console.log("ora?", time, [startTime, time]);
     onChange?.([startTime, time]);
   };
 
-  // console.log("St end: ", startTime, endTime);
   const getTime = (startTime: string) => {
-    // return "12:00";
     const mins = getMinutesFromString(startTime);
     return getStringFromMinutes(mins);
   };

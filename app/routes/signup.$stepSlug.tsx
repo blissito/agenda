@@ -6,17 +6,27 @@ import { ReactNode, useMemo } from "react";
 import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm";
 import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 import { TimesForm } from "~/components/forms/TimesForm";
+import { Agenda } from "~/components/icons/menu/agenda";
+import { PrimaryButton } from "~/components/common/primaryButton";
 
-export const SLUGS = ["sobre-tu-negocio", "tipo-de-negocio", "horario"];
+export const SLUGS = [
+  "sobre-tu-negocio",
+  "tipo-de-negocio",
+  "horario",
+  "cargando",
+];
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 const FORM_COMPONENT_NAMES = [
   "AboutYourCompanyForm",
   "BussinesTypeForm",
   "TimesForm",
+  "BigHero",
 ];
 // @TODO: check mobile sizes
 // @TODO: saving with real user
-// @TODO: Show saved values when return (edit)
+// @TODO: Show saved values when return (edit) <=============
+// @TODO: secure route
+// @todo: in order to reuse action save as functions in a utility
 export const action = async ({ request }: ActionFunctionArgs) => {
   console.log("REDIRECTING:::");
   const formData = await request.formData();
@@ -39,8 +49,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (intent === SLUGS[2]) {
     const data = JSON.parse(formData.get("data") as string);
     // @TODO: zod validation and parsing
-    console.log("SAVING: " + SLUGS[2], data);
-    // return redirect("/signup/" + SLUGS[0]);
+    console.log("SAVING: " + SLUGS[3], data);
+    // @todo: remove back stack
+    return redirect("/signup/" + SLUGS[3]);
   }
 
   return null;
@@ -48,6 +59,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 const getStepComponentNameByStepSlug = (slug?: string) => {
   switch (slug) {
+    case SLUGS[3]:
+      return FORM_COMPONENT_NAMES[3];
     case SLUGS[2]:
       return FORM_COMPONENT_NAMES[2];
     case SLUGS[1]:
@@ -60,6 +73,8 @@ const getStepComponentNameByStepSlug = (slug?: string) => {
 // Section titles
 const getTitleByStepSlug = (slug?: string) => {
   switch (slug) {
+    case SLUGS[3]:
+      return "¡Solo un poco más!... Estamos creando tu agenda";
     case SLUGS[2]:
       return `
           Y por último...
@@ -80,11 +95,14 @@ export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
     title: getTitleByStepSlug(stepSlug),
   };
 };
+
 export default function Page() {
   const { stepComponentName, title } = useLoaderData<typeof loader>();
   // Components here ==================================================================
   const FormComponent = useMemo(() => {
     switch (stepComponentName) {
+      case FORM_COMPONENT_NAMES[3]:
+        return BigHero;
       case FORM_COMPONENT_NAMES[2]:
         return TimesForm;
       case FORM_COMPONENT_NAMES[1]:
@@ -94,6 +112,8 @@ export default function Page() {
     }
   }, [stepComponentName]);
 
+  // @todo: make a counter to redirect
+
   return (
     <>
       <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
@@ -101,17 +121,37 @@ export default function Page() {
           className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}
         >
           <BackButton />
-          <MiniHero title={title} />
+          <LeftHero title={title} />
         </section>
         <section className="flex-1 overflow-x-hidden">
-          <FormComponent />
+          <FormComponent title={title} />
         </section>
       </article>
     </>
   );
 }
 
-export const MiniHero = ({ title }: { title: ReactNode }) => {
+export const BigHero = ({ title }: { title: string }) => (
+  <section className="font-bold absolute inset-0 bg-brand_blue text-white flex justify-center items-center flex-col">
+    <h1 className="pl-12 lg:max-w-4xl max-w-2xl mx-auto flex gap-12 text-6xl">
+      <span className="animate-bounce">
+        <Agenda fill="white" className="scale-[400%]" />
+      </span>
+      <span>{title}</span>
+    </h1>
+    <PrimaryButton
+      to="/dash"
+      as="Link"
+      className="border mt-12"
+      // isDisabled={isDisabled}
+      type="submit"
+    >
+      Continuar
+    </PrimaryButton>
+  </section>
+);
+
+export const LeftHero = ({ title }: { title: ReactNode }) => {
   return (
     <div className="flex flex-col justify-between max-w-xl mx-auto h-[80%] ">
       <h2 className="text-white lg:text-6xl text-5xl font-bold mt-auto">
