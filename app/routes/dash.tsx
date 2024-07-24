@@ -1,15 +1,15 @@
-import { type User } from "@prisma/client";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { SideBar } from "~/components/sideBar/sideBar";
+import { getUserOrRedirect } from "~/db/userGetters";
 
-export const loader = () =>
-  ({
-    user: {
-      email: "brenda@fixter.org",
-      name: "Brendu",
-      photoURL: "https://i.imgur.com/TaDTihr.png",
-    },
-  } as { user: User });
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  return {
+    user: await getUserOrRedirect(request, {
+      redirectURL: "/signin",
+    }),
+  };
+};
 
 export default function Page() {
   const { user } = useLoaderData<typeof loader>();

@@ -1,5 +1,5 @@
 import { type User } from "@prisma/client";
-import { Link, useLocation } from "@remix-run/react";
+import { Form, Link, useLocation } from "@remix-run/react";
 import { Children, cloneElement, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { Dashboard } from "~/components/icons/dashboard";
@@ -21,7 +21,7 @@ export function SideBar({
   ...props
 }: {
   children?: ReactNode;
-  user?: Partial<User>;
+  user: User;
   props?: unknown;
 }) {
   return (
@@ -41,7 +41,7 @@ const Header = ({
   user,
 }: {
   className?: string;
-  user?: Partial<User>;
+  user: Partial<User>;
 }) => {
   return (
     <header className={twMerge(className)}>
@@ -72,7 +72,13 @@ const Footer = () => {
         <MenuButton.Icon>
           <Out />
         </MenuButton.Icon>
-        <MenuButton.Title>Cerrar sesión</MenuButton.Title>
+        <MenuButton.Title>
+          <Form action="/signin">
+            <button type="submit" name="intent" value="logout">
+              Cerrar sesión
+            </button>
+          </Form>
+        </MenuButton.Title>
       </MenuButton>
     </div>
   );
@@ -223,11 +229,18 @@ const MainMenu = () => {
 };
 
 const User = ({ user }: { user: Partial<User> }) => (
-  <div className="flex items-center text-brand_dark">
+  <div className="flex flex-col text-brand_dark">
     <img
-      className="w-12 rounded-full mr-2"
+      className={twMerge(
+        "w-12 h-12 object-cover border-2 border-brand_blue rounded-full mr-2"
+        // "self-center"
+      )}
       alt="avatar"
-      src={user.photoURL ?? undefined}
+      src={user.photoURL ?? "https://loremflickr.com/640/480?lock=1234"}
+      onError={(e) => {
+        console.log("Error loading Avatar image");
+        e.target.src = "https://loremflickr.com/640/480?lock=1234";
+      }}
     />
     <div className="grid">
       <p className="text-2xl font-medium">{user.name}</p>

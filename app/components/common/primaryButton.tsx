@@ -2,7 +2,7 @@ import { Link } from "@remix-run/react";
 import { type ReactNode } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
-
+// @TODO: Props not working outside
 export const PrimaryButton = ({
   as = "button",
   isDisabled,

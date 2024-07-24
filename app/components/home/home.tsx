@@ -31,7 +31,7 @@ export const Hero = () => (
         clientes y envía encuestas de satisfacción
       </p>
       <div className="flex gap-8 mt-12 justify-center ">
-        <PrimaryButton>
+        <PrimaryButton as="Link" to="/signin">
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton>
         <SecondaryButton>Agendar demo </SecondaryButton>

@@ -5,30 +5,35 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Org {
-  id      Int     @id @default(autoincrement())
-  ownerId Int?
+  id      String  @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId String? @db.ObjectId
   owner   User?   @relation(fields: [ownerId], references: [id])
   week    String?
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  name     String?
-  photoURL String?
-  role     String  @default("GUEST")
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  role        String  @default("GUEST")
+  // UNIQUE
+  email       String  @unique
+  // LOGIN
+  displayName String?
+  providerId  String?
+  phoneNumber String?
+  photoURL    String?
+  uid         String?
   // ADMIN 
-  orgId    Int?
-  Org      Org[]
+  orgId       Int?
+  Org         Org[]
 }
 
 model Event {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   title     String
   start     DateTime
   end       DateTime
@@ -36,11 +41,11 @@ model Event {
   status    String   @default("ACTIVE")
   // OVERDUE | CANCELED | DELETED (no enums in sqlite)
   service   Service? @relation(fields: [serviceId], references: [id])
-  serviceId Int?
+  serviceId String?  @db.ObjectId
 }
 
 model Service {
   title  String
-  id     Int     @id @default(autoincrement())
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
   events Event[]
 }
