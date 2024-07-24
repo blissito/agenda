@@ -28,6 +28,10 @@ export const Switch = ({
     return () => forListener?.removeEventListener("change", cb);
   }, []);
 
+  useEffect(() => {
+    set(defaultChecked);
+  }, [defaultChecked]);
+
   return (
     <>
       <label

@@ -27,6 +27,15 @@ export type WeekTuples = {
 };
 
 const MAX_RANGES_PERMITED = 6;
+const ENTIRE_WEEK = [
+  "lunes",
+  "martes",
+  "miércoles",
+  "jueves",
+  "viernes",
+  "sábado",
+  "domingo",
+];
 const initialValues: WeekTuples = {
   lunes: [
     ["09:00", "16:00"],
@@ -145,9 +154,24 @@ export const TimesForm = () => {
     setData((d) => ({ ...d, [day]: ranges }));
   };
 
+  const handleFill = () => {
+    setValue("weekDays", ENTIRE_WEEK);
+    setData((d) => ({
+      ...d,
+      martes: d.lunes,
+      miércoles: d.lunes,
+      jueves: d.lunes,
+      viernes: d.lunes,
+      sábado: d.lunes,
+      domingo: d.lunes,
+    }));
+  };
+
   useEffect(() => {
     console.log("DATA: ", data);
   }, [data]);
+
+  const isDisabled = !isValid || (errors.weekDays ? true : false);
 
   return (
     <Form
@@ -157,16 +181,21 @@ export const TimesForm = () => {
         "flex flex-col justify-evenly h-full gap-5"
       )}
     >
+      {
+        <button
+          type="button"
+          disabled={isDisabled || !getValues().weekDays.includes("lunes")}
+          onClick={handleFill}
+          className={twMerge(
+            "disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed",
+            "border py-2 px-4 rounded-xl hover:bg-gray-100 active:bg-transparent"
+          )}
+        >
+          Copiar lunes para todos
+        </button>
+      }
       {/* Switches */}
-      {[
-        "lunes",
-        "martes",
-        "miércoles",
-        "jueves",
-        "viernes",
-        "sábado",
-        "domingo",
-      ].map((dayString: string) => (
+      {ENTIRE_WEEK.map((dayString: string) => (
         <DayTimesSelector
           key={dayString}
           ranges={data[dayString]}
@@ -190,7 +219,7 @@ export const TimesForm = () => {
         {" "}
         <PrimaryButton
           className="w-full mt-auto"
-          isDisabled={!isValid || (errors.weekDays ? true : false)}
+          isDisabled={isDisabled}
           type="submit"
         >
           Continuar
