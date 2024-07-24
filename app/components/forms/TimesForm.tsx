@@ -5,14 +5,19 @@ import { FieldValues, useForm } from "react-hook-form";
 import { SLUGS } from "~/routes/signup.$stepSlug";
 import { twMerge } from "tailwind-merge";
 import { AnimatePresence, motion } from "framer-motion";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
+import { FaRegTrashCan } from "react-icons/fa6";
+
 import {
   getMinutesFromString,
   getStringFromMinutes,
   TimePicker,
 } from "./TimePicker";
+import { nanoid } from "nanoid";
 
+const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
+
 export const TimesForm = () => {
   const fetcher = useFetcher();
   const {
@@ -28,26 +33,31 @@ export const TimesForm = () => {
     },
   });
 
-  const [rangeTemplate, setRangeTemplate] = useState(["07:00", "19:00"]);
+  const [data, setData] = useState({
+    lunes: [
+      ["09:00", "14:00"],
+      ["15:00", "18:00"],
+    ],
+  });
 
   const onSubmit = (values: FieldValues) => {
-    // console.log("VALS?", values);
-    if (!values.weekDays.length) {
-      setError("weekDays", { message: ERROR_MESSAGE });
-    }
+    // @TODO: validate?
     fetcher.submit(
       // tipo-de-negocio
-      { intent: SLUGS[2], data: JSON.stringify(values) },
+      { intent: SLUGS[2], data: JSON.stringify(data) },
       { method: "post" }
     );
   };
 
   const handleSwitchChange = (node: HTMLInputElement) => {
+    let action: "adding" | "removing";
     clearErrors();
     const values = getValues()[node.name];
     if (node.checked) {
+      action = "adding";
       values.push(node.value);
     } else {
+      action = "removing";
       values.splice(
         values.findIndex((v: string) => v === node.value),
         1
@@ -58,15 +68,52 @@ export const TimesForm = () => {
     if (!values.length) {
       setError(node.name, { message: ERROR_MESSAGE });
     }
-    // node.checked ? setValue(node.name, node.value) : setValue(node.name, "");
+
+    // update ranges for new active day
+    toggleRange(action, node.id);
+  };
+
+  const toggleRange = (action: "adding" | "removing", dayString: string) => {
+    if (action === "adding") {
+      setData((data) => ({ ...data, [dayString]: [RANGE_TEMPLATE] }));
+    } else if (action === "removing") {
+      const d = { ...data };
+      delete d[dayString];
+      setData(d);
+    }
+  };
+
+  const addRange = (dayString: string) => {
+    const lastRange =
+      data[dayString].length > 0
+        ? data[dayString][data[dayString].length - 1]
+        : RANGE_TEMPLATE;
+
+    const nextRange = [
+      lastRange[1],
+      getStringFromMinutes(getMinutesFromString(lastRange[1]) + 120),
+    ];
+
+    setData((week) => ({
+      ...week,
+      [dayString]: [...week[dayString], nextRange],
+    }));
   };
 
   const handleRange = (day: string, range: string[]) => {
-    console.log("incoming Range: ", range);
-    setRangeTemplate(range);
+    setData((data) => ({ ...data, [day]: range }));
   };
 
-  console.log("Global range? ", rangeTemplate);
+  const removeRange = (day: string, index: number) => {
+    const arr = [...data[day]];
+    const r = arr.splice(index, 1);
+    console.log("REMOVED? ", r);
+    setData((d) => ({ ...d, [day]: arr }));
+  };
+
+  const handleUpdate = (day: string, ranges: string[][]) => {
+    setData((d) => ({ ...d, [day]: ranges }));
+  };
 
   return (
     <Form
@@ -76,120 +123,80 @@ export const TimesForm = () => {
         "flex flex-col justify-evenly h-full gap-5"
       )}
     >
-      <DayTimesSelector
-        range={rangeTemplate}
-        onRange={(range) => handleRange("lunes", range)}
-        isActive={getValues().weekDays.includes("lunes")}
-      >
-        <Switch
-          defaultChecked={getValues().weekDays.includes("lunes")}
-          name="weekDays"
-          value="lunes"
-          onChange={handleSwitchChange}
-        />
-      </DayTimesSelector>
+      {/* Switches */}
+      {[
+        "lunes",
+        "martes",
+        "miércoles",
+        "jueves",
+        "viernes",
+        "sábado",
+        "domingo",
+      ].map((dayString: string) => (
+        <DayTimesSelector
+          key={dayString}
+          ranges={data[dayString]}
+          addRange={() => addRange(dayString)}
+          removeRange={(index) => removeRange(dayString, index)}
+          updateRanges={(ranges) => handleUpdate(dayString, ranges)}
+          // onRange={(range) => handleRange(dayString, range)}
+          isActive={getValues().weekDays.includes(dayString)}
+          id={dayString}
+        >
+          <Switch
+            defaultChecked={getValues().weekDays.includes(dayString)}
+            name="weekDays"
+            value={dayString}
+            onChange={handleSwitchChange}
+          />
+        </DayTimesSelector>
+      ))}
 
-      <DayTimesSelector
-        defaultRange={rangeTemplate}
-        isActive={getValues().weekDays.includes("martes")}
-      >
-        <Switch
-          defaultChecked={getValues().weekDays.includes("martes")}
-          name="weekDays"
-          value="martes"
-          onChange={handleSwitchChange}
-        />
-      </DayTimesSelector>
-
-      <DayTimesSelector
-        range={rangeTemplate}
-        isActive={getValues().weekDays.includes("miércoles")}
-      >
-        <Switch
-          defaultChecked={getValues().weekDays.includes("miércoles")}
-          name="weekDays"
-          value="miércoles"
-          onChange={handleSwitchChange}
-        />
-      </DayTimesSelector>
-
-      <DayTimesSelector
-        range={rangeTemplate}
-        onRange={(range) => handleRange("jueves", range)}
-        isActive={getValues().weekDays.includes("jueves")}
-      >
-        <Switch
-          defaultChecked={getValues().weekDays.includes("jueves")}
-          name="weekDays"
-          value="jueves"
-          onChange={handleSwitchChange}
-        />
-      </DayTimesSelector>
-
-      <DayTimesSelector
-        range={rangeTemplate}
-        isActive={getValues().weekDays.includes("viernes")}
-      >
-        <Switch
-          defaultChecked={getValues().weekDays.includes("viernes")}
-          name="weekDays"
-          value="viernes"
-          onChange={handleSwitchChange}
-        />
-      </DayTimesSelector>
-      <DayTimesSelector
-        // range={rangeTemplate}
-        isActive={getValues().weekDays.includes("sábado")}
-      >
-        <Switch name="weekDays" value="sábado" onChange={handleSwitchChange} />
-      </DayTimesSelector>
-      <DayTimesSelector
-        // range={rangeTemplate}
-        isActive={getValues().weekDays.includes("domingo")}
-      >
-        <Switch name="weekDays" value="domingo" onChange={handleSwitchChange} />
-      </DayTimesSelector>
       <div className="mt-auto">
         {" "}
         <PrimaryButton
-          className="w-full "
+          className="w-full mt-auto"
           isDisabled={!isValid || (errors.weekDays ? true : false)}
           type="submit"
         >
           Continuar
         </PrimaryButton>
-        <p className="m-1 text-red-500 text-xs">{errors.weekDays?.message}</p>
+        <p className="mb-10 ml-2 h-1 text-red-500 text-xs">
+          {errors.weekDays?.message}
+        </p>
       </div>
     </Form>
   );
 };
+let firstRender = 0;
 
 const DayTimesSelector = ({
   children,
-  onRange,
+  id,
+  addRange,
+  removeRange,
   isActive,
   range,
-  defaultRange,
+  ranges = [],
+  updateRanges,
 }: {
-  defaultRange?: string[];
-  onRange?: (arg0: string[]) => void;
+  id: string;
+  ranges: string[][];
+  addRange?: (arg0: string[]) => void;
+  removeRange?: (arg0: number) => void;
+  updateRanges?: (ranges: string[][]) => void;
   range?: string[];
   isActive?: boolean;
   children?: ReactNode;
 }) => {
-  const startTime = range?.[0] || defaultRange?.[0];
-  const endTime = range?.[1] || defaultRange?.[1];
-
-  const handleChange = (startT: string, endT: string) => {
-    onRange?.([startT, endT]);
-  };
-
-  const handleSecondChange = (startT: string) => {
-    onRange?.([range[0], startT]);
+  const handleChange = (index: number, range: string[]) => {
+    const arr = [...ranges];
+    arr[index] = range;
+    updateRanges?.(arr);
   };
 
   return (
-    <>
+    <div>
       {children}
       <AnimatePresence>
         {isActive && (
@@ -197,15 +204,81 @@ const DayTimesSelector = ({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ y: -10, opacity: 0 }}
-            className={twMerge("gap-4 items-center", isActive && "flex")}
+            className={twMerge(
+              "gap-4",
+              isActive && "flex flex-wrap",
+              "text-brand_gray mt-2"
+            )}
           >
-            <span>De</span>
-            <TimePicker startTime={startTime} onChange={handleChange} />
-            <span>a</span>
-            <TimePicker startTime={endTime} onChange={handleSecondChange} />
+            {ranges.map((range, index) => (
+              <RangeTimePicker
+                onChange={(range) => handleChange(index, range)}
+                key={nanoid()}
+                startTime={range[0]}
+                endTime={range[1]}
+                onDelete={
+                  ranges.length - 1 === index
+                    ? undefined
+                    : () => removeRange?.(index)
+                }
+              />
+            ))}
+
+            <button
+              type="button"
+              onClick={addRange}
+              className="active:text-brand_gray text-brand_gray/80"
+            >
+              + Agregar
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+    </div>
+  );
+};
+
+export const RangeTimePicker = ({
+  startTime,
+  endTime,
+  onChange,
+  onDelete,
+}: {
+  onDelete?: (arg0: string, arg1: number) => void;
+  startTime: string;
+  endTime: string;
+  onChange?: (arg0: string[]) => void;
+}) => {
+  const handleChange = (st: string, et: string, isStartTime: boolean) => {
+    onChange?.(isStartTime ? [st, endTime] : [startTime, st]);
+  };
+
+  console.log("St end: ", startTime, endTime);
+
+  return (
+    <div data-starttime={startTime} data-endtime={endTime}>
+      {" "}
+      <div className="relative flex items-center gap-3">
+        <span>De</span>
+        <TimePicker
+          startTime={startTime}
+          onChange={(a, b) => handleChange(a, b, true)}
+        />
+        <span>a</span>
+        <TimePicker
+          startTime={endTime}
+          onChange={(a, b) => handleChange(a, b, false)}
+        />
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            type="button"
+            className="absolute active:text-red-500 -right-5 top-[28%] text-red-100 hover:text-red-300 transition-all"
+          >
+            <FaRegTrashCan />
+          </button>
+        )}
+      </div>
+    </div>
   );
 };

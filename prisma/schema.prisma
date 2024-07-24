@@ -9,6 +9,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Org {
+  id      Int     @id @default(autoincrement())
+  ownerId Int?
+  owner   User?   @relation(fields: [ownerId], references: [id])
+  week    String?
+}
+
 model User {
   id       Int     @id @default(autoincrement())
   email    String  @unique
@@ -16,6 +23,8 @@ model User {
   photoURL String?
   role     String  @default("GUEST")
   // ADMIN 
+  orgId    Int?
+  Org      Org[]
 }
 
 model Event {
