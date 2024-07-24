@@ -2,12 +2,13 @@ import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect, useLoaderData, useNavigate } from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm";
 import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 import { TimesForm } from "~/components/forms/TimesForm";
 import { Agenda } from "~/components/icons/menu/agenda";
 import { PrimaryButton } from "~/components/common/primaryButton";
+import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 
 export const SLUGS = [
   "sobre-tu-negocio",
@@ -20,7 +21,7 @@ const FORM_COMPONENT_NAMES = [
   "AboutYourCompanyForm",
   "BussinesTypeForm",
   "TimesForm",
-  "BigHero",
+  "Loader",
 ];
 // @TODO: check mobile sizes
 // @TODO: saving with real user
@@ -72,25 +73,27 @@ const getStepComponentNameByStepSlug = (slug?: string) => {
 
 // Section titles
 const getTitleByStepSlug = (slug?: string) => {
+  const title = [
+    "Cuéntanos más sobre tu negocio",
+    "¿Qué tipo de negocio tienes?",
+    "Y por último... \n ¿Qué días abre tu negocio?",
+    "¡Solo un poco más!... \n Estamos creando tu agenda",
+  ];
   switch (slug) {
     case SLUGS[3]:
-      return "¡Solo un poco más!... Estamos creando tu agenda";
+      return title[3];
     case SLUGS[2]:
-      return `
-          Y por último...
-          ¿Qué días abre tu negocio?`;
+      return title[2];
     case SLUGS[1]:
-      return "¿Qué tipo de negocio tienes?";
+      return title[1];
     default:
-      return "Cuéntanos más sobre tu negocio";
+      return;
   }
 };
 
 export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
   // @TODO: keyboard support
-  // console.log("STEP: ", stepSlug);
   return {
-    // stepSlug,
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
     title: getTitleByStepSlug(stepSlug),
   };
@@ -102,7 +105,7 @@ export default function Page() {
   const FormComponent = useMemo(() => {
     switch (stepComponentName) {
       case FORM_COMPONENT_NAMES[3]:
-        return BigHero;
+        return Loader;
       case FORM_COMPONENT_NAMES[2]:
         return TimesForm;
       case FORM_COMPONENT_NAMES[1]:
@@ -131,25 +134,43 @@ export default function Page() {
   );
 }
 
-export const BigHero = ({ title }: { title: string }) => (
-  <section className="font-bold absolute inset-0 bg-brand_blue text-white flex justify-center items-center flex-col">
-    <h1 className="pl-12 lg:max-w-4xl max-w-2xl mx-auto flex gap-12 text-6xl">
-      <span className="animate-bounce">
-        <Agenda fill="white" className="scale-[400%]" />
-      </span>
-      <span>{title}</span>
-    </h1>
-    <PrimaryButton
-      to="/dash"
-      as="Link"
-      className="border mt-12"
-      // isDisabled={isDisabled}
-      type="submit"
-    >
-      Continuar
-    </PrimaryButton>
-  </section>
-);
+export const Loader = ({ title }: { title: string }) => {
+  const [text, setText] = useState(title);
+  const [show, set] = useState(false);
+  useEffect(() => {
+    setTimeout(() => {
+      set(true);
+      setText("¡Todo esta listo! \n Es hora de agendar ");
+    }, 2000);
+  }, []);
+  return (
+    <section className="font-bold absolute z-10 inset-0 bg-brand_blue text-white flex justify-center items-center flex-col">
+      <h1 className="pl-12 lg:max-w-4xl max-w-2xl mx-auto flex gap-12 text-5xl">
+        <span className={twMerge(show ? "animate-pulse" : "animate-bounce")}>
+          <Agenda fill="white" className="scale-[400%]" />
+        </span>
+        <span style={{ whiteSpace: "pre-wrap" }}>{text}</span>
+      </h1>
+      {show && (
+        <>
+          <PrimaryButton
+            to="/dash"
+            as="Link"
+            className="border mt-12 text-neutral-900 bg-white animate-bounce"
+            // isDisabled={isDisabled}
+            type="submit"
+          >
+            Continuar
+          </PrimaryButton>
+          <EmojiConfetti
+            mode="emojis"
+            emojis={["📆", "💇🏻‍♀️", "👩🏻‍💻", "📍", "🎀", "🥳", "💅🏼"]}
+          />
+        </>
+      )}
+    </section>
+  );
+};
 
 export const LeftHero = ({ title }: { title: ReactNode }) => {
   return (
