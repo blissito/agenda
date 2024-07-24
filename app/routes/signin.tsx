@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { getOrCreateUser, redirectIfUser } from "~/db/userGetters";
 import { commitSession, destroySession, getSession } from "~/sessions";
@@ -52,8 +52,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Pape() {
   const fetcher = useFetcher<typeof action>();
+  const [provider, setProvider] = useState(GOOGLE_BRAND_NAME);
 
   const handleMicrosoft = async () => {
+    setProvider(MICROSOFT_BRAND_NAME);
     const resutl = await startMicrosoftLogin();
     const userData = {
       ...resutl.user.providerData[0],
@@ -66,6 +68,7 @@ export default function Pape() {
   };
 
   const handleGoogle = async () => {
+    setProvider(GOOGLE_BRAND_NAME);
     const {
       user: {
         accessToken,
@@ -111,13 +114,16 @@ export default function Pape() {
           Inicia sesión o crea una cuenta
         </h1>
 
-        <LoginButton onClick={handleGoogle}>
+        <LoginButton
+          onClick={handleGoogle}
+          isLoading={provider === GOOGLE_BRAND_NAME && isLoading}
+        >
           <img alt="microsoft logo" src="/images/logos/google.svg" />
           <span className="font-medium text-xs">Continua con Gmail</span>
         </LoginButton>
 
         <LoginButton
-          isLoading={isLoading}
+          isLoading={provider === MICROSOFT_BRAND_NAME && isLoading}
           onClick={handleMicrosoft}
           type="button"
           intent="microsoft"
@@ -140,21 +146,23 @@ const LoginButton = ({
   isLoading?: boolean;
   intent?: typeof GOOGLE_BRAND_NAME | typeof MICROSOFT_BRAND_NAME;
   [x: string]: unknown;
-}) => (
-  <button
-    disabled={isLoading}
-    type="submit"
-    name="intent"
-    value={intent}
-    className={twMerge(
-      "transition-all flex gap-4 items-center justify-center w-full rounded-full border active:bg-transparent hover:shadow-sm active:translate-y-[1px] h-10",
-      isLoading && "pointer-events-none bg-gray-50 border-gray-100"
-    )}
-    {...props}
-  >
-    {isLoading && (
-      <div className="h-6 w-6 rounded-full border-4 animate-spin border-brand_blue border-l-brand_light_gray" />
-    )}
-    {!isLoading && children}
-  </button>
-);
+}) => {
+  return (
+    <button
+      disabled={isLoading}
+      type="submit"
+      name="intent"
+      value={intent}
+      className={twMerge(
+        "transition-all flex gap-4 items-center justify-center w-full rounded-full border active:bg-transparent hover:shadow-sm active:translate-y-[1px] h-10",
+        isLoading && "pointer-events-none bg-gray-50 border-gray-100"
+      )}
+      {...props}
+    >
+      {isLoading && (
+        <div className="h-6 w-6 rounded-full border-4 animate-spin border-brand_blue border-l-brand_light_gray" />
+      )}
+      {!isLoading && children}
+    </button>
+  );
+};
