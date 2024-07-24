@@ -25,11 +25,29 @@ export type WeekTuples = {
   sábado?: DayTuple;
   domingo?: DayTuple;
 };
+
+const MAX_RANGES_PERMITED = 6;
 const initialValues: WeekTuples = {
   lunes: [
-    ["09:00", "14:00"],
-    ["15:00", "18:00"],
+    ["09:00", "16:00"],
+    ["17:00", "18:00"],
   ],
+  // martes: [
+  //   ["10:00", "16:00"],
+  //   ["18:00", "22:00"],
+  // ],
+  // miércoles: [
+  //   ["10:00", "14:00"],
+  //   ["18:00", "20:00"],
+  // ],
+  // jueves: [
+  //   ["10:00", "16:00"],
+  //   ["18:00", "22:00"],
+  // ],
+  // viernes: [
+  //   ["10:00", "16:00"],
+  //   ["18:00", "22:00"],
+  // ],
 };
 
 const RANGE_TEMPLATE = ["09:00", "14:00"];
@@ -47,7 +65,7 @@ export const TimesForm = () => {
     handleSubmit,
   } = useForm({
     defaultValues: {
-      weekDays: ["lunes"],
+      weekDays: Object.keys(initialValues),
     },
   });
 
@@ -99,6 +117,7 @@ export const TimesForm = () => {
 
   const addRange = (dayString: string) => {
     if (data[dayString]?.length) {
+      // if (data[dayString].length > 5) return console.error("ONLY 6 PERMITED");
       setData((d) => {
         console.log("DATA_INSIDE", d);
         const lastRange = d[dayString][d[dayString].length - 1];
@@ -127,7 +146,7 @@ export const TimesForm = () => {
   };
 
   useEffect(() => {
-    // console.log("DATA: ", data);
+    console.log("DATA: ", data);
   }, [data]);
 
   return (
@@ -218,7 +237,7 @@ const DayTimesSelector = ({
           exit={{ y: -10, opacity: 0 }}
           className={twMerge(
             "gap-4",
-            isActive && "flex flex-wrap",
+            isActive && "grid grid-cols-2",
             "text-brand_gray mt-2"
           )}
         >
@@ -237,13 +256,15 @@ const DayTimesSelector = ({
             />
           ))}
 
-          <button
-            type="button"
-            onClick={addRange}
-            className="active:text-brand_gray text-brand_gray/80"
-          >
-            + Agregar
-          </button>
+          {ranges.length < MAX_RANGES_PERMITED && (
+            <button
+              type="button"
+              onClick={addRange}
+              className="active:text-brand_gray text-brand_gray/70 hover:text-brand_gray/90 lg:text-left"
+            >
+              + Agregar
+            </button>
+          )}
         </motion.div>
       )}
     </div>
@@ -258,7 +279,7 @@ export const RangeTimePicker = ({
   onDelete,
 }: {
   index?: number;
-  onDelete?: (arg0: string, arg1: number) => void;
+  onDelete?: () => void;
   startTime: string;
   endTime: string;
   onChange?: (arg0: string[]) => void;
@@ -271,10 +292,11 @@ export const RangeTimePicker = ({
 
   return (
     <motion.div
-    // layoutId={startTime + endTime}
-    // initial={{ opacity: 0, x: 20 }}
-    // animate={{ opacity: 1, x: 0 }}
-    // exit={{ opacity: 0 }}
+      // layoutId={startTime + endTime}
+      // initial={{ opacity: 0, x: 20 }}
+      // animate={{ opacity: 1, x: 0 }}
+      // exit={{ opacity: 0 }}
+      className={onDelete ? "col-span-2" : null}
     >
       {" "}
       <div className="relative flex items-center gap-3">
@@ -292,7 +314,7 @@ export const RangeTimePicker = ({
           <button
             onClick={onDelete}
             type="button"
-            className="absolute active:text-red-500 -right-5 top-[28%] text-red-100 hover:text-red-300 transition-all"
+            className=" active:text-red-500 right-0 top-[28%] text-red-100 hover:text-red-300 transition-all"
           >
             <FaRegTrashCan />
           </button>

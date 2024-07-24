@@ -73,7 +73,7 @@ const getTitleByStepSlug = (slug?: string) => {
 
 export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
   // @TODO: keyboard support
-  console.log("STEP: ", stepSlug);
+  // console.log("STEP: ", stepSlug);
   return {
     // stepSlug,
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
