@@ -1,13 +1,13 @@
 import { Form, useFetcher } from "@remix-run/react";
 import { Switch } from "./Switch";
 import { PrimaryButton } from "../common/primaryButton";
-import { FieldValues, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { SLUGS } from "~/routes/signup.$stepSlug";
 import { twMerge } from "tailwind-merge";
-import { AnimatePresence, motion } from "framer-motion";
-import { ReactNode, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { ReactNode, useEffect, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
-
+// @TODO: improve animation presence
 import {
   getMinutesFromString,
   getStringFromMinutes,
@@ -20,6 +20,12 @@ export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
 export const TimesForm = () => {
   const fetcher = useFetcher();
+  const [data, setData] = useState({
+    lunes: [
+      ["09:00", "14:00"],
+      ["15:00", "18:00"],
+    ],
+  });
   const {
     clearErrors,
     setValue,
@@ -33,14 +39,7 @@ export const TimesForm = () => {
     },
   });
 
-  const [data, setData] = useState({
-    lunes: [
-      ["09:00", "14:00"],
-      ["15:00", "18:00"],
-    ],
-  });
-
-  const onSubmit = (values: FieldValues) => {
+  const onSubmit = () => {
     // @TODO: validate?
     fetcher.submit(
       // tipo-de-negocio
@@ -69,13 +68,17 @@ export const TimesForm = () => {
       setError(node.name, { message: ERROR_MESSAGE });
     }
 
-    // update ranges for new active day
+    // copy ranges for new active day
     toggleRange(action, node.id);
   };
 
   const toggleRange = (action: "adding" | "removing", dayString: string) => {
     if (action === "adding") {
-      setData((data) => ({ ...data, [dayString]: [RANGE_TEMPLATE] }));
+      const dayValues = Object.values(data);
+      const copy = dayValues.length
+        ? dayValues[dayValues.length - 1]
+        : RANGE_TEMPLATE;
+      setData((data) => ({ ...data, [dayString]: copy }));
     } else if (action === "removing") {
       const d = { ...data };
       delete d[dayString];
@@ -84,20 +87,19 @@ export const TimesForm = () => {
   };
 
   const addRange = (dayString: string) => {
-    const lastRange =
-      data[dayString].length > 0
-        ? data[dayString][data[dayString].length - 1]
-        : RANGE_TEMPLATE;
-
-    const nextRange = [
-      lastRange[1],
-      getStringFromMinutes(getMinutesFromString(lastRange[1]) + 120),
-    ];
-
-    setData((week) => ({
-      ...week,
-      [dayString]: [...week[dayString], nextRange],
-    }));
+    if (data[dayString]?.length) {
+      setData((d) => {
+        const lastRange = d[dayString][d[dayString].length - 1];
+        const nextRange = [
+          getStringFromMinutes(getMinutesFromString(lastRange[1]) + 60),
+          getStringFromMinutes(getMinutesFromString(lastRange[1]) + 120),
+        ];
+        return {
+          ...d,
+          [dayString]: [...d[dayString], nextRange],
+        };
+      });
+    }
   };
 
   const handleRange = (day: string, range: string[]) => {
@@ -107,13 +109,17 @@ export const TimesForm = () => {
   const removeRange = (day: string, index: number) => {
     const arr = [...data[day]];
     const r = arr.splice(index, 1);
-    console.log("REMOVED? ", r);
+    // console.log("REMOVED? ", r);
     setData((d) => ({ ...d, [day]: arr }));
   };
 
   const handleUpdate = (day: string, ranges: string[][]) => {
     setData((d) => ({ ...d, [day]: ranges }));
   };
+
+  useEffect(() => {
+    // console.log("DATA: ", data);
+  }, [data]);
 
   return (
     <Form
@@ -168,15 +174,12 @@ export const TimesForm = () => {
     </Form>
   );
 };
-let firstRender = 0;
 
 const DayTimesSelector = ({
   children,
-  id,
   addRange,
   removeRange,
   isActive,
-  range,
   ranges = [],
   updateRanges,
 }: {
@@ -198,52 +201,54 @@ const DayTimesSelector = ({
   return (
     <div>
       {children}
-      <AnimatePresence>
-        {isActive && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ y: -10, opacity: 0 }}
-            className={twMerge(
-              "gap-4",
-              isActive && "flex flex-wrap",
-              "text-brand_gray mt-2"
-            )}
-          >
-            {ranges.map((range, index) => (
-              <RangeTimePicker
-                onChange={(range) => handleChange(index, range)}
-                key={nanoid()}
-                startTime={range[0]}
-                endTime={range[1]}
-                onDelete={
-                  ranges.length - 1 === index
-                    ? undefined
-                    : () => removeRange?.(index)
-                }
-              />
-            ))}
 
-            <button
-              type="button"
-              onClick={addRange}
-              className="active:text-brand_gray text-brand_gray/80"
-            >
-              + Agregar
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isActive && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ y: -10, opacity: 0 }}
+          className={twMerge(
+            "gap-4",
+            isActive && "flex flex-wrap",
+            "text-brand_gray mt-2"
+          )}
+        >
+          {ranges.map((range, index) => (
+            <RangeTimePicker
+              index={index}
+              onChange={(range) => handleChange(index, range)}
+              key={nanoid()}
+              startTime={range[0]}
+              endTime={range[1]}
+              onDelete={
+                ranges.length - 1 === index
+                  ? undefined
+                  : () => removeRange?.(index)
+              }
+            />
+          ))}
+
+          <button
+            type="button"
+            onClick={addRange}
+            className="active:text-brand_gray text-brand_gray/80"
+          >
+            + Agregar
+          </button>
+        </motion.div>
+      )}
     </div>
   );
 };
 
 export const RangeTimePicker = ({
+  index,
   startTime,
   endTime,
   onChange,
   onDelete,
 }: {
+  index?: number;
   onDelete?: (arg0: string, arg1: number) => void;
   startTime: string;
   endTime: string;
@@ -253,10 +258,15 @@ export const RangeTimePicker = ({
     onChange?.(isStartTime ? [st, endTime] : [startTime, st]);
   };
 
-  console.log("St end: ", startTime, endTime);
+  // console.log("St end: ", startTime, endTime);
 
   return (
-    <div data-starttime={startTime} data-endtime={endTime}>
+    <motion.div
+    // layoutId={startTime + endTime}
+    // initial={{ opacity: 0, x: 20 }}
+    // animate={{ opacity: 1, x: 0 }}
+    // exit={{ opacity: 0 }}
+    >
       {" "}
       <div className="relative flex items-center gap-3">
         <span>De</span>
@@ -279,6 +289,6 @@ export const RangeTimePicker = ({
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };

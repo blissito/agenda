@@ -103,7 +103,7 @@ export default function Page() {
           <BackButton />
           <MiniHero title={title} />
         </section>
-        <section className="flex-1 overflow-hidden">
+        <section className="flex-1 overflow-x-hidden">
           <FormComponent />
         </section>
       </article>
