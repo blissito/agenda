@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { ReactNode, useEffect, useMemo, useState } from "react";
@@ -10,7 +10,11 @@ import { Agenda } from "~/components/icons/menu/agenda";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import { getFirstOrgOrNull } from "~/db/userGetters";
-import { aboutYourCompanyHandler } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
+import {
+  aboutYourCompanyHandler,
+  timesHandler,
+  typeOfBusinessHandler,
+} from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 export const SLUGS = [
@@ -34,15 +38,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
   const data = JSON.parse(formData.get("data") as string);
-  console.log("Intent:::", intent);
   // sobre-tu-negocio
   if (intent === SLUGS[0]) return await aboutYourCompanyHandler(request, data);
   // tipo-de-negocio
-  if (intent === SLUGS[1]) return redirect("/signup/" + SLUGS[2]);
+  if (intent === SLUGS[1]) return await typeOfBusinessHandler(request, data);
   // horario
   // @todo: remove back stack
-  if (intent === SLUGS[2]) return redirect("/signup/" + SLUGS[3]);
-
+  if (intent === SLUGS[2]) return await timesHandler(request, data);
+  console.log("MISSING:::Intent:::", intent);
   return null;
 };
 

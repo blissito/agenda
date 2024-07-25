@@ -3,7 +3,13 @@ import { db } from "../../../utils/db.server";
 import { z } from "zod";
 import { json, redirect } from "@remix-run/node";
 
-const URL_TO_REDIRECT = "/signup/tipo-de-negocio";
+// CONSTS
+const ABOUT_YOUR_BUSINESS_URL = "/signup/sobre-tu-negocio";
+const TIPO_DE_NEGOCIO_URL = "/signup/tipo-de-negocio";
+const HORARIO_URL = "/signup/horario";
+const CARGANDO_URL = "/signup/cargando";
+
+// ZOD Stuff
 // z.coerce.string().email().min(5);
 export const aboutYourCompanySchema = z.object({
   name: z.string(),
@@ -17,10 +23,77 @@ export const aboutYourCompanySchema = z.object({
   // weekDays          Json?
 });
 export type AboutYourCompanySchemaType = z.infer<typeof aboutYourCompanySchema>;
+
+const TypeOfBusinessSchema = z.object({
+  businessType: z.string(),
+});
+type TypeOfBusinessType = z.infer<typeof TypeOfBusinessSchema>;
+
+const weekDaysSchema = z.object({
+  lunes: z.array(z.array(z.string(), z.string())).optional(),
+  martes: z.array(z.array(z.string(), z.string())).optional(),
+  miércoles: z.array(z.array(z.string(), z.string())).optional(),
+  jueves: z.array(z.array(z.string(), z.string())).optional(),
+  sábado: z.array(z.array(z.string(), z.string())).optional(),
+  domingo: z.array(z.array(z.string(), z.string())).optional(),
+  viernes: z.array(z.array(z.string(), z.string())).optional(),
+});
+export type WeekDaysType = z.infer<typeof weekDaysSchema>;
+//
+
+// Handlers
+export const timesHandler = async (request: Request, data: WeekDaysType) => {
+  const url = new URL(request.url);
+  const orgId = url.searchParams.get("orgId");
+  if (!orgId) {
+    // @TODO: tolerate not org and create one?
+    url.pathname = ABOUT_YOUR_BUSINESS_URL;
+    throw redirect(url.toString());
+  }
+  const validatedData = weekDaysSchema.parse(data); // @TODO: skiped for now
+  console.log("VALIDATED WEEK:", validatedData);
+  const user = await getUserOrRedirect(request);
+  await db.org.update({
+    where: {
+      id: orgId,
+      ownerId: user.id,
+    },
+    data: { weekDays: validatedData }, // @TODO: for this form we tolerate the missing key?
+  });
+  url.searchParams.set("orgId", orgId);
+  url.pathname = CARGANDO_URL;
+  throw redirect(url.toString());
+};
+// @TODO: avoid repetition
+export const typeOfBusinessHandler = async (
+  request: Request,
+  data: TypeOfBusinessType
+) => {
+  const url = new URL(request.url);
+  const orgId = url.searchParams.get("orgId");
+  if (!orgId) {
+    url.pathname = ABOUT_YOUR_BUSINESS_URL;
+    throw redirect(url.toString());
+  }
+  const validatedData = TypeOfBusinessSchema.parse(data);
+  const user = await getUserOrRedirect(request);
+  await db.org.update({
+    where: {
+      id: orgId,
+      ownerId: user.id,
+    },
+    data: validatedData,
+  });
+  url.searchParams.set("orgId", orgId);
+  url.pathname = HORARIO_URL;
+  throw redirect(url.toString());
+};
+
 export const aboutYourCompanyHandler = async (
   request: Request,
   data: AboutYourCompanySchemaType
 ) => {
+  const url = new URL(request.url);
   const user = await getUserOrRedirect(request);
   const validatedData = aboutYourCompanySchema.parse({
     ...data,
@@ -43,7 +116,9 @@ export const aboutYourCompanyHandler = async (
   }
   //
   if (!org) return json(org, { status: 409 });
-  throw redirect(URL_TO_REDIRECT);
+  url.searchParams.set("orgId", org.id);
+  url.pathname = TIPO_DE_NEGOCIO_URL;
+  throw redirect(url.toString());
 };
 
 // export const zodInputStringPipe = (zodPipe: ZodTypeAny) =>
