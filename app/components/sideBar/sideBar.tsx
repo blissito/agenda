@@ -236,9 +236,12 @@ const MainMenu = () => {
 };
 
 const User = ({ user }: { user: Partial<User> }) => (
-  <div className="flex flex-col text-brand_dark">
+  <div className="flex  text-brand_dark">
     <img
-      className="w-10 rounded-full mr-2"
+      className={twMerge(
+        "w-12 h-12 object-cover border-2 border-brand_blue rounded-full mr-2"
+        // "self-center"
+      )}
       alt="avatar"
       src={user.photoURL ?? "https://loremflickr.com/640/480?lock=1234"}
       onError={(e) => {
@@ -247,7 +250,7 @@ const User = ({ user }: { user: Partial<User> }) => (
       }}
     />
     <div className="grid">
-      <p className="text-lg font-satoMiddle mb-0">{user.name}</p>
+      <p className="text-lg font-satoMiddle mb-0">{user.displayName}</p>
       <p className="text-gray-400 font-thin -mt-1">{user.email}</p>
     </div>
   </div>
