@@ -14,6 +14,7 @@ import { Settings } from "../icons/menu/settings";
 import { Profile } from "../icons/menu/profile";
 import { Help } from "../icons/menu/help";
 import { Out } from "../icons/menu/out";
+import { Denik } from "../icons/denik";
 
 export function SideBar({
   user,
@@ -26,12 +27,12 @@ export function SideBar({
 }) {
   return (
     <article className="min-h-screen bg-brand_light_gray flex " {...props}>
-      <aside className="w-[320px] bg-white min-h-screen rounded-e-3xl flex flex-col">
+      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl flex flex-col">
         <Header user={user} className="pl-6" />
         <MainMenu />
         <Footer />
       </aside>
-      <section className="pl-10 py-10 w-full">{children}</section>
+      <section className="pl-[360px] pr-10 py-10 w-full ">{children}</section>
     </article>
   );
 }
@@ -45,22 +46,24 @@ const Header = ({
 }) => {
   return (
     <header className={twMerge(className)}>
-      <span className="text-indigo-500 text-3xl block py-6">Denik</span>
+      <Denik className="mb-6 mt-6" />
       {user && <User user={user} />}
-      <hr className="my-6 max-w-[80%]" />
+      <hr className="my-4 max-w-[80%]" />
     </header>
   );
 };
 
 const Footer = () => {
+  const location = useLocation();
+  const match = (string: string) => location.pathname.includes(string);
   return (
     <div className="mt-auto">
       <h3 className="pl-10 pb-3 uppercase text-xs text-gray-300">Ajustes</h3>
-      <MenuButton>
-        <MenuButton.Icon>
+      <MenuButton to="/dash/profile" isActive={match("profile")}>
+        <MenuButton.Icon isActive={match("profile")}>
           <Profile />
         </MenuButton.Icon>
-        <MenuButton.Title>Perfil</MenuButton.Title>
+        <MenuButton.Title isActive={match("profile")}>Perfil</MenuButton.Title>
       </MenuButton>
       <MenuButton>
         <MenuButton.Icon>
@@ -179,11 +182,13 @@ const MainMenu = () => {
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("agenda")}>Agenda</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/website" isActive={match("website")}>
+          <MenuButton.Icon isActive={match("website")}>
             <Website />
           </MenuButton.Icon>
-          <MenuButton.Title>Sitio web</MenuButton.Title>
+          <MenuButton.Title isActive={match("website")}>
+            Sitio web
+          </MenuButton.Title>
         </MenuButton>
         <MenuButton to="/dash/services" isActive={match("services")}>
           <MenuButton.Icon isActive={match("services")}>
@@ -199,11 +204,13 @@ const MainMenu = () => {
           </MenuButton.Icon>
           <MenuButton.Title>Pagos</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/clients" isActive={match("clients")}>
+          <MenuButton.Icon isActive={match("clients")}>
             <Clients />
           </MenuButton.Icon>
-          <MenuButton.Title>Clientes</MenuButton.Title>
+          <MenuButton.Title isActive={match("clients")}>
+            Clientes
+          </MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
@@ -229,7 +236,7 @@ const MainMenu = () => {
 };
 
 const User = ({ user }: { user: Partial<User> }) => (
-  <div className="flex flex-col text-brand_dark">
+  <div className="flex  text-brand_dark">
     <img
       className={twMerge(
         "w-12 h-12 object-cover border-2 border-brand_blue rounded-full mr-2"
@@ -243,8 +250,8 @@ const User = ({ user }: { user: Partial<User> }) => (
       }}
     />
     <div className="grid">
-      <p className="text-2xl font-medium">{user.name}</p>
-      <p className="text-gray-400 font-thin">{user.email}</p>
+      <p className="text-lg font-satoMiddle mb-0">{user.displayName}</p>
+      <p className="text-gray-400 font-thin -mt-1">{user.email}</p>
     </div>
   </div>
 );
