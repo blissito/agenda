@@ -1,13 +1,10 @@
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
 import { SecondaryButton } from "~/components/common/secondaryButton";
-import { Tag } from "~/components/common/Tag";
 import { Facebook } from "~/components/icons/facebook";
 import { Instagram } from "~/components/icons/insta";
-import { LineSteak } from "~/components/icons/lineSteak";
 import { Anchor } from "~/components/icons/link";
 import { Linkedin } from "~/components/icons/linkedin";
-import { Plus } from "~/components/icons/plus";
 import { Tiktok } from "~/components/icons/tiktok";
 import { Twitter } from "~/components/icons/twitter";
 import { Youtube } from "~/components/icons/youtube";
@@ -28,6 +25,16 @@ export default function Website() {
 export const Template = () => {
   return (
     <div className="col-span-4 lg:col-span-1">
+      <div className="relative flex mb-8 ">
+        <input
+          className="w-full h-16 rounded-full pl-4 border-[1px] border-brand_stroke"
+          placeholder="pollo"
+        ></input>
+        <SecondaryButton className="absolute right-2 top-2 bg-brand_dark text-white px-2 max-w-20">
+          Copiar
+        </SecondaryButton>
+      </div>
+
       <img
         className="w-full h-auto rounded-2xl shadow-sm"
         src="/images/templates/template1.png"
@@ -152,7 +159,7 @@ export const MediaBox = ({
   icon: ReactNode;
 }) => {
   return (
-    <section className="flex gap-6 my-4 items-center">
+    <section className="flex gap-6 my-4 items-center font-satoshi">
       <span>{icon}</span>
       <p className=" text-brand_gray">{link}</p>
     </section>
@@ -167,7 +174,7 @@ export const InfoService = ({
   title: string;
 }) => {
   return (
-    <section className="flex gap-4 my-4 items-center">
+    <section className="flex gap-4 my-4 items-center font-satoshi">
       <img
         className="w-16 h-12 rounded object-cover"
         src={image ? image : "/images/serviceDefault.png"}
@@ -185,9 +192,9 @@ export const InfoBox = ({
   value?: string;
 }) => {
   return (
-    <section className="grid grid-cols-8 gap-6 my-4">
-      <p className="col-span-3 text-brand_dark">{title}</p>
-      <p className="col-span-3 text-brand_gray">{value}</p>
+    <section className="grid grid-cols-8 gap-6 my-4 ">
+      <p className="col-span-3 text-brand_dark font-satoshi">{title}</p>
+      <p className="col-span-3 text-brand_gray font-satoshi">{value}</p>
     </section>
   );
 };

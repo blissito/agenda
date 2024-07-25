@@ -69,7 +69,9 @@ const ServiceCard = ({
         />
         <div className="p-4 flex justify-between items-center">
           <article>
-            <h3 className="font-[500] text-brand_dark text-lg">{title}</h3>
+            <h3 className=" text-brand_dark text-lg font-satoMiddle">
+              {title}
+            </h3>
             <p className="text-brand_gray font-satoshi mt-1">
               {duration}
               <span className="mx-1">·</span>${price}
@@ -84,13 +86,15 @@ const ServiceCard = ({
 
 const AddService = () => {
   return (
-    <button className="group  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center ">
-      <div>
-        <Plus className="mx-auto group-hover:scale-125 transition-all" />
-        <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
-          Agrega un nuevo servicio
-        </p>
-      </div>
-    </button>
+    <Link to="/dash/services/newservice">
+      <button className="group h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center ">
+        <div>
+          <Plus className="mx-auto group-hover:scale-125 transition-all" />
+          <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
+            Agrega un nuevo servicio
+          </p>
+        </div>
+      </button>
+    </Link>
   );
 };

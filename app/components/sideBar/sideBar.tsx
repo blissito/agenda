@@ -46,9 +46,9 @@ const Header = ({
 }) => {
   return (
     <header className={twMerge(className)}>
-      <Denik className="mb-8 mt-6" />
+      <Denik className="mb-6 mt-6" />
       {user && <User user={user} />}
-      <hr className="my-6 max-w-[80%]" />
+      <hr className="my-4 max-w-[80%]" />
     </header>
   );
 };
@@ -198,11 +198,13 @@ const MainMenu = () => {
           </MenuButton.Icon>
           <MenuButton.Title>Pagos</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/clients" isActive={match("clients")}>
+          <MenuButton.Icon isActive={match("clients")}>
             <Clients />
           </MenuButton.Icon>
-          <MenuButton.Title>Clientes</MenuButton.Title>
+          <MenuButton.Title isActive={match("clients")}>
+            Clientes
+          </MenuButton.Title>
         </MenuButton>
         <MenuButton>
           <MenuButton.Icon>
@@ -230,13 +232,13 @@ const MainMenu = () => {
 const User = ({ user }: { user: Partial<User> }) => (
   <div className="flex items-center text-brand_dark">
     <img
-      className="w-12 rounded-full mr-2"
+      className="w-10 rounded-full mr-2"
       alt="avatar"
       src={user.photoURL ?? undefined}
     />
     <div className="grid">
-      <p className="text-2xl font-medium">{user.name}</p>
-      <p className="text-gray-400 font-thin">{user.email}</p>
+      <p className="text-lg font-satoMiddle mb-0">{user.name}</p>
+      <p className="text-gray-400 font-thin -mt-1">{user.email}</p>
     </div>
   </div>
 );

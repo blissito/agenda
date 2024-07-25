@@ -7,11 +7,12 @@ import React from "react";
 import { ServiceGeneralForm } from "~/components/forms/ServiceGeneralForm";
 import { AbsoluteCentered } from "~/components/forms/AboutYourCompanyForm";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useNavigate } from "@remix-run/react";
 import { FaArrowLeftLong } from "react-icons/fa6";
 
 export default function NewService() {
   const fetcher = useFetcher();
+  const navigate = useNavigate();
 
   return (
     <main className="max-w-xl mx-auto pt-20  min-h-screen relative ">
@@ -21,11 +22,16 @@ export default function NewService() {
       <div className="mt-14">
         <ServiceGeneralForm />
       </div>
+
       <div className="h-[96px] bg-white/40 mx-auto w-full flex absolute backdrop-blur bottom-0  justify-between items-center ">
         <PrimaryButton
           className="bg-transparent text-brand_dark font-satoMiddle 	"
           isLoading={fetcher.state !== "idle"}
           type="submit"
+          // to="/dash/services"
+          onClick={() => {
+            navigate(-1);
+          }}
         >
           <FaArrowLeftLong />
           Volver

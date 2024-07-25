@@ -3,7 +3,19 @@ import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
 import { BasicInput } from "./BasicInput";
-import { SelectInput } from "./SelectInput";
+import { Options, SelectInput } from "./SelectInput";
+
+const OPTIONS: Options[] = [
+  {
+    value: "En sucursal",
+  },
+  {
+    value: "A domicilio",
+  },
+  {
+    value: "En línea",
+  },
+];
 
 type Props = {
   name: string;
@@ -15,6 +27,7 @@ type Props = {
   placeholder?: string;
   // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
 };
+
 export const ServiceGeneralForm = () => {
   return (
     <section className="flex flex-col mx-auto max-w-xl  ">
@@ -33,6 +46,12 @@ export const ServiceGeneralForm = () => {
         label="¿A cuántos puntos de recompensas equivale el servicio?"
         name="rewards"
         registerOptions={{ required: REQUIRED_MESSAGE }}
+      />
+      <SelectInput
+        name="appoitment place"
+        placeholder="selecciona"
+        label="Tipo de cita"
+        options={OPTIONS}
       />
 
       <BasicInput
