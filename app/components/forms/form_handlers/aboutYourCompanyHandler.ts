@@ -28,15 +28,15 @@ const TypeOfBusinessSchema = z.object({
   businessType: z.string(),
 });
 type TypeOfBusinessType = z.infer<typeof TypeOfBusinessSchema>;
-
+const tuple = z.array(z.array(z.string(), z.string())).optional();
 const weekDaysSchema = z.object({
-  lunes: z.array(z.array(z.string(), z.string())).optional(),
-  martes: z.array(z.array(z.string(), z.string())).optional(),
-  miércoles: z.array(z.array(z.string(), z.string())).optional(),
-  jueves: z.array(z.array(z.string(), z.string())).optional(),
-  sábado: z.array(z.array(z.string(), z.string())).optional(),
-  domingo: z.array(z.array(z.string(), z.string())).optional(),
-  viernes: z.array(z.array(z.string(), z.string())).optional(),
+  lunes: tuple,
+  martes: tuple,
+  miércoles: tuple,
+  jueves: tuple,
+  sábado: tuple,
+  domingo: tuple,
+  viernes: tuple,
 });
 export type WeekDaysType = z.infer<typeof weekDaysSchema>;
 //

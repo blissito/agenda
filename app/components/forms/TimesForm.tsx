@@ -70,6 +70,9 @@ export const TimesForm = ({ org }: { org?: Org }) => {
   const [data, setData] = useState<WeekDaysType>(
     org?.weekDays || initialValues // @TODO custom aliases
   );
+  const initialData = org?.weekDays
+    ? Object.keys(org?.weekDays as WeekDaysType)
+    : Object.keys(initialValues);
   const {
     clearErrors,
     setValue,
@@ -79,9 +82,7 @@ export const TimesForm = ({ org }: { org?: Org }) => {
     handleSubmit,
   } = useForm({
     defaultValues: {
-      weekDays:
-        Object.keys(org?.weekDays as WeekDaysType) ||
-        Object.keys(initialValues),
+      weekDays: initialData,
     },
   });
 
