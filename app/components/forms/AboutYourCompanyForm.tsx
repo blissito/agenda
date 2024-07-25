@@ -6,10 +6,12 @@ import { MultipleOptions } from "./MultipleOptions";
 import { PrimaryButton } from "../common/primaryButton";
 import { twMerge } from "tailwind-merge";
 import { useFetcher } from "react-router-dom";
+import { Org } from "@prisma/client";
 
 const OPTIONS = ["Solo yo", "2", "3 a 5", "6 a 14", "15 o más"];
 
-export const AboutYourCompanyForm = () => {
+export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
+  console.log("? ", org);
   const fetcher = useFetcher();
   const {
     handleSubmit,
@@ -18,7 +20,7 @@ export const AboutYourCompanyForm = () => {
     // watch,
   } = useForm({
     mode: "onChange",
-    defaultValues: {
+    defaultValues: org || {
       name: "",
       shopKeeper: "",
       numberOfEmployees: "",
@@ -69,7 +71,7 @@ export const AboutYourCompanyForm = () => {
         />
         <MultipleOptions
           className="grid grid-cols-3 gap-4"
-          defaultValue={null}
+          defaultValue={org?.numberOfEmployees}
           error={errors["numberOfEmployees"]}
           label="¿Cuantas personas trabajan en tu negocio?"
           name="numberOfEmployees"

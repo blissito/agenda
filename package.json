@@ -6,7 +6,7 @@
   "scripts": {
     "deploy": "fly deploy",
     "build": "remix vite:build",
-    "dev": "remix vite:dev",
+    "dev": "npx concurrently \"npm run prisma-setup\" \"remix vite:dev\"",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "prisma-setup": "prisma generate",
     "start": "npm run prisma-setup && remix-serve ./build/server/index.js",
@@ -29,7 +29,8 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.52.1",
     "react-icons": "^5.2.1",
-    "tailwind-merge": "^2.3.0"
+    "tailwind-merge": "^2.3.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.5.7",

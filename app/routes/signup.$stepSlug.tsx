@@ -9,47 +9,43 @@ import { TimesForm } from "~/components/forms/TimesForm";
 import { Agenda } from "~/components/icons/menu/agenda";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
+import { aboutYourCompanyHandler } from "~/utils/handlers/aboutYourCompanyHandler";
+import { getFirstOrgOrNull } from "~/db/userGetters";
 
+export const REQUIRED_MESSAGE = "Este campo es requerido";
 export const SLUGS = [
   "sobre-tu-negocio",
   "tipo-de-negocio",
   "horario",
   "cargando",
 ];
-export const REQUIRED_MESSAGE = "Este campo es requerido";
 const FORM_COMPONENT_NAMES = [
   "AboutYourCompanyForm",
   "BussinesTypeForm",
   "TimesForm",
   "Loader",
 ];
+
 // @TODO: check mobile sizes
 // @TODO: saving with real user
 // @TODO: Show saved values when return (edit) <=============
 // @TODO: secure route
 // @todo: in order to reuse action save as functions in a utility
 export const action = async ({ request }: ActionFunctionArgs) => {
-  console.log("REDIRECTING:::");
   const formData = await request.formData();
   const intent = formData.get("intent");
+  const data = JSON.parse(formData.get("data") as string);
+  console.log("Intent:::", intent);
   // sobre-tu-negocio
-  if (intent === SLUGS[0]) {
-    const data = JSON.parse(formData.get("data") as string);
-    console.log("SAVING: " + SLUGS[0], data);
-    // @TODO: zod validation and parsing
-    return redirect("/signup/" + SLUGS[1]);
-  }
+  if (intent === SLUGS[0]) return await aboutYourCompanyHandler(request, data);
+
   // tipo-de-negocio
   if (intent === SLUGS[1]) {
-    const data = JSON.parse(formData.get("data") as string);
-    // @TODO: zod validation and parsing
     console.log("SAVING: " + SLUGS[1], data);
     return redirect("/signup/" + SLUGS[2]);
   }
   // horario
   if (intent === SLUGS[2]) {
-    const data = JSON.parse(formData.get("data") as string);
-    // @TODO: zod validation and parsing
     console.log("SAVING: " + SLUGS[3], data);
     // @todo: remove back stack
     return redirect("/signup/" + SLUGS[3]);
@@ -91,17 +87,25 @@ const getTitleByStepSlug = (slug?: string) => {
   }
 };
 
-export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
+export const loader = async ({
+  request,
+  params: { stepSlug },
+}: LoaderFunctionArgs) => {
   // @TODO: Check if start or redirect
   // @TODO: keyboard support
+  // @TODO: Load user id?
+  // @TODO: if org exists?
+  const org = await getFirstOrgOrNull(request);
+
   return {
+    org,
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
     title: getTitleByStepSlug(stepSlug),
   };
 };
 
 export default function Page() {
-  const { stepComponentName, title } = useLoaderData<typeof loader>();
+  const { org, stepComponentName, title } = useLoaderData<typeof loader>();
   // Components here ==================================================================
   const FormComponent = useMemo(() => {
     switch (stepComponentName) {
@@ -128,7 +132,7 @@ export default function Page() {
           <LeftHero title={title} />
         </section>
         <section className="flex-1 overflow-x-hidden">
-          <FormComponent title={title} />
+          <FormComponent title={title} org={org} />
         </section>
       </article>
     </>

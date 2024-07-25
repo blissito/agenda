@@ -10,10 +10,19 @@ datasource db {
 }
 
 model Org {
-  id      String  @id @default(auto()) @map("_id") @db.ObjectId
-  ownerId String? @db.ObjectId
-  owner   User?   @relation(fields: [ownerId], references: [id])
-  week    String?
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId           String? @db.ObjectId
+  owner             User?   @relation(fields: [ownerId], references: [id])
+  week              String?
+  // about your company
+  name              String
+  shopKeeper        String?
+  numberOfEmployees String?
+  address           String?
+  // Business type
+  businessType      String?
+  // Times
+  weekDays          Json?
 }
 
 model User {
