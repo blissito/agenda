@@ -11,7 +11,6 @@ import { Org } from "@prisma/client";
 const OPTIONS = ["Solo yo", "2", "3 a 5", "6 a 14", "15 o más"];
 
 export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
-  console.log("? ", org);
   const fetcher = useFetcher();
   const {
     handleSubmit,

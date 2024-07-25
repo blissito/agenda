@@ -9,8 +9,8 @@ import { TimesForm } from "~/components/forms/TimesForm";
 import { Agenda } from "~/components/icons/menu/agenda";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
-import { aboutYourCompanyHandler } from "~/utils/handlers/aboutYourCompanyHandler";
 import { getFirstOrgOrNull } from "~/db/userGetters";
+import { aboutYourCompanyHandler } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 export const SLUGS = [
@@ -23,14 +23,13 @@ const FORM_COMPONENT_NAMES = [
   "AboutYourCompanyForm",
   "BussinesTypeForm",
   "TimesForm",
-  "Loader",
+  "LoaderScreen",
 ];
 
 // @TODO: check mobile sizes
-// @TODO: saving with real user
-// @TODO: Show saved values when return (edit) <=============
-// @TODO: secure route
-// @todo: in order to reuse action save as functions in a utility
+// @TODO: saving with real user  1/3[]
+// @TODO: Show saved values when return (edit) 1/3[]
+// @TODO: secure route loader?
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
@@ -38,18 +37,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   console.log("Intent:::", intent);
   // sobre-tu-negocio
   if (intent === SLUGS[0]) return await aboutYourCompanyHandler(request, data);
-
   // tipo-de-negocio
-  if (intent === SLUGS[1]) {
-    console.log("SAVING: " + SLUGS[1], data);
-    return redirect("/signup/" + SLUGS[2]);
-  }
+  if (intent === SLUGS[1]) return redirect("/signup/" + SLUGS[2]);
   // horario
-  if (intent === SLUGS[2]) {
-    console.log("SAVING: " + SLUGS[3], data);
-    // @todo: remove back stack
-    return redirect("/signup/" + SLUGS[3]);
-  }
+  // @todo: remove back stack
+  if (intent === SLUGS[2]) return redirect("/signup/" + SLUGS[3]);
 
   return null;
 };
@@ -106,11 +98,11 @@ export const loader = async ({
 
 export default function Page() {
   const { org, stepComponentName, title } = useLoaderData<typeof loader>();
-  // Components here ==================================================================
+  // Components here ========================================================================================= <=
   const FormComponent = useMemo(() => {
     switch (stepComponentName) {
       case FORM_COMPONENT_NAMES[3]:
-        return Loader;
+        return LoaderScreen;
       case FORM_COMPONENT_NAMES[2]:
         return TimesForm;
       case FORM_COMPONENT_NAMES[1]:
@@ -123,23 +115,19 @@ export default function Page() {
   // @todo: make a counter to redirect
 
   return (
-    <>
-      <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
-        <section
-          className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}
-        >
-          <BackButton />
-          <LeftHero title={title} />
-        </section>
-        <section className="flex-1 overflow-x-hidden">
-          <FormComponent title={title} org={org} />
-        </section>
-      </article>
-    </>
+    <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
+      <section className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}>
+        <BackButton />
+        <LeftHero title={title} />
+      </section>
+      <section className="flex-1 overflow-x-hidden">
+        <FormComponent title={title} org={org} />
+      </section>
+    </article>
   );
 }
 
-export const Loader = ({ title }: { title: string }) => {
+export const LoaderScreen = ({ title }: { title: string }) => {
   const [text, setText] = useState(title);
   const [show, set] = useState(false);
   useEffect(() => {

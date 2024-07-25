@@ -1,5 +1,5 @@
-import { getUserOrRedirect } from "~/db/userGetters";
-import { db } from "../db.server";
+import { getUserOrRedirect } from "../../../db/userGetters";
+import { db } from "../../../utils/db.server";
 import { z } from "zod";
 import { json, redirect } from "@remix-run/node";
 
