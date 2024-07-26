@@ -1,5 +1,5 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { redirect, useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { ReactNode, useEffect, useMemo, useState } from "react";
@@ -9,52 +9,43 @@ import { TimesForm } from "~/components/forms/TimesForm";
 import { Agenda } from "~/components/icons/menu/agenda";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
+import { getFirstOrgOrNull } from "~/db/userGetters";
+import {
+  aboutYourCompanyHandler,
+  timesHandler,
+  typeOfBusinessHandler,
+} from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 
+export const REQUIRED_MESSAGE = "Este campo es requerido";
 export const SLUGS = [
   "sobre-tu-negocio",
   "tipo-de-negocio",
   "horario",
   "cargando",
 ];
-export const REQUIRED_MESSAGE = "Este campo es requerido";
 const FORM_COMPONENT_NAMES = [
   "AboutYourCompanyForm",
   "BussinesTypeForm",
   "TimesForm",
-  "Loader",
+  "LoaderScreen",
 ];
+
 // @TODO: check mobile sizes
-// @TODO: saving with real user
-// @TODO: Show saved values when return (edit) <=============
-// @TODO: secure route
-// @todo: in order to reuse action save as functions in a utility
+// @TODO: saving with real user  1/3[]
+// @TODO: Show saved values when return (edit) 1/3[]
+// @TODO: secure route loader?
 export const action = async ({ request }: ActionFunctionArgs) => {
-  console.log("REDIRECTING:::");
   const formData = await request.formData();
   const intent = formData.get("intent");
+  const data = JSON.parse(formData.get("data") as string);
   // sobre-tu-negocio
-  if (intent === SLUGS[0]) {
-    const data = JSON.parse(formData.get("data") as string);
-    console.log("SAVING: " + SLUGS[0], data);
-    // @TODO: zod validation and parsing
-    return redirect("/signup/" + SLUGS[1]);
-  }
+  if (intent === SLUGS[0]) return await aboutYourCompanyHandler(request, data);
   // tipo-de-negocio
-  if (intent === SLUGS[1]) {
-    const data = JSON.parse(formData.get("data") as string);
-    // @TODO: zod validation and parsing
-    console.log("SAVING: " + SLUGS[1], data);
-    return redirect("/signup/" + SLUGS[2]);
-  }
+  if (intent === SLUGS[1]) return await typeOfBusinessHandler(request, data);
   // horario
-  if (intent === SLUGS[2]) {
-    const data = JSON.parse(formData.get("data") as string);
-    // @TODO: zod validation and parsing
-    console.log("SAVING: " + SLUGS[3], data);
-    // @todo: remove back stack
-    return redirect("/signup/" + SLUGS[3]);
-  }
-
+  // @todo: remove back stack
+  if (intent === SLUGS[2]) return await timesHandler(request, data);
+  console.log("MISSING:::Intent:::", intent);
   return null;
 };
 
@@ -91,22 +82,30 @@ const getTitleByStepSlug = (slug?: string) => {
   }
 };
 
-export const loader = ({ params: { stepSlug } }: LoaderFunctionArgs) => {
+export const loader = async ({
+  request,
+  params: { stepSlug },
+}: LoaderFunctionArgs) => {
   // @TODO: Check if start or redirect
   // @TODO: keyboard support
+  // @TODO: Load user id?
+  // @TODO: if org exists?
+  const org = await getFirstOrgOrNull(request);
+
   return {
+    org,
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
     title: getTitleByStepSlug(stepSlug),
   };
 };
 
 export default function Page() {
-  const { stepComponentName, title } = useLoaderData<typeof loader>();
-  // Components here ==================================================================
+  const { org, stepComponentName, title } = useLoaderData<typeof loader>();
+  // Components here ========================================================================================= <=
   const FormComponent = useMemo(() => {
     switch (stepComponentName) {
       case FORM_COMPONENT_NAMES[3]:
-        return Loader;
+        return LoaderScreen;
       case FORM_COMPONENT_NAMES[2]:
         return TimesForm;
       case FORM_COMPONENT_NAMES[1]:
@@ -119,23 +118,19 @@ export default function Page() {
   // @todo: make a counter to redirect
 
   return (
-    <>
-      <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
-        <section
-          className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}
-        >
-          <BackButton />
-          <LeftHero title={title} />
-        </section>
-        <section className="flex-1 overflow-x-hidden">
-          <FormComponent title={title} />
-        </section>
-      </article>
-    </>
+    <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
+      <section className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}>
+        <BackButton />
+        <LeftHero title={title} />
+      </section>
+      <section className="flex-1 overflow-x-hidden">
+        <FormComponent title={title} org={org} />
+      </section>
+    </article>
   );
 }
 
-export const Loader = ({ title }: { title: string }) => {
+export const LoaderScreen = ({ title }: { title: string }) => {
   const [text, setText] = useState(title);
   const [show, set] = useState(false);
   useEffect(() => {

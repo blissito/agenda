@@ -14,7 +14,8 @@ import {
   TimePicker,
 } from "./TimePicker";
 import { nanoid } from "nanoid";
-import { en } from "@faker-js/faker";
+import { Org } from "@prisma/client";
+import { WeekDaysType } from "./form_handlers/aboutYourCompanyHandler";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
@@ -37,7 +38,8 @@ const ENTIRE_WEEK = [
   "sábado",
   "domingo",
 ];
-const initialValues: WeekTuples = {
+// @TODO: remove unnecesary types
+const initialValues: WeekDaysType = {
   lunes: [
     ["09:00", "16:00"],
     // ["17:00", "18:00"],
@@ -63,9 +65,14 @@ const initialValues: WeekTuples = {
 const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
-export const TimesForm = () => {
+export const TimesForm = ({ org }: { org?: Org }) => {
   const fetcher = useFetcher();
-  const [data, setData] = useState<WeekTuples>(initialValues);
+  const [data, setData] = useState<WeekDaysType>(
+    org?.weekDays || initialValues // @TODO custom aliases
+  );
+  const initialData = org?.weekDays
+    ? Object.keys(org?.weekDays as WeekDaysType)
+    : Object.keys(initialValues);
   const {
     clearErrors,
     setValue,
@@ -75,7 +82,7 @@ export const TimesForm = () => {
     handleSubmit,
   } = useForm({
     defaultValues: {
-      weekDays: Object.keys(initialValues),
+      weekDays: initialData,
     },
   });
 
@@ -199,6 +206,7 @@ export const TimesForm = () => {
       <div className="mt-auto">
         {" "}
         <PrimaryButton
+          isLoading={fetcher.state !== "idle"}
           className="w-full mt-auto"
           isDisabled={isDisabled}
           type="submit"

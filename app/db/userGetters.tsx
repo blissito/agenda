@@ -61,3 +61,14 @@ export const getAdminUserOrRedirect = async (
   }
   return user;
 };
+
+/**
+ * Org stuff
+ */
+export const getFirstOrgOrNull = async (request: Request) => {
+  const user = await getUserOrNull(request);
+  if (!user) return null;
+  const orgs = await db.org.findMany({ where: { ownerId: user.id } }); // @TODO: only first for now
+  if (!orgs || !orgs[0]) return null;
+  return orgs[0];
+};

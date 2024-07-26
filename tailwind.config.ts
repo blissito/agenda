@@ -13,6 +13,10 @@ export default {
         brand_pale: "#F0F0F0",
         brand_ash: "#E3E2E2",
         brand_iron: "#8391A1",
+        brand_stroke: "#F2F2F2",
+      },
+      backgroundImage: {
+        calendar: "url(/images/calendarPattern.svg)",
       },
       container: {
         center: true,
@@ -24,6 +28,7 @@ export default {
       animation: {
         "meteor-effect": "meteor 5s linear infinite",
         "vibration-effect": "vibration .5s ease",
+        "movement-effect": "movement .5s ease",
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
       },
@@ -36,6 +41,13 @@ export default {
             opacity: "0",
           },
           
+        },
+        movement: {
+          "0%": { transform: "rotate(1deg)" },
+          "25%": { transform: "rotate(-1deg)" },
+          "50%": { transform: "rotate(1deg)" },
+          "75%": { transform: "rotate(-1deg)" },
+          "100%": { transform: "rotate(0deg)" },
         },
         vibration: {
           "0%": { transform: "rotate(10deg)" },

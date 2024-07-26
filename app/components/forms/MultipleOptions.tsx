@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
 import { BasicInput } from "./BasicInput";
@@ -26,7 +26,6 @@ export const MultipleOptions = ({
   registerOptions?: { required: string | boolean };
   register?: UseFormRegister<FieldValues> | any;
 }) => {
-  // const inputRef = useRef<HTMLInputElement>(null);
   const [current, set] = useState<null | string>(defaultValue);
   if (renderFunction) {
     return (
@@ -47,8 +46,7 @@ export const MultipleOptions = ({
   }
   return (
     <>
-      <p className="mb-1">{label}</p>
-      {/* <AnimatePresence > */}
+      <p className="mb-1">{label}</p>{" "}
       <motion.div
         transition={{
           type: "spring",
@@ -80,7 +78,6 @@ export const MultipleOptions = ({
         })}
       </motion.div>
       <p className="h-1 text-red-500 text-xs pl-1 my-1">{error?.message}</p>
-      {/* </AnimatePresence> */}
     </>
   );
 };
@@ -113,6 +110,7 @@ export const Option = ({
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
     <motion.label
+      whileHover={{ scale: 1.01 }}
       key={index}
       initial={{ y: -10, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
@@ -129,7 +127,6 @@ export const Option = ({
         // "checked:border-blue-600" // no funciona U_U
         //   "overflow-hidden"
       )}
-      // key={option}
     >
       {isCurrent ? (
         <motion.div
@@ -148,7 +145,6 @@ export const Option = ({
       </span>
       <input
         value={option}
-        // ref={inputRef}
         type="radio"
         id={option}
         name={name}

@@ -7,6 +7,7 @@ import { PrimaryButton } from "../common/primaryButton";
 import { FieldValues, useForm } from "react-hook-form";
 import { Form, useFetcher } from "@remix-run/react";
 import { SLUGS } from "~/routes/signup.$stepSlug";
+import { Org } from "@prisma/client";
 
 const OPTIONS = [
   "barbería",
@@ -46,19 +47,19 @@ const getIconByOption = (string?: string) => {
   }
 };
 
-export const BussinesTypeForm = () => {
+export const BussinesTypeForm = ({ org }: { org?: Org }) => {
   const fetcher = useFetcher();
-  const [current, set] = useState<string>("");
+  const [current, set] = useState<string>(org?.businessType);
   const [isOtro, setIsOtro] = useState(false);
   const {
-    formState: { isValid, errors },
+    formState: { isValid },
     register,
     handleSubmit,
     setValue,
     // watch,
   } = useForm({
     defaultValues: {
-      businessType: "",
+      businessType: org?.businessType || "",
     },
   });
 
@@ -131,7 +132,11 @@ export const BussinesTypeForm = () => {
             );
           }}
         />
-        <PrimaryButton isDisabled={!isValid} className="mt-auto mb-8">
+        <PrimaryButton
+          isLoading={fetcher.state !== "idle"}
+          isDisabled={!isValid}
+          className="mt-auto mb-8"
+        >
           Continuar
         </PrimaryButton>
       </Form>
