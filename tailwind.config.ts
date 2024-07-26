@@ -14,9 +14,18 @@ export default {
         brand_ash: "#E3E2E2",
         brand_iron: "#8391A1",
       },
+      container: {
+        center: true,
+        padding: "2rem",
+        screens: {
+          "2xl": "1400px",
+        },
+      },
       animation: {
         "meteor-effect": "meteor 5s linear infinite",
         "vibration-effect": "vibration .5s ease",
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
       keyframes: {
         meteor: {
@@ -26,6 +35,7 @@ export default {
             transform: "rotate(215deg) translateX(-500px)",
             opacity: "0",
           },
+          
         },
         vibration: {
           "0%": { transform: "rotate(10deg)" },
@@ -34,8 +44,16 @@ export default {
           "75%": { transform: "rotate(-10deg)" },
           "100%": { transform: "rotate(0deg)" },
         },
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [require("@tailwindcss/forms"), require("tailwindcss-animate")],
 } satisfies Config;
