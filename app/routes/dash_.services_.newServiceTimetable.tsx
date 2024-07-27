@@ -105,7 +105,6 @@ export const RadioButton = ({
         id={value}
         name={name}
         value={value}
-        checked
       />
       <label htmlFor="timetable " className="font-satoshi">
         {label}
