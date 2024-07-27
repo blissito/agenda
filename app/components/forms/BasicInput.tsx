@@ -10,7 +10,7 @@ type Props = {
   className?: string;
   registerOptions?: { required: string | boolean };
   placeholder?: string;
-  // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
+  as?: "textarea";
 };
 export const BasicInput = ({
   placeholder,
@@ -20,29 +20,46 @@ export const BasicInput = ({
   label,
   name,
   register,
+  as,
   ...props
 }: Props) => {
   return (
-    <>
+    <div className="grid">
       <label
         className={twMerge(" text-neutral-950 mb-1", className)}
         htmlFor={name}
       >
         {label}
       </label>
-      <input
-        placeholder={placeholder}
-        className={twMerge(
-          "focus:border-brand_blue",
-          "rounded-xl border-gray-200 h-12",
-          !!error && "border-red-500"
-        )}
-        {...props}
-        {...register?.(name, registerOptions)}
-        // onChange={onChange}
-      />
+      {as === "textarea" ? (
+        <textarea
+          placeholder={placeholder}
+          className={twMerge(
+            "min-h-20",
+            "placeholder-gray-300",
+            "focus:border-brand_blue",
+            "rounded-xl border-gray-200 h-12",
+            !!error && "border-red-500"
+          )}
+          {...props}
+          {...register?.(name, registerOptions)}
+        />
+      ) : (
+        <input
+          placeholder={placeholder}
+          className={twMerge(
+            "placeholder-gray-300",
+            "focus:border-brand_blue",
+            "rounded-xl border-gray-200 h-12",
+            !!error && "border-red-500"
+          )}
+          {...props}
+          {...register?.(name, registerOptions)}
+          // onChange={onChange}
+        />
+      )}
       {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
-    </>
+    </div>
   );
 };
 

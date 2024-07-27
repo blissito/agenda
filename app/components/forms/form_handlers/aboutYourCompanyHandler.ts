@@ -2,6 +2,7 @@ import { getUserOrRedirect } from "../../../db/userGetters";
 import { db } from "../../../utils/db.server";
 import { z } from "zod";
 import { json, redirect } from "@remix-run/node";
+import { generateSlug } from "~/utils/generateSlug";
 
 // CONSTS
 const ABOUT_YOUR_BUSINESS_URL = "/signup/sobre-tu-negocio";
@@ -13,6 +14,7 @@ const CARGANDO_URL = "/signup/cargando";
 // z.coerce.string().email().min(5);
 export const aboutYourCompanySchema = z.object({
   name: z.string(),
+  slug: z.string(),
   ownerId: z.string(),
   shopKeeper: z.string().optional(),
   numberOfEmployees: z.string().optional(),
@@ -98,6 +100,8 @@ export const aboutYourCompanyHandler = async (
   const validatedData = aboutYourCompanySchema.parse({
     ...data,
     ownerId: user.id,
+    // slug
+    slug: generateSlug(data.name),
   }); // throwing validation
   // if exists update with data @TODO: interrupt process? Not for now. jul 2024
   const orgs = await db.org.findMany({

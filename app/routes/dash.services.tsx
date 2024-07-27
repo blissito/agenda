@@ -1,9 +1,23 @@
 import { Link, Outlet } from "@remix-run/react";
+import { useEffect, useRef } from "react";
 import { Tag } from "~/components/common/Tag";
 import { Plus } from "~/components/icons/plus";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 
 export default function Services() {
+  const origin = useRef<string>("");
+
+  useEffect(() => {
+    origin.current = location.origin;
+  }, []);
+
+  const getLink = (orgSlug: string, serviceSlug: string) => {
+    const url = new URL(origin.current || "http://denik.me");
+    url.pathname = `/${orgSlug}/${serviceSlug}`;
+    console.log("URL: ", url);
+    return url.toString();
+  };
+
   return (
     <main className=" ">
       <RouteTitle>Servicios </RouteTitle>
@@ -13,30 +27,35 @@ export default function Services() {
           duration="1hr"
           price="499 mxn"
           status="Active"
+          link={getLink("org-slug-9837", "clase-de-violin")}
         />
         <ServiceCard
-          title="Clase de violín"
+          title="Clase de Guitarra"
           duration="1hr"
           price="499 mxn"
           status="Active"
+          link={getLink("org-slug-9837", "clase-de-guitarra")}
         />
         <ServiceCard
-          title="Clase de violín"
+          title="Clase de Piano"
           duration="1hr"
           price="499 mxn"
           status="Active"
+          link={getLink("org-slug-9837", "clase-de-piano")}
         />
         <ServiceCard
-          title="Clase de violín"
+          title="Clase de Piola"
           duration="1hr"
           price="499 mxn"
           status="Active"
+          link={getLink("org-slug-9837", "clase-de-piola")}
         />
         <ServiceCard
-          title="Clase de violín"
+          title="Clase de Tambor"
           duration="1hr"
           price="499 mxn"
           status="Active"
+          link={getLink("org-slug-9837", "clase-de-tambor")}
         />
         <AddService />
       </div>
@@ -50,7 +69,6 @@ const ServiceCard = ({
   image,
   duration,
   price,
-  status,
   link,
 }: {
   title: string;
@@ -64,6 +82,7 @@ const ServiceCard = ({
     <Link to={link ? link : "/dash/services/unid"}>
       <section className="bg-white rounded-2xl overflow-hidden hover:animate-movement-effect cursor-pointer">
         <img
+          alt="cover"
           className="w-full h-[160px] object-cover"
           src={image ? image : "/images/serviceDefault.png"}
         />

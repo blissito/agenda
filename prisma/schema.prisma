@@ -9,13 +9,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+type NotifyConfig {
+  confirmation Boolean
+  reminder     Boolean
+  survey       Boolean
+}
+
+enum Place {
+  ONLINE
+  INPLACE
+  ATHOME
+}
+
+model Service {
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String?
+  category        String?
+  points          Int          @default(0)
+  photoURL        String?
+  location        Json?
+  place           Place        @default(INPLACE)
+  address         Json?
+  seats           Int?         @default(1)
+  duration        Int // mins
+  includesPayment Boolean      @default(false)
+  price           Int
+  currency        String?      @default("MXN")
+  config          NotifyConfig
+  employeeName    String?
+  // relations
+  events          Event[]
+  orgId           String       @db.ObjectId
+  org             Org          @relation(fields: [orgId], references: [id])
+}
+
 model Org {
-  id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  ownerId           String? @db.ObjectId
-  owner             User?   @relation(fields: [ownerId], references: [id])
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId           String?   @db.ObjectId
+  owner             User?     @relation(fields: [ownerId], references: [id])
   week              String?
   // about your company
   name              String
+  slug              String    @unique
+  logo              String?
   shopKeeper        String?
   numberOfEmployees String?
   address           String?
@@ -23,11 +60,21 @@ model Org {
   businessType      String?
   // Times
   weekDays          Json?
+  Service           Service[]
+  // extra
+  location          Json?
+  Event             Event[]
+}
+
+enum Role {
+  CUSTOMER
+  GUEST
+  ADMIN
 }
 
 model User {
   id            String  @id @default(auto()) @map("_id") @db.ObjectId
-  role          String  @default("GUEST")
+  role          Role    @default(GUEST)
   // UNIQUE
   email         String  @unique
   emailVerified Boolean @default(false)
@@ -41,22 +88,33 @@ model User {
   // ADMIN 
   orgId         Int?
   Org           Org[]
+  Event         Event[]
+}
+
+enum EventStatus {
+  OVERDUE
+  CANCELED
+  DELETED
+  ACTIVE
 }
 
 model Event {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  title     String
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  title     String?
   start     DateTime
-  end       DateTime
-  allDay    Boolean?
-  status    String   @default("ACTIVE")
-  // OVERDUE | CANCELED | DELETED (no enums in sqlite)
-  service   Service? @relation(fields: [serviceId], references: [id])
-  serviceId String?  @db.ObjectId
-}
-
-model Service {
-  title  String
-  id     String  @id @default(auto()) @map("_id") @db.ObjectId
-  events Event[]
+  end       DateTime?
+  duration  Int? // minutes
+  allDay    Boolean     @default(false)
+  status    EventStatus @default(ACTIVE)
+  // OVERDUE | CANCELED | DELETED (no enums in sqlite) // now we have enums! =D
+  service   Service?    @relation(fields: [serviceId], references: [id])
+  serviceId String?     @db.ObjectId
+  // scheduler
+  userId    String?     @db.ObjectId
+  user      User?       @relation(fields: [userId], references: [id])
+  // org?
+  orgId     String?     @db.ObjectId
+  org       Org?        @relation(fields: [orgId], references: [id])
+  // metadata
+  customer  Json?
 }
