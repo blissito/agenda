@@ -25,7 +25,7 @@ export const BasicInput = ({
   return (
     <>
       <label
-        className={twMerge(" text-neutral-950 mb-1", className)}
+        className={twMerge(" text-neutral-950 mb-1 font-satoMiddle", className)}
         htmlFor={name}
       >
         {label}
@@ -34,7 +34,7 @@ export const BasicInput = ({
         placeholder={placeholder}
         className={twMerge(
           "focus:border-brand_blue",
-          "rounded-xl border-gray-200 h-12",
+          "rounded-xl border-gray-200 h-12 w-full mt-1",
           !!error && "border-red-500"
         )}
         {...props}
