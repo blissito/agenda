@@ -26,7 +26,7 @@ export const BasicInput = ({
   return (
     <div className="grid">
       <label
-        className={twMerge(" text-neutral-950 mb-1", className)}
+        className={twMerge(" text-neutral-950 mb-1 font-satoMiddle", className)}
         htmlFor={name}
       >
         {label}
@@ -38,7 +38,7 @@ export const BasicInput = ({
             "min-h-20",
             "placeholder-gray-300",
             "focus:border-brand_blue",
-            "rounded-xl border-gray-200 h-12",
+            "rounded-xl border-gray-200 h-12 w-full mt-1",
             !!error && "border-red-500"
           )}
           {...props}
@@ -50,7 +50,7 @@ export const BasicInput = ({
           className={twMerge(
             "placeholder-gray-300",
             "focus:border-brand_blue",
-            "rounded-xl border-gray-200 h-12",
+            "rounded-xl border-gray-200 h-12 w-full mt-1",
             !!error && "border-red-500"
           )}
           {...props}
