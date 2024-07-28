@@ -27,8 +27,8 @@ export function SideBar({
   props?: unknown;
 }) {
   return (
-    <article className="min-h-screen bg-brand_light_gray flex " {...props}>
-      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl flex flex-col">
+    <article className="min-h-screen bg-brand_light_gray flex  " {...props}>
+      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl overflow-scroll	 flex flex-col">
         <Header user={user} className="pl-6" />
         <MainMenu />
         <OnboardingBanner />
@@ -269,7 +269,7 @@ const OnboardingBanner = () => {
         ¡Ya casi terminas de configurar tu agenda!
       </p>
       <PrimaryButton
-        className="min-w-[100px] max-w-[100px] px-3 h-8 bg-white text-[#AE7F3C]"
+        className="min-w-[100px] max-w-[100px] px-3 h-8 bg-white text-brand_dark"
         as="Link"
         to={"/dash/onboarding"}
       >
