@@ -42,7 +42,12 @@ export default function NewServicePhotos() {
           <FaArrowLeftLong />
           Volver
         </PrimaryButton>
-        <PrimaryButton isLoading={fetcher.state !== "idle"} type="submit">
+        <PrimaryButton
+          isLoading={fetcher.state !== "idle"}
+          type="submit"
+          as="Link"
+          to={"/dash/services/newservicetimetable"}
+        >
           Continuar
         </PrimaryButton>
       </div>

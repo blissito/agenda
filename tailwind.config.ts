@@ -17,6 +17,7 @@ export default {
       },
       backgroundImage: {
         calendar: "url(/images/calendarPattern.svg)",
+        banner: "url(/images/back-banner.png)",
       },
       animation: {
         "meteor-effect": "meteor 5s linear infinite",
