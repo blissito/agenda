@@ -5,6 +5,7 @@ primary_region = 'qro'
 
 [env]
   DATABASE_URL = 'mongodb+srv://denik_app:3ma68CaPwZwYVOl7@cluster0.ahniito.mongodb.net/denik?retryWrites=true&w=majority&appName=Cluster0'
+  
 
 [http_service]
   internal_port = 3000

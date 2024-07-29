@@ -13,15 +13,22 @@ import { FiMapPin } from "react-icons/fi";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineIdentification } from "react-icons/hi2";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import DatePicker from "react-datepicker";
 import { PiCalendarCheckBold } from "react-icons/pi";
-import "react-datepicker/dist/react-datepicker.css";
 import { SubmitHandler, useForm, UseFormHandleSubmit } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import { getUserOrNull } from "~/db/userGetters";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
+import { es } from "date-fns/locale";
+import {
+  areSameDates,
+  generateWeek,
+  getDaysInMonth,
+  isToday,
+} from "~/components/dash/agenda/agendaUtils";
+import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 
 // @TODO: validate date and time is in the future
 
@@ -159,7 +166,6 @@ export default function Page() {
   };
 
   useEffect(() => {
-    console.log("FETC: ", fetcher);
     if (fetcher.data?.screen === "form") {
       console.log("FETCHERDATA: ", fetcher.data);
       setCurrentScreen(fetcher.data?.screen);
@@ -183,14 +189,8 @@ export default function Page() {
         />
         <h1 className="font-bold text-sm ">{org?.name}</h1>
       </div>
-      <main className="bg-white shadow md:mx-auto mx-2 max-w-3xl rounded-xl pb-1">
-        <section
-          className={twMerge(
-            "",
-            "flex flex-col md:flex-row gap-4 justify-center",
-            "rounded-xl max-w-3xl md:mx-auto h-[40%] mx-2 p-5"
-          )}
-        >
+      <main className="bg-white shadow mx-auto rounded-xl p-6 w-[90%] md:w-fit">
+        <section className={twMerge("flex flex-col md:flex-row")}>
           <div className="w-full max-w-[200px]">
             <span className="text-brand_gray text-xs font-thin">
               {org?.name}
@@ -198,11 +198,10 @@ export default function Page() {
             <h2 className="text-lg font-medium mb-5">Clase de viola</h2>
             <ServiceList service={service} date={date || undefined} />
           </div>
-          <div className="">
-            <hr className="border-l mb-8 border-l-brand_gray/10 h-full mx-6" />
-          </div>
+          <hr className="border-l-brand_gray/10 md:my-0 md:h-44 md:w-1 w-full my-4 border-l md:mr-8" />
           {currentScreen === "picker" && (
             <DateAndTimePicker
+              selectedDate={date}
               onDateChange={handleDateChange}
               onTimeChange={handleTimeChange}
               time={time}
@@ -211,24 +210,194 @@ export default function Page() {
           {currentScreen === "form" && <ClientForm eventId={eventId} />}
         </section>
 
-        <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">
-          {errors.time?.message}
-          {errors.date?.message}
-        </p>
-        {currentScreen === "picker" && ( // @TODO move this into pciker form
-          <PrimaryButton
-            isDisabled={!isValid}
-            onClick={onSubmit}
-            className="ml-auto mr-6 mb-6 mt-14"
-          >
-            Continuar
-          </PrimaryButton>
-        )}
+        {currentScreen === "picker" &&
+          date && ( // @TODO move this into pciker form
+            <>
+              <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">
+                {errors.time?.message}
+                {errors.date?.message}
+              </p>
+              <PrimaryButton
+                isDisabled={!isValid}
+                onClick={onSubmit}
+                className="ml-auto mr-6 mb-6 mt-14"
+              >
+                Continuar
+              </PrimaryButton>
+            </>
+          )}
       </main>
     </article>
   );
 }
 //
+
+// Calendar picker and time
+const DateAndTimePicker = ({
+  onDateChange,
+  selectedDate,
+  onTimeChange,
+  time,
+}: {
+  selectedDate: Date | null;
+  time?: string;
+  onTimeChange?: (arg0: string) => void;
+  onDateChange: (arg0: Date) => void;
+}) => {
+  const [showTimes, setShowTimes] = useState(false);
+
+  const handleDayPress = (date) => {
+    onDateChange?.(date);
+  };
+
+  return (
+    <>
+      <article className="flex-1 md:max-w-72">
+        <h3 className="text-sm font-bold mb-5">
+          Selecciona una fecha y horario
+        </h3>
+        <main className="flex">
+          <section className="w-full">
+            <MonthView
+              selectedDate={selectedDate}
+              onDayPress={handleDayPress}
+            />
+          </section>
+
+          {/* <AnimatePresence> */}
+          <section
+            className={twMerge(
+              showTimes ? "block ml-8 transition-all" : "hidden"
+            )}
+          >
+            <h4 className="text-xs font-medium mb-4">Selecciona una:</h4>
+            <div className="grid grid-cols-2 gap-y-1 gap-x-2">
+              {[
+                "08:00",
+                "09:15",
+                "10:00",
+                "12:30",
+                "13:00",
+                "15:45",
+                "16:00",
+              ].map((t) => (
+                <TimeButton
+                  key={nanoid()}
+                  defaultValue={t}
+                  isActive={time === t}
+                  onChange={onTimeChange}
+                  meridiem
+                />
+              ))}
+            </div>
+          </section>
+          {/* </AnimatePresence> */}
+        </main>
+      </article>
+    </>
+  );
+};
+// const tool = new Date();
+const vDates = [
+  new Date(2024, 5, 30),
+  new Date(2024, 6, 8),
+  new Date(2024, 6, 5),
+];
+const MonthView = ({
+  selectedDate,
+  validDates = [...vDates.map((dat) => dat.toString())],
+  defaultDate = new Date(),
+  onDayPress,
+}: // @TODO: limit prev month and next month (if dates not available?) min, max dates?
+// currentDate = new Date(),
+{
+  selectedDate: Date | null;
+  onDayPress?: (date: Date) => void;
+  defaultDate?: Date;
+}) => {
+  const monthNames = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+  ];
+  const [date, set] = useState(defaultDate);
+  const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
+  const monthName = monthNames[date.getMonth()];
+  const nodes = getDaysInMonth(date).map((_date: Date) => {
+    const isPartOfTheMonth = new Date(_date).getMonth() == date.getMonth();
+    if (_date.getTime() === date.getTime()) {
+      console.log("DATE: ", date);
+    }
+
+    const handleClick = (_d: Date) => {
+      onDayPress?.(_d);
+    };
+
+    return (
+      <button
+        onClick={() => handleClick(_date)}
+        disabled={!validDates.includes(_date.toString())}
+        key={nanoid()}
+        // date={_date} // extra data just in case. It can be data-date={_date}
+        className={twMerge(
+          "text-sm italic text-neutral-400 rounded-full py-1 m-1 transition-all", // basic
+          isPartOfTheMonth && "text-neutral-800", // styles when part of the current month
+          validDates.includes(_date.toString())
+            ? "bg-brand_blue/10 text-neutral-800"
+            : "disabled:text-neutral-800/50 disabled:pointer-events-none", // styles when part of the list or DISABLED! <= @TODO: review again
+          isToday(_date)
+            ? "bg-brand_blue/60 text-white disabled:text-white"
+            : "hover:bg-brand_blue hover:text-white", // styles when current selected date
+          areSameDates(_date, selectedDate) && "bg-brand_blue text-white"
+        )}
+      >
+        {_date.getDate()}
+      </button>
+    );
+  });
+
+  const handleNext = (offset: number = 1) => {
+    const nextDate = new Date(
+      date.getFullYear(),
+      date.getMonth() + offset,
+      date.getDate()
+    );
+    set(nextDate);
+  };
+
+  return (
+    <div>
+      <nav className="flex justify-between items-center mb-6">
+        <button onClick={() => handleNext(-1)} className="ml-auto">
+          <IoChevronBackOutline />
+        </button>
+        <h3 className="capitalize text-xs font-medium mx-8">
+          {monthName} {date.getFullYear()}
+        </h3>
+        <button className="mr-auto" onClick={() => handleNext(1)}>
+          <IoChevronForward />
+        </button>
+      </nav>
+      <div className="grid grid-cols-7 text-center font-thin italic text-xs">
+        {dayNames.map((dayName) => (
+          <span className="text-brand_blue/70" key={nanoid()}>
+            {dayName}
+          </span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7">{nodes}</div>
+    </div>
+  );
+};
 
 const Success = ({ event }: { event?: Event }) => {
   return (
@@ -312,66 +481,6 @@ const ClientForm = ({ eventId }: { eventId: string }) => {
   );
 };
 
-// Calendar picker and time
-const DateAndTimePicker = ({
-  onDateChange,
-  onTimeChange,
-  time,
-}: {
-  time?: string;
-  onTimeChange?: (arg0: string) => void;
-  onDateChange: (arg0: Date) => void;
-}) => {
-  return (
-    <article>
-      <h3 className="text-sm font-bold mb-5">Selecciona una fecha y horario</h3>
-      <section className="flex items-center gap-12">
-        <Suspense
-          fallback={<span className="text-xs font-thin">cargando...</span>}
-        >
-          <DatePicker
-            name="date"
-            minDate={new Date()}
-            // swapRange
-            // selected={startDate}
-            // onChange={onChange}
-            // startDate={startDate}
-            // endDate={endDate}
-            // excludeDates={[addDays(new Date(), 1), addDays(new Date(), 5)]}
-            // selectsRange
-            // selectsDisabledDaysInRange
-            inline
-            // selected={new Date()}
-            onChange={onDateChange}
-          />
-        </Suspense>
-        <div>
-          <h4 className="text-xs font-medium mb-4">Selecciona una:</h4>
-          <div className="grid grid-cols-2 gap-y-1 gap-x-2">
-            {[
-              "08:00",
-              "09:15",
-              "10:00",
-              "12:30",
-              "13:00",
-              "15:45",
-              "16:00",
-            ].map((t) => (
-              <TimeButton
-                key={nanoid()}
-                defaultValue={t}
-                isActive={time === t}
-                onChange={onTimeChange}
-                meridiem
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    </article>
-  );
-};
-
 const TimeButton = ({
   meridiem,
   className,
@@ -390,7 +499,7 @@ const TimeButton = ({
     if (meridiem) {
       const h = Number(time.split(":")[0]);
       const m = Number(time.split(":")[1]);
-      const merid = h > 12 ? "pm" : "am";
+      const merid = h > 11 ? "pm" : "am";
       return `${h < 10 ? h : h > 12 ? h - 12 : h}:${
         m < 10 ? "0" + m : m
       } ${merid}`;
@@ -405,7 +514,7 @@ const TimeButton = ({
         "flex justify-center",
 
         "text-xs text-brand_blue/90 py-1 px-4 text-nowrap rounded border border-brand_blue/30",
-        isActive && "bg-brand_blue/50 text-white border-transparent",
+        isActive && "bg-brand_blue text-white border-transparent",
         !isActive && "hover:bg-brand_blue/10",
         className
       )}
@@ -437,20 +546,30 @@ const ServiceList = ({
       <AnimatePresence>
         {date && (
           <ServiceListItem
+            key={nanoid()}
             text={date?.toLocaleString()}
             icon={<PiCalendarCheckBold />}
           />
         )}
-        <ServiceListItem text={`Sesión de ${service.duration} minutos`} />
         <ServiceListItem
+          key={nanoid()}
+          text={`Sesión de ${service.duration} minutos`}
+        />
+        <ServiceListItem
+          key={nanoid()}
           icon={<FaMoneyBill />}
           text={`$${service.price} ${service.currency?.toLocaleLowerCase()}`}
         />
         <ServiceListItem
+          key={nanoid()}
           icon={<HiOutlineIdentification />}
           text={`Con ${service.employeeName} `}
         />
-        <ServiceListItem icon={<FiMapPin />} text={service.address as string} />
+        <ServiceListItem
+          icon={<FiMapPin />}
+          text={service.address as string}
+          key={nanoid()}
+        />
       </AnimatePresence>
     </div>
   );

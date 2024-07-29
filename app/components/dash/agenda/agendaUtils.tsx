@@ -151,3 +151,49 @@ export const generateWeekGrid = ({
     };
   });
 };
+
+/**
+ *
+ * @param date // Date
+ * @returns date[]
+ * @todo enero no funciona
+ */
+export const getDaysInMonth = (date: Date) => {
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const leftOffset = firstDay.getDay();
+  firstDay.setDate(firstDay.getDate() - leftOffset); // first week offset
+  const days = [];
+  while (firstDay.getMonth() < date.getMonth() + 1) {
+    days.push(new Date(firstDay));
+    firstDay.setDate(firstDay.getDate() + 1);
+  }
+  // extra days:
+  const lastDay = new Date(days[days.length - 1]);
+  const numberOfMissing = 6 - lastDay.getDay();
+  let count = 0;
+  while (count < numberOfMissing) {
+    count++;
+    lastDay.setDate(lastDay.getDate() + 1);
+    days.push(new Date(lastDay));
+  }
+  return days;
+};
+
+export const isToday = (_date: Date) => {
+  // comparing without time
+  return (
+    new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDate()
+    ).toString() ===
+    new Date(_date.getFullYear(), _date.getMonth(), _date.getDate()).toString()
+  );
+};
+
+export const areSameDates = (d1: Date, d2: Date) => {
+  if (!d1 || !d2) return false;
+  const date1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
+  const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
+  return date1.getTime() === date2.getTime();
+};
