@@ -31,7 +31,12 @@ export default function NewServicePayment() {
           <FaArrowLeftLong />
           Volver
         </PrimaryButton>
-        <PrimaryButton isLoading={fetcher.state !== "idle"} type="submit">
+        <PrimaryButton
+          isLoading={fetcher.state !== "idle"}
+          type="submit"
+          as="Link"
+          to={"/dash/services/newservicesuccess"}
+        >
           Continuar
         </PrimaryButton>
       </div>

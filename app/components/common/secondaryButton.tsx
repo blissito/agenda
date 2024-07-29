@@ -62,7 +62,8 @@ export const SecondaryButton = ({
         className
       )}
     >
-      {children}{" "}
+      <strong> {children} </strong>
+
       {!isDisabled && isLoading && <FaSpinner className="animate-spin" />}
     </Element>
   );

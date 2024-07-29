@@ -15,6 +15,7 @@ import { Profile } from "../icons/menu/profile";
 import { Help } from "../icons/menu/help";
 import { Out } from "../icons/menu/out";
 import { Denik } from "../icons/denik";
+import { PrimaryButton } from "../common/primaryButton";
 
 export function SideBar({
   user,
@@ -26,10 +27,11 @@ export function SideBar({
   props?: unknown;
 }) {
   return (
-    <article className="min-h-screen bg-brand_light_gray flex " {...props}>
-      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl flex flex-col">
+    <article className="min-h-screen bg-brand_light_gray flex  " {...props}>
+      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl overflow-scroll	 flex flex-col">
         <Header user={user} className="pl-6" />
         <MainMenu />
+        <OnboardingBanner />
         <Footer />
       </aside>
       <section className="pl-[360px] pr-10 py-10 w-full ">{children}</section>
@@ -168,8 +170,8 @@ const MainMenu = () => {
 
   return (
     <div className="">
-      <h3 className="pl-6 pb-3 uppercase text-xs text-gray-300">Tu negocio</h3>
-      <section className="grid gap-1">
+      <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
+      <section className="grid ">
         <MenuButton isActive={matchIndex()} to="/dash">
           <MenuButton.Icon isActive={matchIndex()}>
             <Dashboard />
@@ -255,3 +257,24 @@ const User = ({ user }: { user: Partial<User> }) => (
     </div>
   </div>
 );
+
+const OnboardingBanner = () => {
+  return (
+    <section className="relative p-3 mx-6 border-[1px] bg-banner bg-cover text-white border-brand_stroke rounded-2xl h-[120px] mt-4">
+      <img
+        className="w-24 absolute right-2 -top-10"
+        src="/images/3dagenda.png"
+      />
+      <p className="text-base mb-3 font-satoMiddle w-[80%]">
+        ¡Ya casi terminas de configurar tu agenda!
+      </p>
+      <PrimaryButton
+        className="min-w-[100px] max-w-[100px] px-3 h-8 bg-white text-brand_dark"
+        as="Link"
+        to={"/dash/onboarding"}
+      >
+        Continuar
+      </PrimaryButton>
+    </section>
+  );
+};
