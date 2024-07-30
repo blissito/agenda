@@ -99,7 +99,7 @@ enum EventStatus {
 }
 
 type Customer {
-  loggedUserId String? @db.ObjectId
+  loggedUserId String? @db.ObjectId // @TODO: re-visit this
   displayName  String?
   email        String?
   tel          String?
