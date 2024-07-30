@@ -395,9 +395,25 @@ const MonthView = ({
 };
 
 const Success = ({ event }: { event: Event }) => {
+  const [on, set] = useState(true);
+  useEffect(() => {
+    setTimeout(() => set(false), 4000);
+  }, []);
   return (
     <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
-      <img alt="illustration" src={"/images/illustrations/success_check.svg"} />
+      <div className="relative">
+        <img
+          alt="illustration"
+          src={"/images/illustrations/success_check.svg"}
+        />
+        {on && (
+          <img
+            className="absolute inset-0 animate-ping"
+            alt="illustration"
+            src={"/images/illustrations/success_check.svg"}
+          />
+        )}
+      </div>
       <h1 className="text-xl font-bold mb-4 text-neutral-900 text-center">
         ¡{event.customer.displayName} tu cita ha sido agendada!
       </h1>
