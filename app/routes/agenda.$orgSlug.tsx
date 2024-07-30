@@ -396,7 +396,7 @@ const MonthView = ({
 
 const Success = ({ event }: { event: Event }) => {
   return (
-    <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2">
+    <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
       <img alt="illustration" src={"/images/illustrations/success_check.svg"} />
       <h1 className="text-xl font-bold mb-4 text-neutral-900 text-center">
         ¡{event.customer.displayName} tu cita ha sido agendada!
