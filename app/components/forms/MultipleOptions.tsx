@@ -122,8 +122,8 @@ export const Option = ({
       className={twMerge(
         "active:scale-95 active:shadow-inner",
         "relative",
-        "flex items-center gap-4",
-        "py-2 rounded-lg px-4 border border-gray-200"
+        "flex items-center gap-1 md:gap-4",
+        "py-2 rounded-lg pl-2 md:pl-4 pr-0 border border-gray-200"
         // "checked:border-blue-600" // no funciona U_U
         //   "overflow-hidden"
       )}
@@ -139,7 +139,10 @@ export const Option = ({
       ) : null}
       {icon && icon}
       <span
-        className={twMerge("relative z-10", capitalize ? "capitalize" : null)}
+        className={twMerge(
+          "relative z-10 text-brand_gray",
+          capitalize ? "capitalize" : null
+        )}
       >
         {option}
       </span>
@@ -182,7 +185,7 @@ export const Otro = ({
       >
         <div className="w-full">
           <BasicInput
-            className="w-full"
+            className="w-full "
             label={label}
             // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
@@ -200,7 +203,7 @@ export const Otro = ({
   return (
     <>
       <button onClick={onClick}>
-        <h2 className="shadow rounded-lg h-full flex justify-center items-center">
+        <h2 className="shadow rounded-lg h-full flex justify-start pl-4 items-center text-brand_gray">
           Otro
         </h2>
       </button>

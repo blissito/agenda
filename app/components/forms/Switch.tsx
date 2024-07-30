@@ -41,7 +41,7 @@ export const Switch = ({
     <>
       <label
         htmlFor={value}
-        className={twMerge("flex justify-between cursor-pointer")}
+        className={twMerge("flex justify-between items-center cursor-pointer")}
       >
         <span className="capitalize">{label || value}</span>
         <div
