@@ -81,7 +81,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (!event) throw json(null, { status: 404 });
     const url = new URL(request.url);
     url.searchParams.set("eventId", event.id);
-    console.log("Created: ", event);
+
     return redirect(url.toString());
   }
   console.info("MISSED::INTENT:: ", intent);
@@ -101,7 +101,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
       })
     : null;
   // @TODO: create Service model
-  console.log("event: ", event);
+
   return {
     event, // If event will show success screen
     org,
@@ -173,7 +173,6 @@ export default function Page() {
       setEventId(fetcher.data.eventId);
     }
     if (fetcher.data?.screen === "success") {
-      console.log("SUCCESS");
       setCurrentScreen(fetcher.data?.screen);
     }
   }, [fetcher]);
@@ -333,17 +332,14 @@ const MonthView = ({
   const monthName = monthNames[date.getMonth()];
   const nodes = getDaysInMonth(date).map((_date: Date) => {
     const isPartOfTheMonth = new Date(_date).getMonth() == date.getMonth();
-    if (_date.getTime() === date.getTime()) {
-      console.log("DATE: ", date);
-    }
 
-    const handleClick = (_d: Date) => {
-      onDayPress?.(_d);
+    const handleClick = () => {
+      onDayPress?.(_date);
     };
 
     return (
       <button
-        onClick={() => handleClick(_date)}
+        onClick={handleClick}
         disabled={!validDates.includes(_date.toString())}
         key={nanoid()}
         // date={_date} // extra data just in case. It can be data-date={_date}
@@ -364,7 +360,7 @@ const MonthView = ({
     );
   });
 
-  const handleNext = (offset: number = 1) => {
+  const monthNavigate = (offset: number = 1) => {
     const nextDate = new Date(
       date.getFullYear(),
       date.getMonth() + offset,
@@ -376,13 +372,13 @@ const MonthView = ({
   return (
     <div className="min-w-60">
       <nav className="flex justify-between items-center mb-6">
-        <button onClick={() => handleNext(-1)} className="ml-auto">
+        <button onClick={() => monthNavigate(-1)} className="ml-auto">
           <IoChevronBackOutline />
         </button>
         <h3 className="capitalize text-xs font-medium mx-8">
           {monthName} {date.getFullYear()}
         </h3>
-        <button className="mr-auto" onClick={() => handleNext(1)}>
+        <button className="mr-auto" onClick={() => monthNavigate(1)}>
           <IoChevronForward />
         </button>
       </nav>
@@ -417,7 +413,11 @@ const Success = ({ event }: { event: Event }) => {
         />
       </div>
       {/* @TODO: link to another schedule */}
-      <PrimaryButton className="mt-12 py-4 w-full md:w-[200px] transition-all">
+      <PrimaryButton
+        as="Link"
+        to="/agenda/studio-romos"
+        className="mt-12 py-4 w-full md:w-[200px] transition-all"
+      >
         Agendar otra cita
       </PrimaryButton>
       <p className="text-neutral-400 text-xs mt-24 max-w-[600px] mx-auto">
