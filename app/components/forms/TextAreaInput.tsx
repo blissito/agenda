@@ -1,4 +1,3 @@
-import { ChangeEvent } from "react";
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";

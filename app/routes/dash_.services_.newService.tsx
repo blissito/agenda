@@ -1,5 +1,5 @@
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { useFetcher, useNavigate } from "@remix-run/react";
+import { Form, useFetcher, useNavigate } from "@remix-run/react";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { TextAreaInput } from "~/components/forms/TextAreaInput";
@@ -42,9 +42,8 @@ export default function NewService() {
 
 export const ServiceGeneralForm = () => {
   return (
-    <section className="flex flex-col mx-auto max-w-xl  mt-14">
+    <Form method="post" className="flex flex-col mx-auto max-w-xl  mt-14">
       <BasicInput label="Nombre del servicio" name="rewards" />
-
       <BasicInput placeholder="$00.00" label="Precio" name="rewards" />
       <BasicInput
         placeholder="$00.00"
@@ -56,6 +55,6 @@ export const ServiceGeneralForm = () => {
         label="Descripción"
         name="description"
       />
-    </section>
+    </Form>
   );
 };

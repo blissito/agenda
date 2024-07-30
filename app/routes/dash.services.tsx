@@ -14,7 +14,6 @@ export default function Services() {
   const getLink = (orgSlug: string, serviceSlug: string) => {
     const url = new URL(origin.current || "http://denik.me");
     url.pathname = `/${orgSlug}/${serviceSlug}`;
-    console.log("URL: ", url);
     return url.toString();
   };
 
