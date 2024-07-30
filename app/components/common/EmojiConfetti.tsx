@@ -3,6 +3,12 @@ import JSConfetti from "js-confetti";
 
 const sleep = (t = 1) => new Promise((r) => setTimeout(r, t * 1000));
 
+const shotBlueConfetti = (trigger) =>
+  trigger.addConfetti({
+    confettiRadius: 6,
+    confettiColors: ["rgb(81 88 246)"],
+  });
+
 export const EmojiConfetti = ({
   mode = "default",
   emojis = ["🎉", "👾", "🎊", "🚀", "🥳", "🎈", "🪅"],
@@ -33,9 +39,10 @@ export const EmojiConfetti = ({
         });
         return;
       }
-      jsConfetti.addConfetti();
+      shotBlueConfetti(jsConfetti);
       await sleep(2);
-      jsConfetti.addConfetti();
+      // jsConfetti.addConfetti();
+      shotBlueConfetti(jsConfetti);
     };
     start();
     /* eslint-disable */

@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Form, useFetcher, useLoaderData } from "@remix-run/react";
 import {
   ActionFunctionArgs,
@@ -14,17 +14,14 @@ import { twMerge } from "tailwind-merge";
 import { HiOutlineIdentification } from "react-icons/hi2";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { PiCalendarCheckBold } from "react-icons/pi";
-import { SubmitHandler, useForm, UseFormHandleSubmit } from "react-hook-form";
-import { AnimatePresence, motion } from "framer-motion";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import { getUserOrNull } from "~/db/userGetters";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
-import { DayPicker, getDefaultClassNames } from "react-day-picker";
-import { es } from "date-fns/locale";
 import {
   areSameDates,
-  generateWeek,
   getDaysInMonth,
   isToday,
 } from "~/components/dash/agenda/agendaUtils";
@@ -222,6 +219,7 @@ export default function Page() {
                 {errors.date?.message}
               </p>
               <PrimaryButton
+                isLoading={fetcher.state !== "idle"}
                 isDisabled={!isValid}
                 onClick={onSubmit}
                 className="ml-auto mr-6 mb-6 mt-14"
