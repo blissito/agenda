@@ -87,9 +87,12 @@ export const getUserAndOrgOrRedirect = async (
 // used in loaders
 export const getServicefromSearchParams = async (
   request: Request,
-  options?: any = {}
+  options: any = {}
 ) => {
-  const { redirectURL, select = { place: true } } = options;
+  const {
+    redirectURL = "/dash/servicios/nuevo",
+    select = { place: true, id: true },
+  } = options;
   const url = new URL(request.url);
   const serviceId = url.searchParams.get("serviceId");
   if (!serviceId && redirectURL === null) return null;

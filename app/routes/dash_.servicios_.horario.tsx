@@ -1,9 +1,7 @@
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { useFetcher, useNavigate } from "@remix-run/react";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { TextAreaInput } from "~/components/forms/TextAreaInput";
-import { Options, SelectInput } from "~/components/forms/SelectInput";
+import { SelectInput } from "~/components/forms/SelectInput";
 import { twMerge } from "tailwind-merge";
 
 const OPTIONS: Options[] = [

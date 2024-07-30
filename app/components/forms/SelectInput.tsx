@@ -43,7 +43,7 @@ export const SelectInput = ({
         id="pet-select"
         className="rounded-lg border-gray-200 h-12 w-full mt-1 text-brand_gray "
         {...props}
-        {...register(name, registerOptions)}
+        {...register?.(name, registerOptions)}
       >
         <option value="" disabled>
           {placeholder}

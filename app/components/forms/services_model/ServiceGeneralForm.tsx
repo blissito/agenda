@@ -9,15 +9,15 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 // Type stuff
 export const generalFormSchema = z.object({
   name: z.string(),
-  price: z.coerce.number(),
+  price: z.coerce.number(), // @TODO: min and implications 🙂
   points: z.coerce.number().optional(),
   description: z.string(),
 });
 type GeneralFormFields = z.infer<typeof generalFormSchema>;
 const initialValues: GeneralFormFields = {
   name: "",
-  price: 0,
-  points: 0,
+  price: Infinity,
+  points: 10,
   description: "",
 };
 /**

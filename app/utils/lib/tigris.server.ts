@@ -5,6 +5,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   PutBucketCorsCommand,
+  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 // import { Upload } from "@aws-sdk/lib-storage";
@@ -15,6 +16,7 @@ const S3 = new S3Client({
   endpoint: `https://fly.storage.tigris.dev`,
 });
 
+// @TODO: confirm production bucket/folder names
 const setCors = async () => {
   // not sure if this worked XD
   const input = {
@@ -52,22 +54,38 @@ export const getImageURL = async (key: string, expiresIn = 900) =>
     S3,
     new GetObjectCommand({
       Bucket: "wild-bird-2039",
-      Key: key,
+      Key: "testing/" + key, // @TODO: update when prod beta
     }),
     { expiresIn }
   );
 
-export const getPutImageUrl = async (key: string) => {
+export const getPutFileUrl = async (key: string) => {
   await setCors();
   return await getSignedUrl(
     S3,
     new PutObjectCommand({
       Bucket: "wild-bird-2039",
-      Key: "testing/" + key,
+      Key: "testing/" + key, // @TODO: update when prod beta
       // ContentType: "image/png",
     }),
     { expiresIn: 3600 }
   );
+};
+
+export const removeFileUrl = async (key: stirng) => {
+  await setCors();
+  return await getSignedUrl(
+    S3,
+    new DeleteObjectCommand({
+      Bucket: "wild-bird-2039",
+      Key: "testing/" + key, // @TODO: update when prod beta
+    }),
+    { expiresIn: 3600 }
+  );
+};
+
+export const getPutPair = async (key: string) => {
+  return await Promise.all([getPutFileUrl(key), getImageURL(key)]);
 };
 
 // Fetch the presigned URL to download an object.

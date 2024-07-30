@@ -1,13 +1,7 @@
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { useFetcher, useNavigate } from "@remix-run/react";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { TextAreaInput } from "~/components/forms/TextAreaInput";
-import { Options, SelectInput } from "~/components/forms/SelectInput";
-import { twMerge } from "tailwind-merge";
-import { RadioButton } from "./dash_.services_.newServiceTimetable";
-import { SwitchOption } from "./dash_.servicios_.fotos";
-import { Switch } from "~/components/forms/Switch";
+import { RadioButton } from "./dash_.servicios_.horario";
 
 export default function NewServicePayment() {
   const fetcher = useFetcher();
