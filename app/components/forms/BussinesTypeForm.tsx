@@ -25,7 +25,7 @@ const OPTIONS = [
   "salon de belleza",
   "veterinaria",
   "spa",
-  "experiencias futurísticas",
+  "experiencias turisticas",
   "yoga / meditación",
   "coaching",
   "terapia física",
@@ -94,7 +94,7 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
       <Form
         method="post"
         onSubmit={handleSubmit(onSubmit)}
-        className="gap-4 px-4 h-full flex flex-col place-content-center pt-8 max-w-xl mx-auto"
+        className="gap-4 px-4 h-full flex flex-col place-content-center pt-0 lg:pt-20  max-w-xl mx-auto"
       >
         <MultipleOptions
           //   error={errors["businessType"]}
@@ -135,7 +135,7 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
         <PrimaryButton
           isLoading={fetcher.state !== "idle"}
           isDisabled={!isValid}
-          className="mt-auto mb-8"
+          className="mt-8 md:mt-auto mb-8"
         >
           Continuar
         </PrimaryButton>
