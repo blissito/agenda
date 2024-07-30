@@ -94,7 +94,7 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
       <Form
         method="post"
         onSubmit={handleSubmit(onSubmit)}
-        className="gap-4 px-4 h-full flex flex-col place-content-center pt-0 lg:pt-20  max-w-xl mx-auto"
+        className="gap-4 px-4 h-full flex flex-col place-content-between	pt-0 lg:pt-20  max-w-xl mx-auto"
       >
         <MultipleOptions
           //   error={errors["businessType"]}

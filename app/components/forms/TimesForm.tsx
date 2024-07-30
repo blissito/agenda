@@ -203,7 +203,7 @@ export const TimesForm = ({ org }: { org?: Org }) => {
         </DayTimesSelector>
       ))}
 
-      <div className="mt-6 md:mt-auto">
+      <div className="mt-auto">
         {" "}
         <PrimaryButton
           isLoading={fetcher.state !== "idle"}
