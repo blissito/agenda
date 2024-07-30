@@ -9,20 +9,25 @@ export const Switch = ({
   name,
   onChange,
   defaultChecked,
+  register,
+  registerOptions,
 }: {
-  value: string;
+  name: string;
+  value?: string;
   register?: UseFormRegister<FieldValues>;
   registerOptions?: { required?: string | boolean };
   defaultChecked?: boolean;
   onChange?: (arg0: HTMLInputElement) => void;
-  name: string;
   label?: ReactNode;
 }) => {
-  const [isActive, set] = useState(defaultChecked);
+  const [isActive, set] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    const cb = (e: ChangeEvent<HTMLInputElement>) => set(e.target?.checked);
+    const cb = (e: ChangeEvent<HTMLInputElement>) => {
+      console.log("Listening");
+      set(e.target?.checked);
+    };
     inputRef.current?.addEventListener("change", cb);
     const forListener = inputRef.current;
     return () => forListener?.removeEventListener("change", cb);
@@ -61,6 +66,7 @@ export const Switch = ({
               "text-brand_blue pointer-events-none border-none",
               "bg-gray-400 h-6 w-6 rounded-full"
             )}
+            {...register?.(name, registerOptions)}
           />
         </div>
       </label>

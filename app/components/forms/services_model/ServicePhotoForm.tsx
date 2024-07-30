@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { FieldValues, useForm, UseFormRegister } from "react-hook-form";
 import { InputFile } from "../InputFile";
 import { AddImage } from "~/components/icons/addImage";
 import { Option, SelectInput } from "../SelectInput";
@@ -7,6 +7,7 @@ import { Switch } from "../Switch";
 import { ServiceFormFooter } from "./ServiceGeneralForm";
 import { isValid } from "zod";
 import { Form } from "@remix-run/react";
+import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
 
 const OPTIONS: Option[] = [
   {
@@ -42,6 +43,8 @@ export const ServicePhotoForm = ({
     console.log("submitting? ", values);
   };
 
+  // console.log("Defaults: ", defaultValues);
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)} className="mt-14 ">
       <InputFile
@@ -66,19 +69,22 @@ export const ServicePhotoForm = ({
         label="¿En donde se realiza el servicio?"
       />
       <SwitchOption
-        error={errors.onlineScheduling}
+        register={register}
+        name="isActive"
+        error={errors.isActive}
         title="Permitir que este servicio se agende en línea"
       />
       <SwitchOption
+        name="allowMultiple"
         error={errors.moreThanOneAllowed}
         title="  Permitir que 2 o más clientes agenden al mismo tiempo"
       />
-      <BasicInput
+      {/* <BasicInput
         placeholder="2"
         label="¿Hasta cuantas sesiones se pueden agendar por hora?"
         name="seats"
         type="number"
-      />
+      /> */}
       <ServiceFormFooter
         backButtonLink={backButtonLink}
         isDisabled={!isValid}
@@ -91,9 +97,15 @@ export const ServicePhotoForm = ({
 export const SwitchOption = ({
   title,
   description,
+  register,
+  name,
+  registerOptions = { required: REQUIRED_MESSAGE },
 }: {
+  name: string;
+  register: UseFormRegister<FieldValues>;
   title: string;
   description?: string;
+  registerOptions?: { required: string };
 }) => {
   return (
     <article className="flex justify-between items-center w-full mb-6">
@@ -101,7 +113,11 @@ export const SwitchOption = ({
         <p className="text-brand_dark font-satoMiddle">{title}</p>
         <p>{description}</p>
       </div>
-      <Switch name="active" />
+      <Switch
+        name="isActive"
+        register={register}
+        registerOptions={registerOptions}
+      />
     </article>
   );
 };

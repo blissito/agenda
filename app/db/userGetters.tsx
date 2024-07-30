@@ -87,19 +87,17 @@ export const getUserAndOrgOrRedirect = async (
 // used in loaders
 export const getServicefromSearchParams = async (
   request: Request,
-  redirectUrl?: string | null
+  options?: any = {}
 ) => {
+  const { redirectURL, select = { place: true } } = options;
   const url = new URL(request.url);
   const serviceId = url.searchParams.get("serviceId");
-  if (!serviceId && redirectUrl === null) return null;
+  if (!serviceId && redirectURL === null) return null;
   if (!serviceId) throw redirect("/dash/servicios/nuevo");
   const service = await db.service.findUnique({
     where: { id: serviceId },
-    select: {
-      place: true,
-      id: true,
-      // @TODO return according to API
-    },
+    select,
+    // @TODO return according to API
   });
   if (!service) throw redirect("/dash/servicios/nuevo");
   return service;

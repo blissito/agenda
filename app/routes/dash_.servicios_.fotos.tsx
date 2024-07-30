@@ -4,7 +4,13 @@ import { getServicefromSearchParams } from "~/db/userGetters";
 import { ServicePhotoForm } from "~/components/forms/services_model/ServicePhotoForm";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const service = await getServicefromSearchParams(request);
+  const service = await getServicefromSearchParams(request, {
+    select: {
+      place: true,
+      allowMultiple: true,
+      isActive: true,
+    },
+  });
   return { service };
 };
 

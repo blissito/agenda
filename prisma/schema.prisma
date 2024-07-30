@@ -47,14 +47,19 @@ enum Place {
 }
 
 model Service {
-  id              String       @id @default(auto()) @map("_id") @db.ObjectId
-  name            String
-  description     String?
-  category        String?
-  points          Int          @default(0)
-  photoURL        String?
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String?
+  category      String?
+  points        Int     @default(0)
+  // fotos form route step
+  photoURL      String?
+  place         Place   @default(INPLACE)
+  isActive      Boolean @default(true)
+  allowMultiple Boolean @default(false)
+  // numberOfSessionsInAnHour Int     @default(1)
+
   location        Json?
-  place           Place        @default(INPLACE)
   address         Json?
   seats           Int?         @default(1)
   duration        Int          @default(60) // mins
