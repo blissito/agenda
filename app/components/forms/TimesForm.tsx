@@ -178,8 +178,8 @@ export const TimesForm = ({ org }: { org?: Org }) => {
     <Form
       onSubmit={handleSubmit(onSubmit)}
       className={twMerge(
-        "h-full pt-20 px-2  max-w-xl mx-auto",
-        "flex flex-col justify-evenly h-full gap-5"
+        "h-full pt-6 md:pt-20 px-[5%] md:px-2  max-w-xl mx-auto",
+        "flex flex-col justify-evenly h-full gap-5 text-brand_dark"
       )}
     >
       {/* Switches */}
@@ -213,7 +213,7 @@ export const TimesForm = ({ org }: { org?: Org }) => {
         >
           Continuar
         </PrimaryButton>
-        <p className="mb-10 ml-2 h-1 text-red-500 text-xs">
+        <p className="mb-8 ml-2 h-auto text-red-500 text-xs">
           {errors.weekDays?.message}
         </p>
       </div>

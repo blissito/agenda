@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 import { FieldValues, UseFormRegister } from "react-hook-form";
@@ -9,9 +9,7 @@ export const Switch = ({
   defaultChecked = false,
   register,
   registerOptions = { required: true },
-  getValues,
 }: {
-  getValues?: () => void;
   name: string;
   value?: string;
   register: UseFormRegister<FieldValues>;
@@ -26,8 +24,8 @@ export const Switch = ({
   return (
     <>
       <label
-        htmlFor={name}
-        className={twMerge("flex justify-between cursor-pointer")}
+        htmlFor={value}
+        className={twMerge("flex justify-between items-center cursor-pointer")}
       >
         {label && <span className="capitalize">{label}</span>}
         <div

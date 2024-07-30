@@ -15,6 +15,7 @@ import {
   timesHandler,
   typeOfBusinessHandler,
 } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
+import { Denik } from "~/components/icons/denik";
 
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 export const SLUGS = [
@@ -119,11 +120,18 @@ export default function Page() {
 
   return (
     <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
-      <section className={twMerge("px-2", "bg-brand_blue", "md:flex-1 py-24")}>
+      <section
+        className={twMerge(
+          "md:px-2 flex flex-col justify-between px-[5%] sticky",
+          "bg-brand_blue",
+          "md:flex-1 pt-8  md:pt-10 pb-8"
+        )}
+      >
         <BackButton />
         <LeftHero title={title} />
+        <DenikWatermark />
       </section>
-      <section className="flex-1 overflow-x-hidden">
+      <section className="flex-1 ">
         <FormComponent title={title} org={org} />
       </section>
     </article>
@@ -140,23 +148,23 @@ export const LoaderScreen = ({ title }: { title: string }) => {
     }, 2000);
   }, []);
   return (
-    <section className="font-bold absolute z-10 inset-0 bg-brand_blue text-white flex justify-center items-center flex-col">
-      <h1 className="pl-12 lg:max-w-4xl max-w-2xl mx-auto flex gap-12 text-5xl">
-        <span className={twMerge(show ? "animate-pulse" : "animate-bounce")}>
-          <Agenda fill="white" className="scale-[400%]" />
+    <section className="font-bold absolute z-10 inset-0 bg-brand_blue  text-white flex justify-center items-center flex-col">
+      <h1 className="px-[5%] md:px-10 min-w-7xl  mx-auto flex flex-col items-center md:flex-row gap-6 md:gap-12 text-3xl text-center md:text-left md:text-5xl ">
+        <img className="w-[120px] h-[120px]" src="/images/calendar.gif" />
+        <span className="leading-tight" style={{ whiteSpace: "pre-wrap" }}>
+          {text}
         </span>
-        <span style={{ whiteSpace: "pre-wrap" }}>{text}</span>
       </h1>
       {show && (
         <>
           <PrimaryButton
             to="/dash"
             as="Link"
-            className="border mt-12 text-neutral-900 bg-white animate-bounce"
+            className="border mt-12 text-brand_dark bg-white font-satoMiddle "
             // isDisabled={isDisabled}
             type="submit"
           >
-            Continuar
+            ¡Ver mi agenda!
           </PrimaryButton>
           <EmojiConfetti
             mode="emojis"
@@ -170,16 +178,10 @@ export const LoaderScreen = ({ title }: { title: string }) => {
 
 export const LeftHero = ({ title }: { title: ReactNode }) => {
   return (
-    <div className="flex flex-col justify-between max-w-xl mx-auto h-[80%] ">
-      <h2 className="text-white lg:text-6xl text-5xl font-bold mt-auto">
+    <div className="flex justify-center items-center  max-w-xl mx-auto grow ">
+      <h2 className="text-white lg:text-5xl  text-3xl font-bold !leading-tight		">
         {title}
       </h2>
-      <img
-        className="mt-auto"
-        width={80}
-        src="/images/brand/logo_white.svg"
-        alt="logo"
-      />
     </div>
   );
 };
@@ -191,12 +193,29 @@ export const BackButton = () => {
       onClick={() => navigate(-1)}
       className={twMerge(
         "mb-12 h-4 w-full",
-        "transition-all rounded-full top-0 left-0 text-white text-3xl justify-center items-center block",
+        "transition-all rounded-full top-0 left-0 text-white text-3xl justify-between items-center flex",
         "max-w-xl mx-auto",
         "active:opacity-50" // Improve please! 🥶
       )}
     >
       <HiOutlineArrowNarrowLeft />
+      <Denik fill="#ffffff" className="block lg:hidden h-10" />
     </button>
+  );
+};
+
+export const DenikWatermark = () => {
+  const navigate = useNavigate();
+  return (
+    <div
+      className={twMerge(
+        " w-full",
+        "transition-all top-0 left-0 text-white text-3xl justify-center items-center block",
+        "max-w-xl mx-auto",
+        "active:opacity-50" // Improve please! 🥶
+      )}
+    >
+      <Denik fill="#ffffff" className="hidden lg:block" />
+    </div>
   );
 };
