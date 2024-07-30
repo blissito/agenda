@@ -1,13 +1,15 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { SideBar } from "~/components/sideBar/sideBar";
-import { getUserOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/db/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { user, org } = await getUserAndOrgOrRedirect(request, {
+    redirectURL: "/signup/sobre-tu-negocio/",
+  });
   return {
-    user: await getUserOrRedirect(request, {
-      redirectURL: "/signin",
-    }),
+    user,
+    org,
   };
 };
 

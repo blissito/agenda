@@ -1,9 +1,8 @@
-import { ChangeEvent } from "react";
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
 
-export type Options = {
+export type Option = {
   value: string;
   title?: string;
 };
@@ -16,7 +15,7 @@ type Props = {
   className?: string;
   registerOptions?: { required: string | boolean };
   placeholder?: string;
-  options: Options[];
+  options: Option[];
   // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
 };
 export const SelectInput = ({
@@ -43,6 +42,8 @@ export const SelectInput = ({
         name="pets"
         id="pet-select"
         className="rounded-lg border-gray-200 h-12 w-full mt-1 text-brand_gray "
+        {...props}
+        {...register(name, registerOptions)}
       >
         <option value="" disabled>
           {placeholder}

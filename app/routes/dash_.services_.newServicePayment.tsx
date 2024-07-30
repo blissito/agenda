@@ -6,7 +6,7 @@ import { TextAreaInput } from "~/components/forms/TextAreaInput";
 import { Options, SelectInput } from "~/components/forms/SelectInput";
 import { twMerge } from "tailwind-merge";
 import { RadioButton } from "./dash_.services_.newServiceTimetable";
-import { SwitchOption } from "./dash_.services_.newServicePhotos";
+import { SwitchOption } from "./dash_.servicios_.fotos";
 import { Switch } from "~/components/forms/Switch";
 
 export default function NewServicePayment() {

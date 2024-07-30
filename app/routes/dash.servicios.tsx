@@ -104,7 +104,7 @@ const ServiceCard = ({
 
 const AddService = () => {
   return (
-    <Link to="/dash/services/newservice">
+    <Link to="/dash/servicios/nuevo">
       <button className="group h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center ">
         <div>
           <Plus className="mx-auto group-hover:scale-125 transition-all" />

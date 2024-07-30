@@ -192,11 +192,11 @@ const MainMenu = () => {
             Sitio web
           </MenuButton.Title>
         </MenuButton>
-        <MenuButton to="/dash/services" isActive={match("services")}>
-          <MenuButton.Icon isActive={match("services")}>
+        <MenuButton to="/dash/servicios" isActive={match("servicios")}>
+          <MenuButton.Icon isActive={match("servicios")}>
             <Services />
           </MenuButton.Icon>
-          <MenuButton.Title isActive={match("services")}>
+          <MenuButton.Title isActive={match("servicios")}>
             Servicios
           </MenuButton.Title>
         </MenuButton>

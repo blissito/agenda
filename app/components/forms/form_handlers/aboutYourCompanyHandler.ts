@@ -43,7 +43,7 @@ const weekDaysSchema = z.object({
 export type WeekDaysType = z.infer<typeof weekDaysSchema>;
 //
 
-// Handlers
+// Handlers for signup
 export const timesHandler = async (request: Request, data: WeekDaysType) => {
   const url = new URL(request.url);
   const orgId = url.searchParams.get("orgId");
@@ -61,6 +61,12 @@ export const timesHandler = async (request: Request, data: WeekDaysType) => {
       ownerId: user.id,
     },
     data: { weekDays: validatedData }, // @TODO: for this form we tolerate the missing key?
+  });
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      orgId,
+    },
   });
   url.searchParams.set("orgId", orgId);
   url.pathname = CARGANDO_URL;

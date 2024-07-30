@@ -1,6 +1,6 @@
 import { IoIosArrowForward } from "react-icons/io";
 import { SecondaryButton } from "~/components/common/secondaryButton";
-import { InfoBox, InfoService } from "./dash.website";
+import { InfoBox } from "./dash.website";
 import { Link } from "@remix-run/react";
 
 export default function Page() {

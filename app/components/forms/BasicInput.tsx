@@ -11,6 +11,7 @@ type Props = {
   registerOptions?: { required: string | boolean };
   placeholder?: string;
   as?: "textarea";
+  type?: "text" | "number";
 };
 export const BasicInput = ({
   placeholder,
@@ -21,6 +22,7 @@ export const BasicInput = ({
   name,
   register,
   as,
+  type,
   ...props
 }: Props) => {
   return (
@@ -46,6 +48,7 @@ export const BasicInput = ({
         />
       ) : (
         <input
+          type={type}
           placeholder={placeholder}
           className={twMerge(
             "placeholder-gray-300",

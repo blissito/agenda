@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { Org, User } from "@prisma/client";
 import { redirect } from "@remix-run/react";
 import { getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
@@ -71,4 +71,36 @@ export const getFirstOrgOrNull = async (request: Request) => {
   const orgs = await db.org.findMany({ where: { ownerId: user.id } }); // @TODO: only first for now
   if (!orgs || !orgs[0]) return null;
   return orgs[0];
+};
+
+export const getUserAndOrgOrRedirect = async (
+  request: Request,
+  options: Options = { redirectURL: "/signin" }
+): Promise<{ user: User; org: Org }> => {
+  const user = await getUserOrNull(request);
+  if (!user?.orgId) throw redirect(options.redirectURL);
+  const org = await db.org.findUnique({ where: { id: user.orgId } });
+  if (!org) throw redirect(options.redirectURL);
+  return { user, org };
+};
+
+// used in loaders
+export const getServicefromSearchParams = async (
+  request: Request,
+  redirectUrl?: string | null
+) => {
+  const url = new URL(request.url);
+  const serviceId = url.searchParams.get("serviceId");
+  if (!serviceId && redirectUrl === null) return null;
+  if (!serviceId) throw redirect("/dash/servicios/nuevo");
+  const service = await db.service.findUnique({
+    where: { id: serviceId },
+    select: {
+      place: true,
+      id: true,
+      // @TODO return according to API
+    },
+  });
+  if (!service) throw redirect("/dash/servicios/nuevo");
+  return service;
 };
