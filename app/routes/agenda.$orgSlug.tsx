@@ -419,7 +419,7 @@ const Success = ({ event }: { event: Event }) => {
         />
       </div>
       {/* @TODO: link to another schedule */}
-      <PrimaryButton className="mt-12 py-4 w-full md:w-fit">
+      <PrimaryButton className="mt-12 py-4 w-full md:w-[200px] transition-all">
         Agendar otra cita
       </PrimaryButton>
       <p className="text-neutral-400 text-xs mt-24 max-w-[600px] mx-auto">
