@@ -30,8 +30,16 @@ import {
 } from "~/components/dash/agenda/agendaUtils";
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 
+// @TODO: get service from db
+const fakeService = {
+  duration: 45,
+  price: 499,
+  currency: "MXN",
+  employeeName: "Brenda Ortega",
+  address: "Av. Guerrero #224, col. centro, CDMX. México",
+};
 // @TODO: validate date and time is in the future
-
+// @TODO: Improve mobile UX
 const example =
   "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg";
 
@@ -76,6 +84,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (!event) throw json(null, { status: 404 });
     const url = new URL(request.url);
     url.searchParams.set("eventId", event.id);
+    console.log("Created: ", event);
     return redirect(url.toString());
   }
   console.info("MISSED::INTENT:: ", intent);
@@ -89,22 +98,17 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const orgSlug = params.orgSlug;
   const org = await db.org.findUnique({ where: { slug: orgSlug } });
   if (!org) throw json(null, { status: 404 });
-  const event = url.searchParams.has("eventId")
+  const event = url.searchParams.has("eventId") // coming from form action
     ? await db.event.findUnique({
         where: { id: url.searchParams.get("eventId") || undefined },
       })
     : null;
   // @TODO: create Service model
+  console.log("event: ", event);
   return {
-    event,
+    event, // If event will show success screen
     org,
-    service: {
-      duration: 45,
-      price: 499,
-      currency: "MXN",
-      employeeName: "Brenda Ortega",
-      address: "Av. Guerrero #224, col. centro, CDMX. México",
-    },
+    service: fakeService,
   };
 };
 
@@ -167,7 +171,7 @@ export default function Page() {
 
   useEffect(() => {
     if (fetcher.data?.screen === "form") {
-      console.log("FETCHERDATA: ", fetcher.data);
+      // change screen after post
       setCurrentScreen(fetcher.data?.screen);
       setEventId(fetcher.data.eventId);
     }
@@ -198,7 +202,7 @@ export default function Page() {
             <h2 className="text-lg font-medium mb-5">Clase de viola</h2>
             <ServiceList service={service} date={date || undefined} />
           </div>
-          <hr className="border-l-brand_gray/10 md:my-0 md:h-44 md:w-1 w-full my-4 border-l md:mr-8" />
+          <hr className="border-l-brand_gray/10 md:my-0 md:h-44 md:w-1 w-full my-4 border-l md:mr-8 " />
           {currentScreen === "picker" && (
             <DateAndTimePicker
               selectedDate={date}
@@ -244,34 +248,30 @@ const DateAndTimePicker = ({
   onTimeChange?: (arg0: string) => void;
   onDateChange: (arg0: Date) => void;
 }) => {
-  const [showTimes, setShowTimes] = useState(false);
-
   const handleDayPress = (date) => {
     onDateChange?.(date);
   };
 
   return (
-    <>
-      <article className="flex-1 md:max-w-72">
-        <h3 className="text-sm font-bold mb-5">
-          Selecciona una fecha y horario
-        </h3>
-        <main className="flex">
-          <section className="w-full">
-            <MonthView
-              selectedDate={selectedDate}
-              onDayPress={handleDayPress}
-            />
-          </section>
-
-          {/* <AnimatePresence> */}
-          <section
-            className={twMerge(
-              showTimes ? "block ml-8 transition-all" : "hidden"
-            )}
+    <main id="perro" className="min-w-fit">
+      {/* <AnimatePresence> */}
+      <h3 className="text-sm font-bold mb-5">Selecciona una fecha y horario</h3>
+      <article className={twMerge("flex-1", "md:flex md:w-fit gap-6")}>
+        <section className="w-full">
+          <MonthView selectedDate={selectedDate} onDayPress={handleDayPress} />
+        </section>
+        {selectedDate && (
+          <motion.section
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            // className="w-full"
+            className={
+              twMerge()
+              // selectedDate ? "block transition-all" : "hidden"
+            }
           >
-            <h4 className="text-xs font-medium mb-4">Selecciona una:</h4>
-            <div className="grid grid-cols-2 gap-y-1 gap-x-2">
+            <h4 className="text-xs font-medium my-4">Selecciona una:</h4>
+            <div className="grid md:w-44 grid-cols-3 md:grid-cols-2 gap-x-3 gap-y-2 place-content-center">
               {[
                 "08:00",
                 "09:15",
@@ -290,11 +290,11 @@ const DateAndTimePicker = ({
                 />
               ))}
             </div>
-          </section>
-          {/* </AnimatePresence> */}
-        </main>
+          </motion.section>
+        )}
       </article>
-    </>
+      {/* </AnimatePresence> */}
+    </main>
   );
 };
 // const tool = new Date();
@@ -302,6 +302,7 @@ const vDates = [
   new Date(2024, 5, 30),
   new Date(2024, 6, 8),
   new Date(2024, 6, 5),
+  // new Date(2024, 6, 26),
 ];
 const MonthView = ({
   selectedDate,
@@ -349,7 +350,7 @@ const MonthView = ({
         key={nanoid()}
         // date={_date} // extra data just in case. It can be data-date={_date}
         className={twMerge(
-          "text-sm italic text-neutral-400 rounded-full py-1 m-1 transition-all", // basic
+          "text-sm italic text-neutral-400 rounded-full md:px-2 py-1 m-1 transition-all flex justify-center items-center", // basic
           isPartOfTheMonth && "text-neutral-800", // styles when part of the current month
           validDates.includes(_date.toString())
             ? "bg-brand_blue/10 text-neutral-800"
@@ -375,7 +376,7 @@ const MonthView = ({
   };
 
   return (
-    <div>
+    <div className="min-w-60">
       <nav className="flex justify-between items-center mb-6">
         <button onClick={() => handleNext(-1)} className="ml-auto">
           <IoChevronBackOutline />
@@ -399,10 +400,34 @@ const MonthView = ({
   );
 };
 
-const Success = ({ event }: { event?: Event }) => {
+const Success = ({ event }: { event: Event }) => {
   return (
-    <div>
-      Success {event?.title}
+    <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2">
+      <img alt="illustration" src={"/images/illustrations/success_check.svg"} />
+      <h1 className="text-xl font-bold mb-4 text-neutral-900 text-center">
+        ¡{event.customer.displayName} tu cita ha sido agendada!
+      </h1>
+      <p className="mb-8 text-center">
+        Enviamos la información de la cita a{" "}
+        <strong className="font-bold">{event.customer.email}</strong>
+      </p>
+      <div className="w-70 rounded-xl mx-auto bg-white shadow p-6 ">
+        <h2 className="font-bold text-neutral-900 mb-4">{event.title}</h2>
+        <ServiceList
+          service={{ ...fakeService }}
+          date={new Date(event.start)}
+        />
+      </div>
+      {/* @TODO: link to another schedule */}
+      <PrimaryButton className="mt-12 py-4 w-full md:w-fit">
+        Agendar otra cita
+      </PrimaryButton>
+      <p className="text-neutral-400 text-xs mt-24 max-w-[600px] mx-auto">
+        Recuerda que tu compra es válida para el servicio y horario en el que
+        reservaste. Para cambios o cancelación ponte en contacto con Estudio
+        Milán. Deník solo actúa como intermediario en la gestión y procesamiento
+        de reservas.
+      </p>
       <EmojiConfetti />
     </div>
   );
@@ -512,7 +537,6 @@ const TimeButton = ({
       className={twMerge(
         "cursor-pointer transition-all",
         "flex justify-center",
-
         "text-xs text-brand_blue/90 py-1 px-4 text-nowrap rounded border border-brand_blue/30",
         isActive && "bg-brand_blue text-white border-transparent",
         !isActive && "hover:bg-brand_blue/10",
@@ -543,34 +567,32 @@ const ServiceList = ({
 }) => {
   return (
     <div className="text-xs text-brand_gray grid gap-3">
-      <AnimatePresence>
-        {date && (
-          <ServiceListItem
-            key={nanoid()}
-            text={date?.toLocaleString()}
-            icon={<PiCalendarCheckBold />}
-          />
-        )}
+      {date && (
         <ServiceListItem
-          key={nanoid()}
-          text={`Sesión de ${service.duration} minutos`}
+          key={"date"}
+          text={date?.toLocaleString()}
+          icon={<PiCalendarCheckBold />}
         />
-        <ServiceListItem
-          key={nanoid()}
-          icon={<FaMoneyBill />}
-          text={`$${service.price} ${service.currency?.toLocaleLowerCase()}`}
-        />
-        <ServiceListItem
-          key={nanoid()}
-          icon={<HiOutlineIdentification />}
-          text={`Con ${service.employeeName} `}
-        />
-        <ServiceListItem
-          icon={<FiMapPin />}
-          text={service.address as string}
-          key={nanoid()}
-        />
-      </AnimatePresence>
+      )}
+      <ServiceListItem
+        key={"duración"}
+        text={`Sesión de ${service.duration} minutos`}
+      />
+      <ServiceListItem
+        key={"amount"}
+        icon={<FaMoneyBill />}
+        text={`$${service.price} ${service.currency?.toLocaleLowerCase()}`}
+      />
+      <ServiceListItem
+        key={"provider"}
+        icon={<HiOutlineIdentification />}
+        text={`Con ${service.employeeName} `}
+      />
+      <ServiceListItem
+        icon={<FiMapPin />}
+        text={service.address as string}
+        key={"address"}
+      />
     </div>
   );
 };

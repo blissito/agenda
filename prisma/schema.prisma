@@ -98,8 +98,22 @@ enum EventStatus {
   ACTIVE
 }
 
+type Customer {
+  loggedUserId String  @db.ObjectId
+  displayName  String?
+  email        String?
+  tel          String?
+  comments     String?
+}
+
+enum EventType {
+  BLOCK
+  EVENT
+}
+
 model Event {
   id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  type      EventType   @default(EVENT) // avoid scheduling even when multi enabled
   title     String?
   start     DateTime
   end       DateTime?
@@ -116,5 +130,5 @@ model Event {
   orgId     String?     @db.ObjectId
   org       Org?        @relation(fields: [orgId], references: [id])
   // metadata
-  customer  Json?
+  customer  Customer?
 }
