@@ -8,7 +8,7 @@
     "build": "remix vite:build",
     "dev": "npx concurrently \"npm run prisma-setup\" \"remix vite:dev\"",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "prisma-setup": "prisma generate && npx prisma db push",
+    "prisma-setup": "prisma generate",
     "start": "npm run prisma-setup && remix-serve ./build/server/index.js",
     "typecheck": "tsc"
   },
