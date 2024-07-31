@@ -6,7 +6,6 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm";
 import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 import { TimesForm } from "~/components/forms/TimesForm";
-import { Agenda } from "~/components/icons/menu/agenda";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import { getFirstOrgOrNull } from "~/db/userGetters";
@@ -87,12 +86,12 @@ export const loader = async ({
   request,
   params: { stepSlug },
 }: LoaderFunctionArgs) => {
-  // @TODO: Check if start or redirect
+  // await getUser
+
   // @TODO: keyboard support
   // @TODO: Load user id?
   // @TODO: if org exists?
   const org = await getFirstOrgOrNull(request);
-
   return {
     org,
     stepComponentName: getStepComponentNameByStepSlug(stepSlug),
@@ -119,7 +118,7 @@ export default function Page() {
   // @todo: make a counter to redirect
 
   return (
-    <article className={twMerge("h-screen flex flex-col", "md:flex-row")}>
+    <article className={twMerge("h-screen flex flex-col", "md:flex-row ")}>
       <section
         className={twMerge(
           "md:px-2 flex flex-col justify-between px-[5%] sticky",
@@ -131,7 +130,7 @@ export default function Page() {
         <LeftHero title={title} />
         <DenikWatermark />
       </section>
-      <section className="flex-1 ">
+      <section className="flex-1 overflow-scroll">
         <FormComponent title={title} org={org} />
       </section>
     </article>
@@ -150,7 +149,11 @@ export const LoaderScreen = ({ title }: { title: string }) => {
   return (
     <section className="font-bold absolute z-10 inset-0 bg-brand_blue  text-white flex justify-center items-center flex-col">
       <h1 className="px-[5%] md:px-10 min-w-7xl  mx-auto flex flex-col items-center md:flex-row gap-6 md:gap-12 text-3xl text-center md:text-left md:text-5xl ">
-        <img className="w-[120px] h-[120px]" src="/images/calendar.gif" />
+        <img
+          className="w-[120px] h-[120px]"
+          src="/images/calendar.gif"
+          alt="calendario"
+        />
         <span className="leading-tight" style={{ whiteSpace: "pre-wrap" }}>
           {text}
         </span>
@@ -205,7 +208,7 @@ export const BackButton = () => {
 };
 
 export const DenikWatermark = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   return (
     <div
       className={twMerge(

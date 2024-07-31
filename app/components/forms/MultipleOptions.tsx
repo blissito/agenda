@@ -103,9 +103,9 @@ export const Option = ({
   option: string;
   onClick?: () => void;
   isCurrent?: boolean;
-  [x: string]: unknown;
   register?: UseFormRegister<FieldValues> | any;
   registerOptions?: { required: string | boolean };
+  [x: string]: unknown;
 }) => {
   return (
     // eslint-disable-next-line jsx-a11y/click-events-have-key-events
@@ -133,7 +133,7 @@ export const Option = ({
           transition={transition ? transition : { type: "spring" }}
           layoutId="highlighter"
           className={twMerge(
-            "rounded-lg absolute inset-0 bg-brand_blue/10 border border-brand_blue"
+            "rounded-lg absolute inset-0 bg-brand_blue/10 border border-brand_blue z-10"
           )}
         />
       ) : null}
@@ -181,7 +181,7 @@ export const Otro = ({
       <motion.div
         initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className={twMerge("flex items-center gap-4", className)}
+        className={twMerge(className)}
       >
         <div className="w-full">
           <BasicInput

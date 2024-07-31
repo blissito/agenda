@@ -27,10 +27,12 @@ export function SideBar({
   props?: unknown;
 }) {
   return (
-    <article className="min-h-screen bg-brand_light_gray flex  " {...props}>
-      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl overflow-scroll	 flex flex-col">
+    <article className="bg-brand_light_gray flex h-screen" {...props}>
+      <aside className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen ">
         <Header user={user} className="pl-6" />
-        <MainMenu />
+        <MainMenu className="mb-auto" />
+        {/* Bonito hack: "Divider" */}
+        {/* <hr className="block border-b border-b-brand_light_gray/10 w-[60%] mx-auto mb-auto" /> */}
         <OnboardingBanner />
         <Footer />
       </aside>
@@ -59,8 +61,8 @@ const Footer = () => {
   const location = useLocation();
   const match = (string: string) => location.pathname.includes(string);
   return (
-    <div className="mt-auto">
-      <h3 className="pl-10 pb-3 uppercase text-xs text-gray-300">Ajustes</h3>
+    <div className="">
+      <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3>
       <MenuButton to="/dash/profile" isActive={match("profile")}>
         <MenuButton.Icon isActive={match("profile")}>
           <Profile />
@@ -109,7 +111,7 @@ const MenuButton = ({
       className={twMerge(
         isActive && "text-brand_blue",
         className,
-        "relative h-12 flex items-center gap-3 cursor-pointer"
+        "relative h-10 flex items-center gap-3 cursor-pointer"
       )}
       {...props}
     >
@@ -162,16 +164,16 @@ const Title = ({
 MenuButton.Icon = Icon;
 MenuButton.Title = Title;
 
-const MainMenu = () => {
+const MainMenu = ({ className }: { className?: string }) => {
   const location = useLocation();
   const match = (string: string) => location.pathname.includes(string);
   const matchIndex = (string: string = location.pathname) =>
     /^\/dash$/.test(string);
 
   return (
-    <div className="">
+    <div className={twMerge("overflow-auto mb-auto h-full", className)}>
       <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
-      <section className="grid ">
+      <section className="gri ">
         <MenuButton isActive={matchIndex()} to="/dash">
           <MenuButton.Icon isActive={matchIndex()}>
             <Dashboard />
