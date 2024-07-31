@@ -13,11 +13,13 @@ import { Banner } from "~/components/home/Banner";
 import { AnimatePresence, easeOut, motion } from "framer-motion";
 import { Bubble } from "~/components/icons/Bubble";
 import { ArrowCollapse } from "~/components/icons/arrowCollapse";
+import { HoverEffect } from "~/components/common/CardHoverEffect";
+import { Denik } from "~/components/icons/denik";
 
 export const meta: MetaFunction = () => {
   return [
     { title: "Planes" },
-    { name: "description", content: "Welcome to Remix!" },
+    { name: "description", content: "Escoge tu plan" },
   ];
 };
 
@@ -135,102 +137,98 @@ export const Pricing = () => (
       usan Deník. ¿Listo para empezar hoy mismo?
     </p>
     <div>
-      <div className="flex gap-12 justify-center mt-16 flex-wrap">
-        <PriceCard plan="Profesional" price="$199 mxn">
-          <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
-            <li className="flex gap-3">
-              {" "}
-              <Check /> Agenda en línea
-            </li>
-            <li className="flex gap-3">
-              {" "}
-              <Check /> Recordatorios automáticos
-            </li>
-            <li className="flex gap-3">
-              {" "}
-              <Check /> Sitio web para citas
-            </li>
-            <li className="flex gap-3">
-              {" "}
-              <Check /> Pagos en línea
-            </li>
-            <li className="flex gap-3">
-              <Check /> Programa de lealtad, descuentos y tarjetas de regalo
-            </li>
-            <li className="flex gap-3">
-              {" "}
-              <Check /> Encuesta de satisfacción
-            </li>
-            <li className="flex gap-3">
-              {" "}
-              <Check /> de clientes
-            </li>
-          </ul>
-          <PrimaryButton>
-            Probar gratis <ArrowRight />{" "}
-          </PrimaryButton>
-        </PriceCard>
-        <PriceCard plan="Enterprisse" price="$499 mxn">
-          <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi  ">
-            <li className="flex gap-3">
-              <Check /> Agenda en línea
-            </li>
-            <li className="flex gap-3">
-              <Check /> Recordatorios automáticos
-            </li>
-            <li className="flex gap-3">
-              <Check /> Sitio web para citas
-            </li>
-            <li className="flex gap-3">
-              <Check /> Pagos en línea
-            </li>
-            <li className="flex gap-3">
-              <Check /> Programa de lealtad, descuentos y tarjetas de regalo
-            </li>
-            <li className="flex gap-3">
-              <Check /> Encuesta de satisfacción
-            </li>
-            <li className="flex gap-3">
-              <Check /> Expediente de clientes
-            </li>
-            <li className="flex gap-3">
-              <Check /> Administración de sucursales
-            </li>
-            <li className="flex gap-3">
-              <Check /> Administración de usuarios
-            </li>
-          </ul>
-          <PrimaryButton>
-            Contactar al equipo de ventas <ArrowRight />{" "}
-          </PrimaryButton>
-        </PriceCard>
+      <div className="flex gap-12 justify-center mt-16 flex-wrap ">
+        <HoverEffect items={items} />
       </div>
     </div>
   </section>
 );
 
-export const PriceCard = ({
-  plan,
-  price,
-  children,
-}: {
-  plan?: string;
-  price?: string;
-  children?: ReactNode;
-}) => (
-  <section className="group cursor-pointer bg-white border-[1px] border-brand_ash rounded-2xl max-w-[400px]	xl:max-w-[480px] h-[auto] px-8 py-10  text-left flex flex-col  relative  hover:-translate-y-2">
-    <img
-      className="absolute w-[200px] -right-16 -top-12 md:-right-20 md:-top-10 opacity-0 group-hover:opacity-100  transition-all"
-      src="/images/Rocket.gif"
-    />
-    <span className="text-xl uppercase font-satoshi_bold text-brand_blue ">
-      {plan}
-    </span>
-    <p className="text-5xl md:text-6xl	font-satoshi_bold font-bold mt-4">
-      {price}
-    </p>
-    <div className="mt-8 h- w-full grow flex flex-col justify-between gap-12">
-      {children}
-    </div>
-  </section>
-);
+export const ListStar = () => {
+  return <img className="w-6 h-6" src="/images/star.svg" />;
+};
+
+export const items = [
+  {
+    plan: "Profesional",
+    price: "$199 mxn",
+    children: (
+      <div className="h-full flex flex-col">
+        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Agenda en línea
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Recordatorios automáticos
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Sitio web para citas
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Pagos en línea
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Encuesta de satisfacción
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Expediente de clientes
+          </li>
+        </ul>
+        <PrimaryButton className="mt-auto">
+          Probar gratis <ArrowRight />{" "}
+        </PrimaryButton>
+      </div>
+    ),
+    link: "https://stripe.com",
+  },
+  {
+    plan: "Empresarial",
+    price: "$499 mxn",
+    children: (
+      <div className="h-full flex flex-col">
+        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi  ">
+          <li className="flex gap-3">
+            <ListStar /> Agenda en línea
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Recordatorios automáticos
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Sitio web para citas
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Pagos en línea
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Encuesta de satisfacción
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Expediente de clientes
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Administración de sucursales
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Administración de usuarios
+          </li>
+        </ul>{" "}
+        <PrimaryButton className=" mt-10 ">
+          Contactar a ventas <ArrowRight />{" "}
+        </PrimaryButton>
+      </div>
+    ),
+    link: "https://stripe.com",
+  },
+];
