@@ -39,15 +39,19 @@ export function SideBar({
 
   const handleClick = () => {
     if (!isClosed) return;
-    animate("#aside", { x: 0 }, { type: "spring", bounce: 0.1 }); // open
+    animate("#aside", { x: 0 }, { type: "spring", bounce: 0.2 }); // open
   };
 
   const handleDragEnd = () => {
     if (x.get() < -180) {
-      animate("#aside", { x: -300 }, { type: "spring", bounce: 0.6 }); // close
+      animate("#aside", { x: -300 }, { type: "spring", bounce: 0.5 }); // close
       isClosed.set(true);
     } else {
-      animate("#aside", { x: 0 }, { type: "spring", bounce: 0.6 }); // open
+      animate(
+        "#aside",
+        { x: 0 },
+        { type: "spring", bounce: 0.5, duration: 0.5 }
+      ); // open
       isClosed.set(false);
     }
   };
