@@ -1,12 +1,12 @@
 import { useLoaderData } from "@remix-run/react";
 import { nanoid } from "nanoid";
 import { FormEvent, useRef } from "react";
-import { getImageURL, getPutImageUrl } from "~/utils/lib/tigris.server";
+import { getPutFileUrl } from "~/utils/lib/tigris.server";
 
 export const loader = async () => {
   //   const image = await getImageURL("testing/bXBq2.png");
   const k = nanoid(10); // we should get the right mymetype
-  const presignedUrl = await getPutImageUrl(k);
+  const presignedUrl = await getPutFileUrl(k);
   console.log("KEY: ", k);
   console.log("PRESIGNED:", presignedUrl);
   return {

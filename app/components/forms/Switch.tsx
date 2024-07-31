@@ -1,25 +1,41 @@
-import { ReactNode, useState } from "react";
+import { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 import { FieldValues, UseFormRegister } from "react-hook-form";
 
 export const Switch = ({
+  value,
   label,
   name,
-  defaultChecked = false,
+  onChange,
+  defaultChecked,
   register,
-  registerOptions = { required: true },
+  registerOptions,
 }: {
   name: string;
   value?: string;
-  register: UseFormRegister<FieldValues>;
+  register?: UseFormRegister<FieldValues>;
   registerOptions?: { required?: string | boolean };
   defaultChecked?: boolean;
   onChange?: (arg0: HTMLInputElement) => void;
   label?: ReactNode;
 }) => {
-  const [checked, set] = useState(defaultChecked);
-  const { ...props } = register(name, registerOptions);
+  const [isActive, set] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const cb = (e: ChangeEvent<HTMLInputElement>) => {
+      console.log("Listening");
+      set(e.target?.checked);
+    };
+    inputRef.current?.addEventListener("change", cb);
+    const forListener = inputRef.current;
+    return () => forListener?.removeEventListener("change", cb);
+  }, []);
+
+  useEffect(() => {
+    set(defaultChecked);
+  }, [defaultChecked]);
 
   return (
     <>
@@ -27,32 +43,30 @@ export const Switch = ({
         htmlFor={value}
         className={twMerge("flex justify-between items-center cursor-pointer")}
       >
-        {label && <span className="capitalize">{label}</span>}
+        <span className="capitalize">{label || value}</span>
         <div
           className={twMerge(
             "bg-gray-300 h-5 w-12 rounded-full flex flex-col justify-center",
-            checked && "items-end bg-brand_blue/50"
+            isActive && "items-end bg-brand_blue/50"
           )}
         >
           <motion.input
-            checked={checked}
+            defaultChecked={defaultChecked}
             transition={{ type: "spring", duration: 0.25, bounce: 0.5 }}
+            onChange={(e) => onChange?.(e.target as HTMLInputElement)}
+            value={value}
+            ref={inputRef}
             initial={{ x: 15 }}
             animate={{ x: 0 }}
             layout
             type="checkbox"
-            id={name}
+            id={value}
+            name={name}
             className={twMerge(
               "text-brand_blue pointer-events-none border-none",
               "bg-gray-400 h-6 w-6 rounded-full"
-              // "checked:self-end"
             )}
-            {...props}
-            // in order to mantin a local state
-            onChange={(e) => {
-              props.onChange(e);
-              set(e.target.checked);
-            }}
+            {...register?.(name, registerOptions)}
           />
         </div>
       </label>
