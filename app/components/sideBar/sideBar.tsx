@@ -16,6 +16,12 @@ import { Help } from "../icons/menu/help";
 import { Out } from "../icons/menu/out";
 import { Denik } from "../icons/denik";
 import { PrimaryButton } from "../common/primaryButton";
+import {
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 
 export function SideBar({
   user,
@@ -26,17 +32,36 @@ export function SideBar({
   user: User;
   props?: unknown;
 }) {
+  const x = useMotionValue(0);
+  const handleClick = () => {
+    if (x.get() < 0) x.set(0);
+    else x.set(-300);
+  };
+
+  const t = useTransform(x, [-300, 0], [20, 320]);
+
   return (
     <article className="bg-brand_light_gray flex h-screen" {...props}>
-      <aside className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen ">
-        <Header user={user} className="pl-6" />
+      <motion.aside
+        key="aside"
+        transition={{ type: "spring" }}
+        style={{
+          x: x,
+        }}
+        className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen overflow-hidden"
+      >
+        <Header user={user} className="pl-6" onClick={handleClick} />
         <MainMenu className="mb-auto" />
-        {/* Bonito hack: "Divider" */}
-        {/* <hr className="block border-b border-b-brand_light_gray/10 w-[60%] mx-auto mb-auto" /> */}
         <OnboardingBanner />
         <Footer />
-      </aside>
-      <section className="pl-[360px] pr-10 py-10 w-full ">{children}</section>
+      </motion.aside>
+      <motion.section
+        key="content"
+        style={{ paddingLeft: t }}
+        className="pl-[360px] pr-10 py-10 w-full "
+      >
+        {children}
+      </motion.section>
     </article>
   );
 }
@@ -44,15 +69,21 @@ export function SideBar({
 const Header = ({
   className,
   user,
+  onClick,
 }: {
+  onClick?: () => void;
   className?: string;
   user: Partial<User>;
 }) => {
   return (
-    <header className={twMerge(className)}>
+    <header className={twMerge("relative", className)}>
       <Denik className="mb-6 mt-6" />
       {user && <User user={user} />}
       <hr className="my-4 max-w-[80%]" />
+      <button
+        onClick={onClick}
+        className="h-12 border-[12px] border-transparent border-r-brand_blue rounded-4xl absolute top-[20%] right-0"
+      ></button>
     </header>
   );
 };
@@ -75,18 +106,17 @@ const Footer = () => {
         </MenuButton.Icon>
         <MenuButton.Title>Ayuda</MenuButton.Title>
       </MenuButton>
-      <MenuButton>
-        <MenuButton.Icon>
+      <Form action="/signin">
+        <button
+          type="submit"
+          name="intent"
+          value="logout"
+          className="flex pl-6 gap-3 text-lg pb-3 hover:text-gray-700"
+        >
           <Out />
-        </MenuButton.Icon>
-        <MenuButton.Title>
-          <Form action="/signin">
-            <button type="submit" name="intent" value="logout">
-              Cerrar sesión
-            </button>
-          </Form>
-        </MenuButton.Title>
-      </MenuButton>
+          Cerrar sesión
+        </button>
+      </Form>
     </div>
   );
 };
@@ -111,7 +141,7 @@ const MenuButton = ({
       className={twMerge(
         isActive && "text-brand_blue",
         className,
-        "relative h-10 flex items-center gap-3 cursor-pointer"
+        "relative h-12 flex items-center gap-3 cursor-pointer"
       )}
       {...props}
     >
