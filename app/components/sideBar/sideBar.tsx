@@ -264,6 +264,7 @@ const OnboardingBanner = () => {
       <img
         className="w-24 absolute right-2 -top-10"
         src="/images/3dagenda.png"
+        alt="banner"
       />
       <p className="text-base mb-3 font-satoMiddle w-[80%]">
         ¡Ya casi terminas de configurar tu agenda!
@@ -272,6 +273,7 @@ const OnboardingBanner = () => {
         className="min-w-[100px] max-w-[100px] px-3 h-8 bg-white text-brand_dark"
         as="Link"
         to={"/dash/onboarding"}
+        prefetch="render"
       >
         Continuar
       </PrimaryButton>

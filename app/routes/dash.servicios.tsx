@@ -8,6 +8,7 @@ import { getServices } from "~/db/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const services = await getServices(request);
+
   return { services };
 };
 
@@ -31,6 +32,7 @@ export default function Services() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {services.map((service) => (
           <ServiceCard
+            image={service.photoURL}
             key={service.id}
             title={service.name}
             duration={service.duration} // @TODO: format function this is minutes for now

@@ -9,8 +9,10 @@ export const PrimaryButton = ({
   isLoading,
   className,
   children,
+  prefetch = "intent",
   ...props
 }: {
+  prefetch?: "intent" | "render" | "viewport" | "none";
   // booleanos útiles
   isDisabled?: boolean;
   isLoading?: boolean;
@@ -48,7 +50,7 @@ export const PrimaryButton = ({
 
   return (
     <Element
-      prefetch="intent"
+      prefetch={prefetch}
       disabled={isDisabled}
       {...props}
       className={getClassName()}
