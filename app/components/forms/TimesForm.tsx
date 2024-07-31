@@ -193,14 +193,7 @@ export const TimesForm = ({ org }: { org?: Org }) => {
           // onRange={(range) => handleRange(dayString, range)}
           isActive={getValues().weekDays.includes(dayString)}
           id={dayString}
-        >
-          <Switch
-            defaultChecked={getValues().weekDays.includes(dayString)}
-            name="weekDays"
-            value={dayString}
-            onChange={handleSwitchChange}
-          />
-        </DayTimesSelector>
+        ></DayTimesSelector>
       ))}
 
       <div className="mt-auto">
