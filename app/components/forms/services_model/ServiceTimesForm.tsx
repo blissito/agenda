@@ -141,9 +141,20 @@ export const ServiceTimesForm = ({
             org={{ weekDays: week }} // @TODO: hack, please improve
             submitButton={<></>}
             onChange={(data: WeekDaysType) => {
-              setWeek(data);
-              if (!Object.keys(data).length) {
+              console.log("Data: ", data);
+              // clearErrors();
+              const initialValues = {
+                lunes: [
+                  ["09:00", "16:00"],
+                  ["17:00", "18:00"],
+                ],
+              };
+              // console.log("?? ", data, !!Object.keys(data).length);
+              if (Object.keys(data).length < 1) {
+                setWeek(initialValues);
                 setValue("localWeekDays", "inherit");
+              } else {
+                setWeek(data);
               }
             }}
           />
