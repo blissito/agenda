@@ -45,7 +45,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const intent = searchParams.get("intent");
   if (intent === "logout") {
     const session = await getSession(request.headers.get("Cookie"));
-    return redirect("/signin", {
+    return redirect("/", {
       headers: { "Set-Cookie": await destroySession(session) },
     });
   }
