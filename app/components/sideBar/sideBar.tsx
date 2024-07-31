@@ -17,8 +17,8 @@ import { Out } from "../icons/menu/out";
 import { Denik } from "../icons/denik";
 import { PrimaryButton } from "../common/primaryButton";
 import {
+  useAnimate,
   motion,
-  useMotionTemplate,
   useMotionValue,
   useTransform,
 } from "framer-motion";
@@ -32,31 +32,63 @@ export function SideBar({
   user: User;
   props?: unknown;
 }) {
+  const isClosed = useMotionValue(false);
+  const [scope, animate] = useAnimate();
   const x = useMotionValue(0);
+  const t = useTransform(x, [-300, 0], [60, 360]);
+
   const handleClick = () => {
-    if (x.get() < 0) x.set(0);
-    else x.set(-300);
+    if (!isClosed) return;
+    animate("#aside", { x: 0 }, { type: "spring", bounce: 0.1 }); // open
   };
 
-  const t = useTransform(x, [-300, 0], [20, 320]);
+  const handleDragEnd = () => {
+    if (x.get() < -180) {
+      animate("#aside", { x: -300 }, { type: "spring", bounce: 0.6 }); // close
+      isClosed.set(true);
+    } else {
+      animate("#aside", { x: 0 }, { type: "spring", bounce: 0.6 }); // open
+      isClosed.set(false);
+    }
+  };
 
   return (
-    <article className="bg-brand_light_gray flex h-screen" {...props}>
+    <article
+      ref={scope}
+      className="bg-brand_light_gray flex h-screen relative z-500 "
+      {...props}
+    >
       <motion.aside
-        key="aside"
-        transition={{ type: "spring" }}
+        dragElastic={0.5}
+        whileTap={{ cursor: "grabbing" }}
+        id="aside"
+        onDragEnd={handleDragEnd}
+        dragSnapToOrigin
+        drag="x"
+        dragConstraints={{ right: 0, left: -300 }}
+        key="spring"
+        // transition={{ type: "spring", bounce: 0.7 }}
         style={{
-          x: x,
+          x,
         }}
         className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen overflow-hidden"
       >
-        <Header user={user} className="pl-6" onClick={handleClick} />
+        <Header
+          dragElement={
+            <button
+              onClick={handleClick}
+              className="h-12 rounded-full w-2 bg-brand_gray/30 absolute bottom-0 right-1 cursor-grab active:cursor-grabbing hover:bg-brand_gray/40 hover:scale-110 transition-all"
+            />
+          }
+          user={user}
+          className="pl-6"
+          handleDragEnd={handleDragEnd}
+        />
         <MainMenu className="mb-auto" />
         <OnboardingBanner />
         <Footer />
       </motion.aside>
       <motion.section
-        key="content"
         style={{ paddingLeft: t }}
         className="pl-[360px] pr-10 py-10 w-full "
       >
@@ -68,9 +100,13 @@ export function SideBar({
 
 const Header = ({
   className,
+  handleDragEnd,
   user,
   onClick,
+  dragElement,
 }: {
+  dragElement?: ReactNode;
+  handleDragEnd?: () => void;
   onClick?: () => void;
   className?: string;
   user: Partial<User>;
@@ -80,10 +116,7 @@ const Header = ({
       <Denik className="mb-6 mt-6" />
       {user && <User user={user} />}
       <hr className="my-4 max-w-[80%]" />
-      <button
-        onClick={onClick}
-        className="h-12 border-[12px] border-transparent border-r-brand_blue rounded-4xl absolute top-[20%] right-0"
-      ></button>
+      {dragElement}
     </header>
   );
 };
