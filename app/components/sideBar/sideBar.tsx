@@ -35,7 +35,7 @@ export function SideBar({
   const isClosed = useMotionValue(false);
   const [scope, animate] = useAnimate();
   const x = useMotionValue(0);
-  const t = useTransform(x, [-300, 0], [60, 360]);
+  const t = useTransform(x, [-300, 0, 300], [60, 360, 660]);
 
   const handleClick = () => {
     if (!isClosed) return;
