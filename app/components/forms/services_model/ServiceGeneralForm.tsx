@@ -96,7 +96,7 @@ export const ServiceFormFooter = ({
   isLoading?: boolean;
   isDisabled?: boolean;
 }) => (
-  <div className="items-center px-4 w-full max-w-[36rem] flex justify-between fixed bottom-8">
+  <div className="items-center px-4 w-full max-w-[36rem] flex justify-between fixed bottom-8 bg-white z-10">
     <PrimaryButton
       type="button"
       className="bg-transparent text-brand_dark font-satoMiddle flex gap-2 items-center group transition-all"

@@ -105,3 +105,12 @@ export const getServicefromSearchParams = async (
   if (!service) throw redirect("/dash/servicios/nuevo");
   return service;
 };
+
+export const getServices = async (request: Request) => {
+  const user = await getUserOrRedirect(request);
+  if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
+  return await db.service.findMany({
+    where: { orgId: user.orgId },
+    include: { org: true },
+  });
+};

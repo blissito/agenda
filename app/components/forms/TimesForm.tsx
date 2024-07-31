@@ -66,10 +66,12 @@ const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
 export const TimesForm = ({
+  // defaultValues,
   org,
   submitButton,
   onChange,
 }: {
+  defaultValues?: WeekDaysType;
   submitButton?: ReactNode;
   onChange?: (data: WeekDaysType) => void;
   org?: Org;

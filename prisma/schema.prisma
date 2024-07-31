@@ -47,33 +47,33 @@ enum Place {
 }
 
 model Service {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
   name          String
+  slug          String       @unique
   description   String?
   category      String?
-  points        Int     @default(0)
+  points        Int          @default(0)
+  price         Int
   // fotos form route step
   photoURL      String?
-  place         Place   @default(INPLACE)
-  isActive      Boolean @default(true)
-  allowMultiple Boolean @default(false)
+  place         Place        @default(INPLACE)
+  seats         Int?         @default(1)
+  isActive      Boolean      @default(true)
+  allowMultiple Boolean      @default(false)
   // numberOfSessionsInAnHour Int     @default(1)
   // horario
-  duration      Int     @default(60) // mins
+  duration      Int          @default(60) // mins
   weekDays      Json?
-
-  location        Json?
-  address         Json?
-  seats           Int?         @default(1)
-  includesPayment Boolean      @default(false)
-  price           Int
-  currency        String?      @default("MXN")
-  config          NotifyConfig
-  employeeName    String?
+  // config
+  payment       Boolean      @default(false)
+  config        NotifyConfig
+  // defaults
+  currency      String?      @default("MXN")
+  employeeName  String? // @TODO: where is this requested?
   // relations
-  orgId           String       @db.ObjectId
-  org             Org          @relation(fields: [orgId], references: [id])
-  event           Event[]
+  orgId         String       @db.ObjectId
+  org           Org          @relation(fields: [orgId], references: [id])
+  event         Event[]
 }
 
 model Org {

@@ -2,6 +2,7 @@ import { getUserAndOrgOrRedirect } from "~/db/userGetters";
 import { generalFormSchema } from "../services_model/ServiceGeneralForm";
 import { db } from "~/utils/db.server";
 import { redirect } from "@remix-run/node";
+import { generateSlug } from "~/utils/generateSlug";
 
 export const serviceGeneralFormHandler = async (
   request: Request,
@@ -19,6 +20,7 @@ export const serviceGeneralFormHandler = async (
   const service = await db.service.create({
     data: {
       ...validatedData,
+      slug: generateSlug(validatedData.name),
       orgId: org.id,
       // required
       config: {

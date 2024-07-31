@@ -47,7 +47,12 @@ export const PrimaryButton = ({
   };
 
   return (
-    <Element disabled={isDisabled} {...props} className={getClassName()}>
+    <Element
+      prefetch="intent"
+      disabled={isDisabled}
+      {...props}
+      className={getClassName()}
+    >
       {!isDisabled && isLoading && <FaSpinner className="animate-spin" />}
       {children}
     </Element>

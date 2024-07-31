@@ -24,7 +24,13 @@ export const serviceTimesSchema = z.object({
   weekDays: weekDaysSchema.nullable(),
 });
 
+type ServiceTimesFields = z.infer<typeof serviceTimesSchema>;
+
 const OPTIONS: Option[] = [
+  {
+    title: "15 minutos",
+    value: 15,
+  },
   {
     title: "30 minutos",
     value: 30,
@@ -54,9 +60,15 @@ const initialValues = {
   duration: 30,
   weekDays: {},
 };
-export const ServiceTimesForm = () => {
+export const ServiceTimesForm = ({
+  defaultValues = initialValues,
+  backButtonLink,
+}: {
+  backButtonLink?: string;
+  defaultValues: ServiceTimesFields;
+}) => {
   const fetcher = useFetcher();
-  const [week, setWeek] = useState([]);
+  const [week, setWeek] = useState(defaultValues.weekDays);
   const {
     // getValues,
     watch,
@@ -65,7 +77,10 @@ export const ServiceTimesForm = () => {
     setValue,
     formState: { errors, isValid },
   } = useForm({
-    defaultValues: { ...initialValues, localWeekDays: "inherit" },
+    defaultValues: {
+      ...defaultValues,
+      localWeekDays: defaultValues.weekDays ? "specific" : "inherit",
+    },
   });
 
   const onSubmit = (values) => {
@@ -73,7 +88,7 @@ export const ServiceTimesForm = () => {
       ...values,
       weekDays: localWeekDays === "specific" ? week : "",
     };
-    console.log("fullObj:", fullObj);
+
     fetcher.submit(
       {
         data: JSON.stringify(fullObj),
@@ -114,11 +129,16 @@ export const ServiceTimesForm = () => {
           />
         </div>
 
-        <ServiceFormFooter backButtonLink={""} isDisabled={!isValid} />
+        <ServiceFormFooter
+          backButtonLink={backButtonLink}
+          isDisabled={!isValid}
+          isLoading={fetcher.state !== "idle"}
+        />
       </Form>
       {localWeekDays === "specific" && (
         <>
           <TimesForm
+            org={{ weekDays: week }} // @TODO: hack, please improve
             submitButton={<></>}
             onChange={(data: WeekDaysType) => {
               setWeek(data);

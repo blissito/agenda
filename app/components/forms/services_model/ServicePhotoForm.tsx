@@ -121,6 +121,7 @@ export const ServicePhotoForm = ({
       <ServiceFormFooter
         backButtonLink={backButtonLink}
         isDisabled={!isValid}
+        isLoading={fetcher.state !== "idle"}
       />
     </Form>
   );

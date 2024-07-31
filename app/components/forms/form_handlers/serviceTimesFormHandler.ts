@@ -18,7 +18,7 @@ export const serviceTimesFormHandler = async (
     data.weekDays = null;
   }
   const validatedData = serviceTimesSchema.parse(data);
-  console.log("ValidatedData", validatedData);
+
   await db.service.update({
     where: { id: service.id },
     data: validatedData,
