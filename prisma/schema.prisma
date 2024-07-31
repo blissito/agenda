@@ -58,11 +58,13 @@ model Service {
   isActive      Boolean @default(true)
   allowMultiple Boolean @default(false)
   // numberOfSessionsInAnHour Int     @default(1)
+  // horario
+  duration      Int     @default(60) // mins
+  weekDays      Json?
 
   location        Json?
   address         Json?
   seats           Int?         @default(1)
-  duration        Int          @default(60) // mins
   includesPayment Boolean      @default(false)
   price           Int
   currency        String?      @default("MXN")

@@ -25,7 +25,6 @@ export const Switch = ({
 
   useEffect(() => {
     const cb = (e: ChangeEvent<HTMLInputElement>) => {
-      console.log("Listening");
       set(e.target?.checked);
     };
     inputRef.current?.addEventListener("change", cb);

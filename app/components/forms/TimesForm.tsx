@@ -65,7 +65,15 @@ const initialValues: WeekDaysType = {
 const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
-export const TimesForm = ({ org }: { org?: Org }) => {
+export const TimesForm = ({
+  org,
+  submitButton,
+  onChange,
+}: {
+  submitButton?: ReactNode;
+  onChange?: (data: WeekDaysType) => void;
+  org?: Org;
+}) => {
   const fetcher = useFetcher();
   const [data, setData] = useState<WeekDaysType>(
     org?.weekDays || initialValues // @TODO custom aliases
@@ -170,6 +178,8 @@ export const TimesForm = ({ org }: { org?: Org }) => {
 
   useEffect(() => {
     // console.log("DATA: ", data);
+    onChange?.(data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const isDisabled = !isValid || (errors.weekDays ? true : false);
@@ -205,14 +215,18 @@ export const TimesForm = ({ org }: { org?: Org }) => {
 
       <div className="mt-auto">
         {" "}
-        <PrimaryButton
-          isLoading={fetcher.state !== "idle"}
-          className="w-full mt-auto"
-          isDisabled={isDisabled}
-          type="submit"
-        >
-          Continuar
-        </PrimaryButton>
+        {submitButton ? (
+          submitButton
+        ) : (
+          <PrimaryButton
+            isLoading={fetcher.state !== "idle"}
+            className="w-full mt-auto"
+            isDisabled={isDisabled}
+            type="submit"
+          >
+            Continuar
+          </PrimaryButton>
+        )}
         <p className="mb-8 ml-2 h-auto text-red-500 text-xs">
           {errors.weekDays?.message}
         </p>
@@ -221,7 +235,7 @@ export const TimesForm = ({ org }: { org?: Org }) => {
   );
 };
 
-const DayTimesSelector = ({
+export const DayTimesSelector = ({
   children,
   addRange,
   removeRange,
@@ -229,7 +243,6 @@ const DayTimesSelector = ({
   ranges = [],
   updateRanges,
 }: {
-  id: string;
   ranges: DayTuple;
   addRange?: () => void;
   removeRange?: (arg0: number) => void;

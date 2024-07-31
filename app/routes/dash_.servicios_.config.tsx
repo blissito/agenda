@@ -1,7 +1,8 @@
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { useFetcher, useNavigate } from "@remix-run/react";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import { RadioButton } from "./dash_.servicios_.horario";
+import { RadioButton } from "~/components/forms/services_model/ServiceTimesForm";
+import { SwitchOption } from "~/components/forms/services_model/ServicePhotoForm";
 
 export default function NewServicePayment() {
   const fetcher = useFetcher();
