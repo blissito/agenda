@@ -48,7 +48,11 @@ export const defaultDays: Day[] = [
 ];
 
 export const toNumber = (string: string) => Number(string.replace(":00", ""));
-
+export const fromMinsToTimeString = (mins: number) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}`;
+};
 export const generateHours = ({
   fromHour,
   toHour,
@@ -61,6 +65,20 @@ export const generateHours = ({
   return Array.from({ length: toHour - fromHour }).map((_, index) =>
     fromHour + index < 10 ? `0${fromHour + index}:00` : `${fromHour + index}:00`
   );
+};
+
+export const generateSecuense = (
+  fromMins: number,
+  toMins: number,
+  mins: number
+) => {
+  let count = fromMins;
+  const slots = [];
+  while (count < toMins) {
+    slots.push(count);
+    count += mins;
+  }
+  return slots;
 };
 
 export const getMonday = (today: Date = new Date()) => {
@@ -191,7 +209,7 @@ export const isToday = (_date: Date) => {
   );
 };
 
-export const areSameDates = (d1: Date, d2: Date) => {
+export const areSameDates = (d1: Date, d2: Date | null) => {
   if (!d1 || !d2) return false;
   const date1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());

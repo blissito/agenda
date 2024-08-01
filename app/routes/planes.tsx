@@ -9,7 +9,7 @@ import { ReactNode, useState } from "react";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Check } from "~/components/icons/check";
 import { Lamp } from "~/components/icons/lamp";
-import { Banner } from "~/components/home/Banner";
+import { Banner } from "~/components/home/Banner.client";
 import { AnimatePresence, easeOut, motion } from "framer-motion";
 import { Bubble } from "~/components/icons/Bubble";
 import { ArrowCollapse } from "~/components/icons/arrowCollapse";

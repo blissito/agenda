@@ -4,23 +4,24 @@ import { useEffect, useRef } from "react";
 import { Tag } from "~/components/common/Tag";
 import { Plus } from "~/components/icons/plus";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices } from "~/db/userGetters";
+import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const services = await getServices(request);
-
-  return { services };
+  const { org } = await getUserAndOrgOrRedirect(request); // @TODO: not all  the org please!
+  return { services, org };
 };
 
 export default function Services() {
-  const { services } = useLoaderData<typeof loader>();
+  const { services, org } = useLoaderData<typeof loader>();
   const origin = useRef<string>("");
 
   useEffect(() => {
     origin.current = location.origin;
   }, []);
 
-  const getLink = (serviceId: string) => `/dash/servicios/${serviceId}`;
+  // const getLink = (serviceId: string) => `/dash/servicios/${serviceId}`;
+  const getLink = (serviceSlug: string) => `/agenda/${org.slug}/${serviceSlug}`;
 
   console.log("LINK: ", getLink(services[0].id));
 
@@ -36,7 +37,7 @@ export default function Services() {
             duration={service.duration} // @TODO: format function this is minutes for now
             price={`${service.price} mxn`}
             status={service.isActive ? "Activo" : "Desactivado"}
-            link={getLink(service.id)}
+            link={getLink(service.slug)} // just for developing
           />
         ))}
         <AddService />
