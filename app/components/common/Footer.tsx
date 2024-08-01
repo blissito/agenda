@@ -1,3 +1,4 @@
+import { Link } from "@remix-run/react";
 import { Denik } from "../icons/denik";
 import { Facebook } from "../icons/facebook";
 
@@ -10,8 +11,13 @@ export const Footer = () => {
         </div>
         <div className="text-base text-brand_pale font-satoshi flex flex-col gap-4 w-full md:w-[25%]">
           <h3 className="text-brand_iron font-satoshi text-sm">Deník</h3>
-          <p>Comunidad Deník</p>
-          <p>Blog</p>
+          <Link to="/404">
+            <p>Comunidad Deník</p>
+          </Link>
+
+          <Link to="/help">
+            <p>Blog</p>
+          </Link>
           <p>Atención al cliente</p>
           <p>Términos y condiciones</p>
           <p>Aviso de privacidad</p>
