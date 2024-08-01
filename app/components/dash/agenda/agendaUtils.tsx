@@ -70,12 +70,13 @@ export const generateHours = ({
 export const generateSecuense = (
   fromMins: number,
   toMins: number,
-  mins: number
+  mins: number,
+  min: number = 0
 ) => {
   let count = fromMins;
   const slots = [];
   while (count < toMins) {
-    slots.push(count);
+    if (count > min) slots.push(count);
     count += mins;
   }
   return slots;

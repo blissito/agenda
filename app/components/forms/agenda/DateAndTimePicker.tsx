@@ -54,18 +54,32 @@ export const DateAndTimePicker = ({
     // 0.- get the
     // console.log("Dict: ", weekDictionary[new Date(date).getDay()]);
     // console.log("Weekdays: ", weekDays);
+    const today = new Date();
+    const isToday =
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      ).getTime() ===
+      new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
     const range = weekDays[weekDictionary[new Date(date).getDay()]]; // improve
     // console.log("Range: ", range);
     const minutes = range.map((tuple: string[]) =>
       tuple.map((string) => Number(string.split(":")[0]) * 60)
     );
+
     let slots: string[] = [];
     minutes.forEach((tuple: number[]) => {
-      const secuence = generateSecuense(tuple[0], tuple[1], duration).map(
-        fromMinsToTimeString
-      );
+      const secuence = generateSecuense(
+        tuple[0],
+        tuple[1],
+        duration,
+        isToday ? today.getHours() * 60 + today.getMinutes() : undefined // minimum minutes (filter v1)
+      ).map(fromMinsToTimeString);
       slots = slots.concat(secuence);
     });
+    // here we have the general all.
+
     setTimes(slots);
     // @TODO: Filter already reserved !!
     // 2.- get the reserved
@@ -462,7 +476,13 @@ export const ServiceList = ({
       />
       <ServiceListItem
         icon={<FiMapPin />}
-        text={(service.address || org?.address) as string}
+        text={
+          (service.place === "ONLINE"
+            ? "Online"
+            : service.place === "ATHOME"
+            ? "A domicilio"
+            : service.address || org.address) as string
+        }
         key={"address"}
       />
     </div>
