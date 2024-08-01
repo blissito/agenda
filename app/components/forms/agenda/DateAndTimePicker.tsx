@@ -8,7 +8,7 @@ import { HiOutlineIdentification } from "react-icons/hi2";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { PiCalendarCheckBold } from "react-icons/pi";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
@@ -122,15 +122,17 @@ export const DateAndTimePicker = ({
           >
             <h4 className="text-xs font-medium my-4">Selecciona una:</h4>
             <div className="grid md:w-44 grid-cols-3 md:grid-cols-2 gap-x-3 gap-y-2 place-content-center">
-              {times.map((t) => (
-                <TimeButton
-                  key={nanoid()}
-                  defaultValue={t}
-                  isActive={time === t}
-                  onChange={onTimeChange}
-                  meridiem
-                />
-              ))}
+              <AnimatePresence>
+                {times.map((t, i) => (
+                  <TimeButton
+                    key={i}
+                    defaultValue={t}
+                    isActive={time === t}
+                    onChange={onTimeChange}
+                    meridiem
+                  />
+                ))}
+              </AnimatePresence>
             </div>
           </motion.section>
         )}
@@ -437,9 +439,12 @@ const TimeButton = ({
   };
 
   return (
-    <label
+    <motion.label
+      initial={{ opacity: 0, y: -10 }}
+      exit={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
       className={twMerge(
-        "cursor-pointer transition-all",
+        "cursor-pointer",
         "flex justify-center",
         "text-xs text-brand_blue/90 py-1 px-4 text-nowrap rounded border border-brand_blue/30",
         isActive && "bg-brand_blue text-white border-transparent",
@@ -458,7 +463,7 @@ const TimeButton = ({
         name="time"
         type="radio"
       />
-    </label>
+    </motion.label>
   );
 };
 
