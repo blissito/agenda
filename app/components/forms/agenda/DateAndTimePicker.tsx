@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Form, useFetcher } from "@remix-run/react";
 import { FaClock, FaMoneyBill } from "react-icons/fa";
-import { Event, Service } from "@prisma/client";
+import { Event, Org, Service } from "@prisma/client";
 import { FiMapPin } from "react-icons/fi";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineIdentification } from "react-icons/hi2";
@@ -243,7 +243,9 @@ const MonthView = ({
 export const Success = ({
   event,
   service,
+  org,
 }: {
+  org?: Org;
   service: Service;
   event: Event;
 }) => {
@@ -275,7 +277,11 @@ export const Success = ({
       </p>
       <div className="w-70 rounded-xl mx-auto bg-white shadow p-6 ">
         <h2 className="font-bold text-neutral-900 mb-4">{event.title}</h2>
-        <ServiceList service={{ ...service }} date={new Date(event.start)} />
+        <ServiceList
+          org={org}
+          service={{ ...service }}
+          date={new Date(event.start)}
+        />
       </div>
       {/* @TODO: link to another schedule */}
       <PrimaryButton
@@ -357,6 +363,7 @@ export const ClientForm = ({ eventId }: { eventId: string }) => {
         registerOptions={{ required: false }}
       />
       <PrimaryButton
+        isLoading={fetcher.state !== "idle"}
         isDisabled={!isValid}
         type="submit"
         // isDisabled={!isValid}
@@ -424,7 +431,9 @@ const TimeButton = ({
 export const ServiceList = ({
   service,
   date,
+  org,
 }: {
+  org: Org;
   date?: Date;
   service: Partial<Service>;
 }) => {
@@ -449,11 +458,11 @@ export const ServiceList = ({
       <ServiceListItem
         key={"provider"}
         icon={<HiOutlineIdentification />}
-        text={`Con ${service.employeeName} `}
+        text={`Con ${org?.shopKeeper || service.employeeName} `}
       />
       <ServiceListItem
         icon={<FiMapPin />}
-        text={service.address as string}
+        text={(service.address || org?.address) as string}
         key={"address"}
       />
     </div>

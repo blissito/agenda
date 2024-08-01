@@ -25,20 +25,24 @@ import { getDaysInMonth } from "~/components/dash/agenda/agendaUtils";
 const example =
   "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request, params }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
   if (intent === "date_time_selected") {
     const data = JSON.parse(formData.get("data") as string);
     const user = await getUserOrNull(request);
+    const service = await db.service.findUnique({
+      where: { slug: params.serviceSlug },
+    });
     // @TODO: get title from service
     const evnt = {
       start: data.date,
       duration: data.duration,
-      service: undefined,
-      userId: user?.id,
-      title: "Servicio de prueba",
+      // @TODO: is this necessary?
+      serviceId: service?.id,
+      userId: user?.id, // @TODO: Improve
+      title: service?.name,
       // orgId: "prueba",
     };
     const event = await db.event.create({
@@ -89,7 +93,13 @@ const getAvailableDays = (weekDays: WeekDaysType) => {
   const availableDays = days.filter((day) => {
     const date = new Date(day);
     const includedDays = Object.keys(weekDays);
-    if (date.getTime() < new Date().getTime()) return false; // not yesterday ✅
+    const today = new Date();
+    if (
+      new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() <
+      new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
+    ) {
+      return false; // not yesterday ✅
+    }
     return includedDays.includes(weekDictionary[date.getDay()]);
   });
   // console.log("Available", availableDays.length);
@@ -204,7 +214,7 @@ export default function Page() {
     }
   }, [fetcher]);
 
-  if (event) return <Success event={event} service={service} />;
+  if (event) return <Success org={org} event={event} service={service} />;
 
   return (
     <article className=" bg-[#f8f8f8] min-h-screen h-screen">
@@ -223,7 +233,7 @@ export default function Page() {
               {org?.name}
             </span>
             <h2 className="text-lg font-medium mb-5">{service?.name}</h2>
-            <ServiceList service={service} date={date || undefined} />
+            <ServiceList org={org} service={service} date={date || undefined} />
           </div>
           <hr className="border-l-brand_gray/10 md:my-0 md:h-44 md:w-1 w-full my-4 border-l md:mr-8 " />
           {currentScreen === "picker" && (
