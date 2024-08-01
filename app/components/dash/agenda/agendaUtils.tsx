@@ -228,3 +228,7 @@ export const areSameDates = (d1: Date, d2: Date | null) => {
   const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
   return date1.getTime() === date2.getTime();
 };
+
+export const fromDateToTimeString = (date: Date) => {
+  return new Date(date).toString().split(" ")[4].replace(":00", "");
+};

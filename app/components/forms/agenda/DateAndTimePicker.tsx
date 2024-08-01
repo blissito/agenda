@@ -27,6 +27,7 @@ import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug";
 // Calendar picker and time
 export const DateAndTimePicker = ({
   onDateChange,
+  scheduledDates = [],
   weekDays,
   duration = 60,
   selectedDate,
@@ -34,6 +35,7 @@ export const DateAndTimePicker = ({
   time,
   availableDays,
 }: {
+  scheduledDates?: { [x: number]: string }[];
   weekDays: WeekDaysType;
   duration?: number;
   availableDays?: Date[];
@@ -49,11 +51,14 @@ export const DateAndTimePicker = ({
   };
 
   // const times = ["08:00", "09:15", "10:00", "12:30", "13:00", "15:45", "16:00"];
+  // @TODO: when no times to show disable the day 😒 server side?
   // This is good stuff: 🔥🤓
   const updateTimes = (date: Date) => {
     // 0.- get the
     // console.log("Dict: ", weekDictionary[new Date(date).getDay()]);
     // console.log("Weekdays: ", weekDays);
+    // already sheduled
+
     const today = new Date();
     const isToday =
       new Date(
@@ -79,7 +84,10 @@ export const DateAndTimePicker = ({
       slots = slots.concat(secuence);
     });
     // here we have the general all.
-
+    const notAvailableStrings =
+      scheduledDates[new Date(date).getMonth()][new Date(date).getDate()]; // @TODO: improve, should be a better way 😤
+    //
+    slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
     // @TODO: Filter already reserved !!
     // 2.- get the reserved

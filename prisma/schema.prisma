@@ -73,7 +73,7 @@ model Service {
   // relations
   orgId         String       @db.ObjectId
   org           Org          @relation(fields: [orgId], references: [id])
-  event         Event[]
+  events        Event[]
 }
 
 model Org {

@@ -21,8 +21,10 @@ import { useForm } from "react-hook-form";
 import { WeekDaysType } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 import {
   addMinutesToDate,
+  fromDateToTimeString,
   getDaysInMonth,
 } from "~/components/dash/agenda/agendaUtils";
+import { Event } from "@prisma/client";
 // @TODO: validate date and time is in the future
 // @TODO: Improve mobile UX
 const example =
@@ -124,6 +126,21 @@ const getAvailableDays = (weekDays: WeekDaysType) => {
   return availableDays;
 };
 
+const getScheduledDates = (events: Event[]) => {
+  if (!events || !events.length) return [];
+  const obj = {};
+  events.forEach((e) => {
+    const month = new Date(e.start).getMonth();
+    const date = new Date(e.start).getDate();
+    // {date,strings}
+    const timeString = fromDateToTimeString(e.start);
+    obj[month] ||= {};
+    obj[month][date] ||= [];
+    obj[month][date] = [...new Set([...obj[month][date], timeString])]; // Avoiding repeatition
+  });
+  return obj;
+}; // returns {7:{28:['16:45','09:00']}}
+
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
 
@@ -136,12 +153,21 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     where: {
       slug: params.serviceSlug,
     },
+    include: {
+      events: {
+        where: {
+          status: "ACTIVE", // chulada 🤤
+        },
+      },
+    },
   });
+
   if (!service) return json(null, { status: 404 });
   // availability stuff
   const availableDays = getAvailableDays(
     (service.weekDays || org.weekDays) as WeekDaysType
   );
+  const scheduledDates = getScheduledDates(service.events);
   const event = url.searchParams.has("eventId") // coming from form action
     ? await db.event.findUnique({
         where: { id: url.searchParams.get("eventId") || undefined },
@@ -149,6 +175,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     : null;
 
   return {
+    scheduledDates,
     availableDays,
     event, // If event will show success screen ✅
     org,
@@ -157,7 +184,8 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 };
 
 export default function Page() {
-  const { org, service, event, availableDays } = useLoaderData<typeof loader>();
+  const { org, service, event, availableDays, scheduledDates } =
+    useLoaderData<typeof loader>();
 
   const [currentScreen, setCurrentScreen] = useState<
     "picker" | "form" | "success"
@@ -260,6 +288,7 @@ export default function Page() {
           <hr className="border-l-brand_gray/10 md:my-0 md:h-44 md:w-1 w-full my-4 border-l md:mr-8 " />
           {currentScreen === "picker" && (
             <DateAndTimePicker
+              scheduledDates={scheduledDates}
               weekDays={service.weekDays || org.weekDays}
               duration={service.duration}
               availableDays={availableDays}
