@@ -113,6 +113,18 @@ export const generateWeek = (
 export const addDaysToDate = (days: number, date: Date) =>
   date.getDate() + days;
 
+export const addMinutesToDate = (date: Date, mins?: number) => {
+  if (!date || !mins) return;
+  const d = new Date(date);
+  return new Date(
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate(),
+    d.getHours(),
+    d.getMinutes() + mins
+  );
+};
+
 export const getCoord = ({
   coord = "x",
   index,

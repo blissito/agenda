@@ -257,9 +257,11 @@ const MonthView = ({
 export const Success = ({
   event,
   service,
+  onFinish,
   org,
 }: {
-  org?: Org;
+  onFinish: () => void;
+  org: Org;
   service: Service;
   event: Event;
 }) => {
@@ -267,6 +269,9 @@ export const Success = ({
   useEffect(() => {
     setTimeout(() => set(false), 4000);
   }, []);
+  const getCTALink = () => {
+    return `/agenda/${org.slug}/${service.slug}`;
+  };
   return (
     <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
       <div className="relative">
@@ -299,8 +304,9 @@ export const Success = ({
       </div>
       {/* @TODO: link to another schedule */}
       <PrimaryButton
+        onClick={() => onFinish()}
         as="Link"
-        to="/agenda/studio-romos-m-65UA/consultoria-PF4UXR?eventId=66abf570460687e8731da5e0"
+        to={getCTALink()}
         className="mt-12 py-4 w-full md:w-[200px] transition-all"
       >
         Agendar otra cita
@@ -316,7 +322,12 @@ export const Success = ({
   );
 };
 
-export const ClientForm = ({ eventId }: { eventId: string }) => {
+export const ClientForm = ({
+  eventId,
+}: {
+  onFinish: () => void;
+  eventId: string;
+}) => {
   const {
     handleSubmit,
     register,

@@ -125,7 +125,7 @@ model Event {
   type      EventType   @default(EVENT) // avoid scheduling even when multi enabled
   title     String?
   start     DateTime
-  end       DateTime?
+  end       DateTime? // @TODO: make it required
   duration  Int? // minutes
   allDay    Boolean     @default(false)
   status    EventStatus @default(ACTIVE)

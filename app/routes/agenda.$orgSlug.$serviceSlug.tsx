@@ -19,7 +19,10 @@ import {
 } from "~/components/forms/agenda/DateAndTimePicker";
 import { useForm } from "react-hook-form";
 import { WeekDaysType } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
-import { getDaysInMonth } from "~/components/dash/agenda/agendaUtils";
+import {
+  addMinutesToDate,
+  getDaysInMonth,
+} from "~/components/dash/agenda/agendaUtils";
 // @TODO: validate date and time is in the future
 // @TODO: Improve mobile UX
 const example =
@@ -35,11 +38,11 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     const service = await db.service.findUnique({
       where: { slug: params.serviceSlug },
     });
-    // @TODO: get title from service
+    // @TODO: Validation????? 🤬
     const evnt = {
       start: data.date,
-      duration: data.duration,
-      // @TODO: is this necessary?
+      duration: service?.duration,
+      end: addMinutesToDate(data.date, service?.duration),
       serviceId: service?.id,
       userId: user?.id, // @TODO: Improve
       title: service?.name,
@@ -89,7 +92,15 @@ export const weekDictionary = {
 
 const getAvailableDays = (weekDays: WeekDaysType) => {
   // 1.- Map over the month?
-  const days = getDaysInMonth(new Date()); // @TODO: better get grid?
+  let days = getDaysInMonth(new Date()); // @TODO: better get grid?
+  const daysInNextMonth = getDaysInMonth(
+    new Date(new Date().getFullYear(), new Date().getMonth() + 1)
+  );
+  const daysInAnotherMonth = getDaysInMonth(
+    new Date(new Date().getFullYear(), new Date().getMonth() + 2)
+  );
+  // @TODO: Re-visit this, including just 3 months...
+  days = days.concat(daysInNextMonth).concat(daysInAnotherMonth);
   const availableDays = days.filter((day) => {
     const date = new Date(day);
     const includedDays = Object.keys(weekDays);
@@ -214,7 +225,18 @@ export default function Page() {
     }
   }, [fetcher]);
 
-  if (event) return <Success org={org} event={event} service={service} />;
+  if (event)
+    return (
+      <Success
+        onFinish={() => {
+          setCurrentScreen("picker");
+          setDate(null);
+        }} // @TODO: improve with redirection from server on button submit
+        org={org}
+        event={event}
+        service={service}
+      />
+    );
 
   return (
     <article className=" bg-[#f8f8f8] min-h-screen h-screen">
