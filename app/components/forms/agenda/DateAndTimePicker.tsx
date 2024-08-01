@@ -84,8 +84,9 @@ export const DateAndTimePicker = ({
       slots = slots.concat(secuence);
     });
     // here we have the general all.
-    const notAvailableStrings =
-      scheduledDates[new Date(date).getMonth()][new Date(date).getDate()]; // @TODO: improve, should be a better way 😤
+    const notAvailableStrings = scheduledDates[new Date(date).getMonth()]
+      ? scheduledDates[new Date(date).getMonth()][new Date(date).getDate()]
+      : []; // @TODO: improve, should be a better way 😤
     //
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
