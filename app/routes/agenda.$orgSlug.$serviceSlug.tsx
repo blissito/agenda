@@ -103,18 +103,28 @@ const getAvailableDays = (weekDays: WeekDaysType) => {
   );
   // @TODO: Re-visit this, including just 3 months...
   days = days.concat(daysInNextMonth).concat(daysInAnotherMonth);
-  const availableDays = days.filter((day) => {
-    const date = new Date(day);
-    const includedDays = Object.keys(weekDays);
-    const today = new Date();
-    if (
-      new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() <
-      new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
-    ) {
-      return false; // not yesterday ✅
-    }
-    return includedDays.includes(weekDictionary[date.getDay()]);
-  });
+  const availableDays = days
+    .filter((day) => {
+      const date = new Date(day);
+      const includedDays = Object.keys(weekDays);
+      const today = new Date();
+      if (
+        new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate()
+        ).getTime() <
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        ).getTime()
+      ) {
+        return false; // not yesterday ✅
+      }
+      return includedDays.includes(weekDictionary[date.getDay()]);
+    })
+    .map((d) => d.getTime());
   // console.log("Available", availableDays.length);
   // console.log("DAYS: ", days);
 
@@ -128,13 +138,13 @@ const getAvailableDays = (weekDays: WeekDaysType) => {
 
 const getScheduledDates = (events: Event[]) => {
   if (!events || !events.length) return [];
-  const obj = {};
+  const obj: { [x: string]: Record<string, string[]> } = { "0": { "1": [] } };
   events.forEach((e) => {
-    const month = new Date(e.start).getMonth();
-    const date = new Date(e.start).getDate();
+    const month = String(new Date(e.start).getMonth());
+    const date = String(new Date(e.start).getDate());
     // {date,strings}
     const timeString = fromDateToTimeString(e.start);
-    obj[month] ||= {};
+    obj[month] ||= { "1": [] };
     obj[month][date] ||= [];
     obj[month][date] = [...new Set([...obj[month][date], timeString])]; // Avoiding repeatition
   });
