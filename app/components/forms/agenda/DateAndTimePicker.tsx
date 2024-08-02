@@ -88,7 +88,7 @@ export const DateAndTimePicker = ({
       slots = slots.concat(secuence);
     });
     // here we have the general all.
-    const month = String(new Date(date).getMonth());
+    const month = String(new Date(date).getMonth()); // @TODO: maybe from dateString to match perfectly?
     const day = String(new Date(date).getDate());
 
     // this is because server sent iso dates and we need locales
@@ -98,7 +98,7 @@ export const DateAndTimePicker = ({
       ? []
       : scheduledDates[month][day];
     const notAvailableStrings = localeStrings;
-    console.log("NOT: ", scheduledDates);
+
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
     // @TODO: Filter already reserved !!

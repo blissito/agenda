@@ -214,7 +214,7 @@ export default function Page() {
 
   const handleTimeChange = (t: string) => {
     const time = from12To24(t);
-    console.log("TIME: ", time);
+
     clearErrors();
     setTime(time);
     setValue("time", time, { shouldValidate: true });
