@@ -140,10 +140,17 @@ const getScheduledDates = (events: Event[]) => {
   if (!events || !events.length) return [];
   const obj: { [x: string]: Record<string, string[]> } = { "0": { "1": [] } };
   events.forEach((e) => {
-    const month = String(new Date(e.start).getMonth());
-    const date = String(new Date(e.start).getDate());
+    // @TODO: get locale from client
+    console.log("EL GUARDADO:", e.start);
+    // const month = new Date(e.start).toLocaleString("es-MX").split("/")[1];
+    const month = new Date(e.start).getMonth();
+    console.log("El month: ", month);
+    const date = new Date(e.start).getDate();
+    console.log("El date: ", date);
     // {date,strings}
-    const timeString = fromDateToTimeString(e.start);
+    // const timeString = fromDateToTimeString(e.start);
+    const timeString = e.start;
+    console.log("LOCALETIMESTRING: ", timeString);
     obj[month] ||= { "1": [] };
     obj[month][date] ||= [];
     obj[month][date] = [...new Set([...obj[month][date], timeString])]; // Avoiding repeatition
@@ -197,8 +204,6 @@ export default function Page() {
   const { org, service, event, availableDays, scheduledDates } =
     useLoaderData<typeof loader>();
 
-  console.log("ALL", availableDays, scheduledDates);
-
   const [currentScreen, setCurrentScreen] = useState<
     "picker" | "form" | "success"
   >("picker");
@@ -247,7 +252,7 @@ export default function Page() {
     fetcher.submit(
       {
         intent: "date_time_selected",
-        data: JSON.stringify({ date }), // iso for mongodb? No.
+        data: JSON.stringify({ date: new Date(date).toISOString() }), // iso for mongodb? No.
       },
       { method: "post" }
     );
@@ -277,6 +282,8 @@ export default function Page() {
         service={service}
       />
     );
+
+  console.log("??", scheduledDates);
 
   return (
     <article className=" bg-[#f8f8f8] min-h-screen h-screen">

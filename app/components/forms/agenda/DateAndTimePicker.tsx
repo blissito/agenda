@@ -14,6 +14,7 @@ import { BasicInput } from "~/components/forms/BasicInput";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import {
   areSameDates,
+  fromMinsToLocaleTimeString,
   fromMinsToTimeString,
   generateSecuense,
   getDaysInMonth,
@@ -35,7 +36,7 @@ export const DateAndTimePicker = ({
   time,
   availableDays,
 }: {
-  scheduledDates?: { [x: number]: string }[];
+  scheduledDates?: { [x: string]: { [y: string]: string[] } }[];
   weekDays: WeekDaysType;
   duration?: number;
   availableDays?: Date[];
@@ -44,6 +45,7 @@ export const DateAndTimePicker = ({
   onTimeChange?: (arg0: string) => void;
   onDateChange: (arg0: Date) => void;
 }) => {
+  // console.log("?????", scheduledDates, scheduledDates["8"]["28"]);
   const [times, setTimes] = useState(["08:00"]);
   const handleDayPress = (date: Date) => {
     onDateChange?.(date);
@@ -80,14 +82,18 @@ export const DateAndTimePicker = ({
         tuple[1],
         duration,
         isToday ? today.getHours() * 60 + today.getMinutes() : undefined // minimum minutes (filter v1)
-      ).map(fromMinsToTimeString);
+      ).map(fromMinsToLocaleTimeString); // 17:00:00, 9:00:00
       slots = slots.concat(secuence);
     });
     // here we have the general all.
-    const notAvailableStrings = scheduledDates[new Date(date).getMonth()]
-      ? scheduledDates[new Date(date).getMonth()][new Date(date).getDate()]
+    const month = String(new Date(date).getMonth());
+    const day = String(new Date(date).getDate());
+
+    const notAvailableStrings: string[] = scheduledDates[month]
+      ? new Date(scheduledDates[month][day]).toLocaleTimeString()
       : []; // @TODO: improve, should be a better way 😤
     //
+    console.log("Slots: ", slots);
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
     // @TODO: Filter already reserved !!
@@ -184,7 +190,7 @@ const MonthView = ({
     const handleClick = () => {
       onDayPress?.(_date);
     };
-    // @TODO: hack, please improve
+    // @TODO: hack, please improve or at least move to its own function
     const isAvailable = validDates.includes(
       `${new Date(_date).getMonth()}/${new Date(_date).getDate()}`
     );
