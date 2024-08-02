@@ -2,7 +2,11 @@ import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { redirect, useFetcher } from "@remix-run/react";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
+import { PrimaryButton } from "~/components/common/primaryButton";
 import { Spinner } from "~/components/common/Spinner";
+import { TopBar } from "~/components/common/topBar";
+import { BasicInput } from "~/components/forms/BasicInput";
+import { ArrowRight } from "~/components/icons/arrowRight";
 import { getOrCreateUser, redirectIfUser } from "~/db/userGetters";
 import { commitSession, destroySession, getSession } from "~/sessions";
 import {
@@ -104,13 +108,19 @@ export default function Pape() {
   const isLoading = fetcher.state !== "idle";
 
   return (
-    <>
+    <section className="relative">
+      <img
+        alt="denik markwater"
+        className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto"
+        src="/images/denik-markwater.png"
+      />
+      <TopBar />
       {fetcher.data && (
         <section>
           <img alt="avatar" src={fetcher.data.photoURL} />
         </section>
       )}
-      <section className="flex justify-center items-center h-screen overflow-hidden flex-col gap-5 max-w-sm mx-auto">
+      <section className="flex justify-center items-center h-screen overflow-hidden flex-col gap-6 w-[90%]  md:max-w-sm mx-auto z-50">
         <h1 className="text-xl font-semibold mb-4">
           Inicia sesión o crea una cuenta
         </h1>
@@ -134,8 +144,18 @@ export default function Pape() {
           <img alt="microsoft logo" src="/images/logos/microsoft.svg" />
           <span className="font-medium text-xs">Continua con Microsoft</span>
         </LoginButton>
+        <hr className="bg-brand_stroke  mt-2 h-[1px] w-full border-none" />
+        <BasicInput
+          isDisabled
+          placeholder="ejemplo@gmail.com"
+          label="Email"
+          name="email"
+        />
+        <PrimaryButton className="w-full" isDisabled>
+          Continuar <ArrowRight />{" "}
+        </PrimaryButton>
       </section>
-    </>
+    </section>
   );
 }
 
@@ -159,7 +179,7 @@ const LoginButton = ({
       name="intent"
       value={intent}
       className={twMerge(
-        "transition-all flex gap-4 items-center justify-center w-full rounded-full border active:bg-transparent hover:shadow-sm active:translate-y-[1px] h-10",
+        "transition-all flex gap-4 items-center justify-center w-full rounded-full border active:bg-transparent hover:shadow-sm active:translate-y-[1px] h-12",
         isLoading && "pointer-events-none bg-gray-50 border-gray-100"
       )}
       {...props}

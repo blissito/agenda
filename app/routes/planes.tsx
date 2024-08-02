@@ -9,12 +9,12 @@ import { ReactNode, useState } from "react";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Check } from "~/components/icons/check";
 import { Lamp } from "~/components/icons/lamp";
-import { Banner } from "~/components/home/Banner.client";
 import { AnimatePresence, easeOut, motion } from "framer-motion";
 import { Bubble } from "~/components/icons/Bubble";
 import { ArrowCollapse } from "~/components/icons/arrowCollapse";
 import { HoverEffect } from "~/components/common/CardHoverEffect";
 import { Denik } from "~/components/icons/denik";
+import { Banner } from "~/components/home/Banner.client";
 
 export const meta: MetaFunction = () => {
   return [
@@ -29,7 +29,7 @@ export default function Index() {
       <div className="bg-white rounded-b-[40px] overflow-hidden">
         <TopBar />
         <Pricing />
-        <Banner />
+        {/* <Banner /> */}
         <Faq />
         <FinalCta>
           <h2 className="group text-4xl xl:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
@@ -56,28 +56,71 @@ export const Faq = () => (
     </h2>
     <div className="mt-20">
       <Question
-        question="¿Cómo funciona la suscripción?"
-        answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
+        question="¿Qué es una agenda en línea o sitio web de citas en línea?"
+        answer="Una agenda en línea o sitio web de citas en Deník es una herramienta virtual diseñada para facilitar la organización y gestión de citas. Permitendo a los usuarios programar, editar y dar seguimiento a sus citas 100% en línea, además de cobrar sus servicios y enviar recordatorios a través de una plataforma accesible desde cualquier dispositivo con conexión a internet. "
       />
       <Question
-        question="¿Puedo cambiar mi plan en cualquier momento?"
-        answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
+        question="¿Cómo puedo registrarme y empezar a usar Deník?"
+        answer="Puedes registrarte fácilmente creando una cuenta desde el sitio web y comenzar con una prueba gratuita de 30 días para explorar todas las funciones disponibles. "
       />
       <Question
-        question="¿Qué formas de pago aceptan?"
-        answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
+        question="¿Cuáles son los planes y precios?"
+        answer={
+          <p>
+            Deník ofrece dos planes:{" "}
+            <strong className="font-satoMiddle">
+              {" "}
+              Profesional y Enterprisse
+            </strong>
+            . Te recomendamos el Plan Profesional si eres un emprendedor
+            independiente que no requiere manejar sucursales o staff, y el Plan
+            Enterprisse si tu negocio cuenta con sucursales o staff con un
+            calendario independiente cada uno. En cuánto al precio, el Plan
+            Profesional tiene un costo de{" "}
+            <strong className="font-satoMiddle"> $199 mxn o $12 USD</strong>, y
+            el Plan Enterprisse de{" "}
+            <strong className="font-satoMiddle">$499 mxn o $30 USD</strong> . Al
+            contratar el Plan anual recibirás 20% de descuento.
+          </p>
+        }
       />
       <Question
-        question="¿Cuál es la comisión de los pagos en línea?"
-        answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
+        question="¿Cómo se realiza el pago de la suscripción?"
+        answer="Después de suscribirte y elegir una forma de pago ( tarjeta de débito o crédito), los siguientes cargos se realizará de forma anual o mensual en función del plan seleccionado.  "
+      />
+
+      <Question
+        question="¿Cómo me ayuda una agenda en línea para clientes?"
+        answer="Una agenda en línea permiten simplificar el proceso de agendamiento para tus clientes, te permite gestionar tus citas, ingresos y servicios desde un solo lugar, mientas les permite a tus clientes agendar, consultar y editar sus citas de forma 100% digital. Con un agenda en línea tu negocio recibe más citas y aumentar tus ingresos. "
       />
       <Question
-        question="¿Puedo cancelar mi plan cuando yo quiera?"
-        answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
+        question="¿Puedo personalizar mi página de citas?"
+        answer="Sí, Deník permite personalizar tu sitio web de citas para que se ajuste a la imagen de tu negocio y facilite el agendamiento de citas por parte de tus clientes. "
       />
       <Question
-        question="¿Qué hago si ya no tengo acceso al correo con el que creé mi cuenta?"
-        answer="Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus magna fringilla urna, porttitor rhoncus dolor purus non enim praesent elementum facilisis leo, vel fringilla est ullamcorper eget nulla facilisi etiam dignissim diam quis enim lobortis scelerisque fermentum "
+        question="¿Qué tipo de negocios pueden usar Deník?"
+        answer="Deník es ideal para diversos negocios como consultorios médicos, centros educativos, clases independientes, gimnasios, clínicas, salones de belleza, estudios de yoga, centros deportivos y muchos más. "
+      />
+      <Question
+        question="¿Qué beneficios ofrecen los recordatorios automáticos?"
+        answer="Sabemos que la inasistencia es una problemática recurrente, por lo que los recordatorios automáticos por correo y WhatsApp ayudan a que tus clientes no olviden sus citas, reduciendo cancelaciones y mejorando la eficiencia. "
+      />
+      <Question
+        question="¿Es seguro usar Deník para recibir pagos?"
+        answer="Sí, Deník utiliza medidas de seguridad avanzadas para garantizar que todas las transacciones sean seguras. Tanto tus datos como los de tus clientes, están protegidos."
+      />
+      <Question
+        question="¿Qué hago si tengo problemas con mi cuenta?"
+        answer={
+          <p>
+            "Si tienes algún problema, puedes contactar al soporte de Deník a
+            través del correo{" "}
+            <strong className="text-brand_blue underline">
+              hola@denik.me{" "}
+            </strong>{" "}
+            y nuestro equipo te ayudará."
+          </p>
+        }
       />
     </div>
   </section>
@@ -88,7 +131,7 @@ export const Question = ({
   answer,
 }: {
   question: string;
-  answer: string;
+  answer: ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -100,7 +143,7 @@ export const Question = ({
           setOpen((o) => !o);
         }}
       >
-        <p className="w-[90%]">{question}</p>
+        <p className="w-[90%] font-satoMiddle">{question}</p>
         {open ? (
           <ArrowCollapse className="rotate-180 transition-all" />
         ) : (

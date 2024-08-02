@@ -38,14 +38,17 @@ export const ServiceDetail = () => {
     <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-3">
       <div className="grid grid-cols-3 gap-8 ">
         <img
+          alt="service"
           className="h-[180px]  rounded-2xl object-cover"
           src="/images/serviceDefault.png"
         />
         <img
+          alt="service"
           className="h-[180px]  rounded-2xl  object-cover"
           src="/images/serviceDefault.png"
         />
         <img
+          alt="service"
           className="h-[180px]  rounded-2xl  object-cover"
           src="/images/serviceDefault.png"
         />

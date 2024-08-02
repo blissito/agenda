@@ -12,6 +12,7 @@ export default function Profile() {
         <img
           className="w-[108px] h-[108px] rounded-full object-cover"
           src="/images/img2.jpg"
+          alt="avatar"
         />
         <div>
           <div className="flex gap-3 items-center">
