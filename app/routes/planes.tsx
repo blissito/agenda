@@ -5,7 +5,7 @@ import { Footer } from "~/components/common/Footer";
 import { Rocket } from "~/components/icons/rocket";
 import { HandShake } from "~/components/icons/handshake";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { ReactNode, useState } from "react";
+import { ReactNode, Suspense, useState } from "react";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Check } from "~/components/icons/check";
 import { Lamp } from "~/components/icons/lamp";
@@ -29,7 +29,9 @@ export default function Index() {
       <div className="bg-white rounded-b-[40px] overflow-hidden">
         <TopBar />
         <Pricing />
-        <Banner />
+        <Suspense fallback="Cargando...">
+          <Banner />
+        </Suspense>
         <Faq />
         <FinalCta>
           <h2 className="group text-4xl xl:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
