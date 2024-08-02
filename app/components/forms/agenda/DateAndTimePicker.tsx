@@ -91,12 +91,14 @@ export const DateAndTimePicker = ({
     const month = String(new Date(date).getMonth());
     const day = String(new Date(date).getDate());
 
-    const notAvailableStrings: string[] = scheduledDates[month]
-      ? [new Date(scheduledDates[month][day]).toLocaleTimeString()]
-      : []; // @TODO: improve, should be a better way 😤
-    //
-
-    console.log("NOT: ", notAvailableStrings);
+    const localeStrings = !scheduledDates[month]
+      ? []
+      : !scheduledDates[month][day]
+      ? []
+      : scheduledDates[month][day].map((iso) =>
+          new Date(iso).toLocaleTimeString()
+        );
+    const notAvailableStrings = localeStrings;
 
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
