@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { WeekDaysType } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 import {
   addMinutesToDate,
+  from12To24,
   fromDateToTimeString,
   getDaysInMonth,
 } from "~/components/dash/agenda/agendaUtils";
@@ -141,16 +142,16 @@ const getScheduledDates = (events: Event[]) => {
   const obj: { [x: string]: Record<string, string[]> } = { "0": { "1": [] } };
   events.forEach((e) => {
     // @TODO: get locale from client
-    console.log("EL GUARDADO:", e.start);
+
     // const month = new Date(e.start).toLocaleString("es-MX").split("/")[1];
     const month = new Date(e.start).getMonth();
-    console.log("El month: ", month);
+
     const date = new Date(e.start).getDate();
-    console.log("El date: ", date);
+
     // {date,strings}
     // const timeString = fromDateToTimeString(e.start);
     const timeString = e.start;
-    console.log("LOCALETIMESTRING: ", timeString);
+
     obj[month] ||= { "1": [] };
     obj[month][date] ||= [];
     obj[month][date] = [...new Set([...obj[month][date], timeString])]; // Avoiding repeatition
@@ -211,7 +212,9 @@ export default function Page() {
   const [time, setTime] = useState("");
   const [date, setDate] = useState<Date | null>(null);
 
-  const handleTimeChange = (time: string) => {
+  const handleTimeChange = (t: string) => {
+    const time = from12To24(t);
+    console.log("TIME: ", time);
     clearErrors();
     setTime(time);
     setValue("time", time, { shouldValidate: true });
@@ -282,8 +285,6 @@ export default function Page() {
         service={service}
       />
     );
-
-  console.log("??", scheduledDates);
 
   return (
     <article className=" bg-[#f8f8f8] min-h-screen h-screen">

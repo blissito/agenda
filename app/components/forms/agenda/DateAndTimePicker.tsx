@@ -14,6 +14,7 @@ import { BasicInput } from "~/components/forms/BasicInput";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import {
   areSameDates,
+  from12To24,
   fromMinsToLocaleTimeString,
   fromMinsToTimeString,
   generateSecuense,
@@ -46,7 +47,7 @@ export const DateAndTimePicker = ({
   onDateChange: (arg0: Date) => void;
 }) => {
   // console.log("?????", scheduledDates, scheduledDates["8"]["28"]);
-  const [times, setTimes] = useState(["08:00"]);
+  const [times, setTimes] = useState([]);
   const handleDayPress = (date: Date) => {
     onDateChange?.(date);
     updateTimes(date);
@@ -93,7 +94,7 @@ export const DateAndTimePicker = ({
       ? new Date(scheduledDates[month][day]).toLocaleTimeString()
       : []; // @TODO: improve, should be a better way 😤
     //
-    console.log("Slots: ", slots);
+
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
     // @TODO: Filter already reserved !!
@@ -133,9 +134,8 @@ export const DateAndTimePicker = ({
                   <TimeButton
                     key={i}
                     defaultValue={t}
-                    isActive={time === t}
+                    isActive={time === from12To24(t)}
                     onChange={onTimeChange}
-                    meridiem
                   />
                 ))}
               </AnimatePresence>
@@ -433,16 +433,17 @@ const TimeButton = ({
   className?: string;
 }) => {
   const formatTime = (time?: string) => {
-    if (!time) return;
-    if (meridiem) {
-      const h = Number(time.split(":")[0]);
-      const m = Number(time.split(":")[1]);
-      const merid = h > 11 ? "pm" : "am";
-      return `${h < 10 ? h : h > 12 ? h - 12 : h}:${
-        m < 10 ? "0" + m : m
-      } ${merid}`;
-    }
-    return time;
+    if (!time) return null;
+    return time.replace(":00", "");
+    // if (meridiem) {
+    //   const h = Number(time.split(":")[0]);
+    //   const m = Number(time.split(":")[1]);
+    //   const merid = h > 11 ? "pm" : "am";
+    //   return `${h < 10 ? h : h > 12 ? h - 12 : h}:${
+    //     m < 10 ? "0" + m : m
+    //   } ${merid}`;
+    // }
+    // return time;
   };
 
   return (
