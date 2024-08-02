@@ -1,18 +1,8 @@
 import React from "react";
-import { TopBar } from "../components/common/topBar";
-import { PrimaryButton } from "../components/common/primaryButton";
+import { PrimaryButton } from "./primaryButton";
+import { TopBar } from "./topBar";
 
-export default function Index() {
-  return (
-    <main className="">
-      <div className="bg-white rounded-b-[40px] pb-[120px]">
-        <NotFund />
-      </div>
-    </main>
-  );
-}
-
-export const NotFund = () => {
+export const NotFound = () => {
   return (
     <section className="bg-white ">
       <TopBar />

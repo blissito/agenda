@@ -18,7 +18,7 @@ export const Footer = () => {
           <Link to="/help">
             <p>Blog</p>
           </Link>
-          <p>Atención al cliente</p>
+          {/* <p>Atención al cliente</p> */}
           <p>Términos y condiciones</p>
           <p>Aviso de privacidad</p>
         </div>
@@ -32,7 +32,7 @@ export const Footer = () => {
             Suscríbete a nuestro newsletter para recibir promociones
           </p>
           <div className="flex mt-10">
-            <Facebook />
+            <Facebook fill="#707376" />
             <Facebook />
             <Facebook />
             <Facebook />

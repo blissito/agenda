@@ -12,8 +12,10 @@ type Props = {
   placeholder?: string;
   as?: "textarea";
   type?: "text" | "number";
+  isDisabled?: Boolean;
 };
 export const BasicInput = ({
+  isDisabled,
   placeholder,
   className,
   registerOptions = { required: REQUIRED_MESSAGE },
@@ -26,7 +28,7 @@ export const BasicInput = ({
   ...props
 }: Props) => {
   return (
-    <div className="grid">
+    <div className="grid w-full">
       <label
         className={twMerge(" text-brand_dark mb-1 font-satoMiddle", className)}
         htmlFor={name}
@@ -35,6 +37,7 @@ export const BasicInput = ({
       </label>
       {as === "textarea" ? (
         <textarea
+          disabled={isDisabled}
           placeholder={placeholder}
           className={twMerge(
             "min-h-20 ",
@@ -48,12 +51,14 @@ export const BasicInput = ({
         />
       ) : (
         <input
+          disabled={isDisabled}
           type={type}
           placeholder={placeholder}
           className={twMerge(
             "placeholder-brand_iron text-brand_gray",
             "focus:border-brand_blue",
-            "rounded-xl border-gray-200 h-12 w-full mt-1",
+            "rounded-xl border-gray-200 h-12 w-full mt-1 ",
+            "disabled:bg-brand_stroke disabled:cursor-not-allowed",
             !!error && "border-red-500"
           )}
           {...props}
