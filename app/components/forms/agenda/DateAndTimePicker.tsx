@@ -98,7 +98,7 @@ export const DateAndTimePicker = ({
       ? []
       : scheduledDates[month][day];
     const notAvailableStrings = localeStrings;
-    console.log("NOT: ", notAvailableStrings);
+    console.log("NOT: ", scheduledDates);
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
     // @TODO: Filter already reserved !!

@@ -145,9 +145,9 @@ const getScheduledDates = (events: Event[]) => {
     // @TODO: get locale from client
 
     // const month = new Date(e.start).toLocaleString("es-MX").split("/")[1];
-    const month = new Date(e.start).getMonth();
+    const month = Number(e.dateString.split("/")[1]) - 1; // @TODO: improve please
 
-    const date = new Date(e.start).getDate();
+    const date = Number(e.dateString.split("/")[0]);
 
     // {date,strings}
     // const timeString = fromDateToTimeString(e.start);
