@@ -14,7 +14,7 @@ import { Bubble } from "~/components/icons/Bubble";
 import { ArrowCollapse } from "~/components/icons/arrowCollapse";
 import { HoverEffect } from "~/components/common/CardHoverEffect";
 import { Denik } from "~/components/icons/denik";
-import { Banner } from "~/components/home/Banner.client";
+import { Banner } from "~/components/home/Banner";
 
 export const meta: MetaFunction = () => {
   return [
@@ -29,7 +29,7 @@ export default function Index() {
       <div className="bg-white rounded-b-[40px] overflow-hidden">
         <TopBar />
         <Pricing />
-        {/* <Banner /> */}
+        <Banner />
         <Faq />
         <FinalCta>
           <h2 className="group text-4xl xl:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">

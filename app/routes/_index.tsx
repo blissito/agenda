@@ -1,6 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import { TopBar } from "~/components/common/topBar";
-import { Banner } from "~/components/home/Banner.client";
+import { Banner } from "~/components/home/Banner";
 import { Benefits } from "~/components/home/Benefits";
 import { CompaniesScroll } from "~/components/home/CompaniesScroll";
 import { BlogPreview } from "~/components/home/BlogPreview";

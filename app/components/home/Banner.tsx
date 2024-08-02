@@ -2,6 +2,7 @@ import { PrimaryButton } from "../common/primaryButton";
 import { SecondaryButton } from "../common/secondaryButton";
 import { ArrowRight } from "../icons/arrowRight";
 import { Meteors } from "./Meteors.client";
+
 // @ Meteors require Banner to be wrapped in a Suspense!
 export const Banner = () => {
   return (
