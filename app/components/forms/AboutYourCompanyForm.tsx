@@ -44,7 +44,7 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
         onSubmit={handleSubmit(onSubmit)}
         className={twMerge(
           "relative",
-          "flex flex-col mx-auto max-w-xl h-full justify-start md:justify-center px-[5%] md:px-2 pt-12 md:pt-0"
+          "flex flex-col mx-auto max-w-xl h-full justify-start md:justify-center px-[5%] md:px-2 pt-12 md:pt-0 overflow-hidden"
         )}
       >
         <BasicInput

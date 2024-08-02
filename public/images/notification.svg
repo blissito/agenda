@@ -10,7 +10,7 @@
 </g>
 <g filter="url(#filter1_b_727_4680)">
 <rect x="259" y="119" width="321" height="58" rx="16" fill="#ECECEC" fill-opacity="0.2"/>
-<g clip-path="url(#clip0_727_4680)">
+<g clipPath="url(#clip0_727_4680)">
 <rect width="40" height="40" transform="translate(268 128)" fill="white"/>
 <path d="M302 128H274C270.686 128 268 130.686 268 134V162C268 165.314 270.686 168 274 168H302C305.314 168 308 165.314 308 162V134C308 130.686 305.314 128 302 128Z" fill="white"/>
 <path d="M274 128.5H302C305.038 128.5 307.5 130.962 307.5 134V162C307.5 165.038 305.038 167.5 302 167.5H274C270.962 167.5 268.5 165.038 268.5 162V134C268.5 130.962 270.962 128.5 274 128.5Z" stroke="black" stroke-opacity="0.05"/>

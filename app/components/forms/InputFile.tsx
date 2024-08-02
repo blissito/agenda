@@ -32,7 +32,7 @@ export const InputFile = ({
   ...props
 }: Props) => {
   const [isOver, setIsOver] = useState(false);
-  const [preview, setPreview] = useState<string>("");
+  const [preview, setPreview] = useState<string>(action.readUrl);
   const handleOnDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsOver(true);
@@ -90,6 +90,9 @@ export const InputFile = ({
         {preview && (
           <div className="absolute inset-0">
             <img
+              onError={() => {
+                setPreview("");
+              }}
               alt="preview"
               className="w-full h-full object-cover"
               src={preview}

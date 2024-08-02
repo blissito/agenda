@@ -53,7 +53,7 @@ export const timesHandler = async (request: Request, data: WeekDaysType) => {
     throw redirect(url.toString());
   }
   const validatedData = weekDaysSchema.parse(data); // @TODO: skiped for now
-  console.log("VALIDATED WEEK:", validatedData);
+
   const user = await getUserOrRedirect(request);
   await db.org.update({
     where: {

@@ -2,22 +2,34 @@ import { IoIosArrowForward } from "react-icons/io";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { InfoBox } from "./dash.website";
 import { Link } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { db } from "~/utils/db.server";
+
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const service = await db.service.findUnique({
+    where: { id: params.serviceId },
+  });
+  return {
+    service,
+  };
+};
 
 export default function Page() {
   return (
-    <section>
-      <div className="flex items-center text-sm text-brand_gray gap-1">
-        <Link to="/dash/services">
-          <span>Servicios </span>
-        </Link>
+    <h1>Blissmo</h1>
+    // <section>
+    //   <div className="flex items-center text-sm text-brand_gray gap-1">
+    //     <Link to="/dash/services">
+    //       <span>Servicios </span>
+    //     </Link>
 
-        <IoIosArrowForward />
-        <span>Unid </span>
-      </div>
-      <div className="grid grid-cols-4 mt-8">
-        <ServiceDetail />
-      </div>
-    </section>
+    //     <IoIosArrowForward />
+    //     <span>Unid </span>
+    //   </div>
+    //   <div className="grid grid-cols-4 mt-8">
+    //     <ServiceDetail />
+    //   </div>
+    // </section>
   );
 }
 

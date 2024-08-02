@@ -1,24 +1,24 @@
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { serviceTimesFormHandler } from "~/components/forms/form_handlers/serviceTimesFormHandler";
-import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm";
+import { serviceConfigHandler } from "~/components/forms/form_handlers/serviceConfigHandler";
+import { ServiceConfigForm } from "~/components/forms/services_model/ServiceConfigForm";
 import { getServicefromSearchParams } from "~/db/userGetters";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
   if (intent === "update_service") {
-    await serviceTimesFormHandler(request, formData); // not return if want to do stuff at the end
+    await serviceConfigHandler(request, formData); // not return if want to do stuff at the end
   }
   return null;
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  // will redirect when 404
   const service = await getServicefromSearchParams(request, {
     select: {
       id: true,
-      duration: true,
-      weekDays: true,
+      payment: true,
+      config: true,
     },
   });
   return {
@@ -26,17 +26,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   };
 };
 
-export default function NewServiceTimetable() {
+export default function Page() {
   const { service } = useLoaderData<typeof loader>();
-
   return (
-    <main className="max-w-xl mx-auto py-20  min-h-screen relative ">
+    <main className="max-w-xl mx-auto pt-20  min-h-screen relative ">
       <h2 className="text-4xl font-bold font-title text-center leading-tight">
-        Define tu horario
+        Define tus cobros y recordatorios
       </h2>
-      <ServiceTimesForm
-        backButtonLink={`/dash/servicios/fotos?serviceId=${service.id}`}
+      <ServiceConfigForm
         defaultValues={service}
+        backButtonLink={`/dash/servicios/horario?serviceId=${service.id}`}
       />
     </main>
   );

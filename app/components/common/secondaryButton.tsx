@@ -49,6 +49,7 @@ export const SecondaryButton = ({
 
   return (
     <Element
+      prefetch="intent"
       disabled={isDisabled}
       {...props}
       className={twMerge(

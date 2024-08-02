@@ -48,11 +48,27 @@ export const defaultDays: Day[] = [
 ];
 
 export const toNumber = (string: string) => Number(string.replace(":00", ""));
-
+export const fromMinsToLocaleTimeString = (mins: number) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const today = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate(),
+    h,
+    m,
+    0
+  );
+  return today.toLocaleTimeString("es-MX");
+};
+export const fromMinsToTimeString = (mins: number) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}:00`; // @TODO: real secs
+};
 export const generateHours = ({
   fromHour,
   toHour,
-  justNumbers = false,
 }: {
   fromHour: number;
   toHour: number;
@@ -61,6 +77,21 @@ export const generateHours = ({
   return Array.from({ length: toHour - fromHour }).map((_, index) =>
     fromHour + index < 10 ? `0${fromHour + index}:00` : `${fromHour + index}:00`
   );
+};
+
+export const generateSecuense = (
+  fromMins: number,
+  toMins: number,
+  mins: number,
+  min: number = 0
+) => {
+  let count = fromMins;
+  const slots = [];
+  while (count < toMins) {
+    if (count > min) slots.push(count);
+    count += mins;
+  }
+  return slots;
 };
 
 export const getMonday = (today: Date = new Date()) => {
@@ -93,6 +124,18 @@ export const generateWeek = (
 
 export const addDaysToDate = (days: number, date: Date) =>
   date.getDate() + days;
+
+export const addMinutesToDate = (date: Date, mins?: number) => {
+  if (!date || !mins) return;
+  const d = new Date(date);
+  return new Date(
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate(),
+    d.getHours(),
+    d.getMinutes() + mins
+  );
+};
 
 export const getCoord = ({
   coord = "x",
@@ -191,9 +234,22 @@ export const isToday = (_date: Date) => {
   );
 };
 
-export const areSameDates = (d1: Date, d2: Date) => {
+export const areSameDates = (d1: Date, d2: Date | null) => {
   if (!d1 || !d2) return false;
   const date1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
   return date1.getTime() === date2.getTime();
+};
+
+export const fromDateToTimeString = (date: Date, locale: "es-MX" = "es-MX") => {
+  return new Date(date).toLocaleTimeString();
+};
+
+export const from12To24 = (string: string) => {
+  const meridiem = string.split(" ")[1];
+  const h = Number(string.split(":")[0]);
+  const m = Number(string.split(":")[1]);
+  return meridiem === "p.m."
+    ? `${(h === 12 ? 0 : h) + 12}:${m < 10 ? "0" + m : m}`
+    : `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}`;
 };

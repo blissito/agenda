@@ -64,7 +64,6 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
   });
 
   const handleOptionClick = (option: string) => {
-    console.log("WTF option", option);
     setIsOtro(false);
     set(option);
     setValue("businessType", option, {
@@ -105,7 +104,7 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
             if (index === OPTIONS.length - 1) {
               return (
                 <Otro
-                  className="mt-[35vh]"
+                  // className="mt-[35vh]"
                   onCancel={() => setIsOtro(false)}
                   label="Describe tu negocio"
                   name="businessType"

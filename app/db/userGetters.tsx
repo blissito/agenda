@@ -68,9 +68,7 @@ export const getAdminUserOrRedirect = async (
 export const getFirstOrgOrNull = async (request: Request) => {
   const user = await getUserOrNull(request);
   if (!user) return null;
-  const orgs = await db.org.findMany({ where: { ownerId: user.id } }); // @TODO: only first for now
-  if (!orgs || !orgs[0]) return null;
-  return orgs[0];
+  return await db.org.findFirst({ where: { ownerId: user.id } }); // @TODO: multi orgs?
 };
 
 export const getUserAndOrgOrRedirect = async (
@@ -80,7 +78,7 @@ export const getUserAndOrgOrRedirect = async (
   const user = await getUserOrNull(request);
   if (!user?.orgId) throw redirect(options.redirectURL);
   const org = await db.org.findUnique({ where: { id: user.orgId } });
-  if (!org) throw redirect(options.redirectURL);
+  if (!org || !org.weekDays) throw redirect(options.redirectURL);
   return { user, org };
 };
 
@@ -104,4 +102,13 @@ export const getServicefromSearchParams = async (
   });
   if (!service) throw redirect("/dash/servicios/nuevo");
   return service;
+};
+
+export const getServices = async (request: Request) => {
+  const user = await getUserOrRedirect(request);
+  if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
+  return await db.service.findMany({
+    where: { orgId: user.orgId },
+    include: { org: true },
+  });
 };

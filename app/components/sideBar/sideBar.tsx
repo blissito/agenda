@@ -16,6 +16,12 @@ import { Help } from "../icons/menu/help";
 import { Out } from "../icons/menu/out";
 import { Denik } from "../icons/denik";
 import { PrimaryButton } from "../common/primaryButton";
+import {
+  useAnimate,
+  motion,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 
 export function SideBar({
   user,
@@ -26,31 +32,95 @@ export function SideBar({
   user: User;
   props?: unknown;
 }) {
+  const isClosed = useMotionValue(false);
+  const [scope, animate] = useAnimate();
+  const x = useMotionValue(0);
+  const t = useTransform(x, [-300, 0, 300], [60, 360, 660]);
+
+  const handleClick = () => {
+    if (!isClosed) return;
+    animate("#aside", { x: 0 }, { type: "spring", bounce: 0.2 }); // open
+  };
+
+  const handleDragEnd = () => {
+    if (x.get() < -180) {
+      animate("#aside", { x: -300 }, { type: "spring", bounce: 0.5 }); // close
+      isClosed.set(true);
+    } else {
+      animate(
+        "#aside",
+        { x: 0 },
+        { type: "spring", bounce: 0.5, duration: 0.5 }
+      ); // open
+      isClosed.set(false);
+    }
+  };
+
   return (
-    <article className="min-h-screen bg-brand_light_gray flex  " {...props}>
-      <aside className="w-[320px] bg-white h-screen fixed rounded-e-3xl overflow-scroll	 flex flex-col">
-        <Header user={user} className="pl-6" />
-        <MainMenu />
+    <article
+      ref={scope}
+      className="bg-brand_light_gray flex h-screen relative z-500 "
+      {...props}
+    >
+      <motion.aside
+        dragElastic={0.5}
+        whileTap={{ cursor: "grabbing" }}
+        id="aside"
+        onDragEnd={handleDragEnd}
+        dragSnapToOrigin
+        drag="x"
+        dragConstraints={{ right: 0, left: -300 }}
+        key="spring"
+        // transition={{ type: "spring", bounce: 0.7 }}
+        style={{
+          x,
+        }}
+        className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen overflow-hidden"
+      >
+        <Header
+          dragElement={
+            <button
+              onClick={handleClick}
+              className="h-12 rounded-full w-2 bg-brand_gray/30 absolute bottom-0 right-1 cursor-grab active:cursor-grabbing hover:bg-brand_gray/40 hover:scale-110 transition-all"
+            />
+          }
+          user={user}
+          className="pl-6"
+          handleDragEnd={handleDragEnd}
+        />
+        <MainMenu className="mb-auto" />
         <OnboardingBanner />
         <Footer />
-      </aside>
-      <section className="pl-[360px] pr-10 py-10 w-full ">{children}</section>
+      </motion.aside>
+      <motion.section
+        style={{ paddingLeft: t }}
+        className="pl-[360px] pr-10 py-10 w-full "
+      >
+        {children}
+      </motion.section>
     </article>
   );
 }
 
 const Header = ({
   className,
+  handleDragEnd,
   user,
+  onClick,
+  dragElement,
 }: {
+  dragElement?: ReactNode;
+  handleDragEnd?: () => void;
+  onClick?: () => void;
   className?: string;
   user: Partial<User>;
 }) => {
   return (
-    <header className={twMerge(className)}>
+    <header className={twMerge("relative", className)}>
       <Denik className="mb-6 mt-6" />
       {user && <User user={user} />}
       <hr className="my-4 max-w-[80%]" />
+      {dragElement}
     </header>
   );
 };
@@ -59,8 +129,8 @@ const Footer = () => {
   const location = useLocation();
   const match = (string: string) => location.pathname.includes(string);
   return (
-    <div className="mt-auto">
-      <h3 className="pl-10 pb-3 uppercase text-xs text-gray-300">Ajustes</h3>
+    <div className="">
+      <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3>
       <MenuButton to="/dash/profile" isActive={match("profile")}>
         <MenuButton.Icon isActive={match("profile")}>
           <Profile />
@@ -73,18 +143,17 @@ const Footer = () => {
         </MenuButton.Icon>
         <MenuButton.Title>Ayuda</MenuButton.Title>
       </MenuButton>
-      <MenuButton>
-        <MenuButton.Icon>
+      <Form action="/signin">
+        <button
+          type="submit"
+          name="intent"
+          value="logout"
+          className="flex pl-6 gap-3 text-lg pb-3 hover:text-gray-700"
+        >
           <Out />
-        </MenuButton.Icon>
-        <MenuButton.Title>
-          <Form action="/signin">
-            <button type="submit" name="intent" value="logout">
-              Cerrar sesión
-            </button>
-          </Form>
-        </MenuButton.Title>
-      </MenuButton>
+          Cerrar sesión
+        </button>
+      </Form>
     </div>
   );
 };
@@ -162,16 +231,16 @@ const Title = ({
 MenuButton.Icon = Icon;
 MenuButton.Title = Title;
 
-const MainMenu = () => {
+const MainMenu = ({ className }: { className?: string }) => {
   const location = useLocation();
   const match = (string: string) => location.pathname.includes(string);
   const matchIndex = (string: string = location.pathname) =>
     /^\/dash$/.test(string);
 
   return (
-    <div className="">
+    <div className={twMerge("overflow-auto mb-auto h-full", className)}>
       <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
-      <section className="grid ">
+      <section className="gri ">
         <MenuButton isActive={matchIndex()} to="/dash">
           <MenuButton.Icon isActive={matchIndex()}>
             <Dashboard />
@@ -264,6 +333,7 @@ const OnboardingBanner = () => {
       <img
         className="w-24 absolute right-2 -top-10"
         src="/images/3dagenda.png"
+        alt="banner"
       />
       <p className="text-base mb-3 font-satoMiddle w-[80%]">
         ¡Ya casi terminas de configurar tu agenda!
@@ -272,6 +342,7 @@ const OnboardingBanner = () => {
         className="min-w-[100px] max-w-[100px] px-3 h-8 bg-white text-brand_dark"
         as="Link"
         to={"/dash/onboarding"}
+        prefetch="render"
       >
         Continuar
       </PrimaryButton>

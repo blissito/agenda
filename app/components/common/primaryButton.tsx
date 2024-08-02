@@ -9,8 +9,10 @@ export const PrimaryButton = ({
   isLoading,
   className,
   children,
+  prefetch = "intent",
   ...props
 }: {
+  prefetch?: "intent" | "render" | "viewport" | "none";
   // booleanos útiles
   isDisabled?: boolean;
   isLoading?: boolean;
@@ -47,7 +49,12 @@ export const PrimaryButton = ({
   };
 
   return (
-    <Element disabled={isDisabled} {...props} className={getClassName()}>
+    <Element
+      prefetch={prefetch}
+      disabled={isDisabled}
+      {...props}
+      className={getClassName()}
+    >
       {!isDisabled && isLoading && <FaSpinner className="animate-spin" />}
       {children}
     </Element>

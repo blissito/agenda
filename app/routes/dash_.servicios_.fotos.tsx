@@ -22,6 +22,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       place: true,
       allowMultiple: true,
       isActive: true,
+      photoURL: true,
     },
   });
   invariant(service && service.id);
@@ -39,6 +40,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function NewServicePhotos() {
   const { service, action } = useLoaderData<typeof loader>();
+
   return (
     <main className="max-w-xl mx-auto pt-20  min-h-screen relative ">
       <h2 className="text-4xl font-bold font-title text-center leading-tight">

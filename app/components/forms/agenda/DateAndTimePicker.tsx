@@ -1,261 +1,125 @@
-import { ReactNode, useEffect, useState } from "react";
-import { Form, useFetcher, useLoaderData } from "@remix-run/react";
-import {
-  ActionFunctionArgs,
-  json,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { db } from "~/utils/db.server";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { Form, useFetcher } from "@remix-run/react";
 import { FaClock, FaMoneyBill } from "react-icons/fa";
-import { Event, Service } from "@prisma/client";
+import { Event, Org, Service } from "@prisma/client";
 import { FiMapPin } from "react-icons/fi";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineIdentification } from "react-icons/hi2";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { PiCalendarCheckBold } from "react-icons/pi";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { nanoid } from "nanoid";
-import { getUserOrNull } from "~/db/userGetters";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import {
   areSameDates,
+  from12To24,
+  fromMinsToLocaleTimeString,
+  generateSecuense,
   getDaysInMonth,
   isToday,
 } from "~/components/dash/agenda/agendaUtils";
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
+import { cn } from "~/utils/cd";
+import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
+import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug";
 
-// @TODO: get service from db
-const fakeService = {
-  duration: 45,
-  price: 499,
-  currency: "MXN",
-  employeeName: "Brenda Ortega",
-  address: "Av. Guerrero #224, col. centro, CDMX. México",
-};
-// @TODO: validate date and time is in the future
-// @TODO: Improve mobile UX
-const example =
-  "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg";
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-
-  if (intent === "date_time_selected") {
-    const data = JSON.parse(formData.get("data") as string);
-    const user = await getUserOrNull(request);
-    // @TODO: get title from service
-    const evnt = {
-      start: data.date,
-      duration: data.duration,
-      service: undefined,
-      userId: user?.id,
-      title: "Servicio de prueba",
-      // orgId: "prueba",
-    };
-    const event = await db.event.create({
-      data: evnt,
-    });
-    return { screen: "form", eventId: event.id };
-  }
-  if (intent === "save_customer") {
-    const data = JSON.parse(formData.get("data") as string);
-    const user = await getUserOrNull(request);
-
-    const newData = {
-      customer: {
-        loggedUserId: user?.id,
-        displayName: data.displayName,
-        email: data.email,
-        tel: data.tel,
-        comments: data.comments,
-      },
-    };
-    const event = await db.event.update({
-      where: { id: data.eventId },
-      data: newData,
-    });
-    if (!event) throw json(null, { status: 404 });
-    const url = new URL(request.url);
-    url.searchParams.set("eventId", event.id);
-
-    return redirect(url.toString());
-  }
-  console.info("MISSED::INTENT:: ", intent);
-  return null;
-};
-
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-
-  //@TODO: if user, use it to not ask user data
-  const orgSlug = params.orgSlug;
-  const org = await db.org.findUnique({ where: { slug: orgSlug } });
-  if (!org) throw json(null, { status: 404 });
-  const event = url.searchParams.has("eventId") // coming from form action
-    ? await db.event.findUnique({
-        where: { id: url.searchParams.get("eventId") || undefined },
-      })
-    : null;
-  // @TODO: create Service model
-
-  return {
-    event, // If event will show success screen
-    org,
-    service: fakeService,
-  };
-};
-
-export default function Page() {
-  const [currentScreen, setCurrentScreen] = useState<
-    "picker" | "form" | "success"
-  >("picker");
-  const [eventId, setEventId] = useState<string | null>(null);
-  const { org, service, event } = useLoaderData<typeof loader>();
-  const [time, setTime] = useState("");
-  const [date, setDate] = useState<Date | null>(null);
-
-  const handleTimeChange = (time: string) => {
-    clearErrors();
-    setTime(time);
-    setValue("time", time, { shouldValidate: true });
-    // update date
-    setDate((d) => {
-      d?.setHours(Number(time.split(":")[0]));
-      d?.setMinutes(Number(time.split(":")[1]));
-      return d;
-    });
-  };
-
-  const handleDateChange = (selectedDate: Date) => {
-    clearErrors();
-    setTime("");
-    setValue("time", "", { shouldValidate: true });
-    setDate(selectedDate);
-    setValue("date", selectedDate.toString(), { shouldValidate: true });
-  };
-
-  const {
-    formState: { errors, isValid },
-    setError,
-    setValue,
-    getValues,
-    clearErrors,
-  } = useForm({
-    defaultValues: {
-      date: "",
-      time: "",
-    },
-  });
-  const fetcher = useFetcher<typeof action>();
-  const onSubmit = () => {
-    const values = getValues();
-    if (!values.date) return setError("date", { message: "Selecciona un día" });
-    if (!values.time)
-      return setError("time", { message: "Selecciona una hora" });
-    fetcher.submit(
-      {
-        intent: "date_time_selected",
-        data: JSON.stringify({ date }), // iso for mongodb? No.
-      },
-      { method: "post" }
-    );
-    setCurrentScreen("form");
-  };
-
-  useEffect(() => {
-    if (fetcher.data?.screen === "form") {
-      // change screen after post
-      setCurrentScreen(fetcher.data?.screen);
-      setEventId(fetcher.data.eventId);
-    }
-    if (fetcher.data?.screen === "success") {
-      setCurrentScreen(fetcher.data?.screen);
-    }
-  }, [fetcher]);
-
-  if (event) return <Success event={event} />;
-
-  return (
-    <article className=" bg-[#f8f8f8] min-h-screen h-screen">
-      <div className="flex gap-3 items-center justify-center py-12">
-        <img
-          className="w-8 rounded-full"
-          alt="org logo"
-          src={org?.logo || example}
-        />
-        <h1 className="font-bold text-sm ">{org?.name}</h1>
-      </div>
-      <main className="bg-white shadow mx-auto rounded-xl p-6 w-[90%] md:w-fit">
-        <section className={twMerge("flex flex-col md:flex-row")}>
-          <div className="w-full max-w-[200px]">
-            <span className="text-brand_gray text-xs font-thin">
-              {org?.name}
-            </span>
-            <h2 className="text-lg font-medium mb-5">Clase de viola</h2>
-            <ServiceList service={service} date={date || undefined} />
-          </div>
-          <hr className="border-l-brand_gray/10 md:my-0 md:h-44 md:w-1 w-full my-4 border-l md:mr-8 " />
-          {currentScreen === "picker" && (
-            <DateAndTimePicker
-              selectedDate={date}
-              onDateChange={handleDateChange}
-              onTimeChange={handleTimeChange}
-              time={time}
-            />
-          )}
-          {currentScreen === "form" && <ClientForm eventId={eventId} />}
-        </section>
-
-        {currentScreen === "picker" &&
-          date && ( // @TODO move this into pciker form
-            <>
-              <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">
-                {errors.time?.message}
-                {errors.date?.message}
-              </p>
-              <PrimaryButton
-                isLoading={fetcher.state !== "idle"}
-                isDisabled={!isValid}
-                onClick={onSubmit}
-                className="ml-auto mr-6 mb-6 mt-14"
-              >
-                Continuar
-              </PrimaryButton>
-            </>
-          )}
-      </main>
-    </article>
-  );
-}
-//
+// @TODO: Improve with date and time in route to generate specific links
 
 // Calendar picker and time
-const DateAndTimePicker = ({
+export const DateAndTimePicker = ({
   onDateChange,
+  scheduledDates = [],
+  weekDays,
+  duration = 60,
   selectedDate,
   onTimeChange,
   time,
+  availableDays,
 }: {
+  scheduledDates?: { [x: string]: { [y: string]: string[] } }[];
+  weekDays: WeekDaysType;
+  duration?: number;
+  availableDays?: Date[];
   selectedDate: Date | null;
   time?: string;
   onTimeChange?: (arg0: string) => void;
   onDateChange: (arg0: Date) => void;
 }) => {
-  const handleDayPress = (date) => {
+  // console.log("?????", scheduledDates, scheduledDates["8"]["28"]);
+  const [times, setTimes] = useState([]);
+  const handleDayPress = (date: Date) => {
     onDateChange?.(date);
+    updateTimes(date);
   };
 
+  // const times = ["08:00", "09:15", "10:00", "12:30", "13:00", "15:45", "16:00"];
+  // @TODO: when no times to show disable the day 😒 server side?
+  // This is good stuff: 🔥🤓
+  const updateTimes = (date: Date) => {
+    // 0.- get the
+    // console.log("Dict: ", weekDictionary[new Date(date).getDay()]);
+    // console.log("Weekdays: ", weekDays);
+    // already sheduled
+
+    const today = new Date();
+    const isToday =
+      new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      ).getTime() ===
+      new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+    const range = weekDays[weekDictionary[new Date(date).getDay()]]; // improve
+    // console.log("Range: ", range);
+    const minutes = range.map((tuple: string[]) =>
+      tuple.map((string) => Number(string.split(":")[0]) * 60)
+    );
+
+    let slots: string[] = [];
+    minutes.forEach((tuple: number[]) => {
+      const secuence = generateSecuense(
+        tuple[0],
+        tuple[1],
+        duration,
+        isToday ? today.getHours() * 60 + today.getMinutes() : undefined // minimum minutes (filter v1)
+      ).map(fromMinsToLocaleTimeString); // 17:00:00, 9:00:00
+      slots = slots.concat(secuence);
+    });
+    // here we have the general all.
+    const month = String(new Date(date).getMonth());
+    const day = String(new Date(date).getDate());
+
+    // this is because server sent iso dates and we need locales
+    const localeStrings = !scheduledDates[month]
+      ? []
+      : !scheduledDates[month][day]
+      ? []
+      : scheduledDates[month][day];
+    const notAvailableStrings = localeStrings;
+    console.log("NOT: ", scheduledDates);
+    slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
+    setTimes(slots);
+    // @TODO: Filter already reserved !!
+    // 2.- get the reserved
+    // 3.- filter
+    // 4.- update times
+  };
+
+  // console.log("Valid dates?", availableDays, weekDays); //??
+
   return (
-    <main id="perro" className="min-w-fit">
+    <main className="min-w-fit">
       {/* <AnimatePresence> */}
       <h3 className="text-sm font-bold mb-5">Selecciona una fecha y horario</h3>
       <article className={twMerge("flex-1", "md:flex md:w-fit gap-6")}>
         <section className="w-full">
-          <MonthView selectedDate={selectedDate} onDayPress={handleDayPress} />
+          <MonthView
+            selectedDate={selectedDate}
+            onDayPress={handleDayPress}
+            validDates={availableDays}
+          />
         </section>
         {selectedDate && (
           <motion.section
@@ -269,23 +133,16 @@ const DateAndTimePicker = ({
           >
             <h4 className="text-xs font-medium my-4">Selecciona una:</h4>
             <div className="grid md:w-44 grid-cols-3 md:grid-cols-2 gap-x-3 gap-y-2 place-content-center">
-              {[
-                "08:00",
-                "09:15",
-                "10:00",
-                "12:30",
-                "13:00",
-                "15:45",
-                "16:00",
-              ].map((t) => (
-                <TimeButton
-                  key={nanoid()}
-                  defaultValue={t}
-                  isActive={time === t}
-                  onChange={onTimeChange}
-                  meridiem
-                />
-              ))}
+              <AnimatePresence>
+                {times.map((t, i) => (
+                  <TimeButton
+                    key={i}
+                    defaultValue={t}
+                    isActive={time === from12To24(t)}
+                    onChange={onTimeChange}
+                  />
+                ))}
+              </AnimatePresence>
             </div>
           </motion.section>
         )}
@@ -312,6 +169,7 @@ const MonthView = ({
   selectedDate: Date | null;
   onDayPress?: (date: Date) => void;
   defaultDate?: Date;
+  validDates?: (Date | string)[];
 }) => {
   const monthNames = [
     "enero",
@@ -327,23 +185,27 @@ const MonthView = ({
     "noviembre",
     "diciembre",
   ];
+  const hack = useRef(0);
   const [date, set] = useState(defaultDate);
   const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
   const monthName = monthNames[date.getMonth()];
   const nodes = getDaysInMonth(date).map((_date: Date) => {
     const isPartOfTheMonth = new Date(_date).getMonth() == date.getMonth();
-
     const handleClick = () => {
       onDayPress?.(_date);
     };
-
+    // @TODO: hack, please improve or at least move to its own function
+    const isAvailable = validDates.includes(
+      `${new Date(_date).getMonth()}/${new Date(_date).getDate()}`
+    );
+    const isSelected = areSameDates(_date, selectedDate);
     return (
       <button
         onClick={handleClick}
-        disabled={!validDates.includes(_date.toString())}
+        disabled={!isAvailable}
         key={nanoid()}
         // date={_date} // extra data just in case. It can be data-date={_date}
-        className={twMerge(
+        className={cn(
           "text-sm italic text-neutral-400 rounded-full md:px-2 py-1 m-1 transition-all flex justify-center items-center", // basic
           isPartOfTheMonth && "text-neutral-800", // styles when part of the current month
           validDates.includes(_date.toString())
@@ -352,7 +214,10 @@ const MonthView = ({
           isToday(_date)
             ? "bg-brand_blue/60 text-white disabled:text-white"
             : "hover:bg-brand_blue hover:text-white", // styles when current selected date
-          areSameDates(_date, selectedDate) && "bg-brand_blue text-white"
+          {
+            "bg-brand_blue/20": isAvailable,
+            "bg-brand_blue text-white": isSelected,
+          }
         )}
       >
         {_date.getDate()}
@@ -361,6 +226,13 @@ const MonthView = ({
   });
 
   const monthNavigate = (offset: number = 1) => {
+    // hack => improve
+    if (offset > 0) {
+      if (hack.current > 2) return;
+      hack.current += 1;
+    } else {
+      hack.current -= 1;
+    }
     const nextDate = new Date(
       date.getFullYear(),
       date.getMonth() + offset,
@@ -369,10 +241,20 @@ const MonthView = ({
     set(nextDate);
   };
 
+  const isCurrentMonth = () => {
+    const currentMonth = new Date().getMonth();
+    const selectedMonth = new Date(date || new Date()).getMonth();
+    return currentMonth === selectedMonth;
+  };
+
   return (
     <div className="min-w-60">
       <nav className="flex justify-between items-center mb-6">
-        <button onClick={() => monthNavigate(-1)} className="ml-auto">
+        <button
+          disabled={isCurrentMonth()}
+          onClick={() => monthNavigate(-1)}
+          className="ml-auto disabled:text-gray-500"
+        >
           <IoChevronBackOutline />
         </button>
         <h3 className="capitalize text-xs font-medium mx-8">
@@ -394,11 +276,24 @@ const MonthView = ({
   );
 };
 
-const Success = ({ event }: { event: Event }) => {
+export const Success = ({
+  event,
+  service,
+  onFinish,
+  org,
+}: {
+  onFinish: () => void;
+  org: Org;
+  service: Service;
+  event: Event;
+}) => {
   const [on, set] = useState(true);
   useEffect(() => {
     setTimeout(() => set(false), 4000);
   }, []);
+  const getCTALink = () => {
+    return `/agenda/${org.slug}/${service.slug}`;
+  };
   return (
     <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
       <div className="relative">
@@ -424,14 +319,16 @@ const Success = ({ event }: { event: Event }) => {
       <div className="w-70 rounded-xl mx-auto bg-white shadow p-6 ">
         <h2 className="font-bold text-neutral-900 mb-4">{event.title}</h2>
         <ServiceList
-          service={{ ...fakeService }}
+          org={org}
+          service={{ ...service }}
           date={new Date(event.start)}
         />
       </div>
       {/* @TODO: link to another schedule */}
       <PrimaryButton
+        onClick={() => onFinish()}
         as="Link"
-        to="/agenda/studio-romos"
+        to={getCTALink()}
         className="mt-12 py-4 w-full md:w-[200px] transition-all"
       >
         Agendar otra cita
@@ -447,7 +344,12 @@ const Success = ({ event }: { event: Event }) => {
   );
 };
 
-const ClientForm = ({ eventId }: { eventId: string }) => {
+export const ClientForm = ({
+  eventId,
+}: {
+  onFinish: () => void;
+  eventId: string;
+}) => {
   const {
     handleSubmit,
     register,
@@ -508,6 +410,7 @@ const ClientForm = ({ eventId }: { eventId: string }) => {
         registerOptions={{ required: false }}
       />
       <PrimaryButton
+        isLoading={fetcher.state !== "idle"}
         isDisabled={!isValid}
         type="submit"
         // isDisabled={!isValid}
@@ -534,22 +437,26 @@ const TimeButton = ({
   className?: string;
 }) => {
   const formatTime = (time?: string) => {
-    if (!time) return;
-    if (meridiem) {
-      const h = Number(time.split(":")[0]);
-      const m = Number(time.split(":")[1]);
-      const merid = h > 11 ? "pm" : "am";
-      return `${h < 10 ? h : h > 12 ? h - 12 : h}:${
-        m < 10 ? "0" + m : m
-      } ${merid}`;
-    }
-    return time;
+    if (!time) return null;
+    return time.replace(":00", "");
+    // if (meridiem) {
+    //   const h = Number(time.split(":")[0]);
+    //   const m = Number(time.split(":")[1]);
+    //   const merid = h > 11 ? "pm" : "am";
+    //   return `${h < 10 ? h : h > 12 ? h - 12 : h}:${
+    //     m < 10 ? "0" + m : m
+    //   } ${merid}`;
+    // }
+    // return time;
   };
 
   return (
-    <label
+    <motion.label
+      initial={{ opacity: 0, y: -10 }}
+      exit={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
       className={twMerge(
-        "cursor-pointer transition-all",
+        "cursor-pointer",
         "flex justify-center",
         "text-xs text-brand_blue/90 py-1 px-4 text-nowrap rounded border border-brand_blue/30",
         isActive && "bg-brand_blue text-white border-transparent",
@@ -568,14 +475,16 @@ const TimeButton = ({
         name="time"
         type="radio"
       />
-    </label>
+    </motion.label>
   );
 };
 
-const ServiceList = ({
+export const ServiceList = ({
   service,
   date,
+  org,
 }: {
+  org: Org;
   date?: Date;
   service: Partial<Service>;
 }) => {
@@ -600,11 +509,17 @@ const ServiceList = ({
       <ServiceListItem
         key={"provider"}
         icon={<HiOutlineIdentification />}
-        text={`Con ${service.employeeName} `}
+        text={`Con ${org?.shopKeeper || service.employeeName} `}
       />
       <ServiceListItem
         icon={<FiMapPin />}
-        text={service.address as string}
+        text={
+          (service.place === "ONLINE"
+            ? "Online"
+            : service.place === "ATHOME"
+            ? "A domicilio"
+            : service.address || org.address) as string
+        }
         key={"address"}
       />
     </div>

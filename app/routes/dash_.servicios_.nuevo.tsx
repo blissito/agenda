@@ -24,13 +24,13 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       description: true,
     },
   });
-  console.log(service);
+
   return { service: service || undefined };
 };
 
 export default function NewService() {
   const { service } = useLoaderData<typeof loader>();
-  console.log("SERVICE; ", service);
+
   return (
     <main className="max-w-xl mx-auto pt-20 relative px-2">
       <h2 className="text-4xl font-bold font-title text-center leading-tight">

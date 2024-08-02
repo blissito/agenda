@@ -1,61 +1,45 @@
-import { Link, Outlet } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, Outlet, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import { Tag } from "~/components/common/Tag";
 import { Plus } from "~/components/icons/plus";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
+import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const services = await getServices(request);
+  const { org } = await getUserAndOrgOrRedirect(request); // @TODO: not all  the org please!
+  return { services, org };
+};
 
 export default function Services() {
+  const { services, org } = useLoaderData<typeof loader>();
   const origin = useRef<string>("");
 
   useEffect(() => {
     origin.current = location.origin;
   }, []);
 
-  const getLink = (orgSlug: string, serviceSlug: string) => {
-    const url = new URL(origin.current || "http://denik.me");
-    url.pathname = `/${orgSlug}/${serviceSlug}`;
-    return url.toString();
-  };
+  // const getLink = (serviceId: string) => `/dash/servicios/${serviceId}`;
+  const getLink = (serviceSlug: string) => `/agenda/${org.slug}/${serviceSlug}`;
+
+  console.log("LINK: ", getLink(services[0].id));
 
   return (
     <main className=" ">
       <RouteTitle>Servicios </RouteTitle>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ServiceCard
-          title="Clase de violín"
-          duration="1hr"
-          price="499 mxn"
-          status="Active"
-          link={getLink("org-slug-9837", "clase-de-violin")}
-        />
-        <ServiceCard
-          title="Clase de Guitarra"
-          duration="1hr"
-          price="499 mxn"
-          status="Active"
-          link={getLink("org-slug-9837", "clase-de-guitarra")}
-        />
-        <ServiceCard
-          title="Clase de Piano"
-          duration="1hr"
-          price="499 mxn"
-          status="Active"
-          link={getLink("org-slug-9837", "clase-de-piano")}
-        />
-        <ServiceCard
-          title="Clase de Piola"
-          duration="1hr"
-          price="499 mxn"
-          status="Active"
-          link={getLink("org-slug-9837", "clase-de-piola")}
-        />
-        <ServiceCard
-          title="Clase de Tambor"
-          duration="1hr"
-          price="499 mxn"
-          status="Active"
-          link={getLink("org-slug-9837", "clase-de-tambor")}
-        />
+        {services.map((service) => (
+          <ServiceCard
+            image={service.photoURL ?? undefined}
+            key={service.id}
+            title={service.name}
+            duration={service.duration} // @TODO: format function this is minutes for now
+            price={`${service.price} mxn`}
+            status={service.isActive ? "Activo" : "Desactivado"}
+            link={getLink(service.slug)} // just for developing
+          />
+        ))}
         <AddService />
       </div>
       <Outlet />
@@ -72,13 +56,13 @@ const ServiceCard = ({
 }: {
   title: string;
   image?: string;
-  duration: string;
+  duration: number;
   price: string;
   status: string;
   link?: string;
 }) => {
   return (
-    <Link to={link ? link : "/dash/services/unid"}>
+    <Link to={link ? link : "/dash/servicios"}>
       <section className="bg-white rounded-2xl overflow-hidden hover:animate-movement-effect cursor-pointer">
         <img
           alt="cover"

@@ -47,31 +47,33 @@ enum Place {
 }
 
 model Service {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
   name          String
+  slug          String       @unique
   description   String?
   category      String?
-  points        Int     @default(0)
+  points        Int          @default(0)
+  price         Int
   // fotos form route step
   photoURL      String?
-  place         Place   @default(INPLACE)
-  isActive      Boolean @default(true)
-  allowMultiple Boolean @default(false)
+  place         Place        @default(INPLACE)
+  seats         Int?         @default(1)
+  isActive      Boolean      @default(true)
+  allowMultiple Boolean      @default(false)
   // numberOfSessionsInAnHour Int     @default(1)
-
-  location        Json?
-  address         Json?
-  seats           Int?         @default(1)
-  duration        Int          @default(60) // mins
-  includesPayment Boolean      @default(false)
-  price           Int
-  currency        String?      @default("MXN")
-  config          NotifyConfig
-  employeeName    String?
+  // horario
+  duration      Int          @default(60) // mins
+  weekDays      Json?
+  // config
+  payment       Boolean      @default(false)
+  config        NotifyConfig
+  // defaults
+  currency      String?      @default("MXN")
+  employeeName  String? // @TODO: where is this requested?
   // relations
-  orgId           String       @db.ObjectId
-  org             Org          @relation(fields: [orgId], references: [id])
-  event           Event[]
+  orgId         String       @db.ObjectId
+  org           Org          @relation(fields: [orgId], references: [id])
+  events        Event[]
 }
 
 model Org {
@@ -119,23 +121,24 @@ enum EventType {
 }
 
 model Event {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  type      EventType   @default(EVENT) // avoid scheduling even when multi enabled
-  title     String?
-  start     DateTime
-  end       DateTime?
-  duration  Int? // minutes
-  allDay    Boolean     @default(false)
-  status    EventStatus @default(ACTIVE)
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  type       EventType   @default(EVENT) // avoid scheduling even when multi enabled
+  title      String?
+  start      DateTime
+  end        DateTime? // @TODO: make it required
+  dateString String
+  duration   Int? // minutes
+  allDay     Boolean     @default(false)
+  status     EventStatus @default(ACTIVE)
   // OVERDUE | CANCELED | DELETED (no enums in sqlite) // now we have enums! =D
-  service   Service?    @relation(fields: [serviceId], references: [id])
-  serviceId String?     @db.ObjectId
+  service    Service?    @relation(fields: [serviceId], references: [id])
+  serviceId  String?     @db.ObjectId
   // scheduler
-  userId    String?     @db.ObjectId
-  user      User?       @relation(fields: [userId], references: [id])
+  userId     String?     @db.ObjectId
+  user       User?       @relation(fields: [userId], references: [id])
   // org?
-  orgId     String?     @db.ObjectId
-  org       Org?        @relation(fields: [orgId], references: [id])
+  orgId      String?     @db.ObjectId
+  org        Org?        @relation(fields: [orgId], references: [id])
   // metadata
-  customer  Customer?
+  customer   Customer?
 }
