@@ -59,6 +59,7 @@ model Service {
   place         Place        @default(INPLACE)
   seats         Int?         @default(1)
   isActive      Boolean      @default(true)
+  archived      Boolean      @default(false)
   allowMultiple Boolean      @default(false)
   // numberOfSessionsInAnHour Int     @default(1)
   // horario
