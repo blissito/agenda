@@ -124,7 +124,7 @@ const getAvailableDays = (weekDays: WeekDaysType) => {
       }
       return includedDays.includes(weekDictionary[date.getDay()]);
     })
-    .map((d) => d.getTime());
+    .map((d) => `${d.getMonth()}/${d.getDate()}`);
   // console.log("Available", availableDays.length);
   // console.log("DAYS: ", days);
 

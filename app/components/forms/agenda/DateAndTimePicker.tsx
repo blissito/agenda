@@ -184,9 +184,10 @@ const MonthView = ({
     const handleClick = () => {
       onDayPress?.(_date);
     };
-    const isAvailable = validDates
-      .map((d) => new Date(d).toString())
-      .includes(new Date(_date).toString());
+    // @TODO: hack, please improve
+    const isAvailable = validDates.includes(
+      `${new Date(_date).getMonth()}/${new Date(_date).getDate()}`
+    );
     const isSelected = areSameDates(_date, selectedDate);
     return (
       <button
