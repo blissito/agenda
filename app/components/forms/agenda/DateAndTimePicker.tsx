@@ -91,6 +91,7 @@ export const DateAndTimePicker = ({
     const month = String(new Date(date).getMonth());
     const day = String(new Date(date).getDate());
 
+    // this is because server sent iso dates and we need locales
     const localeStrings = !scheduledDates[month]
       ? []
       : !scheduledDates[month][day]
@@ -99,6 +100,8 @@ export const DateAndTimePicker = ({
           new Date(iso).toLocaleTimeString()
         );
     const notAvailableStrings = localeStrings;
+
+    console.log("LOCALE STRINGS: ", localeStrings);
 
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);

@@ -250,6 +250,6 @@ export const from12To24 = (string: string) => {
   const h = Number(string.split(":")[0]);
   const m = Number(string.split(":")[1]);
   return meridiem === "p.m."
-    ? `${h + 12}:${m < 10 ? "0" + m : m}`
+    ? `${(h === 12 ? 0 : h) + 12}:${m < 10 ? "0" + m : m}`
     : `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}`;
 };

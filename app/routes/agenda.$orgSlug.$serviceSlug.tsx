@@ -258,7 +258,7 @@ export default function Page() {
         intent: "date_time_selected",
         data: JSON.stringify({
           date: new Date(date).toISOString(),
-          dateString: Date(date),
+          dateString: new Date(date).toLocaleDateString(),
         }), // iso for mongodb? No.
       },
       { method: "post" }
