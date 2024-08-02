@@ -121,23 +121,24 @@ enum EventType {
 }
 
 model Event {
-  id        String      @id @default(auto()) @map("_id") @db.ObjectId
-  type      EventType   @default(EVENT) // avoid scheduling even when multi enabled
-  title     String?
-  start     DateTime
-  end       DateTime? // @TODO: make it required
-  duration  Int? // minutes
-  allDay    Boolean     @default(false)
-  status    EventStatus @default(ACTIVE)
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  type       EventType   @default(EVENT) // avoid scheduling even when multi enabled
+  title      String?
+  start      DateTime
+  end        DateTime? // @TODO: make it required
+  dateString String?
+  duration   Int? // minutes
+  allDay     Boolean     @default(false)
+  status     EventStatus @default(ACTIVE)
   // OVERDUE | CANCELED | DELETED (no enums in sqlite) // now we have enums! =D
-  service   Service?    @relation(fields: [serviceId], references: [id])
-  serviceId String?     @db.ObjectId
+  service    Service?    @relation(fields: [serviceId], references: [id])
+  serviceId  String?     @db.ObjectId
   // scheduler
-  userId    String?     @db.ObjectId
-  user      User?       @relation(fields: [userId], references: [id])
+  userId     String?     @db.ObjectId
+  user       User?       @relation(fields: [userId], references: [id])
   // org?
-  orgId     String?     @db.ObjectId
-  org       Org?        @relation(fields: [orgId], references: [id])
+  orgId      String?     @db.ObjectId
+  org        Org?        @relation(fields: [orgId], references: [id])
   // metadata
-  customer  Customer?
+  customer   Customer?
 }

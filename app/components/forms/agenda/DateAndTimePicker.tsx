@@ -16,7 +16,6 @@ import {
   areSameDates,
   from12To24,
   fromMinsToLocaleTimeString,
-  fromMinsToTimeString,
   generateSecuense,
   getDaysInMonth,
   isToday,
@@ -25,6 +24,8 @@ import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 import { cn } from "~/utils/cd";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug";
+
+// @TODO: Improve with date and time in route to generate specific links
 
 // Calendar picker and time
 export const DateAndTimePicker = ({
@@ -91,9 +92,11 @@ export const DateAndTimePicker = ({
     const day = String(new Date(date).getDate());
 
     const notAvailableStrings: string[] = scheduledDates[month]
-      ? new Date(scheduledDates[month][day]).toLocaleTimeString()
+      ? [new Date(scheduledDates[month][day]).toLocaleTimeString()]
       : []; // @TODO: improve, should be a better way 😤
     //
+
+    console.log("NOT: ", notAvailableStrings);
 
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);

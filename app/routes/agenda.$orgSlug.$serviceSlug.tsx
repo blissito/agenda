@@ -43,6 +43,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     });
     // @TODO: Validation????? 🤬
     const evnt = {
+      dateString: data.dateString,
       start: data.date,
       duration: service?.duration,
       end: addMinutesToDate(data.date, service?.duration),
@@ -255,7 +256,10 @@ export default function Page() {
     fetcher.submit(
       {
         intent: "date_time_selected",
-        data: JSON.stringify({ date: new Date(date).toISOString() }), // iso for mongodb? No.
+        data: JSON.stringify({
+          date: new Date(date).toISOString(),
+          dateString: Date(date),
+        }), // iso for mongodb? No.
       },
       { method: "post" }
     );
