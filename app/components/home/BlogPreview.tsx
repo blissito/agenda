@@ -12,7 +12,7 @@ export const BlogPreview = ({ ...props }: { props?: unknown }) => (
         <img
           className="w-full h-full object-cover"
           src="https://i.imgur.com/DXNLhab.png"
-          alt="blogpost"
+          alt="blogpost1"
         />
       </div>
       <div className="w-full md:w-[40%] md:grow lg:grow-0 lg:w-[25%] flex flex-row lg:flex-col gap-6 box-border	">
@@ -20,14 +20,14 @@ export const BlogPreview = ({ ...props }: { props?: unknown }) => (
           <img
             className="w-full h-full object-cover"
             src="https://i.imgur.com/G2GZLMm.png"
-            alt="blogpost"
+            alt="blogpost2"
           />
         </div>
         <div className="bg-brand_blue rounded-2xl  w-[50%] md:w-full lg:w-auto grow overflow-hidden">
           <img
             className="w-full h-full object-cover"
             src="https://i.imgur.com/PSDVeEC.png"
-            alt="blogpost"
+            alt="blogpost3"
           />
         </div>
       </div>
@@ -36,14 +36,14 @@ export const BlogPreview = ({ ...props }: { props?: unknown }) => (
           <img
             className="w-full h-full object-cover"
             src="https://i.imgur.com/70dD101.png"
-            alt="blogpost"
+            alt="blogpost4"
           />
         </div>
         <div className="bg-brand_blue rounded-2xl  w-[50%] md:w-auto h-auto lg:h-[280px] overflow-hidden">
           <img
             className="w-full h-full object-cover"
             src="https://i.imgur.com/G2GZLMm.png"
-            alt="blogpost"
+            alt="blogpost5"
           />
         </div>
       </div>

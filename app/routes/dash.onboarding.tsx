@@ -59,7 +59,11 @@ export default function DashOnboarding() {
           ¿Tienes alguna duda?{" "}
           <a className="text-brand_blue underline">Escríbenos</a>{" "}
         </p>
-        <img className="w-[140px] h-[140px]" src="/images/chat.gif" />
+        <img
+          className="w-[140px] h-[140px]"
+          src="/images/chat.gif"
+          alt="dancer"
+        />
       </div>
     </main>
   );

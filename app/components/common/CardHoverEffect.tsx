@@ -46,6 +46,7 @@ export const HoverEffect = ({
           </AnimatePresence>
           <section className="group cursor-pointer  bg-white border-[1px] border-brand_ash rounded-2xl max-w-[400px] z-50	xl:max-w-[480px] h-full px-8 py-10  text-left flex flex-col  relative  ">
             <img
+              alt="rocket"
               className="absolute w-[200px] -right-16 -top-12 md:-right-12 md:top-0 opacity-0 group-hover:opacity-100  transition-all"
               src="/images/Rocket.gif"
             />
@@ -64,86 +65,3 @@ export const HoverEffect = ({
     </div>
   );
 };
-
-export const Card = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <section className="group cursor-pointer bg-white border-[1px] border-brand_ash rounded-2xl max-w-[400px]	xl:max-w-[480px] h-[auto] px-8 py-10  text-left flex flex-col  relative  hover:-translate-y-2">
-      <img
-        className="absolute w-[200px] -right-16 -top-12 md:-right-20 md:-top-10 opacity-0 group-hover:opacity-100  transition-all"
-        src="/images/Rocket.gif"
-      />
-      <span className="text-xl uppercase font-satoshi_bold text-brand_blue ">
-        {plan}
-      </span>
-      <p className="text-5xl md:text-6xl	font-satoshi_bold font-bold mt-4">
-        {price}
-      </p>
-      <div className="mt-8 h- w-full grow flex flex-col justify-between gap-12">
-        {children}
-      </div>
-    </section>
-  );
-};
-export const CardTitle = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <h4 className={cn("text-zinc-100 font-bold tracking-wide mt-4", className)}>
-      {children}
-    </h4>
-  );
-};
-export const CardDescription = ({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) => {
-  return (
-    <p
-      className={cn(
-        "mt-8 text-zinc-400 tracking-wide leading-relaxed text-sm",
-        className
-      )}
-    >
-      {children}
-    </p>
-  );
-};
-
-export const PriceCard = ({
-  plan,
-  price,
-  children,
-}: {
-  plan?: string;
-  price?: string;
-  children?: ReactNode;
-}) => (
-  <section className="group cursor-pointer bg-white border-[1px] border-brand_ash rounded-2xl max-w-[400px]	xl:max-w-[480px] h-[auto] px-8 py-10  text-left flex flex-col  relative  hover:-translate-y-2">
-    <img
-      className="absolute w-[200px] -right-16 -top-12 md:-right-20 md:-top-10 opacity-0 group-hover:opacity-100  transition-all"
-      src="/images/Rocket.gif"
-    />
-    <span className="text-xl uppercase font-satoshi_bold text-brand_blue ">
-      {plan}
-    </span>
-    <p className="text-5xl md:text-6xl	font-satoshi_bold font-bold mt-4">
-      {price}
-    </p>
-    <div className="mt-8 h- w-full grow flex flex-col justify-between gap-12">
-      {children}
-    </div>
-  </section>
-);

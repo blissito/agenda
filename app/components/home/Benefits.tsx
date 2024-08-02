@@ -3,10 +3,12 @@ import { Star } from "../icons/star";
 export const Benefits = ({ ...props }: { props?: unknown }) => (
   <section className="overflow-hidden relative">
     <img
+      alt="line left"
       className="absolute -left-20 hover:animate-pulse transition-all w-[148px] lg:w-[298px "
       src="/images/line.svg"
     />
     <img
+      alt="line right"
       className="absolute -right-20 bottom-0 rotate-180 hover:animate-pulse transition-all w-[148px] lg:w-[298px]"
       src="/images/line.svg"
     />
@@ -78,6 +80,7 @@ export const ItemCard = ({
 }) => (
   <section className="w-[320px] lg:w-[400px] text-center group  transition-all cursor-pointer">
     <img
+      alt="service"
       className="w-[100px] mx-auto group-hover:scale-90 transition-all"
       src={image}
     />

@@ -110,6 +110,7 @@ export default function Pape() {
   return (
     <section className="relative">
       <img
+        alt="denik markwater"
         className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto"
         src="/images/denik-markwater.png"
       />

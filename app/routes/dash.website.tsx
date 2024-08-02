@@ -36,6 +36,7 @@ export const Template = () => {
       </div>
 
       <img
+        alt="template"
         className="w-full h-auto rounded-2xl shadow-sm"
         src="/images/templates/template1.png"
       />
@@ -54,10 +55,12 @@ export const CompanyInfo = () => {
       <div className=" relative mb-20">
         {" "}
         <img
+          alt="service"
           className="w-full object-cover h-[160px] rounded-2xl "
           src="/images/serviceDefault.png"
         />
         <img
+          alt="service"
           className="ml-6 -mt-16 border-[4px] border-white absolute rounded-full h-[120px] w-[120px] object-cover"
           src="/images/serviceDefault.png"
         />
@@ -176,6 +179,7 @@ export const InfoService = ({
   return (
     <section className="flex gap-4 my-4 items-center font-satoshi">
       <img
+        alt="service"
         className="w-16 h-12 rounded object-cover"
         src={image ? image : "/images/serviceDefault.png"}
       />
