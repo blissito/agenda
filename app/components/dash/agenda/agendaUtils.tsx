@@ -48,15 +48,27 @@ export const defaultDays: Day[] = [
 ];
 
 export const toNumber = (string: string) => Number(string.replace(":00", ""));
+export const fromMinsToLocaleTimeString = (mins: number) => {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  const today = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate(),
+    h,
+    m,
+    0
+  );
+  return today.toLocaleTimeString("es-MX");
+};
 export const fromMinsToTimeString = (mins: number) => {
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}`;
+  return `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}:00`; // @TODO: real secs
 };
 export const generateHours = ({
   fromHour,
   toHour,
-  justNumbers = false,
 }: {
   fromHour: number;
   toHour: number;
@@ -229,6 +241,15 @@ export const areSameDates = (d1: Date, d2: Date | null) => {
   return date1.getTime() === date2.getTime();
 };
 
-export const fromDateToTimeString = (date: Date) => {
-  return new Date(date).toString().split(" ")[4].replace(":00", "");
+export const fromDateToTimeString = (date: Date, locale: "es-MX" = "es-MX") => {
+  return new Date(date).toLocaleTimeString();
+};
+
+export const from12To24 = (string: string) => {
+  const meridiem = string.split(" ")[1];
+  const h = Number(string.split(":")[0]);
+  const m = Number(string.split(":")[1]);
+  return meridiem === "p.m."
+    ? `${(h === 12 ? 0 : h) + 12}:${m < 10 ? "0" + m : m}`
+    : `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}`;
 };

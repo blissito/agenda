@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { WeekDaysType } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 import {
   addMinutesToDate,
+  from12To24,
   fromDateToTimeString,
   getDaysInMonth,
 } from "~/components/dash/agenda/agendaUtils";
@@ -42,6 +43,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     });
     // @TODO: Validation????? 🤬
     const evnt = {
+      dateString: data.dateString,
       start: data.date,
       duration: service?.duration,
       end: addMinutesToDate(data.date, service?.duration),
@@ -103,18 +105,28 @@ const getAvailableDays = (weekDays: WeekDaysType) => {
   );
   // @TODO: Re-visit this, including just 3 months...
   days = days.concat(daysInNextMonth).concat(daysInAnotherMonth);
-  const availableDays = days.filter((day) => {
-    const date = new Date(day);
-    const includedDays = Object.keys(weekDays);
-    const today = new Date();
-    if (
-      new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() <
-      new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()
-    ) {
-      return false; // not yesterday ✅
-    }
-    return includedDays.includes(weekDictionary[date.getDay()]);
-  });
+  const availableDays = days
+    .filter((day) => {
+      const date = new Date(day);
+      const includedDays = Object.keys(weekDays);
+      const today = new Date();
+      if (
+        new Date(
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate()
+        ).getTime() <
+        new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        ).getTime()
+      ) {
+        return false; // not yesterday ✅
+      }
+      return includedDays.includes(weekDictionary[date.getDay()]);
+    })
+    .map((d) => `${d.getMonth()}/${d.getDate()}`);
   // console.log("Available", availableDays.length);
   // console.log("DAYS: ", days);
 
@@ -128,13 +140,19 @@ const getAvailableDays = (weekDays: WeekDaysType) => {
 
 const getScheduledDates = (events: Event[]) => {
   if (!events || !events.length) return [];
-  const obj = {};
+  const obj: { [x: string]: Record<string, string[]> } = { "0": { "1": [] } };
   events.forEach((e) => {
-    const month = new Date(e.start).getMonth();
-    const date = new Date(e.start).getDate();
+    // @TODO: get locale from client
+
+    // const month = new Date(e.start).toLocaleString("es-MX").split("/")[1];
+    const month = Number(e.dateString.split("/")[1]) - 1; // @TODO: improve please
+
+    const date = Number(e.dateString.split("/")[0]);
+
     // {date,strings}
-    const timeString = fromDateToTimeString(e.start);
-    obj[month] ||= {};
+    // const timeString = fromDateToTimeString(e.start);
+    const timeString = e.dateString.split(",")[1].trim();
+    obj[month] ||= { "1": [] };
     obj[month][date] ||= [];
     obj[month][date] = [...new Set([...obj[month][date], timeString])]; // Avoiding repeatition
   });
@@ -187,8 +205,6 @@ export default function Page() {
   const { org, service, event, availableDays, scheduledDates } =
     useLoaderData<typeof loader>();
 
-  console.log("ALL", availableDays, scheduledDates);
-
   const [currentScreen, setCurrentScreen] = useState<
     "picker" | "form" | "success"
   >("picker");
@@ -196,7 +212,9 @@ export default function Page() {
   const [time, setTime] = useState("");
   const [date, setDate] = useState<Date | null>(null);
 
-  const handleTimeChange = (time: string) => {
+  const handleTimeChange = (t: string) => {
+    const time = from12To24(t);
+    console.log("TIME: ", time);
     clearErrors();
     setTime(time);
     setValue("time", time, { shouldValidate: true });
@@ -237,7 +255,10 @@ export default function Page() {
     fetcher.submit(
       {
         intent: "date_time_selected",
-        data: JSON.stringify({ date }), // iso for mongodb? No.
+        data: JSON.stringify({
+          date: new Date(date).toISOString(),
+          dateString: new Date(date).toLocaleString(),
+        }), // iso for mongodb? No.
       },
       { method: "post" }
     );

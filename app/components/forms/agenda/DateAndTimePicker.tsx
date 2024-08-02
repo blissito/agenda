@@ -14,7 +14,8 @@ import { BasicInput } from "~/components/forms/BasicInput";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import {
   areSameDates,
-  fromMinsToTimeString,
+  from12To24,
+  fromMinsToLocaleTimeString,
   generateSecuense,
   getDaysInMonth,
   isToday,
@@ -23,6 +24,8 @@ import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 import { cn } from "~/utils/cd";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug";
+
+// @TODO: Improve with date and time in route to generate specific links
 
 // Calendar picker and time
 export const DateAndTimePicker = ({
@@ -35,7 +38,7 @@ export const DateAndTimePicker = ({
   time,
   availableDays,
 }: {
-  scheduledDates?: { [x: number]: string }[];
+  scheduledDates?: { [x: string]: { [y: string]: string[] } }[];
   weekDays: WeekDaysType;
   duration?: number;
   availableDays?: Date[];
@@ -44,7 +47,8 @@ export const DateAndTimePicker = ({
   onTimeChange?: (arg0: string) => void;
   onDateChange: (arg0: Date) => void;
 }) => {
-  const [times, setTimes] = useState(["08:00"]);
+  // console.log("?????", scheduledDates, scheduledDates["8"]["28"]);
+  const [times, setTimes] = useState([]);
   const handleDayPress = (date: Date) => {
     onDateChange?.(date);
     updateTimes(date);
@@ -80,14 +84,21 @@ export const DateAndTimePicker = ({
         tuple[1],
         duration,
         isToday ? today.getHours() * 60 + today.getMinutes() : undefined // minimum minutes (filter v1)
-      ).map(fromMinsToTimeString);
+      ).map(fromMinsToLocaleTimeString); // 17:00:00, 9:00:00
       slots = slots.concat(secuence);
     });
     // here we have the general all.
-    const notAvailableStrings = scheduledDates[new Date(date).getMonth()]
-      ? scheduledDates[new Date(date).getMonth()][new Date(date).getDate()]
-      : []; // @TODO: improve, should be a better way 😤
-    //
+    const month = String(new Date(date).getMonth());
+    const day = String(new Date(date).getDate());
+
+    // this is because server sent iso dates and we need locales
+    const localeStrings = !scheduledDates[month]
+      ? []
+      : !scheduledDates[month][day]
+      ? []
+      : scheduledDates[month][day];
+    const notAvailableStrings = localeStrings;
+    console.log("NOT: ", scheduledDates);
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
     // @TODO: Filter already reserved !!
@@ -127,9 +138,8 @@ export const DateAndTimePicker = ({
                   <TimeButton
                     key={i}
                     defaultValue={t}
-                    isActive={time === t}
+                    isActive={time === from12To24(t)}
                     onChange={onTimeChange}
-                    meridiem
                   />
                 ))}
               </AnimatePresence>
@@ -184,9 +194,10 @@ const MonthView = ({
     const handleClick = () => {
       onDayPress?.(_date);
     };
-    const isAvailable = validDates
-      .map((d) => new Date(d).toString())
-      .includes(new Date(_date).toString());
+    // @TODO: hack, please improve or at least move to its own function
+    const isAvailable = validDates.includes(
+      `${new Date(_date).getMonth()}/${new Date(_date).getDate()}`
+    );
     const isSelected = areSameDates(_date, selectedDate);
     return (
       <button
@@ -426,16 +437,17 @@ const TimeButton = ({
   className?: string;
 }) => {
   const formatTime = (time?: string) => {
-    if (!time) return;
-    if (meridiem) {
-      const h = Number(time.split(":")[0]);
-      const m = Number(time.split(":")[1]);
-      const merid = h > 11 ? "pm" : "am";
-      return `${h < 10 ? h : h > 12 ? h - 12 : h}:${
-        m < 10 ? "0" + m : m
-      } ${merid}`;
-    }
-    return time;
+    if (!time) return null;
+    return time.replace(":00", "");
+    // if (meridiem) {
+    //   const h = Number(time.split(":")[0]);
+    //   const m = Number(time.split(":")[1]);
+    //   const merid = h > 11 ? "pm" : "am";
+    //   return `${h < 10 ? h : h > 12 ? h - 12 : h}:${
+    //     m < 10 ? "0" + m : m
+    //   } ${merid}`;
+    // }
+    // return time;
   };
 
   return (
