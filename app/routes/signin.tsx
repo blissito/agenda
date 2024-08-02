@@ -13,7 +13,7 @@ import {
 
 export const MICROSOFT_BRAND_NAME = "microsoft";
 export const GOOGLE_BRAND_NAME = "google";
-const REDIRECT_AFTER_LOGIN = "/signup/sobre-tu-negocio";
+const REDIRECT_AFTER_LOGIN = "/dash";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -45,7 +45,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const intent = searchParams.get("intent");
   if (intent === "logout") {
     const session = await getSession(request.headers.get("Cookie"));
-    return redirect("/signin", {
+    return redirect("/", {
       headers: { "Set-Cookie": await destroySession(session) },
     });
   }

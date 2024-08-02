@@ -4,27 +4,26 @@ import { useEffect, useRef } from "react";
 import { Tag } from "~/components/common/Tag";
 import { Plus } from "~/components/icons/plus";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices } from "~/db/userGetters";
+import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const services = await getServices(request);
-
-  return { services };
+  const { org } = await getUserAndOrgOrRedirect(request); // @TODO: not all  the org please!
+  return { services, org };
 };
 
 export default function Services() {
-  const { services } = useLoaderData<typeof loader>();
+  const { services, org } = useLoaderData<typeof loader>();
   const origin = useRef<string>("");
 
   useEffect(() => {
     origin.current = location.origin;
   }, []);
 
-  const getLink = (orgSlug: string, serviceSlug: string) => {
-    const url = new URL(origin.current || "http://denik.me");
-    url.pathname = `/${orgSlug}/${serviceSlug}`;
-    return url.toString();
-  };
+  // const getLink = (serviceId: string) => `/dash/servicios/${serviceId}`;
+  const getLink = (serviceSlug: string) => `/agenda/${org.slug}/${serviceSlug}`;
+
+  console.log("LINK: ", getLink(services[0].id));
 
   return (
     <main className=" ">
@@ -32,13 +31,13 @@ export default function Services() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {services.map((service) => (
           <ServiceCard
-            image={service.photoURL}
+            image={service.photoURL ?? undefined}
             key={service.id}
             title={service.name}
             duration={service.duration} // @TODO: format function this is minutes for now
             price={`${service.price} mxn`}
             status={service.isActive ? "Activo" : "Desactivado"}
-            link={getLink(service.org.slug, service.slug)}
+            link={getLink(service.slug)} // just for developing
           />
         ))}
         <AddService />
@@ -57,13 +56,13 @@ const ServiceCard = ({
 }: {
   title: string;
   image?: string;
-  duration: string;
+  duration: number;
   price: string;
   status: string;
   link?: string;
 }) => {
   return (
-    <Link to={link ? link : "/dash/services/unid"}>
+    <Link to={link ? link : "/dash/servicios"}>
       <section className="bg-white rounded-2xl overflow-hidden hover:animate-movement-effect cursor-pointer">
         <img
           alt="cover"

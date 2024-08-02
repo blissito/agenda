@@ -16,6 +16,12 @@ import { Help } from "../icons/menu/help";
 import { Out } from "../icons/menu/out";
 import { Denik } from "../icons/denik";
 import { PrimaryButton } from "../common/primaryButton";
+import {
+  useAnimate,
+  motion,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 
 export function SideBar({
   user,
@@ -26,33 +32,95 @@ export function SideBar({
   user: User;
   props?: unknown;
 }) {
+  const isClosed = useMotionValue(false);
+  const [scope, animate] = useAnimate();
+  const x = useMotionValue(0);
+  const t = useTransform(x, [-300, 0, 300], [60, 360, 660]);
+
+  const handleClick = () => {
+    if (!isClosed) return;
+    animate("#aside", { x: 0 }, { type: "spring", bounce: 0.2 }); // open
+  };
+
+  const handleDragEnd = () => {
+    if (x.get() < -180) {
+      animate("#aside", { x: -300 }, { type: "spring", bounce: 0.5 }); // close
+      isClosed.set(true);
+    } else {
+      animate(
+        "#aside",
+        { x: 0 },
+        { type: "spring", bounce: 0.5, duration: 0.5 }
+      ); // open
+      isClosed.set(false);
+    }
+  };
+
   return (
-    <article className="bg-brand_light_gray flex h-screen" {...props}>
-      <aside className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen ">
-        <Header user={user} className="pl-6" />
+    <article
+      ref={scope}
+      className="bg-brand_light_gray flex h-screen relative z-500 "
+      {...props}
+    >
+      <motion.aside
+        dragElastic={0.5}
+        whileTap={{ cursor: "grabbing" }}
+        id="aside"
+        onDragEnd={handleDragEnd}
+        dragSnapToOrigin
+        drag="x"
+        dragConstraints={{ right: 0, left: -300 }}
+        key="spring"
+        // transition={{ type: "spring", bounce: 0.7 }}
+        style={{
+          x,
+        }}
+        className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen overflow-hidden"
+      >
+        <Header
+          dragElement={
+            <button
+              onClick={handleClick}
+              className="h-12 rounded-full w-2 bg-brand_gray/30 absolute bottom-0 right-1 cursor-grab active:cursor-grabbing hover:bg-brand_gray/40 hover:scale-110 transition-all"
+            />
+          }
+          user={user}
+          className="pl-6"
+          handleDragEnd={handleDragEnd}
+        />
         <MainMenu className="mb-auto" />
-        {/* Bonito hack: "Divider" */}
-        {/* <hr className="block border-b border-b-brand_light_gray/10 w-[60%] mx-auto mb-auto" /> */}
         <OnboardingBanner />
         <Footer />
-      </aside>
-      <section className="pl-[360px] pr-10 py-10 w-full ">{children}</section>
+      </motion.aside>
+      <motion.section
+        style={{ paddingLeft: t }}
+        className="pl-[360px] pr-10 py-10 w-full "
+      >
+        {children}
+      </motion.section>
     </article>
   );
 }
 
 const Header = ({
   className,
+  handleDragEnd,
   user,
+  onClick,
+  dragElement,
 }: {
+  dragElement?: ReactNode;
+  handleDragEnd?: () => void;
+  onClick?: () => void;
   className?: string;
   user: Partial<User>;
 }) => {
   return (
-    <header className={twMerge(className)}>
+    <header className={twMerge("relative", className)}>
       <Denik className="mb-6 mt-6" />
       {user && <User user={user} />}
       <hr className="my-4 max-w-[80%]" />
+      {dragElement}
     </header>
   );
 };
@@ -75,18 +143,17 @@ const Footer = () => {
         </MenuButton.Icon>
         <MenuButton.Title>Ayuda</MenuButton.Title>
       </MenuButton>
-      <MenuButton>
-        <MenuButton.Icon>
+      <Form action="/signin">
+        <button
+          type="submit"
+          name="intent"
+          value="logout"
+          className="flex pl-6 gap-3 text-lg pb-3 hover:text-gray-700"
+        >
           <Out />
-        </MenuButton.Icon>
-        <MenuButton.Title>
-          <Form action="/signin">
-            <button type="submit" name="intent" value="logout">
-              Cerrar sesión
-            </button>
-          </Form>
-        </MenuButton.Title>
-      </MenuButton>
+          Cerrar sesión
+        </button>
+      </Form>
     </div>
   );
 };
@@ -111,7 +178,7 @@ const MenuButton = ({
       className={twMerge(
         isActive && "text-brand_blue",
         className,
-        "relative h-10 flex items-center gap-3 cursor-pointer"
+        "relative h-12 flex items-center gap-3 cursor-pointer"
       )}
       {...props}
     >
