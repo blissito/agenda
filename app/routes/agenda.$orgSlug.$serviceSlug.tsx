@@ -151,8 +151,7 @@ const getScheduledDates = (events: Event[]) => {
 
     // {date,strings}
     // const timeString = fromDateToTimeString(e.start);
-    const timeString = e.start;
-
+    const timeString = e.dateString.split(",")[1].trim();
     obj[month] ||= { "1": [] };
     obj[month][date] ||= [];
     obj[month][date] = [...new Set([...obj[month][date], timeString])]; // Avoiding repeatition
@@ -258,7 +257,7 @@ export default function Page() {
         intent: "date_time_selected",
         data: JSON.stringify({
           date: new Date(date).toISOString(),
-          dateString: new Date(date).toLocaleDateString(),
+          dateString: new Date(date).toLocaleString(),
         }), // iso for mongodb? No.
       },
       { method: "post" }

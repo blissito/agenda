@@ -96,13 +96,8 @@ export const DateAndTimePicker = ({
       ? []
       : !scheduledDates[month][day]
       ? []
-      : scheduledDates[month][day].map((iso) =>
-          new Date(iso).toLocaleTimeString()
-        );
+      : scheduledDates[month][day];
     const notAvailableStrings = localeStrings;
-
-    console.log("LOCALE STRINGS: ", localeStrings);
-
     slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
     setTimes(slots);
     // @TODO: Filter already reserved !!
