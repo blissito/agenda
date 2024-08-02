@@ -187,6 +187,8 @@ export default function Page() {
   const { org, service, event, availableDays, scheduledDates } =
     useLoaderData<typeof loader>();
 
+  console.log("ALL", availableDays, scheduledDates);
+
   const [currentScreen, setCurrentScreen] = useState<
     "picker" | "form" | "success"
   >("picker");
