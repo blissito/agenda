@@ -32,7 +32,7 @@ export const Switch = ({
         {/* Container */}
         <div
           className={cn(
-            "bg-brand_switch_inactive rounded-full w-8 h-5 p-1 flex",
+            "bg-brand_switch_inactive rounded-full w-8 h-5 p-1 flex transition-all",
             {
               "justify-end bg-brand_blue": checked,
               className,

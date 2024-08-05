@@ -37,6 +37,7 @@ export const BasicInput = ({
       </label>
       {as === "textarea" ? (
         <textarea
+          autoFocus
           disabled={isDisabled}
           placeholder={placeholder}
           className={twMerge(
@@ -51,6 +52,7 @@ export const BasicInput = ({
         />
       ) : (
         <input
+          autoFocus
           disabled={isDisabled}
           type={type}
           placeholder={placeholder}

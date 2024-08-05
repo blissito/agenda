@@ -6,6 +6,11 @@ export default defineConfig(({ mode }) => {
   process.env = { ...process.env, ...env };
 
   return {
+    define: {
+      process: {
+        env: {},
+      },
+    },
     // no Remix Vite plugin here
     plugins: [tsconfigPaths()],
   };

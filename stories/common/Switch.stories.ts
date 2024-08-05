@@ -28,7 +28,7 @@ export const Basic: Story = {
   args: {
     label: "Esto es un switch estandard",
     defaultChecked: false,
-    backgroundColor: "#5158F6",
+    backgroundColor: undefined,
     className: undefined,
   },
 };

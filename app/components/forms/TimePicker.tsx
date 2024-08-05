@@ -22,7 +22,7 @@ export const getStringFromMinutes = (number: number) => {
 export const TimePicker = ({
   all,
   selected,
-  startTime = "00:00",
+  startTime = "06:00",
   onChange,
 }: {
   selected?: string;
@@ -32,10 +32,10 @@ export const TimePicker = ({
 }) => {
   const [value, set] = useState(startTime);
   const hourNumber = getHourNumberFromString(startTime) + 1;
-  // console.log("HNN", hourNumber, 24 - hourNumber);
   const hours = [...Array(all ? 24 : 24 - hourNumber).keys()].map(
-    (index) => (hourNumber + index) % 24
+    (index) => (hourNumber + index - 1) % 24 // (-) because is better to start at the top
   );
+
   const quarters: string[] = [];
   hours.forEach((hour) => {
     const h = hour > 9 ? `${hour}` : `0${hour}`;

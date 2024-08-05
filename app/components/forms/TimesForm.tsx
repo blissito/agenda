@@ -28,7 +28,6 @@ export type WeekTuples = {
   domingo?: DayTuple;
 };
 
-const MAX_RANGES_PERMITED = 6;
 const ENTIRE_WEEK = [
   "lunes",
   "martes",
@@ -340,7 +339,11 @@ export const RangeTimePicker = ({
     <div>
       <div className="relative flex items-center gap-3">
         <span>De</span>
-        <TimePicker startTime={startTime} onChange={changeStartTime} all />
+        <TimePicker
+          // startTime={startTime}
+          onChange={changeStartTime}
+          all
+        />
         <span>a</span>
         <TimePicker
           selected={endTime}
