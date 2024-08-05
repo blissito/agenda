@@ -8,7 +8,9 @@ export const Switch = ({
   defaultChecked,
   backgroundColor,
   className,
+  onChange,
 }: {
+  onChange?: (arg0: boolean) => void;
   className?: string;
   backgroundColor?: string;
   defaultChecked?: boolean;
@@ -19,6 +21,7 @@ export const Switch = ({
 
   useEffect(() => {
     if (ref.current) ref.current.checked = checked;
+    onChange?.(checked);
   }, [checked]);
 
   return (

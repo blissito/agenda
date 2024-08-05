@@ -199,8 +199,8 @@ export const TimesForm = ({
           key={dayString}
           ranges={data[dayString]}
           addRange={() => addRange(dayString)}
-          removeRange={(index) => removeRange(dayString, index)}
-          updateRanges={(ranges) => handleUpdate(dayString, ranges)}
+          onRemoveRange={(index) => removeRange(dayString, index)}
+          onUpdate={(ranges) => handleUpdate(dayString, ranges)}
           // onRange={(range) => handleRange(dayString, range)}
           isActive={getValues().weekDays.includes(dayString)}
           id={dayString}
@@ -239,15 +239,15 @@ export const TimesForm = ({
 export const DayTimesSelector = ({
   children,
   addRange,
-  removeRange,
+  onRemoveRange,
   isActive,
   ranges = [],
-  updateRanges,
+  onUpdate,
 }: {
   ranges: DayTuple;
   addRange?: () => void;
-  removeRange?: (arg0: number) => void;
-  updateRanges?: (ranges: string[][]) => void;
+  onRemoveRange?: (arg0: number) => void;
+  onUpdate?: (ranges: string[][]) => void;
   range?: string[];
   isActive?: boolean;
   children?: ReactNode;
@@ -255,7 +255,7 @@ export const DayTimesSelector = ({
   const handleChange = (index: number, range: string[]) => {
     const arr = [...ranges];
     arr[index] = range;
-    updateRanges?.(arr);
+    onUpdate?.(arr);
   };
 
   // const r = [...ranges];
@@ -266,46 +266,44 @@ export const DayTimesSelector = ({
   // console.log("LAst Hot", lastHourMins, getStringFromMinutes(lastHourMins));
 
   return (
-    <div>
+    <>
       {children}
-      {isActive && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ y: -10, opacity: 0 }}
-          className={twMerge(
-            "gap-4",
-            isActive && "grid",
-            "text-brand_gray mt-2"
-          )}
-        >
-          {ranges.map((range, index) => (
-            <div className="flex gap-2" key={nanoid()}>
-              <RangeTimePicker
-                index={index}
-                onChange={(range) => handleChange(index, range)}
-                startTime={range[0]}
-                endTime={range[1]}
-                onDelete={() => removeRange?.(index)}
-              />
-              {index === 0 &&
-                Number(ranges[ranges.length - 1][1].split(":")[0]) < 22 && (
-                  <button
-                    type="button"
-                    onClick={addRange}
-                    className={twMerge(
-                      // "col-start-2 row-start-1",
-                      "active:text-brand_gray text-brand_gray/70 hover:text-brand_gray/90 lg:text-left"
-                    )}
-                  >
-                    + Agregar
-                  </button>
-                )}
-            </div>
-          ))}
-        </motion.div>
-      )}
-    </div>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ y: -10, opacity: 0 }}
+        className={twMerge("gap-2", isActive && "grid", "text-brand_gray mt-2")}
+      >
+        {ranges.map((range, index) => (
+          <div className="flex gap-4" key={nanoid()}>
+            <RangeTimePicker
+              isDisabled={!isActive}
+              index={index}
+              onChange={(range) => handleChange(index, range)}
+              startTime={range[0]}
+              endTime={range[1]}
+              onDelete={() => onRemoveRange?.(index)}
+            />
+            {index === 0 &&
+              Number(ranges[ranges.length - 1][1].split(":")[0]) < 22 && (
+                <button
+                  disabled={!isActive}
+                  type="button"
+                  onClick={addRange}
+                  className={twMerge(
+                    // "col-start-2 row-start-1",
+                    "w-24",
+                    "disabled:cursor-not-allowed",
+                    "not:disabled:active:text-brand_gray text-brand_gray/70 hover:text-brand_gray/90 lg:text-left"
+                  )}
+                >
+                  + Agregar
+                </button>
+              )}
+          </div>
+        ))}
+      </motion.div>
+    </>
   );
 };
 
@@ -315,7 +313,9 @@ export const RangeTimePicker = ({
   endTime,
   onChange,
   onDelete,
+  isDisabled,
 }: {
+  isDisabled?: boolean;
   index?: number;
   onDelete?: () => void;
   startTime: string;
@@ -332,6 +332,7 @@ export const RangeTimePicker = ({
 
   const getTime = (startTime: string) => {
     const mins = getMinutesFromString(startTime);
+    // console.log("Mins: ", mins, getStringFromMinutes(mins));
     return getStringFromMinutes(mins);
   };
 
@@ -340,21 +341,24 @@ export const RangeTimePicker = ({
       <div className="relative flex items-center gap-3">
         <span>De</span>
         <TimePicker
-          // startTime={startTime}
+          isDisabled={isDisabled}
+          initialTime={startTime}
           onChange={changeStartTime}
           all
         />
         <span>a</span>
         <TimePicker
-          selected={endTime}
-          startTime={getTime(startTime)}
+          isDisabled={isDisabled}
+          defaultSelected={endTime}
+          initialTime={getTime(endTime)}
           onChange={changeEndTime}
         />
         {index !== 0 && (
           <button
+            disabled={isDisabled}
             onClick={onDelete}
             type="button"
-            className=" active:text-red-500 right-0 top-[28%] text-red-400 hover:text-red-500 transition-all"
+            className=" disabled:hidden active:text-red-500 right-0 top-[28%] text-red-400 hover:text-red-500 transition-all"
           >
             <FaRegTrashCan />
           </button>
