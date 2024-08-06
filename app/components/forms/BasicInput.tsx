@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
@@ -6,7 +7,7 @@ type Props = {
   name: string;
   register?: UseFormRegister<FieldValues> | any;
   error?: FieldError;
-  label?: string;
+  label?: ReactNode;
   className?: string;
   registerOptions?: { required: string | boolean };
   placeholder?: string;

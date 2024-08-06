@@ -148,7 +148,7 @@ const Footer = () => {
           type="submit"
           name="intent"
           value="logout"
-          className="flex pl-6 gap-3 text-lg pb-3 hover:text-gray-700"
+          className="flex pl-6 gap-3 text-base pb-3 hover:text-gray-700 font-title h-12 items-center"
         >
           <Out />
           Cerrar sesión
@@ -220,7 +220,7 @@ const Title = ({
   <h3
     className={twMerge(
       "hover:opacity-70",
-      "text-lg text-brand_dark",
+      "text-base text-brand_dark",
       isActive && "text-brand_blue"
     )}
     {...props}

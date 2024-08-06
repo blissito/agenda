@@ -21,6 +21,7 @@
     "@faker-js/faker": "^8.4.1",
     "@headlessui/react": "^2.1.2",
     "@prisma/client": "^5.16.1",
+    "@radix-ui/react-slot": "^1.1.0",
     "@remix-run/node": "^2.9.2",
     "@remix-run/react": "^2.9.2",
     "@remix-run/serve": "^2.9.2",

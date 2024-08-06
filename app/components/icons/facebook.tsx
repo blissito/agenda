@@ -1,10 +1,12 @@
 export const Facebook = ({
   fill = "#11151A",
+  className,
 }: {
   fill?: string;
-  props?: unknown;
+  className?: string;
 }) => (
   <svg
+    className={className}
     width="32"
     height="32"
     viewBox="0 0 32 32"
