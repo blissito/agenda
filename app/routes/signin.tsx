@@ -94,7 +94,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Pape() {
-  const { alert } = useLoaderData<typeof loader>();
+  const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const fetcher = useFetcher<typeof action>();
   const [provider, setProvider] = useState(GOOGLE_BRAND_NAME);
@@ -168,19 +168,19 @@ export default function Pape() {
 
   return (
     <section className="relative">
-      {alert && (
+      {loaderData?.alert && (
         <div>
           <p
             className={cn(
               " text-white flex justify-center py-2 fixed top-0 right-0 left-0",
               {
-                "bg-red-500": alert.type === "error",
-                "bg-brand_blue": alert.type === "info",
-                "bg-orange-500": alert.type === "warning",
+                "bg-red-500": loaderData.alert.type === "error",
+                "bg-brand_blue": loaderData.alert.type === "info",
+                "bg-orange-500": loaderData.alert.type === "warning",
               }
             )}
           >
-            {alert.message}
+            {loaderData.alert.message}
           </p>
         </div>
       )}
