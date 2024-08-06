@@ -12,7 +12,11 @@ export const sendgridTransport = nodemailer.createTransport({
   },
 });
 
-export const sendMagicLink = async (email: string, uri: string) => {
+export const sendMagicLink = async (
+  email: string,
+  uri: string,
+  subject: string
+) => {
   // generate token
   const token = await generateUserToken(email);
   const url = new URL(uri);
@@ -22,7 +26,7 @@ export const sendMagicLink = async (email: string, uri: string) => {
   return sendgridTransport
     .sendMail({
       from: "hola@formmy.app",
-      subject: "🗓️ Inicia sesión en Denik.me",
+      subject: subject || "🗓️ Inicia sesión en Denik.me",
       bcc: [email],
       html: magicLinkTemplate({ link: url.toString() }),
     })

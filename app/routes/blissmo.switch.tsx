@@ -1,4 +1,4 @@
-import { ActionFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useState } from "react";
 import { Switch } from "~/components/common/Switch";
 import {
@@ -6,14 +6,37 @@ import {
   getStringFromMinutes,
 } from "~/components/forms/TimePicker";
 import { DayTimesSelector, DayTuple } from "~/components/forms/TimesForm";
+import schedule from "node-schedule";
+import { useLoaderData } from "@remix-run/react";
+import { getUserOrNull } from "~/db/userGetters";
+
+const initialRange: [string, string] = ["06:00", "06:30"];
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   // const formData = await request.formData();
   return null;
 };
 
-const initialRange: [string, string] = ["06:00", "06:30"];
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const job = schedule.scheduleJob(
+    new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDate(),
+      new Date().getHours(),
+      new Date().getMinutes() + 1
+    ),
+    async () => {
+      console.log("USER: ", await getUserOrNull(request));
+    }
+  );
+  console.log("JOB: ", job);
+  return {};
+};
+
 export default function Page() {
+  const { job } = useLoaderData<typeof loader>();
+  console.log("JOB:", job);
   const [actives, setActives] = useState({ lunes: true });
   const [week, setWeek] = useState<{ [x: string]: DayTuple }>({
     lunes: [initialRange],
@@ -34,6 +57,7 @@ export default function Page() {
 
   const handleSwitchChange = (key: string, checked: boolean) => {
     setActives((act) => ({ ...act, [key]: checked }));
+    // playing
   };
 
   const handleRemoveRange = (key: string, index: number) => {

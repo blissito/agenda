@@ -143,3 +143,14 @@ model Event {
   // metadata
   customer   Customer?
 }
+
+model Job {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  startDate DateTime
+  type      String
+
+  endDate DateTime?
+  orgId   String?
+  userId  String?
+  eventId String?
+}
