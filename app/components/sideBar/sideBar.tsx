@@ -59,7 +59,7 @@ export function SideBar({
   return (
     <article
       ref={scope}
-      className="bg-brand_light_gray flex h-screen relative z-500 "
+      className="bg-brand_light_gray flex h-auto min-h-screen relative z-500 "
       {...props}
     >
       <motion.aside
@@ -94,7 +94,7 @@ export function SideBar({
       </motion.aside>
       <motion.section
         style={{ paddingLeft: t }}
-        className="pl-[360px] pr-10 py-10 w-full "
+        className="pl-[360px] pr-10 py-10 w-full  "
       >
         {children}
       </motion.section>
@@ -148,7 +148,7 @@ const Footer = () => {
           type="submit"
           name="intent"
           value="logout"
-          className="flex pl-6 gap-3 text-lg pb-3 hover:text-gray-700"
+          className="flex pl-6 gap-3 text-base pb-3 hover:text-gray-700 font-title h-12 items-center"
         >
           <Out />
           Cerrar sesión
@@ -220,7 +220,7 @@ const Title = ({
   <h3
     className={twMerge(
       "hover:opacity-70",
-      "text-lg text-brand_dark",
+      "text-base text-brand_dark",
       isActive && "text-brand_blue"
     )}
     {...props}
