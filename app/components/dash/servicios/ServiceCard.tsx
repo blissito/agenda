@@ -162,7 +162,7 @@ export const ServiceCard = ({
 export const AddService = () => {
   return (
     <Link to="/dash/servicios/nuevo">
-      <button className="group h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center ">
+      <button className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center ">
         <div>
           <Plus className="mx-auto group-hover:scale-125 transition-all" />
           <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
