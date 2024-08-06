@@ -69,7 +69,14 @@ export const CompanyInfo = () => {
         <div className="flex justify-between items-center">
           {" "}
           <h2 className="text-2xl font-bold">Estudio Milan </h2>
-          <SecondaryButton className="h-10"> Editar</SecondaryButton>
+          <SecondaryButton
+            as="Link"
+            to="/dash/website/general"
+            className="h-10"
+          >
+            {" "}
+            Editar
+          </SecondaryButton>
         </div>
 
         <InfoBox title="Encargad@" value="Brenda Ortega" />
@@ -87,7 +94,14 @@ export const CompanyInfo = () => {
         <div className="flex justify-between items-center">
           {" "}
           <h3 className="text-lg font-bold">Horario</h3>
-          <SecondaryButton className="h-10"> Editar</SecondaryButton>
+          <SecondaryButton
+            as="Link"
+            to="/dash/website/horario"
+            className="h-10"
+          >
+            {" "}
+            Editar
+          </SecondaryButton>
         </div>
         <InfoBox title="Lunes" value="de 9:00 am a 16:00 pm" />
         <InfoBox title="Martes" value="de 9:00 am a 16:00 pm" />
@@ -100,7 +114,14 @@ export const CompanyInfo = () => {
         <div className="flex justify-between items-center">
           {" "}
           <h3 className="text-lg font-bold">Servicios</h3>
-          <SecondaryButton className="h-10"> Editar</SecondaryButton>
+          <SecondaryButton
+            as="Link"
+            to="/dash/website/servicios"
+            className="h-10"
+          >
+            {" "}
+            Editar
+          </SecondaryButton>
         </div>
 
         <div className="flex gap-x-6 flex-wrap pr-[10%]">
@@ -115,7 +136,14 @@ export const CompanyInfo = () => {
         <div className="flex justify-between items-center">
           {" "}
           <h3 className="text-lg font-bold">Redes sociales</h3>
-          <SecondaryButton className="h-10"> Editar</SecondaryButton>
+          <SecondaryButton
+            as="Link"
+            to="/dash/website/socialmedia"
+            className="h-10"
+          >
+            {" "}
+            Editar
+          </SecondaryButton>
         </div>
 
         <MediaBox

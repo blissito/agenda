@@ -1,8 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
-
 @font-face {
   font-family: "Satoshi ";
   src: url("/fonts/Satoshi-Regular.ttf");
+}
+@font-face {
+  font-family: "Jakarta ";
+  src: url("/fonts/PlusJakartaMedium.ttf");
 }
 
 @font-face {
@@ -25,14 +27,14 @@ html {
 h1,
 h2,
 h3 {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: "Jakarta ";
 }
 
 p {
   font-family: "Satoshi ";
 }
 .font-title {
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: "Jakarta ";
 }
 .font-satoMiddle {
   font-family: "Medium Font ", sans-serif;
