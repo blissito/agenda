@@ -12,6 +12,7 @@ const shotBlueConfetti = (trigger) =>
 export const EmojiConfetti = ({
   mode = "default",
   emojis = ["🎉", "👾", "🎊", "🚀", "🥳", "🎈", "🪅"],
+  repeat = 2,
   confettiColors = [
     "#ff0a54",
     "#ff477e",
@@ -21,6 +22,7 @@ export const EmojiConfetti = ({
     "#f9bec7",
   ],
 }: {
+  repeat?: number;
   mode?: "default" | "emojis";
   emojis?: string[];
   confettiColors?: string[];
@@ -39,10 +41,16 @@ export const EmojiConfetti = ({
         });
         return;
       }
-      shotBlueConfetti(jsConfetti);
-      await sleep(2);
+      let counter = 0;
+      while (counter < repeat) {
+        counter++;
+        shotBlueConfetti(jsConfetti);
+        await sleep(2);
+      }
+
+      // await sleep(2);
       // jsConfetti.addConfetti();
-      shotBlueConfetti(jsConfetti);
+      // shotBlueConfetti(jsConfetti);
     };
     start();
     /* eslint-disable */

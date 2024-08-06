@@ -37,6 +37,7 @@ export const BasicInput = ({
       </label>
       {as === "textarea" ? (
         <textarea
+          name={name}
           autoFocus
           disabled={isDisabled}
           placeholder={placeholder}
@@ -52,6 +53,7 @@ export const BasicInput = ({
         />
       ) : (
         <input
+          name={name}
           autoFocus
           disabled={isDisabled}
           type={type}

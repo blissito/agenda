@@ -1,8 +1,9 @@
 import { Org, User } from "@prisma/client";
 import { redirect } from "@remix-run/react";
-import { getSession } from "~/sessions";
+import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
 import { FirebaseUserData } from "~/utils/lib/firebase";
+import { validateUserToken } from "~/utils/tokens";
 
 type Options = { redirectURL: string };
 
@@ -102,6 +103,50 @@ export const getServicefromSearchParams = async (
   });
   if (!service) throw redirect("/dash/servicios/nuevo");
   return service;
+};
+
+// SESSION SETTERS
+const setUserSessionAndRedirect = async ({
+  userId,
+  redirectURL = "/dash",
+  request,
+}: {
+  userId: string;
+  redirectURL?: string;
+  request: Request;
+}) => {
+  const session = await getSession(request.headers.get("Cookie"));
+  session.set("userId", userId);
+  return redirect(redirectURL, {
+    headers: { "Set-Cookie": await commitSession(session) },
+  });
+};
+
+// MAGIC LINK =============================================================
+export const handleMagicLinkLogin = async (token: string, request: Request) => {
+  const { isValid, decoded: { email } = {} } = validateUserToken(token);
+  // @TODO make sure expiration is working
+  const genericError = {
+    alert: {
+      type: "error",
+      message: "El link ha expirado, solicita uno nuevo",
+    },
+  };
+  if (!isValid) return genericError;
+
+  const user = await db.user.update({
+    where: { email },
+    data: {
+      emailVerified: true, // we can verify it here
+    },
+  });
+
+  if (!user) return genericError;
+
+  return setUserSessionAndRedirect({
+    userId: user.id,
+    request,
+  });
 };
 
 // SERVICES =====================================================================================
