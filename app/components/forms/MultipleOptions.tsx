@@ -2,13 +2,14 @@ import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 import { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
-import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
 import { BasicInput } from "./BasicInput";
+
+const REQUIRED_MESSAGE = "Este campos es requerido";
 
 export const MultipleOptions = ({
   className,
   defaultValue = "Solo yo",
-  options,
+  options = [],
   name,
   label,
   error,
@@ -16,13 +17,13 @@ export const MultipleOptions = ({
   registerOptions = { required: REQUIRED_MESSAGE },
   register = () => undefined,
 }: {
+  name: string;
+  options: string[];
   className?: string;
   defaultValue?: string | null;
   error?: FieldError;
   renderFunction?: (arg0: string, arg1: number) => ReactNode;
-  name: string;
   label?: string;
-  options: string[];
   registerOptions?: { required: string | boolean };
   register?: UseFormRegister<FieldValues> | any;
 }) => {
@@ -187,8 +188,6 @@ export const Otro = ({
           <BasicInput
             className="w-full "
             label={label}
-            // eslint-disable-next-line jsx-a11y/no-autofocus
-            autoFocus
             placeholder="¿Qué tipo de negocio?"
             name={name}
             register={register}

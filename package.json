@@ -10,7 +10,9 @@
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "prisma-setup": "prisma generate",
     "start": "npm run prisma-setup && remix-serve ./build/server/index.js",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.620.0",
@@ -39,8 +41,18 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^1.6.1",
     "@flydotio/dockerfile": "^0.5.7",
     "@remix-run/dev": "^2.9.2",
+    "@storybook/addon-essentials": "^8.2.7",
+    "@storybook/addon-interactions": "^8.2.7",
+    "@storybook/addon-links": "^8.2.7",
+    "@storybook/addon-onboarding": "^8.2.7",
+    "@storybook/blocks": "^8.2.7",
+    "@storybook/builder-vite": "^8.2.7",
+    "@storybook/react": "^8.2.7",
+    "@storybook/react-vite": "^8.2.7",
+    "@storybook/test": "^8.2.7",
     "@tailwindcss/forms": "^0.5.7",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
@@ -53,8 +65,11 @@
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-storybook": "^0.8.0",
     "postcss": "^8.4.38",
     "prisma": "^5.16.1",
+    "storybook": "^8.2.7",
+    "storybook-addon-remix-react-router": "^3.0.0",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.1.6",
     "vite": "^5.1.0",

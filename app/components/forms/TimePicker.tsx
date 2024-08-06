@@ -22,20 +22,24 @@ export const getStringFromMinutes = (number: number) => {
 export const TimePicker = ({
   all,
   selected,
-  startTime = "00:00",
+  isDisabled,
+  defaultSelected,
+  initialTime = "06:00",
   onChange,
 }: {
+  isDisabled?: boolean;
+  defaultSelected?: string;
   selected?: string;
   all?: Boolean;
-  startTime?: string;
+  initialTime?: string;
   onChange?: (startTime: string, endTime: string) => void;
 }) => {
-  const [value, set] = useState(startTime);
-  const hourNumber = getHourNumberFromString(startTime) + 1;
-  // console.log("HNN", hourNumber, 24 - hourNumber);
+  const [value, set] = useState(defaultSelected || initialTime);
+  const hourNumber = getHourNumberFromString(initialTime) + 1;
   const hours = [...Array(all ? 24 : 24 - hourNumber).keys()].map(
-    (index) => (hourNumber + index) % 24
+    (index) => (hourNumber + index - 1) % 24 // (-) because is better to start at the top
   );
+
   const quarters: string[] = [];
   hours.forEach((hour) => {
     const h = hour > 9 ? `${hour}` : `0${hour}`;
@@ -56,7 +60,9 @@ export const TimePicker = ({
   return (
     <>
       <select
-        value={selected ?? (value || startTime)}
+        disabled={isDisabled}
+        // value={selected ?? (value || startTime)}
+        defaultValue={defaultSelected}
         onChange={handleChange}
         className="border-gray-200 rounded-xl text-gray-500"
       >

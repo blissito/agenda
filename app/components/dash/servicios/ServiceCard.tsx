@@ -34,11 +34,10 @@ export const ServiceCard = ({
   const [show, setShow] = useState(false);
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: () => {
-      console.log("Outside?");
       setShow(false);
     },
     isActive: show,
-    includeEscape: true,
+    includeEscape: true, // captures [Esc] key press
   });
 
   const handleToggleDeactivation = () => {
@@ -82,9 +81,9 @@ export const ServiceCard = ({
         }}
         type="button"
         className={twMerge(
-          "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full  bg-transparent z-10 text-transparent active:scale-95 hover:shadow focus:text-white focus:bg-gray-400/50",
-          "opacity-1 group-hover:bg-gray-400/50 group-hover:text-white",
-          show && "text-white bg-gray-400/50 "
+          "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full  bg-transparent z-10 text-transparent active:scale-95 hover:shadow focus:text-white focus:bg-gray-400/70",
+          "opacity-1 group-hover:bg-gray-400/70 group-hover:text-white",
+          show && "text-white bg-gray-400/70 "
         )}
       >
         <TbDots />
