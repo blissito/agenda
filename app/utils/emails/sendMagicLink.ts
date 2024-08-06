@@ -1,4 +1,4 @@
-import { generateUserToken, getTokenIfUserOrNull } from "../tokens";
+import { generateUserToken } from "../tokens";
 import magicLinkTemplate from "./magicLinkTemplate";
 import nodemailer from "nodemailer";
 
@@ -14,9 +14,7 @@ export const sendgridTransport = nodemailer.createTransport({
 
 export const sendMagicLink = async (email: string, uri: string) => {
   // generate token
-  const token = await getTokenIfUserOrNull(email);
-  console.info("Generated token or avoid: ", token);
-  if (!token) return;
+  const token = await generateUserToken(email);
   const url = new URL(uri);
   url.pathname = "/signin";
   url.searchParams.set("token", token);

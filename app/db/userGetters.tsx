@@ -134,9 +134,13 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
   };
   if (!isValid) return genericError;
 
-  const user = await db.user.update({
+  const user = await db.user.upsert({
     where: { email },
-    data: {
+    create: {
+      email,
+      emailVerified: true,
+    },
+    update: {
       emailVerified: true, // we can verify it here
     },
   });

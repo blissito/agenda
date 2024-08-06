@@ -5,6 +5,7 @@ import {
   useActionData,
   useFetcher,
   useLoaderData,
+  useNavigation,
 } from "@remix-run/react";
 import { ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
@@ -58,7 +59,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const email = formData.get("email");
     const emailSchema = z.string().email();
     const sp = emailSchema.safeParse(email);
-    console.log("SP: ", email, JSON.stringify(sp));
     if (!sp.success) {
       return {
         ...sp,
@@ -94,6 +94,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Pape() {
+  const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
   const fetcher = useFetcher<typeof action>();
@@ -230,6 +231,7 @@ export default function Pape() {
           />
 
           <PrimaryButton
+            isLoading={navigation.state !== "idle"}
             type="submit"
             className="w-full"
             name="intent"

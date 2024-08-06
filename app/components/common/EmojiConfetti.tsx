@@ -44,8 +44,9 @@ export const EmojiConfetti = ({
       let counter = 0;
       while (counter < repeat) {
         counter++;
+        await sleep(1);
         shotBlueConfetti(jsConfetti);
-        await sleep(2);
+        await sleep(1);
       }
 
       // await sleep(2);
