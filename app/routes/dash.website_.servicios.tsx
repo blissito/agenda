@@ -16,8 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Switch } from "~/components/forms/Switch";
 import { Link } from "@remix-run/react";
+import { Switch } from "~/components/common/Switch";
 
 export default function Index() {
   return (
@@ -60,7 +60,7 @@ export default function Index() {
               <TableCell>60 min</TableCell>
               <TableCell>$399.00</TableCell>
               <TableCell className="text-right">
-                <Switch name="available" />
+                <Switch />
               </TableCell>
             </TableRow>
           </TableBody>
