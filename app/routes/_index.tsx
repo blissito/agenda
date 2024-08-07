@@ -10,13 +10,13 @@ import { ParallaxHero } from "~/components/home/ParallaxHero";
 import { Features, Hero, ScrollReviews } from "~/components/home/home";
 import { People } from "~/components/icons/people";
 import { Suspense } from "react";
+import getBasicMetaTags from "~/utils/getBasicMetaTags";
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Deník | Tu agenda en un solo lugar" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
+export const meta: MetaFunction = () =>
+  getBasicMetaTags({
+    title: "Deník | Tu agenda en un solo lugar",
+    description: "description",
+  });
 
 export default function Index() {
   return (
