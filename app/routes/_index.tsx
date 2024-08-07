@@ -15,7 +15,7 @@ import getBasicMetaTags from "~/utils/getBasicMetaTags";
 export const meta: MetaFunction = () =>
   getBasicMetaTags({
     title: "Deník | Tu agenda en un solo lugar",
-    description: "description",
+    description: "Administra la agenda de tu negocio en un solo lugar",
   });
 
 export default function Index() {
