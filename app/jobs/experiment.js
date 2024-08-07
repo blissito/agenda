@@ -1,8 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import { sendMagicLink } from "../utils/emails/sendMagicLink";
 const db = new PrismaClient();
-
-export const experimentCron = async (source: string) => {
+/**
+ *
+ * @param {string} source
+ */
+export const experimentCron = async (source) => {
   await db.user.update({
     where: {
       email: "fixtergeek@gmail.com",
