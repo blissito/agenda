@@ -8,6 +8,7 @@ export default ({
   address,
   orgName,
   customerName,
+  displayName,
 }: {
   link: string;
   reservationNumber?: string;
@@ -26,7 +27,7 @@ export default ({
     <img alt="logo" style="width:120px;" src="https://i.imgur.com/sunNMiV.png"/>
   </div>
   <div style="text-align:left; background:white; border-radius:16px; margin-top:16px; ">
-    <h2 style="color:#15191E; font-size:20px; margin-top:24px">Se ha agendado una nueva cita en ${orgName}</h2>
+    <h2 style="color:#15191E; font-size:20px; margin-top:24px">${customerName} ha agendado una nueva cita en ${orgName}</h2>
     <p style="margin-top:14px; color:#4B5563"> Id de la reserva: ${reservationNumber}</p>
      <div style="margin-top:40px; border:1px #EFEFEF solid; border-radius:16px; padding:24px;">
        <h3 style="font-size:16px;">
@@ -37,7 +38,7 @@ export default ({
        </p></div>
               <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/sM63nU1.png"/><p style="padding-top:4px; ">Sesión de ${minutes} minutos</p></div>
               <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/jua9FtD.png"/><p style="padding-top:4px;" >$${amount} mxn</p></div>
-              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${customerName}</p></div>
+              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>
        <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >
 ${address}
        </p></div>
