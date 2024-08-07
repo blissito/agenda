@@ -22,10 +22,14 @@ import { WeekDaysType } from "~/components/forms/form_handlers/aboutYourCompanyH
 import {
   addMinutesToDate,
   from12To24,
-  fromDateToTimeString,
   getDaysInMonth,
 } from "~/components/dash/agenda/agendaUtils";
 import { Event } from "@prisma/client";
+import {
+  sendAppointmentToCustomer,
+  sendAppointmentToOwner,
+} from "~/utils/emails/sendAppointment";
+import invariant from "tiny-invariant";
 // @TODO: validate date and time is in the future
 // @TODO: Improve mobile UX
 const example =
@@ -37,19 +41,22 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   if (intent === "date_time_selected") {
     const data = JSON.parse(formData.get("data") as string);
-    const user = await getUserOrNull(request);
+    // const user = await getUserOrNull(request);
     const service = await db.service.findUnique({
       where: { slug: params.serviceSlug },
     });
+    if (!service)
+      return json({ message: "Servicio no encontrado 😤" }, { status: 404 });
     // @TODO: Validation????? 🤬
     const evnt = {
       dateString: data.dateString,
       start: data.date,
-      duration: service?.duration,
-      end: addMinutesToDate(data.date, service?.duration),
-      serviceId: service?.id,
-      userId: user?.id, // @TODO: Improve
-      title: service?.name,
+      duration: service.duration,
+      end: addMinutesToDate(data.date, service.duration),
+      serviceId: service.id,
+      // userId: user?.id, // @TODO: Improve
+      title: service.name,
+      customer: {},
       // orgId: "prueba",
     };
     const event = await db.event.create({
@@ -69,15 +76,30 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
         tel: data.tel,
         comments: data.comments,
       },
+      status: "ACTIVE",
     };
     const event = await db.event.update({
       where: { id: data.eventId },
-      data: newData,
+      data: newData, // @TODO: fix types
+      include: { service: true }, // event.servive.org
     });
     if (!event) throw json(null, { status: 404 });
+    const org = await db.org.findUnique({
+      where: { id: event.service.orgId }, // @TODO: fix types and owner validation
+    });
+    invariant(org);
+    const owner = await db.user.findUnique({ where: { id: org.ownerId } }); // @TODO: fix triple query
+    invariant(owner);
+    const e = {
+      ...event,
+      service: { ...event.service, org: { ...org, owner } }, // @TODO: WTF?
+    };
+    // mail sending
+    sendAppointmentToOwner({ email: owner.email, request, event: e }); // @TODO: maybe fail if not await?
+    await sendAppointmentToCustomer({ email: data.email, request, event: e });
+    // redirection
     const url = new URL(request.url);
     url.searchParams.set("eventId", event.id);
-
     return redirect(url.toString());
   }
   console.info("MISSED::INTENT:: ", intent);
