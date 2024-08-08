@@ -30,7 +30,7 @@ export const meta: MetaFunction = () => {
       content: "Administra la agenda de tu negocio en un solo lugar",
     },
     {
-      name: "og:description",
+      property: "og:description",
       content: "Administra la agenda de tu negocio en un solo lugar",
     },
     {
@@ -46,23 +46,23 @@ export const meta: MetaFunction = () => {
       content: "denikso.me",
     },
     {
-      name: "twitter:card", // <meta name="twitter" content="twittercard" />
+      property: "twitter:card", // <meta name="twitter" content="twittercard" />
       content: "summary",
     },
     {
-      name: "twitter:image",
+      property: "twitter:image",
       content: "https://i.imgur.com/zlnq8Jd.png",
     },
     {
-      name: "twitter:url",
+      property: "twitter:url",
       content: "https://i.imgur.com/zlnq8Jd.png",
     },
     {
-      name: "twitter:title",
+      property: "twitter:title",
       content: "Tu agenda en un solo lugar | Denik",
     },
     {
-      name: "twitter:description",
+      property: "twitter:description",
       content: "Administra la agenda de tu negocio en un solo lugar",
     },
   ];
