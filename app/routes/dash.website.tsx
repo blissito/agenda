@@ -1,6 +1,10 @@
 import { Link } from "@remix-run/react";
 import { ReactNode } from "react";
+import { FaCopy } from "react-icons/fa6";
+import { FiCopy } from "react-icons/fi";
+import { IoQrCodeOutline } from "react-icons/io5";
 import { SecondaryButton } from "~/components/common/secondaryButton";
+import { Edit } from "~/components/icons/edit";
 import { Facebook } from "~/components/icons/facebook";
 import { Instagram } from "~/components/icons/insta";
 import { Anchor } from "~/components/icons/link";
@@ -14,7 +18,7 @@ export default function Website() {
   return (
     <main className=" ">
       <RouteTitle>Mi sitio web </RouteTitle>
-      <section className=" grid grid-cols-4 gap-6">
+      <section className=" grid grid-cols-6 gap-6">
         <CompanyInfo />
         <Template />
       </section>
@@ -24,35 +28,46 @@ export default function Website() {
 
 export const Template = () => {
   return (
-    <div className="col-span-4 lg:col-span-1">
-      <div className="relative flex mb-8 ">
-        <input
-          className="w-full h-16 rounded-full pl-4 border-[1px] border-brand_stroke"
-          placeholder="pollo"
-        ></input>
-        <SecondaryButton className="absolute right-2 top-2 bg-brand_dark text-white px-2 max-w-20">
-          Copiar
-        </SecondaryButton>
+    <section className="col-span-4 lg:col-span-2 ">
+      <div className="bg-white rounded-2xl overflow-hidden">
+        <div className="bg-schedule w-full h-20 flex items-center justify-center text-white text-xl font-satoMiddle">
+          Tu agenda esta lista... ¡Compártela!
+        </div>
+        <div className="flex justify-between px-4 py-6 items-center">
+          <div>
+            <p className="text-base text-brand_dark font-satoMiddle">
+              Link de tu agenda en línea
+            </p>
+            <p className="text-brand_blue font-satoMiddle">
+              denik.me/clasesdebrenda
+            </p>
+          </div>
+          <div className="flex gap-4 text-[20px] text-brand_gray">
+            <Edit className="hover:opacity-50 cursor-pointer" />
+            <FiCopy className="hover:opacity-50 cursor-pointer" />
+            <IoQrCodeOutline className="hover:opacity-50 cursor-pointer" />
+          </div>
+        </div>
+        <hr className="bg-brand_stroke h-[1px] w-[94%] mx-auto border-none " />
+        <div className="px-4 mt-4 pb-6">
+          <p className="text-base text-brand_dark font-satoMiddle mb-3">
+            Plantilla
+          </p>
+          <img
+            className="w-full object-cover rounded-2xl"
+            alt="template selected"
+            src="https://i.imgur.com/Q7vLmZ0.png"
+          />
+        </div>
       </div>
-
-      <img
-        alt="template"
-        className="w-full h-auto rounded-2xl shadow-sm"
-        src="/images/templates/template1.png"
-      />
-      <Link to="/">
-        <p className="text-brand_blue underline text-center mt-6">
-          Cambiar plantilla
-        </p>
-      </Link>
-    </div>
+    </section>
   );
 };
 
 export const CompanyInfo = () => {
   return (
-    <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-3">
-      <div className=" relative mb-20">
+    <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-4">
+      {/* <div className=" relative mb-20">
         {" "}
         <img
           alt="service"
@@ -64,7 +79,7 @@ export const CompanyInfo = () => {
           className="ml-6 -mt-16 border-[4px] border-white absolute rounded-full h-[120px] w-[120px] object-cover"
           src="/images/serviceDefault.png"
         />
-      </div>
+      </div> */}
       <div className="px-6">
         <div className="flex justify-between items-center">
           {" "}

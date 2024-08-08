@@ -295,11 +295,13 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Icon>
           <MenuButton.Title>Evaluaciones</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/ajustes" isActive={match("ajustes")}>
+          <MenuButton.Icon isActive={match("ajustes")}>
             <Settings />
           </MenuButton.Icon>
-          <MenuButton.Title>Ajustes</MenuButton.Title>
+          <MenuButton.Title isActive={match("ajustes")}>
+            Ajustes
+          </MenuButton.Title>
         </MenuButton>
       </section>
     </div>
