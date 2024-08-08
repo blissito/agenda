@@ -329,7 +329,7 @@ const User = ({ user }: { user: Partial<User> }) => (
 
 const OnboardingBanner = () => {
   return (
-    <section className="relative p-3 mx-6 border-[1px] bg-banner bg-cover text-white border-brand_stroke rounded-2xl h-[120px] mt-4">
+    <section className="relative p-3 mx-6 mb-6 border-[1px] bg-banner bg-cover text-white border-brand_stroke rounded-2xl h-[120px] mt-4">
       <img
         className="w-24 absolute right-2 -top-10"
         src="/images/3dagenda.png"

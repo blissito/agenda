@@ -24,6 +24,11 @@ import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 import { cn } from "~/utils/cd";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug";
+import { Schedule } from "~/components/icons/appointment/schedule";
+import { Clook } from "~/components/icons/appointment/clook";
+import { Money } from "~/components/icons/appointment/money";
+import { Id } from "~/components/icons/appointment/id";
+import { Location } from "~/components/icons/appointment/location";
 
 // @TODO: Improve with date and time in route to generate specific links
 
@@ -110,7 +115,7 @@ export const DateAndTimePicker = ({
   // console.log("Valid dates?", availableDays, weekDays); //??
 
   return (
-    <main className="min-w-fit">
+    <main className="min-w-fit ">
       {/* <AnimatePresence> */}
       <h3 className="text-sm font-bold mb-5">Selecciona una fecha y horario</h3>
       <article className={twMerge("flex-1", "md:flex md:w-fit gap-6")}>
@@ -296,28 +301,38 @@ export const Success = ({
   };
   return (
     <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
+      <img
+        alt="denik markwater"
+        className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto"
+        src="/images/denik-markwater.png"
+      />
       <div className="relative">
         <img
+          className="w-[240px]"
           alt="illustration"
-          src={"/images/illustrations/success_check.svg"}
+          src="/images/confetti.gif"
         />
-        {on && (
+        {/* {on && (
           <img
             className="absolute inset-0 animate-ping"
             alt="illustration"
             src={"/images/illustrations/success_check.svg"}
           />
-        )}
+        )} */}
       </div>
-      <h1 className="text-xl font-bold mb-4 text-neutral-900 text-center">
+      <h1 className="text-2xl font-bold mb-4 text-brand_dark text-center">
         ¡{event.customer.displayName} tu cita ha sido agendada!
       </h1>
-      <p className="mb-8 text-center">
+      <p className="mb-8 text-center text-lg">
         Enviamos la información de la cita a{" "}
-        <strong className="font-bold">{event.customer.email}</strong>
+        <strong className="font-bold font-satoMiddle">
+          {event.customer.email}
+        </strong>
       </p>
-      <div className="w-70 rounded-xl mx-auto bg-white shadow p-6 ">
-        <h2 className="font-bold text-neutral-900 mb-4">{event.title}</h2>
+      <div className="w-96 rounded-xl mx-auto bg-white shadow p-6 ">
+        <h2 className="font-satoMedium font-bold text-xl md:text-2xl text-brand_dark mb-4">
+          {event.title}
+        </h2>
         <ServiceList
           org={org}
           service={{ ...service }}
@@ -329,7 +344,7 @@ export const Success = ({
         onClick={() => onFinish()}
         as="Link"
         to={getCTALink()}
-        className="mt-12 py-4 w-full md:w-[200px] transition-all"
+        className="mt-12 py-4 w-[90%] mx-auto md:w-[160px] transition-all"
       >
         Agendar otra cita
       </PrimaryButton>
@@ -494,25 +509,26 @@ export const ServiceList = ({
         <ServiceListItem
           key={"date"}
           text={date?.toLocaleString()}
-          icon={<PiCalendarCheckBold />}
+          icon={<Schedule />}
         />
       )}
       <ServiceListItem
         key={"duración"}
+        icon={<Clook />}
         text={`Sesión de ${service.duration} minutos`}
       />
       <ServiceListItem
         key={"amount"}
-        icon={<FaMoneyBill />}
+        icon={<Money />}
         text={`$${service.price} ${service.currency?.toLocaleLowerCase()}`}
       />
       <ServiceListItem
         key={"provider"}
-        icon={<HiOutlineIdentification />}
+        icon={<Id />}
         text={`Con ${org?.shopKeeper || service.employeeName} `}
       />
       <ServiceListItem
-        icon={<FiMapPin />}
+        icon={<Location />}
         text={
           (service.place === "ONLINE"
             ? "Online"
@@ -536,7 +552,7 @@ const ServiceListItem = ({
   return (
     <motion.div
       key={text || nanoid()}
-      className="flex items-center gap-3"
+      className="flex items-center gap-4 text-base font-satoshi"
       initial={{ opacity: 0, x: 10 }}
       animate={{ x: 0, opacity: 1 }}
     >

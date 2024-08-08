@@ -1,6 +1,10 @@
 import { Link } from "@remix-run/react";
 import { Denik } from "../icons/denik";
 import { Facebook } from "../icons/facebook";
+import { Linkedin } from "../icons/linkedin";
+import { Instagram } from "../icons/insta";
+import { Twitter } from "../icons/twitter";
+import { Youtube } from "../icons/youtube";
 
 export const Footer = () => {
   return (
@@ -32,11 +36,45 @@ export const Footer = () => {
             Suscríbete a nuestro newsletter para recibir promociones
           </p>
           <div className="flex mt-10">
-            <Facebook fill="#707376" />
-            <Facebook />
-            <Facebook />
-            <Facebook />
-            <Facebook />
+            <a
+              href="https://www.facebook.com/profile.php?id=61563700900314"
+              target="_blank"
+              rel="noopener"
+              className="hover:opacity-50 transition-all"
+            >
+              <Facebook fill="#707376" />
+            </a>
+            <a
+              href="https://www.linkedin.com/company/104767180"
+              target="_blank"
+              rel="noopener"
+              className="hover:opacity-50 transition-all"
+            >
+              <Linkedin fill="#707376" />
+            </a>
+            <a
+              href="https://www.linkedin.com/company/104767180"
+              target="_blank"
+              rel="noopener"
+              className="hover:opacity-50 transition-all"
+            >
+              <Instagram fill="#707376" />
+            </a>
+            {/* <a
+              href="https://www.linkedin.com/company/104767180"
+              target="_blank"
+              rel="noopener"
+            >
+            <Twitter fill="#707376" />
+            </a> */}
+            <a
+              href="https://www.youtube.com/@Den%C3%ADk-v9s"
+              target="_blank"
+              rel="noopener"
+              className="hover:opacity-50 transition-all"
+            >
+              <Youtube fill="#707376" />
+            </a>
           </div>
         </div>
       </section>
