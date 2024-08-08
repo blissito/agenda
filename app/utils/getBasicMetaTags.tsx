@@ -46,7 +46,7 @@ export default function getBasicMetaTags({
     },
     {
       property: "og:url",
-      content: "denik.me",
+      content: "denikso.me",
     },
     {
       name: "twitter:card", // <meta name="twitter" content="twittercard" />

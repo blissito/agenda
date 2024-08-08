@@ -16,6 +16,7 @@ export const meta: MetaFunction = () =>
   getBasicMetaTags({
     title: "Deník | Tu agenda en un solo lugar",
     description: "Administra la agenda de tu negocio en un solo lugar",
+    image: "https://i.imgur.com/zlnq8Jd.png",
   });
 
 export default function Index() {
