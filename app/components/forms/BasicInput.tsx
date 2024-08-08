@@ -39,12 +39,11 @@ export const BasicInput = ({
       {as === "textarea" ? (
         <textarea
           name={name}
-          autoFocus
           disabled={isDisabled}
           placeholder={placeholder}
           className={twMerge(
             "min-h-20 ",
-            "placeholder-gray-300 ",
+            "placeholder-gray-300 font-satoshi",
             "focus:border-brand_blue",
             "rounded-xl border-gray-200 h-12 w-full mt-1",
             !!error && "border-red-500"
@@ -55,12 +54,11 @@ export const BasicInput = ({
       ) : (
         <input
           name={name}
-          autoFocus
           disabled={isDisabled}
           type={type}
           placeholder={placeholder}
           className={twMerge(
-            "placeholder-brand_iron text-brand_gray",
+            "placeholder-brand_iron text-brand_gray font-satoshi",
             "focus:border-brand_blue",
             "rounded-xl border-gray-200 h-12 w-full mt-1 ",
             "disabled:bg-brand_stroke disabled:cursor-not-allowed",

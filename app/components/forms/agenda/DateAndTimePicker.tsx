@@ -117,9 +117,11 @@ export const DateAndTimePicker = ({
   return (
     <main className="min-w-fit ">
       {/* <AnimatePresence> */}
-      <h3 className="text-sm font-bold mb-5">Selecciona una fecha y horario</h3>
+      <h3 className="text-base font-bold mb-8">
+        Selecciona una fecha y horario
+      </h3>
       <article className={twMerge("flex-1", "md:flex md:w-fit gap-6")}>
-        <section className="w-full">
+        <section className="w-full ">
           <MonthView
             selectedDate={selectedDate}
             onDayPress={handleDayPress}
@@ -132,11 +134,13 @@ export const DateAndTimePicker = ({
             animate={{ opacity: 1, y: 0 }}
             // className="w-full"
             className={
-              twMerge()
+              twMerge(" px-6")
               // selectedDate ? "block transition-all" : "hidden"
             }
           >
-            <h4 className="text-xs font-medium my-4">Selecciona una:</h4>
+            <h4 className="text-base font-medium mb-4 ">
+              Selecciona un horario:
+            </h4>
             <div className="grid md:w-44 grid-cols-3 md:grid-cols-2 gap-x-3 gap-y-2 place-content-center">
               <AnimatePresence>
                 {times.map((t, i) => (
@@ -211,16 +215,16 @@ const MonthView = ({
         key={nanoid()}
         // date={_date} // extra data just in case. It can be data-date={_date}
         className={cn(
-          "text-sm italic text-neutral-400 rounded-full md:px-2 py-1 m-1 transition-all flex justify-center items-center", // basic
-          isPartOfTheMonth && "text-neutral-800", // styles when part of the current month
+          "text-base italic text-neutral-400 rounded-full md:px-2 py-1 m-1 h-9 transition-all flex justify-center items-center", // basic
+          isPartOfTheMonth && "text-brand_dark", // styles when part of the current month
           validDates.includes(_date.toString())
-            ? "bg-brand_blue/10 text-neutral-800"
-            : "disabled:text-neutral-800/50 disabled:pointer-events-none", // styles when part of the list or DISABLED! <= @TODO: review again
+            ? " text-brand_dark"
+            : "disabled:text-brand_iron/30 disabled:line-through disabled:pointer-events-none", // styles when part of the list or DISABLED! <= @TODO: review again
           isToday(_date)
-            ? "bg-brand_blue/60 text-white disabled:text-white"
+            ? "bg-[#E7EFFD] text-brand_blue disabled:text-white"
             : "hover:bg-brand_blue hover:text-white", // styles when current selected date
           {
-            "bg-brand_blue/20": isAvailable,
+            " text-brand_gray bg-[#D2E2FF]": isAvailable,
             "bg-brand_blue text-white": isSelected,
           }
         )}
@@ -262,21 +266,21 @@ const MonthView = ({
         >
           <IoChevronBackOutline />
         </button>
-        <h3 className="capitalize text-xs font-medium mx-8">
+        <h3 className="capitalize text-base text-brand_dark font-satoMiddle mx-8">
           {monthName} {date.getFullYear()}
         </h3>
         <button className="mr-auto" onClick={() => monthNavigate(1)}>
           <IoChevronForward />
         </button>
       </nav>
-      <div className="grid grid-cols-7 text-center font-thin italic text-xs">
+      <div className="grid grid-cols-7 text-center font-thin italic text-sm">
         {dayNames.map((dayName) => (
-          <span className="text-brand_blue/70" key={nanoid()}>
+          <span className="text-gray-600 text-base " key={nanoid()}>
             {dayName}
           </span>
         ))}
       </div>
-      <div className="grid grid-cols-7">{nodes}</div>
+      <div className="grid grid-cols-7 text-sm font-satoshi mt-2">{nodes}</div>
     </div>
   );
 };
@@ -308,7 +312,7 @@ export const Success = ({
       />
       <div className="relative">
         <img
-          className="w-[240px]"
+          className="w-[240px] h-[240px]"
           alt="illustration"
           src="/images/confetti.gif"
         />
@@ -393,7 +397,8 @@ export const ClientForm = ({
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+    <Form onSubmit={handleSubmit(onSubmit)} className="flex flex-col grow">
+      <h3 className="text-base font-bold mb-8">Completa tu información</h3>
       <BasicInput
         name="displayName"
         label="Nombre"
@@ -473,7 +478,7 @@ const TimeButton = ({
       className={twMerge(
         "cursor-pointer",
         "flex justify-center",
-        "text-xs text-brand_blue/90 py-1 px-4 text-nowrap rounded border border-brand_blue/30",
+        "text-sm text-brand_blue/90 py-1 px-6 text-nowrap h-9 flex items-center justify-center rounded border border-brand_blue/30",
         isActive && "bg-brand_blue text-white border-transparent",
         !isActive && "hover:bg-brand_blue/10",
         className

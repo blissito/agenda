@@ -312,7 +312,7 @@ export default function Page() {
     );
 
   return (
-    <article className=" bg-[#f8f8f8] min-h-screen h-screen">
+    <article className=" bg-[#f8f8f8] min-h-screen h-screen relative">
       <div className="flex gap-3 items-center justify-center py-12">
         <img
           className="w-8 rounded-full"
@@ -321,16 +321,18 @@ export default function Page() {
         />
         <h1 className="font-bold text-sm ">{org?.name}</h1>
       </div>
-      <main className="bg-white shadow mx-auto rounded-xl p-6 w-[90%] md:w-fit">
+      <main className="bg-white shadow mx-auto rounded-xl p-8 w-[90%] min-h-[506px] md:w-fit z-50">
         <section className={twMerge("flex flex-col md:flex-row")}>
-          <div className="w-full max-w-[200px]">
+          <div className="w-full min-w-[260px] max-w-[260px]">
             <span className="text-brand_gray text-xs font-thin">
               {org?.name}
             </span>
-            <h2 className="text-lg font-medium mb-5">{service?.name}</h2>
+            <h2 className="text-2xl font-satoMiddle mb-5 text-brand_dark">
+              {service?.name}
+            </h2>
             <ServiceList org={org} service={service} date={date || undefined} />
           </div>
-          <hr className="border-l-brand_gray/10 md:my-0 md:h-44 md:w-1 w-full my-4 border-l md:mr-8 " />
+          <hr className="border-l-brand_gray/10 md:my-0 md:h-96 md:w-1 w-full my-4 mx-10 border-l md:mr-8 " />
           {currentScreen === "picker" && (
             <DateAndTimePicker
               scheduledDates={scheduledDates}
@@ -364,6 +366,11 @@ export default function Page() {
             </>
           )}
       </main>
+      <img
+        alt="denik markwater"
+        className="absolute right-0 bottom-0 z-0 hidden md:block lg:w-[30%] xl:w-auto"
+        src="/images/denik-markwater.png"
+      />
     </article>
   );
 }
