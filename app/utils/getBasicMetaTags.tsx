@@ -33,6 +33,10 @@ export default function getBasicMetaTags({
       content: description,
     },
     {
+      name: "og:description",
+      content: description,
+    },
+    {
       property: "og:image",
       content: image,
     },
@@ -51,6 +55,18 @@ export default function getBasicMetaTags({
     {
       name: "twitter:image",
       content: image,
+    },
+    {
+      name: "twitter:url",
+      content: image,
+    },
+    {
+      name: "twitter:title",
+      content: title,
+    },
+    {
+      name: "twitter:description",
+      content: description,
     },
   ];
 }
