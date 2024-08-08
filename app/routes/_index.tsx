@@ -12,12 +12,61 @@ import { People } from "~/components/icons/people";
 import { Suspense } from "react";
 import getBasicMetaTags from "~/utils/getBasicMetaTags";
 
-export const meta: MetaFunction = () =>
-  getBasicMetaTags({
-    title: "Deník | Tu agenda en un solo lugar",
-    description: "Administra la agenda de tu negocio en un solo lugar",
-    image: "https://i.imgur.com/zlnq8Jd.png",
-  });
+// export const meta: MetaFunction = () =>
+//   getBasicMetaTags({
+//     title: "Deník | Tu agenda en un solo lugar",
+//     description: "Administra la agenda de tu negocio en un solo lugar",
+//     image: "https://i.imgur.com/zlnq8Jd.png",
+//   });
+export const meta: MetaFunction = () => {
+  return [
+    { title: " Tu agenda en un solo lugar | Denik" },
+    {
+      property: "og:title",
+      content: " Tu agenda en un solo lugar | Denik",
+    },
+    {
+      name: "description",
+      content: "Administra la agenda de tu negocio en un solo lugar",
+    },
+    {
+      name: "og:description",
+      content: "Administra la agenda de tu negocio en un solo lugar",
+    },
+    {
+      property: "og:image",
+      content: "https://i.imgur.com/zlnq8Jd.png",
+    },
+    {
+      property: "og:type",
+      content: "website",
+    },
+    {
+      property: "og:url",
+      content: "denikso.me",
+    },
+    {
+      name: "twitter:card", // <meta name="twitter" content="twittercard" />
+      content: "summary",
+    },
+    {
+      name: "twitter:image",
+      content: "https://i.imgur.com/zlnq8Jd.png",
+    },
+    {
+      name: "twitter:url",
+      content: "https://i.imgur.com/zlnq8Jd.png",
+    },
+    {
+      name: "twitter:title",
+      content: "Tu agenda en un solo lugar | Denik",
+    },
+    {
+      name: "twitter:description",
+      content: "Administra la agenda de tu negocio en un solo lugar",
+    },
+  ];
+};
 
 export default function Index() {
   return (
