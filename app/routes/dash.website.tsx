@@ -29,7 +29,7 @@ export default function Website() {
 export const Template = () => {
   return (
     <section className="col-span-4 lg:col-span-2 ">
-      <div className="bg-white rounded-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl overflow-hidden sticky top-8">
         <div className="bg-schedule w-full h-20 flex items-center justify-center text-white text-xl font-satoMiddle">
           Tu agenda esta lista... ¡Compártela!
         </div>

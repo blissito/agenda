@@ -94,7 +94,7 @@ export function SideBar({
       </motion.aside>
       <motion.section
         style={{ paddingLeft: t }}
-        className="pl-[360px] pr-10 py-10 w-full  "
+        className="pl-[360px] pr-10 py-10 w-full min-h-screen h-auto box-border "
       >
         {children}
       </motion.section>
