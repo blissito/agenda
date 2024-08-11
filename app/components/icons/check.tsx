@@ -5,6 +5,7 @@ export const Check = ({
   props?: unknown;
 }) => (
   <svg
+    className="min-w-[28px]"
     width="28"
     height="28"
     viewBox="0 0 28 28"

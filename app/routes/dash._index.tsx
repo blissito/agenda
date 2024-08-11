@@ -7,9 +7,9 @@ export default function Page() {
     <section className=" w-full h-full 	">
       <div className="  h-screen  flex flex-col  box-border ">
         <div className="grid grid-cols-6 gap-10">
-          <div className="col-span-2 flex items-center">
+          <div className="col-span-6 xl:col-span-2 flex items-center">
             <div>
-              <h2 className="text-4xl font-bold leading-snug">
+              <h2 className="text-2xl md:text-4xl font-bold leading-snug">
                 Buenos días,
                 <br /> Brenda
               </h2>
@@ -20,9 +20,9 @@ export default function Page() {
               </p>
             </div>
           </div>
-          <div className="col-span-4 flex justify-end gap-10">
+          <div className="col-span-6 xl:col-span-4 flex flex-wrap lg:flex-nowrap justify-end gap-6 md:gap-10 overflow-hidden">
             <DashCard
-              className="bg-[#64D0C5]"
+              className="bg-[#64D0C5] "
               title="Ventas del mes"
               value="$30,000"
               icon="/images/chart.svg"
@@ -40,19 +40,18 @@ export default function Page() {
               icon="/images/agenda-dash.svg"
             />
             <DashCard
-              className="bg-[#FFAB61]"
-              title="Citas agendadas"
-              value="30"
-              icon="/images/agenda-dash.svg"
+              className="bg-[#91B870]"
+              title="Citas canceladas"
+              value="2"
+              icon="/images/cancel.svg"
             />
           </div>
         </div>
         <div className="grid grid-cols-6 gap-6 mt-10 overflow-hidden h-full  ">
-          <div className="col-span-4 flex flex-col">
+          <div className="col-span-6 xl:col-span-4 flex flex-col">
             <div className="bg-white rounded-2xl p-6">
               <h3>Servicios</h3>
-
-              <div className="flex gap-6 mt-6">
+              <div className="flex gap-6 mt-6 overflow-y-scroll">
                 <SummaryCard
                   title="Clase de piano"
                   description="10 clases"
@@ -84,7 +83,7 @@ export default function Page() {
               <h3>Ventas</h3>
             </div>
           </div>
-          <div className="bg-white rounded-2xl overflow-y-scroll  h-full col-span-2 pb-6  ">
+          <div className="bg-white rounded-2xl overflow-y-scroll  h-full col-span-6 xl:col-span-2 pb-6  ">
             <div className="bg-white/80 z-10 backdrop-blur	 py-4 sticky top-0 px-6">
               <h3>Servicios agendados recientemente</h3>
             </div>
@@ -198,13 +197,13 @@ const Appointment = ({
         />
         <div>
           <h3 className="text-brand_dark">{service}</h3>
-          <p className="text-sm">
+          <p className="text-sm text-brand_gray">
             {client} | {date} | {hour}
           </p>
         </div>
       </div>
 
-      <span>{time}</span>
+      <span className="text-brand_iron">{time}</span>
     </section>
   );
 };
@@ -221,12 +220,12 @@ const SummaryCard = ({
   data: string;
 }) => {
   return (
-    <section className="border-[1px] border-brand_stroke rounded-2xl flex flex-col items-center p-3 hover:scale-95 transition-all">
+    <section className="border-[1px] min-w-[132px]  border-brand_stroke rounded-2xl flex flex-col items-center text-center p-3 hover:scale-95 transition-all">
       <img
         className="h-12 w-12 rounded-full object-cover"
         src={img ? img : "/images/serviceDefault.png"}
       />
-      <h3>{title}</h3>
+      <h3 className="text-sm">{title}</h3>
       <p className="text-brand_gray text-sm">{description}</p>
       <span className="mt-4 font-satoMiddle">{data}</span>
     </section>
@@ -247,12 +246,12 @@ const DashCard = ({
   return (
     <section
       className={twMerge(
-        "w-[180px] rounded-2xl h-[240px] relative flex flex-col justify-end p-4 group ",
+        "w-[140px] md:w-[20%] rounded-2xl h-[140px] md:h-[240px] relative flex flex-col justify-end p-4 group grow ",
         className
       )}
     >
       <img
-        className="absolute right-0 top-0 group-hover:scale-95 transition-all"
+        className="absolute w-[64px] md:w-auto right-0 top-0 group-hover:scale-95 transition-all"
         src={icon}
       />
       <div className="text-white">

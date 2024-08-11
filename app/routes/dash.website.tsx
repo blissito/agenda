@@ -28,9 +28,9 @@ export default function Website() {
 
 export const Template = () => {
   return (
-    <section className="col-span-4 lg:col-span-2 ">
+    <section className="col-span-6 xl:col-span-2 ">
       <div className="bg-white rounded-2xl overflow-hidden sticky top-8">
-        <div className="bg-schedule w-full h-20 flex items-center justify-center text-white text-xl font-satoMiddle">
+        <div className="bg-schedule w-full h-20 flex items-center justify-center px-6 text-white text-xl font-satoMiddle">
           Tu agenda esta lista... ¡Compártela!
         </div>
         <div className="flex justify-between px-4 py-6 items-center">
@@ -66,7 +66,7 @@ export const Template = () => {
 
 export const CompanyInfo = () => {
   return (
-    <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-4">
+    <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
       {/* <div className=" relative mb-20">
         {" "}
         <img
@@ -80,7 +80,7 @@ export const CompanyInfo = () => {
           src="/images/serviceDefault.png"
         />
       </div> */}
-      <div className="px-6">
+      <div className="">
         <div className="flex justify-between items-center">
           {" "}
           <h2 className="text-2xl font-bold">Estudio Milan </h2>
@@ -241,7 +241,9 @@ export const InfoBox = ({
   return (
     <section className="grid grid-cols-8 gap-6 my-4 ">
       <p className="col-span-3 text-brand_dark font-satoshi">{title}</p>
-      <p className="col-span-3 text-brand_gray font-satoshi">{value}</p>
+      <p className="col-span-5 md:col-span-3 text-brand_gray font-satoshi">
+        {value}
+      </p>
     </section>
   );
 };

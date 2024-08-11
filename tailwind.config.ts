@@ -20,6 +20,7 @@ export default {
         calendar: "url(/images/calendarPattern.svg)",
         banner: "url(/images/back-banner.png)",
         schedule: "url(/images/schedule.png)",
+        onboarding: "url(/images/bg-banner.svg)",
       },
       animation: {
         "meteor-effect": "meteor 5s linear infinite",

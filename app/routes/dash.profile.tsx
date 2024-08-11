@@ -8,20 +8,20 @@ export default function Profile() {
   return (
     <main className=" ">
       <RouteTitle>Mi perfil </RouteTitle>
-      <section className="flex gap-8 items-center bg-white p-6 rounded-2xl max-w-3xl">
+      <section className="flex gap-3 md:gap-8 items-center bg-white p-6 rounded-2xl max-w-3xl">
         <img
-          className="w-[108px] h-[108px] rounded-full object-cover"
+          className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full object-cover"
           src="/images/img2.jpg"
           alt="avatar"
         />
         <div>
           <div className="flex gap-3 items-center">
-            <h3 className="text-brand_dark font-bold text-2xl">
+            <h3 className="text-brand_dark font-bold text-xl md:text-2xl">
               Brenda Ortega
             </h3>
             <Edit />
           </div>
-          <p className="text-brand_gray font-satoshi mt-1">
+          <p className="text-brand_gray font-satoshi mt-1 text-sm md:text-base">
             isabela_lozano_lonez@gmail.com
           </p>
         </div>
@@ -81,8 +81,10 @@ const PlanCard = ({
   return (
     <section className="flex flex-col gap-4 bg-white p-6 rounded-2xl max-w-3xl my-8">
       <div className="flex justify-between items-center flex-wrap">
-        <h3 className="mb-6 text-2xl font-bold">{plan}</h3>
-        <p className="mb-6 text-2xl font-satoshi font-bold">${price} / mes</p>
+        <h3 className="mb-4 md:mb-6 text-2xl font-bold font-title">{plan}</h3>
+        <p className="mb-4 md:mb-6 text-2xl font-satoshi font-bold">
+          ${price} / mes
+        </p>
       </div>
       {children}
       <hr />
@@ -92,7 +94,10 @@ const PlanCard = ({
           Próxima fecha de pago
           <span className="ml-2 font-bold  font-satoMedium">{nextPayment}</span>
         </p>
-        <SecondaryButton className="h-10"> Administrar Plan</SecondaryButton>
+        <SecondaryButton className="h-10 md:mt-0 mt-6">
+          {" "}
+          Administrar Plan
+        </SecondaryButton>
       </div>
     </section>
   );
