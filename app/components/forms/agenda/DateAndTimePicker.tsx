@@ -121,9 +121,9 @@ export const DateAndTimePicker = ({
         Selecciona una fecha y horario
       </h3>
       <article className={twMerge("flex-1", "md:flex md:w-fit gap-6")}>
-        <section className="w-full ">
+        <section className="w-full">
           <MonthView
-            selectedDate={selectedDate}
+            // selectedDate={selectedDate}
             onDayPress={handleDayPress}
             validDates={availableDays}
           />
@@ -508,7 +508,19 @@ export const ServiceList = ({
 }) => {
   return (
     <div className="text-xs text-brand_gray grid gap-3">
-      {date && <ServiceListItem key={"date"} text={date} icon={<Schedule />} />}
+      {date && (
+        <ServiceListItem
+          key={"date"}
+          text={date.toLocaleString("es-MX", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+          })}
+          icon={<Schedule />}
+        />
+      )}
       <ServiceListItem
         key={"duración"}
         icon={<Clook />}

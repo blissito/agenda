@@ -238,7 +238,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   return {
     scheduledDates,
     availableDays,
-    event: { ...event, formatedDate }, // If event will show success screen ✅
+    event: event ? { ...event, formatedDate } : undefined, // If event will show success screen ✅
     org,
     service,
   };
@@ -253,7 +253,7 @@ export default function Page() {
   >("picker");
   const [eventId, setEventId] = useState<string | null>(null);
   const [time, setTime] = useState("");
-  const [date, setDate] = useState<Date | null>(null);
+  const [date, setDate] = useState<Date>(new Date());
 
   const handleTimeChange = (t: string) => {
     const time = from12To24(t);
@@ -273,8 +273,9 @@ export default function Page() {
     clearErrors();
     setTime("");
     setValue("time", "", { shouldValidate: true });
-    setDate(selectedDate);
     setValue("date", selectedDate.toString(), { shouldValidate: true });
+    setDate(selectedDate);
+    console.log("End of this", selectedDate);
   };
 
   const {
