@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { Form, useFetcher } from "@remix-run/react";
 import { FaClock, FaMoneyBill } from "react-icons/fa";
 import { Event, Org, Service } from "@prisma/client";
@@ -321,7 +321,7 @@ export const Success = ({
         <ServiceList
           org={org}
           service={{ ...service }}
-          date={new Date(event.start)}
+          date={event.formatedDate}
         />
       </div>
       {/* @TODO: link to another schedule */}
@@ -493,7 +493,7 @@ export const ServiceList = ({
       {date && (
         <ServiceListItem
           key={"date"}
-          text={date?.toLocaleString()}
+          text={date}
           icon={<PiCalendarCheckBold />}
         />
       )}

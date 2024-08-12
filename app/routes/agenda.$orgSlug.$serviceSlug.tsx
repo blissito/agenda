@@ -48,6 +48,17 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
     if (!service)
       return json({ message: "Servicio no encontrado 😤" }, { status: 404 });
     // @TODO: Validation????? 🤬
+    // @TODO: from users locales
+    // const format = new Intl.DateTimeFormat("es-MX", {
+    //   timeZone: "America/Mexico_City",
+    //   day: "numeric",
+    //   month: "numeric",
+    //   year: "numeric",
+    //   hour12: true,
+    //   hour: "numeric",
+    //   minute: "numeric",
+    // });
+    // const date = format.format(new Date(data.date));
     const evnt = {
       dateString: data.dateString,
       start: data.date,
@@ -214,10 +225,20 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
       })
     : null;
 
+  const formater = new Intl.DateTimeFormat(undefined, {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+  });
+  const formatedDate = formater.format(event?.start);
+
   return {
     scheduledDates,
     availableDays,
-    event, // If event will show success screen ✅
+    event: { ...event, formatedDate }, // If event will show success screen ✅
     org,
     service,
   };
@@ -290,8 +311,8 @@ export default function Page() {
   useEffect(() => {
     if (fetcher.data?.screen === "form") {
       // change screen after post
-      setCurrentScreen(fetcher.data?.screen);
       setEventId(fetcher.data.eventId);
+      setCurrentScreen(fetcher.data.screen);
     }
     if (fetcher.data?.screen === "success") {
       setCurrentScreen(fetcher.data?.screen);
