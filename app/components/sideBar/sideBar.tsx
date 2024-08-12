@@ -94,7 +94,7 @@ export function SideBar({
       </motion.aside>
       <motion.section
         style={{ paddingLeft: t }}
-        className="pl-[360px] pr-10 py-10 w-full  "
+        className="pl-[360px] lg:pr-10 pr-6 py-6 lg:py-10 w-full min-h-screen h-auto box-border "
       >
         {children}
       </motion.section>
@@ -295,11 +295,13 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Icon>
           <MenuButton.Title>Evaluaciones</MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/ajustes" isActive={match("ajustes")}>
+          <MenuButton.Icon isActive={match("ajustes")}>
             <Settings />
           </MenuButton.Icon>
-          <MenuButton.Title>Ajustes</MenuButton.Title>
+          <MenuButton.Title isActive={match("ajustes")}>
+            Ajustes
+          </MenuButton.Title>
         </MenuButton>
       </section>
     </div>
@@ -329,8 +331,23 @@ const User = ({ user }: { user: Partial<User> }) => (
 
 const OnboardingBanner = () => {
   return (
-    <section className="relative p-3 mx-6 border-[1px] bg-banner bg-cover text-white border-brand_stroke rounded-2xl h-[120px] mt-4">
-      <img
+    <section className="bg-onboarding  pb-4 rounded-2xl bg-cover mx-6 mb-4 relative">
+      <div className="mt-12 px-4 text-white">
+        <h3 className="text-sm">
+          ¡Ya casi terminas de <br /> configurar tu agenda!
+        </h3>
+        <PrimaryButton
+          className="min-w-[80px] max-w-[80px] text-sm h-8 px-3  mt-4 bg-white text-brand_dark"
+          as="Link"
+          to={"/dash/onboarding"}
+          prefetch="render"
+        >
+          Continuar
+        </PrimaryButton>
+      </div>
+
+      {/* <section className="relative p-3 mx-6 mb-6 border-[1px] bg-banner bg-cover text-white border-brand_stroke rounded-2xl h-[120px] mt-4">
+       <img
         className="w-24 absolute right-2 -top-10"
         src="/images/3dagenda.png"
         alt="banner"
@@ -346,6 +363,7 @@ const OnboardingBanner = () => {
       >
         Continuar
       </PrimaryButton>
+    </section> */}
     </section>
   );
 };

@@ -10,11 +10,61 @@ import { ParallaxHero } from "~/components/home/ParallaxHero";
 import { Features, Hero, ScrollReviews } from "~/components/home/home";
 import { People } from "~/components/icons/people";
 import { Suspense } from "react";
+import getBasicMetaTags from "~/utils/getBasicMetaTags";
 
+// export const meta: MetaFunction = () =>
+//   getBasicMetaTags({
+//     title: "Deník | Tu agenda en un solo lugar",
+//     description: "Administra la agenda de tu negocio en un solo lugar",
+//     image: "https://i.imgur.com/zlnq8Jd.png",
+//   });
 export const meta: MetaFunction = () => {
   return [
-    { title: "Deník | Tu agenda en un solo lugar" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: " Tu agenda en un solo lugar | Denik" },
+    {
+      property: "og:title",
+      content: " Tu agenda en un solo lugar | Denik",
+    },
+    {
+      name: "description",
+      content: "Administra la agenda de tu negocio en un solo lugar",
+    },
+    {
+      property: "og:description",
+      content: "Administra la agenda de tu negocio en un solo lugar",
+    },
+    {
+      property: "og:image",
+      content: "https://i.imgur.com/zlnq8Jd.png",
+    },
+    {
+      property: "og:type",
+      content: "website",
+    },
+    {
+      property: "og:url",
+      content: "denikso.me",
+    },
+    {
+      property: "twitter:card", // <meta name="twitter" content="twittercard" />
+      content: "summary",
+    },
+    {
+      property: "twitter:image",
+      content: "https://i.imgur.com/zlnq8Jd.png",
+    },
+    {
+      property: "twitter:url",
+      content: "https://i.imgur.com/zlnq8Jd.png",
+    },
+    {
+      property: "twitter:title",
+      content: "Tu agenda en un solo lugar | Denik",
+    },
+    {
+      property: "twitter:description",
+      content: "Administra la agenda de tu negocio en un solo lugar",
+    },
   ];
 };
 

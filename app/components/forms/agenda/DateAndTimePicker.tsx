@@ -24,6 +24,11 @@ import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 import { cn } from "~/utils/cd";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug";
+import { Schedule } from "~/components/icons/appointment/schedule";
+import { Clook } from "~/components/icons/appointment/clook";
+import { Money } from "~/components/icons/appointment/money";
+import { Id } from "~/components/icons/appointment/id";
+import { Location } from "~/components/icons/appointment/location";
 
 // @TODO: Improve with date and time in route to generate specific links
 
@@ -110,11 +115,13 @@ export const DateAndTimePicker = ({
   // console.log("Valid dates?", availableDays, weekDays); //??
 
   return (
-    <main className="min-w-fit">
+    <main className="min-w-fit ">
       {/* <AnimatePresence> */}
-      <h3 className="text-sm font-bold mb-5">Selecciona una fecha y horario</h3>
+      <h3 className="text-base font-bold mb-8">
+        Selecciona una fecha y horario
+      </h3>
       <article className={twMerge("flex-1", "md:flex md:w-fit gap-6")}>
-        <section className="w-full">
+        <section className="w-full ">
           <MonthView
             selectedDate={selectedDate}
             onDayPress={handleDayPress}
@@ -127,11 +134,13 @@ export const DateAndTimePicker = ({
             animate={{ opacity: 1, y: 0 }}
             // className="w-full"
             className={
-              twMerge()
+              twMerge(" px-6")
               // selectedDate ? "block transition-all" : "hidden"
             }
           >
-            <h4 className="text-xs font-medium my-4">Selecciona una:</h4>
+            <h4 className="text-base font-medium mb-4 ">
+              Selecciona un horario:
+            </h4>
             <div className="grid md:w-44 grid-cols-3 md:grid-cols-2 gap-x-3 gap-y-2 place-content-center">
               <AnimatePresence>
                 {times.map((t, i) => (
@@ -206,16 +215,16 @@ const MonthView = ({
         key={nanoid()}
         // date={_date} // extra data just in case. It can be data-date={_date}
         className={cn(
-          "text-sm italic text-neutral-400 rounded-full md:px-2 py-1 m-1 transition-all flex justify-center items-center", // basic
-          isPartOfTheMonth && "text-neutral-800", // styles when part of the current month
+          "text-base italic text-neutral-400 rounded-full md:px-2 py-1 m-1 h-9 transition-all flex justify-center items-center", // basic
+          isPartOfTheMonth && "text-brand_dark", // styles when part of the current month
           validDates.includes(_date.toString())
-            ? "bg-brand_blue/10 text-neutral-800"
-            : "disabled:text-neutral-800/50 disabled:pointer-events-none", // styles when part of the list or DISABLED! <= @TODO: review again
+            ? " text-brand_dark"
+            : "disabled:text-brand_iron/30 disabled:line-through disabled:pointer-events-none", // styles when part of the list or DISABLED! <= @TODO: review again
           isToday(_date)
-            ? "bg-brand_blue/60 text-white disabled:text-white"
+            ? "bg-[#E7EFFD] text-brand_blue disabled:text-white"
             : "hover:bg-brand_blue hover:text-white", // styles when current selected date
           {
-            "bg-brand_blue/20": isAvailable,
+            " text-brand_gray bg-[#D2E2FF]": isAvailable,
             "bg-brand_blue text-white": isSelected,
           }
         )}
@@ -257,21 +266,21 @@ const MonthView = ({
         >
           <IoChevronBackOutline />
         </button>
-        <h3 className="capitalize text-xs font-medium mx-8">
+        <h3 className="capitalize text-base text-brand_dark font-satoMiddle mx-8">
           {monthName} {date.getFullYear()}
         </h3>
         <button className="mr-auto" onClick={() => monthNavigate(1)}>
           <IoChevronForward />
         </button>
       </nav>
-      <div className="grid grid-cols-7 text-center font-thin italic text-xs">
+      <div className="grid grid-cols-7 text-center font-thin italic text-sm">
         {dayNames.map((dayName) => (
-          <span className="text-brand_blue/70" key={nanoid()}>
+          <span className="text-gray-600 text-base " key={nanoid()}>
             {dayName}
           </span>
         ))}
       </div>
-      <div className="grid grid-cols-7">{nodes}</div>
+      <div className="grid grid-cols-7 text-sm font-satoshi mt-2">{nodes}</div>
     </div>
   );
 };
@@ -296,28 +305,38 @@ export const Success = ({
   };
   return (
     <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
+      <img
+        alt="denik markwater"
+        className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto"
+        src="/images/denik-markwater.png"
+      />
       <div className="relative">
         <img
+          className="w-[240px] h-[240px]"
           alt="illustration"
-          src={"/images/illustrations/success_check.svg"}
+          src="/images/confetti.gif"
         />
-        {on && (
+        {/* {on && (
           <img
             className="absolute inset-0 animate-ping"
             alt="illustration"
             src={"/images/illustrations/success_check.svg"}
           />
-        )}
+        )} */}
       </div>
-      <h1 className="text-xl font-bold mb-4 text-neutral-900 text-center">
+      <h1 className="text-2xl font-bold mb-4 text-brand_dark text-center">
         ¡{event.customer.displayName} tu cita ha sido agendada!
       </h1>
-      <p className="mb-8 text-center">
+      <p className="mb-8 text-center text-lg">
         Enviamos la información de la cita a{" "}
-        <strong className="font-bold">{event.customer.email}</strong>
+        <strong className="font-bold font-satoMiddle">
+          {event.customer.email}
+        </strong>
       </p>
-      <div className="w-70 rounded-xl mx-auto bg-white shadow p-6 ">
-        <h2 className="font-bold text-neutral-900 mb-4">{event.title}</h2>
+      <div className="w-96 rounded-xl mx-auto bg-white shadow p-6 ">
+        <h2 className="font-satoMedium font-bold text-xl md:text-2xl text-brand_dark mb-4">
+          {event.title}
+        </h2>
         <ServiceList
           org={org}
           service={{ ...service }}
@@ -329,7 +348,7 @@ export const Success = ({
         onClick={() => onFinish()}
         as="Link"
         to={getCTALink()}
-        className="mt-12 py-4 w-full md:w-[200px] transition-all"
+        className="mt-12 py-4 w-[90%] mx-auto md:w-[160px] transition-all"
       >
         Agendar otra cita
       </PrimaryButton>
@@ -378,7 +397,8 @@ export const ClientForm = ({
   };
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+    <Form onSubmit={handleSubmit(onSubmit)} className="flex flex-col grow">
+      <h3 className="text-base font-bold mb-8">Completa tu información</h3>
       <BasicInput
         name="displayName"
         label="Nombre"
@@ -458,7 +478,7 @@ const TimeButton = ({
       className={twMerge(
         "cursor-pointer",
         "flex justify-center",
-        "text-xs text-brand_blue/90 py-1 px-4 text-nowrap rounded border border-brand_blue/30",
+        "text-sm text-brand_blue/90 py-1 px-6 text-nowrap h-9 flex items-center justify-center rounded border border-brand_blue/30",
         isActive && "bg-brand_blue text-white border-transparent",
         !isActive && "hover:bg-brand_blue/10",
         className
@@ -490,29 +510,24 @@ export const ServiceList = ({
 }) => {
   return (
     <div className="text-xs text-brand_gray grid gap-3">
-      {date && (
-        <ServiceListItem
-          key={"date"}
-          text={date}
-          icon={<PiCalendarCheckBold />}
-        />
-      )}
+      {date && <ServiceListItem key={"date"} text={date} icon={<Schedule />} />}
       <ServiceListItem
         key={"duración"}
+        icon={<Clook />}
         text={`Sesión de ${service.duration} minutos`}
       />
       <ServiceListItem
         key={"amount"}
-        icon={<FaMoneyBill />}
+        icon={<Money />}
         text={`$${service.price} ${service.currency?.toLocaleLowerCase()}`}
       />
       <ServiceListItem
         key={"provider"}
-        icon={<HiOutlineIdentification />}
+        icon={<Id />}
         text={`Con ${org?.shopKeeper || service.employeeName} `}
       />
       <ServiceListItem
-        icon={<FiMapPin />}
+        icon={<Location />}
         text={
           (service.place === "ONLINE"
             ? "Online"
@@ -536,7 +551,7 @@ const ServiceListItem = ({
   return (
     <motion.div
       key={text || nanoid()}
-      className="flex items-center gap-3"
+      className="flex items-center gap-4 text-base font-satoshi"
       initial={{ opacity: 0, x: 10 }}
       animate={{ x: 0, opacity: 1 }}
     >

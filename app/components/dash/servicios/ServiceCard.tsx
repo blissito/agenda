@@ -129,7 +129,7 @@ export const ServiceCard = ({
         )}
       </AnimatePresence>
       <Link to={link ? link : "/dash/servicios"} className="group ">
-        <section className="bg-white rounded-2xl overflow-hidden hover:animate-movement-effect cursor-pointer">
+        <section className="bg-white rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer">
           <img
             alt="cover"
             className="w-full h-[160px] object-cover"
