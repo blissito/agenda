@@ -325,12 +325,12 @@ export const Success = ({
         )} */}
       </div>
       <h1 className="text-2xl font-bold mb-4 text-brand_dark text-center">
-        ¡{event.customer.displayName} tu cita ha sido agendada!
+        ¡{event.customer?.displayName} tu cita ha sido agendada!
       </h1>
       <p className="mb-8 text-center text-lg">
         Enviamos la información de la cita a{" "}
         <strong className="font-bold font-satoMiddle">
-          {event.customer.email}
+          {event.customer?.email}
         </strong>
       </p>
       <div className="w-96 rounded-xl mx-auto bg-white shadow p-6 ">
@@ -444,7 +444,6 @@ export const ClientForm = ({
 };
 
 const TimeButton = ({
-  meridiem,
   className,
   defaultValue,
   isActive,
@@ -453,7 +452,6 @@ const TimeButton = ({
   onChange?: (arg0: string) => void;
   isActive?: boolean;
   defaultValue?: string;
-  meridiem?: boolean;
   className?: string;
 }) => {
   const formatTime = (time?: string) => {
