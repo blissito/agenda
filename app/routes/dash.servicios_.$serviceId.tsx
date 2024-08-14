@@ -1,39 +1,53 @@
 import { IoIosArrowForward } from "react-icons/io";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { InfoBox } from "./dash.website";
-import { Link } from "@remix-run/react";
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { db } from "~/utils/db.server";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrump";
+import { Service } from "@prisma/client";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const service = await db.service.findUnique({
     where: { id: params.serviceId },
   });
+  if (!service) return json(null, { status: 404 });
   return {
     service,
   };
 };
 
 export default function Page() {
+  const { service } = useLoaderData<typeof loader>();
   return (
-    <h1>Blissmo</h1>
-    // <section>
-    //   <div className="flex items-center text-sm text-brand_gray gap-1">
-    //     <Link to="/dash/services">
-    //       <span>Servicios </span>
-    //     </Link>
-
-    //     <IoIosArrowForward />
-    //     <span>Unid </span>
-    //   </div>
-    //   <div className="grid grid-cols-4 mt-8">
-    //     <ServiceDetail />
-    //   </div>
-    // </section>
+    <section>
+      <Breadcrumb className="text-brand_gray">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dash/servicios">Servicios</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/dash/servicios/">
+              {service.name}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="grid grid-cols-4 mt-8">
+        <ServiceDetail service={service} />
+      </div>
+    </section>
   );
 }
 
-export const ServiceDetail = () => {
+export const ServiceDetail = ({ service }: { service: Service }) => {
   return (
     <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-3">
       <div className="grid grid-cols-3 gap-8 ">
@@ -59,7 +73,7 @@ export const ServiceDetail = () => {
           <h2 className="text-2xl font-bold">Clase de canto </h2>
           <SecondaryButton
             as="Link"
-            to="/dash/servicios/general"
+            to={`/dash/servicios/${service.id}/general`}
             className="h-10"
           >
             {" "}

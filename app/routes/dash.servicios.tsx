@@ -46,7 +46,8 @@ export default function Services() {
               duration={service.duration} // @TODO: format function this is minutes for now
               price={`${service.price} mxn`}
               status={service.isActive ? "Activo" : "Desactivado"}
-              link={getLink(service.slug)} // just for developing
+              // link={getLink(service.slug)} // just for developing
+              link={`/dash/servicios/${service.id}`}
             />
           ))}
           {!!services.length && <AddService />}
