@@ -57,7 +57,14 @@ export const ServiceDetail = () => {
         <div className="flex justify-between items-center">
           {" "}
           <h2 className="text-2xl font-bold">Clase de canto </h2>
-          <SecondaryButton className="h-10"> Editar</SecondaryButton>
+          <SecondaryButton
+            as="Link"
+            to="/dash/servicios/general"
+            className="h-10"
+          >
+            {" "}
+            Editar
+          </SecondaryButton>
         </div>
 
         <InfoBox title="Categoría" value="Clases para niños" />
@@ -73,7 +80,14 @@ export const ServiceDetail = () => {
         <div className="flex justify-between items-center">
           {" "}
           <h3 className="text-lg font-bold">Agendamiento</h3>
-          <SecondaryButton className="h-10"> Editar</SecondaryButton>
+          <SecondaryButton
+            as="Link"
+            to="/dash/servicios/agendamiento"
+            className="h-10"
+          >
+            {" "}
+            Editar
+          </SecondaryButton>
         </div>
         <InfoBox title="Servicio" value="En sucursal" />
         <InfoBox title="Agendamiento en línea" value="Activo" />
@@ -82,7 +96,14 @@ export const ServiceDetail = () => {
         <div className="flex justify-between items-center">
           {" "}
           <h3 className="text-lg font-bold">Horario</h3>
-          <SecondaryButton className="h-10"> Editar</SecondaryButton>
+          <SecondaryButton
+            as="Link"
+            to="/dash/servicios/horario"
+            className="h-10"
+          >
+            {" "}
+            Editar
+          </SecondaryButton>
         </div>
         <p className="font-satoshi text-brand_gray">
           Sesiones de{" "}
@@ -101,8 +122,11 @@ export const ServiceDetail = () => {
       <hr className="bg-brand_stroke my-6" />
       <div className="flex justify-between items-center">
         {" "}
-        <h3 className="text-lg font-bold">Recordatorios y pago</h3>
-        <SecondaryButton className="h-10"> Editar</SecondaryButton>
+        <h3 className="text-lg font-bold">Recordatorios y cobros</h3>
+        <SecondaryButton className="h-10" as="Link" to="/dash/servicios/cobros">
+          {" "}
+          Editar
+        </SecondaryButton>
       </div>
 
       <InfoBox title="Pago" value="Al agendar" />

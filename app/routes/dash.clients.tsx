@@ -1,4 +1,6 @@
 import { Avatar } from "~/components/common/Avatar";
+import { SecondaryButton } from "~/components/common/secondaryButton";
+import { Anchor } from "~/components/icons/link";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 
 export default function Clients() {
@@ -6,6 +8,7 @@ export default function Clients() {
     <main className=" ">
       <RouteTitle>Clientes</RouteTitle>
       <Summary />
+      {/* <EmptyStateClients /> */}
     </main>
   );
 }
@@ -34,5 +37,24 @@ export const Summary = () => {
         </div>
       </div>
     </section>
+  );
+};
+
+const EmptyStateClients = () => {
+  return (
+    <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
+      <div className="text-center">
+        <img className="mx-auto mb-4" src="/images/clients-empty.svg" />
+        <p className="font-satoMedium text-xl font-bold">
+          ¡Nada por aquí! <span className="text-2xl ">👀</span>{" "}
+        </p>
+        <p className="mt-2 text-brand_gray">
+          Comparte tu agenda y empieza a recibir a tus clientes
+        </p>
+        <SecondaryButton className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]">
+          <Anchor /> Copiar link
+        </SecondaryButton>
+      </div>
+    </div>
   );
 };

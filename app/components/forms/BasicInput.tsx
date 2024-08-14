@@ -43,7 +43,7 @@ export const BasicInput = ({
           placeholder={placeholder}
           className={twMerge(
             "min-h-20 ",
-            "placeholder-gray-300 font-satoshi",
+            "placeholder-brand_iron font-satoshi",
             "focus:border-brand_blue",
             "rounded-xl border-gray-200 h-12 w-full mt-1",
             !!error && "border-red-500"

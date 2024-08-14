@@ -283,17 +283,21 @@ const MainMenu = ({ className }: { className?: string }) => {
             Clientes
           </MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
+          <MenuButton.Icon isActive={match("lealtad")}>
             <Loyalty />
           </MenuButton.Icon>
-          <MenuButton.Title>Lealtad</MenuButton.Title>
+          <MenuButton.Title isActive={match("lealtad")}>
+            Lealtad
+          </MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
+        <MenuButton to="/dash/reviews" isActive={match("reviews")}>
+          <MenuButton.Icon isActive={match("reviews")}>
             <Rank />
           </MenuButton.Icon>
-          <MenuButton.Title>Evaluaciones</MenuButton.Title>
+          <MenuButton.Title isActive={match("reviews")}>
+            Evaluaciones
+          </MenuButton.Title>
         </MenuButton>
         <MenuButton to="/dash/ajustes" isActive={match("ajustes")}>
           <MenuButton.Icon isActive={match("ajustes")}>
@@ -345,25 +349,6 @@ const OnboardingBanner = () => {
           Continuar
         </PrimaryButton>
       </div>
-
-      {/* <section className="relative p-3 mx-6 mb-6 border-[1px] bg-banner bg-cover text-white border-brand_stroke rounded-2xl h-[120px] mt-4">
-       <img
-        className="w-24 absolute right-2 -top-10"
-        src="/images/3dagenda.png"
-        alt="banner"
-      />
-      <p className="text-base mb-3 font-satoMiddle w-[80%]">
-        ¡Ya casi terminas de configurar tu agenda!
-      </p>
-      <PrimaryButton
-        className="min-w-[100px] max-w-[100px] px-3 h-8 bg-white text-brand_dark"
-        as="Link"
-        to={"/dash/onboarding"}
-        prefetch="render"
-      >
-        Continuar
-      </PrimaryButton>
-    </section> */}
     </section>
   );
 };

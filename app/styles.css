@@ -3,7 +3,7 @@
   src: url("/fonts/Satoshi-Regular.ttf");
 }
 @font-face {
-  font-family: "Jakarta ";
+  font-family: "Jakarta";
   src: url("/fonts/PlusJakartaMedium.ttf");
 }
 
@@ -27,14 +27,15 @@ html {
 h1,
 h2,
 h3 {
-  font-family: "Jakarta ";
+  font-family: "Jakarta";
 }
 
 p {
   font-family: "Satoshi ";
 }
 .font-title {
-  font-family: "Jakarta ";
+  font-family: "Jakarta";
+  font-weight: 800;
 }
 .font-satoMiddle {
   font-family: "Medium Font ", sans-serif;
@@ -102,8 +103,16 @@ p {
   color: #5158f6;
 }
 
-@media (max-width: 768px) {
-  .overlay {
-    padding: 40px;
+input[type="color"].custom {
+  --size: 45px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  padding: 0px;
+  border: none;
+
+  &::-webkit-color-swatch {
+    border: transparent;
+    border-radius: 8px;
   }
 }

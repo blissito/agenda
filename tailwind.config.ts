@@ -21,6 +21,7 @@ export default {
         banner: "url(/images/back-banner.png)",
         schedule: "url(/images/schedule.png)",
         onboarding: "url(/images/bg-banner.svg)",
+        dashEmpty: "url(/images/dash-empty.png)",
       },
       animation: {
         "meteor-effect": "meteor 5s linear infinite",

@@ -13,6 +13,7 @@ import { Tiktok } from "~/components/icons/tiktok";
 import { Twitter } from "~/components/icons/twitter";
 import { Youtube } from "~/components/icons/youtube";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
+import Modal from "~/components/ui/dialog";
 
 export default function Website() {
   return (
@@ -43,7 +44,10 @@ export const Template = () => {
             </p>
           </div>
           <div className="flex gap-4 text-[20px] text-brand_gray">
-            <Edit className="hover:opacity-50 cursor-pointer" />
+            <Modal>
+              {" "}
+              <Edit className="hover:opacity-50 cursor-pointer" />
+            </Modal>
             <FiCopy className="hover:opacity-50 cursor-pointer" />
             <IoQrCodeOutline className="hover:opacity-50 cursor-pointer" />
           </div>
