@@ -33,8 +33,8 @@ export const TextAreaInput = ({
       <textarea
         placeholder={placeholder}
         className={twMerge(
-          "focus:border-brand_blue h-20",
-          "rounded-xl border-gray-200 h-20",
+          "focus:border-brand_blue h-20 font-satoshi text-brand_gray",
+          "rounded-xl border-gray-200 h-20 placeholder:text-brand_iron",
           !!error && "border-red-500"
         )}
         {...props}

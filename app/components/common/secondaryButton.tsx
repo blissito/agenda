@@ -53,8 +53,9 @@ export const SecondaryButton = ({
       disabled={isDisabled}
       {...props}
       className={twMerge(
-        isDisabled && "disabled:bg-gray-300 disabled:cursor-not-allowed",
-        " bg-brand_pale font-satoshi  text-brand-dark h-[48px] min-w-[80px] px-4 rounded-full flex items-center justify-center text-center gap-2 hover:-translate-y-1 transition duration-400",
+        isDisabled &&
+          "disabled:bg-gray-300 disabled:cursor-not-allowed font-satoMiddle",
+        " bg-brand_pale   text-brand-dark h-[48px] min-w-[80px] px-4 rounded-full flex items-center justify-center text-center gap-2 hover:-translate-y-1 transition duration-400",
         // hover/click animation:
         "transition-all",
         !isDisabled && "hover:-translate-y-1",

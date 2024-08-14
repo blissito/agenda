@@ -8,9 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump";
-import { action } from "./dash_.servicios_.nuevo";
-import { InputFile } from "~/components/forms/InputFile";
-import { AddImage } from "~/components/icons/addImage";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
@@ -36,13 +33,13 @@ export default function Index() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/servicios">
+            <BreadcrumbLink href={`/dash/servicios/${service.id}`}>
               {service.name}
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/servicios/general">
+            <BreadcrumbLink href={`/dash/servicios/${service.id}/general`}>
               General
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -88,23 +85,27 @@ export default function Index() {
           placeholder="Clase de piano"
           label="Nombre del servicio"
           name="name"
+          value={service.name}
         />
         <BasicInput
           placeholder="$0.00"
           label="Precio"
           name="price"
           type="number"
+          value={service.price}
         />
         <BasicInput
           name="points"
           placeholder="100"
           label="¿A cuántos puntos de recompensas equivale el servicio?"
+          value={service.points}
         />
         <BasicInput
           as="textarea"
           name="description"
           placeholder="Cuéntale a tus clientes sobre tu servicio"
           label="Descripción"
+          value={service.description}
         />
 
         <div className="flex mt-16 justify-end gap-6">

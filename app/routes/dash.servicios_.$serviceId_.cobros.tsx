@@ -8,8 +8,20 @@ import {
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { ServiceConfigForm } from "~/components/forms/services_model/ServiceConfigForm";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { db } from "~/utils/db.server";
+import { useLoaderData } from "@remix-run/react";
+
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const serviceId = params.serviceId;
+  const service = await db.service.findUnique({ where: { id: serviceId } });
+  if (!service) return json(null, { status: 404 });
+  return { service };
+};
 
 export default function Index() {
+  const { service } = useLoaderData<typeof loader>();
+
   return (
     <section>
       <Breadcrumb className="text-brand_gray">
@@ -19,7 +31,9 @@ export default function Index() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/servicios">ServiceId</BreadcrumbLink>
+            <BreadcrumbLink href={`/dash/servicios/${service.id}`}>
+              {service.name}
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>

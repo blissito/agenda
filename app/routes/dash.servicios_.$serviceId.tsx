@@ -50,44 +50,33 @@ export default function Page() {
 export const ServiceDetail = ({ service }: { service: Service }) => {
   return (
     <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-3">
-      <div className="grid grid-cols-3 gap-8 ">
+      <div className="grid grid-cols-1 gap-8 ">
         <img
           alt="service"
-          className="h-[180px]  rounded-2xl object-cover"
-          src="/images/serviceDefault.png"
-        />
-        <img
-          alt="service"
-          className="h-[180px]  rounded-2xl  object-cover"
-          src="/images/serviceDefault.png"
-        />
-        <img
-          alt="service"
-          className="h-[180px]  rounded-2xl  object-cover"
-          src="/images/serviceDefault.png"
+          className="h-[180px]  rounded-2xl w-full object-cover"
+          src={
+            service.photoURL ? service.photoURL : "/images/serviceDefault.png"
+          }
         />
       </div>
       <div className="mt-8">
         <div className="flex justify-between items-center">
           {" "}
-          <h2 className="text-2xl font-bold">Clase de canto </h2>
+          <h2 className="text-2xl font-bold font-jakarta">{service.name} </h2>
           <SecondaryButton
             as="Link"
             to={`/dash/servicios/${service.id}/general`}
-            className="h-10"
+            className="h-10 "
           >
             {" "}
             Editar
           </SecondaryButton>
         </div>
 
-        <InfoBox title="Categoría" value="Clases para niños" />
-        <InfoBox title="Precio" value="$399.00" />
-        <InfoBox title="Puntos" value="$10.00" />
-        <InfoBox
-          title="Puntos"
-          value="Lorem ipsum dolor sit amet consectetur. Posuere sit id sed augue vestibulum nullam viverra ut turpis. Amet donec eget tellus id. Pellentesque tincidunt libero hac tellus habitasse in. Ut dictum pretium mauris."
-        />
+        {/* <InfoBox title="Categoría" value="Clases para niños" /> */}
+        <InfoBox title="Precio" value={<span>${service.price} mxn</span>} />
+        <InfoBox title="Puntos" value={service.points} />
+        <InfoBox title="Descripción" value={service.description} />
 
         <hr className="bg-brand_stroke my-6" />
 
@@ -96,14 +85,14 @@ export const ServiceDetail = ({ service }: { service: Service }) => {
           <h3 className="text-lg font-bold">Agendamiento</h3>
           <SecondaryButton
             as="Link"
-            to="/dash/servicios/agendamiento"
+            to={`/dash/servicios/${service.id}/agendamiento`}
             className="h-10"
           >
             {" "}
             Editar
           </SecondaryButton>
         </div>
-        <InfoBox title="Servicio" value="En sucursal" />
+        <InfoBox title="Servicio" value={service.place} />
         <InfoBox title="Agendamiento en línea" value="Activo" />
         <InfoBox title="Agendamiento simultáneo" value="hasta 6 citas" />
         <hr className="bg-brand_stroke my-6" />
@@ -112,7 +101,7 @@ export const ServiceDetail = ({ service }: { service: Service }) => {
           <h3 className="text-lg font-bold">Horario</h3>
           <SecondaryButton
             as="Link"
-            to="/dash/servicios/horario"
+            to={`/dash/servicios/${service.id}/horario`}
             className="h-10"
           >
             {" "}
@@ -121,8 +110,10 @@ export const ServiceDetail = ({ service }: { service: Service }) => {
         </div>
         <p className="font-satoshi text-brand_gray">
           Sesiones de{" "}
-          <span className="font-bold font-satoMedium">45 minutos</span> con{" "}
-          <span className="font-bold font-satoMedium">15 minutos</span> de
+          <span className="font-bold font-satoMedium">
+            {service.duration} minutos
+          </span>{" "}
+          con <span className="font-bold font-satoMedium">15 minutos</span> de
           descanso.
         </p>
         <InfoBox title="Lunes" value="de 9:00 am a 16:00 pm" />
@@ -137,7 +128,11 @@ export const ServiceDetail = ({ service }: { service: Service }) => {
       <div className="flex justify-between items-center">
         {" "}
         <h3 className="text-lg font-bold">Recordatorios y cobros</h3>
-        <SecondaryButton className="h-10" as="Link" to="/dash/servicios/cobros">
+        <SecondaryButton
+          className="h-10"
+          as="Link"
+          to={`/dash/servicios/${service.id}/cobros`}
+        >
           {" "}
           Editar
         </SecondaryButton>

@@ -8,6 +8,11 @@
 }
 
 @font-face {
+  font-family: "JakarBold";
+  src: url("/fonts/PlusJakartaSemiBold.ttf");
+}
+
+@font-face {
   font-family: "Denik bold ";
   src: url("/fonts/Satoshi-Bold.ttf");
   font-weight: bold;
@@ -47,6 +52,10 @@ p {
 
 .font-satoMedium {
   font-family: "Denik bold ";
+}
+
+.font-jakarta {
+  font-family: "JakarBold";
 }
 
 .overlay {
