@@ -1,14 +1,34 @@
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { Avatar } from "~/components/common/Avatar";
 import { SecondaryButton } from "~/components/common/secondaryButton";
+import { useCopyLink } from "~/components/hooks/useCopyLink";
 import { Anchor } from "~/components/icons/link";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
+import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { db } from "~/utils/db.server";
+import { generateLink } from "~/utils/generateSlug";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { org } = await getUserAndOrgOrRedirect(request);
+  const link = generateLink(request.url, org.slug);
+  // const clients = await db.event.findMany({where:{
+
+  // }})
+
+  return {
+    org,
+    link,
+  };
+};
 
 export default function Clients() {
+  const { org, link } = useLoaderData<typeof loader>();
   return (
     <main className=" ">
       <RouteTitle>Clientes</RouteTitle>
-      <Summary />
-      {/* <EmptyStateClients /> */}
+      {/* <Summary /> */}
+      <EmptyStateClients link={link} />
     </main>
   );
 }
@@ -40,18 +60,27 @@ export const Summary = () => {
   );
 };
 
-const EmptyStateClients = () => {
+const EmptyStateClients = ({ link }: { link: string }) => {
+  const { setLink, ref } = useCopyLink(link);
   return (
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
-        <img className="mx-auto mb-4" src="/images/clients-empty.svg" />
+        <img
+          className="mx-auto mb-4"
+          src="/images/clients-empty.svg"
+          alt="illustration"
+        />
         <p className="font-satoMedium text-xl font-bold">
           ¡Nada por aquí! <span className="text-2xl ">👀</span>{" "}
         </p>
         <p className="mt-2 text-brand_gray">
           Comparte tu agenda y empieza a recibir a tus clientes
         </p>
-        <SecondaryButton className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]">
+        <SecondaryButton
+          ref={ref}
+          onClick={setLink}
+          className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]"
+        >
           <Anchor /> Copiar link
         </SecondaryButton>
       </div>

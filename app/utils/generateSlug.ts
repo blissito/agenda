@@ -13,3 +13,9 @@ export const generateSlug = (string: string, addDate: boolean = true) => {
       .replace(/\-\-+/g, "-") + (addDate ? `-${nanoid(6)}` : "")
   );
 };
+
+export const generateLink = (uri: string, orgSlug: string) => {
+  const url = new URL(uri);
+  url.pathname = `${orgSlug}/agenda`;
+  return url.toString();
+};

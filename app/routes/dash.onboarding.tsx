@@ -86,9 +86,9 @@ export default function DashOnboarding() {
                 <AnimatePresence>
                   {sitioWebDone !== "1" ? (
                     <motion.div
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
                     >
                       <PrimaryButton onClick={handleSitioWeb} className="h-10">
                         Visitar
@@ -96,9 +96,9 @@ export default function DashOnboarding() {
                     </motion.div>
                   ) : (
                     <motion.div
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
                     >
                       <StepCheck />
                     </motion.div>
@@ -127,9 +127,9 @@ export default function DashOnboarding() {
                   <AnimatePresence>
                     {servicesCount < 2 ? (
                       <motion.div
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
                       >
                         <PrimaryButton
                           as="Link"
@@ -142,9 +142,9 @@ export default function DashOnboarding() {
                       </motion.div>
                     ) : (
                       <motion.div
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
                       >
                         <StepCheck />
                       </motion.div>
@@ -163,9 +163,9 @@ export default function DashOnboarding() {
                 <AnimatePresence>
                   {shareLink !== "1" ? (
                     <motion.div
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
                     >
                       <PrimaryButton onClick={handleCopyURL} className="h-10">
                         Copiar
@@ -173,9 +173,9 @@ export default function DashOnboarding() {
                     </motion.div>
                   ) : (
                     <motion.div
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
                     >
                       <StepCheck />
                     </motion.div>
@@ -197,9 +197,9 @@ export default function DashOnboarding() {
       </div>
       <div className="max-w-2xl h-[72px] mx-auto items-center bg-white px-8 py-6 mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden">
         <p>
-          ¿Tienes alguna duda?{" "}
-          <a href="!#" className="text-brand_blue underline">
-            Escríbenos
+          ¿Tienes alguna duda? Escríbenos a{" "}
+          <a href="mailto:hola@denik.me" className="text-brand_blue underline">
+            hola@denik.me
           </a>{" "}
         </p>
         <img
