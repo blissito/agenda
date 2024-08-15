@@ -11,7 +11,7 @@ export const useCopyLink = (link: string, onClick?: () => void) => {
       rect.top + rect.height - 40
     )}px;left:${Math.floor(
       rect.left + rect.width + 16
-    )}px;background-color:gray;color:white;padding:4px;border-radius:9px;opacity:0.8;`;
+    )}px;background-color:#11151A;color:white;padding:4px 12px;border-radius:9px;`;
     const p = document.createElement("p");
     p.textContent = "Copiado ✅";
     console.log("Aqui", styleString, p, rect);

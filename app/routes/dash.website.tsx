@@ -99,11 +99,11 @@ export const Template = ({ url, qr }: { qr: string; url: string }) => {
             <p
               id="pop"
               className={twMerge(
-                "bg-gray-600/80 text-white text-xs min-w-fit p-2 rounded-lg absolute right-0 top-[15%]",
+                "bg-brand_dark text-white text-xs min-w-fit p-2 rounded-lg absolute right-0 top-[15%]",
                 pop ? "block" : "hidden"
               )}
             >
-              copiado ✅
+              Copiado ✅
             </p>
             <a download="código_qr" href={qr} target="_blank" rel="noreferrer">
               <IoQrCodeOutline className="hover:opacity-50 cursor-pointer" />

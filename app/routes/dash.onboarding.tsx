@@ -184,11 +184,11 @@ export default function DashOnboarding() {
                 <p
                   id="pop"
                   className={twMerge(
-                    "bg-gray-600/80 text-white text-xs min-w-fit p-2 rounded-lg absolute right-0",
+                    "bg-brand_dark text-white text-xs min-w-fit p-2 rounded-lg absolute right-0",
                     pop ? "block" : "hidden"
                   )}
                 >
-                  copiado ✅
+                  Copiado ✅
                 </p>
               </>
             }
