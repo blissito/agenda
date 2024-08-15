@@ -1,3 +1,4 @@
+// @TODO: when DB restarts set missing createdAt and updatedAt
 generator client {
   provider      = "prisma-client-js"
   // output        = "node_modules/@prisma/client/.prisma/client"
@@ -127,7 +128,8 @@ model Event {
   duration   Int // minutes
   allDay     Boolean     @default(false)
   status     EventStatus @default(CANCELED)
-  // only needed relation
+  // relations
+  // orgId      String
   service    Service     @relation(fields: [serviceId], references: [id])
   serviceId  String      @db.ObjectId
   // metadata
@@ -135,6 +137,10 @@ model Event {
   // optionals
   title      String?
   end        DateTime? // @TODO: make it required
+
+  // Dates
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
 }
 
 model Job {

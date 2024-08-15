@@ -5,33 +5,82 @@ import { SecondaryButton } from "~/components/common/secondaryButton";
 import { useCopyLink } from "~/components/hooks/useCopyLink";
 import { Anchor } from "~/components/icons/link";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
 import { db } from "~/utils/db.server";
 import { generateLink } from "~/utils/generateSlug";
 
+type Client = {
+  points: number;
+  updatedAt: Date | string;
+  eventCount: number;
+  nextEventDate: Date | string;
+  loggedUserId?: string | null;
+  displayName: string | null;
+  email: string;
+  tel: string | null;
+  comments: string | null;
+  id: string;
+};
+
+// @TODO generate custom model
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
   const link = generateLink(request.url, org.slug);
-  // const clients = await db.event.findMany({where:{
+  const services = await getServices(request);
+  const events = await db.event.findMany({
+    where: {
+      NOT: { customer: { email: null } },
+      service: {
+        id: { in: services.map((s) => s.id) },
+      },
+    },
+  });
 
-  // }})
+  const clientsObject: { [x: string]: Client } = {};
+
+  events.forEach((e) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (e.customer.email) {
+      clientsObject[e.customer.email] = {
+        ...e.customer,
+        email: e.customer.email,
+        points: 0,
+        updatedAt: e.updatedAt,
+        eventCount: 12, // @TODO: count while filter
+        nextEventDate: tomorrow,
+        id: e.id, // @TODO: not the right id
+      };
+    }
+  });
+
+  // const emails = [...new Set(events.map((e) => e.customer.email))].filter(
+  //   Boolean
+  // );
 
   return {
-    org,
+    clients: Object.values(clientsObject) as Client[],
     link,
   };
 };
 
 export default function Clients() {
-  const { org, link } = useLoaderData<typeof loader>();
+  const { clients = [], link } = useLoaderData<typeof loader>();
   return (
-    <main className=" ">
+    <>
       <RouteTitle>Clientes</RouteTitle>
       {/* <Summary /> */}
-      <EmptyStateClients link={link} />
-    </main>
+      {clients.map((c) => (
+        <Client client={c} key={c.id} />
+      ))}
+      {!clients.length && <EmptyStateClients link={link} />}
+    </>
   );
 }
+
+export const Client = ({ client }: { client: Client }) => {
+  return <div>{client.displayName}</div>;
+};
 
 export const Summary = () => {
   return (

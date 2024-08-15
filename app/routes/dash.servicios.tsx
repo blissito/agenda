@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, useLoaderData } from "@remix-run/react";
+import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import { AnimatePresence } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import {
   AddService,
@@ -12,7 +12,6 @@ import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const services = await getServices(request);
-  // const services = [];
   const { org } = await getUserAndOrgOrRedirect(request); // @TODO: not all  the org please!
   return { services, org };
 };
@@ -22,11 +21,15 @@ export default function Services() {
   const origin = useRef<string>("");
 
   useEffect(() => {
-    origin.current = location.origin;
+    origin.current = window.location.origin;
   }, []);
 
-  // const getLink = (serviceId: string) => `/dash/servicios/${serviceId}`;
-  const getLink = (serviceSlug: string) => `/agenda/${org.slug}/${serviceSlug}`;
+  const getLink = useCallback(
+    (serviceSlug: string) =>
+      `${origin.current}/agenda/${org.slug}/${serviceSlug}`,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [origin]
+  );
 
   return (
     <main className=" ">
@@ -46,8 +49,8 @@ export default function Services() {
               duration={service.duration} // @TODO: format function this is minutes for now
               price={`${service.price} mxn`}
               status={service.isActive ? "Activo" : "Desactivado"}
-              // link={getLink(service.slug)} // just for developing
-              link={`/dash/servicios/${service.id}`}
+              link={getLink(service.slug)} // for copy link action
+              path={`/dash/servicios/${service.id}`}
             />
           ))}
           {!!services.length && <AddService />}

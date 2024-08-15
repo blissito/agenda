@@ -2,7 +2,7 @@ import { Link, useFetcher } from "@remix-run/react";
 import { Tag } from "~/components/common/Tag";
 import { Plus } from "~/components/icons/plus";
 import { TbDots } from "react-icons/tb";
-import { FaRegTrashCan } from "react-icons/fa6";
+import { FaLink, FaRegTrashCan } from "react-icons/fa6";
 import { FiToggleLeft, FiToggleRight } from "react-icons/fi";
 import { action } from "~/routes/dash_.servicios_.nuevo";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Spinner } from "~/components/common/Spinner";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { twMerge } from "tailwind-merge";
+import { useCopyLink } from "~/components/hooks/useCopyLink";
 
 export const ServiceCard = ({
   title,
@@ -17,6 +18,7 @@ export const ServiceCard = ({
   duration,
   price,
   link,
+  path,
   id,
   isActive,
 }: {
@@ -27,7 +29,8 @@ export const ServiceCard = ({
   duration: number;
   price: string;
   status: string;
-  link?: string;
+  link: string;
+  path: string;
 }) => {
   // lets try with an api endpoint...
   const fetcher = useFetcher<typeof action>();
@@ -39,6 +42,7 @@ export const ServiceCard = ({
     isActive: show,
     includeEscape: true, // captures [Esc] key press
   });
+  const { ref: copiadoRef, setLink } = useCopyLink(link);
 
   const handleToggleDeactivation = () => {
     fetcher.submit(
@@ -66,6 +70,11 @@ export const ServiceCard = ({
       },
       { method: "post", action: "/dash/servicios/nuevo" }
     );
+  };
+
+  const handleCopyLink = () => {
+    setLink();
+    setShow(false);
   };
 
   return (
@@ -98,6 +107,16 @@ export const ServiceCard = ({
             className="z-10 absolute bg-white shadow-lg text-brand_gray rounded-3xl top-16 right-4 w-[60%] px-4 py-3 flex flex-col gap-5"
           >
             <button
+              onClick={handleCopyLink}
+              ref={copiadoRef}
+              className="transition-all gap-3 items-center flex text-brand_blue/80 hover:text-brand_blue active:scale-95"
+            >
+              <span className="text-md">
+                <FaLink />
+              </span>
+              <span className="capitalize">copiar link</span>
+            </button>
+            <button
               onClick={handleDelete}
               className="transition-all gap-3 items-center flex text-red-700 hover:text-red-600 active:scale-95"
             >
@@ -128,7 +147,7 @@ export const ServiceCard = ({
           </motion.div>
         )}
       </AnimatePresence>
-      <Link to={link ? link : "/dash/servicios"} className="group ">
+      <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer">
           <img
             alt="cover"
