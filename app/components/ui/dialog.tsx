@@ -121,7 +121,6 @@ export default function Modal({ children }: { children: ReactNode }) {
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
                     handleColorChange(e.currentTarget.value);
                   }}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => {}}
                   placeholder="#000000"
                   className="placeholder:text-brand_ash focus:border-brand-blue bg-transparent  focus:ring-brand-blue focus:outline-none ring-transparent  active:ring-transparent pl-8 w-28 py-2 pr-2  border-brand_ash rounded-lg"
                   id="color"

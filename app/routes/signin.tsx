@@ -150,16 +150,17 @@ export default function Pape() {
   if (actionData?.success) {
     // success screen (magic link)
     return (
-      <section className="flex flex-col items-center justify-center h-screen">
+      <section className="flex flex-col items-center justify-center h-screen max-w-4xl mx-auto ">
         <img src="/images/signin/sending-email.svg" alt="illustration" />
-        <h1 className="text-center text-2xl font-title">
+        <h1 className="text-center text-2xl font-jakarta text-brand_dark mt-6">
           ¡Hemos enviado un mail a tu correo! 👋🏻
         </h1>
-        <p className="text-center">
+        <p className="text-center mb-4 text-xl mt-6 text-brand_gray">
           Por favor revisa tu bandeja de entrada y{" "}
-          <strong>da clic en el enlace </strong>del email para iniciar sesión.
+          <strong className="font-satoMedium">da clic en el enlace </strong>del
+          email para iniciar sesión.
         </p>
-        <p className="text-center">
+        <p className="text-center text-brand_gray text-xl">
           ¡A veces el mail puede terminar en SPAM! Esperamos que ese no sea el
           caso, pero si no llega entre uno y tres minutos, ya sabes donde
           encontrarlo.
