@@ -162,3 +162,9 @@ export const getServices = async (request: Request) => {
     include: { org: true },
   });
 };
+
+export const getService = async () => {
+  const user = await getUserOrRedirect(request);
+  if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
+  return null; // @TODO finish it
+};
