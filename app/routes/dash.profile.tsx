@@ -1,28 +1,42 @@
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { Children, ReactNode } from "react";
 import { SecondaryButton } from "~/components/common/secondaryButton";
+import { Camera } from "~/components/icons/camera";
 import { Check } from "~/components/icons/check";
 import { Edit } from "~/components/icons/edit";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
+import { getUserOrRedirect } from "~/db/userGetters";
 
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await getUserOrRedirect(request);
+  if (!user) return json(null, { status: 404 });
+  return { user };
+};
 export default function Profile() {
+  const { user } = useLoaderData<typeof loader>();
+
   return (
     <main className=" ">
       <RouteTitle>Mi perfil </RouteTitle>
       <section className="flex gap-3 md:gap-8 items-center bg-white p-6 rounded-2xl max-w-3xl">
-        <img
-          className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full object-cover"
-          src="/images/img2.jpg"
-          alt="avatar"
-        />
+        <div className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full border-[1px] border-brand_stroke relative">
+          <Camera className="absolute right-0 bottom-0" />
+          <img
+            className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full object-cover "
+            src={user.photoURL ? user.photoURL : "/images/avatar.svg"}
+            alt="avatar"
+          />
+        </div>
         <div>
           <div className="flex gap-3 items-center">
             <h3 className="text-brand_dark font-bold text-xl md:text-2xl">
-              Brenda Ortega
+              {user.displayName}
             </h3>
-            <Edit />
+            {/* {user.phoviderId ? null : <Edit />} */}
           </div>
           <p className="text-brand_gray font-satoshi mt-1 text-sm md:text-base">
-            isabela_lozano_lonez@gmail.com
+            {user.email}
           </p>
         </div>
       </section>

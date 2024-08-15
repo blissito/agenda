@@ -152,7 +152,9 @@ export default function Pape() {
     return (
       <section className="flex flex-col items-center justify-center h-screen">
         <img src="/images/signin/sending-email.svg" alt="illustration" />
-        <h1 className="text-center">¡Hemos enviado un mail a tu correo! 👋🏻</h1>
+        <h1 className="text-center text-2xl font-title">
+          ¡Hemos enviado un mail a tu correo! 👋🏻
+        </h1>
         <p className="text-center">
           Por favor revisa tu bandeja de entrada y{" "}
           <strong>da clic en el enlace </strong>del email para iniciar sesión.
