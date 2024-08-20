@@ -77,15 +77,20 @@ model Service {
   employeeName  String? // @TODO: where is this requested?
 }
 
+type WebSiteConfig {
+  template String
+  color    String
+}
+
 model Org {
-  isActive          Boolean   @default(true)
+  isActive          Boolean        @default(true)
   // required
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  ownerId           String    @db.ObjectId
-  owner             User      @relation(fields: [ownerId], references: [id])
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId           String         @db.ObjectId
+  owner             User           @relation(fields: [ownerId], references: [id])
   // about your company
   name              String
-  slug              String    @unique
+  slug              String         @unique
   logo              String?
   shopKeeper        String?
   numberOfEmployees String?
@@ -98,6 +103,7 @@ model Org {
   Service           Service[]
   // extra
   location          Json?
+  websiteConfig     WebSiteConfig?
 }
 
 enum EventStatus {
