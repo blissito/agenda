@@ -1,11 +1,15 @@
+import { twMerge } from "tailwind-merge";
+
 export const Check = ({
   fill = "#5158F6",
+  className,
 }: {
   fill?: string;
   props?: unknown;
+  className: string;
 }) => (
   <svg
-    className="min-w-[28px]"
+    className={twMerge("min-w-[28px]", className)}
     width="28"
     height="28"
     viewBox="0 0 28 28"

@@ -42,6 +42,7 @@ export default function SelectStylized({
       >
         <div className="relative">
           <ComboboxInput
+            placeholder={placeholder}
             className={twMerge(
               "w-full rounded-lg  bg-white border-[1px] border-brand_ash py-1.5 pr-8 pl-3 text-sm/6 text-brand_gray",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
