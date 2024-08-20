@@ -18,6 +18,8 @@ import { PrimaryButton } from "~/components/common/primaryButton";
 import { HiCalendarDays } from "react-icons/hi2";
 import { HiOutlineMail } from "react-icons/hi";
 import { IoIosPhonePortrait } from "react-icons/io";
+import { FiMapPin } from "react-icons/fi";
+import { IoDocumentTextOutline } from "react-icons/io5";
 
 export const loader = async ({
   request,
@@ -76,15 +78,15 @@ export default function Page() {
             </Link>
             <span className="text-white pb-1">&gt;</span>
             <Link to="" className="text-xs text-white">
-              {/* {client?.displayName} */}
+              {/* {client?.displayName} */} Isabel Lozano
             </Link>
           </div>
         </div>
         <div className="bg-white rounded-xl pb-6 max-w-4xl -mt-24 mx-auto relative border">
-          <Avatar className="w-24 h-24 border-8 border-brand_blue absolute -top-6 -left-4" />
+          <Avatar className="w-24 h-24 border-8 border-brand_blue absolute -top-6 -left-4 hover:scale-105 transition-all" />
           <div className="md:flex-row flex flex-col">
-            <section className="pl-20 pr-6 pt-4 font-bold text-lg flex items-start justify-between w-full bg-gray-200">
-              <div className="flex">
+            <section className="pl-20 pr-6 pt-4 font-bold text-lg flex flex-col items-start justify-between w-full">
+              <div className="flex items-center w-full justify-between">
                 <h1>Isabel Lozano</h1>
                 <div className="flex gap-3 items-center">
                   <button className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center active:scale-95 active:shadow-inner ">
@@ -105,20 +107,41 @@ export default function Page() {
                 </div>
               </div>
 
-              <div>
-                <p>
+              <div className="flex gap-4 -ml-12 flex-col mt-4 md:flex-row md:mt-0">
+                <p className="flex gap-2 items-center text-brand_gray text-xs">
                   <span>
                     <HiOutlineMail />
                   </span>
                   <span>Isabela_lozano_lopez@gmail.com</span>
                 </p>
-                <p>
+                <p className="flex gap-2 items-center text-brand_gray text-xs">
                   <span>
                     <IoIosPhonePortrait />
                   </span>
                   <span>55 5555 55 55</span>
                 </p>
+                <p className="flex gap-2 items-center text-brand_gray text-xs">
+                  <span>
+                    <FiMapPin />
+                  </span>
+                  <span className="w-32">
+                    Av. Lopez Mateos 116, col. centro. CDMX, MEX
+                  </span>
+                </p>
               </div>
+              {/* Description */}
+
+              <p className="flex gap-2 items-center text-brand_gray text-xs -ml-12">
+                <span>
+                  <IoDocumentTextOutline />
+                </span>
+                <span>
+                  Lorem ipsum dolor sit amet consectetur. At mattis nulla sed
+                  curabitur gravida et quam sed at. Sit tellus hendrerit
+                  volutpat sed ac consequat eros in et. Phasellus odio nisi
+                  urna. nulla sed curabitur gravida et quam sed at. Sit
+                </span>
+              </p>
             </section>
 
             <section className="flex flex-col gap-4 pt-4 ml-auto pr-12 border-l pl-4 border-brand_stroke">
