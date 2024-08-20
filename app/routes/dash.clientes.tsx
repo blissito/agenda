@@ -12,6 +12,11 @@ import { BasicInput } from "~/components/forms/BasicInput";
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
 import { BiSolidUserDetail } from "react-icons/bi";
 import { twMerge } from "tailwind-merge";
+import { usePluralize } from "~/components/hooks/usePluralize";
+import { Download } from "~/components/icons/download";
+import { LuSettings2 } from "react-icons/lu";
+
+// @TODO: actions, search with searchParams, real user avatars?, row actions (delete)
 
 export type Client = {
   points: number;
@@ -34,6 +39,8 @@ type Stats = {
 
 // @TODO generate custom model
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // @TODO: consider the search input working via searchParams
+  // @TODO: upload / download
   const { org } = await getUserAndOrgOrRedirect(request);
   const link = generateLink(request.url, org.slug);
   const services = await getServices(request);
@@ -44,32 +51,42 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         id: { in: services.map((s) => s.id) },
       },
     },
+    include: {
+      service: true,
+    },
   });
 
   const clientsObject: { [x: string]: Client } = {};
 
+  const counter: Record<string, number> = {};
   events.forEach((e) => {
     const tomorrow = new Date();
+    const { email } = e.customer;
+    if (!email) return;
+    counter[email] =
+      counter[email] && typeof counter[email] === "number"
+        ? counter[email] + 1
+        : 1;
     tomorrow.setDate(tomorrow.getDate() + 1);
-    if (e.customer.email) {
-      clientsObject[e.customer.email] = {
+    if (email) {
+      clientsObject[email] = {
         ...e.customer,
-        email: e.customer.email,
-        points: 0,
+        email,
+        points: e.service.points, // @Real sum of points
         updatedAt: e.updatedAt,
-        eventCount: 12, // @TODO: count while filter
+        eventCount: counter[email], // @TODO: count while filter
         nextEventDate: tomorrow,
         id: e.id, // @TODO: not the right id
       };
     }
   });
-
+  const clients = Object.values(clientsObject) as Client[];
   return {
     orgId: org.id,
-    clients: Object.values(clientsObject) as Client[],
+    clients,
     link,
     stats: {
-      clientsCount: 77,
+      clientsCount: clients.length, // @todo: real data
       percentage: "250%",
       srcset: [], // @TODO: real user images?
     } as Stats,
@@ -114,36 +131,47 @@ const SearchNav = () => {
 
       <div className="flex pt-2 gap-3">
         <Link to="">
-          <button className="hover:scale-95 active:scale-90">
-            <img
-              className="w-10"
-              src="/dash_clients_icons/settings.svg"
-              alt="icon"
-            />
-          </button>
+          <ActionButton isDisabled>
+            <LuSettings2 />
+          </ActionButton>
         </Link>
         <Link to="">
-          <button className="hover:scale-95 active:scale-90">
+          <ActionButton>
             <img
               className="w-10"
               src="/dash_clients_icons/upload.svg"
               alt="icon"
             />
-          </button>
+          </ActionButton>
         </Link>
         <Link to="">
-          <button className="hover:scale-95 active:scale-90">
-            <img
-              className="w-10"
-              src="/dash_clients_icons/download.svg"
-              alt="icon"
-            />
-          </button>
+          <ActionButton isDisabled>
+            <Download />
+          </ActionButton>
         </Link>
       </div>
     </div>
   );
 };
+
+export const ActionButton = ({
+  className,
+  isDisabled,
+  ...props
+}: {
+  className?: string;
+  isDisabled?: boolean;
+  [x: string]: unknown;
+}) => (
+  <button
+    className={twMerge(
+      "text-gray-400 border rounded-full h-10 w-10 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 bg-white",
+      className
+    )}
+    disabled={isDisabled}
+    {...props}
+  />
+);
 
 export const TableHeader = ({
   titles,
@@ -229,12 +257,14 @@ export const Client = ({ client }: { client: Client }) => {
 };
 
 export const Summary = ({ stats }: { stats: Stats }) => {
+  const pluralize = usePluralize();
   return (
     <section className="bg-white rounded-2xl p-6 flex justify-between items-center">
       <div>
         <p>
           <span className="text-brand_blue text-2xl font-satoMedium mr-1">
-            {stats.clientsCount} clientes nuevos
+            {stats.clientsCount} {pluralize("cliente", 1)}{" "}
+            {pluralize("nuevo", stats.clientsCount)}
           </span>{" "}
           este mes
         </p>
@@ -248,7 +278,7 @@ export const Summary = ({ stats }: { stats: Stats }) => {
         <Avatar />
         <Avatar />
         <div className="bg-brand_blue/20 text-brand_blue w-12 h-12 rounded-full grid content-center text-center -ml-3  border-[2px] border-white">
-          <span>+ 10</span>
+          <span>+ {stats.clientsCount}</span>
         </div>
       </div>
     </section>

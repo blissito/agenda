@@ -1,32 +1,30 @@
-import { Event, Service } from "@prisma/client";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
 import {
   Link,
   useLoaderData,
   useLocation,
   useNavigate,
 } from "@remix-run/react";
-import { useEffect } from "react";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
-import { db } from "~/utils/db.server";
-import { BsEnvelopePlus } from "react-icons/bs";
-import { Client, TableHeader } from "./dash.clientes";
-import { Avatar } from "~/components/common/Avatar";
-import { FaRegClock, FaWhatsapp } from "react-icons/fa6";
-import { TbEdit } from "react-icons/tb";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { HiCalendarDays } from "react-icons/hi2";
-import { HiOutlineMail } from "react-icons/hi";
-import { IoIosPhonePortrait } from "react-icons/io";
-import { FiMapPin } from "react-icons/fi";
-import { IoDocumentTextOutline } from "react-icons/io5";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { SelectInput } from "~/components/forms/SelectInput";
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
-import { BiSolidUserDetail } from "react-icons/bi";
-import { twMerge } from "tailwind-merge";
 import { cn } from "~/utils/cd";
-
+import { useEffect } from "react";
+import { db } from "~/utils/db.server";
+import { TbEdit } from "react-icons/tb";
+import { FiDownload, FiMapPin } from "react-icons/fi";
+import { HiOutlineMail } from "react-icons/hi";
+import { BsEnvelopePlus } from "react-icons/bs";
+import { Event, Service } from "@prisma/client";
+import { HiCalendarDays } from "react-icons/hi2";
+import { IoIosPhonePortrait } from "react-icons/io";
+import { Avatar } from "~/components/common/Avatar";
+import { Client, TableHeader } from "./dash.clientes";
+import { IoDocumentTextOutline } from "react-icons/io5";
+import { FaRegClock, FaWhatsapp } from "react-icons/fa6";
+import { BasicInput } from "~/components/forms/BasicInput";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { DropdownMenu } from "~/components/common/DropDownMenu";
+import { PrimaryButton } from "~/components/common/primaryButton";
+import { usePluralize } from "~/components/hooks/usePluralize";
+//@TODO: filter by date, edit contact, send email, send whats, download contacts?one?all?, delete contact
 export const loader = async ({
   request,
   params: { email },
@@ -50,11 +48,21 @@ export const loader = async ({
     include: { service: true },
   })) as (Event & { service: Service })[];
 
-  return { org, events };
+  return {
+    org,
+    events,
+    stats: {
+      eventCount: events.length,
+      commentsCount: 0,
+      points: events.reduce((acc, e) => (acc += e.service.points), 0),
+    },
+  };
 };
 
+// type LoaderType = Awaited<ReturnType<typeof loader>>;
+
 export default function Page() {
-  const { events, org } = useLoaderData<typeof loader>();
+  const { events, stats } = useLoaderData<typeof loader>();
   const location = useLocation();
   const { client } = location.state
     ? (location.state as Client)
@@ -68,14 +76,14 @@ export default function Page() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  console.log("Client: ", client);
+  const pluralize = usePluralize();
   return (
     <>
       {/* Container */}
       <article className="min-h-screen bg-[#f7f7f7] pb-8">
         <div className="h-[240px] relative bg-purple-500">
           <img
-            src="/public/images/schedule.png"
+            src="/images/schedule.png"
             alt="cover"
             className="object-cover h-full w-full absolute"
           />
@@ -100,10 +108,16 @@ export default function Page() {
                   <button className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center active:scale-95 active:shadow-inner ">
                     <FaWhatsapp />
                   </button>
-                  <button className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center active:scale-95 active:shadow-inner ">
+                  <button
+                    disabled
+                    className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100"
+                  >
                     <TbEdit />
                   </button>
-                  <button className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center active:scale-95 active:shadow-inner ">
+                  <button
+                    disabled
+                    className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100"
+                  >
                     <BsEnvelopePlus />
                   </button>
                   <PrimaryButton>
@@ -154,17 +168,21 @@ export default function Page() {
             {/* Datos */}
             <section className="flex flex-col gap-4 pt-4 ml-auto pr-12 border-l pl-4 border-brand_stroke">
               <p className="flex flex-col">
-                <span className="text-xl  font-satoMedium">32 citas</span>
+                <span className="text-xl  font-satoMedium">
+                  {stats.eventCount} {pluralize("cita", stats.eventCount)}
+                </span>
                 <span className="text-xs text-brand_gray">
                   citas desde el 11 de abril del 2022
                 </span>
               </p>
               <p className="flex flex-col">
-                <span className="text-xl  font-satoMedium">15 ⭐️</span>
+                <span className="text-xl  font-satoMedium">
+                  {stats.commentsCount} ⭐️
+                </span>
                 <span className="text-xs text-brand_gray">comentarios</span>
               </p>
               <p className="flex flex-col">
-                <span className="text-xl  font-satoMedium">90</span>
+                <span className="text-xl  font-satoMedium">{stats.points}</span>
                 <span className="text-xs text-brand_gray">puntos</span>
               </p>
             </section>
@@ -177,12 +195,11 @@ export default function Page() {
             containerClassName="max-w-[240px]"
           />
           <Link className="pt-3" to="">
-            <button className="hover:scale-95 active:scale-90">
-              <img
-                className="w-10"
-                src="/dash_clients_icons/download.svg"
-                alt="icon"
-              />
+            <button
+              disabled
+              className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100"
+            >
+              <FiDownload />
             </button>
           </Link>
         </section>
