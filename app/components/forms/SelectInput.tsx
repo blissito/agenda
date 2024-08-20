@@ -37,26 +37,27 @@ export const SelectInput = ({
       >
         {label}
       </label>
-      <select
-        defaultValue=""
-        name="pets"
-        id="pet-select"
-        className="rounded-lg border-gray-200 h-12 w-full mt-1 text-brand_gray "
-        {...props}
-        {...register?.(name, registerOptions)}
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((option, index) => {
-          return (
-            <option key={index} value={option.value}>
-              {option.title ? option.title : option.value}
-            </option>
-          );
-        })}
-      </select>
-
+      <div style={{ width: "200px" }} className="custom-select">
+        <select
+          defaultValue=""
+          name="pets"
+          id="pet-select"
+          className="rounded-lg border-gray-200 h-12 w-full mt-1 text-brand_gray "
+          {...props}
+          {...register?.(name, registerOptions)}
+        >
+          <option value="" disabled>
+            {placeholder}
+          </option>
+          {options.map((option, index) => {
+            return (
+              <option key={index} value={option.value}>
+                {option.title ? option.title : option.value}
+              </option>
+            );
+          })}
+        </select>
+      </div>
       {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
     </>
   );
