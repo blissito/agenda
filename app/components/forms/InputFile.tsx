@@ -16,8 +16,8 @@ type Props = {
   multiple?: boolean;
   // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
 };
-const morras =
-  "https://media.licdn.com/dms/image/C561BAQE8cwNr6BMj_Q/company-background_10000/0/1612306118493/cover_corp_cover?e=2147483647&v=beta&t=2-D8AuQQLqxb8ML7eEs3AtJbC7jspwH47Z8Ta-B4MpA";
+// const morras =
+//   "https://media.licdn.com/dms/image/C561BAQE8cwNr6BMj_Q/company-background_10000/0/1612306118493/cover_corp_cover?e=2147483647&v=beta&t=2-D8AuQQLqxb8ML7eEs3AtJbC7jspwH47Z8Ta-B4MpA";
 export const InputFile = ({
   title,
   action,
@@ -46,10 +46,10 @@ export const InputFile = ({
     setPreview(action.readUrl);
   };
   const handleDelete = async () => {
+    setPreview(null);
     await fetch(action.removeUrl, {
       method: "delete",
     }).catch((e) => console.error(e));
-    setPreview(null);
   };
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const url = URL.createObjectURL(event.target.files[0]);

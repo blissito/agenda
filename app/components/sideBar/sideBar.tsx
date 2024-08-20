@@ -275,7 +275,7 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Icon>
           <MenuButton.Title>Pagos</MenuButton.Title>
         </MenuButton>
-        <MenuButton to="/dash/clients" isActive={match("clients")}>
+        <MenuButton to="/dash/clientes" isActive={match("clients")}>
           <MenuButton.Icon isActive={match("clients")}>
             <Clients />
           </MenuButton.Icon>
