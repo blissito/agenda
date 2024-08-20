@@ -59,7 +59,8 @@ model Service {
   // config
   payment       Boolean      @default(false)
   config        NotifyConfig
-  // fotos form route step
+  // status
+  paid          Boolean      @default(false)
   place         Place        @default(INPLACE)
   isActive      Boolean      @default(true)
   archived      Boolean      @default(false)

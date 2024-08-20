@@ -11,6 +11,7 @@ import { generateLink } from "~/utils/generateSlug";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
 import { BiSolidUserDetail } from "react-icons/bi";
+import { twMerge } from "tailwind-merge";
 
 export type Client = {
   points: number;
@@ -82,7 +83,17 @@ export default function Clients() {
       <RouteTitle>Clientes</RouteTitle>
       <Summary stats={stats} />
       <SearchNav />
-      <TableHeader />
+      <TableHeader
+        titles={[
+          ["nombre", "col-span-3"],
+          "registro",
+          "puntos",
+          ["citas", "col-span-1"],
+          "próxima cita",
+          "acciones",
+        ]}
+      />
+
       {clients.map((c) => (
         <Client client={c} key={c.id} orgId={orgId} />
       ))}
@@ -134,15 +145,23 @@ const SearchNav = () => {
   );
 };
 
-export const TableHeader = () => {
+export const TableHeader = ({
+  titles,
+}: {
+  // @TODO: class container for main columns number definition
+  titles: (string | [string, string])[];
+}) => {
   return (
     <div className="grid grid-cols-12 text-xs font-thin rounded-t-2xl border-t text-brand_gray py-2 px-8 bg-white border-slate-100 border mt-4">
-      <h3 className="col-span-3 capitalize">cliente</h3>
-      <h3 className="col-span-2 capitalize">registro</h3>
-      <h3 className="col-span-2 capitalize">puntos</h3>
-      <h3 className="col-span-2 capitalize">cita</h3>
-      <h3 className="col-span-2 capitalize">próxima cita</h3>
-      <h3 className="col-span-1 capitalize">acciones</h3>
+      {titles.map((tuple: string | [string, string]) => {
+        const title = Array.isArray(tuple) ? tuple[0] : tuple;
+        const span = Array.isArray(tuple) ? tuple[1] : "col-span-2";
+        return (
+          <h3 className={twMerge("capitalize", span)} key={title}>
+            {title}
+          </h3>
+        );
+      })}
     </div>
   );
 };
