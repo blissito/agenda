@@ -31,7 +31,15 @@ const week = [
   { id: 5, name: "Vie 9:00 a 5:00pm" },
 ];
 
-export default function TemplateOne() {
+export default function TemplateOne({
+  services = [],
+  isPublic,
+  org,
+}: {
+  isPublic?: boolean;
+  services?: Service[];
+  org?: Org;
+}) {
   return (
     <div className="p-0 m-0 bg-[#FDFEFF] min-h-screen ">
       <div
@@ -49,13 +57,9 @@ export default function TemplateOne() {
               className="w-[120px] h-[120px] rounded-full mb-6 "
               src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
             />
-            <h1 className="text-2xl font-title font-bold">Estudio Westeros</h1>
+            <h1 className="text-2xl font-title font-bold">{org.name}</h1>
             <p className="mt-4 text-brand_gray">
-              Lorem ipsum dolor sit amet consectetur. In quis et quisque nulla.
-              Odio nunc accumsan integer ipsum. Sit id et augue mauris et
-              aliquet gravida in consectetur. Dictum ut vitae purus mattis etiam
-              eget. Sit id et augue mauris et aliquet gravida in consectetur.
-              Dictum ut vitae purus mattis etiam eget.
+              {org.description ? org.description : null}
             </p>
             <div className="mt-6 block xl:hidden">
               <ItemClient icon={<PiPhone />} text="+52 775 728 11 23" />

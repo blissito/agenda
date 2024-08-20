@@ -10,7 +10,6 @@ import { getUserOrRedirect } from "~/db/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUserOrRedirect(request);
-  if (!user) return json(null, { status: 404 });
   return { user };
 };
 export default function Profile() {

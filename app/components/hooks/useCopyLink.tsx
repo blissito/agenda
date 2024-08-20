@@ -8,12 +8,11 @@ export const useCopyLink = (link: string, onClick?: () => void) => {
     // Se comprueba que el elemento está presente en el ref y se obtienen su coordenadas
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
-    // Se calculan left y top
-    const top = Math.floor(rect.top + rect.height - 42);
-    const left = Math.floor(rect.left + rect.width + 4);
-    // Estilos
-    const styleString = `position:absolute;z-index:10;top:${top}px;left:${left}px;background-color:gray;color:white;padding:4px;border-radius:9px;opacity:0.8;`;
-    // Se crea elelemento HTML, se modifica y se agrega al DOM
+    const styleString = `position:absolute;z-index:10;top:${Math.floor(
+      rect.top + rect.height - 40
+    )}px;left:${Math.floor(
+      rect.left + rect.width + 16
+    )}px;background-color:#11151A;color:white;padding:4px 12px;border-radius:9px;`;
     const p = document.createElement("p");
     p.textContent = "Copiado ✅";
     p.style = styleString;

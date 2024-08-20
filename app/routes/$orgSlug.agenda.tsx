@@ -4,6 +4,7 @@ import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
 import { CompanyInfo } from "./dash.website";
 import { db } from "~/utils/db.server";
+import TemplateOne from "~/components/templates/TemplateOne";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
@@ -17,10 +18,7 @@ export default function Page() {
   return (
     <>
       <main>
-        <RouteTitle>Mi sitio web </RouteTitle>
-        <section className=" grid grid-cols-6 gap-6">
-          <CompanyInfo isPublic services={services} org={org} />
-        </section>
+        <TemplateOne isPublic services={services} org={org} />
       </main>
     </>
   );
