@@ -3,11 +3,9 @@ import { ChangeEvent, ReactNode, SyntheticEvent, useState } from "react";
 import { SecondaryButton } from "../common/secondaryButton";
 import { PrimaryButton } from "../common/primaryButton";
 import { twMerge } from "tailwind-merge";
-import { Check } from "../icons/check";
-import { BasicInput } from "../forms/BasicInput";
 
 export default function Modal({ children }: { children: ReactNode }) {
-  let [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   function open() {
     setIsOpen(true);
@@ -20,6 +18,9 @@ export default function Modal({ children }: { children: ReactNode }) {
   const config = {
     border: "template2",
   };
+
+  const handleColorChange = () => false; // @TODO: not implemented. Copy from formmy?
+
   return (
     <>
       <Button onClick={open} className="">
