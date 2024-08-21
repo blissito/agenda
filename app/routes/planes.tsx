@@ -5,7 +5,7 @@ import { Footer } from "~/components/common/Footer";
 import { Rocket } from "~/components/icons/rocket";
 import { HandShake } from "~/components/icons/handshake";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { ReactNode, Suspense, useState } from "react";
+import { ReactNode, Suspense, useEffect, useState } from "react";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Check } from "~/components/icons/check";
 import { Lamp } from "~/components/icons/lamp";
@@ -24,6 +24,13 @@ export const meta: MetaFunction = () => {
 };
 
 export default function Index() {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  }, []);
   return (
     <main className="bg-brand_dark">
       <div className="bg-white rounded-b-[40px] overflow-hidden">

@@ -23,13 +23,18 @@ export const Footer = () => {
             <p>Blog</p>
           </Link>
           {/* <p>Atención al cliente</p> */}
-          <p>Términos y condiciones</p>
+          <Link to="/terminosycondiciones">
+            <p>Términos y condiciones</p>
+          </Link>
           <p>Aviso de privacidad</p>
         </div>
         <div className="text-base text-brand_pale font-satoshi flex flex-col gap-4 w-full md:w-[25%]">
           <h3 className="text-brand_iron font-satoshi">Contacto</h3>
           <a>hola@denik.me</a>
           <a>+52 737 443 44 44</a>
+          <Link to="/help">
+            <p>Ayuda</p>
+          </Link>
         </div>
         <div className="w-full md:w-[25%]">
           <p className="text-brand_iron font-satoshi">
