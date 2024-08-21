@@ -20,7 +20,10 @@ export default function Profile() {
       <RouteTitle>Mi perfil </RouteTitle>
       <section className="flex gap-3 md:gap-8 items-center bg-white p-6 rounded-2xl max-w-3xl">
         <div className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full border-[1px] border-brand_stroke relative">
-          <Camera className="absolute right-0 bottom-0" />
+          {user.providerId ? null : (
+            <Camera className="absolute right-0 bottom-0" />
+          )}
+
           <img
             className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full object-cover "
             src={user.photoURL ? user.photoURL : "/images/avatar.svg"}
@@ -32,7 +35,7 @@ export default function Profile() {
             <h3 className="text-brand_dark font-bold text-xl md:text-2xl">
               {user.displayName}
             </h3>
-            {/* {user.phoviderId ? null : <Edit />} */}
+            {/* {user.providerId ? null : <Edit />} */}
           </div>
           <p className="text-brand_gray font-satoshi mt-1 text-sm md:text-base">
             {user.email}
