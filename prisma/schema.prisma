@@ -34,23 +34,23 @@ model User {
   orgId         String? @db.ObjectId // provisional
 }
 
-type NotifyConfig {
-  confirmation Boolean @default(true)
-  reminder     Boolean @default(true)
-  survey       Boolean @default(true)
-}
-
 enum Place {
   ONLINE
   INPLACE
   ATHOME
 }
 
+type NotifyConfig {
+  confirmation Boolean @default(true)
+  reminder     Boolean @default(true)
+  survey       Boolean @default(true)
+}
+
 model Service {
   id            String       @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   slug          String       @unique
-  points        Int          @default(0)
+  points        Int          @default(1)
   price         Int
   // relations
   orgId         String       @db.ObjectId
@@ -70,6 +70,7 @@ model Service {
   duration      Int          @default(60) // mins
   weekDays      Json?
   // optionals
+  address       String?
   seats         Int?         @default(1)
   photoURL      String?
   description   String?

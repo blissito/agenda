@@ -3,6 +3,7 @@ import { db } from "../../../utils/db.server";
 import { z } from "zod";
 import { json, redirect } from "@remix-run/node";
 import { generateSlug } from "~/utils/generateSlug";
+import { generateDummyService } from "~/utils/generators";
 
 // CONSTS
 const ABOUT_YOUR_BUSINESS_URL = "/signup/sobre-tu-negocio";
@@ -55,7 +56,7 @@ export const timesHandler = async (request: Request, data: WeekDaysType) => {
   const validatedData = weekDaysSchema.parse(data); // @TODO: skiped for now
 
   const user = await getUserOrRedirect(request);
-  await db.org.update({
+  const org = await db.org.update({
     where: {
       id: orgId,
       ownerId: user.id,
@@ -68,6 +69,8 @@ export const timesHandler = async (request: Request, data: WeekDaysType) => {
       orgId,
     },
   });
+  // create dummy
+  generateDummyService(org); // it returns object but we ignore it
   url.searchParams.set("orgId", orgId);
   url.pathname = CARGANDO_URL;
   throw redirect(url.toString());

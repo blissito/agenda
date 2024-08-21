@@ -12,10 +12,13 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump";
 import { Service } from "@prisma/client";
+import { getUserAndOrgOrRedirect } from "~/db/userGetters";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+  // @TODO ensure is the owner
+  const { org } = await getUserAndOrgOrRedirect(request);
   const service = await db.service.findUnique({
-    where: { id: params.serviceId },
+    where: { id: params.serviceId, orgId: org.id }, // @TODO: this can vary if multiple orgs
   });
   if (!service) return json(null, { status: 404 });
   return {

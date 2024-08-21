@@ -15,6 +15,8 @@ import { twMerge } from "tailwind-merge";
 import { usePluralize } from "~/components/hooks/usePluralize";
 import { Download } from "~/components/icons/download";
 import { LuSettings2 } from "react-icons/lu";
+import { Settings } from "~/components/icons/settings";
+import { Upload } from "~/components/icons/upload";
 
 // @TODO: actions, search with searchParams, real user avatars?, row actions (delete)
 
@@ -132,16 +134,12 @@ const SearchNav = () => {
       <div className="flex pt-2 gap-3">
         <Link to="">
           <ActionButton isDisabled>
-            <LuSettings2 />
+            <Settings />
           </ActionButton>
         </Link>
         <Link to="">
-          <ActionButton>
-            <img
-              className="w-10"
-              src="/dash_clients_icons/upload.svg"
-              alt="icon"
-            />
+          <ActionButton isDisabled>
+            <Upload />
           </ActionButton>
         </Link>
         <Link to="">
@@ -165,7 +163,7 @@ export const ActionButton = ({
 }) => (
   <button
     className={twMerge(
-      "text-gray-400 border rounded-full h-10 w-10 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 bg-white",
+      "text-brand_gray border rounded-full h-12 w-12 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white",
       className
     )}
     disabled={isDisabled}
@@ -224,7 +222,7 @@ export const Client = ({ client }: { client: Client }) => {
         )}
       </p>
       <p className="font-bold text-xs col-span-2">{client.points} puntos</p>
-      <p className="text-xs font-thin col-span-2">{client.eventCount} citas</p>
+      <p className="text-xs font-thin col-span-1">{client.eventCount} citas</p>
       <p className="w-max col-span-2 text-green-600 text-xs">
         {client.nextEventDate
           ? new Date(client.nextEventDate).toLocaleDateString("es-MX", {
