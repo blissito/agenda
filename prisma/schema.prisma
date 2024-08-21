@@ -129,26 +129,27 @@ enum EventType {
 }
 
 model Event {
-  id         String      @id @default(auto()) @map("_id") @db.ObjectId
-  type       EventType   @default(EVENT) // avoid scheduling even when multi enabled
-  start      DateTime
-  dateString String
-  duration   Int // minutes
-  allDay     Boolean     @default(false)
-  status     EventStatus @default(CANCELED)
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  type          EventType   @default(EVENT) // avoid scheduling even when multi enabled
+  start         DateTime
+  dateString    String
+  duration      Int // minutes
+  allDay        Boolean     @default(false)
+  status        EventStatus @default(CANCELED)
   // relations
   // orgId      String
-  service    Service     @relation(fields: [serviceId], references: [id])
-  serviceId  String      @db.ObjectId
+  service       Service     @relation(fields: [serviceId], references: [id])
+  serviceId     String      @db.ObjectId
   // metadata
-  customer   Customer
+  customer      Customer
   // optionals
-  title      String?
-  end        DateTime? // @TODO: make it required
-
+  title         String?
+  end           DateTime? // @TODO: make it required
   // Dates
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime    @default(now())
+  // utils
+  legacyService Json?
 }
 
 model Job {
