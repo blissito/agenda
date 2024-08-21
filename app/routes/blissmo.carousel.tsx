@@ -1,6 +1,6 @@
 import { useLoaderData } from "@remix-run/react";
 import { SimpleAnimatedGallery } from "~/components/animated/SimpleAnimatedGallery";
-import { generatePics } from "~/utils/generators";
+import { generatePics } from "~/utils/generatePics";
 
 export const loader = () => {
   return { pics: generatePics() };

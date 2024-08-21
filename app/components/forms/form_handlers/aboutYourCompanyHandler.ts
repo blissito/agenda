@@ -3,7 +3,7 @@ import { db } from "../../../utils/db.server";
 import { z } from "zod";
 import { json, redirect } from "@remix-run/node";
 import { generateSlug } from "~/utils/generateSlug";
-import { generateDummyService } from "~/utils/generators";
+import { generateDummyService } from "~/utils/generators.server";
 
 // CONSTS
 const ABOUT_YOUR_BUSINESS_URL = "/signup/sobre-tu-negocio";

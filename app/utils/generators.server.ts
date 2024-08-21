@@ -1,19 +1,7 @@
-import { faker } from "@faker-js/faker";
 import { z } from "zod";
 import { generateSlug } from "./generateSlug";
 import { db } from "./db.server";
 import { Org } from "@prisma/client";
-
-export const generatePics = () => {
-  return [...Array(8).keys()].map(() => ({
-    src: faker.image.url(),
-    name: faker.person.fullName(),
-    text: faker.lorem.paragraph(),
-    title: faker.person.jobTitle(),
-    alt: faker.person.bio(),
-    link: faker.image.url(),
-  }));
-};
 
 // aux functions for signup process
 

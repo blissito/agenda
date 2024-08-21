@@ -2,7 +2,7 @@ import { twMerge } from "tailwind-merge";
 import { FaArrowRight, FaArrowLeft, FaLinkedin } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { generatePics } from "~/utils/generators";
+import { generatePics } from "~/utils/generatePics";
 
 export type Pic = {
   src: string;
