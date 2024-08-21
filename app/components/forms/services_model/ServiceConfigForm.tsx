@@ -37,6 +37,7 @@ export const ServiceConfigForm = ({
     handleSubmit,
     register,
     formState: { errors },
+    setValue,
   } = useForm({
     defaultValues: {
       ...defaultValues,
@@ -74,6 +75,8 @@ export const ServiceConfigForm = ({
           ¿Qué notificaciones quieres que enviemos a tus clientes?
         </p>
         <SwitchOption
+          setValue={setValue}
+          defaultChecked={defaultValues.config.confirmation}
           register={register}
           name="config.confirmation"
           title="Mail de confirmación"
@@ -81,6 +84,8 @@ export const ServiceConfigForm = ({
           registerOptions={{ required: false }}
         />
         <SwitchOption
+          setValue={setValue}
+          defaultChecked={defaultValues.config.reminder}
           register={register}
           name="config.reminder"
           title="Whats app de recordatorio"
@@ -89,6 +94,8 @@ export const ServiceConfigForm = ({
         />
 
         <SwitchOption
+          setValue={setValue}
+          defaultChecked={defaultValues.config.survey}
           register={register}
           name="config.survey"
           title="  Mail de evaluación"

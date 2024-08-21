@@ -82,7 +82,7 @@ export const ServiceCard = ({
       initial={{ opacity: 0, y: -5 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -5 }}
-      className="relative group"
+      className="relative group shadow hover:shadow-lg rounded-xl transition-all"
     >
       <button
         onClick={() => {
@@ -90,7 +90,7 @@ export const ServiceCard = ({
         }}
         type="button"
         className={twMerge(
-          "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full  bg-transparent z-10 text-transparent active:scale-95 hover:shadow focus:text-white focus:bg-gray-400/70",
+          "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full  bg-transparent z-10 text-transparent active:scale-95 focus:text-white focus:bg-gray-400/70",
           "opacity-1 group-hover:bg-gray-400/70 group-hover:text-white",
           show && "text-white bg-gray-400/70 "
         )}
@@ -104,7 +104,7 @@ export const ServiceCard = ({
             initial={{ opacity: 0, y: -3 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -3 }}
-            className="z-10 absolute bg-white shadow-lg text-brand_gray rounded-3xl top-16 right-4 w-[60%] px-4 py-3 flex flex-col gap-5"
+            className="z-10 bg-white absolute shadow-lg text-brand_gray rounded-3xl top-16 right-4 w-[60%] px-4 py-3 flex flex-col gap-5"
           >
             <button
               onClick={handleCopyLink}
@@ -148,29 +148,30 @@ export const ServiceCard = ({
         )}
       </AnimatePresence>
       <Link to={path ? path : "/dash/servicios"} className="group ">
-        <section className="bg-white rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer">
+        <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer">
           <img
             alt="cover"
             className="w-full h-[160px] object-cover"
             src={image ? image : "/images/serviceDefault.png"}
           />
-          <div className="p-4 flex justify-between items-center">
-            <article>
-              <h3 className=" text-brand_dark text-lg font-satoMiddle">
-                {title}
-              </h3>
+          <div className="my-2 px-3 flex flex-col h-[100px] justify-between">
+            <h3 className=" text-brand_dark text-lg font-satoMiddle">
+              {title}
+            </h3>
+            <article className="flex items-end justify-between pt-auto pb-1">
               <p className="text-brand_gray font-satoshi mt-1">
-                {duration}
+                {duration} min
                 <span className="mx-1">·</span>${price}
               </p>
+
+              {isActive ? (
+                <Tag />
+              ) : (
+                <Tag className="bg-brand_light_gray text-brand_gray text-xs">
+                  Desactivado
+                </Tag>
+              )}
             </article>
-            {isActive ? (
-              <Tag />
-            ) : (
-              <Tag className="bg-brand_light_gray text-brand_gray text-xs">
-                Desactivado
-              </Tag>
-            )}
           </div>
         </section>
       </Link>
@@ -181,7 +182,7 @@ export const ServiceCard = ({
 export const AddService = () => {
   return (
     <Link to="/dash/servicios/nuevo">
-      <button className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center ">
+      <button className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center">
         <div>
           <Plus className="mx-auto group-hover:scale-125 transition-all" />
           <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">

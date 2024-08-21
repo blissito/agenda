@@ -51,7 +51,6 @@ export const ServicePhotoForm = ({
   backButtonLink?: string;
   defaultValues?: ServicePhotoFormFields;
 }) => {
-  console.log("DEFAULT: ", defaultValues);
   const fetcher = useFetcher();
   const {
     // getValues,
