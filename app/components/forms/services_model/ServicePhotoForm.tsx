@@ -2,11 +2,11 @@ import { FieldValues, useForm, UseFormRegister } from "react-hook-form";
 import { InputFile } from "../InputFile";
 import { AddImage } from "~/components/icons/addImage";
 import { Option, SelectInput } from "../SelectInput";
-import { Switch } from "../Switch";
 import { ServiceFormFooter } from "./ServiceGeneralForm";
 import { isValid, z } from "zod";
 import { Form, useFetcher } from "@remix-run/react";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
+import { Switch } from "~/components/common/Switch";
 
 export const servicePhotoFormSchema = z.object({
   photoURL: z.string().optional(),
@@ -51,12 +51,14 @@ export const ServicePhotoForm = ({
   backButtonLink?: string;
   defaultValues?: ServicePhotoFormFields;
 }) => {
+  console.log("DEFAULT: ", defaultValues);
   const fetcher = useFetcher();
   const {
     // getValues,
     handleSubmit,
     register,
     formState: { errors },
+    setValue,
   } = useForm({
     defaultValues: { ...defaultValues, photoURL: action.readUrl },
   });
@@ -100,17 +102,19 @@ export const ServicePhotoForm = ({
       />
       <SwitchOption
         defaultChecked={defaultValues.isActive}
+        setValue={setValue}
         register={register}
         registerOptions={{ required: false }}
         name="isActive"
         title="Permitir que este servicio se agende en línea"
       />
       <SwitchOption
+        setValue={setValue}
         defaultChecked={defaultValues.allowMultiple}
         registerOptions={{ required: false }}
         register={register}
         name="allowMultiple"
-        title="  Permitir que 2 o más clientes agenden al mismo tiempo"
+        title="Permitir que 2 o más clientes agenden al mismo tiempo"
       />
       {/* <BasicInput
         placeholder="2"
@@ -130,13 +134,15 @@ export const ServicePhotoForm = ({
 // @TODO: Swith props pending
 export const SwitchOption = ({
   title,
-  defaultChecked,
   description,
   register,
   name,
   registerOptions = { required: REQUIRED_MESSAGE },
+  setValue,
+  defaultChecked,
 }: {
   defaultChecked?: boolean;
+  setValue?: () => void; // @todo: fix
   name: string;
   register: UseFormRegister<FieldValues> | any;
   title: string;
@@ -151,9 +157,9 @@ export const SwitchOption = ({
       </div>
       <Switch
         defaultChecked={defaultChecked}
+        setValue={setValue}
         name={name}
-        register={register}
-        registerOptions={registerOptions}
+        {...register?.(name, registerOptions)}
       />
     </article>
   );

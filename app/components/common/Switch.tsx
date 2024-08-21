@@ -1,58 +1,72 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { twMerge } from "tailwind-merge";
+import { forwardRef, useEffect, useState } from "react";
 import { cn } from "~/utils/cd";
 import { motion } from "framer-motion";
 
-export const Switch = ({
-  label,
-  defaultChecked,
-  backgroundColor,
-  className,
-  onChange,
-}: {
-  onChange?: (arg0: boolean) => void;
-  className?: string;
-  backgroundColor?: string;
-  defaultChecked?: boolean;
-  label?: string;
-}) => {
-  const ref = useRef<HTMLInputElement>(null);
-  const [checked, set] = useState(!!defaultChecked);
+export const Switch = forwardRef(
+  (
+    {
+      label,
+      backgroundColor,
+      className,
+      setValue,
+      defaultChecked = false,
+      ...props
+    }: {
+      setValue: UseFormSetValue; // @TODO: fix
+      className?: string;
+      backgroundColor?: string;
+      label?: string;
+      defaultChecked?: boolean;
+    },
+    ref // coming from register
+  ) => {
+    // const ref = useRef<HTMLInputElement>(null);
+    const [checked, set] = useState(defaultChecked);
 
-  useEffect(() => {
-    if (ref.current) ref.current.checked = checked;
-    onChange?.(checked);
-  }, [checked]);
+    const handleClick = () => {
+      set((s) => !s);
+      setValue?.(props.name, !checked);
+    };
 
-  return (
-    <>
-      <button
-        className={cn("flex items-center gap-4")}
-        onClick={() => set((v) => !v)}
-      >
-        <span>{label}</span>
-        <input type="checkbox" ref={ref} className="hidden" />
-        {/* Container */}
-        <div
-          className={cn(
-            "bg-brand_switch_inactive rounded-full w-8 h-5 p-1 flex transition-all",
-            {
-              "justify-end bg-brand_blue": checked,
-              className,
-            }
-          )}
-          style={{
-            backgroundColor: checked ? backgroundColor : undefined,
-          }}
+    useEffect(() => {
+      setValue?.(props.name, defaultChecked);
+      set(defaultChecked);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [defaultChecked]);
+
+    return (
+      <>
+        <button
+          type="button"
+          className={cn("flex items-center gap-4")}
+          onClick={handleClick}
         >
-          {/* Circle */}
-          <motion.div
-            transition={{ type: "spring", bounce: 0.6, duration: 0.3 }}
-            layout
-            className="bg-white h-full w-3 rounded-full"
-          />
-        </div>
-      </button>
-    </>
-  );
-};
+          <span>{label}</span>
+          <input type="checkbox" className="hidden" {...props} ref={ref} />
+          {/* Container */}
+          <div
+            className={cn(
+              "bg-brand_switch_inactive rounded-full w-8 h-5 p-1 flex transition-all",
+              {
+                "justify-end bg-brand_blue": checked,
+                className,
+              }
+            )}
+            style={{
+              backgroundColor: checked ? backgroundColor : undefined,
+            }}
+          >
+            {/* Circle */}
+            <motion.div
+              transition={{ type: "spring", bounce: 0.6, duration: 0.3 }}
+              layout
+              className="bg-white h-full w-3 rounded-full"
+            />
+          </div>
+        </button>
+      </>
+    );
+  }
+);
+
+Switch.displayName = "Switch";

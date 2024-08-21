@@ -54,7 +54,7 @@ const templates = [
     price: 199,
     employeeName: "Jimi Hendrix",
     photoURL:
-      "https://media.admagazine.com/photos/618a63bca8ad6c5249a74efa/16:9/w_2656,h_1494,c_limit/74842.jpghttps://raulsandoval.mx/wp-content/uploads/2024/05/Como-tocar-la-guitarra-como-Jimi-Hendrix.jpg",
+      "https://raulsandoval.mx/wp-content/uploads/2024/05/Como-tocar-la-guitarra-como-Jimi-Hendrix.jpg",
   },
   {
     config: defaultConfig,

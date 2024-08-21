@@ -72,7 +72,12 @@ const EmptyStateServices = () => {
         <p className="mt-2 text-brand_gray">
           Crea tu primer servicio y empieza a recibir a tus clientes
         </p>
-        <PrimaryButton className="mx-auto mt-12">
+
+        <PrimaryButton
+          as="Link"
+          to="/dash/servicios/nuevo"
+          className="mx-auto mt-12"
+        >
           + Agregar servicio
         </PrimaryButton>
       </div>

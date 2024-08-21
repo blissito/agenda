@@ -31,23 +31,23 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-  if (intent == "delete_service") {
-    // delete
-    const serviceId = formData.get("serviceId") as string;
-    if (!serviceId) return json("no service id found on body", { status: 422 });
-    const service = await db.service.findUnique({ where: { id: serviceId } });
-    await db.event.updateMany({
-      where: { serviceId },
-      data: {
-        status: "DELETED",
-        legacyService: { ...service },
-      },
-    }); // @TODO: should we delete in cascade?
-    await db.service.delete({ where: { id: serviceId } });
-    return redirect("/dash/servicios");
-  }
+  // const formData = await request.formData();
+  // const intent = formData.get("intent");
+  // if (intent == "delete_service") {
+  //   // delete
+  //   const serviceId = formData.get("serviceId") as string;
+  //   if (!serviceId) return json("no service id found on body", { status: 422 });
+  //   const service = await db.service.findUnique({ where: { id: serviceId } });
+  //   await db.event.updateMany({
+  //     where: { serviceId },
+  //     data: {
+  //       status: "DELETED",
+  //       legacyService: { ...service },
+  //     },
+  //   }); // @TODO: should we delete in cascade?
+  //   await db.service.delete({ where: { id: serviceId } });
+  //   return redirect("/dash/servicios");
+  // }
   return null;
 };
 
@@ -55,6 +55,7 @@ export default function Page() {
   const { service } = useLoaderData<typeof loader>();
   return (
     <section>
+      {/* TODO: This should be a single component something like: <Bread pathname="dash/servicios" /> */}
       <Breadcrumb className="text-brand_gray">
         <BreadcrumbList>
           <BreadcrumbItem>
@@ -71,17 +72,6 @@ export default function Page() {
       <div className="grid grid-cols-4 mt-8">
         <ServiceDetail service={service} />
       </div>
-      <Form method="POST" className="bg-white rounded-xl my-4 mx-auto">
-        <input type="hidden" name="serviceId" value={service.id} />
-        <button
-          name="intent"
-          value="delete_service"
-          type="submit"
-          className="bg-red-500 text-white rounded-2xl py-1 px-6 "
-        >
-          Eliminar Servicio
-        </button>
-      </Form>
     </section>
   );
 }
