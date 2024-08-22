@@ -1,8 +1,16 @@
-import { Form } from "@remix-run/react";
+import { LoaderFunctionArgs } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
+import { getUserOrRedirect } from "~/db/userGetters";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const user = await getUserOrRedirect(request);
+  return { user };
+};
 
 export default function Page() {
+  const { user } = useLoaderData<typeof loader>();
+
   return (
     <section className=" w-full h-full 	">
       <div className="h-screen  flex flex-col  box-border ">
@@ -157,6 +165,8 @@ const Data = () => {
 };
 
 const Summary = () => {
+  const { user } = useLoaderData<typeof loader>();
+
   return (
     <div className="grid grid-cols-6 gap-10">
       <div className="col-span-6 xl:col-span-2 flex items-center">
@@ -166,7 +176,7 @@ const Summary = () => {
           </h2>
           <h2 className="text-2xl md:text-4xl font-bold leading-normal mt-2">
             {" "}
-            Brenda
+            {user.displayName}
           </h2>
           <p className="mt-4 text-brand_gray">
             Lorem ipsum dolor sit amet consectetur. Faucibus leo leo leo lectus

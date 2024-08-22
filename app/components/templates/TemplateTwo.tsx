@@ -29,7 +29,15 @@ const week = [
   { id: 5, name: "Vie 9:00 a 5:00pm" },
 ];
 
-export default function TemplateTwo() {
+export default function TemplateTwo({
+  services = [],
+  isPublic,
+  org,
+}: {
+  isPublic?: boolean;
+  services?: Service[];
+  org?: Org;
+}) {
   return (
     <section className="w-full h-auto min-h-screen bg-white">
       <div
@@ -44,28 +52,17 @@ export default function TemplateTwo() {
         className="w-[160px] h-[160px] rounded-full border-[8px] border-white ml-[5%] -mt-[60px]"
         src="https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
-      <section className="grid grid-cols-6 px-[5%] mt-6 gap-10 pb-12 md:pb-20 ">
+      <section className="grid grid-cols-6 px-[5%] mt-6 gap-10 pb-12 md:pb-20  ">
         <div className="col-span-6 lg:col-span-2">
-          <h1 className="text-2xl font-title font-bold">Estudio Westeros</h1>
+          <h1 className="text-2xl font-title font-bold">{org.name}</h1>
           <p className="mt-4 text-brand_gray">
-            Lorem ipsum dolor sit amet consectetur. In quis et quisque nulla.
-            Odio nunc accumsan integer ipsum. Sit id et augue mauris et aliquet
-            gravida in consectetur. Dictum ut vitae purus mattis etiam eget. Sit
-            id et augue mauris et aliquet gravida in consectetur. Dictum ut
-            vitae purus mattis etiam eget.
+            {org.description ? org.description : null}
           </p>
           <div className="mt-6 ">
             <ItemClient icon={<PiPhone />} text="+52 775 728 11 23" />
             <ItemClient icon={<IoMailOutline />} text="estudioml@gmail.com" />
-            <WorkHour
-              status="Abierto"
-              icon={<CiStopwatch />}
-              text="+52 775 728 11 23"
-            />
-            <ItemClient
-              icon={<IoLocationOutline />}
-              text="Av. Guerrero # 224, col, centro, CDMX, México"
-            />
+            <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
+            <ItemClient icon={<IoLocationOutline />} text={org.address} />
           </div>
           <div className="mt-8 flex gap-3">
             <SocialMedia icon={<Facebook />} />
@@ -77,7 +74,7 @@ export default function TemplateTwo() {
           </div>
         </div>
         <div className="col-span-6 lg:col-span-4">
-          <div className="bg-white  mx-auto rounded-2xl p-4 sm:p-8 w-full border-[1px] border-[#EFEFEF] mt-8 bg-[#f8f8f">
+          <div className="bg-white  mx-auto rounded-2xl p-4 sm:p-8 w-full border-[1px] border-[#EFEFEF] bg-[#f8f8f">
             <h2 className="text-xl">Servicios</h2>
             <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-1 mt-6 gap-4 gap-y-6">
               <ServiceListCard
@@ -126,10 +123,12 @@ export const WorkHour = ({
   icon,
   text,
   status,
+  org,
 }: {
   icon: ReactNode;
-  text: string;
+  text?: string;
   status?: string;
+  org?: Org;
 }) => {
   const [selected, setSelected] = useState(week[1]);
 
