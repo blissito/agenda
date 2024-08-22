@@ -153,7 +153,7 @@ export const CompanyInfo = ({
       <div className="">
         <div className="flex justify-between items-center">
           {" "}
-          <h2 className="text-2xl font-bold">Estudio Milan </h2>
+          <h2 className="text-2xl font-bold">{org?.name} </h2>
           {!isPublic && (
             <SecondaryButton
               as="Link"
@@ -166,16 +166,10 @@ export const CompanyInfo = ({
           )}
         </div>
 
-        <InfoBox title="Encargad@" value="Brenda Ortega" />
+        <InfoBox title="Encargad@" value={org?.shopKeeper} />
         <InfoBox title="Teléfono" value="55 662 66 66" />
-        <InfoBox
-          title="Dirección"
-          value="Av. Politécnico Nacional 114, col. centro, CDMX"
-        />
-        <InfoBox
-          title="Descripción"
-          value="Estudio Milan es una escuela de artes con más de 15 años de experiencia. Ofrecemos clases de música, canto, violín, etc. de martes a sábado."
-        />
+        <InfoBox title="Dirección" value={org?.address} />
+        <InfoBox title="Descripción" />
         <hr className="bg-brand_stroke my-6" />
 
         <div className="flex justify-between items-center">
@@ -286,7 +280,7 @@ export const MediaBox = ({
   return (
     <section className="flex gap-6 my-4 items-center font-satoshi">
       <span>{icon}</span>
-      <p className=" text-brand_gray">{link}</p>
+      <p className=" text-brand_gray">{link ? link : "---"}</p>
     </section>
   );
 };
@@ -328,10 +322,10 @@ export const InfoBox = ({
     <section className="grid grid-cols-8 gap-6 my-4 ">
       <div className="col-span-3 text-brand_dark font-satoshi">
         {" "}
-        <strong className="font-satoMedium">{title}</strong>
+        <strong>{title}</strong>
       </div>
       <div className="col-span-5 md:col-span-3 text-brand_gray font-satoshi">
-        {value}
+        {value ? value : "---"}
       </div>
     </section>
   );
