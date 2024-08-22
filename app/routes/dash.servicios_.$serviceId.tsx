@@ -17,6 +17,8 @@ import {
 } from "~/components/ui/breadcrump";
 import { Service } from "@prisma/client";
 import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { Image } from "~/components/common/Image";
+import { nanoid } from "nanoid";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   // @TODO ensure is the owner
@@ -27,6 +29,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   if (!service) return json(null, { status: 404 });
   return {
     service,
+    orgWeekDays: org.weekDays,
   };
 };
 
@@ -50,9 +53,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   // }
   return null;
 };
-
+// @TODO: orgWeekDays type
 export default function Page() {
-  const { service } = useLoaderData<typeof loader>();
+  const { service, orgWeekDays } = useLoaderData<typeof loader>();
+
   return (
     <section>
       {/* TODO: This should be a single component something like: <Bread pathname="dash/servicios" /> */}
@@ -70,22 +74,45 @@ export default function Page() {
         </BreadcrumbList>
       </Breadcrumb>
       <div className="grid grid-cols-4 mt-8">
-        <ServiceDetail service={service} />
+        <ServiceDetail service={service} orgWeekDays={orgWeekDays} />
       </div>
     </section>
   );
 }
 
-export const ServiceDetail = ({ service }: { service: Service }) => {
+export const ServiceDetail = ({
+  service,
+  orgWeekDays,
+}: {
+  service: Service;
+}) => {
+  const convertToMeridian = (hourString: string) => {
+    const today = new Date();
+    today.setHours(Number(hourString.split(":")[0]));
+    today.setMinutes(Number(hourString.split(":")[1]));
+    return today.toLocaleTimeString("es-MX", {
+      hour12: true,
+      hour: "numeric",
+      minute: "numeric",
+    });
+  };
+
+  const formatRange = (array: [string, string][]) => {
+    if (!array) return "Cerrado";
+    return array.map((tuple, i) => (
+      <div key={nanoid()}>
+        de {convertToMeridian(tuple[0])} a {convertToMeridian(tuple[1])}{" "}
+        {array.length > 1 && i < array.length - 1 ? "y" : null}
+      </div>
+    ));
+  };
+
   return (
     <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-3">
       <div className="grid grid-cols-1 gap-8 ">
-        <img
-          alt="service"
-          className="h-[180px]  rounded-2xl w-full object-cover"
-          src={
-            service.photoURL ? service.photoURL : "/images/serviceDefault.png"
-          }
+        <Image
+          className="h-[180px] rounded-2xl object-center"
+          src={service.photoURL}
         />
       </div>
       <div className="mt-8">
@@ -122,8 +149,18 @@ export const ServiceDetail = ({ service }: { service: Service }) => {
           </SecondaryButton>
         </div>
         <InfoBox title="Servicio" value={service.place} />
-        <InfoBox title="Agendamiento en línea" value="Activo" />
-        <InfoBox title="Agendamiento simultáneo" value="hasta 6 citas" />
+        <InfoBox
+          title="Agendamiento en línea"
+          value={service.isActive ? "Activado" : "Desactivado"}
+        />
+        <InfoBox
+          title="Agendamiento simultáneo"
+          value={
+            service.allowMultiple
+              ? `hasta ${service.limit?.bookings || 6} citas`
+              : "Desactivado"
+          }
+        />
         <hr className="bg-brand_stroke my-6" />
         <div className="flex justify-between items-center">
           {" "}
@@ -142,16 +179,19 @@ export const ServiceDetail = ({ service }: { service: Service }) => {
           <span className="font-bold font-satoMedium">
             {service.duration} minutos
           </span>{" "}
-          con <span className="font-bold font-satoMedium">15 minutos</span> de
+          con <span className="font-bold font-satoMedium">0 minutos</span> de
           descanso.
         </p>
-        <InfoBox title="Lunes" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Martes" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Miércoles" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Jueves" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Viernes" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Sábado" value="Cerrado" />
-        <InfoBox title="Domingo" value="Cerrado" />
+        <InfoBox title="Lunes" value={formatRange(orgWeekDays["lunes"])} />
+        <InfoBox title="Martes" value={formatRange(orgWeekDays["martes"])} />
+        <InfoBox
+          title="Miércoles"
+          value={formatRange(orgWeekDays["miércoles"])}
+        />
+        <InfoBox title="Jueves" value={formatRange(orgWeekDays["jueves"])} />
+        <InfoBox title="Viernes" value={formatRange(orgWeekDays["viernes"])} />
+        <InfoBox title="Sábado" value={formatRange(orgWeekDays["sábado"])} />
+        <InfoBox title="Domingo" value={formatRange(orgWeekDays["domingo"])} />
       </div>
       <hr className="bg-brand_stroke my-6" />
       <div className="flex justify-between items-center">
@@ -170,19 +210,27 @@ export const ServiceDetail = ({ service }: { service: Service }) => {
       <InfoBox title="Pago" value="Al agendar" />
       <InfoBox
         title="Mail de confirmación"
-        value="Lo enviaremos en cuanto se complete la reservación"
-      />
-      <InfoBox
-        title="Mail de recordatorio"
-        value="Lo enviaremos 24 hrs antes de la sesión"
+        value={
+          service.config.confirmation
+            ? "Lo enviamos en cuanto se completa la reservación"
+            : "Desactivado"
+        }
       />
       <InfoBox
         title="Whats app de recordatorio"
-        value="Lo enviaremos 4hrs antes de la sesión"
+        value={
+          service.config.survey
+            ? "Lo enviamos 4hrs antes de la sesión"
+            : "Desactivado"
+        }
       />
       <InfoBox
         title="Mail de evaluación"
-        value="Lo enviaremos 10 min después de terminar la sesión"
+        value={
+          service.config.confirmation
+            ? "Lo enviamos 10 min después de terminar la sesión"
+            : "Desactivado"
+        }
       />
     </div>
   );

@@ -46,6 +46,17 @@ type NotifyConfig {
   survey       Boolean @default(true)
 }
 
+enum Per {
+  DAY
+  HOUR
+}
+
+// not in use
+type Limit {
+  bookings Int @default(6)
+  per      Per @default(DAY)
+}
+
 model Service {
   id            String       @id @default(auto()) @map("_id") @db.ObjectId
   name          String
@@ -65,6 +76,7 @@ model Service {
   isActive      Boolean      @default(true)
   archived      Boolean      @default(false)
   allowMultiple Boolean      @default(false)
+  limit         Json?        @default("{\"bookings\":6,\"per\":\"day\"}") // @json because I'm still figuringt it out
   // numberOfSessionsInAnHour Int     @default(1)
   // horario
   duration      Int          @default(60) // mins

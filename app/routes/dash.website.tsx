@@ -321,18 +321,18 @@ export const InfoBox = ({
   title,
   value,
 }: {
-  title: string;
+  title: ReactNode;
   value?: ReactNode;
 }) => {
   return (
     <section className="grid grid-cols-8 gap-6 my-4 ">
-      <p className="col-span-3 text-brand_dark font-satoshi">
+      <div className="col-span-3 text-brand_dark font-satoshi">
         {" "}
-        <strong>{title}</strong>
-      </p>
-      <p className="col-span-5 md:col-span-3 text-brand_gray font-satoshi">
+        <strong className="font-satoMedium">{title}</strong>
+      </div>
+      <div className="col-span-5 md:col-span-3 text-brand_gray font-satoshi">
         {value}
-      </p>
+      </div>
     </section>
   );
 };

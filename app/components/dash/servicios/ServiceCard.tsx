@@ -5,12 +5,13 @@ import { TbDots } from "react-icons/tb";
 import { FaLink, FaRegTrashCan } from "react-icons/fa6";
 import { FiToggleLeft, FiToggleRight } from "react-icons/fi";
 import { action } from "~/routes/dash_.servicios_.nuevo";
-import { useState } from "react";
+import { ReactEventHandler, SyntheticEvent, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Spinner } from "~/components/common/Spinner";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { twMerge } from "tailwind-merge";
 import { useCopyLink } from "~/components/hooks/useCopyLink";
+import { Image } from "~/components/common/Image";
 
 export const ServiceCard = ({
   title,
@@ -149,11 +150,7 @@ export const ServiceCard = ({
       </AnimatePresence>
       <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer">
-          <img
-            alt="cover"
-            className="w-full h-[160px] object-cover"
-            src={image ? image : "/images/serviceDefault.png"}
-          />
+          <Image alt="service cover" src={image} />
           <div className="my-2 px-3 flex flex-col h-[100px] justify-between">
             <h3 className=" text-brand_dark text-lg font-satoMiddle">
               {title}

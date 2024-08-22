@@ -65,7 +65,11 @@ const EmptyStateServices = () => {
   return (
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
-        <img className="mx-auto mb-4" src="/images/access-empty.svg" />
+        <img
+          className="mx-auto mb-4"
+          src="/images/access-empty.svg"
+          alt="illustration"
+        />
         <p className="font-satoMedium text-xl font-bold">
           ¡Nada por aquí! <span className="text-2xl ">👀</span>{" "}
         </p>
