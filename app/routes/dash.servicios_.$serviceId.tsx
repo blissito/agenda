@@ -80,33 +80,33 @@ export default function Page() {
   );
 }
 
+export const formatRange = (array: [string, string][]) => {
+  if (!array) return "Cerrado";
+  return array.map((tuple, i) => (
+    <div key={nanoid()}>
+      de {convertToMeridian(tuple[0])} a {convertToMeridian(tuple[1])}{" "}
+      {array.length > 1 && i < array.length - 1 ? "y" : null}
+    </div>
+  ));
+};
+
+export const convertToMeridian = (hourString: string) => {
+  const today = new Date();
+  today.setHours(Number(hourString.split(":")[0]));
+  today.setMinutes(Number(hourString.split(":")[1]));
+  return today.toLocaleTimeString("es-MX", {
+    hour12: true,
+    hour: "numeric",
+    minute: "numeric",
+  });
+};
+
 export const ServiceDetail = ({
   service,
   orgWeekDays,
 }: {
   service: Service;
 }) => {
-  const convertToMeridian = (hourString: string) => {
-    const today = new Date();
-    today.setHours(Number(hourString.split(":")[0]));
-    today.setMinutes(Number(hourString.split(":")[1]));
-    return today.toLocaleTimeString("es-MX", {
-      hour12: true,
-      hour: "numeric",
-      minute: "numeric",
-    });
-  };
-
-  const formatRange = (array: [string, string][]) => {
-    if (!array) return "Cerrado";
-    return array.map((tuple, i) => (
-      <div key={nanoid()}>
-        de {convertToMeridian(tuple[0])} a {convertToMeridian(tuple[1])}{" "}
-        {array.length > 1 && i < array.length - 1 ? "y" : null}
-      </div>
-    ));
-  };
-
   return (
     <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-3">
       <div className="grid grid-cols-1 gap-8 ">

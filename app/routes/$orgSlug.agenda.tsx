@@ -7,7 +7,7 @@ import TemplateTwo from "~/components/templates/TemplateTwo";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
-  const services = await getServices(request);
+  const services = await getServices(request, false, { isActive: true });
   if (!org) return json(null, { status: 404 });
   return { org, services };
 };
@@ -18,7 +18,7 @@ export default function Page() {
     <>
       <main>
         <main>
-          {org.websiteConfig === "templateOne" ? (
+          {org.websiteConfig?.template === "templateOne" ? (
             <TemplateOne isPublic services={services} org={org} />
           ) : (
             <TemplateTwo isPublic services={services} org={org} />
