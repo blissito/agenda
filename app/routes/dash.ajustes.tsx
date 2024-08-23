@@ -205,8 +205,8 @@ export const IntegrationCard = ({
   description: string;
 }) => {
   return (
-    <section className="col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative cursor-pointer group">
-      <img className="w-6 h-6" src={icon} alt="social media" />
+    <section className=" col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative cursor-pointer group">
+      <img className="w-6 h-6 rounded-full" src={icon} alt="social media" />
       <div>
         <div className="flex items-center gap-3">
           <h3 className="text-brand_dark">{tool}</h3>

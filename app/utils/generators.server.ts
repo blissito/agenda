@@ -29,7 +29,7 @@ const defaultConfig = {
 const templates = [
   {
     config: defaultConfig,
-    name: "Limpieza dental para dragon",
+    name: "Limpieza dental para dragón",
     slug: "limpieza-dental-para-dragon",
     price: 1999,
     employeeName: "Daenerys Targaryen",
@@ -58,12 +58,12 @@ const templates = [
   },
   {
     config: defaultConfig,
-    name: "24 vueltas en pista profesional #22",
-    slug: generateSlug("24 vueltas en pista profesional #22"),
-    price: 48_500,
-    employeeName: "Checo Perez",
+    name: "Experiencia Culinaria",
+    slug: generateSlug("Experiencia Culinaria"),
+    price: 500,
+    employeeName: "Cheff Gordon Ramsay",
     photoURL:
-      "https://fotografias.lasexta.com/clipping/cmsimages02/2022/05/31/C5D89425-396E-444C-9C97-72B334E58B10/checo-perez-renueva-red-bull-dos-temporadas-mas_98.jpg?crop=2865,1612,x0,y36&width=1900&height=1069&optimize=high&format=webply",
+      "https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   },
 ];
 
