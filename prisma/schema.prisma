@@ -92,7 +92,7 @@ model Service {
 }
 
 type WebSiteConfig {
-  template String
+  template String   @default("templateOne")
   color    String
 }
 

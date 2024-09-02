@@ -151,7 +151,7 @@ export const ServiceCard = ({
       <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer">
           <Image alt="service cover" src={image} />
-          <div className="my-2 px-3 flex flex-col h-[100px] justify-between">
+          <div className="my-2 px-3 flex flex-col  justify-between">
             <h3 className=" text-brand_dark text-lg font-satoMiddle">
               {title}
             </h3>
@@ -164,8 +164,8 @@ export const ServiceCard = ({
               {isActive ? (
                 <Tag />
               ) : (
-                <Tag className="bg-brand_light_gray text-brand_gray text-xs">
-                  Desactivado
+                <Tag className="bg-brand_light_gray text-brand_gray text-sm">
+                  Inactivo
                 </Tag>
               )}
             </article>

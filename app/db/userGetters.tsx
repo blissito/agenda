@@ -180,12 +180,13 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
 // SERVICES =====================================================================================
 export const getServices = async (
   request: Request,
-  includeOrg: boolean = false
+  includeOrg: boolean = false,
+  where: any
 ) => {
   const user = await getUserOrRedirect(request);
   if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
   return await db.service.findMany({
-    where: { orgId: user.orgId, archived: false },
+    where: { orgId: user.orgId, archived: false, ...where },
     include: { org: includeOrg },
   });
 };

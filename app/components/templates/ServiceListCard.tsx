@@ -2,7 +2,7 @@ import { motion, useInstantTransition } from "framer-motion";
 import { Link, useFetcher } from "@remix-run/react";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { action } from "../../../routes/signup.$stepSlug";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Tag } from "~/components/common/Tag";
 
 export const ServiceListCard = ({
@@ -11,17 +11,16 @@ export const ServiceListCard = ({
   duration,
   price,
   link,
-  id,
-  isActive,
+  serviceSlug,
+  slug,
 }: {
-  isActive: boolean;
-  id: string;
+  slug: string;
   title: string;
   image?: string;
   duration: number;
   price: string;
-  status: string;
   link?: string;
+  serviceSlug?: string;
 }) => {
   // lets try with an api endpoint...
   const fetcher = useFetcher<typeof action>();
@@ -33,6 +32,16 @@ export const ServiceListCard = ({
     isActive: show,
     includeEscape: true, // captures [Esc] key press
   });
+  const origin = useRef<string>("");
+
+  useEffect(() => {
+    origin.current = window.location.origin;
+  }, []);
+  const getLink = useCallback(
+    (serviceSlug: string) => `${origin.current}/agenda/${slug}/${serviceSlug}`,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [origin]
+  );
 
   return (
     <motion.section
@@ -47,7 +56,7 @@ export const ServiceListCard = ({
             <div className="flex items-center gap-3">
               <img
                 alt="cover"
-                className="w-12 h-12 rounded-lg object-cover"
+                className="w-16 h-12 rounded-lg object-cover"
                 src={image ? image : "/images/serviceDefault.png"}
               />
               <article>
@@ -60,13 +69,11 @@ export const ServiceListCard = ({
                 </p>
               </article>
             </div>
-            {isActive ? (
-              <Tag />
-            ) : (
+            <Link to={getLink(serviceSlug)}>
               <Tag className="bg-brand_dark rounded-full h-8 text-white text-xs">
                 Agendar
               </Tag>
-            )}{" "}
+            </Link>
           </div>
         </section>
       </Link>

@@ -80,9 +80,8 @@ export const BasicInput = ({
             // onChange={onChange}
           />
         )}
-        {error?.message && ( // @TODO: check if we need to preserve space
-          <p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>
-        )}
+
+        <p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>
       </div>
     </>
   );
