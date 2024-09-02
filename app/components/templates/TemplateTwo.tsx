@@ -20,7 +20,7 @@ import { Denik } from "~/components/icons/denik";
 import { ServiceListCard } from "./ServiceListCard";
 import { SocialMedia } from "./SocialMedia";
 import { ItemClient } from "./ItemClient";
-import { formatRange } from "~/routes/dash.servicios_.$serviceId";
+import { formatRange } from "../common/FormatRange";
 
 const week = [
   { id: 1, name: "Lun 9:00 a 5:00pm" },
