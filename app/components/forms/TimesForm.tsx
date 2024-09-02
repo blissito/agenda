@@ -39,26 +39,7 @@ const ENTIRE_WEEK = [
 ];
 // @TODO: remove unnecesary types
 const initialValues: WeekDaysType = {
-  lunes: [
-    ["09:00", "16:00"],
-    // ["17:00", "18:00"],
-  ],
-  // martes: [
-  //   ["10:00", "16:00"],
-  //   ["18:00", "22:00"],
-  // ],
-  // miércoles: [
-  //   ["10:00", "14:00"],
-  //   ["18:00", "20:00"],
-  // ],
-  // jueves: [
-  //   ["10:00", "16:00"],
-  //   ["18:00", "22:00"],
-  // ],
-  // viernes: [
-  //   ["10:00", "16:00"],
-  //   ["18:00", "22:00"],
-  // ],
+  lunes: [["09:00", "16:00"]],
 };
 
 const RANGE_TEMPLATE = ["09:00", "14:00"];
@@ -98,7 +79,7 @@ export const TimesForm = ({
   const submit = () => {
     if (onSubmit) {
       onSubmit(data);
-      return;
+      return; // @todo this is no necessary, is doing the same ?
     }
     // @TODO: validate?
     fetcher.submit(

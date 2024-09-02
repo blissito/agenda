@@ -19,6 +19,7 @@ import { Service } from "@prisma/client";
 import { getUserAndOrgOrRedirect } from "~/db/userGetters";
 import { Image } from "~/components/common/Image";
 import { nanoid } from "nanoid";
+import { formatRange } from "~/components/common/FormatRange";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   // @TODO ensure is the owner
@@ -79,16 +80,6 @@ export default function Page() {
     </section>
   );
 }
-
-export const formatRange = (array: [string, string][]) => {
-  if (!array) return "Cerrado";
-  return array.map((tuple, i) => (
-    <div key={nanoid()}>
-      de {convertToMeridian(tuple[0])} a {convertToMeridian(tuple[1])}{" "}
-      {array.length > 1 && i < array.length - 1 ? "y" : null}
-    </div>
-  ));
-};
 
 export const convertToMeridian = (hourString: string) => {
   const today = new Date();

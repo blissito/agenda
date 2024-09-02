@@ -46,7 +46,7 @@ export default function Index() {
       { method: "POST" }
     );
   };
-  console.log("Fetcher:", fetcher);
+
   return (
     <section>
       <Breadcrumb className="text-brand_gray">

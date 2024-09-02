@@ -19,6 +19,7 @@ import { getUserAndOrgOrRedirect } from "~/db/userGetters";
 import qrcode from "qrcode";
 import { Org, Service } from "@prisma/client";
 import { nanoid } from "nanoid";
+import { formatRange } from "~/components/common/FormatRange";
 
 export const getQRImageURL = (urlString: string): Promise<string> => {
   // qrcode.toString(url.toString(), { type: "terminal" }, (_, link) => {
@@ -136,8 +137,6 @@ export const CompanyInfo = ({
   services?: Service[];
   org?: Org;
 }) => {
-  console.log(org?.weekDays);
-
   return (
     <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
       {/* <div className=" relative mb-20">
@@ -190,13 +189,19 @@ export const CompanyInfo = ({
           )}
         </div>
 
-        <InfoBox title="Lunes" value={org?.weekDays?.lunes} />
-        <InfoBox title="Martes" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Miércoles" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Jueves" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Viernes" value="de 9:00 am a 16:00 pm" />
-        <InfoBox title="Sábado" value="Cerrado" />
-        <InfoBox title="Domingo" value="Cerrado" />
+        <InfoBox title="Lunes" value={formatRange(org?.weekDays?.lunes)} />
+        <InfoBox title="Martes" value={formatRange(org?.weekDays?.martes)} />
+        <InfoBox
+          title="Miércoles"
+          value={formatRange(org?.weekDays?.["miércoles"])}
+        />
+        <InfoBox title="Jueves" value={formatRange(org?.weekDays?.jueves)} />
+        <InfoBox title="Viernes" value={formatRange(org?.weekDays?.viernes)} />
+        <InfoBox
+          title="Sábado"
+          value={formatRange(org?.weekDays?.["sábado"])}
+        />
+        <InfoBox title="Domingo" value={formatRange(org?.weekDays?.domingo)} />
         <hr className="bg-brand_stroke my-6" />
         <div className="flex justify-between items-center">
           {" "}
