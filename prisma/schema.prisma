@@ -110,6 +110,7 @@ model Org {
   numberOfEmployees String?
   address           String?
   week              String?
+  description       String?
   // Business type
   businessType      String?
   // Times

@@ -1,11 +1,11 @@
-import { Org, User } from "@prisma/client";
+import { Org, Prisma, User } from "@prisma/client";
 import { redirect } from "@remix-run/react";
 import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
 import { FirebaseUserData } from "~/utils/lib/firebase";
 import { validateUserToken } from "~/utils/tokens";
 
-type Options = { redirectURL: string };
+type Options = { redirectURL?: string; select?: Prisma.OrgSelect };
 
 export const redirectIfUser = async (request: Request) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -72,18 +72,42 @@ export const getFirstOrgOrNull = async (request: Request) => {
   return await db.org.findFirst({ where: { ownerId: user.id } }); // @TODO: multi orgs?
 };
 
+// used in loaders
+
 export const getUserAndOrgOrRedirect = async (
   request: Request,
-  options: Options = { redirectURL: "/signin" }
+  options: Options = { redirectURL: "/signin", select: undefined }
 ): Promise<{ user: User; org: Org }> => {
   const user = await getUserOrNull(request);
   if (!user?.orgId) throw redirect(options.redirectURL);
-  const org = await db.org.findUnique({ where: { id: user.orgId } });
-  if (!org || !org.weekDays) throw redirect(options.redirectURL);
+  const org = await db.org.findUnique({
+    where: { id: user.orgId },
+    select: options.select,
+  });
+  if (!org || !org.weekDays) throw redirect(options.redirectURL); // @TODO: why week days?
   return { user, org };
 };
 
-// used in loaders
+// export const getOrgFromLoggedUserOrRedirect = async <T,>(
+//   request: Request,
+//   options: {
+//     select: Prisma.UserSelect;
+//     redirectURL: string;
+//   }
+// ) => {
+//   const { select, redirectURL = "/sigin" } = options || {};
+//   const user = await getUserOrRedirect(request);
+//   if (!user.orgId) throw redirect(redirectURL);
+//   const org = await db.org.findUnique({
+//     where: {
+//       id: user.orgId,
+//     },
+//     select,
+//   });
+//   if (!org) throw redirect(redirectURL);
+//   return org;
+// };
+
 export const getServicefromSearchParams = async (
   request: Request,
   options: any = {}
@@ -171,3 +195,6 @@ export const getService = async () => {
   if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
   return null; // @TODO finish it
 };
+
+export const updateOrg = async ({ id, ...data }: Partial<Org>) =>
+  await db.org.update({ where: { id }, data });

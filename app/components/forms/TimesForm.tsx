@@ -65,14 +65,14 @@ const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
 export const TimesForm = ({
-  // defaultValues,
   org,
-  submitButton,
   onChange,
+  onSubmit,
+  children,
 }: {
-  defaultValues?: WeekDaysType;
-  submitButton?: ReactNode;
+  children?: ReactNode; // acting as footer
   onChange?: (data: WeekDaysType) => void;
+  onSubmit?: (data: WeekDaysType) => void;
   org?: Org;
 }) => {
   const fetcher = useFetcher();
@@ -95,7 +95,11 @@ export const TimesForm = ({
     },
   });
 
-  const onSubmit = () => {
+  const submit = () => {
+    if (onSubmit) {
+      onSubmit(data);
+      return;
+    }
     // @TODO: validate?
     fetcher.submit(
       // tipo-de-negocio
@@ -187,7 +191,7 @@ export const TimesForm = ({
 
   return (
     <Form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(submit)}
       className={twMerge(
         "h-full pt-6 md:pt-20 px-[5%] md:px-2  max-w-xl mx-auto",
         "flex flex-col justify-evenly h-full gap-5 text-brand_dark"
@@ -216,8 +220,8 @@ export const TimesForm = ({
 
       <div className="mt-auto">
         {" "}
-        {submitButton ? (
-          submitButton
+        {children ? (
+          children
         ) : (
           <PrimaryButton
             isLoading={fetcher.state !== "idle"}

@@ -18,6 +18,7 @@ import Modal from "~/components/ui/dialog";
 import { getUserAndOrgOrRedirect } from "~/db/userGetters";
 import qrcode from "qrcode";
 import { Org, Service } from "@prisma/client";
+import { nanoid } from "nanoid";
 
 export const getQRImageURL = (urlString: string): Promise<string> => {
   // qrcode.toString(url.toString(), { type: "terminal" }, (_, link) => {
@@ -52,8 +53,8 @@ export default function Website() {
     <main className=" ">
       <RouteTitle>Mi sitio web </RouteTitle>
       <section className=" grid grid-cols-6 gap-6">
-        <CompanyInfo org={org} />
         <Template url={url} qr={qr} />
+        <CompanyInfo org={org} />
       </section>
     </main>
   );
@@ -135,6 +136,8 @@ export const CompanyInfo = ({
   services?: Service[];
   org?: Org;
 }) => {
+  console.log(org?.weekDays);
+
   return (
     <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
       {/* <div className=" relative mb-20">
@@ -169,7 +172,7 @@ export const CompanyInfo = ({
         <InfoBox title="Encargad@" value={org?.shopKeeper} />
         <InfoBox title="Teléfono" value="55 662 66 66" />
         <InfoBox title="Dirección" value={org?.address} />
-        <InfoBox title="Descripción" />
+        <InfoBox title="Descripción" value={org?.description} />
         <hr className="bg-brand_stroke my-6" />
 
         <div className="flex justify-between items-center">
@@ -186,7 +189,8 @@ export const CompanyInfo = ({
             </SecondaryButton>
           )}
         </div>
-        <InfoBox title="Lunes" value="de 9:00 am a 16:00 pm" />
+
+        <InfoBox title="Lunes" value={org?.weekDays?.lunes} />
         <InfoBox title="Martes" value="de 9:00 am a 16:00 pm" />
         <InfoBox title="Miércoles" value="de 9:00 am a 16:00 pm" />
         <InfoBox title="Jueves" value="de 9:00 am a 16:00 pm" />

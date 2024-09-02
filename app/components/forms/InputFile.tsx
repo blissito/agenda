@@ -24,7 +24,7 @@ export const InputFile = ({
   children,
   description,
   register,
-  registerOptions = { required: REQUIRED_MESSAGE },
+  registerOptions = { required: "campo requerido" },
   error,
   name,
   multiple,
