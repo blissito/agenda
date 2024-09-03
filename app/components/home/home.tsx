@@ -17,14 +17,16 @@ import { WobbleCard } from "../animated/WoobleCard";
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center ">
     <div className="w-full h-full px-[5%] xl:px-[18%]">
-      <h1 className="md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
-        <span>Administra la agenda</span>
-        <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4" />{" "}
-        de tu negocio en un solo lugar
-      </h1>
-      <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex-wrap items-center text-center justify-center ">
+      <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight  flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
-        <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4 md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
+        <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4  md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
+        <span>agenda</span> de tu negocio en un solo lugar
+      </h1>
+      <h1 className=" flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex-wrap items-center text-center justify-center ">
+        <span>Administra la</span>
+      </h1>
+      <h1 className="flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex-wrap items-center text-center justify-center ">
+        <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
@@ -42,19 +44,19 @@ export const Hero = () => (
 );
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-0 md:gap-16 lg:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
-    <div className="flex justify-center xl:justify-between pr-0  gap-10 lg:gap-20 ">
-      <div className="w-[120px] lg:w-[320px] flex justify-center">
+  <section className="flex flex-col gap-6 md:gap-0 lg:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
+    <div className="flex justify-center xl:justify-between pr-0  gap-6 lg:gap-20 ">
+      <div className="w-[120px] lg:w-[320px] md:flex justify-center hidden">
         <LineSteak />
       </div>
       <CardSmall
-        className="rotate-[4deg] "
+        className="rotate-[4deg] -left-4 md:left-0 "
         name="Paola Alvarado"
         rol="Nutrióloga"
         comment="Desde que uso Deník, administrar mis citas es más fácil. Mis clientes agendan directamente en cualquier momento. "
         img="https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
-      <CardImage className="-rotate-[4deg]" />
+      <CardImage className="-rotate-[4deg] top-16 md:top-16" />
       <CardLarge
         className="rotate-[4deg] "
         name="Luis Escobedo"
@@ -66,14 +68,17 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
     </div>
     <div className="flex justify-between gap-10 md:gap-20">
       <CardSmall
-        className="rotate-[4deg] mt-0 md:-mt-28 "
+        className="rotate-[4deg] mt-10 md:-mt-20  "
         name="Catalina López"
         rol="Maestra de inglés"
         comment="Deník es un sistema completo de administración que me ha permitido organizar mis citas de forma digital."
         icon={<Thunder />}
         img="https://images.pexels.com/photos/3856027/pexels-photo-3856027.jpeg?auto=compress&cs=tinysrgb&w=800"
       />
-      <CardImage className="-rotate-[4deg] " img="/images/img1.jpg" />
+      <CardImage
+        className="-rotate-[4deg] top-20 md:top-0 "
+        img="/images/img1.jpg"
+      />
       <CardLarge
         className="rotate-[4deg] "
         name="Georgina Hernández"
@@ -84,16 +89,19 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
       />
       <CardImage className="-rotate-[4deg] " img="/images/img4.jpg" />
     </div>
-    <div className="flex justify-between  items-center  gap-10 md:gap-20 relative">
+    <div className="flex justify-between  items-center  gap-10 md:gap-20 relative -mt-6 md:-mt-20">
       <span className="absolute left-20  bottom-0">
         <Arrow />
       </span>
       <span className="absolute right-28 -top-28">
         <Waves />
       </span>
-      <CardImage className="rotate-[4deg] -mt-28 " img="/images/img3.jpg" />
+      <CardImage
+        className="rotate-[4deg] mt-0 md:-mt-28 -left-16 md:left-0"
+        img="/images/img3.jpg"
+      />
       <CardLarge
-        className="-rotate-[4deg] "
+        className="-rotate-[4deg] mt-32 md:-mt-10 -left-16 md:left-0"
         name="Jose Luis González"
         rol="Médico general"
         comment="Los recordatorios de Deník son la parte favorita de mis clientes, ahora ni ellos ni yo olvidamos las citas."
@@ -129,7 +137,7 @@ export const CardSmall = ({
 }) => (
   <section
     className={twMerge(
-      " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[240px] lg:w-[340px] h-[300px] lg:h-[400px] rounded-lg	p-6 relative flex flex-col justify-between",
+      " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[240px] lg:w-[340px] h-[260px] lg:h-[400px] rounded-lg	p-6 relative flex flex-col justify-between",
       className
     )}
   >
@@ -150,7 +158,7 @@ export const CardSmall = ({
         <p className="text-xs lg:text-sm text-brand_gray font-satoshi">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-satoMedium text-brand_dark ">
+    <p className="text-base lg:text-2xl font-satoMedium text-brand_dark ">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
@@ -175,7 +183,7 @@ export const CardLarge = ({
 }) => (
   <section
     className={twMerge(
-      " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[220px] lg:w-[280px] h-[380px] rounded-lg	p-6 relative flex flex-col justify-between",
+      " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[220px] lg:w-[280px] h-[300px] md:h-[380px] rounded-lg	p-6 relative flex flex-col justify-between",
       className
     )}
   >
@@ -196,7 +204,7 @@ export const CardLarge = ({
         <p className="text-xs lg:text-sm text-brand_gray">{rol}</p>
       </div>
     </article>
-    <p className="text-lg lg:text-2xl font-satoMedium text-brand_dark ">
+    <p className="text-base lg:text-2xl font-satoMedium text-brand_dark ">
       {comment}
     </p>
     <span className=" absolute right-6 -bottom-8 ">
@@ -245,7 +253,7 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No más citas olvidadas: Controla y automatiza tu agenda{" "}
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-3 lg:mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-3 lg:mt-6 mb-6 md:mb-16">
           Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
           ¡Ahora tienes el control!
         </p>
@@ -257,11 +265,11 @@ export const Features = () => (
         <img
           alt="vista de agenda"
           className="w-full "
-          src="/images/agenda.svg"
+          src="/images/agenda.png"
         />
       </WobbleCard>
     </div>
-    <div className="flex justify-between items-center mt-[80px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0">
+    <div className="flex justify-between items-center mt-[120px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0">
       <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
         <img
           alt="notificación"
@@ -273,18 +281,18 @@ export const Features = () => (
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           ¡Que no te dejen plantado! Envía recordatorios por email y whats app
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-0 md:mb-16">
           Evita pérdidas de tiempo y dinero: confirmamos tus citas y enviamos
           recordatorios a tus clientes para que no las olviden.
         </p>
       </div>
     </div>
-    <div className="flex justify-between items-center mt-[80px] lg:mt-[160px]  flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
+    <div className="flex justify-between items-center mt-[120px] lg:mt-[160px]  flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
       <div className="pr-0 lg:pr-12">
         <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark">
           No pierdas más clientes, recibe pagos en línea
         </h2>
-        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-16">
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-6 md:mb-16">
           Ofrece más alternativas de pago a tus clientes o pacientes con pagos
           desde tu sitio web.
         </p>

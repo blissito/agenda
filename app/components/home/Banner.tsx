@@ -12,13 +12,15 @@ export const Banner = () => {
       </h2>
       <p className="text-xl lg:text-2xl text-brand_ash/80 mt-6 font-satoshi">
         Si tienes alguna duda, agenda un demo en línea para que nuestro equipo
-        te muestres todo lo que puedes hacer con Denik. ¡Escríbenos!
+        te muestre todo lo que puedes hacer con Denik. ¡Escríbenos!
       </p>
-      <div className="flex gap-6 md:gap-8 mt-12 justify-center ">
-        <PrimaryButton className="w-[180px]">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-8 mt-12 justify-center">
+        <PrimaryButton className="w-full md:w-[180px]">
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton>
-        <SecondaryButton className="w-[180px]">Agendar demo </SecondaryButton>
+        <SecondaryButton className="w-full md:w-[180px]">
+          Agendar demo{" "}
+        </SecondaryButton>
       </div>
       <Meteors number={40} />
     </section>
