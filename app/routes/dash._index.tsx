@@ -13,7 +13,7 @@ export default function Page() {
 
   return (
     <section className=" w-full h-full 	">
-      <div className="h-screen  flex flex-col  box-border ">
+      <div className="h-auto lg:h-screen  flex flex-col  box-border ">
         <Summary />
         <EmptyStateDash />
         {/* <Data /> */}

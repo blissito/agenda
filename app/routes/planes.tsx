@@ -205,7 +205,7 @@ export const Pricing = () => (
           >
             Anual
           </Tab>
-          <div className="absolute -right-16 md:-right-28  bottom-10 text-brand_blue ">
+          <div className="absolute -right-16 md:-right-24  bottom-10 text-brand_blue ">
             <img src="/images/tag.svg" />
             <Arrow className=" w-10 h-10" />
           </div>

@@ -57,7 +57,7 @@ export const HoverEffect = ({
                 />
               )}
             </AnimatePresence>
-            <section className="group cursor-pointer  bg-white border-[1px] border-brand_ash rounded-2xl max-w-[400px] z-10	xl:max-w-[480px] h-full px-8 py-10  text-left flex flex-col  relative  ">
+            <section className="group cursor-pointer  bg-white border-[1px] border-brand_ash rounded-2xl max-w-[400px] z-10	xl:max-w-[480px] h-full md:px-8 px-4 py-6 md:py-10  text-left flex flex-col  relative  ">
               <img
                 alt="rocket"
                 className="absolute w-[200px] -right-10 top-0 md:-right-12 md:top-0 opacity-0 group-hover:opacity-100  transition-all"

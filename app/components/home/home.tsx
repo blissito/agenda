@@ -44,7 +44,7 @@ export const Hero = () => (
 );
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
+  <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-hidden pb-12 w-full items-start md:items-center mt-10 md:mt-0 ">
     <div className="flex justify-center xl:justify-between pr-0  gap-6 lg:gap-20 ">
       <div className="w-[120px] lg:w-[320px] md:flex justify-center hidden">
         <LineSteak />

@@ -4,12 +4,12 @@
 }
 @font-face {
   font-family: "Jakarta";
-  src: url("/fonts/PlusJakartaMedium.ttf");
+  src: url("/fonts/PlusJakartaRegular.ttf");
 }
 
 @font-face {
   font-family: "JakarBold";
-  src: url("/fonts/PlusJakartaSemiBold.ttf");
+  src: url("/fonts/PlusJakartaMedium.ttf");
 }
 
 @font-face {
@@ -24,29 +24,18 @@
   font-weight: bold;
 }
 
-@font-face {
-  font-family: "Faktum ";
-  src: url("/fonts/FaktumBold.otf");
-  font-weight: bold;
-}
-
-@font-face {
-  font-family: "FakMedium ";
-  src: url("/fonts/FaktumMedium.otf");
-  font-weight: bold;
-}
-
 html {
   --bg-mask-color: red;
 }
 
 /* Header for all website titles */
 h1,
-h2,
-h3 {
-  font-family: "Faktum ";
+h2 {
+  font-family: "JakarBold";
 }
-
+h3 {
+  font-family: "JakarBold";
+}
 p {
   font-family: "Satoshi ";
 }
@@ -66,13 +55,9 @@ p {
   font-family: "Denik bold ";
 }
 
-.font-jakarta {
-  font-family: "FakMedium ";
-}
-
 .overlay {
   background-color: white;
-  padding: 80px;
+  padding: 80px 120px;
   mask-image: radial-gradient(
     ellipse 100% 100% at 50% 50%,
     black 40%,

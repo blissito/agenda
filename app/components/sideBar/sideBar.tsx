@@ -146,7 +146,7 @@ const Footer = () => {
           type="submit"
           name="intent"
           value="logout"
-          className="flex pl-6 gap-3 text-base pb-3 hover:text-gray-700 font-title h-12 items-center"
+          className="flex pl-6 gap-3 text-base pb-3 hover:text-gray-700  h-12 items-center"
         >
           <Out />
           Cerrar sesión
@@ -184,7 +184,7 @@ const MenuButton = ({
       <span
         className={twMerge(
           "mr-2 w-1 h-11",
-          isActive && "bg-brand_blue rounded-e-lg"
+          isActive && "bg-brand_blue rounded-e-lg font-satoshi"
         )}
       />
       {children}
