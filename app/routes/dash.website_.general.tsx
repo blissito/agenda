@@ -148,7 +148,12 @@ export default function Index() {
           register={register}
         />
         <div className="flex mt-16 justify-end gap-6">
-          <SecondaryButton as="Link" to="/dash/website" className="w-[120px]">
+          <SecondaryButton
+            as="Link"
+            to="/dash/website"
+            className="w-[120px]"
+            prefetch="render"
+          >
             Cancelar
           </SecondaryButton>
           <PrimaryButton isDisabled={!isValid}>Guardar</PrimaryButton>

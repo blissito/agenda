@@ -167,6 +167,7 @@ export default function Index() {
             as="Link"
             to="/dash/website"
             className="w-[120px]"
+            prefetch="render"
           >
             Cancelar
           </SecondaryButton>
