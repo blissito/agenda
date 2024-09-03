@@ -44,7 +44,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       shopKeeper: true,
       description: true,
       address: true,
-      logo: true,
+      // logo: true,
     },
   });
   if (!org) throw json(null, { status: 404 });
