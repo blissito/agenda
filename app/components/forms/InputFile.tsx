@@ -4,7 +4,7 @@ import { ChangeEvent, DragEvent, ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 // @TODO: scale and optimize images
 type Props = {
-  action?: string;
+  action?: { readUrl?: string; removeUrl?: string; putURL?: string };
   name: string;
   children: ReactNode;
   title?: string;
@@ -23,7 +23,7 @@ export const InputFile = ({
   action,
   children,
   description,
-  register,
+  register = () => false,
   registerOptions = { required: "campo requerido" },
   error,
   name,
@@ -32,7 +32,7 @@ export const InputFile = ({
   ...props
 }: Props) => {
   const [isOver, setIsOver] = useState(false);
-  const [preview, setPreview] = useState<string>(action.readUrl);
+  const [preview, setPreview] = useState<string>(action?.readUrl);
   const handleOnDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsOver(true);

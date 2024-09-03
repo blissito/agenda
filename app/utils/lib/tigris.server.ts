@@ -33,6 +33,7 @@ const setCors = async () => {
           AllowedMethods: [
             // AllowedMethods // required
             "PUT",
+            "DELETE",
           ],
           AllowedOrigins: ["http://localhost:3000"],
           // ExposeHeaders: [ // ExposeHeaders
@@ -72,7 +73,7 @@ export const getPutFileUrl = async (key: string) => {
   );
 };
 
-export const removeFileUrl = async (key: stirng) => {
+export const removeFileUrl = async (key: string) => {
   await setCors();
   return await getSignedUrl(
     S3,

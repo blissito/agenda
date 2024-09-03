@@ -14,14 +14,13 @@ import { Tiktok } from "~/components/icons/tiktok";
 import { Twitter } from "~/components/icons/twitter";
 import { Youtube } from "~/components/icons/youtube";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import Modal from "~/components/ui/dialog";
 import { getUserAndOrgOrRedirect } from "~/db/userGetters";
-import qrcode from "qrcode";
 import { Org, Service } from "@prisma/client";
 import { formatRange } from "~/components/common/FormatRange";
 import { db } from "~/utils/db.server";
 import { Image } from "~/components/common/Image";
-import { Switch } from "~/components/common/Switch";
+import Modal from "~/components/ui/dialog";
+import qrcode from "qrcode";
 
 export const getQRImageURL = (urlString: string): Promise<string> => {
   // qrcode.toString(url.toString(), { type: "terminal" }, (_, link) => {
@@ -65,14 +64,22 @@ export default function Website() {
     <main className=" ">
       <RouteTitle>Mi sitio web </RouteTitle>
       <section className=" grid grid-cols-6 gap-6">
-        <Template url={url} qr={qr} />
+        <Template org={org} url={url} qr={qr} />
         <CompanyInfo org={org} services={services} />
       </section>
     </main>
   );
 }
 
-export const Template = ({ url, qr }: { qr: string; url: string }) => {
+export const Template = ({
+  url,
+  qr,
+  org,
+}: {
+  org?: Org;
+  qr: string;
+  url: string;
+}) => {
   const [pop, set] = useState(false);
 
   return (
@@ -96,7 +103,7 @@ export const Template = ({ url, qr }: { qr: string; url: string }) => {
             </a>
           </div>
           <div className="flex gap-4 text-[20px] text-brand_gray">
-            <Modal>
+            <Modal org={org}>
               {" "}
               <Edit className="hover:opacity-50 cursor-pointer" />
             </Modal>
@@ -294,7 +301,6 @@ export const InfoService = ({
   title: string;
   link?: string;
 }) => {
-  console.log("link? ", link);
   return (
     <a
       target="_blank"

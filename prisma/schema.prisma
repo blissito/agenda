@@ -91,11 +91,6 @@ model Service {
   employeeName  String? // @TODO: where is this requested?
 }
 
-type WebSiteConfig {
-  template String @default("templateOne")
-  color    String
-}
-
 type Social {
   facebook  String?
   instagram String?
@@ -106,16 +101,21 @@ type Social {
   youtube   String?
 }
 
+type WebSiteConfig {
+  template String @default("defaultTemplate")
+  color    String @default("#705fe0")
+}
+
 model Org {
-  isActive          Boolean        @default(true)
+  isActive          Boolean       @default(true)
   // required
-  id                String         @id @default(auto()) @map("_id") @db.ObjectId
-  ownerId           String         @db.ObjectId
-  owner             User           @relation(fields: [ownerId], references: [id])
+  id                String        @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId           String        @db.ObjectId
+  owner             User          @relation(fields: [ownerId], references: [id])
   // about your company
   name              String
-  slug              String         @unique
-  logo              String?
+  slug              String        @unique
+  // logo              String?
   shopKeeper        String?
   numberOfEmployees String?
   address           String?
@@ -129,7 +129,7 @@ model Org {
   Service           Service[]
   // extra
   location          Json?
-  websiteConfig     WebSiteConfig?
+  websiteConfig     WebSiteConfig
 }
 
 enum EventStatus {

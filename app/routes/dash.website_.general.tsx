@@ -11,6 +11,7 @@ import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import {
   ActionFunctionArgs,
+  json,
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
@@ -19,6 +20,8 @@ import { Form, useFetcher, useLoaderData } from "@remix-run/react";
 import { useForm } from "react-hook-form";
 import { db } from "~/utils/db.server";
 import { z } from "zod";
+import { InputFile } from "~/components/forms/InputFile";
+import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server";
 
 const generalFormSchema = z.object({
   name: z.string().min(1),
@@ -28,8 +31,11 @@ const generalFormSchema = z.object({
   address: z.string().min(1),
 });
 
+export type GeneralFormSchemaType = z.infer<typeof generalFormSchema>;
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { user } = await getUserAndOrgOrRedirect(request);
+  if (!user.orgId) throw json(null, { status: 404 });
   const org = await db.org.findUnique({
     where: { id: user.orgId },
     select: {
@@ -38,9 +44,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       shopKeeper: true,
       description: true,
       address: true,
+      logo: true,
     },
   });
-  return { user, org };
+  if (!org) throw json(null, { status: 404 });
+  const putUrl = await getPutFileUrl(`logos/${org.id}`);
+  const removeUrl = await removeFileUrl(`logos/${org.id}`);
+
+  return {
+    user,
+    org,
+    action: {
+      removeUrl,
+      putUrl,
+      readUrl: `/api/images?key=logos/${org.id}`,
+    },
+  };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -56,15 +75,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export default function Index() {
-  const { org, user } = useLoaderData<typeof loader>();
+  const { org, action } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const {
     register,
     formState: { isValid },
     handleSubmit,
-  } = useForm({ defaultValues: org });
+  } = useForm({ defaultValues: org as GeneralFormSchemaType });
 
-  const onSubmit = (values) => {
+  const onSubmit = (values: GeneralFormSchemaType) => {
     // zod validation
     const validatedData = generalFormSchema.parse(values);
     fetcher.submit(
@@ -100,8 +119,9 @@ export default function Index() {
         >
           Información General
         </h2>
-        <div className="flex gap-6"></div>
-
+        <InputFile name="blissmo" action={action} className="w-[220px]">
+          <p className="hover:scale-105 transition-all"> 🛸 Arrastra tu logo</p>
+        </InputFile>
         <BasicInput
           placeholder="Estudio Westeros"
           label="Nombre de tu negocio"

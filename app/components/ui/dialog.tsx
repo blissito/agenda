@@ -1,10 +1,24 @@
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { ChangeEvent, ReactNode, SyntheticEvent, useState } from "react";
+import {
+  ChangeEvent,
+  ReactNode,
+  SyntheticEvent,
+  useRef,
+  useState,
+} from "react";
 import { SecondaryButton } from "../common/secondaryButton";
 import { PrimaryButton } from "../common/primaryButton";
 import { twMerge } from "tailwind-merge";
+import { Org } from "@prisma/client";
+import { useFetcher } from "@remix-run/react";
 
-export default function Modal({ children }: { children: ReactNode }) {
+export default function Modal({
+  children,
+  org,
+}: {
+  org: Org;
+  children: ReactNode;
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
   function open() {
@@ -15,11 +29,61 @@ export default function Modal({ children }: { children: ReactNode }) {
     setIsOpen(false);
   }
 
-  const config = {
-    border: "template2",
+  const fetcher = useFetcher();
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const colorInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSlugChange = ({
+    target: { value },
+  }: ChangeEvent<HTMLInputElement>) => {
+    clearTimeout(timeout.current ?? undefined);
+    timeout.current = setTimeout(() => {
+      fetcher.submit(
+        {
+          data: JSON.stringify({ slug: value.trim(), id: org.id }),
+          intent: "org_check_slug",
+        },
+        { method: "POST", action: "/api/org" }
+      );
+    }, 500);
   };
 
-  const handleColorChange = () => false; // @TODO: not implemented. Copy from formmy?
+  const handleSlugUpdate = () => {
+    if (inputRef.current?.value.trim() === org.slug) return;
+    update(
+      JSON.stringify({
+        slug: inputRef.current?.value.trim(),
+        id: org.id,
+      })
+    );
+  };
+
+  const handleTemplateSelection = (templateName: string) => {
+    update(
+      JSON.stringify({ id: org.id, websiteConfig: { template: templateName } })
+    );
+  };
+
+  const handleColorChange = (colorString: string) => {
+    if (colorInputRef.current) colorInputRef.current.value = colorString;
+    update(
+      JSON.stringify({
+        id: org.id,
+        websiteConfig: { color: colorString },
+      })
+    );
+  };
+
+  const update = (data: string, intent: string = "org_update") => {
+    fetcher.submit(
+      {
+        data,
+        intent,
+      },
+      { method: "POST", action: "/api/org" }
+    );
+  };
 
   return (
     <>
@@ -45,34 +109,46 @@ export default function Modal({ children }: { children: ReactNode }) {
               >
                 Sitio web
               </DialogTitle>
-              <div className="border-brand_ash h-12 w-full p-2 border-[1px] rounded-full flex items-center pl-3 gap-3">
+              <div className="border-brand_ash h-12 w-full px-2 border-[1px] rounded-full flex items-center pl-3 gap-3">
                 <span>denik.me/</span>
                 <input
+                  ref={inputRef}
+                  onChange={handleSlugChange}
                   className={twMerge(
                     "placeholder-brand_iron text-brand_gray font-satoshi rounded-full border-none ",
                     "focus:border-brand_blue",
                     "h-8 w-full ",
                     "disabled:bg-brand_stroke disabled:cursor-not-allowed"
                   )}
+                  defaultValue={org.slug}
                 />
-                <PrimaryButton className="bg-brand_dark h-[36px]">
+                <PrimaryButton
+                  isDisabled={
+                    fetcher.data?.errors?.slug || fetcher.state !== "idle"
+                  }
+                  className="bg-brand_dark h-[36px]"
+                  onClick={handleSlugUpdate}
+                >
                   Actualizar
                 </PrimaryButton>
               </div>
+              <p className="text-red-500 px-4">{fetcher.data?.errors.slug}</p>
               <hr className="bg-brand_stroke h-[1px] border-none my-6" />
               <h3 className="text-brand_dark mb-4">Plantilla</h3>
               <div className="flex gap-6">
                 <button
+                  onClick={() => handleTemplateSelection("defaultTemplate")}
                   type="button"
-                  onClick={() => handleBorderChange("cuadrado")}
                   className="text-center relative rounded-2xl "
                 >
-                  {config.border === "template1" && <Palomita />}
+                  {org.websiteConfig?.template === "defaultTemplate" && (
+                    <Palomita />
+                  )}
 
                   <div
                     className={twMerge(
                       "border-[1px] border-brand_stroke rounded-2xl p-3 w-[240px]",
-                      config.border === "template1"
+                      org.websiteConfig?.template === "defaultTemplate"
                         ? " ring-brand_blue rounded-2xl ring"
                         : null
                     )}
@@ -86,15 +162,17 @@ export default function Modal({ children }: { children: ReactNode }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleBorderChange("cuadrado")}
+                  onClick={() => handleTemplateSelection("blissmoTemplate")}
                   className="text-center relative flex gap-6"
                 >
-                  {config.border === "template2" && <Palomita />}
+                  {org.websiteConfig?.template === "blissmoTemplate" && (
+                    <Palomita />
+                  )}
 
                   <div
                     className={twMerge(
                       "border-[1px] border-brand_stroke rounded-2xl p-3 w-[240px]",
-                      config.border === "template2"
+                      org.websiteConfig?.template === "blissmoTemplate"
                         ? " ring-brand_blue rounded-md ring"
                         : null
                     )}
@@ -116,19 +194,26 @@ export default function Modal({ children }: { children: ReactNode }) {
                 className=" text-xs text-brand_gray flex items-center justify-between relative"
               >
                 <input
+                  ref={colorInputRef}
                   onClick={(e: SyntheticEvent<HTMLInputElement>) =>
                     e.currentTarget.select()
                   }
                   onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                    handleColorChange(e.currentTarget.value);
+                    clearTimeout(timeout.current);
+                    timeout.current = setTimeout(() => {
+                      handleColorChange(e.target.value);
+                    }, 500);
                   }}
                   placeholder="#000000"
                   className="placeholder:text-brand_ash focus:border-brand-blue bg-transparent  focus:ring-brand-blue focus:outline-none ring-transparent  active:ring-transparent pl-8 w-28 py-2 pr-2  border-brand_ash rounded-lg"
                   id="color"
                   type="text"
+                  defaultValue={org.websiteConfig?.color}
                 />
                 <ColorCube
-                  style={{ backgroundColor: "#000000" }}
+                  style={{
+                    backgroundColor: org.websiteConfig?.color || "#705fe0",
+                  }}
                   className="absolute top-3 left-2"
                 />
               </label>
@@ -169,9 +254,9 @@ export default function Modal({ children }: { children: ReactNode }) {
                   className="w-[120px]"
                   onClick={close}
                 >
-                  Cancelar
+                  Terminar
                 </SecondaryButton>
-                <PrimaryButton>Guardar</PrimaryButton>
+                {/* <PrimaryButton>Guardar</PrimaryButton> */}
               </div>
             </DialogPanel>
           </div>
