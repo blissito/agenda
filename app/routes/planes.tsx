@@ -15,6 +15,8 @@ import { ArrowCollapse } from "~/components/icons/arrowCollapse";
 import { HoverEffect } from "~/components/common/CardHoverEffect";
 import { Denik } from "~/components/icons/denik";
 import { Banner } from "~/components/home/Banner";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import { Arrow } from "~/components/icons/arrow";
 
 export const meta: MetaFunction = () => {
   return [
@@ -41,12 +43,12 @@ export default function Index() {
         </Suspense>
         <Faq />
         <FinalCta>
-          <h2 className="group text-4xl xl:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+          <h2 className="group text-4xl xl:text-6xl	font-bold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
             <span className="mr-4">No lo pienses </span>
             <Lamp className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
             <span className="ml-4"> más.</span>
           </h2>
-          <h2 className="text-4xl lg:text-6xl font-bold  text-brand_dark mb-16 mt-4 leading-normal ">
+          <h2 className="text-4xl lg:text-6xl font-bold  text-brand_dark mb-16 mt-2 ">
             ¡Empieza ahora!
           </h2>
         </FinalCta>
@@ -58,12 +60,12 @@ export default function Index() {
 
 export const Faq = () => (
   <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
-    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4">Preguntas </span>
       <Bubble className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
       <span className="ml-4"> frecuentes</span>
     </h2>
-    <div className="mt-20">
+    <div className="mt-10 ">
       <Question
         question="¿Qué es una agenda en línea o sitio web de citas en línea?"
         answer="Una agenda en línea o sitio web de citas en Deník es una herramienta virtual diseñada para facilitar la organización y gestión de citas. Permitendo a los usuarios programar, editar y dar seguimiento a sus citas 100% en línea, además de cobrar sus servicios y enviar recordatorios a través de una plataforma accesible desde cualquier dispositivo con conexión a internet. "
@@ -179,7 +181,7 @@ export const Question = ({
 
 export const Pricing = () => (
   <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-[200px] lg:pt-[24%] xl:pt-[16%] ">
-    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Digitaliza </span>
       <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />{" "}
       tu negocio
@@ -189,9 +191,38 @@ export const Pricing = () => (
       usan Deník. ¿Listo para empezar hoy mismo?
     </p>
     <div>
-      <div className="flex gap-12 justify-center mt-16 flex-wrap ">
-        <HoverEffect items={items} />
-      </div>
+      <TabGroup className="">
+        <TabList className="flex  bg-brand_pale mx-auto w-[180px] rounded-full h-12 mt-16 relative">
+          <Tab
+            key="monthly"
+            className="rounded-full w-[90px]  py-1 px-3 text-base font-semibold text-[#B3B4B6] font-satoshi focus:outline-none data-[selected]:bg-brand_dark data-[selected]:text-white  data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-brand_dark data-[focus]:outline-1 data-[focus]:outline-white"
+          >
+            Mensual
+          </Tab>
+          <Tab
+            key="yearly"
+            className="rounded-full w-[90px]  py-1 px-3 text-base font-semibold text-[#B3B4B6] font-satoshi focus:outline-none data-[selected]:bg-brand_dark data-[selected]:text-white  data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-brand_dark data-[focus]:outline-1 data-[focus]:outline-white"
+          >
+            Anual
+          </Tab>
+          <div className="absolute -right-16 md:-right-28  bottom-10 text-brand_blue ">
+            <img src="/images/tag.svg" />
+            <Arrow className=" w-10 h-10" />
+          </div>
+        </TabList>
+        <TabPanels className="mt-3">
+          <TabPanel key="monthly">
+            <div className="flex gap-12 justify-center mt-10 flex-wrap ">
+              <HoverEffect items={monthlyItems} />
+            </div>
+          </TabPanel>
+          <TabPanel key="monthly">
+            <div className="flex gap-12 justify-center mt-10 flex-wrap ">
+              <HoverEffect items={yearlyItems} />
+            </div>
+          </TabPanel>
+        </TabPanels>
+      </TabGroup>
     </div>
   </section>
 );
@@ -200,7 +231,92 @@ export const ListStar = () => {
   return <img className="w-6 h-6" src="/images/star.svg" />;
 };
 
-export const items = [
+export const yearlyItems = [
+  {
+    plan: "Profesional",
+    price: "$159 mxn",
+    children: (
+      <div className="h-full flex flex-col">
+        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Agenda en línea
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Recordatorios automáticos
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Sitio web para citas
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Pagos en línea
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Encuesta de satisfacción
+          </li>
+          <li className="flex gap-3">
+            {" "}
+            <ListStar /> Expediente de clientes
+          </li>
+        </ul>
+        <PrimaryButton className="mt-10 md:mt-auto">
+          Probar gratis <ArrowRight />{" "}
+        </PrimaryButton>
+      </div>
+    ),
+    link: "https://stripe.com",
+  },
+  {
+    plan: "Empresarial",
+    price: "$399 mxn",
+    children: (
+      <div className="h-full flex flex-col">
+        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi  ">
+          <li className="flex gap-3">
+            <ListStar /> Agenda en línea
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Recordatorios automáticos
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Sitio web para citas
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Pagos en línea
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Encuesta de satisfacción
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Expediente de clientes
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Administración de sucursales
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Administración de usuarios
+          </li>
+        </ul>{" "}
+        <PrimaryButton className=" mt-10 ">
+          Contactar a ventas <ArrowRight />{" "}
+        </PrimaryButton>
+      </div>
+    ),
+    link: "https://stripe.com",
+  },
+];
+
+export const monthlyItems = [
   {
     plan: "Profesional",
     price: "$199 mxn",
@@ -235,7 +351,7 @@ export const items = [
             <ListStar /> Expediente de clientes
           </li>
         </ul>
-        <PrimaryButton className="mt-auto">
+        <PrimaryButton className="mt-10 md:mt-auto">
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton>
       </div>

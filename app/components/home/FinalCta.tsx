@@ -14,7 +14,7 @@ export const FinalCta = ({ children }: { children?: ReactNode }) => (
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton>
       </div>
-      <div className="w-full flex justify-between text-left  absolute -bottom-60 gap-4 ">
+      <div className="w-full flex justify-between text-left  absolute -bottom-40 md:-bottom-60 gap-4 ">
         <LineSteak />
         <CardSmall
           className="rotate-[4deg] justify-start gap-10 w-[360px]"

@@ -80,6 +80,14 @@ p {
   );
 }
 
+/* .frame {
+  background-color: white;
+
+  backdrop-filter: blur(20px);
+  padding: 120px 0px;
+  mask-image: linear-gradient(transparent, black, transparent);
+} */
+
 .container-input {
   text-align: center;
   background: #282828;

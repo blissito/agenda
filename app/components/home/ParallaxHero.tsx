@@ -14,9 +14,9 @@ export const ParallaxHero = ({ children }: { children: ReactNode }) => {
     offset: ["start start", "end start"], // 1. 0 end start, 1 when start start
     target,
   });
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.8]); // when Y=0 => scale=1
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "150%"]); // when Y=1 => y=150%
-  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.3], [1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.6]); // when Y=0 => scale=1
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "120%"]); // when Y=1 => y=150%
+  const opacity = useTransform(scrollYProgress, [0, 0.1, 0.25], [1, 1, 0]);
 
   return (
     <motion.div ref={target} className="">
@@ -30,7 +30,7 @@ export const ParallaxHero = ({ children }: { children: ReactNode }) => {
         {hero}
       </motion.div>
       <motion.div
-        className=" bg-white"
+        className="	"
         style={{
           y: -1, // in order to cover hero with bg
         }}
