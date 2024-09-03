@@ -17,15 +17,15 @@ import { WobbleCard } from "../animated/WoobleCard";
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center ">
     <div className="w-full h-full px-[5%] xl:px-[18%]">
-      <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight  flex-wrap items-center text-center justify-center ">
+      <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark  flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4  md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
-      <h1 className=" flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex-wrap items-center text-center justify-center ">
+      <h1 className=" flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
       </h1>
-      <h1 className="flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark leading-tight flex-wrap items-center text-center justify-center ">
+      <h1 className="flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark flex-wrap items-center text-center justify-center ">
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
@@ -44,7 +44,7 @@ export const Hero = () => (
 );
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-6 md:gap-0 lg:gap-28 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
+  <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-hidden pb-12 w-full items-start md:items-center ">
     <div className="flex justify-center xl:justify-between pr-0  gap-6 lg:gap-20 ">
       <div className="w-[120px] lg:w-[320px] md:flex justify-center hidden">
         <LineSteak />
@@ -243,7 +243,7 @@ export const CardImage = ({
 
 export const Features = () => (
   <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
-    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Impulsa</span>
       <Rocket className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
       <span className="ml-4 mr-4"> tu </span> negocio con Deník
@@ -264,8 +264,13 @@ export const Features = () => (
       <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%]">
         <img
           alt="vista de agenda"
-          className="w-full "
+          className="w-full md:hidden block "
           src="/images/agenda.png"
+        />
+        <img
+          alt="vista de agenda"
+          className="w-full hidden md:block "
+          src="/images/agenda.svg"
         />
       </WobbleCard>
     </div>
@@ -273,7 +278,12 @@ export const Features = () => (
       <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
         <img
           alt="notificación"
-          className="w-full"
+          className="w-full md:hidden block "
+          src="/images/notification.png"
+        />
+        <img
+          alt="notificación"
+          className="w-full hidden md:block "
           src="/images/notification.svg"
         />
       </WobbleCard>
@@ -302,7 +312,16 @@ export const Features = () => (
       </div>
 
       <WobbleCard className="w-full  lg:w-[90%] mx-auto min-h-auto lg:min-h-[520px] flex justify-center items-center">
-        <img alt=" payment card" className="w-full" src="/images/payment.svg" />
+        <img
+          alt=" payment card"
+          className="w-full md:hidden block "
+          src="/images/payment.png"
+        />
+        <img
+          alt=" payment card"
+          className="w-full hidden md:block "
+          src="/images/payment.svg"
+        />
       </WobbleCard>
     </div>
   </section>
