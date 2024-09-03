@@ -10,13 +10,15 @@ export const Switch = forwardRef(
       className,
       setValue,
       defaultChecked = false,
+      name,
       ...props
     }: {
-      setValue: UseFormSetValue; // @TODO: fix
+      setValue?: (arg0: string, arg1: boolean) => void; // @TODO: fix
       className?: string;
       backgroundColor?: string;
       label?: string;
       defaultChecked?: boolean;
+      name?: string;
     },
     ref // coming from register
   ) => {
@@ -25,11 +27,11 @@ export const Switch = forwardRef(
 
     const handleClick = () => {
       set((s) => !s);
-      setValue?.(props.name, !checked);
+      setValue?.(name, !checked);
     };
 
     useEffect(() => {
-      setValue?.(props.name, defaultChecked);
+      setValue?.(name, defaultChecked);
       set(defaultChecked);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [defaultChecked]);

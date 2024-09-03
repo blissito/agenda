@@ -5,8 +5,6 @@ import { db } from "~/utils/db.server";
 import { FirebaseUserData } from "~/utils/lib/firebase";
 import { validateUserToken } from "~/utils/tokens";
 
-type Options = { redirectURL?: string; select?: Prisma.OrgSelect };
-
 export const redirectIfUser = async (request: Request) => {
   const session = await getSession(request.headers.get("Cookie"));
   if (session.has("userId")) throw redirect("/dash");
@@ -14,7 +12,7 @@ export const redirectIfUser = async (request: Request) => {
 
 export const getUserOrRedirect = async (
   request: Request,
-  options: Options = { redirectURL: "/signin" }
+  options: { redirectURL?: string } = { redirectURL: "/signin" }
 ) => {
   const user = await getUserOrNull(request);
   if (!user) throw redirect(options.redirectURL);
@@ -76,15 +74,17 @@ export const getFirstOrgOrNull = async (request: Request) => {
 
 export const getUserAndOrgOrRedirect = async (
   request: Request,
-  options: Options = { redirectURL: "/signin", select: undefined }
+  options: { redirectURL?: string; select?: Prisma.OrgSelect } = {}
 ): Promise<{ user: User; org: Org }> => {
+  const rurl = options?.redirectURL || "/signin";
   const user = await getUserOrNull(request);
-  if (!user?.orgId) throw redirect(options.redirectURL);
+  if (!user?.orgId) throw redirect(rurl);
   const org = await db.org.findUnique({
     where: { id: user.orgId },
-    select: options.select,
+    select: options && options.select ? options.select : undefined,
   });
-  if (!org || !org.weekDays) throw redirect(options.redirectURL); // @TODO: why week days?
+  if (!org || !org.weekDays) throw redirect(rurl); // @TODO: why week days?
+
   return { user, org };
 };
 
@@ -181,7 +181,7 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
 export const getServices = async (
   request: Request,
   includeOrg: boolean = false,
-  where: any
+  where: unknown = {}
 ) => {
   const user = await getUserOrRedirect(request);
   if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
@@ -191,7 +191,7 @@ export const getServices = async (
   });
 };
 
-export const getService = async () => {
+export const getService = async (request: Request) => {
   const user = await getUserOrRedirect(request);
   if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
   return null; // @TODO finish it

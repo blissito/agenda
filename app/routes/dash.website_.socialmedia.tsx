@@ -14,8 +14,44 @@ import { Instagram } from "~/components/icons/insta";
 import { Tiktok } from "~/components/icons/tiktok";
 import { Linkedin } from "~/components/icons/linkedin";
 import { Anchor } from "~/components/icons/link";
+import { Form, useFetcher, useLoaderData } from "@remix-run/react";
+import { useForm } from "react-hook-form";
+import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { Org } from "@prisma/client";
+import { handleOrgUpdate } from "~/components/forms/form_handlers/serviceTimesFormHandler";
+import { Youtube } from "~/components/icons/youtube";
+
+export const action = async ({ request }: LoaderFunctionArgs) => {
+  await handleOrgUpdate(request, () => redirect("/dash/website"));
+  return null;
+};
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { org } = await getUserAndOrgOrRedirect(request, {
+    redirectURL: "/dash/website/",
+  });
+  return { org: { social: org.social, id: org.id } };
+};
 
 export default function Index() {
+  const { org } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
+
+  const { handleSubmit, register } = useForm({
+    defaultValues: org.social || {},
+  });
+
+  const onSubmit = (values: unknown) => {
+    fetcher.submit(
+      {
+        data: JSON.stringify({ social: values }),
+        intent: "update_org_social",
+      },
+      { method: "POST" }
+    );
+  };
+
   return (
     <section>
       <Breadcrumb className="text-brand_gray">
@@ -31,7 +67,10 @@ export default function Index() {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="bg-white rounded-2xl max-w-3xl p-8 mt-6">
+      <Form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white rounded-2xl max-w-3xl p-8 mt-6"
+      >
         <h2
           className="font-satoMiddle mb-8 text-xl
           "
@@ -39,6 +78,20 @@ export default function Index() {
           Actualiza tus redes sociales
         </h2>
         <BasicInput
+          registerOptions={{ required: false }}
+          register={register}
+          name="youtube"
+          placeholder="youtube.com"
+          label={
+            <span className="flex items-center">
+              <Youtube className="w-5 h-5" />
+              Youtube
+            </span>
+          }
+        />
+        <BasicInput
+          registerOptions={{ required: false }}
+          register={register}
           name="facebook"
           placeholder="facebook.com"
           label={
@@ -49,6 +102,8 @@ export default function Index() {
           }
         />
         <BasicInput
+          registerOptions={{ required: false }}
+          register={register}
           name="instagram"
           placeholder="instagram.com"
           label={
@@ -59,7 +114,9 @@ export default function Index() {
           }
         />
         <BasicInput
-          name="twitter"
+          registerOptions={{ required: false }}
+          register={register}
+          name="x"
           placeholder="x.com"
           label={
             <span className="flex items-center">
@@ -69,6 +126,8 @@ export default function Index() {
           }
         />
         <BasicInput
+          registerOptions={{ required: false }}
+          register={register}
           name="tiktok"
           placeholder="tiktok.com"
           label={
@@ -79,7 +138,9 @@ export default function Index() {
           }
         />
         <BasicInput
-          name="facebook"
+          registerOptions={{ required: false }}
+          register={register}
+          name="linkedin"
           placeholder="linkedin.com"
           label={
             <span className="flex items-center">
@@ -89,7 +150,9 @@ export default function Index() {
           }
         />
         <BasicInput
-          name="facebook"
+          registerOptions={{ required: false }}
+          register={register}
+          name="website"
           placeholder="tupagina.com"
           label={
             <span className="flex items-center">
@@ -99,12 +162,19 @@ export default function Index() {
           }
         />
         <div className="flex mt-16 justify-end gap-6">
-          <SecondaryButton as="Link" to="/dash/website" className="w-[120px]">
+          <SecondaryButton
+            isDisabled={fetcher.state !== "idle"}
+            as="Link"
+            to="/dash/website"
+            className="w-[120px]"
+          >
             Cancelar
           </SecondaryButton>
-          <PrimaryButton>Guardar</PrimaryButton>
+          <PrimaryButton isDisabled={fetcher.state !== "idle"}>
+            Guardar
+          </PrimaryButton>
         </div>
-      </div>
+      </Form>
     </section>
   );
 }

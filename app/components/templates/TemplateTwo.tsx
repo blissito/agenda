@@ -21,6 +21,7 @@ import { ServiceListCard } from "./ServiceListCard";
 import { SocialMedia } from "./SocialMedia";
 import { ItemClient } from "./ItemClient";
 import { formatRange } from "../common/FormatRange";
+import { Org } from "@prisma/client";
 
 const week = [
   { id: 1, name: "Lun 9:00 a 5:00pm" },
@@ -111,8 +112,6 @@ export default function TemplateTwo({
 
 export const WorkHour = ({
   icon,
-  text,
-  status,
   org,
 }: {
   icon: ReactNode;
@@ -120,7 +119,7 @@ export const WorkHour = ({
   status?: string;
   org?: Org;
 }) => {
-  const [selected, setSelected] = useState(week[1]);
+  const [selected] = useState(week[1]);
 
   return (
     <section className="flex items-center my-2">

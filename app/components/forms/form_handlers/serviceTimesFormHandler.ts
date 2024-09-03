@@ -10,15 +10,25 @@ import { weekDaysOrgSchema } from "~/utils/zod_schemas";
 
 // this functions should handle everything including validation
 export const handleOrgUpdate = async (request: Request, cn?: () => void) => {
-  const formData = await request.formData();
-  if (formData.get("intent") !== "update_org") return;
   const user = await getUserOrRedirect(request); // logged user @todo: permissions?
+  const formData = await request.formData();
   const data = JSON.parse(String(formData.get("data"))) as Partial<Org>;
   // @todo improve
   if (!data || !user.orgId) return null;
-  const validatedData = weekDaysOrgSchema.parse(data); // @todo should return errors?
-  await db.org.update({ where: { id: user.orgId }, data: validatedData });
-  throw cn?.();
+  if (formData.get("intent") === "update_org_social" && data.social) {
+    await db.org.update({
+      where: { id: user.orgId },
+      data: { social: data.social },
+    });
+  }
+  if (formData.get("intent") === "update_org") {
+    const validatedData = weekDaysOrgSchema.parse(data); // @todo should return errors?
+    await db.org.update({ where: { id: user.orgId }, data: validatedData });
+  }
+  if (cn) {
+    throw cn();
+  }
+  return null;
 };
 
 export const serviceTimesFormHandler = async (

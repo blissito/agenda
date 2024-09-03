@@ -2,13 +2,13 @@ import { SyntheticEvent } from "react";
 import { twMerge } from "tailwind-merge";
 
 export const Image = ({
-  src,
+  src = "",
   className,
   alt = "illustration",
   ...props
 }: {
   className?: string;
-  src?: string | null;
+  src?: string;
   props?: unknown;
   alt?: string;
 }) => {

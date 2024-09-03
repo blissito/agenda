@@ -3,6 +3,27 @@ import { generalFormSchema } from "../services_model/ServiceGeneralForm";
 import { db } from "~/utils/db.server";
 import { redirect } from "@remix-run/node";
 import { generateSlug } from "~/utils/generateSlug";
+import { Service } from "@prisma/client";
+
+export const serviceUpdate = async (
+  request: Request,
+  options?: { redirectURL?: string }
+) => {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  if (intent === "service_update_isActive") {
+    const data = JSON.parse(formData.get("data") as string) as Partial<Service>;
+    await db.service.update({
+      where: { slug: data.slug },
+      data,
+    });
+    if (options?.redirectURL) {
+      throw redirect(options.redirectURL);
+    }
+  }
+
+  return null;
+};
 
 export const serviceGeneralFormHandler = async (
   request: Request,

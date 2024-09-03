@@ -13,7 +13,7 @@ export const TopBar = () => (
         <Link to="/planes">
           <p className="font-satoshi font-medium">Planes</p>
         </Link>
-        <PrimaryButton as="Link" to={"/signup/sobre-tu-negocio"}>
+        <PrimaryButton as="Link" to={"/dash"} prefetch="render">
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton>
       </div>

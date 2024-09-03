@@ -56,7 +56,6 @@ export const SecondaryButton = forwardRef(
     return (
       <Element
         ref={ref}
-        prefetch="intent"
         disabled={isDisabled}
         {...props}
         onClick={onClick}

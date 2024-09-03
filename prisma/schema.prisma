@@ -92,8 +92,18 @@ model Service {
 }
 
 type WebSiteConfig {
-  template String   @default("templateOne")
+  template String @default("templateOne")
   color    String
+}
+
+type Social {
+  facebook  String?
+  instagram String?
+  x         String?
+  tiktok    String?
+  linkedin  String?
+  website   String?
+  youtube   String?
 }
 
 model Org {
@@ -111,6 +121,7 @@ model Org {
   address           String?
   week              String?
   description       String?
+  social            Social?
   // Business type
   businessType      String?
   // Times

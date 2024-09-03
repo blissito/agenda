@@ -18,8 +18,10 @@ import Modal from "~/components/ui/dialog";
 import { getUserAndOrgOrRedirect } from "~/db/userGetters";
 import qrcode from "qrcode";
 import { Org, Service } from "@prisma/client";
-import { nanoid } from "nanoid";
 import { formatRange } from "~/components/common/FormatRange";
+import { db } from "~/utils/db.server";
+import { Image } from "~/components/common/Image";
+import { Switch } from "~/components/common/Switch";
 
 export const getQRImageURL = (urlString: string): Promise<string> => {
   // qrcode.toString(url.toString(), { type: "terminal" }, (_, link) => {
@@ -44,18 +46,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
   url.pathname = `/${org.slug}/agenda`;
   const qr = await getQRImageURL(url.toString());
-
-  return { url: url.toString(), qr, org };
+  const services = await db.service.findMany({
+    where: { orgId: org.id, archived: false },
+    select: {
+      id: true,
+      name: true,
+      photoURL: true,
+      slug: true,
+      isActive: true,
+    },
+  });
+  return { url: url.toString(), qr, org, services };
 };
 
 export default function Website() {
-  const { url, qr, org } = useLoaderData<typeof loader>();
+  const { url, qr, org, services } = useLoaderData<typeof loader>();
   return (
     <main className=" ">
       <RouteTitle>Mi sitio web </RouteTitle>
       <section className=" grid grid-cols-6 gap-6">
         <Template url={url} qr={qr} />
-        <CompanyInfo org={org} />
+        <CompanyInfo org={org} services={services} />
       </section>
     </main>
   );
@@ -134,8 +145,8 @@ export const CompanyInfo = ({
   org,
 }: {
   isPublic?: boolean;
-  services?: Service[];
-  org?: Org;
+  services?: Partial<Service>[];
+  org: Org;
 }) => {
   return (
     <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
@@ -193,16 +204,14 @@ export const CompanyInfo = ({
         <InfoBox title="Martes" value={formatRange(org?.weekDays?.martes)} />
         <InfoBox
           title="Miércoles"
-          value={formatRange(org?.weekDays?.["miércoles"])}
+          value={formatRange(org.weekDays?.["miércoles"])}
         />
-        <InfoBox title="Jueves" value={formatRange(org?.weekDays?.jueves)} />
-        <InfoBox title="Viernes" value={formatRange(org?.weekDays?.viernes)} />
-        <InfoBox
-          title="Sábado"
-          value={formatRange(org?.weekDays?.["sábado"])}
-        />
-        <InfoBox title="Domingo" value={formatRange(org?.weekDays?.domingo)} />
+        <InfoBox title="Jueves" value={formatRange(org.weekDays?.jueves)} />
+        <InfoBox title="Viernes" value={formatRange(org.weekDays?.viernes)} />
+        <InfoBox title="Sábado" value={formatRange(org.weekDays?.["sábado"])} />
+        <InfoBox title="Domingo" value={formatRange(org.weekDays?.domingo)} />
         <hr className="bg-brand_stroke my-6" />
+
         <div className="flex justify-between items-center">
           {" "}
           <h3 className="text-lg font-bold">Servicios</h3>
@@ -217,13 +226,14 @@ export const CompanyInfo = ({
             </SecondaryButton>
           )}
         </div>
-
         <div className="flex gap-x-6 flex-wrap pr-[10%]">
           {services.map((s) => (
             <InfoService
+              title={s.name ?? "untitled"}
+              link={s.isActive ? `/agenda/${org.slug}/${s.slug}` : undefined}
+              image={s.photoURL ?? undefined}
               key={s.id}
-              title={s.name}
-              link={`/agenda/${org?.slug}/${s.slug}`}
+              isActive={s.isActive}
             />
           ))}
         </div>
@@ -243,37 +253,16 @@ export const CompanyInfo = ({
           )}
         </div>
 
-        <MediaBox
-          icon={<Facebook />}
-          link="https://dribbble.com/search/image-empty-state"
-        />
+        <MediaBox icon={<Facebook />} link={org?.social?.facebook} />
 
-        <MediaBox
-          icon={<Instagram />}
-          link="https://dribbble.com/search/image-empty-state"
-        />
-        <MediaBox
-          icon={<Twitter />}
-          link="https://dribbble.com/search/image-empty-state"
-        />
+        <MediaBox icon={<Instagram />} link={org?.social?.instagram} />
+        <MediaBox icon={<Twitter />} link={org?.social?.x} />
 
-        <MediaBox
-          icon={<Tiktok />}
-          link="https://dribbble.com/search/image-empty-state"
-        />
-        <MediaBox
-          icon={<Youtube />}
-          link="https://dribbble.com/search/image-empty-state"
-        />
-        <MediaBox
-          icon={<Linkedin />}
-          link="https://dribbble.com/search/image-empty-state"
-        />
+        <MediaBox icon={<Tiktok />} link={org?.social?.tiktok} />
+        <MediaBox icon={<Youtube />} link={org?.social?.youtube} />
+        <MediaBox icon={<Linkedin />} link={org?.social?.linkedin} />
 
-        <MediaBox
-          icon={<Anchor />}
-          link="https://dribbble.com/search/image-empty-state"
-        />
+        <MediaBox icon={<Anchor />} link={org?.social?.website} />
       </div>
     </div>
   );
@@ -283,7 +272,7 @@ export const MediaBox = ({
   icon,
   link,
 }: {
-  link?: string;
+  link?: string | null;
   icon: ReactNode;
 }) => {
   return (
@@ -298,11 +287,14 @@ export const InfoService = ({
   image,
   title,
   link,
+  isActive,
 }: {
+  isActive?: boolean;
   image?: string;
   title: string;
-  link: string;
+  link?: string;
 }) => {
+  console.log("link? ", link);
   return (
     <a
       target="_blank"
@@ -310,12 +302,21 @@ export const InfoService = ({
       href={link}
       className="flex gap-4 my-4 items-center font-satoshi"
     >
-      <img
+      <Image
         alt="service"
         className="w-16 h-12 rounded object-cover"
-        src={image ? image : "/images/serviceDefault.png"}
+        src={image}
       />
       <p>{title}</p>
+      <span
+        className={twMerge(
+          "text-xs py-1 px-2 rounded-full text-brand_gray",
+          isActive ? "bg-green-100" : "bg-gray-100"
+        )}
+      >
+        {" "}
+        {isActive ? "público" : "oculto"}
+      </span>
     </a>
   );
 };

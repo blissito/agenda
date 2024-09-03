@@ -104,9 +104,7 @@ export function SideBar({
 
 const Header = ({
   className,
-  handleDragEnd,
   user,
-  onClick,
   dragElement,
 }: {
   dragElement?: ReactNode;
@@ -174,6 +172,7 @@ const MenuButton = ({
   const Element = to ? Link : "button";
   return (
     <Element
+      prefetch="intent"
       to={to}
       className={twMerge(
         isActive && "text-brand_blue",
@@ -253,7 +252,11 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("agenda")}>Agenda</MenuButton.Title>
         </MenuButton>
-        <MenuButton to="/dash/website" isActive={match("website")}>
+        <MenuButton
+          to="/dash/website"
+          isActive={match("website")}
+          prefetch="render" // @todo is this necessary?
+        >
           <MenuButton.Icon isActive={match("website")}>
             <Website />
           </MenuButton.Icon>
