@@ -24,6 +24,18 @@
   font-weight: bold;
 }
 
+@font-face {
+  font-family: "Faktum ";
+  src: url("/fonts/FaktumBold.otf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "FakMedium ";
+  src: url("/fonts/FaktumMedium.otf");
+  font-weight: bold;
+}
+
 html {
   --bg-mask-color: red;
 }
@@ -32,14 +44,14 @@ html {
 h1,
 h2,
 h3 {
-  font-family: "Jakarta";
+  font-family: "Faktum ";
 }
 
 p {
   font-family: "Satoshi ";
 }
 .font-title {
-  font-family: "Jakarta";
+  font-family: "Faktum ";
   font-weight: 800;
 }
 .font-satoMiddle {
@@ -55,7 +67,7 @@ p {
 }
 
 .font-jakarta {
-  font-family: "JakarBold";
+  font-family: "FakMedium ";
 }
 
 .overlay {
