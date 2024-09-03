@@ -14,7 +14,7 @@ export const TopBar = () => (
           <p className="font-satoshi font-medium">Planes</p>
         </Link>
         <PrimaryButton as="Link" to={"/dash"} prefetch="render">
-          Probar gratis <ArrowRight />{" "}
+          Probar gratis <ArrowRight className="hidden md:block" />{" "}
         </PrimaryButton>
       </div>
     </article>
