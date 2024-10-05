@@ -23,6 +23,11 @@
   src: url("/fonts/Satoshi-Medium.ttf");
   font-weight: bold;
 }
+@font-face {
+  font-family: "Outfit Medium";
+  src: url("/fonts/Outfit-Medium.ttf");
+  font-weight: bold;
+}
 
 html {
   --bg-mask-color: red;
@@ -30,9 +35,7 @@ html {
 
 /* Header for all website titles */
 h1,
-h2 {
-  font-family: "JakarBold";
-}
+h2,
 h3 {
   font-family: "JakarBold";
 }
@@ -134,5 +137,13 @@ input[type="color"].custom {
 @media (max-width: 520px) {
   .overlay {
     padding: 80px 40px;
+  }
+}
+
+@media (max-width: 520px) {
+  h1,
+  h2,
+  h3 {
+    font-family: "Outfit Medium";
   }
 }
