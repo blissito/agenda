@@ -4,14 +4,13 @@
 }
 @font-face {
   font-family: "Jakarta";
-  src: url("/fonts/Outfit-Regular.ttf");
+  src: url("/fonts/PlusJakartaRegular.ttf");
 }
 
 @font-face {
   font-family: "JakarBold";
-  src: url("/fonts/Outfit-SemiBold.ttf");
+  src: url("/fonts/PlusJakartaMedium.ttf");
 }
-
 @font-face {
   font-family: "Denik bold ";
   src: url("/fonts/Satoshi-Bold.ttf");
