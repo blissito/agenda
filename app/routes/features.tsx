@@ -19,6 +19,7 @@ import {
   ExpressionThree,
   ExpressionTwo,
 } from "~/components/icons/expresion";
+import { UserFeatures } from "~/components/icons/userFeatures";
 
 export default function Index() {
   useEffect(() => {
@@ -78,7 +79,7 @@ const Features = () => {
     <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-[200px] lg:pt-[24%] xl:pt-[16%] ">
       <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
         <span className="mr-4"> Funcionalidades </span>
-        <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />
+        <UserFeatures className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] md:w-16 md:h-16 mr-3" />
       </h2>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[90%]">
         Toma el control de la agenda de tu negocio, prueba Deník y Prueba la

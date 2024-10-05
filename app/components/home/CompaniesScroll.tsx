@@ -3,7 +3,7 @@ import { StarLights } from "../icons/starLights";
 
 export const CompaniesScroll = ({ ...props }: { props?: unknown }) => (
   <section className=" relative ">
-    <h2 className="group overlay text-4xl lg:text-6xl font-bold leading-normal sticky top-[32%] w-full md:w-[70%] mx-auto flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group overlay !leading-snug text-4xl lg:text-6xl font-bold  sticky top-[32%] w-full md:w-[70%] mx-auto flex flex-wrap items-center text-center justify-center ">
       La solución perfecta para
       <span className="flex flex-wrap items-center text-center justify-center">
         {" "}

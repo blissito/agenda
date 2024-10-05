@@ -4,12 +4,12 @@
 }
 @font-face {
   font-family: "Jakarta";
-  src: url("/fonts/PlusJakartaRegular.ttf");
+  src: url("/fonts/Poppins-Regular.ttf");
 }
 
 @font-face {
   font-family: "JakarBold";
-  src: url("/fonts/PlusJakartaMedium.ttf");
+  src: url("/fonts/Poppins-SemiBold.ttf");
 }
 
 @font-face {
@@ -40,7 +40,7 @@ p {
   font-family: "Satoshi ";
 }
 .font-title {
-  font-family: "Faktum ";
+  font-family: "JakarBold";
   font-weight: 800;
 }
 .font-satoMiddle {
@@ -128,5 +128,11 @@ input[type="color"].custom {
   &::-webkit-color-swatch {
     border: transparent;
     border-radius: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .overlay {
+    padding: 80px 40px;
   }
 }

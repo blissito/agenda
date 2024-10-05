@@ -979,7 +979,7 @@ const Tabs = () => {
             handleClick("#uno");
           }}
         >
-          <p className="cursor-pointer">1. Generalidades </p>
+          <p className="cursor-pointer font-satoshi">1. Generalidades </p>
         </div>
         <p
           className="cursor-pointer"
