@@ -32,7 +32,7 @@ export const InfoShower = ({ org, service, date }) => {
   );
 };
 
-export const Footer = ({ errors, isValid, isLoading, onSubmit }) => {
+export const Footer = ({ errors, isValid = false, isLoading, onSubmit }) => {
   return (
     <>
       <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">

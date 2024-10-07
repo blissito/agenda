@@ -254,3 +254,17 @@ export const from12To24 = (string: string) => {
     ? `${(h === 12 ? 0 : h) + 12}:${m < 10 ? "0" + m : m}`
     : `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}`;
 };
+
+const days = [
+  "domingo",
+  "lunes",
+  "martes",
+  "miércoles",
+  "jueves",
+  "viernes",
+  "sábado",
+];
+
+export const convertDayToString = (number: number) => {
+  return days[number];
+};

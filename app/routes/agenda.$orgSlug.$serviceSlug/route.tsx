@@ -4,14 +4,14 @@ import { Footer, Header, InfoShower } from "./components";
 import { loaderFunction } from "./loader";
 import { useForm } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
-import { MonthView } from "~/components/forms/agenda/DateAndTimePicker";
 import { getMaxDate } from "./utils";
+import { MonthView } from "~/components/forms/agenda/MonthView";
 
 export const loader = loaderFunction;
 
 export default function Page() {
   const { org, service } = useLoaderData<typeof loader>();
-  const [time, setTime] = useState();
+  //   const [time, setTime] = useState();
   const [date, setDate] = useState<Date>();
 
   const fetcher = useFetcher<typeof action>();
@@ -43,7 +43,7 @@ export default function Page() {
   };
 
   const maxDate = getMaxDate(
-    new Date(new Date().getFullYear(), new Date().getMonth() + 1)
+    new Date(new Date().getFullYear(), new Date().getMonth() + 2)
   );
 
   return (
@@ -52,7 +52,10 @@ export default function Page() {
       <main className="shadow mx-auto rounded-xl p-8 w-[90%] min-h-[506px] md:w-fit z-50">
         <section className={twMerge("flex flex-wrap")}>
           <InfoShower service={service} org={org} date={date} />
-          <MonthView maxDate={maxDate} />
+          <MonthView
+            maxDate={maxDate}
+            weekDays={service.weekDays || org.weekDays}
+          />
         </section>
         <Footer
           onSubmit={onSubmit}
