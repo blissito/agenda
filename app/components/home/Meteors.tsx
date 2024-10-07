@@ -1,15 +1,15 @@
 import { cn } from "../../utils/cd";
 
 export const Meteors = ({
-  number,
+  number = 40,
   className,
 }: {
   number?: number;
   className?: string;
 }) => {
-  const meteors = new Array(number || 20).fill(true);
+  const meteors = new Array(number).fill(true);
   return (
-    <>
+    <div>
       {meteors.map((_, idx) => (
         <span
           key={"meteor" + idx}
@@ -26,6 +26,6 @@ export const Meteors = ({
           }}
         ></span>
       ))}
-    </>
+    </div>
   );
 };

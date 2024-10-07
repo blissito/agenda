@@ -204,20 +204,13 @@ export const generateWeekGrid = ({
 export const getDaysInMonth = (date: Date) => {
   const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
   const leftOffset = firstDay.getDay();
+
   firstDay.setDate(firstDay.getDate() - leftOffset); // first week offset
   const days = [];
-  while (firstDay.getMonth() < date.getMonth() + 1) {
-    days.push(new Date(firstDay));
+  days.push(new Date(firstDay)); // first day
+  for (let i = 0; i < 34; i++) {
     firstDay.setDate(firstDay.getDate() + 1);
-  }
-  // extra days:
-  const lastDay = new Date(days[days.length - 1]);
-  const numberOfMissing = 6 - lastDay.getDay();
-  let count = 0;
-  while (count < numberOfMissing) {
-    count++;
-    lastDay.setDate(lastDay.getDate() + 1);
-    days.push(new Date(lastDay));
+    days.push(new Date(firstDay));
   }
   return days;
 };

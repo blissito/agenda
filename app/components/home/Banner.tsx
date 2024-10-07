@@ -1,7 +1,7 @@
 import { PrimaryButton } from "../common/primaryButton";
 import { SecondaryButton } from "../common/secondaryButton";
 import { ArrowRight } from "../icons/arrowRight";
-import { Meteors } from "./Meteors.client";
+import { Meteors } from "./Meteors";
 
 // @ Meteors require Banner to be wrapped in a Suspense!
 export const Banner = () => {
@@ -22,7 +22,7 @@ export const Banner = () => {
           Agendar demo{" "}
         </SecondaryButton>
       </div>
-      <Meteors number={40} />
+      <Meteors />
     </section>
   );
 };

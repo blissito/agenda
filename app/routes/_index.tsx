@@ -9,7 +9,7 @@ import { Footer } from "~/components/common/Footer";
 import { ParallaxHero } from "~/components/home/ParallaxHero";
 import { Features, Hero, ScrollReviews } from "~/components/home/home";
 import { People } from "~/components/icons/people";
-import { Suspense, useEffect } from "react";
+import { useEffect } from "react";
 import getBasicMetaTags from "~/utils/getBasicMetaTags";
 
 export const meta: MetaFunction = () =>
@@ -20,13 +20,14 @@ export const meta: MetaFunction = () =>
   });
 
 export default function Index() {
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "smooth",
-    });
-  }, []);
+  // useEffect(() => {
+  //   window.scrollTo({
+  //     top: 0,
+  //     left: 0,
+  //     behavior: "smooth",
+  //   });
+  // }, []);
+
   return (
     <main className="bg-brand_dark">
       <div className="bg-white rounded-b-[40px]">
@@ -35,11 +36,7 @@ export default function Index() {
           <Hero />
           <ScrollReviews />
         </ParallaxHero>
-        {/* @TODO: 👷🏼‍♂️ We need to fix thist Meteor error in the console
-        This is because Math.random values does not match between server and client. */}
-        <Suspense fallback="Cargando...">
-          <Banner />
-        </Suspense>
+        <Banner />
         <Features />
         <Benefits />
         <CompaniesScroll />

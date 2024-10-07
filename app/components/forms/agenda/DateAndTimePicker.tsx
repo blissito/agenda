@@ -1,4 +1,11 @@
-import { ReactNode, Suspense, useEffect, useRef, useState } from "react";
+import {
+  ReactNode,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Form, useFetcher } from "@remix-run/react";
 import { FaClock, FaMoneyBill } from "react-icons/fa";
 import { Event, Org, Service } from "@prisma/client";
@@ -23,12 +30,12 @@ import {
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 import { cn } from "~/utils/cd";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
-import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug";
 import { Schedule } from "~/components/icons/appointment/schedule";
 import { Clook } from "~/components/icons/appointment/clook";
 import { Money } from "~/components/icons/appointment/money";
 import { Id } from "~/components/icons/appointment/id";
 import { Location } from "~/components/icons/appointment/location";
+import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug/utils";
 
 // @TODO: Improve with date and time in route to generate specific links
 
@@ -116,7 +123,6 @@ export const DateAndTimePicker = ({
 
   return (
     <main className="min-w-fit ">
-      {/* <AnimatePresence> */}
       <h3 className="text-base font-bold mb-8">
         Selecciona una fecha y horario
       </h3>
@@ -133,10 +139,7 @@ export const DateAndTimePicker = ({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             // className="w-full"
-            className={
-              twMerge(" px-6")
-              // selectedDate ? "block transition-all" : "hidden"
-            }
+            className={twMerge(" px-6")}
           >
             <h4 className="text-base font-medium mb-4 ">
               Selecciona un horario:
@@ -160,6 +163,21 @@ export const DateAndTimePicker = ({
     </main>
   );
 };
+
+const monthNames = [
+  "enero",
+  "febrero",
+  "marzo",
+  "abril",
+  "mayo",
+  "junio",
+  "julio",
+  "agosto",
+  "septiembre",
+  "octubre",
+  "noviembre",
+  "diciembre",
+];
 // const tool = new Date();
 const vDates = [
   new Date(2024, 5, 30),
@@ -167,94 +185,87 @@ const vDates = [
   new Date(2024, 6, 5),
   // new Date(2024, 6, 26),
 ];
-const MonthView = ({
+export const MonthView = ({
   selectedDate,
   validDates = [...vDates.map((dat) => dat.toString())],
   defaultDate = new Date(),
   onDayPress,
+  maxDate,
 }: // @TODO: limit prev month and next month (if dates not available?) min, max dates?
 // currentDate = new Date(),
 {
-  selectedDate: Date | null;
+  selectedDate?: Date | null;
   onDayPress?: (date: Date) => void;
   defaultDate?: Date;
   validDates?: (Date | string)[];
+  maxDate?: Date;
 }) => {
-  const monthNames = [
-    "enero",
-    "febrero",
-    "marzo",
-    "abril",
-    "mayo",
-    "junio",
-    "julio",
-    "agosto",
-    "septiembre",
-    "octubre",
-    "noviembre",
-    "diciembre",
-  ];
-  const hack = useRef(0);
-  const [date, set] = useState(defaultDate);
+  const [currentMonth, setCurrentMonth] = useState(defaultDate.getMonth());
   const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
-  const monthName = monthNames[date.getMonth()];
-  const nodes = getDaysInMonth(date).map((_date: Date) => {
-    const isPartOfTheMonth = new Date(_date).getMonth() == date.getMonth();
-    const handleClick = () => {
-      onDayPress?.(_date);
-    };
-    // @TODO: hack, please improve or at least move to its own function
-    const isAvailable = validDates.includes(
-      `${new Date(_date).getMonth()}/${new Date(_date).getDate()}`
-    );
-    const isSelected = areSameDates(_date, selectedDate);
-    return (
-      <button
-        onClick={handleClick}
-        disabled={!isAvailable}
-        key={nanoid()}
-        // date={_date} // extra data just in case. It can be data-date={_date}
-        className={cn(
-          "text-base italic text-neutral-400 rounded-full md:px-2 py-1 m-1 h-9 transition-all flex justify-center items-center", // basic
-          isPartOfTheMonth && "text-brand_dark", // styles when part of the current month
-          validDates.includes(_date.toString())
-            ? " text-brand_dark"
-            : "disabled:text-brand_iron/30 disabled:line-through disabled:pointer-events-none", // styles when part of the list or DISABLED! <= @TODO: review again
-          isToday(_date)
-            ? "bg-[#E7EFFD] text-brand_blue disabled:text-white"
-            : "hover:bg-brand_blue hover:text-white", // styles when current selected date
-          {
-            " text-brand_gray bg-[#D2E2FF]": isAvailable,
-            "bg-brand_blue text-white": isSelected,
-          }
-        )}
-      >
-        {_date.getDate()}
-      </button>
-    );
-  });
 
-  const monthNavigate = (offset: number = 1) => {
-    // hack => improve
-    if (offset > 0) {
-      if (hack.current > 2) return;
-      hack.current += 1;
+  const getIsDisabled = (_date: Date) => {
+    if (!_date) return;
+    if (!maxDate) return;
+    const maxMonth = maxDate.getMonth();
+    return _date.getMonth() > maxMonth;
+  };
+
+  const handleClick = () => {
+    onDayPress?.(_date);
+  };
+
+  const getNodes = (monthDate: Date) =>
+    getDaysInMonth(monthDate).map((_date: Date) => {
+      const isPartOfTheMonth =
+        new Date(_date).getMonth() == monthDate.getMonth();
+
+      const isDisabled = getIsDisabled(_date);
+      // const isSelected = areSameDates(_date, selectedDate);
+      return (
+        <button
+          // onClick={handleClick}
+          // disabled={isDisabled}
+          key={nanoid()}
+          className={cn(
+            "text-base italic text-neutral-400 rounded-full md:px-2 py-1 m-1 h-9 transition-all flex justify-center items-center", // basic
+            isPartOfTheMonth && "text-brand_dark", // styles when part of the current month
+            isToday(_date)
+              ? "bg-[#E7EFFD] text-brand_blue disabled:text-white"
+              : "hover:bg-brand_blue hover:text-white", // styles when current selected date
+            {
+              // " text-brand_gray bg-[#D2E2FF]": !isDisabled, // @todo is available
+              // "bg-brand_blue text-white": isSelected,
+              "disabled:text-brand_iron/30 disabled:line-through disabled:pointer-events-none":
+                isDisabled,
+            }
+          )}
+        >
+          {_date.getDate()}
+        </button>
+      );
+    });
+
+  const [nodes, setNodes] = useState(getNodes(new Date()));
+
+  const updateNodes = (_date: Date) => {
+    console.log("Date?? ", _date);
+    // console.log(getDaysInMonth(_date));
+    setNodes(getNodes(_date));
+  };
+
+  const monthNavigate = (direction = 1) => {
+    const d = new Date(new Date().getFullYear(), currentMonth, 1);
+    d.setMonth(currentMonth);
+    if (direction > 0) {
+      d.setMonth(d.getMonth() + 1);
     } else {
-      hack.current -= 1;
+      d.setMonth(d.getMonth() - 1);
     }
-    const nextDate = new Date(
-      date.getFullYear(),
-      date.getMonth() + offset,
-      date.getDate()
-    );
-    set(nextDate);
+    setCurrentMonth(d.getMonth());
+    updateNodes(d);
   };
 
-  const isCurrentMonth = () => {
-    const currentMonth = new Date().getMonth();
-    const selectedMonth = new Date(date || new Date()).getMonth();
-    return currentMonth === selectedMonth;
-  };
+  const isCurrentMonth = () => currentMonth === new Date().getMonth();
 
   return (
     <div className="min-w-60">
@@ -267,7 +278,7 @@ const MonthView = ({
           <IoChevronBackOutline />
         </button>
         <h3 className="capitalize text-base text-brand_dark font-satoMiddle mx-8">
-          {monthName} {date.getFullYear()}
+          {monthNames[currentMonth]} {new Date().getFullYear()}
         </h3>
         <button className="mr-auto" onClick={() => monthNavigate(1)}>
           <IoChevronForward />
@@ -502,9 +513,9 @@ export const ServiceList = ({
   date,
   org,
 }: {
+  service: Partial<Service>;
   org: Org;
   date?: Date;
-  service: Partial<Service>;
 }) => {
   return (
     <div className="text-xs text-brand_gray grid gap-3">
