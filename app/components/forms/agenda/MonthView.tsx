@@ -26,16 +26,17 @@ const monthNames = [
 const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
 
 export const MonthView = ({
-  defaultDate = new Date(),
   weekDays,
   maxDate,
-}: // @TODO: limit prev month and next month (if dates not available?) min, max dates?
-// currentDate = new Date(),
-{
+  onSelect,
+  selected,
+}: {
+  selected?: Date;
   weekDays: WeekDaysType[];
   maxDate?: Date;
+  onSelect?: (arg0: Date) => void;
 }) => {
-  const [currentDate, setCurrentDate] = useState(defaultDate);
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const activatedDays = Object.keys(weekDays);
 
   const getIsDisabled = (_date: Date) => {
@@ -60,9 +61,15 @@ export const MonthView = ({
     return false;
   };
 
-  const handleClick = () => {
-    onDayPress?.(_date);
+  const handleDayClick = (_date: Date) => {
+    onSelect?.(_date);
   };
+
+  const getIsSelected = (_date: Date) =>
+    selected &&
+    selected.getDate() === _date.getDate() &&
+    selected.getMonth() === _date.getMonth() &&
+    selected.getDay() === _date.getDay();
 
   const getNodes = (monthDate: Date) =>
     getDaysInMonth(monthDate).map((_date: Date) => {
@@ -70,13 +77,13 @@ export const MonthView = ({
         new Date(_date).getMonth() == monthDate.getMonth();
 
       const isDisabled = getIsDisabled(_date);
-      // const isSelected = areSameDates(_date, selectedDate);
       const isAvailable = activatedDays.includes(
         convertDayToString(_date.getDay())
       );
+
       return (
         <button
-          // onClick={handleClick}
+          onClick={() => handleDayClick(_date)}
           disabled={isDisabled}
           key={nanoid()}
           className={cn(
@@ -86,9 +93,9 @@ export const MonthView = ({
               "text-brand_gray bg-[#D2E2FF]": isAvailable,
               "bg-[#E7EFFD] text-brand_blue disabled:text-white":
                 isToday(_date),
-              // "bg-brand_blue text-white": isSelected,
               "disabled:text-brand_iron/30 disabled:line-through disabled:pointer-events-none disabled:bg-transparent":
                 isDisabled,
+              "bg-brand_blue text-white": getIsSelected(_date),
             }
           )}
         >
@@ -96,12 +103,6 @@ export const MonthView = ({
         </button>
       );
     });
-
-  const [nodes, setNodes] = useState(getNodes(new Date()));
-
-  const updateNodes = (_date: Date) => {
-    setNodes(getNodes(_date));
-  };
 
   const monthNavigate = (direction = 1) => {
     const d = new Date(currentDate);
@@ -112,7 +113,6 @@ export const MonthView = ({
       d.setMonth(d.getMonth() - 1);
     }
     setCurrentDate(d);
-    updateNodes(d);
   };
 
   const isCurrentMonth = () =>
@@ -147,7 +147,9 @@ export const MonthView = ({
           </span>
         ))}
       </div>
-      <div className="grid grid-cols-7 text-sm font-satoshi mt-2">{nodes}</div>
+      <div className="grid grid-cols-7 text-sm font-satoshi mt-2">
+        {getNodes(currentDate)}
+      </div>
     </div>
   );
 };

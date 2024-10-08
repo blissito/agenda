@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { Footer, Header, InfoShower } from "./components";
 import { loaderFunction } from "./loader";
-import { useForm } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { getMaxDate } from "./utils";
 import { MonthView } from "~/components/forms/agenda/MonthView";
@@ -11,25 +10,15 @@ export const loader = loaderFunction;
 
 export default function Page() {
   const { org, service } = useLoaderData<typeof loader>();
-  //   const [time, setTime] = useState();
+  const [time, setTime] = useState<number>();
   const [date, setDate] = useState<Date>();
+  const [errors, setErrors] = useState({});
 
   const fetcher = useFetcher<typeof action>();
-  const {
-    formState: { errors, isValid },
-    setError,
-    getValues,
-  } = useForm({
-    defaultValues: {
-      date: "",
-      time: "",
-    },
-  });
   const onSubmit = () => {
-    const values = getValues();
-    if (!values.date) return setError("date", { message: "Selecciona un día" });
-    if (!values.time)
-      return setError("time", { message: "Selecciona una hora" });
+    if (!date) return setError({ error: "date", message: "Selecciona un día" });
+    // if (!values.time)
+    //   return setError("time", { message: "Selecciona una hora" });
     fetcher.submit(
       {
         intent: "date_time_selected",
@@ -53,13 +42,15 @@ export default function Page() {
         <section className={twMerge("flex flex-wrap")}>
           <InfoShower service={service} org={org} date={date} />
           <MonthView
+            selected={date}
+            onSelect={setDate}
             maxDate={maxDate}
             weekDays={service.weekDays || org.weekDays}
           />
         </section>
         <Footer
           onSubmit={onSubmit}
-          isValid={isValid}
+          isValid={!!date && !!time}
           isLoading={fetcher.state !== "idle"}
           errors={errors}
         />
