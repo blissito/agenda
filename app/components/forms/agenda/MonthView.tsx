@@ -88,8 +88,8 @@ export const MonthView = ({
           key={nanoid()}
           className={cn(
             "text-base italic text-neutral-400 rounded-full md:px-2 py-1 m-1 h-9 transition-all flex justify-center items-center hover:bg-brand_blue hover:text-white",
-            isPartOfTheMonth && "text-brand_dark", // styles when part of the current month
             {
+              "text-brand_dark": isPartOfTheMonth,
               "text-brand_gray bg-[#D2E2FF]": isAvailable,
               "bg-[#E7EFFD] text-brand_blue disabled:text-white":
                 isToday(_date),

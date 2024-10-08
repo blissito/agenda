@@ -70,10 +70,12 @@ export const generateHours = ({
   fromHour,
   toHour,
 }: {
-  fromHour: number;
-  toHour: number;
+  fromHour: number | string;
+  toHour: number | string;
   justNumbers?: boolean;
 }) => {
+  // fh = Number(fromHour);
+  // th = Number(toHour)
   return Array.from({ length: toHour - fromHour }).map((_, index) =>
     fromHour + index < 10 ? `0${fromHour + index}:00` : `${fromHour + index}:00`
   );

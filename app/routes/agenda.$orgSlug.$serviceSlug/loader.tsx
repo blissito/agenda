@@ -1,4 +1,5 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
+import { Org, Service } from "@prisma/client";
+import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { db } from "~/utils/db.server";
 
 export const loaderFunction = async ({ params }: LoaderFunctionArgs) => {
@@ -15,6 +16,6 @@ export const loaderFunction = async ({ params }: LoaderFunctionArgs) => {
       },
     },
   });
-  if (!service || !org) return json(null, { status: 404 });
+  if (!service || !org) throw json(null, { status: 404 });
   return { org, service };
 };

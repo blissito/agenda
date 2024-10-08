@@ -1,5 +1,17 @@
 import { ChangeEvent, useMemo, useState } from "react";
 
+export const generateTimesFromRange = (range: string[], mins: number) => {
+  const maxMins = getMinutesFromString(range[1]);
+  const starMins = getMinutesFromString(range[0]);
+  let minsSlot = starMins;
+  const slots = [];
+  while (minsSlot <= maxMins) {
+    slots.push((minsSlot += mins));
+  }
+  return slots.map((slot) => getStringFromMinutes(slot));
+};
+
+// chulada!
 export const addMinutesToString = (minutes: number, string: string) =>
   getStringFromMinutes(getMinutesFromString(string) + minutes);
 

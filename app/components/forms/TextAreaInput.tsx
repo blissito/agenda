@@ -30,6 +30,7 @@ export const TextAreaInput = ({
       >
         {label}
       </label>
+      <br />
       <textarea
         placeholder={placeholder}
         className={twMerge(
