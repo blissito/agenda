@@ -20,7 +20,7 @@ import { IoDocumentTextOutline } from "react-icons/io5";
 import { FaRegClock, FaWhatsapp } from "react-icons/fa6";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { DropdownMenu } from "~/components/common/DropDownMenu";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { usePluralize } from "~/components/hooks/usePluralize";

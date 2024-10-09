@@ -5,7 +5,7 @@ import { SecondaryButton } from "~/components/common/secondaryButton";
 import { useCopyLink } from "~/components/hooks/useCopyLink";
 import { Anchor } from "~/components/icons/link";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
 import { generateLink } from "~/utils/generateSlug";
 import { BasicInput } from "~/components/forms/BasicInput";

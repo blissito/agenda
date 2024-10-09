@@ -1,7 +1,7 @@
 import { useLoaderData } from "@remix-run/react";
 import { serviceTimesFormHandler } from "~/components/forms/form_handlers/serviceTimesFormHandler";
 import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm";
-import { getServicefromSearchParams } from "~/db/userGetters";
+import { getServicefromSearchParams } from "~/.server/userGetters";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();

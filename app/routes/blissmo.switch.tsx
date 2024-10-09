@@ -8,7 +8,7 @@ import {
 import { DayTimesSelector, DayTuple } from "~/components/forms/TimesForm";
 import schedule from "node-schedule";
 import { useLoaderData } from "@remix-run/react";
-import { getUserOrNull } from "~/db/userGetters";
+import { getUserOrNull } from "~/.server/userGetters";
 
 const initialRange: [string, string] = ["06:00", "06:30"];
 

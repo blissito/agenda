@@ -16,7 +16,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump";
 import { Service } from "@prisma/client";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { Image } from "~/components/common/Image";
 import { nanoid } from "nanoid";
 import { formatRange } from "~/components/common/FormatRange";

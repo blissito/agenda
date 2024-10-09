@@ -2,7 +2,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { serviceConfigHandler } from "~/components/forms/form_handlers/serviceConfigHandler";
 import { ServiceConfigForm } from "~/components/forms/services_model/ServiceConfigForm";
-import { getServicefromSearchParams } from "~/db/userGetters";
+import { getServicefromSearchParams } from "~/.server/userGetters";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();

@@ -1,4 +1,4 @@
-import { Org, Prisma, User } from "@prisma/client";
+import { Event, Org, Prisma, User } from "@prisma/client";
 import { redirect } from "@remix-run/react";
 import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
@@ -191,11 +191,26 @@ export const getServices = async (
   });
 };
 
-export const getService = async (request: Request) => {
-  const user = await getUserOrRedirect(request);
-  if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
-  return null; // @TODO finish it
+export const getService = async (slug?: string) => {
+  if (!slug) return null;
+  return await db.service.findUnique({
+    where: {
+      slug,
+    },
+  });
 };
 
 export const updateOrg = async ({ id, ...data }: Partial<Org>) =>
   await db.org.update({ where: { id }, data });
+
+export const getEvents = async (serviceId: string) => {
+  return await db.event.findMany({
+    where: {
+      serviceId,
+    },
+  });
+};
+
+export const createEvent = async (data: Event) => {
+  return await db.event.create({ data });
+};

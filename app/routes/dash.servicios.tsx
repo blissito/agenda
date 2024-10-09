@@ -8,7 +8,7 @@ import {
   ServiceCard,
 } from "~/components/dash/servicios/ServiceCard";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices, getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const services = await getServices(request);

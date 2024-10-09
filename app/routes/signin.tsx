@@ -20,7 +20,7 @@ import {
   getOrCreateUser,
   handleMagicLinkLogin,
   redirectIfUser,
-} from "~/db/userGetters";
+} from "~/.server/userGetters";
 import { commitSession, destroySession, getSession } from "~/sessions";
 import { cn } from "~/utils/cd";
 import { sendMagicLink } from "~/utils/emails/sendMagicLink";

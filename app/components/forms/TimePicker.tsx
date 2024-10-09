@@ -1,4 +1,4 @@
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 export const generateTimesFromRange = (range: string[], mins: number) => {
   const maxMins = getMinutesFromString(range[1]);
@@ -33,7 +33,6 @@ export const getStringFromMinutes = (number: number) => {
 
 export const TimePicker = ({
   all,
-  selected,
   isDisabled,
   defaultSelected,
   initialTime = "06:00",

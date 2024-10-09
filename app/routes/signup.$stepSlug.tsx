@@ -8,7 +8,7 @@ import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 import { TimesForm } from "~/components/forms/TimesForm";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
-import { getFirstOrgOrNull } from "~/db/userGetters";
+import { getFirstOrgOrNull } from "~/.server/userGetters";
 import {
   aboutYourCompanyHandler,
   timesHandler,

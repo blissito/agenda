@@ -8,7 +8,7 @@ import { Share } from "~/components/icons/menu/share";
 import { StepDone } from "~/components/icons/menu/stepdone";
 import { Stripe } from "~/components/icons/menu/stripe";
 import { User } from "~/components/icons/menu/user";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { motion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
 import { db } from "~/utils/db.server";

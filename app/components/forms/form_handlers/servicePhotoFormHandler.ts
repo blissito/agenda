@@ -1,5 +1,5 @@
 import { redirect } from "@remix-run/node";
-import { getServicefromSearchParams } from "~/db/userGetters";
+import { getServicefromSearchParams } from "~/.server/userGetters";
 import { servicePhotoFormSchema } from "../services_model/ServicePhotoForm";
 import { db } from "~/utils/db.server";
 

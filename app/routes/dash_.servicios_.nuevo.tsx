@@ -2,7 +2,7 @@ import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { ServiceGeneralForm } from "~/components/forms/services_model/ServiceGeneralForm";
 import { serviceGeneralFormHandler } from "~/components/forms/form_handlers/serviceGeneralFormHandler";
 import { apiServiceUpdateHandler } from "~/components/forms/form_handlers/apiServiceUpdateHandler";
-import { getServicefromSearchParams } from "~/db/userGetters";
+import { getServicefromSearchParams } from "~/.server/userGetters";
 import { useLoaderData } from "@remix-run/react";
 
 export const action = async ({ request }: ActionFunctionArgs) => {

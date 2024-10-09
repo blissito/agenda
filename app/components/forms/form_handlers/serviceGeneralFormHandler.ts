@@ -1,4 +1,4 @@
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { generalFormSchema } from "../services_model/ServiceGeneralForm";
 import { db } from "~/utils/db.server";
 import { redirect } from "@remix-run/node";

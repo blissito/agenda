@@ -16,7 +16,7 @@ import { Linkedin } from "~/components/icons/linkedin";
 import { Anchor } from "~/components/icons/link";
 import { Form, useFetcher, useLoaderData } from "@remix-run/react";
 import { useForm } from "react-hook-form";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Org } from "@prisma/client";
 import { handleOrgUpdate } from "~/components/forms/form_handlers/serviceTimesFormHandler";

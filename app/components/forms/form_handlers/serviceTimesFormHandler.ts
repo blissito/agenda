@@ -2,7 +2,7 @@ import { redirect } from "@remix-run/node";
 import {
   getServicefromSearchParams,
   getUserOrRedirect,
-} from "~/db/userGetters";
+} from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
 import { serviceTimesSchema } from "../services_model/ServiceTimesForm";
 import { Org } from "@prisma/client";

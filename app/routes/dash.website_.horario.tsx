@@ -13,7 +13,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { WeekDaysType } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 import { handleOrgUpdate } from "~/components/forms/form_handlers/serviceTimesFormHandler";

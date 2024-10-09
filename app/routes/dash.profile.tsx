@@ -6,7 +6,7 @@ import { Camera } from "~/components/icons/camera";
 import { Check } from "~/components/icons/check";
 import { Edit } from "~/components/icons/edit";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getUserOrRedirect } from "~/db/userGetters";
+import { getUserOrRedirect } from "~/.server/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUserOrRedirect(request);

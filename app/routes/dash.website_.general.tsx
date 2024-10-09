@@ -15,7 +15,7 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "@remix-run/node";
-import { getUserAndOrgOrRedirect, updateOrg } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect, updateOrg } from "~/.server/userGetters";
 import { Form, useFetcher, useLoaderData } from "@remix-run/react";
 import { useForm } from "react-hook-form";
 import { db } from "~/utils/db.server";

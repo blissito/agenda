@@ -11,7 +11,7 @@ import { Switch } from "~/components/common/Switch";
 import { Image } from "~/components/common/Image";
 import { Service } from "@prisma/client";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { getServices } from "~/db/userGetters";
+import { getServices } from "~/.server/userGetters";
 import { cn } from "~/utils/cd";
 import { serviceUpdate } from "~/components/forms/form_handlers/serviceGeneralFormHandler";
 

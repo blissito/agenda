@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { SideBar } from "~/components/sideBar/sideBar";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { user, org } = await getUserAndOrgOrRedirect(request, {

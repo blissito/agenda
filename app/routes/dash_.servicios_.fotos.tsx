@@ -1,6 +1,6 @@
 import { useLoaderData } from "@remix-run/react";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { getServicefromSearchParams } from "~/db/userGetters";
+import { getServicefromSearchParams } from "~/.server/userGetters";
 import { ServicePhotoForm } from "~/components/forms/services_model/ServicePhotoForm";
 import { servicePhotoFormHandler } from "~/components/forms/form_handlers/servicePhotoFormHandler";
 import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server";

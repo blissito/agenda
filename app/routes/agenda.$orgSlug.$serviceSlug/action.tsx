@@ -1,29 +1,13 @@
-import {
-  ActionFunctionArgs,
-  json,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import { db } from "~/utils/db.server";
-import { twMerge } from "tailwind-merge";
+import { ActionFunctionArgs, json } from "@remix-run/node";
+import { z } from "zod";
+import { getEvents, getService } from "~/.server/userGetters";
 
-import {
-  getService,
-  getUserAndOrgOrRedirect,
-  getUserOrNull,
-} from "~/db/userGetters";
-
-import { MonthView } from "~/components/forms/agenda/DateAndTimePicker";
-import { useForm } from "react-hook-form";
-import {
-  addMinutesToDate,
-  from12To24,
-} from "~/components/dash/agenda/agendaUtils";
-import {
-  sendAppointmentToCustomer,
-  sendAppointmentToOwner,
-} from "~/utils/emails/sendAppointment";
-import invariant from "tiny-invariant";
+export const userInfoSchema = z.object({
+  displayName: z.string().min(1),
+  email: z.string().email(),
+  comments: z.string(),
+  tel: z.string().min(10),
+});
 
 export const actionFunction = async ({
   request,
@@ -33,18 +17,9 @@ export const actionFunction = async ({
   const intent = formData.get("intent");
 
   if (intent === "get_times_for_selected_date") {
-    // const { org } = await getUserAndOrgOrRedirect(request);
-    const service = await db.service.findUnique({
-      where: {
-        slug: params.serviceSlug,
-      },
-    });
+    const service = await getService(params.serviceSlug);
     if (!service) throw json(null, { status: 404 });
-    const events = await db.event.findMany({
-      where: {
-        serviceId: service.id,
-      },
-    });
+    const events = await getEvents(service.id);
     return { events };
   }
   return null;

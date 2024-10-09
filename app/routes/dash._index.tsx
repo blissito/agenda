@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { twMerge } from "tailwind-merge";
-import { getUserOrRedirect } from "~/db/userGetters";
+import { getUserOrRedirect } from "~/.server/userGetters";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const user = await getUserOrRedirect(request);

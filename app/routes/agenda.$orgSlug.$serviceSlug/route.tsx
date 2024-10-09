@@ -6,13 +6,39 @@ import { twMerge } from "tailwind-merge";
 import { getMaxDate } from "./utils";
 import { MonthView } from "~/components/forms/agenda/MonthView";
 import TimeView from "~/components/forms/agenda/TimeView";
-import { actionFunction } from "./action";
 import { BasicInput } from "~/components/forms/BasicInput";
-import { TextAreaInput } from "~/components/forms/TextAreaInput";
 import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
+import { ActionFunctionArgs, json } from "@remix-run/node";
+import { z } from "zod";
+import { createEvent, getEvents, getService } from "~/.server/userGetters";
+import { Success } from "./success";
 
-export const action = actionFunction;
+export const userInfoSchema = z.object({
+  displayName: z.string().min(1),
+  email: z.string().email(),
+  comments: z.string(),
+  tel: z.string().min(10),
+});
+
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "get_times_for_selected_date") {
+    const service = await getService(params.serviceSlug);
+    if (!service) throw json(null, { status: 404 });
+    const events = await getEvents(service.id);
+    return { events };
+  }
+  if (intent === "create_event") {
+    const data = JSON.parse(formData.get("data") as string);
+    // @todo: add logged user id & validation
+    return { event: await createEvent(data) };
+  }
+  return null;
+};
+
 export const loader = loaderFunction;
 
 export default function Page() {
@@ -23,18 +49,25 @@ export default function Page() {
 
   const fetcher = useFetcher<typeof action>();
   const onSubmit = (vals) => {
-    console.log("vals: ", vals);
-    return;
+    const customer = userInfoSchema.parse(vals);
+    // validation
     fetcher.submit(
       {
-        intent: "date_time_selected",
+        intent: "create_event",
         data: JSON.stringify({
-          date: new Date(date).toISOString(),
+          start: new Date(date),
           dateString: new Date(date).toLocaleString(),
+          customer, // @todo: add logged user id
+          duration: service.duration,
+          serviceId: service.id,
+          title: service.name,
+          status: "ACTIVE",
+          // @todo: end
         }), // iso for mongodb? No. But, we need timezoned dates @todo
       },
       { method: "post" }
     );
+    setShow("success");
   };
 
   const maxDate = getMaxDate(
@@ -50,8 +83,7 @@ export default function Page() {
   };
 
   const handleNextForm = () => {
-    if (show === "user_info") {
-    } else {
+    if (show !== "user_info") {
       setShow("user_info");
     }
   };
@@ -63,6 +95,18 @@ export default function Page() {
   } = useForm({
     defaultValues: { displayName: "", email: "", tel: "", comments: "" },
   });
+
+  if (show === "success") {
+    return (
+      <Success
+        org={org}
+        event={fetcher.data?.event}
+        service={service}
+        onFinish={() => false}
+      />
+    );
+  }
+
   return (
     <article className=" bg-[#f8f8f8] min-h-screen h-screen relative">
       <Header org={org} />
@@ -79,6 +123,7 @@ export default function Page() {
               />
               {date && (
                 <TimeView
+                  intent="get_times_for_selected_date"
                   slotDuration={service.duration}
                   onSelect={handleTimeSelection}
                   weekDays={service.weekDays || org.weekDays}
@@ -116,6 +161,7 @@ export default function Page() {
                 label="Comentarios"
                 register={register}
                 name="comments"
+                registerOptions={{ required: false }}
               />
               <PrimaryButton
                 isDisabled={!isValid}

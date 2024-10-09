@@ -2,42 +2,33 @@ import { useFetcher } from "@remix-run/react";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { cn } from "~/utils/cd";
-import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import {
   convertDayToString,
-  generateHours,
+  isToday,
 } from "~/components/dash/agenda/agendaUtils";
-import {
-  addMinutesToString,
-  generateTimesFromRange,
-  getHourNumberFromString,
-  TimePicker,
-} from "../TimePicker";
+import { generateTimesFromRange, getMinutesFromString } from "../TimePicker";
 import { DayTuple, WeekTuples } from "../TimesForm";
 
 export default function TimeView({
-  timeStrings = [],
   selected,
   action,
   weekDays,
   onSelect,
   slotDuration,
+  intent,
 }: {
   onSelect?: (arg0: string, arg1: number, arg2: number) => void;
   selected: Date;
-  timeStrings?: string[];
   action: string;
   weekDays: WeekTuples;
   slotDuration: number;
+  intent: string;
 }) {
   const [time, setTime] = useState("");
   const fetcher = useFetcher();
   useEffect(() => {
     if (selected) {
-      fetcher.submit(
-        { intent: "get_times_for_selected_date", date: selected },
-        { method: "post", action }
-      );
+      fetcher.submit({ intent, date: selected }, { method: "post", action });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
@@ -54,6 +45,17 @@ export default function TimeView({
     const time = timeString.split(":").map((el) => Number(el));
     onSelect?.(timeString, time[0], time[1]);
   };
+
+  console.log("Fetch: ", fetcher);
+  let events = [];
+  if (fetcher.data?.events) {
+    fetcher.data.events.map((e) => {
+      console.log(new Date(e.start));
+    });
+  }
+
+  // already taken strings
+  //   const alreadyTakenStrings = fetcher.data?.events ? (fetcher.data.events.map(event=>new Date(event.start).)):[]
 
   return (
     <>
@@ -107,6 +109,8 @@ const TimeButton = ({
   isActive?: boolean;
   timeString: string;
 }) => {
+  // @TODO: hide pased times for today, maybe when tomezoned?
+  const now = Date.now();
   return (
     <button
       onClick={onClick}

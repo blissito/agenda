@@ -14,7 +14,7 @@ import { Tiktok } from "~/components/icons/tiktok";
 import { Twitter } from "~/components/icons/twitter";
 import { Youtube } from "~/components/icons/youtube";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getUserAndOrgOrRedirect } from "~/db/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { Org, Service } from "@prisma/client";
 import { formatRange } from "~/components/common/FormatRange";
 import { db } from "~/utils/db.server";
