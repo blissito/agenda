@@ -2,12 +2,10 @@ import { useFetcher } from "@remix-run/react";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { cn } from "~/utils/cd";
-import {
-  convertDayToString,
-  isToday,
-} from "~/components/dash/agenda/agendaUtils";
-import { generateTimesFromRange, getMinutesFromString } from "../TimePicker";
+import { convertDayToString } from "~/components/dash/agenda/agendaUtils";
+import { generateTimesFromRange } from "../TimePicker";
 import { DayTuple, WeekTuples } from "../TimesForm";
+import { Spinner } from "~/components/common/Spinner";
 
 export default function TimeView({
   selected,
@@ -46,16 +44,16 @@ export default function TimeView({
     onSelect?.(timeString, time[0], time[1]);
   };
 
-  console.log("Fetch: ", fetcher);
-  let events = [];
-  if (fetcher.data?.events) {
-    fetcher.data.events.map((e) => {
-      console.log(new Date(e.start));
-    });
-  }
+  const scheduledEvents = // @TODO: not all event info for privacy & security
+    fetcher.data &&
+    Array.isArray(fetcher.data.events) &&
+    fetcher.data.events.length > 0
+      ? fetcher.data.events.map((event) =>
+          new Date(event.start).toTimeString().substring(0, 5)
+        )
+      : [];
 
-  // already taken strings
-  //   const alreadyTakenStrings = fetcher.data?.events ? (fetcher.data.events.map(event=>new Date(event.start).)):[]
+  const isLoading = fetcher.state !== "idle";
 
   return (
     <>
@@ -72,14 +70,24 @@ export default function TimeView({
             })}
         </h3>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-6">
-          {ranges?.map((timeString) => (
-            <TimeButton
-              isActive={timeString === time}
-              onClick={handleClick(timeString)}
-              key={nanoid()}
-              timeString={timeString}
-            />
-          ))}
+          {!isLoading &&
+            ranges
+              ?.filter((t) => !scheduledEvents.includes(t))
+              .map((timeString) => (
+                <TimeButton
+                  isActive={timeString === time}
+                  onClick={handleClick(timeString)}
+                  key={nanoid()}
+                  timeString={timeString}
+                />
+              ))}
+          {!isLoading &&
+            ranges.filter((t) => !scheduledEvents.includes(t)).length < 1 && (
+              <h2 className="col-span-2 text-brand_gray text-sm">
+                No hay horarios disponíbles
+              </h2>
+            )}
+          {isLoading && <Spinner />}
         </div>
 
         {/* time zone */}

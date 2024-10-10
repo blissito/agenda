@@ -1,34 +1,18 @@
-import {
-  ReactNode,
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useState } from "react";
 import { Form, useFetcher } from "@remix-run/react";
-import { FaClock, FaMoneyBill } from "react-icons/fa";
-import { Event, Org, Service } from "@prisma/client";
-import { FiMapPin } from "react-icons/fi";
+import { FaClock } from "react-icons/fa";
+import { Org, Service } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
-import { HiOutlineIdentification } from "react-icons/hi2";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { PiCalendarCheckBold } from "react-icons/pi";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { nanoid } from "nanoid";
 import { BasicInput } from "~/components/forms/BasicInput";
-import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import {
-  areSameDates,
   from12To24,
   fromMinsToLocaleTimeString,
   generateSecuense,
-  getDaysInMonth,
-  isToday,
 } from "~/components/dash/agenda/agendaUtils";
-import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
-import { cn } from "~/utils/cd";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import { Schedule } from "~/components/icons/appointment/schedule";
 import { Clook } from "~/components/icons/appointment/clook";

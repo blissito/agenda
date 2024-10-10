@@ -13,6 +13,7 @@ import { ActionFunctionArgs, json } from "@remix-run/node";
 import { z } from "zod";
 import { createEvent, getEvents, getService } from "~/.server/userGetters";
 import { Success } from "./success";
+import { db } from "~/utils/db.server";
 
 export const userInfoSchema = z.object({
   displayName: z.string().min(1),
@@ -28,7 +29,17 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
   if (intent === "get_times_for_selected_date") {
     const service = await getService(params.serviceSlug);
     if (!service) throw json(null, { status: 404 });
-    const events = await getEvents(service.id);
+    const selectedDate = new Date(formData.get("date"));
+    const tommorrow = new Date(selectedDate);
+    tommorrow.setDate(selectedDate.getDate() + 1);
+    const events = await db.event.findMany({
+      where: {
+        start: {
+          gte: new Date(selectedDate), // this is
+          lte: new Date(tommorrow), // the one day only
+        },
+      },
+    });
     return { events };
   }
   if (intent === "create_event") {
@@ -96,13 +107,19 @@ export default function Page() {
     defaultValues: { displayName: "", email: "", tel: "", comments: "" },
   });
 
+  const reset = () => {
+    setShow("");
+    setDate(undefined);
+    setTime(undefined);
+  };
+
   if (show === "success") {
     return (
       <Success
         org={org}
         event={fetcher.data?.event}
         service={service}
-        onFinish={() => false}
+        onFinish={reset}
       />
     );
   }

@@ -238,7 +238,7 @@ export const isToday = (_date: Date) => {
 };
 
 export const areSameDates = (d1: Date, d2: Date | null) => {
-  if (!d1 || !d2) return false;
+  if (!d1 || !d2 || d1 instanceof Date || d2 instanceof Date) return false;
   const date1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
   return date1.getTime() === date2.getTime();

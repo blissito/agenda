@@ -22,6 +22,7 @@ export const Success = ({
   const getCTALink = () => {
     return `/agenda/${org.slug}/${service.slug}`;
   };
+
   return (
     <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
       <img
@@ -59,7 +60,13 @@ export const Success = ({
         <ServiceList
           org={org}
           service={{ ...service }}
-          date={event?.formatedDate}
+          date={new Date(event?.start).toLocaleString("es-MX", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+          })}
         />
       </div>
       {/* @TODO: link to another schedule */}
