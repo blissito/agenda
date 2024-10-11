@@ -17,9 +17,11 @@ import { db } from "~/utils/db.server";
 
 export const userInfoSchema = z.object({
   displayName: z.string().min(1),
-  email: z.string().email(),
   comments: z.string(),
-  tel: z.string().min(10),
+  email: z.string().email("Email no válido"),
+  tel: z
+    .string()
+    .min(10, { message: "El teléfono debe ser de al menos 10 dígitos" }),
 });
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -60,8 +62,14 @@ export default function Page() {
 
   const fetcher = useFetcher<typeof action>();
   const onSubmit = (vals) => {
-    const customer = userInfoSchema.parse(vals);
-    // validation
+    const result = userInfoSchema.safeParse(vals);
+    if (!result.success) {
+      result.error.errors.map((e) => {
+        setError(e.path[0], e);
+      });
+      return;
+    }
+    const customer = result.data;
     fetcher.submit(
       {
         intent: "create_event",
@@ -101,6 +109,7 @@ export default function Page() {
 
   const {
     formState: { isValid, errors },
+    setError,
     handleSubmit,
     register,
   } = useForm({

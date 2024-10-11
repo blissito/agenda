@@ -26,7 +26,17 @@ export default function TimeView({
   const fetcher = useFetcher();
   useEffect(() => {
     if (selected) {
-      fetcher.submit({ intent, date: selected }, { method: "post", action });
+      fetcher.submit(
+        {
+          intent,
+          date: new Date( // because we don't want to compare with time included
+            selected.getFullYear(),
+            selected.getMonth(),
+            selected.getDate()
+          ),
+        },
+        { method: "post", action }
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
@@ -53,7 +63,7 @@ export default function TimeView({
         )
       : [];
 
-  const isLoading = fetcher.state !== "idle";
+  const isLoading = fetcher.state !== "idle"; // @todo should not load when select
 
   return (
     <>
