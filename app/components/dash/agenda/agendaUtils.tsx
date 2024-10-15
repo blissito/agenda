@@ -102,6 +102,17 @@ export const getMonday = (today: Date = new Date()) => {
   return new Date(today.setDate(diff));
 };
 
+export const completeWeek = (date: Date) => {
+  const startDate = new Date(date);
+  const day = new Date(startDate).getDay();
+  const offset = -day + 1; // looking for monday 🤓
+  startDate.setDate(startDate.getDate() + offset);
+  return [0, 1, 1, 1, 1, 1, 1].map((n) => {
+    startDate.setDate(startDate.getDate() + n);
+    return new Date(startDate);
+  });
+};
+
 export const generateWeek = (
   monday: Date = getMonday(),
   numberOfDays: 5 | 7 = 5

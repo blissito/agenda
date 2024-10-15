@@ -11,7 +11,7 @@ import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { z } from "zod";
-import { createEvent, getEvents, getService } from "~/.server/userGetters";
+import { createEvent, getService } from "~/.server/userGetters";
 import { Success } from "./success";
 import { db } from "~/utils/db.server";
 
@@ -59,8 +59,8 @@ export default function Page() {
   const [time, setTime] = useState<number>();
   const [date, setDate] = useState<Date>();
   const [show, setShow] = useState("");
-
   const fetcher = useFetcher<typeof action>();
+
   const onSubmit = (vals) => {
     const result = userInfoSchema.safeParse(vals);
     if (!result.success) {
@@ -90,7 +90,7 @@ export default function Page() {
   };
 
   const maxDate = getMaxDate(
-    new Date(new Date().getFullYear(), new Date().getMonth() + 2)
+    new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
   );
 
   const handleTimeSelection = (timeString, h, m) => {

@@ -1,97 +1,45 @@
-import { Suspense, useState } from "react";
-import { useLoaderData } from "react-router";
+import { useState } from "react";
+import { LoaderFunctionArgs, useLoaderData } from "react-router";
+import {
+  getServices,
+  getUserAndOrgOrRedirect,
+  getUserOrRedirect,
+} from "~/.server/userGetters";
 import {
   addDaysToDate,
-  BasicBoxType,
-  generateHours,
   generateWeek,
   getMonday,
 } from "~/components/dash/agenda/agendaUtils";
-import { CalendarGrid } from "~/components/dash/agenda/calendarGrid";
-import { Paginator } from "~/components/dash/agenda/paginator";
+import SimpleBigWeekView from "~/components/dash/agenda/SimpleBigWeekView";
+import WeekSelector from "~/components/dash/agenda/WeekSelector";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
+import { db } from "~/utils/db.server";
 
-const MONTHS = [
-  "enero",
-  "febrero",
-  "marzo",
-  "abril",
-  "mayo",
-  "junio",
-  "julio",
-  "agosto",
-  "septiembre",
-  "octubre",
-  "noviembre",
-  "diciembre",
-];
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const loader = async () => {
-  const date = new Date();
-  const today = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate(),
-    9
-  );
-  const tomorrow = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate() + 1,
-    10
-  );
-  const pastTomorrow = new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate() + 2,
-    12
-  );
-
-  return {
-    events: [
-      {
-        id: 1,
-        title: "Charles Chaplin",
-        text: "Clase de música",
-        date: new Date(2024, 6, 17, 12),
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { org } = await getUserAndOrgOrRedirect(request);
+  const orgServices = await db.service.findMany({
+    where: {
+      orgId: org.id,
+    },
+  });
+  const orgIds = orgServices.map((org) => org.id);
+  const yesterday = new Date();
+  yesterday.setDate(new Date().getDate() - 1);
+  const events = await db.event.findMany({
+    where: {
+      serviceId: {
+        in: orgIds,
       },
-      {
-        id: 2,
-        title: "Julio Cortazar",
-        text: "Clase de literatura",
-        date: new Date(2024, 6, 16, 11),
+      start: {
+        gt: yesterday,
       },
-      {
-        id: 3,
-        title: "Jorge Luis Borges",
-        text: "Clase de literatura inglesa",
-        date: new Date(2024, 6, 18, 13),
-      },
-      {
-        id: 4,
-        title: "Roberto Bolaño",
-        text: "Clase de ensayo",
-        date: new Date(2024, 6, 9, 9),
-      },
-    ] as BasicBoxType[],
-    fromHour: 9,
-    toHour: 13,
-    daysShown: [
-      "lunes",
-      "martes",
-      "miércoles",
-      "jueves",
-      "viernes",
-      // "sábado",
-      // "domingo",
-    ],
-  };
+    },
+  });
+  return { events };
 };
 
 export default function Page() {
-  const { events, fromHour, toHour, daysShown } =
-    useLoaderData<typeof loader>();
-
+  const { events } = useLoaderData<typeof loader>();
   const [monday, setMonday] = useState<Date>(getMonday());
   const week = generateWeek(monday, 7);
 
@@ -112,7 +60,9 @@ export default function Page() {
   return (
     <>
       <RouteTitle>Mi agenda {week[4].date.getFullYear()}</RouteTitle>
-      <Paginator
+      <WeekSelector />
+      <SimpleBigWeekView events={events} />
+      {/* <Paginator
         monday={monday}
         month={MONTHS[week[daysShown.length - 1].date.getMonth()]} // last day from
         onToday={() => setMonday(getMonday())}
@@ -127,7 +77,7 @@ export default function Page() {
         hours={generateHours({ fromHour, toHour })}
         week={week}
         days={daysShown}
-      />
+      /> */}
       {/* </Suspense> */}
     </>
   );
