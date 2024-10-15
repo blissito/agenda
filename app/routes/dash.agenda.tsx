@@ -1,3 +1,4 @@
+import { useFetcher } from "@remix-run/react";
 import { useState } from "react";
 import { LoaderFunctionArgs, useLoaderData } from "react-router";
 import {
@@ -7,6 +8,7 @@ import {
 } from "~/.server/userGetters";
 import {
   addDaysToDate,
+  completeWeek,
   generateWeek,
   getMonday,
 } from "~/components/dash/agenda/agendaUtils";
@@ -39,29 +41,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export default function Page() {
+  const [week, setWeek] = useState(completeWeek(new Date()));
+  // const fetcher = useFetcher();
   const { events } = useLoaderData<typeof loader>();
-  const [monday, setMonday] = useState<Date>(getMonday());
-  const week = generateWeek(monday, 7);
-
-  const updateMonday = (direction: number) =>
-    setMonday(
-      new Date(monday.setDate(addDaysToDate(direction > 0 ? 7 : -7, monday)))
-    );
-
-  const min = new Date(week[0].date).getTime();
-  const max = new Date(week[week.length - 1].date).getTime();
-  // const month = week[days.length - 1].date.getMonth();
-  const filteredEvents = events.filter(
-    (event) =>
-      new Date(event.date).getTime() >= min &&
-      new Date(event.date).getTime() <= max
-  );
+  const handleWeekNavigation = (direction: -1 | 1) => {
+    let d;
+    if (direction < 0) {
+      d = new Date(week[0]);
+      d.setDate(d.getDate() - 2);
+    } else {
+      d = new Date(week[week.length - 1]);
+      d.setDate(d.getDate() + 1);
+    }
+    setWeek(completeWeek(d));
+  };
 
   return (
     <>
-      <RouteTitle>Mi agenda {week[4].date.getFullYear()}</RouteTitle>
-      <WeekSelector />
-      <SimpleBigWeekView events={events} />
+      <RouteTitle>
+        Mi agenda {new Date(events[0]?.start || undefined).getFullYear()}
+      </RouteTitle>
+      <WeekSelector onClick={handleWeekNavigation} week={week} />
+      <SimpleBigWeekView events={events} date={week[0]} />
       {/* <Paginator
         monday={monday}
         month={MONTHS[week[daysShown.length - 1].date.getMonth()]} // last day from

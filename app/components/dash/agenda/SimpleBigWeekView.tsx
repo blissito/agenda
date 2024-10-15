@@ -4,9 +4,15 @@ import { Event } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 
-export default function SimpleBigWeekView({ events = [] }: { events: Date[] }) {
+export default function SimpleBigWeekView({
+  date = new Date(),
+  events = [],
+}: {
+  date?: Date;
+  events: Date[];
+}) {
   //   const today = new Date();
-  const week = completeWeek(new Date(2024, 9, 14));
+  const week = completeWeek(date);
 
   return (
     <article className="w-full bg-white shadow rounded-xl">
@@ -81,7 +87,7 @@ const Column = ({ events = [] }: { events: Event[] }) => {
         dragSnapToOrigin
         drag
         className={twMerge(
-          "text-xs absolute top-0 bg-blue-500 text-white rounded-lg z-10",
+          "text-xs absolute top-0 left-0 bg-brand_blue text-white rounded-md z-10 w-[80%]",
           new Date(event.start).getMinutes() > 29 && "top-8"
         )}
       >
