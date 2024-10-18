@@ -16,12 +16,14 @@ export default function Route() {
   //   const i = useRef<ReturnType<typeof setTimeout>>();
   const [current, setCurrent] = useState(0);
   const [prev, setPrev] = useState(colors.length - 1);
+  const [active, setActive] = useState(false);
   //   const x = useMotionValue(0);
 
   const degs1 = useSpring(0, { bounce: 0, duration: 1500 });
   const degs2 = useTransform(degs1, (later) => later - 180);
 
   const handle = async () => {
+    setActive(true);
     degs1.set(degs1.get() - 180);
     await sleep(1.5);
     setPrev((p) => {
@@ -125,12 +127,14 @@ export default function Route() {
           className="absolute top-[51%] border-gray-900 w-full"
         />
       </article>
-      <button
-        className="bg-brand_blue p-4 rounded-xl m-8 text-white shadow-lg active:shadow "
-        onClick={handle}
-      >
-        Puchale
-      </button>
+      {!active && (
+        <button
+          className="bg-brand_blue p-4 rounded-xl m-8 text-white shadow-lg active:shadow "
+          onClick={handle}
+        >
+          Puchale
+        </button>
+      )}
     </>
   );
 }
