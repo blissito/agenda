@@ -1,6 +1,6 @@
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 
-export default function WeekSelector({
+export function WeekSelector({
   onClick,
   week,
 }: {

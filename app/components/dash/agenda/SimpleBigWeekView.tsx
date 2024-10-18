@@ -4,7 +4,7 @@ import { Event } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 
-export default function SimpleBigWeekView({
+export function SimpleBigWeekView({
   date = new Date(),
   events = [],
 }: {
