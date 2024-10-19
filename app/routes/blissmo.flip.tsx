@@ -1,4 +1,10 @@
-import { motion, useSpring, useTransform } from "framer-motion";
+import {
+  motion,
+  useAnimate,
+  useAnimationControls,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { cn } from "~/utils/cd";
 
@@ -7,59 +13,61 @@ const sleep = (secs: number) =>
 
 export default function Route() {
   const colors = [
-    "bg-blue-500",
+    "bg-indigo-500",
     "bg-red-500",
     "bg-slate-500",
     "bg-yellow-500",
     "bg-green-500",
   ];
-  //   const i = useRef<ReturnType<typeof setTimeout>>();
-  const [current, setCurrent] = useState(0);
-  const [prev, setPrev] = useState(colors.length - 1);
-  const [active, setActive] = useState(false);
-  //   const x = useMotionValue(0);
+  const index = useRef(0);
+  const [active, setActive] = useState(true);
+  const [color_1, setColor1] = useState(colors[0]);
+  const [color_2, setColor2] = useState(colors[1]);
+  const [trick_color, setTrickcolor] = useState(colors[1]);
 
-  const degs1 = useSpring(0, { bounce: 0, duration: 1500 });
-  const degs2 = useTransform(degs1, (later) => later - 180);
+  const [nextNumber, setNextNumber] = useState(0);
+  const [trickNumber, setTrickNumber] = useState(0);
 
-  const handle = async () => {
-    setActive(true);
-    degs1.set(degs1.get() - 180);
-    await sleep(1.5);
-    setPrev((p) => {
-      setCurrent(p);
-      return (p + 1) % colors.length;
+  const controls_1 = useAnimationControls();
+  const controls_2 = useAnimationControls();
+  const controls_3 = useAnimationControls();
+
+  const start = async () => {
+    // GET INDEX
+    index.current = (index.current + 1) % colors.length;
+    const nextColor = colors[index.current];
+    console.log("next", nextColor);
+    // COLOR ROTATION & NUMBER ROTATION
+    setColor2((c) => {
+      setColor1(c);
+      return nextColor;
     });
-    degs1.jump(0); // to update back only
-    await sleep(1);
-    handle();
+
+    setNextNumber((n) => n + 1);
+    // TRICK MOVEMENT & TRICK COLOR UPDATE
+    controls_3.set({ zIndex: -10 });
+    setTrickcolor(nextColor);
+    setTrickNumber((n) => n + 1);
+    // SET NEXT NUMBER
+    // MOVEMENT
+    await controls_1.start({ rotateX: -90 }, { duration: 0.7, ease: "easeIn" });
+    await controls_2.start(
+      { rotateX: -360 },
+      { duration: 0.7, ease: "easeOut" }
+    );
+    // SET TRICK
+    await controls_3.set({ zIndex: 40 });
+    // RESET
+    controls_1.set({ rotateX: 0 });
+    controls_2.set({ rotateX: -270 });
+    // update front color
+    // setColor1(nextColor);
+    // LOOP
+    setTimeout(start, 2000);
   };
 
-  const drawChildren = (c: number) => {
-    if (c === 0) {
-      return <p className="text-center text-4xl uppercase">Perro</p>;
-    }
-    if (c === 1) {
-      return <p className="text-center text-4xl uppercase">Gato</p>;
-    }
-    if (c === 2) {
-      return <p className="text-center text-4xl uppercase">Pollo</p>;
-    }
-    if (c === 3) {
-      return <p className="text-center text-4xl uppercase">Puerco</p>;
-    }
-    if (c === 4) {
-      return <p className="text-center text-4xl uppercase">Mijo</p>;
-    }
-  };
-
-  useLayoutEffect(() => {
-    // const start = () => {
-    //   await sleep(4);
-    // handle();
-    // };
-    // start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    start();
   }, []);
 
   return (
@@ -67,70 +75,88 @@ export default function Route() {
       <h1 className="py-12 text-2xl text-center">
         Hecho a ojo por pinche necio by: Blissmo
       </h1>
-      <article
+      <div
         style={{
           transformStyle: "preserve-3d",
           transform: "rotateY(-20deg)",
-          zIndex: -10,
+          zIndex: 0,
         }}
         className="bg-gray-900 py-8 flex justify-center h-[220px] relative"
       >
         <motion.div
-          onAnimationComplete={() => console.log("wa")}
+          animate={controls_1}
+          id="target"
           style={{
-            rotateX: degs1,
             backfaceVisibility: "hidden",
           }}
           className={cn(
-            "w-44 h-40 rounded-xl absolute z-20 flex justify-center items-center",
-            colors[current]
+            "text-white text-8xl items-center p-4 w-40 h-40 justify-center absolute z-30 flex rounded-xl",
+            color_1
           )}
         >
-          {drawChildren(current)}
+          {nextNumber - 1}
         </motion.div>
         <motion.div
+          initial={{ rotateX: -270 }}
+          animate={controls_2}
+          id="target_2"
           style={{
-            // visibility: "hidden",
-            rotateX: degs2,
             backfaceVisibility: "hidden",
           }}
           className={cn(
-            "w-44 h-40 rounded-xl absolute z-20 flex justify-center items-center",
-            colors[prev]
+            "text-white text-8xl items-center p-4 w-40 h-40 justify-center absolute z-30 flex rounded-xl",
+            color_2
           )}
         >
-          {drawChildren(prev)}
+          {nextNumber}
         </motion.div>
-        <div
-          className={cn("w-44 h-20 rounded-t-xl absolute -z-10", colors[prev])}
-        >
-          <main className="relative top-[75%] z-30">{drawChildren(prev)}</main>
-        </div>
-        <div
+        {/* Prev */}
+        <motion.div
+          style={{
+            clipPath: "xywh(0 50% 100% 100% round 0 0)",
+          }}
           className={cn(
-            "w-44 h-20 rounded-b-xl absolute -z-10 top-[51%] overflow-hidden",
-            colors[current]
+            "text-white text-8xl flex items-center p-4 w-40 h-40 justify-center absolute z-20 rounded-xl",
+            color_1
           )}
         >
-          <main className="relative top-[-25%] z-20">
-            {drawChildren(current)}
-          </main>
-        </div>
+          {nextNumber - 1}
+        </motion.div>
+        {/* Next */}
+        <motion.div
+          className={cn(
+            "text-white text-8xl flex items-center p-4 w-40 h-40 justify-center absolute z-10 rounded-xl",
+            color_2
+          )}
+        >
+          {nextNumber}
+        </motion.div>
+        {/* Trick */}
+        <motion.div
+          animate={controls_3}
+          className={cn(
+            "text-white text-8xl flex items-center p-4 w-40 h-40 justify-center relative rounded-xl z-0",
+            trick_color
+          )}
+        >
+          {trickNumber}
+        </motion.div>
         {/* @todo: improve line  */}
+
         <hr
           style={{
-            zIndex: 999999999,
+            zIndex: 50,
             transform: "translateZ(1px)",
             position: "absolute",
             borderTopWidth: "2px",
           }}
           className="absolute top-[51%] border-gray-900 w-full"
         />
-      </article>
+      </div>
       {!active && (
         <button
           className="bg-brand_blue p-4 rounded-xl m-8 text-white shadow-lg active:shadow "
-          onClick={handle}
+          onClick={start}
         >
           Puchale
         </button>
