@@ -32,6 +32,7 @@ export default function Route() {
   const controls_2 = useAnimationControls();
   const controls_3 = useAnimationControls();
 
+  // @TODO: Create small functions and use ref object to save the states
   const start = async () => {
     // GET INDEX
     index.current = (index.current + 1) % colors.length;
@@ -63,13 +64,14 @@ export default function Route() {
     // update front color
     // setColor1(nextColor);
     // LOOP
-    setTimeout(start, 2000);
+    setTimeout(start, 1000);
   };
 
   useEffect(() => {
     start();
   }, []);
 
+  // @TODO: CREATE COMPONENTS
   return (
     <>
       <h1 className="py-12 text-2xl text-center">
