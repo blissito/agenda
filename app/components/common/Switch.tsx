@@ -40,7 +40,7 @@ export const Switch = forwardRef(
       <>
         <button
           type="button"
-          className={cn("flex items-center gap-4")}
+          className={cn("flex items-center gap-4 justify-between")}
           onClick={handleClick}
         >
           <span>{label}</span>

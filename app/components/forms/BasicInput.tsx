@@ -44,7 +44,8 @@ export const BasicInput = ({
         >
           {label}
         </label>
-        {icon && <div className="absolute top-[33%] left-4">{icon}</div>}
+        {/* {icon && <div className="absolute top-[33%] left-4">{icon}</div>} */}
+        {icon && icon}
         {as === "textarea" ? (
           <textarea
             name={name}
@@ -74,6 +75,7 @@ export const BasicInput = ({
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
               !!error && "border-red-500",
               icon && "pl-12" // @TODO: does textarea needs this?
+              // className
             )}
             {...props}
             {...register?.(name, registerOptions)}

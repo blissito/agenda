@@ -1,6 +1,8 @@
+import { ReactNode } from "react";
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
+import { cn } from "~/utils/cd";
 
 export type Option = {
   value: string;
@@ -8,6 +10,7 @@ export type Option = {
 };
 
 type Props = {
+  defaultValue?: string;
   name: string;
   register?: UseFormRegister<FieldValues> | any;
   error?: FieldError;
@@ -15,10 +18,15 @@ type Props = {
   className?: string;
   registerOptions?: { required: string | boolean };
   placeholder?: string;
-  options: Option[];
+  options?: Option[];
+  icon?: ReactNode;
+  isDisabled?: boolean;
   // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
 };
 export const SelectInput = ({
+  defaultValue,
+  isDisabled,
+  icon,
   placeholder,
   className,
   registerOptions = { required: REQUIRED_MESSAGE },
@@ -26,7 +34,7 @@ export const SelectInput = ({
   label,
   name,
   register,
-  options,
+  options = [],
   ...props
 }: Props) => {
   return (
@@ -37,12 +45,20 @@ export const SelectInput = ({
       >
         {label}
       </label>
-      <div style={{ width: "200px" }} className="custom-select">
+      <div className={cn("custom-select relative")}>
+        <div className="absolute top-3 left-3 z-10 ">{icon}</div>
         <select
           defaultValue=""
+          disabled={isDisabled}
           name="pets"
           id="pet-select"
-          className="rounded-lg border-gray-200 h-12 w-full mt-1 text-brand_gray "
+          className={cn(
+            "rounded-lg border-gray-200 h-12 w-full mt-1 text-brand_gray ",
+            {
+              "disabled:cursor-not-allowed": isDisabled,
+              "pl-14 relative": icon,
+            }
+          )}
           {...props}
           {...register?.(name, registerOptions)}
         >

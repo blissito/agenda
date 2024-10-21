@@ -1,4 +1,8 @@
-import { ClientActionFunctionArgs, useFetcher } from "@remix-run/react";
+import {
+  ClientActionFunctionArgs,
+  ClientLoaderFunctionArgs,
+  useFetcher,
+} from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { LoaderFunctionArgs, useLoaderData } from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
@@ -8,6 +12,9 @@ import { db } from "~/utils/db.server";
 import { SimpleBigWeekView } from "~/components/dash/agenda/SimpleBigWeekView";
 import { WeekSelector } from "~/components/dash/agenda/WeekSelector";
 import { Spinner } from "~/components/common/Spinner";
+import { Drawer } from "~/components/animated/SimpleDrawer";
+import { Event } from "@prisma/client";
+import { EventForm } from "~/components/forms/agenda/EventForm";
 
 export const action = async ({ request }: ClientActionFunctionArgs) => {
   const formData = await request.formData();
@@ -32,14 +39,17 @@ export const action = async ({ request }: ClientActionFunctionArgs) => {
           lte: sunday,
         },
       },
+      include: {
+        service: true,
+      },
     });
     return { events };
   }
   return null;
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request);
+export const loader = async ({ request }: ClientLoaderFunctionArgs) => {
+  const { org, user } = await getUserAndOrgOrRedirect(request);
   const orgServices = await db.service.findMany({
     where: {
       orgId: org.id,
@@ -58,14 +68,24 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       },
     },
   });
-  return { events };
+  return { events, user };
 };
 
 export default function Page() {
   const [week, setWeek] = useState(completeWeek(new Date()));
-  const fetcher = useFetcher();
-  const { events } = useLoaderData();
+  const fetcher = useFetcher<Record<string, string>>();
+  const { events, user } = useLoaderData<typeof loader>();
   const [weekEvents, setWeekEvents] = useState(events);
+  // edit states
+  const [isOpen, setIsOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const closeDrawer = () => {
+    setIsOpen(false);
+    setEditingEvent(null);
+  };
+  const openDrawer = () => setIsOpen(true);
+
+  console.log("Week,evs", weekEvents);
 
   const handleWeekNavigation = (direction: -1 | 1) => {
     let d;
@@ -84,7 +104,10 @@ export default function Page() {
         monday: w[0],
         sunday: w[w.length - 1],
       },
-      { method: "post" }
+      {
+        method: "post",
+        // encType: "application/json"
+      }
     );
   };
 
@@ -94,6 +117,13 @@ export default function Page() {
     }
   }, [fetcher]);
 
+  const handleEventClick = (event: Event) => {
+    openDrawer();
+    setEditingEvent(event);
+  };
+
+  console.log("?=", user);
+
   return (
     <>
       <RouteTitle>
@@ -101,7 +131,19 @@ export default function Page() {
       </RouteTitle>
       <WeekSelector onClick={handleWeekNavigation} week={week} />
       {fetcher.state !== "idle" && <Spinner />}
-      <SimpleBigWeekView events={weekEvents} date={week[0]} />
+      <SimpleBigWeekView
+        events={weekEvents}
+        date={week[0]}
+        onEventClick={handleEventClick}
+      />
+      <Drawer
+        isOpen={isOpen}
+        onClose={closeDrawer}
+        title={editingEvent?.customer?.displayName || "Sin nombre"} // @todo connfirmed tag
+        subtitle={editingEvent?.service?.name || "Si nombre de servicio"}
+      >
+        <EventForm event={editingEvent} ownerName={user.displayName} />
+      </Drawer>
     </>
   );
 }

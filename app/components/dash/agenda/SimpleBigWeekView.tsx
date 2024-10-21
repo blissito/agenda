@@ -7,7 +7,9 @@ import { motion } from "framer-motion";
 export function SimpleBigWeekView({
   date = new Date(),
   events = [],
+  onEventClick,
 }: {
+  onEventClick?: (arg0: Event) => void;
   date?: Date;
   events: Date[];
 }) {
@@ -54,6 +56,7 @@ export function SimpleBigWeekView({
         <TimeColumn />
         {week.map((dayOfWeek) => (
           <Column
+            onEventClick={onEventClick}
             key={dayOfWeek.toISOString()}
             events={events.filter((event) => {
               const date = new Date(event.start);
@@ -77,22 +80,30 @@ const Cell = ({ children }: { children?: ReactNode }) => {
   );
 };
 // @TODO: scroll intoview
-const Column = ({ events = [] }: { events: Event[] }) => {
+const Column = ({
+  events = [],
+  onEventClick,
+}: {
+  onEventClick?: (arg0: Event) => void;
+  events: Event[];
+}) => {
   const findEvent = (hours, events) => {
     const event = events.find(
       (event) => new Date(event.start).getHours() === hours
     );
     return event ? (
-      <motion.span
+      <motion.button
+        onClick={() => onEventClick?.(event)}
         dragSnapToOrigin
         drag
         className={twMerge(
-          "text-xs absolute top-0 left-0 bg-brand_blue text-white rounded-md z-10 w-[80%]",
-          new Date(event.start).getMinutes() > 29 && "top-8"
+          "text-xs text-left pl-1 absolute top-0 left-0 bg-brand_blue text-white rounded-md z-10 w-[80%]",
+          new Date(event.start).getMinutes() > 29 && "top-8",
+          "active:cursor-grabbing"
         )}
       >
         {event.title}
-      </motion.span>
+      </motion.button>
     ) : null;
   };
 
