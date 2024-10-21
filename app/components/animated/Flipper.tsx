@@ -77,7 +77,7 @@ export function Flipper({
         zIndex: 0,
       }}
       className={cn(
-        "p-12 flex justify-center h-[420px] relative",
+        "p-12 flex justify-center h-[320px] relative",
         `bg-${color}`
       )}
     >
@@ -124,7 +124,7 @@ export function Flipper({
           position: "absolute",
           borderTopWidth: "2px",
         }}
-        className={cn("absolute top-[38%] w-full", `border-${color}`)}
+        className={cn("absolute top-[50%] w-full", `border-${color}`)}
       />
     </article>
   );
