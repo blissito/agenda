@@ -6,7 +6,7 @@ export function Flipper({
   children,
   color = "white",
 }: {
-  color: string;
+  color?: string;
   children: ReactNode[];
 }) {
   // REFS
