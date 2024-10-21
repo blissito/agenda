@@ -2,7 +2,13 @@ import { motion, useAnimationControls } from "framer-motion";
 import { Children, ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "~/utils/cd";
 
-export function Flipper({ children }: { children: ReactNode[] }) {
+export function Flipper({
+  children,
+  color = "white",
+}: {
+  color: string;
+  children: ReactNode[];
+}) {
   // REFS
   const items = Children.toArray(children);
   const index = useRef(0);
@@ -62,7 +68,7 @@ export function Flipper({ children }: { children: ReactNode[] }) {
 
   // @TODO: CREATE COMPONENTS?
   const generalClass =
-    "text-white text-8xl items-center overflow-hidden w-40 h-40 justify-center absolute z-30 flex rounded-xl";
+    "text-white text-8xl items-center overflow-hidden w-56 h-56 justify-center absolute z-30 flex rounded-xl";
   return (
     <article
       style={{
@@ -70,7 +76,10 @@ export function Flipper({ children }: { children: ReactNode[] }) {
         transform: "rotateY(-20deg)",
         zIndex: 0,
       }}
-      className="bg-gray-900 p-8 flex justify-center h-[220px] relative"
+      className={cn(
+        "p-12 flex justify-center h-[420px] relative",
+        `bg-${color}`
+      )}
     >
       <motion.div
         animate={controls_1}
@@ -115,7 +124,7 @@ export function Flipper({ children }: { children: ReactNode[] }) {
           position: "absolute",
           borderTopWidth: "2px",
         }}
-        className="absolute top-[51%] border-gray-900 w-full"
+        className={cn("absolute top-[38%] w-full", `border-${color}`)}
       />
     </article>
   );
