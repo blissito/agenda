@@ -85,8 +85,6 @@ export default function Page() {
   };
   const openDrawer = () => setIsOpen(true);
 
-  console.log("Week,evs", weekEvents);
-
   const handleWeekNavigation = (direction: -1 | 1) => {
     let d;
     if (direction < 0) {
@@ -121,8 +119,6 @@ export default function Page() {
     openDrawer();
     setEditingEvent(event);
   };
-
-  console.log("?=", user);
 
   return (
     <>
