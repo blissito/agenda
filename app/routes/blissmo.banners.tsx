@@ -1,24 +1,42 @@
-import { useAnimationControls, useInView, motion } from "framer-motion";
+import {
+  useAnimationControls,
+  useInView,
+  motion,
+  useMotionValue,
+  useMotionTemplate,
+  useTransform,
+  easeInOut,
+} from "framer-motion";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { PiRobotDuotone } from "react-icons/pi";
 import { cn } from "~/utils/cd";
 
 export default function Route() {
   const [currentHover, setCurrentHover] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const X = useTransform(x, [0, 600], [300, 400], {
+    ease: easeInOut,
+  });
+  const Y = useTransform(y, [0, 600], [300, 500], {
+    ease: easeInOut,
+  });
+
+  const background = useMotionTemplate`radial-gradient(at ${X}px ${Y}px, #380b0b 1%, black 80%)`;
 
   const hadleMouseMove = (e) => {
-    setPosition({
-      x: e.pageX,
-      y: e.pageY,
-    });
+    console.log(e.pageY);
+    x.set(e.pageX);
+    y.set(e.pageY);
   };
 
   return (
-    <article
+    <motion.article
       onMouseMove={hadleMouseMove}
       style={{
-        background: `radial-gradient(at ${position.x}px ${position.y}px, #380b0b 1%, black 80%)`,
+        background,
       }}
       className="h-[80vh] relative overflow-hidden"
     >
@@ -41,7 +59,7 @@ export default function Route() {
           rotate={10}
         />
       </section>
-    </article>
+    </motion.article>
   );
 }
 
