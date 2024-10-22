@@ -17,7 +17,7 @@ export default function Route() {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const X = useTransform(x, [0, 600], [300, 400], {
+  const X = useTransform(x, [0, 600], [300, 500], {
     ease: easeInOut,
   });
   const Y = useTransform(y, [0, 600], [300, 500], {
