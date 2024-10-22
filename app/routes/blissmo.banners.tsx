@@ -6,6 +6,8 @@ import {
   useMotionTemplate,
   useTransform,
   easeInOut,
+  useScroll,
+  useMotionValueEvent,
 } from "framer-motion";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { PiRobotDuotone } from "react-icons/pi";
@@ -13,10 +15,8 @@ import { cn } from "~/utils/cd";
 
 export default function Route() {
   const [currentHover, setCurrentHover] = useState(1);
-
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-
   const X = useTransform(x, [0, 600], [300, 500], {
     ease: easeInOut,
   });
@@ -27,39 +27,42 @@ export default function Route() {
   const background = useMotionTemplate`radial-gradient(at ${X}px ${Y}px, #380b0b 1%, black 80%)`;
 
   const hadleMouseMove = (e) => {
-    console.log(e.pageY);
     x.set(e.pageX);
     y.set(e.pageY);
   };
 
   return (
-    <motion.article
-      onMouseMove={hadleMouseMove}
-      style={{
-        background,
-      }}
-      className="h-[80vh] relative overflow-hidden"
-    >
-      <section>
-        <motion.div className="absolute inset-1 z-0 backdrop-blur-3xl" />
-        <AnimatedBanner
-          onHoverStart={() => setCurrentHover(0)}
-          isHovered={currentHover === 0}
-          rotate={-10}
-          reversed
-          bgClass="bg-black"
-        >
-          Más de 10 años de experiencia <Robot /> profesionales de la web{" "}
-          <Robot /> landing pages <Robot /> premiadas <Robot />
-          diseño web <Robot /> diseñadores senior <Robot /> fullstack developers
-        </AnimatedBanner>
-        <AnimatedBanner
-          onHoverStart={() => setCurrentHover(1)}
-          isHovered={currentHover === 1}
-          rotate={10}
-        />
-      </section>
-    </motion.article>
+    <>
+      <motion.article
+        onMouseMove={hadleMouseMove}
+        style={{
+          background,
+        }}
+        className="h-[80vh] relative overflow-hidden"
+      >
+        <section>
+          <motion.div className="absolute inset-1 z-0 backdrop-blur-3xl" />
+          <AnimatedBanner
+            onHoverStart={() => setCurrentHover(0)}
+            isHovered={currentHover === 0}
+            rotate={-10}
+            reversed
+            bgClass="bg-black"
+          >
+            Más de 10 años de experiencia <Robot /> profesionales de la web{" "}
+            <Robot /> landing pages <Robot /> premiadas <Robot />
+            diseño web <Robot /> diseñadores senior <Robot /> fullstack
+            developers
+          </AnimatedBanner>
+          <AnimatedBanner
+            onHoverStart={() => setCurrentHover(1)}
+            isHovered={currentHover === 1}
+            rotate={10}
+          />
+        </section>
+      </motion.article>
+      <div className="h-[100vh]" />
+    </>
   );
 }
 
@@ -83,12 +86,41 @@ const AnimatedBanner = ({
   const controls = useAnimationControls();
   const parentControls = useAnimationControls();
 
+  // scroll direction
+  const prevScrollY = useRef(0);
+  const [scrollDirection, setScrollDirection] = useState(1);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setScrollDirection(latest < prevScrollY.current ? -1 : 1);
+    prevScrollY.current = latest;
+    console.log(scrollDirection);
+  });
+
   const animationController = async (isInView: boolean) => {
     if (!isInView) {
       controls.stop();
-      controls.set({ x: reversed ? "30%" : "-100%" });
+      controls.set({
+        x: reversed
+          ? scrollDirection < 0
+            ? "-100%"
+            : "30%"
+          : scrollDirection < 0
+          ? "30%"
+          : "-100%",
+      });
     }
-    controls.start({ x: reversed ? "-100%" : "100%" }, { duration: 100 });
+    controls.start(
+      {
+        x: reversed
+          ? scrollDirection < 0
+            ? "100%"
+            : "-250%"
+          : scrollDirection < 0
+          ? "-250%"
+          : "100%",
+      },
+      { duration: 100 }
+    );
   };
 
   const handleHover = () => {
@@ -100,10 +132,11 @@ const AnimatedBanner = ({
     if (isHovered) {
       parentControls.start({ filter: "blur(0)" }, { duration: 1 });
     } else {
-      parentControls.start({ filter: "blur(6px)" });
+      parentControls.start({ filter: "blur(6px)" }, { duration: 2 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInView, isHovered]);
+  }, [isInView, isHovered, scrollDirection]);
+
   return (
     <motion.div
       animate={parentControls}
