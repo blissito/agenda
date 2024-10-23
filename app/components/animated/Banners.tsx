@@ -4,7 +4,7 @@ import {
   useMotionValue,
   useMotionTemplate,
   useTransform,
-  easeInOut,
+  easeIn,
 } from "framer-motion";
 import { Children, ReactNode, useEffect, useRef, useState } from "react";
 import { PiRobotDuotone } from "react-icons/pi";
@@ -17,11 +17,12 @@ export function Banners({ children }: { children?: ReactNode }) {
   const [currentHover, setCurrentHover] = useState(1);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+
   const X = useTransform(x, [0, 600], [300, 500], {
-    ease: easeInOut,
+    ease: easeIn,
   });
   const Y = useTransform(y, [0, 600], [300, 500], {
-    ease: easeInOut,
+    ease: easeIn,
   });
 
   const background = useMotionTemplate`radial-gradient(at ${X}px ${Y}px, #5158f6 1%, black 80%)`;
@@ -110,13 +111,13 @@ const AnimatedBanner = ({
         bgClass
       )}
     >
-      <motion.p
+      <motion.div
         ref={ref}
         style={{ x }}
         className="uppercase text-white flex items-center h-full font-extrabold lg:text-6xl text-3xl gap-10 whitespace-nowrap font-sans translate-x-[-100%]"
       >
         {children}
-      </motion.p>
+      </motion.div>
     </motion.div>
   );
 };
