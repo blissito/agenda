@@ -5,14 +5,11 @@ import {
   useMotionTemplate,
   useTransform,
   easeInOut,
-  useScroll,
-  useMotionValueEvent,
-  useSpring,
-  useAnimationFrame,
 } from "framer-motion";
 import { Children, ReactNode, useEffect, useRef, useState } from "react";
 import { PiRobotDuotone } from "react-icons/pi";
 import { cn } from "~/utils/cd";
+import { useMarquee } from "../hooks/useMarquee";
 
 export function Banners({ children }: { children?: ReactNode }) {
   const firstChildren = Children.toArray(children)[0];
@@ -58,8 +55,9 @@ export function Banners({ children }: { children?: ReactNode }) {
             onHoverStart={() => setCurrentHover(1)}
             isHovered={currentHover === 1}
             rotate={10}
-            children={secondChildren}
-          />
+          >
+            {secondChildren}
+          </AnimatedBanner>
         </section>
       </motion.article>
       <div className="h-[100vh]" />
@@ -82,39 +80,8 @@ const AnimatedBanner = ({
   onHoverStart?: () => void;
   isHovered: boolean;
 }) => {
-  const controls = useAnimationControls();
   const parentControls = useAnimationControls();
-
-  // scroll direction
-  const prevScrollY = useRef(0);
-  const [scrollDirection, setScrollDirection] = useState(1);
-  const { scrollY } = useScroll();
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrollDirection(latest < prevScrollY.current ? -1 : 1);
-    prevScrollY.current = latest;
-  });
-
-  // movement
-  const p = useRef<HTMLDivElement>();
-
-  const baseX = useMotionValue(0);
-  const x = useSpring(baseX, { bounce: 0 });
-
-  const move = () => {
-    const rect = p.current?.getBoundingClientRect();
-    const dir = scrollDirection * (reversed ? -1 : 1);
-    if (dir > 0 && rect.x > innerWidth) {
-      baseX.jump(-rect?.width);
-      return;
-    }
-    if (dir < 0 && rect?.right < 0) {
-      baseX.jump(rect?.width / 2);
-      return;
-    }
-    baseX.set(baseX.get() + 3 * dir);
-  };
-
-  useAnimationFrame(move);
+  const { x, ref } = useMarquee(reversed);
 
   const handleHover = () => {
     onHoverStart?.();
@@ -122,7 +89,6 @@ const AnimatedBanner = ({
 
   useEffect(() => {
     // animationController(isInView);
-    move();
     if (isHovered) {
       parentControls.start({ filter: "blur(0)" }, { duration: 1 });
     } else {
@@ -145,21 +111,11 @@ const AnimatedBanner = ({
       )}
     >
       <motion.p
-        ref={p}
+        ref={ref}
         style={{ x }}
         className="uppercase text-white flex items-center h-full font-extrabold lg:text-6xl text-3xl gap-10 whitespace-nowrap font-sans translate-x-[-100%]"
       >
-        {children ? (
-          children
-        ) : (
-          <>
-            diseño web <Robot /> espectacular <Robot /> animaciones web{" "}
-            <Robot /> fuera de lo tradicional <Robot />
-            diseño web <Robot /> espectacular
-            <Robot /> animaciones web <Robot /> fuera de lo tradicional{" "}
-            <Robot />
-          </>
-        )}
+        {children}
       </motion.p>
     </motion.div>
   );
