@@ -1,14 +1,5 @@
-import {
-  motion,
-  useAnimationFrame,
-  useMotionValue,
-  useMotionValueEvent,
-  useScroll,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import { ReactNode, useEffect, useRef } from "react";
-import { twMerge } from "tailwind-merge";
+import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
+import { ReactNode, useRef } from "react";
 import { useScrollDirection } from "~/components/hooks/useScrollDirection";
 import { cn } from "~/utils/cd";
 export default function Route() {
@@ -16,10 +7,12 @@ export default function Route() {
     <>
       <div className="h-[60vh] bg-indigo-950" />
       <Marquee>
-        Lorem ipsum blissmo perro mijo otro text un poco más grande
+        🪄 Lorem ipsum blissmo <span>🤓</span> perro mijo otro <span>🏴</span>{" "}
+        text un poco <span>🤩</span>
       </Marquee>
       <Marquee reversed className="bg-indigo-950">
-        Lorem ipsum blissmo perro mijo otro text un poco más grande
+        🪄 Lorem ipsum blissmo <span>🤓</span> perro mijo otro <span>🏴</span>{" "}
+        text un poco <span>🤩</span>
       </Marquee>
       <div className="h-[60vh] bg-gray-800" />
     </>
@@ -35,9 +28,9 @@ const Marquee = ({
   reversed?: boolean;
   children?: ReactNode;
 }) => {
-  // scroll direction
+  // Scroll direction
   const direction = useScrollDirection();
-  // movemennt
+  // Movemennt 🛸
   const x = useMotionValue(0);
   const ref1 = useRef<HTMLDivElement>();
   const move = () => {
