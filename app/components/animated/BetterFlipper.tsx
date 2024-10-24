@@ -26,7 +26,7 @@ export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
   };
 
   useEffect(() => {
-    start();
+    // start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -68,8 +68,7 @@ export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
       {/* bottom */}
       <div
         style={{
-          clipPath: "xywh(0 50% 100% 100% round 0 0)",
-          WebkitClipPath: "xywh(0 50% 100% 100% round 0 0)",
+          WebkitClipPath: "",
         }}
         className="absolute inset-12 z-30 overflow-hidden rounded-2xl"
       >

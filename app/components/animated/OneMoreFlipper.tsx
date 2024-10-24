@@ -78,6 +78,7 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
       <div
         style={{
           clipPath: "xywh(0 50% 100% 100% round 0 0)",
+          WebkitClipPath: "xywh(0 50% 100% 100% round 0 0)",
         }}
         className="absolute inset-12 z-30 overflow-hidden rounded-2xl"
       >
