@@ -65,9 +65,11 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
       {/* flipper */}
       <motion.div
         animate={flipper}
-        style={{
-          backfaceVisibility: "hidden",
-        }}
+        style={
+          {
+            //   backfaceVisibility: "hidden",
+          }
+        }
         className="absolute inset-12 z-40 overflow-hidden rounded-2xl"
       >
         {flipItem}
