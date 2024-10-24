@@ -4,41 +4,38 @@ import { Children, ReactNode, useEffect, useRef, useState } from "react";
 export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
   const nodes = Children.toArray(children);
   const timeout = useRef<ReturnType<typeof setTimeout>>(1);
-  //   const [prevIndex, setPrevIndex] = useState(0);
   const prevIndex = useRef(0);
-  const front = useAnimationControls();
-  const back = useAnimationControls();
-
-  const [frontItem, setFrontItem] = useState(nodes[0]);
-  const [backItem, setBackItem] = useState(nodes[1]);
+  const nextIndex = useRef(1);
+  const flipper = useAnimationControls();
+  const [topItem, setTopItem] = useState(nodes[1]);
+  const [flipItem, setFlipItem] = useState(nodes[0]);
   const [bottomItem, setBottomItem] = useState(nodes[0]);
-
-  // @TODO: try with node rotation...
-  // [front,back,top,bottom] => [bottom,front,back,top]
-
-  const sleep = (n = 1000) => new Promise((r) => setTimeout(r, n));
 
   const moveToNext = () => {
     const n = (prevIndex.current + 1) % nodes.length;
-    prevIndex.current = n;
-    return (prevIndex.current + 1) % nodes.length;
+    prevIndex.current = n; // update prev
+    nextIndex.current = (n + 1) % nodes.length; // return next
   };
 
   const start = async () => {
+    // next
     // loop
     timeout.current && clearTimeout(timeout.current);
     timeout.current = setTimeout(start, 3000);
-    // actual animation
-    await front.start({ rotateX: -90 }, { duration: 1, ease: "easeIn" });
-    const nextI = moveToNext();
-    setFrontItem(nodes[nextI]);
-    front.set({ rotateX: -270 });
-    await front.start({ rotateX: -360 }, { duration: 1, ease: "linear" });
-    setBackItem(nodes[prevIndex.current]);
-    setBottomItem(nodes[nextI]);
-    front.set({ rotateX: 0 });
-    // reset
-    prevIndex.current = (prevIndex.current + 1) % nodes.length;
+    // top  flip animation
+    await flipper.start({ rotateX: -90 }, { duration: 1, ease: "easeIn" });
+    // switch
+    moveToNext();
+    setFlipItem(nodes[prevIndex.current]);
+    // prepare next animation
+    flipper.set({ rotateX: -270 });
+    // bottom flip animation
+    await flipper.start({ rotateX: -360 }, { duration: 1, ease: "easeOut" });
+    // update
+    setTopItem(nodes[nextIndex.current]);
+    setBottomItem(nodes[prevIndex.current]);
+    // prepare for next call
+    flipper.set({ rotateX: 0 });
   };
 
   useEffect(() => {
@@ -56,30 +53,18 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
     >
       {/* top */}
       <div className="overflow-hidden rounded-2xl absolute inset-12 z-0">
-        {backItem}
+        {topItem}
       </div>
-      {/* front */}
+      {/* flipper */}
       <motion.div
-        animate={front}
+        animate={flipper}
         style={{
           backfaceVisibility: "hidden",
         }}
         className="absolute inset-12 z-40 overflow-hidden rounded-2xl"
       >
-        {frontItem}
+        {flipItem}
       </motion.div>
-      {/* back */}
-      {/* <motion.div
-        animate={back}
-        style={{
-          rotateX: 90,
-          backfaceVisibility: "hidden",
-        }}
-        id="back"
-        className=" absolute inset-12 z-40 overflow-hidden rounded-2xl"
-      >
-        {nodes[nextIndex]}
-      </motion.div> */}
       {/* bottom */}
       <div
         style={{
