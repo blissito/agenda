@@ -94,12 +94,9 @@ export const OneMoreFlipper = ({
           // backfaceVisibility: "hidden",
           // clipPath: "xywh(0 50% 100% 100% round 0 0)",
           // clipPath: "xywh(0 50% 100% 50%)",
-          // WebkitClipPath: "xywh(0 50% 100% 50%)",
-          // clipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
-          // WebkitClipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
           clipPath: "polygon(0px 50%, 100% 50%, 100% 100%, 0px 100%)",
         }}
-        className="absolute left-1/2 top-1/2 z-10 overflow-hidden rounded-2xl"
+        className="absolute inset-12 z-10 overflow-hidden rounded-2xl"
       >
         {bottomItem}
       </div>
