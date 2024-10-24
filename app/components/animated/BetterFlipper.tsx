@@ -46,7 +46,7 @@ export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
           backfaceVisibility: "hidden",
         }}
         id="front"
-        className="absolute inset-12 z-20 overflow-hidden rounded-2xl"
+        className="absolute inset-12 z-40 overflow-hidden rounded-2xl"
       >
         {nodes[prevIndex]}
       </motion.div>
@@ -58,7 +58,7 @@ export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
           backfaceVisibility: "hidden",
         }}
         id="back"
-        className="absolute inset-12 z-20 overflow-hidden rounded-2xl"
+        className="absolute inset-12 z-40 overflow-hidden rounded-2xl"
       >
         {nodes[nextIndex]}
       </motion.div>
@@ -67,12 +67,12 @@ export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
         style={{
           clipPath: "xywh(0 50% 100% 100% round 0 0)",
         }}
-        className="absolute inset-12 z-10 overflow-hidden rounded-2xl"
+        className="absolute inset-12 z-30 overflow-hidden rounded-2xl"
       >
         {nodes[prevIndex]}
       </div>
 
-      <hr className="w-full absolute border-black top-[49.8%] z-30 left-0" />
+      <hr className="w-full absolute border-black top-[49.8%] z-50 left-0" />
     </section>
   );
 };
