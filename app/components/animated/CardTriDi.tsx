@@ -32,8 +32,8 @@ export const CardTriDi = ({ children }: { children?: ReactNode }) => {
     if (!hovered || !containerRef.current) return;
     const { left, top, width, height } =
       containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - left - width / 2) / 7;
-    const y = (e.clientY - top - height / 2) / 7;
+    const x = (e.clientX - left - width / 2) / 6;
+    const y = (e.clientY - top - height / 2) / 6;
     rotateX.set(-y);
     rotateY.set(x);
   };
