@@ -10,13 +10,16 @@ export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
   const back = useAnimationControls();
 
   const start = async () => {
+    // loop
     timeout.current && clearTimeout(timeout.current);
+    timeout.current = setTimeout(start, 4000);
+    // actual animation
     await front.start({ rotateX: -90 }, { duration: 1, ease: "easeIn" });
     await back.start({ rotateX: 0 }, { duration: 1, ease: "easeOut" });
-    setPrevIndex((i) => (i + 1) % nodes.length);
+    // reset
+    setPrevIndex((i) => (i + 1) % nodes.length); // 🪄🎩
     front.set({ rotateX: 0 });
     back.set({ rotateX: 90 });
-    timeout.current = setTimeout(start, 1000);
   };
 
   useEffect(() => {
@@ -26,7 +29,7 @@ export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
 
   return (
     <section
-      className="p-12 bg-black aspect-video relative w-[420px] h-[320px]"
+      className="p-12 rounded-3xl bg-black aspect-video relative w-[420px] h-[320px]"
       style={{
         transform: "rotateY(-20deg)",
         transformStyle: "preserve-3d",
