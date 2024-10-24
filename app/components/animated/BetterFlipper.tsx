@@ -1,15 +1,75 @@
-import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { motion, useAnimationControls } from "framer-motion";
+import { Children, ReactNode, useEffect, useRef, useState } from "react";
 
 export const BetterFlipper = ({ children }: { children?: ReactNode }) => {
+  const nodes = Children.toArray(children);
+  const timeout = useRef<ReturnType<typeof setTimeout>>(1);
+  const [prevIndex, setPrevIndex] = useState(0);
+  const nextIndex = prevIndex + 1 < nodes.length ? prevIndex + 1 : 0;
+  const front = useAnimationControls();
+  const back = useAnimationControls();
+
+  const start = async () => {
+    timeout.current && clearTimeout(timeout.current);
+    await front.start({ rotateX: -90 }, { duration: 1, ease: "easeIn" });
+    await back.start({ rotateX: 0 }, { duration: 1, ease: "easeOut" });
+    setPrevIndex((i) => (i + 1) % nodes.length);
+    front.set({ rotateX: 0 });
+    back.set({ rotateX: 90 });
+    timeout.current = setTimeout(start, 1000);
+  };
+
+  useEffect(() => {
+    start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <article>
-      <div />
+    <section
+      className="p-12 bg-black aspect-video relative w-[420px] h-[320px]"
+      style={{
+        transform: "rotateY(-20deg)",
+        transformStyle: "preserve-3d",
+      }}
+    >
+      {/* top */}
+      <div className="overflow-hidden rounded-2xl absolute inset-12 z-0">
+        {nodes[nextIndex]}
+      </div>
       {/* front */}
-      <motion.div></motion.div>
+      <motion.div
+        animate={front}
+        style={{
+          backfaceVisibility: "hidden",
+        }}
+        id="front"
+        className="absolute inset-12 z-20 overflow-hidden rounded-2xl"
+      >
+        {nodes[prevIndex]}
+      </motion.div>
       {/* back */}
-      <motion.div></motion.div>
-      <div />
-    </article>
+      <motion.div
+        animate={back}
+        style={{
+          rotateX: 90,
+          backfaceVisibility: "hidden",
+        }}
+        id="back"
+        className="absolute inset-12 z-20 overflow-hidden rounded-2xl"
+      >
+        {nodes[nextIndex]}
+      </motion.div>
+      {/* bottom */}
+      <div
+        style={{
+          clipPath: "xywh(0 50% 100% 100% round 0 0)",
+        }}
+        className="absolute inset-12 z-10 overflow-hidden rounded-2xl"
+      >
+        {nodes[prevIndex]}
+      </div>
+
+      <hr className="w-full absolute border-black top-[49.8%] z-30 left-0" />
+    </section>
   );
 };
