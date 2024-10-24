@@ -77,10 +77,13 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
       {/* bottom */}
       <div
         style={{
-          clipPath: "xywh(0 50% 100% 100% round 0 0)",
-          WebkitClipPath: "xywh(0 50% 100% 100% round 0 0)",
+          // clipPath: "xywh(0 50% 100% 100% round 0 0)",
+          clipPath: "xywh(0 50% 100% 50%)",
+          WebkitClipPath: "xywh(0 50% 100% 50%)",
+          // clipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
+          // WebkitClipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
         }}
-        className="absolute inset-12 z-30 overflow-hidden rounded-2xl"
+        className="fixed inset-12 z-30 overflow-hidden rounded-2xl"
       >
         {bottomItem}
       </div>
