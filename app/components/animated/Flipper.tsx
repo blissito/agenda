@@ -95,10 +95,10 @@ export const Flipper = ({
     setTimeout(async () => {
       z1.set(0);
       z2.set(0);
-      await sleep(0.2);
-      rotateY.set(-20);
-      rotateX.set(0);
       await sleep(0.3);
+      rotateX.set(0);
+      rotateY.set(-20);
+      await sleep(0.5);
       setHovered(false);
     }, 1500);
   };
