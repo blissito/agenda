@@ -88,13 +88,16 @@ export const OneMoreFlipper = ({
         {flipItem}
       </motion.div>
       {/* bottom */}
+
       <div
         style={{
+          backfaceVisibility: "hidden",
           // clipPath: "xywh(0 50% 100% 100% round 0 0)",
-          clipPath: "xywh(0 50% 100% 50%)",
-          WebkitClipPath: "xywh(0 50% 100% 50%)",
+          // clipPath: "xywh(0 50% 100% 50%)",
+          // WebkitClipPath: "xywh(0 50% 100% 50%)",
           // clipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
           // WebkitClipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
+          clipPath: "polygon(0px 50%, 100% 50%, 100% 100%, 0px 100%)",
         }}
         className="fixed top-12 bottom-12 left-12 right-12 z-10 overflow-hidden rounded-2xl"
       >
@@ -103,7 +106,7 @@ export const OneMoreFlipper = ({
 
       <hr
         className={cn(
-          "w-full absolute border-black top-[49.8%] z-30 left-0",
+          "w-full absolute border-black border-px top-[49.9%] z-30 left-0",
           borderColor
         )}
       />
