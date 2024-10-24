@@ -1,7 +1,14 @@
 import { motion, useAnimationControls } from "framer-motion";
 import { Children, ReactNode, useEffect, useRef, useState } from "react";
+import { cn } from "~/utils/cd";
 
-export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
+export const OneMoreFlipper = ({
+  children,
+  twColor = "gray-900",
+}: {
+  children?: ReactNode;
+  twColor?: string;
+}) => {
   const nodes = Children.toArray(children);
   const timeout = useRef<ReturnType<typeof setTimeout>>(1);
   const prevIndex = useRef(0);
@@ -14,9 +21,9 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
   const [bottomItem, setBottomItem] = useState(nodes[0]);
 
   const moveToNext = () => {
-    const n = (prevIndex.current + 1) % nodes.length;
+    const n = (prevIndex.current + 1) % nodes.length; // find next
     prevIndex.current = n; // update prev
-    nextIndex.current = (n + 1) % nodes.length; // return next
+    nextIndex.current = (n + 1) % nodes.length; // update next
   };
 
   const start = async () => {
@@ -50,9 +57,15 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
     timeout.current && clearTimeout(timeout.current);
   };
 
+  const bgColor = `bg-${twColor}`;
+  const borderColor = `border-${twColor}`;
+
   return (
     <section
-      className="p-12 rounded-3xl bg-black aspect-video relative w-[420px] h-[320px]"
+      className={cn(
+        "p-12 rounded-3xl bg-black aspect-video relative w-[420px] h-[320px]",
+        bgColor
+      )}
       style={{
         transform: "rotateY(-20deg)",
         transformStyle: "preserve-3d",
@@ -70,7 +83,7 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
             //   backfaceVisibility: "hidden",
           }
         }
-        className="absolute inset-12 z-40 overflow-hidden rounded-2xl"
+        className="absolute inset-12 z-20 overflow-hidden rounded-2xl"
       >
         {flipItem}
       </motion.div>
@@ -83,12 +96,17 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
           // clipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
           // WebkitClipPath: "polygon(0 50%, 0 100%, 100% 100%, 100% 50%)",
         }}
-        className="fixed inset-12 z-30 overflow-hidden rounded-2xl"
+        className="fixed top-12 bottom-12 left-12 right-12 z-10 overflow-hidden rounded-2xl"
       >
         {bottomItem}
       </div>
 
-      <hr className="w-full absolute border-black top-[49.8%] z-50 left-0" />
+      <hr
+        className={cn(
+          "w-full absolute border-black top-[49.8%] z-30 left-0",
+          borderColor
+        )}
+      />
     </section>
   );
 };
