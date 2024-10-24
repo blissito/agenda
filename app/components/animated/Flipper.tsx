@@ -1,131 +1,155 @@
-import { motion, useAnimationControls } from "framer-motion";
-import { Children, ReactNode, useEffect, useRef, useState } from "react";
+import { motion, useAnimationControls, useSpring } from "framer-motion";
+import {
+  Children,
+  MouseEvent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "~/utils/cd";
+import { useSignal } from "@preact/signals-react";
 
-export function Flipper({
+export const Flipper = ({
   children,
-  color = "white",
+  twColor = "black",
 }: {
-  color?: string;
-  children: ReactNode[];
-}) {
-  // REFS
-  const items = Children.toArray(children);
-  const index = useRef(0);
+  children?: ReactNode;
+  twColor?: string;
+}) => {
+  const bgColor = `bg-${twColor}`;
+  const borderColor = `border-${twColor}`;
+  const nodes = Children.toArray(children);
   const timeout = useRef<ReturnType<typeof setTimeout>>();
-  // STATES
-  const [currentItem, setCurrenItem] = useState<ReactNode>(items[0]);
-  const [nextItem, setNextItem] = useState<ReactNode>(items[1]);
-  const [trickItem, setTrickItem] = useState<ReactNode>(items[0]);
-  // CONTROLS
-  const controls_1 = useAnimationControls();
-  const controls_2 = useAnimationControls();
-  const controls_3 = useAnimationControls();
-
-  // UTIL FUNCS
-  const updateItem = () => {
-    index.current = (index.current + 1) % items.length;
-    const next = items[index.current];
-    // ROTATION
-    setNextItem((n) => {
-      setCurrenItem(n);
-      return next;
-    });
-    return next;
-  };
-  const removeTrickAndUpdate = (next: ReactNode) => {
-    controls_3.set({ zIndex: -10 });
-    setTrickItem(next);
-  };
-  const setTrickAndReset = () => {
-    // SET TRICK & RESET
-    controls_3.set({ zIndex: 40 });
-    controls_1.set({ rotateX: 0 });
-    controls_2.set({ rotateX: -270 });
-  };
-  // MAIN FUNC
-  const animate = async () => {
-    timeout.current && clearTimeout(timeout.current);
-    // SET NEXT
-    const next = updateItem();
-    removeTrickAndUpdate(next);
-    // ANIMATIONS
-    await controls_1.start({ rotateX: -90 }, { duration: 0.7, ease: "easeIn" });
-    await controls_2.start(
-      { rotateX: -360 },
-      { duration: 0.7, ease: "easeOut" }
-    );
-    // RESET
-    setTrickAndReset();
-    // LOOP @todo: use an animationn frame
-    timeout.current = setTimeout(animate, 1000);
-  };
+  const containerRef = useRef<HTMLElement>(null);
+  const prevIndex = useSignal(0);
+  const nextIndex = useSignal(1);
+  const flipper = useAnimationControls();
+  const [topItem, setTopItem] = useState(nodes[1]);
+  const [flipItem, setFlipItem] = useState(nodes[0]);
+  const [bottomItem, setBottomItem] = useState(nodes[0]);
 
   useEffect(() => {
-    animate();
+    start();
+    return () => stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // @TODO: CREATE COMPONENTS?
-  const generalClass =
-    "text-white text-8xl items-center overflow-hidden w-56 h-56 justify-center absolute z-30 flex rounded-xl";
+  const getNextIndex = (current: number) => (current + 1) % nodes.length;
+  const moveIdexesToNext = () => {
+    prevIndex.value = getNextIndex(prevIndex.value); // update prev
+    nextIndex.value = getNextIndex(prevIndex.value); // update next
+  };
+
+  const stop = () => {
+    timeout.current && clearTimeout(timeout.current);
+  };
+
+  const sleep = (n = 1) => new Promise((r) => setTimeout(r, n * 1000));
+
+  const start = async () => {
+    // loop
+    timeout.current && clearTimeout(timeout.current);
+    timeout.current = setTimeout(start, 3000);
+    // top  flip animation
+    await flipper.start({ rotateX: -90 }, { duration: 0.5, ease: "easeIn" });
+    // next
+    moveIdexesToNext();
+    setFlipItem(nodes[prevIndex.value]);
+    // flipItem.value = nodes[prevIndex.value];
+    // await sleep();
+    // prepare next animation
+    flipper.set({ rotateX: -270 });
+    // await sleep();
+    // bottom flip animation
+    await flipper.start({ rotateX: -360 }, { duration: 0.5, ease: "easeOut" });
+    // update
+    setTopItem(nodes[nextIndex.value]);
+    setBottomItem(nodes[prevIndex.value]);
+    // prepare for next call
+    flipper.set({ rotateX: 0 });
+  };
+
+  const z1 = useSpring(0, { bounce: 0 });
+  const z2 = useSpring(0, { bounce: 0 });
+  const rotateY = useSpring(-20, { bounce: 0 });
+  const rotateX = useSpring(0, { bounce: 0 });
+  const [hovered, setHovered] = useState(false);
+
+  const handleHover = async (event: MouseEvent<HTMLElement>) => {
+    if (!containerRef.current) return;
+    const { top, height, left, width } =
+      containerRef.current.getBoundingClientRect();
+    rotateX.set((event.clientY - top - height / 2) * -0.4);
+    rotateY.set((event.clientX - left - width / 2) * 0.4);
+    await sleep(0.2);
+    z1.set(-300);
+    z2.set(-150);
+  };
+
+  const handleMouseEnter = () => {
+    setHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setTimeout(async () => {
+      z1.set(0);
+      z2.set(0);
+      await sleep(0.2);
+      rotateY.set(-20);
+      rotateX.set(0);
+      await sleep(0.3);
+      setHovered(false);
+    }, 1500);
+  };
+
   return (
-    <article
-      style={{
-        transformStyle: "preserve-3d",
-        transform: "rotateY(-20deg)",
-        zIndex: 0,
-      }}
+    <motion.section
+      ref={containerRef}
+      onMouseMove={handleHover}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseEnter}
       className={cn(
-        "p-12 flex justify-center h-[320px] relative",
-        `bg-${color}`
+        "p-0 rounded-3xl bg-transparent aspect-video relative w-[420px] h-[320px]",
+        !hovered && bgColor
       )}
+      style={{
+        // perspective: 5000,
+        transformStyle: "preserve-3d",
+        rotateY,
+        rotateX,
+      }}
     >
       <motion.div
-        animate={controls_1}
-        id="target"
         style={{
-          backfaceVisibility: "hidden",
+          z: z1,
         }}
-        className={generalClass}
+        className=" overflow-hidden rounded-2xl absolute inset-12 z-0"
       >
-        {currentItem}
+        {topItem}
       </motion.div>
       <motion.div
-        initial={{ rotateX: -270 }}
-        animate={controls_2}
-        id="target_2"
-        style={{
-          backfaceVisibility: "hidden",
-        }}
-        className={cn(generalClass, "z-30")}
+        animate={flipper}
+        className="absolute inset-12 z-20 overflow-hidden rounded-2xl"
       >
-        {nextItem}
+        {flipItem}
       </motion.div>
-      {/* Prev */}
       <motion.div
         style={{
-          clipPath: "xywh(0 50% 100% 100% round 0 0)",
+          z: z2,
+          // 🪄
+          clipPath: "polygon(0px 50%, 100% 50%, 100% 100%, 0px 100%)",
         }}
-        className={cn(generalClass, "z-20")}
+        className="absolute inset-12 z-10 overflow-hidden rounded-2xl"
       >
-        {currentItem}
-      </motion.div>
-      {/* Next */}
-      <motion.div className={cn(generalClass, "z-10")}>{nextItem}</motion.div>
-      {/* Trick */}
-      <motion.div animate={controls_3} className={cn(generalClass, "relative")}>
-        {trickItem}
+        {bottomItem}
       </motion.div>
       <hr
-        style={{
-          zIndex: 50,
-          transform: "translateZ(1px)",
-          position: "absolute",
-          borderTopWidth: "2px",
-        }}
-        className={cn("absolute top-[50%] w-full", `border-${color}`)}
+        className={cn(
+          "w-full absolute border-black border-px top-[49.9%] z-30 left-0",
+          borderColor
+        )}
       />
-    </article>
+    </motion.section>
   );
-}
+};
