@@ -6,7 +6,9 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
   const timeout = useRef<ReturnType<typeof setTimeout>>(1);
   const prevIndex = useRef(0);
   const nextIndex = useRef(1);
+
   const flipper = useAnimationControls();
+
   const [topItem, setTopItem] = useState(nodes[1]);
   const [flipItem, setFlipItem] = useState(nodes[0]);
   const [bottomItem, setBottomItem] = useState(nodes[0]);
@@ -40,8 +42,13 @@ export const OneMoreFlipper = ({ children }: { children?: ReactNode }) => {
 
   useEffect(() => {
     start();
+    return () => stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const stop = () => {
+    timeout.current && clearTimeout(timeout.current);
+  };
 
   return (
     <section
