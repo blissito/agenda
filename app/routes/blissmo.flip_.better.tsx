@@ -1,10 +1,10 @@
-import { BetterFlipper } from "~/components/animated/BetterFlipper";
+import { OneMoreFlipper } from "~/components/animated/OneMoreFlipper";
 
 export default function Route() {
   return (
     <>
       <article className="grid place-items-center h-screen">
-        <BetterFlipper>
+        <OneMoreFlipper>
           <div className="p-6 bg-red-500 w-full h-full">
             <img
               className="w-full h-full object-cover"
@@ -26,7 +26,7 @@ export default function Route() {
               className="w-full h-full object-cover"
             />
           </div>
-        </BetterFlipper>
+        </OneMoreFlipper>
       </article>
     </>
   );
