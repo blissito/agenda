@@ -32,8 +32,8 @@ export function FlipWords({
       <motion.span
         className="inline-flex relative"
         key={word}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
         exit={{
           opacity: 0,
           filter: "blur(9px)",
@@ -49,8 +49,8 @@ export function FlipWords({
         {word.split("").map((letter, i) => (
           <motion.span
             key={letter + i}
-            initial={{ opacity: 0, y: -20, filter: "blur(4px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0)" }}
+            initial={{ opacity: 0, x: -20, filter: "blur(4px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0)" }}
             transition={{
               delay: 0.05 * i,
               type: "spring",

@@ -7,7 +7,14 @@ export default function Route() {
         Administra la agenda de tu{" "}
         <span className="text-brand_blue font-extrabold text-5xl">
           <FlipWords
-            words={["negocio", "proyecto", "empresa", "changarro", "iglesia"]}
+            words={[
+              "negocio",
+              "proyecto",
+              "empresa",
+              "changarro",
+              "iglesia",
+              "consultoría",
+            ]}
           />
         </span>{" "}
         <br /> en un solo lugar
