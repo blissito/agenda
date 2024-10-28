@@ -23,17 +23,15 @@ export const BackgroundHighlight = ({
   const size = useTransform(springX, [0, targetWidth], [0, 110]);
   const backgroundSize = useMotionTemplate`${size}% 100%`;
 
-  const handleMouseLeave = () => {
-    placeTimeout(() => {
-      mouseX.set(targetWidth);
-    });
-  };
-
   return (
     <div
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => {
+        placeTimeout(() => {
+          mouseX.set(targetWidth);
+        });
+      }}
       onMouseEnter={removeTimeout}
+      onMouseMove={handleMouseMove}
     >
       <motion.span
         ref={target}
