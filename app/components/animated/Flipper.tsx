@@ -57,7 +57,6 @@ export const Flipper = ({
     moveIdexesToNext();
     setFlipItem(nodes[prevIndex.value]);
     // flipItem.value = nodes[prevIndex.value];
-    // await sleep();
     // prepare next animation
     flipper.set({ rotateX: -270 });
     // await sleep();
@@ -80,8 +79,8 @@ export const Flipper = ({
     if (!containerRef.current) return;
     const { top, height, left, width } =
       containerRef.current.getBoundingClientRect();
-    rotateX.set((event.clientY - top - height / 2) * -0.4);
-    rotateY.set((event.clientX - left - width / 2) * 0.4);
+    rotateX.set((event.clientY - top - height / 2) * -0.3);
+    rotateY.set((event.clientX - left - width / 2) * 0.3);
     await sleep(0.2);
     z1.set(-300);
     z2.set(-150);

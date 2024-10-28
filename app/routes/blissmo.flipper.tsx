@@ -4,7 +4,7 @@ export default function Route() {
   return (
     <>
       <article className="grid place-items-center h-screen">
-        <Flipper twColor="white">
+        <Flipper twColor="black">
           <div className="p-6 bg-red-500 w-full h-full">
             <img
               className="w-full h-full object-cover"
