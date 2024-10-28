@@ -1,12 +1,19 @@
 import {
   motion,
   useAnimationControls,
+  useMotionTemplate,
   useMotionValue,
   useTransform,
 } from "framer-motion";
 import { Children, ReactNode, useEffect, useState } from "react";
 
-export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
+export const SwipeGallery = ({
+  children,
+  duration = 0.2,
+}: {
+  children?: ReactNode;
+  duration?: number;
+}) => {
   const imgs = Children.toArray(children);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(1);
@@ -18,8 +25,12 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
     clamp: false,
   });
   // back
-  const y = useTransform(x, [-350, 0, 350], [40, 70, 40], { clamp: false });
-  const scale2 = useTransform(x, [-350, 0, 350], [0.9, 0.8, 0.9]);
+  const y = useTransform(x, [-350, 0, 350], [-1, 70, -1], { clamp: false });
+  const scale2 = useTransform(y, [0, 100], [1, 0.65]);
+  // for back based on x
+  const opacity = useTransform(x, [-350, 0, 350], [1, 0.5, 1]);
+  const filterValue = useTransform(x, [-350, 0, 350], [0, 4, 0]);
+  const filter = useMotionTemplate`blur(${filterValue}px)`;
 
   const backControls = useAnimationControls();
   const frontControls = useAnimationControls();
@@ -30,20 +41,29 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
   };
 
   const appearBack = async () => {
-    backControls.set({ y: 5, opacity: 0, scale: 0.4 });
+    backControls.set({
+      y: 1,
+      opacity: 0,
+      scale: 0.8,
+      filter: "blur(0px)",
+    });
     await backControls.start(
       {
         y: 70,
         opacity: 0.5,
         scale: 0.8,
-        filter: "blur(0px)",
+        filter: "blur(4px)",
       },
-      { type: "spring", bounce: 0, duration: 0.2 }
+      { type: "spring", bounce: 0, duration: duration * 2 }
     );
   };
 
   const moveBack = async () => {
-    await backControls.start({ y: 0, opacity: 1, scale: 1 });
+    await backControls.start(
+      { y: 0, opacity: 1, scale: 1, filter: "blur(0px)" },
+      { duration: duration / 1.3 }
+    );
+    // await backControls.start({ y: 170 });
     appearBack();
   };
 
@@ -53,7 +73,7 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
         x: direction * 400,
         opacity: 0,
       },
-      { duration: 0.2, type: "spring", bounce: 0 }
+      { duration: duration * 1.3, type: "spring", bounce: 0 }
     );
   };
 
@@ -95,7 +115,7 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
         onDragEnd={handleDragEnd}
         drag="x"
         whileTap={{ cursor: "grabbing" }}
-        className="w-full h-full absolute rounded-3xl overflow-hidden bg-black z-10 cursor-grab "
+        className="w-full h-full absolute rounded-3xl overflow-hidden bg-black z-10 cursor-grab shadow-xl"
         style={{ x, rotate, scale }}
       >
         {[imgs[currentIndex]]}
@@ -103,7 +123,7 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
       <motion.div
         animate={backControls}
         className="w-full h-full absolute rounded-3xl overflow-hidden bg-black shadow-lg"
-        style={{ y, scale: scale2 }}
+        style={{ y, scale: scale2, filter, opacity }}
       >
         {[imgs[nextIndex]]}
       </motion.div>
