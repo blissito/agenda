@@ -1,6 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { nanoid } from "nanoid";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function FlipWords({
   words = ["perro"],
@@ -8,7 +7,6 @@ export function FlipWords({
 }: {
   words?: string[];
   duration?: number;
-  children: (arg0: ReactNode) => ReactNode;
 }) {
   const [word, setWord] = useState(words[0]);
   const [isAnimating, setIsAnimating] = useState(false);
