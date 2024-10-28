@@ -11,23 +11,26 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(1);
 
+  // front
   const x = useMotionValue(0);
   const scale = useTransform(x, [-350, 0, 350], [0.6, 1, 0.6]);
   const rotate = useTransform(x, [-350, 350], [-45, 45], {
     clamp: false,
   });
+  // back
   const y = useTransform(x, [-350, 0, 350], [40, 70, 40], { clamp: false });
   const scale2 = useTransform(x, [-350, 0, 350], [0.9, 0.8, 0.9]);
 
   const backControls = useAnimationControls();
   const frontControls = useAnimationControls();
 
+  // uitl funcs
   const getNextIndex = (indx: number) => {
     return (indx + 1) % imgs.length;
   };
 
   const appearBack = async () => {
-    backControls.set({ y: 2, opacity: 0 });
+    backControls.set({ y: 5, opacity: 0, scale: 0.4 });
     await backControls.start(
       {
         y: 70,
@@ -100,7 +103,6 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
       <motion.div
         animate={backControls}
         className="w-full h-full absolute rounded-3xl overflow-hidden bg-black shadow-lg"
-        // initial={{ y: 220, opacity: 0, scale: 0.5, filter: "blur(4px)" }}
         style={{ y, scale: scale2 }}
       >
         {[imgs[nextIndex]]}
