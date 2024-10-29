@@ -14,12 +14,13 @@ export const MovingBorder = ({ children }: { children?: ReactNode }) => {
   const controls = useAnimationControls();
 
   const move = async () => {
-    await controls.start({ scale: 0.5 }, { ease: "easeInOut", duration: 2 });
     await controls.start(
       { scale: 1.2, filter: "blur(8px)" },
       { ease: "easeInOut", duration: 4 }
     );
-    await move();
+    await controls.start({ scale: 0.5 }, { ease: "easeInOut", duration: 2 });
+
+    move();
   };
 
   useEffect(() => {
@@ -39,9 +40,7 @@ export const MovingBorder = ({ children }: { children?: ReactNode }) => {
       <motion.div
         className="h-[100%] w-[100%] absolute bg-gradient-to-r from-pink-500 to-indigo-500 z-0 rounded-full -inset-px"
         animate={controls}
-        // style={{
-        //   filter: "blur(4px)",
-        // }}
+        initial={{ scale: 1, filter: "blur(4px)" }}
       />
       <div className="relative z-10">{children}</div>
     </motion.button>
