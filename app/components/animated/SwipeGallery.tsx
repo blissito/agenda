@@ -1,26 +1,14 @@
 import {
-  anticipate,
-  easeIn,
-  easeInOut,
-  easeOut,
   motion,
-  useAnimate,
   useAnimationControls,
   useMotionTemplate,
   useMotionValue,
   useSpring,
   useTransform,
 } from "framer-motion";
-import { escape } from "node:querystring";
-import { Children, ReactNode, useEffect, useState } from "react";
+import { Children, ReactNode, useState } from "react";
 
-export const SwipeGallery = ({
-  children,
-  duration = 0.2,
-}: {
-  children?: ReactNode;
-  duration?: number;
-}) => {
+export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
   const imgs = Children.toArray(children);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [nextIndex, setNextIndex] = useState(1);
@@ -33,15 +21,14 @@ export const SwipeGallery = ({
     clamp: false,
   });
   // back
-  // for back based on springX
   const y = useTransform(springX, [-350, 0, 350], [0, 70, 0], {
     clamp: true,
   });
   const scale2 = useTransform(scale, [1, 0.6], [0.8, 1], { clamp: false });
-  //   const opacity = useTransform(x, [-350, 0, 350], [1, 0.5, 1]);
   const filterValue = useTransform(x, [-350, 0, 350], [0, 8, 0]);
   const filter = useMotionTemplate`blur(${filterValue}px)`;
 
+  // controls
   const backControls = useAnimationControls();
   const frontControls = useAnimationControls();
 
@@ -49,36 +36,26 @@ export const SwipeGallery = ({
   const getNextIndex = (indx: number) => {
     return (indx + 1) % imgs.length;
   };
-
-  const appearBack = async () => {
-    // backControls.set({ y: 280 });
-    // await backControls.start({ y: 70 });
-  };
-
-  const exitFront = async (direction: -1 | 1) =>
-    await frontControls.start({
-      x: 400 * direction,
-      filter: "blur(4px)",
-      scale: 0.6,
-      opacity: 0,
-    });
-
-  const reappearFront = async () => {
-    updateIndexes();
-    frontControls.set({ x: 0, opacity: 1, filter: "blur(0px)" });
-  };
-
   const updateIndexes = () => {
     setNextIndex((n) => getNextIndex(n));
     setCurrentIndex((n) => getNextIndex(n));
   };
-
+  const exitFront = async (direction: -1 | 1) =>
+    await frontControls.start({
+      x: 420 * direction,
+      scale: 0.6,
+      opacity: 0,
+    });
+  const reappearFront = async () => {
+    updateIndexes();
+    frontControls.set({ x: 0, opacity: 1, filter: "blur(0px)" });
+  };
   const fullMovement = async (direction: -1 | 1) => {
     await exitFront(direction);
-    // await moveBack();
     reappearFront();
   };
 
+  // handlers
   async function handleDragEnd(_, info) {
     if (info.offset.x < -150) {
       fullMovement(-1);
@@ -89,15 +66,11 @@ export const SwipeGallery = ({
     }
   }
 
-  useEffect(() => {
-    appearBack();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   return (
     <div className="relative w-[320px] h-[320px]">
       <motion.div
-        dragSnapToOrigin
+        // dragSnapToOrigin
+        dragConstraints={{ left: 0, right: 0 }}
         animate={frontControls}
         onDragEnd={handleDragEnd}
         drag="x"
