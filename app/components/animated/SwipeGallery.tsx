@@ -38,8 +38,8 @@ export const SwipeGallery = ({
     clamp: true,
   });
   const scale2 = useTransform(scale, [1, 0.6], [0.8, 1], { clamp: false });
-  const opacity = useTransform(x, [-350, 0, 350], [1, 0.5, 1]);
-  const filterValue = useTransform(x, [-350, 0, 350], [0, 4, 0]);
+  //   const opacity = useTransform(x, [-350, 0, 350], [1, 0.5, 1]);
+  const filterValue = useTransform(x, [-350, 0, 350], [0, 8, 0]);
   const filter = useMotionTemplate`blur(${filterValue}px)`;
 
   const backControls = useAnimationControls();
@@ -80,10 +80,11 @@ export const SwipeGallery = ({
   };
 
   async function handleDragEnd(_, info) {
-    if (info.offset.x < -200) {
+    if (info.offset.x < -150) {
       fullMovement(-1);
+      return;
     }
-    if (info.offset.x > 200) {
+    if (info.offset.x > 150) {
       fullMovement(1);
     }
   }
@@ -109,7 +110,7 @@ export const SwipeGallery = ({
       <motion.div
         animate={backControls}
         className="w-full h-full absolute rounded-3xl overflow-hidden bg-black shadow-lg"
-        style={{ y, scale: scale2, filter, opacity }}
+        style={{ y, scale: scale2, filter }}
       >
         {[imgs[nextIndex]]}
       </motion.div>
