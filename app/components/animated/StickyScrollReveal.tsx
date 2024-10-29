@@ -42,7 +42,7 @@ export const StickyScrollReveal = ({
             <InViewDetector
               onInView={handleEnterIntoView}
               index={index}
-              key={index + title}
+              key={String(index) + title}
               className="h-full"
             >
               <h3
