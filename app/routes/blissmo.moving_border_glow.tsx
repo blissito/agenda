@@ -18,7 +18,7 @@ export const MovingBorder = ({ children }: { children?: ReactNode }) => {
       { scale: 1.2, filter: "blur(8px)" },
       { ease: "easeInOut", duration: 4 }
     );
-    await controls.start({ scale: 0.5 }, { ease: "easeInOut", duration: 2 });
+    await controls.start({ scale: 0.7 }, { ease: "easeInOut", duration: 2 });
 
     move();
   };
@@ -36,12 +36,13 @@ export const MovingBorder = ({ children }: { children?: ReactNode }) => {
       className="text-white uppercase bg-transparent text-2xl font-bold relative p-6 rounded-full"
       ref={containerRef}
     >
-      <div className="-inset-0 absolute bg-gray-950 z-10 rounded-full border border-gray-100/10" />
       <motion.div
-        className="h-[100%] w-[100%] absolute bg-gradient-to-r from-pink-500 to-indigo-500 z-0 rounded-full -inset-px"
+        className="h-[100%] w-[100%] absolute bg-gradient-to-r from-pink-500 to-indigo-500 rounded-full inset-0"
         animate={controls}
         initial={{ scale: 1, filter: "blur(4px)" }}
       />
+      <div className="-inset-0 absolute bg-gray-950 rounded-full border border-gray-100/10" />
+
       <div className="relative z-10">{children}</div>
     </motion.button>
   );
