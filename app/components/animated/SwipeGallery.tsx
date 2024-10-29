@@ -1,10 +1,17 @@
 import {
+  anticipate,
+  easeIn,
+  easeInOut,
+  easeOut,
   motion,
+  useAnimate,
   useAnimationControls,
   useMotionTemplate,
   useMotionValue,
+  useSpring,
   useTransform,
 } from "framer-motion";
+import { escape } from "node:querystring";
 import { Children, ReactNode, useEffect, useState } from "react";
 
 export const SwipeGallery = ({
@@ -20,14 +27,17 @@ export const SwipeGallery = ({
 
   // front
   const x = useMotionValue(0);
+  const springX = useSpring(x, { bounce: 0.4 });
   const scale = useTransform(x, [-350, 0, 350], [0.6, 1, 0.6]);
   const rotate = useTransform(x, [-350, 350], [-45, 45], {
     clamp: false,
   });
   // back
-  const y = useTransform(x, [-350, 0, 350], [-1, 70, -1], { clamp: false });
-  const scale2 = useTransform(y, [0, 100], [1, 0.65]);
-  // for back based on x
+  // for back based on springX
+  const y = useTransform(springX, [-350, 0, 350], [0, 70, 0], {
+    clamp: true,
+  });
+  const scale2 = useTransform(scale, [1, 0.6], [0.8, 1], { clamp: false });
   const opacity = useTransform(x, [-350, 0, 350], [1, 0.5, 1]);
   const filterValue = useTransform(x, [-350, 0, 350], [0, 4, 0]);
   const filter = useMotionTemplate`blur(${filterValue}px)`;
@@ -41,45 +51,21 @@ export const SwipeGallery = ({
   };
 
   const appearBack = async () => {
-    backControls.set({
-      y: 1,
+    // backControls.set({ y: 280 });
+    // await backControls.start({ y: 70 });
+  };
+
+  const exitFront = async (direction: -1 | 1) =>
+    await frontControls.start({
+      x: 400 * direction,
+      filter: "blur(4px)",
+      scale: 0.6,
       opacity: 0,
-      scale: 0.8,
-      filter: "blur(0px)",
     });
-    await backControls.start(
-      {
-        y: 70,
-        opacity: 0.5,
-        scale: 0.8,
-        filter: "blur(4px)",
-      },
-      { type: "spring", bounce: 0, duration: duration * 2 }
-    );
-  };
 
-  const moveBack = async () => {
-    await backControls.start(
-      { y: 0, opacity: 1, scale: 1, filter: "blur(0px)" },
-      { duration: duration / 1.3 }
-    );
-    // await backControls.start({ y: 170 });
-    appearBack();
-  };
-
-  const exitFront = async (direction: -1 | 1) => {
-    await frontControls.start(
-      {
-        x: direction * 400,
-        opacity: 0,
-      },
-      { duration: duration * 1.3, type: "spring", bounce: 0 }
-    );
-  };
-
-  const reappearFront = () => {
+  const reappearFront = async () => {
     updateIndexes();
-    frontControls.set({ x: 0, opacity: 1 });
+    frontControls.set({ x: 0, opacity: 1, filter: "blur(0px)" });
   };
 
   const updateIndexes = () => {
@@ -89,7 +75,7 @@ export const SwipeGallery = ({
 
   const fullMovement = async (direction: -1 | 1) => {
     await exitFront(direction);
-    await moveBack();
+    // await moveBack();
     reappearFront();
   };
 
@@ -108,7 +94,7 @@ export const SwipeGallery = ({
   }, []);
 
   return (
-    <div className="relative w-[320px] h-[320px] ">
+    <div className="relative w-[320px] h-[320px]">
       <motion.div
         dragSnapToOrigin
         animate={frontControls}
