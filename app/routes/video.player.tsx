@@ -146,7 +146,7 @@ const MenuListContainer = ({
   children,
   x = 0,
   onOutsideClick,
-  isOpen: isActive,
+  isOpen: isActive = false,
 }: {
   isOpen?: boolean;
   children: ReactNode;
@@ -163,7 +163,7 @@ const MenuListContainer = ({
         scrollbarWidth: "none",
         maskImage,
       }}
-      className="bg-gray-950 md:w-[380px] w-[300px] absolute z-20 inset-2 rounded-xl overflow-y-scroll"
+      className="bg-gray-950 md:w-[380px] w-[300px] absolute z-20 inset-2 rounded-xl overflow-y-scroll h-[88%]"
     >
       {children}
     </motion.div>
