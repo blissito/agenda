@@ -20,28 +20,31 @@ import {
 import { cn } from "~/utils/cd";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 
+const video = {
+  title: "¿Qué son las future flags?",
+  poster: "https://i.imgur.com/nITUzj1.png",
+  type: "video/mov",
+  src: "https://firebasestorage.googleapis.com/v0/b/fixter-67253.appspot.com/o/fixtergeek.com%2Fmicro-cursos%2Fintrocss%2F1_boxModel.mov?alt=media&token=54cc5e8a-0f90-4df8-9c98-cedfeef6c765",
+};
+
 export const loader = async () => {
   return {
     lesson: {
       title: "Creando el componente",
-      video: {
-        poster: "https://i.imgur.com/nITUzj1.png",
-        type: "video/mov",
-        src: "https://firebasestorage.googleapis.com/v0/b/fixter-67253.appspot.com/o/fixtergeek.com%2Fmicro-cursos%2Fintrocss%2F1_boxModel.mov?alt=media&token=54cc5e8a-0f90-4df8-9c98-cedfeef6c765",
-      },
+      video,
     },
   };
 };
 
 export default function Route() {
   const { lesson } = useLoaderData<typeof loader>();
-  const handleEnding = () => {
+  const handleClickEnding = () => {
     // @TODO: change to next video (navigate?)
   };
   return (
     <article className="bg-slate-950 relative overflow-x-hidden">
       <VideoPlayer
-        onEnding={handleEnding}
+        onClickNextVideo={handleClickEnding}
         type={lesson.video.type}
         src={lesson.video.src}
         poster={lesson.video.poster}
@@ -255,11 +258,15 @@ const VideoPlayer = ({
   src,
   type = "video/mov",
   onPlay,
-  onEnding,
+  onClickNextVideo,
   poster,
+  onEnd,
+  nextVideo = video,
 }: {
+  nextVideo?: typeof video;
   poster?: string;
-  onEnding?: () => void;
+  onClickNextVideo?: () => void;
+  onEnd?: () => void;
   type?: string;
   src?: string;
   onPlay?: () => void;
@@ -284,10 +291,10 @@ const VideoPlayer = ({
     controls.onplaying = () => setIsPlaying(true);
     controls.onplay = () => setIsPlaying(true);
     controls.onpause = () => setIsPlaying(false);
-    controls.ontimeupdate = (e) => {
+    controls.onended = () => onEnd?.();
+    controls.ontimeupdate = () => {
       if (controls.duration - controls.currentTime < 15) {
         setIsEnding(true);
-        onEnding?.();
       } else {
         setIsEnding(false);
       }
@@ -314,6 +321,7 @@ const VideoPlayer = ({
         )}
         {isEnding && (
           <motion.button
+            onClick={onClickNextVideo}
             whileTap={{ scale: 0.99 }}
             transition={{ type: "spring", bounce: 0.2 }}
             whileHover={{ scale: 1.05 }}
@@ -331,12 +339,12 @@ const VideoPlayer = ({
             <div>
               <p className="text-left text-lg">Siguiente video</p>
               <h4 className="text-2xl md:w-[280px] md:truncate text-left">
-                Título del siguiente video aunque no quepa
+                {nextVideo.title}
               </h4>
             </div>
             <img
               alt="poster"
-              src={poster}
+              src={nextVideo.poster}
               className="aspect-video w-40 rounded-xl"
             />
           </motion.button>
@@ -356,3 +364,5 @@ const VideoPlayer = ({
     </section>
   );
 };
+
+// @TODO: make next video a component
