@@ -328,7 +328,7 @@ const VideoPlayer = ({
             exit={{ opacity: 0, filter: "blur(9px)", x: 50 }}
             initial={{ opacity: 0, filter: "blur(9px)", x: 50 }}
             animate={{ opacity: 1, filter: "blur(0px)", x: 0 }}
-            className="absolute right-2 bg-gray-100 z-20 bottom-20 md:top-4 md:right-4 md:left-auto md:bottom-auto left-2 md:w-[500px] px-6 pt-3 pb-6 rounded-3xl flex gap-4 shadow-sm items-end"
+            className="absolute right-2 bg-gray-100 z-20 bottom-20 md:top-4 md:right-4 md:left-auto md:bottom-auto left-2 md:w-[500px] px-6 md:pt-6 pt-10 pb-6 rounded-3xl flex gap-4 shadow-sm items-end"
           >
             <button
               onClick={() => setIsEnding(false)}
