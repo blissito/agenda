@@ -38,7 +38,7 @@ export default function Route() {
     // @TODO: change to next video (navigate?)
   };
   return (
-    <article className="bg-slate-950 relative">
+    <article className="bg-slate-950 relative overflow-x-hidden">
       <VideoPlayer
         onEnding={handleEnding}
         type={lesson.video.type}
@@ -162,7 +162,7 @@ const MenuListContainer = ({
         scrollbarWidth: "none",
         maskImage,
       }}
-      className="bg-gray-950 w-[380px] absolute z-20 inset-2 rounded-xl overflow-y-scroll"
+      className="bg-gray-950 md:w-[380px] w-[300px] absolute z-20 inset-2 rounded-xl overflow-y-scroll"
     >
       {children}
     </motion.div>
@@ -210,7 +210,12 @@ const MenuButton = ({
     <motion.button
       style={{ x }}
       onClick={onToggle}
-      className="absolute bg-gray-900 text-4xl w-20 h-20 text-white top-16 z-20 flex items-center justify-center rounded-lg hover:bg-gray-800"
+      className={cn(
+        "absolute bg-gray-900 text-4xl w-20 h-20 text-white top-16 z-20 flex items-center justify-center rounded-lg hover:bg-gray-800",
+        {
+          "left-[-80px] md:left-auto": isOpen,
+        }
+      )}
     >
       <AnimatePresence mode="popLayout">
         {isOpen ? (
