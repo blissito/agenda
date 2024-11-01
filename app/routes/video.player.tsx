@@ -310,11 +310,11 @@ const VideoPlayer = ({
             exit={{ opacity: 0, filter: "blur(9px)", x: 50 }}
             initial={{ opacity: 0, filter: "blur(9px)", x: 50 }}
             animate={{ opacity: 1, filter: "blur(0px)", x: 0 }}
-            className="absolute right-16 bg-gray-100 z-20 top-20 md:w-[500px] w-[420px] p-6 rounded-3xl flex gap-4"
+            className="absolute right-2 bg-gray-100 z-20 bottom-20 left-2 md:w-[500px] p-6 rounded-3xl flex md:flex-row flex-col gap-4 items-center"
           >
             <div>
-              <p className="text-left text-lg">Siguiente video</p>
-              <h4 className="text-2xl md:w-[280px] w-40 truncate">
+              <p className="md:text-left text-lg">Siguiente video</p>
+              <h4 className="text-2xl md:w-[280px] md:truncate">
                 Título del siguiente video aunque no quepa
               </h4>
             </div>
