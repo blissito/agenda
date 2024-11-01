@@ -82,7 +82,7 @@ const VideosMenu = () => {
           />
         ))}
         {/* Otro  */}
-        <ModuleHeader title="Instalaciones" subtitle="capitulo 01" />
+        <ModuleHeader title="Instalaciones" subtitle="capitulo 02" />
         {[1, 2, 3, 4, 5, 6].map((i) => (
           <ListItem
             isCurrent={i === 1}
@@ -92,9 +92,9 @@ const VideosMenu = () => {
           />
         ))}
         {/* Otro */}
-        <ModuleHeader title="Conceptos avanzados" subtitle="capitulo 01" />
+        <ModuleHeader title="Conceptos avanzados" subtitle="capitulo 03" />
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <ListItem key={i} duration={18} title={"titulo de ejemplo"} />
+          <ListItem key={i} duration={18} title={"instalando perro"} />
         ))}
       </MenuListContainer>
     </>
