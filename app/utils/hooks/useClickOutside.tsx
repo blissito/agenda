@@ -7,7 +7,7 @@ export const useClickOutside = <T extends HTMLElement>({
 }: {
   includeEscape?: boolean;
   isActive: boolean;
-  onOutsideClick: (e: MouseEvent | KeyboardEvent) => void;
+  onOutsideClick?: (e: MouseEvent | KeyboardEvent) => void;
 }) => {
   const ref = useRef<T>(null);
 
