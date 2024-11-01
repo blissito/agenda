@@ -269,8 +269,8 @@ const VideoPlayer = ({
     // listeners
     controls.onplaying = () => setIsPlaying(true);
     controls.onpause = () => setIsPlaying(false);
-    controls.onprogress = () => {
-      if (controls.duration - controls.currentTime < 61) {
+    controls.ontimeupdate = (e) => {
+      if (controls.duration - controls.currentTime < 15) {
         setIsEnding(true);
         onEnding?.();
       } else {
