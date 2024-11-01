@@ -24,6 +24,7 @@ export const loader = async () => {
     lesson: {
       title: "Creando el componente",
       video: {
+        poster: "https://i.imgur.com/nITUzj1.png",
         type: "video/mov",
         src: "https://firebasestorage.googleapis.com/v0/b/fixter-67253.appspot.com/o/fixtergeek.com%2Fmicro-cursos%2Fintrocss%2F1_boxModel.mov?alt=media&token=54cc5e8a-0f90-4df8-9c98-cedfeef6c765",
       },
@@ -34,7 +35,7 @@ export const loader = async () => {
 export default function Route() {
   const { lesson } = useLoaderData<typeof loader>();
   const handleEnding = () => {
-    // @TODO: change to next video
+    // @TODO: change to next video (navigate?)
   };
   return (
     <article className="bg-slate-950 relative">
@@ -42,6 +43,7 @@ export default function Route() {
         onEnding={handleEnding}
         type={lesson.video.type}
         src={lesson.video.src}
+        poster={lesson.video.poster}
       />
       <VideosMenu />
     </article>
@@ -239,7 +241,11 @@ const VideoPlayer = ({
   src,
   type = "video/mov",
   onPlay,
+  onEnding,
+  poster,
 }: {
+  poster?: string;
+  onEnding?: () => void;
   type?: string;
   src?: string;
   onPlay?: () => void;
@@ -266,6 +272,7 @@ const VideoPlayer = ({
     controls.onprogress = () => {
       if (controls.duration - controls.currentTime < 61) {
         setIsEnding(true);
+        onEnding?.();
       } else {
         setIsEnding(false);
       }
@@ -305,13 +312,16 @@ const VideoPlayer = ({
                 Título del siguiente video aunque no quepa
               </h4>
             </div>
-            <video src={src} className="aspect-video w-40 border rounded-xl">
-              <track kind="captions" />
-            </video>
+            <img
+              alt="poster"
+              src={poster}
+              className="aspect-video w-40 rounded-xl"
+            />
           </motion.button>
         )}
       </AnimatePresence>
       <video
+        poster={poster}
         controlsList="nodownload"
         ref={videoRef}
         className="w-full h-full"
