@@ -126,8 +126,8 @@ const ListItem = ({
           <MdOutlineRadioButtonUnchecked />
         )}
       </span>
-      <span className="capitalize">{title}</span>
-      <span>{duration}m</span>
+      <span className="capitalize text-sm">{title}</span>
+      <span className="text-xs">{duration}m</span>
     </div>
   );
 };
