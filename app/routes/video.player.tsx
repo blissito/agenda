@@ -273,6 +273,7 @@ const VideoPlayer = ({
     setIsPlaying(!controls.paused);
     // listeners
     controls.onplaying = () => setIsPlaying(true);
+    controls.onplay = () => setIsPlaying(true);
     controls.onpause = () => setIsPlaying(false);
     controls.ontimeupdate = (e) => {
       if (controls.duration - controls.currentTime < 15) {
