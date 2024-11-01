@@ -33,9 +33,16 @@ export const loader = async () => {
 
 export default function Route() {
   const { lesson } = useLoaderData<typeof loader>();
+  const handleEnding = () => {
+    // @TODO: change to next video
+  };
   return (
     <article className="bg-slate-950 relative">
-      <VideoPlayer type={lesson.video.type} src={lesson.video.src} />
+      <VideoPlayer
+        onEnding={handleEnding}
+        type={lesson.video.type}
+        src={lesson.video.src}
+      />
       <VideosMenu />
     </article>
   );
@@ -240,10 +247,12 @@ const VideoPlayer = ({
   // @TODO initiate loading with no play button
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
 
   const togglePlay = () => {
     const controls = videoRef.current || null;
     if (!controls) return;
+    // main action
     if (controls.paused) {
       controls.play();
       onPlay?.();
@@ -251,11 +260,20 @@ const VideoPlayer = ({
       controls.pause();
     }
     setIsPlaying(!controls.paused);
+    // listeners
+    controls.onplaying = () => setIsPlaying(true);
     controls.onpause = () => setIsPlaying(false);
+    controls.onprogress = () => {
+      if (controls.duration - controls.currentTime < 61) {
+        setIsEnding(true);
+      } else {
+        setIsEnding(false);
+      }
+    };
   };
 
   return (
-    <section className="h-screen relative">
+    <section className="h-screen relative overflow-x-hidden">
       <AnimatePresence>
         {!isPlaying && (
           <motion.button
@@ -270,6 +288,26 @@ const VideoPlayer = ({
             <span className="border flex items-center justify-center text-6xl text-white rounded-full bg-indigo-500 w-[120px] h-[90px]">
               <FaGooglePlay />
             </span>
+          </motion.button>
+        )}
+        {isEnding && (
+          <motion.button
+            transition={{ type: "spring", bounce: 0.2 }}
+            whileHover={{ scale: 1.05 }}
+            exit={{ opacity: 0, filter: "blur(9px)", x: 50 }}
+            initial={{ opacity: 0, filter: "blur(9px)", x: 50 }}
+            animate={{ opacity: 1, filter: "blur(0px)", x: 0 }}
+            className="absolute right-16 bg-gray-100 z-20 top-20 md:w-[500px] w-[420px] p-6 rounded-3xl flex gap-4"
+          >
+            <div>
+              <p className="text-left text-lg">Siguiente video</p>
+              <h4 className="text-2xl md:w-[280px] w-40 truncate">
+                Título del siguiente video aunque no quepa
+              </h4>
+            </div>
+            <video src={src} className="aspect-video w-40 border rounded-xl">
+              <track kind="captions" />
+            </video>
           </motion.button>
         )}
       </AnimatePresence>
