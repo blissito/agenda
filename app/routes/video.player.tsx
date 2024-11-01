@@ -215,12 +215,14 @@ const MenuButton = ({
 }) => {
   return (
     <motion.button
+      whileHover={{ left: -2 }}
       style={{ x }}
       onClick={onToggle}
       className={cn(
-        "absolute bg-gray-900 text-4xl w-20 h-20 text-white top-16 z-20 flex items-center justify-center rounded-lg hover:bg-gray-800",
+        "absolute bg-gray-900 text-4xl w-20 h-20 text-white top-16 z-20 flex items-center justify-center rounded-r-2xl hover:bg-gray-800",
         {
           "left-[-80px] md:left-auto": isOpen,
+          "rounded-2xl": isOpen,
         }
       )}
     >
@@ -312,6 +314,7 @@ const VideoPlayer = ({
         )}
         {isEnding && (
           <motion.button
+            whileTap={{ scale: 0.99 }}
             transition={{ type: "spring", bounce: 0.2 }}
             whileHover={{ scale: 1.05 }}
             exit={{ opacity: 0, filter: "blur(9px)", x: 50 }}
