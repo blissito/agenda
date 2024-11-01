@@ -11,6 +11,7 @@ import {
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { BsMenuButtonWide } from "react-icons/bs";
 import { FaGooglePlay, FaPlay } from "react-icons/fa6";
+import { IoIosClose } from "react-icons/io";
 import {
   MdMenuOpen,
   MdOutlineRadioButtonChecked,
@@ -310,8 +311,14 @@ const VideoPlayer = ({
             exit={{ opacity: 0, filter: "blur(9px)", x: 50 }}
             initial={{ opacity: 0, filter: "blur(9px)", x: 50 }}
             animate={{ opacity: 1, filter: "blur(0px)", x: 0 }}
-            className="absolute right-2 bg-gray-100 z-20 bottom-20 left-2 md:w-[500px] p-6 rounded-3xl flex md:flex-row flex-col gap-4 items-center"
+            className="absolute right-2 bg-gray-100 z-20 bottom-20 left-2 md:w-[500px] px-6 pt-3 pb-6 rounded-3xl flex md:flex-row flex-col gap-4 items-center"
           >
+            <button
+              onClick={() => setIsEnding(false)}
+              className="self-end text-4xl active:scale-95"
+            >
+              <IoIosClose />
+            </button>
             <div>
               <p className="md:text-left text-lg">Siguiente video</p>
               <h4 className="text-2xl md:w-[280px] md:truncate">
