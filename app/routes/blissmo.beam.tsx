@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 export default function Route() {
   return (
     <article className="">
-      <div className="h-[300vh] bg-blue-500" />
+      <div className="h-[60vh] bg-blue-500" />
       <BeamContainer>
         <div className="h-screen bg-gray-950">
           <h2 className="text-gray-500 text-4xl w-max font-bold sticky top-40 flex py-40 ">
