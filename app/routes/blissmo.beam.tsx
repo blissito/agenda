@@ -82,7 +82,7 @@ export const Beam = () => {
         style={{
           height: heightTransform,
         }}
-        className="w-[2px] bg-gradient-to-b from-transparent via-blue-500 from-[0%] via-[80%] to-indigo-500 z-10"
+        className="w-[2px] bg-gradient-to-b from-transparent via-blue-500 from-[0%] via-[90%] to-transparent z-10"
       ></motion.div>
       <div className="h-full w-[2.5px] absolute bg-gray-900 z-0" />
     </section>
