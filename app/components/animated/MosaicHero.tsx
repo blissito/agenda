@@ -11,7 +11,7 @@ export const MosaicHero = ({ children }: { children?: ReactNode }) => {
   // movement
   const percentage = useTransform(
     x,
-    (latest) => latest / (viewPortWidth + 100) // from 0 to 100% of the screen on X
+    (latest) => latest / (viewPortWidth + 400) // from 0 to 100% of the screen on X
   );
   const containerX = useSpring(
     useTransform(percentage, [0, 1], [0, (viewPortWidth / 2) * -1]),
