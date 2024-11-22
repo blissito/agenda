@@ -93,7 +93,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   return (await redirectIfUser(request)) ?? null;
 };
 
-export default function Pape() {
+export default function Page() {
   const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
