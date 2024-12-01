@@ -32,8 +32,7 @@ export const scheduleMail = async ({
   const r = when
     ? await agenda.schedule(when, template, { emails, when })
     : await agenda.now("send_experiment");
-  const jobs = await agenda.jobs({ lastRunAt: { $exists: true } });
-  console.info("RAN_JOBS::", jobs.length); // just experimenting
+
   console.log(
     "AGENDADO::",
     r.attrs,
@@ -51,5 +50,11 @@ export const scheduleMail = async ({
 //     await agenda.start()
 //     await agenda.schedule
 // })
+
+// export const getAllJobs = () => {
+//   return agenda.start().then(() => {
+//     return agenda.jobs({ lastRunAt: { $exists: true } });
+//   });
+// };
 
 export default agenda;
