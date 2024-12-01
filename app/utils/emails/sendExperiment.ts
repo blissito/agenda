@@ -14,18 +14,16 @@ export const sendExperiment = async (
   emails: string[],
   { when, subject }: { when?: string | Date; subject?: string }
 ) => {
-  const formatedDate = new Date(when).toLocaleString("es-MX", {
+  const formatedDate = new Date(when).toLocaleDateString("es-MX", {
     timeZone: "America/Mexico_City",
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 
-  const formatedTime = new Date(when).toLocaleString("es-MX", {
-    timeZone: "America/Mexico_City",
+  const formatTime = new Date().toLocaleTimeString("es-MX", {
     hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
+    timeZone: "America/Mexico_City",
   });
 
   return sendgridTransport
@@ -36,7 +34,7 @@ export const sendExperiment = async (
       html: `
       <article>
       <h1>Bliss' experiments</h1>
-      <p>Hola pelusina, este corre debería llegarte a las ${formatedTime} del ${formatedDate}</p>
+      <p>Hola pelusina, este corre debería llegarte a las formatTime el ${formatedDate}</p>
       <p>DEBUGGING::${when}</p>
       </article>
       `,
