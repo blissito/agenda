@@ -7,7 +7,7 @@ import React, {
   useContext,
 } from "react";
 
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { AnimatePresence, motion } from "framer-motion";
 import { useOutsideClick } from "~/utils/hooks/use-outside-click";
 import { ArrowRight } from "../icons/arrowRight";

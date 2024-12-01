@@ -1,6 +1,6 @@
 import { useAnimationFrame, motion, useMotionValue } from "motion/react";
 import { useEffect, useRef } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { useScrollVelocityFactor } from "../hooks/useScrollVelocityFactor";
 
 type Mode = "fast" | "normal" | "slow";

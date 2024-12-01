@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { useMarquee } from "../hooks/useMarquee";
 
 export const Marquee = ({

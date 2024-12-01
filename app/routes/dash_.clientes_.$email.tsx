@@ -4,7 +4,7 @@ import {
   useLocation,
   useNavigate,
 } from "@remix-run/react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { useEffect } from "react";
 import { db } from "~/utils/db.server";
 import { TbEdit } from "react-icons/tb";

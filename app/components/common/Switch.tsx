@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useState } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { motion } from "framer-motion";
 
 export const Switch = forwardRef(

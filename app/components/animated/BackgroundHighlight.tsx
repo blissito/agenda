@@ -5,7 +5,7 @@ import {
   useTransform,
 } from "framer-motion";
 import { ReactNode } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { useMousePosition } from "../hooks/useMousePosition";
 import { useTimeout } from "../hooks/useTimeout";
 

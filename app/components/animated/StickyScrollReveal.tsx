@@ -6,7 +6,7 @@ import {
   motion,
 } from "framer-motion";
 import { ReactNode, useEffect, useRef, useState } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 
 export const StickyScrollReveal = ({
   items,

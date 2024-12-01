@@ -6,7 +6,7 @@ import {
   getDaysInMonth,
   isToday,
 } from "~/components/dash/agenda/agendaUtils";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 
 const monthNames = [

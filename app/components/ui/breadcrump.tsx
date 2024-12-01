@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot";
 import { FiMoreHorizontal } from "react-icons/fi";
 import { FaChevronRight } from "react-icons/fa";
 
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 
 const Breadcrumb = React.forwardRef<
   HTMLElement,

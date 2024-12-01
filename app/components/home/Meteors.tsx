@@ -1,4 +1,4 @@
-import { cn } from "../../utils/cd";
+import { cn } from "../../utils/cn";
 
 export const Meteors = ({
   number = 40,

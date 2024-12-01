@@ -22,7 +22,7 @@ import {
   redirectIfUser,
 } from "~/.server/userGetters";
 import { commitSession, destroySession, getSession } from "~/sessions";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { sendMagicLink } from "~/utils/emails/sendMagicLink";
 import {
   FirebaseUserData,

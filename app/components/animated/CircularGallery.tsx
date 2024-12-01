@@ -7,7 +7,7 @@ import {
   MotionValue,
 } from "framer-motion";
 import { Children, ReactNode, useRef } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 
 export default function CircularGallery({
   children,

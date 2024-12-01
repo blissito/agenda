@@ -1,6 +1,6 @@
 import { Children, MouseEvent, ReactNode, useRef, useState } from "react";
 import { motion, useSpring } from "framer-motion";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 
 export const CardTriDi = ({ children }: { children?: ReactNode }) => {
   const rotateY = useSpring(0);

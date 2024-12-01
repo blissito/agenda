@@ -17,7 +17,7 @@ import {
   MdOutlineRadioButtonChecked,
   MdOutlineRadioButtonUnchecked,
 } from "react-icons/md";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 
 const video = {

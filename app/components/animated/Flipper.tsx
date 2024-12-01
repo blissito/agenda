@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { useSignal } from "@preact/signals-react";
 
 export const Flipper = ({

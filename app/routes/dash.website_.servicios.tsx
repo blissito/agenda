@@ -12,7 +12,7 @@ import { Image } from "~/components/common/Image";
 import { Service } from "@prisma/client";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { getServices } from "~/.server/userGetters";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { serviceUpdate } from "~/components/forms/form_handlers/serviceGeneralFormHandler";
 
 export const action = async ({ request }: ActionFunctionArgs) => {

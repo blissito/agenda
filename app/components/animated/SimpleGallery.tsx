@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 
 export const defaultImages = [
   "https://images.pexels.com/photos/5600005/pexels-photo-5600005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",

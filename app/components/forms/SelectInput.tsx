@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 
 export type Option = {
   value: string;

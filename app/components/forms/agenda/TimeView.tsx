@@ -1,7 +1,7 @@
 import { useFetcher } from "@remix-run/react";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { convertDayToString } from "~/components/dash/agenda/agendaUtils";
 import { generateTimesFromRange } from "../TimePicker";
 import { DayTuple, WeekTuples } from "../TimesForm";

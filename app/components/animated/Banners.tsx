@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import { Children, ReactNode, useEffect, useRef, useState } from "react";
 import { PiRobotDuotone } from "react-icons/pi";
-import { cn } from "~/utils/cd";
+import { cn } from "~/utils/cn";
 import { useMarquee } from "../hooks/useMarquee";
 
 export function Banners({ children }: { children?: ReactNode }) {
