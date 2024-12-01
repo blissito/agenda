@@ -34,7 +34,7 @@ export const sendExperiment = async (
       html: `
       <article>
       <h1>Bliss' experiments</h1>
-      <p>Hola pelusina, este corre debería llegarte a las formatTime el ${formatedDate}</p>
+      <p>Hola pelusina, este corre debería llegarte a las ${formatTime} el ${formatedDate}</p>
       <p>DEBUGGING::${when}</p>
       </article>
       `,
