@@ -22,7 +22,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const jobId = await scheduleMail({
       template: "send_experiment",
       emails: ["brenda@fixter.org", "fixtergeek@gmail.com"],
-      // @todo How to assure timezonne?
+      // @todo How to assure timezonne? WITH ISOSTRING!
       when: when
         ? when
         : new Date(
@@ -79,20 +79,8 @@ export default function Route() {
           timeZone: "America/Mexico_City",
         });
 
-  //   console.log("Jobs: ", jobs);
-
   const handleDateSubmit = (e) => {
     e.preventDefault();
-
-    // const date = new Date(e.currentTarget.when.value).toLocaleString("en-US", {
-    //   timeZone: "America/Mexico_City",
-    //   hour: "2-digit",
-    //   minute: "numeric",
-    //   second: "numeric",
-    //   year: "numeric",
-    //   month: "numeric",
-    //   day: "numeric",
-    // });
     const date = new Date(e.currentTarget.when.value).toISOString(); // to include timezon
 
     fetcher.submit(
