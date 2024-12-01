@@ -12,15 +12,22 @@ export const sendgridTransport = nodemailer.createTransport({
 
 export const sendExperiment = async (
   emails: string[],
-  //   uri: string = "http://localhost:3000",
   { when, subject }: { when?: string | Date; subject?: string }
 ) => {
-  // generate token
-  //   const token = await generateUserToken(email);
-  //   const url = new URL(uri);
-  //   url.pathname = "/signin";
-  //   url.searchParams.set("token", token);
-  //   return;
+  const formatedDate = new Date(when).toLocaleString("es-MX", {
+    timeZone: "America/Mexico_City",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const formatedTime = new Date(when).toLocaleString("es-MX", {
+    timeZone: "America/Mexico_City",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+  });
+
   return sendgridTransport
     .sendMail({
       from: "hola@formmy.app",
@@ -29,15 +36,8 @@ export const sendExperiment = async (
       html: `
       <article>
       <h1>Bliss' experiments</h1>
-      <p>Hola pelusina, este corre debería llegarte en la noche del domingo ${new Date(
-        when
-      ).toLocaleString("es-MX", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-      })}</p>
+      <p>Hola pelusina, este corre debería llegarte a las ${formatedTime} del ${formatedDate}</p>
+      <p>DEBUGGING::${when}</p>
       </article>
       `,
     })

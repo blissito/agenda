@@ -35,15 +35,17 @@ export const scheduleMail = async ({
 
   console.log(
     "AGENDADO::",
-    r.attrs,
+    r.attrs, // return id
     new Date(r.attrs.nextRunAt).toLocaleString("es-MX", {
       hour: "numeric",
       year: "numeric",
       month: "short",
       day: "numeric",
       minute: "numeric",
+      timeZone: "America/Mexico_City",
     })
   );
+  return r.attrs._id;
 };
 
 // (async function(){
