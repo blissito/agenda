@@ -14,8 +14,8 @@ export const sendgridTransport = nodemailer.createTransport({
 
 export const sendMagicLink = async (
   email: string,
-  uri: string,
-  subject: string
+  uri: string = "http://localhost:3000",
+  subject?: string
 ) => {
   // generate token
   const token = await generateUserToken(email);
@@ -30,8 +30,8 @@ export const sendMagicLink = async (
       bcc: [email],
       html: magicLinkTemplate({ link: url.toString() }),
     })
-    .then((r: any) => {
+    .then((r: unknown) => {
       console.log(r);
     })
-    .catch((e: any) => console.log(e));
+    .catch((e: unknown) => console.log(e));
 };

@@ -20,6 +20,7 @@
     "@aws-sdk/s3-request-presigner": "^3.620.0",
     "@faker-js/faker": "^9.2.0",
     "@headlessui/react": "^2.1.2",
+    "@hokify/agenda": "^6.3.0",
     "@motionone/utils": "^10.18.0",
     "@preact/signals-react": "^2.2.0",
     "@prisma/client": "^5.16.1",
