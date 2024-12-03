@@ -1,3 +1,6 @@
+/* // google fonts */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pixelify+Sans:wght@400..700&family=Space+Grotesk:wght@300..700&display=swap");
+
 @font-face {
   font-family: "Satoshi ";
   src: url("/fonts/Satoshi-Regular.ttf");
@@ -27,6 +30,8 @@
   src: url("/fonts/Outfit-Medium.ttf");
   font-weight: bold;
 }
+
+/* // experiment SE PUEDE BORRAR */
 @font-face {
   font-family: "Balloon";
   src: url("/fonts/balloon.ttf");
@@ -35,6 +40,9 @@
 }
 .font-balloon {
   font-family: "Balloon";
+}
+.font-grotesk {
+  font-family: "Space Grotesk";
 }
 
 html {
