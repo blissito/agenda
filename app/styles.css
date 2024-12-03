@@ -27,6 +27,15 @@
   src: url("/fonts/Outfit-Medium.ttf");
   font-weight: bold;
 }
+@font-face {
+  font-family: "Balloon";
+  src: url("/fonts/balloon.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+.font-balloon {
+  font-family: "Balloon";
+}
 
 html {
   --bg-mask-color: red;
