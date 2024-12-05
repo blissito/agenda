@@ -2,7 +2,6 @@ import { ReactNode, useRef } from "react";
 import {
   motion,
   MotionValue,
-  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
@@ -20,16 +19,10 @@ const floatingElements = [
 export const PhoneHero = ({ title }: { title: ReactNode }) => {
   const scrollerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: scrollerRef });
-  //   const springProgress = useSpring(scrollYProgress)
-  const currentStep = useTransform(scrollYProgress, [0, 1], [1, 12]);
-
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    console.log("progeess", latest);
-  });
 
   return (
     <article className="h-[600vh]" ref={scrollerRef}>
-      <Container className="" scrollYProgress={scrollYProgress} title={title}>
+      <Container scrollYProgress={scrollYProgress} title={title}>
         <FloatingElements
           srcset={floatingElements}
           scrollYProgress={useSpring(scrollYProgress, { bounce: 0 })}
@@ -43,7 +36,7 @@ export const PhoneHero = ({ title }: { title: ReactNode }) => {
 };
 
 const Paragraph = ({ scrollYProgress }: { scrollYProgress: MotionValue }) => {
-  const y = useTransform(scrollYProgress, [0.6, 1], ["100vh", "-10vh"]);
+  const y = useTransform(scrollYProgress, [0.6, 1], ["100vh", "-25vh"]);
   const rotateZ = useTransform(scrollYProgress, [0.5, 1], [-500, 0]);
   const opacity = useTransform(scrollYProgress, [0.6, 1], [0, 1]);
   return (
@@ -82,6 +75,7 @@ const Circles = ({ scrollYProgress }: { scrollYProgress: MotionValue }) => {
   const scale = useTransform(scrollYProgress, [0.2, 1], [0, 4]);
   const y = useTransform(scrollYProgress, [0, 1], ["50vh", "-100vh"]);
   const opacity = useTransform(scrollYProgress, [0, 0.4, 0.7, 1], [0, 1, 1, 0]);
+
   const absoluteCentering =
     "absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]";
   return (
@@ -164,24 +158,15 @@ const Phone = ({
   scrollYProgress: MotionValue<number>;
 }) => {
   // @todo: need to know viewPort size
-  const y = useTransform(scrollYProgress, [0, 1], ["50vh", "-60vh"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.99], [1, 1]);
-  //   const scale = useSpring(
-  //     useTransform(scrollYProgress, [0, 0.2, 1], [1, 0.9, 1.5]),
-  //     {
-  //       bounce: 0,
-  //     }
-  //   );
-
+  const y = useTransform(scrollYProgress, [0, 1], ["50vh", "0vh"]);
   const scale = useTransform(scrollYProgress, [0, 0.2, 1], [1, 0.9, 1.5]);
 
   return (
-    <div className="w-[24%] mx-auto fixed inset-0">
+    <div className="w-[34%] mx-auto fixed inset-0">
       <motion.img
         style={{
           y,
           scale,
-          opacity,
         }}
         className=""
         src="https://cdn.prod.website-files.com/667fa6c733097c1516bb9760/668f83875932f67a6ee4d360_hero-phone-p-500.webp"
