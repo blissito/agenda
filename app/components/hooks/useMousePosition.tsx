@@ -12,8 +12,8 @@ export const useMousePosition = () => {
   }: React.MouseEvent<HTMLDivElement>) {
     if (!target.current) return;
     const { left, top, width } = target.current.getBoundingClientRect();
-    mouseX.set(Number((clientX - left).toFixed(0)));
-    mouseY.set(Number((clientY - top).toFixed(0)));
+    mouseX.set(Number((clientX - left).toFixed(0))); // x inside
+    mouseY.set(Number((clientY - top).toFixed(0))); // y inside
     setTargetWidth(width);
   }
   return {

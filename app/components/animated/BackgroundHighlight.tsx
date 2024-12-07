@@ -1,12 +1,7 @@
-import {
-  motion,
-  useMotionTemplate,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import { ReactNode } from "react";
+import { MouseEvent, ReactNode, useRef } from "react";
 import { cn } from "~/utils/cn";
-import { useMousePosition } from "../hooks/useMousePosition";
+import { useMeasure } from "~/utils/hooks/useMeasure";
+import { motion, useMotionTemplate, useSpring } from "motion/react";
 import { useTimeout } from "../hooks/useTimeout";
 
 export const BackgroundHighlight = ({
@@ -16,39 +11,39 @@ export const BackgroundHighlight = ({
   children?: ReactNode;
   className?: string;
 }) => {
-  const { handleMouseMove, mouseX, targetWidth, target } = useMousePosition();
-  const { placeTimeout, removeTimeout } = useTimeout(1000);
+  const ref = useRef<HTMLSpanElement>(null);
+  const { left, width } = useMeasure(ref);
+  const percentage = useSpring(0, { bounce: 0.2 });
 
-  const springX = useSpring(mouseX, { bounce: 0.2 });
-  const size = useTransform(springX, [0, targetWidth], [0, 110]);
-  const backgroundSize = useMotionTemplate`${size}% 100%`;
+  const { placeTimeout } = useTimeout(1000);
+
+  const handleMouseEnter = (event: MouseEvent<HTMLSpanElement>) => {
+    const { clientX } = event;
+    const p = (clientX - left) / width;
+    percentage.set(p * 100);
+  };
+  const backgroundSize = useMotionTemplate`${percentage}% 100%`;
+
+  const handleMouseLeave = () => {
+    placeTimeout(() => percentage.set(100));
+  };
 
   return (
-    <div
-      onMouseLeave={() => {
-        placeTimeout(() => {
-          mouseX.set(targetWidth);
-        });
+    <motion.span
+      initial={{ backgroundSize: "0% 100%" }}
+      animate={{ backgroundSize: "100% 100%" }}
+      transition={{ delay: 1 }}
+      ref={ref}
+      onMouseMove={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        backgroundRepeat: "no-repeat",
+        backgroundSize,
       }}
-      onMouseEnter={removeTimeout}
-      onMouseMove={handleMouseMove}
+      className={cn("bg-gradient-to-l rounded px-1", className)}
+      id="container"
     >
-      <motion.span
-        ref={target}
-        style={{
-          backgroundRepeat: "no-repeat",
-          backgroundSize,
-        }}
-        className={cn(
-          "rounded-xl p-1 font-bold cursor-ew-resize bg-gradient-to-r from-purple-500 to-pink-500",
-          className
-        )}
-        initial={{ backgroundSize: "0% 100%" }}
-        animate={{ backgroundSize: "100% 100%" }}
-        transition={{ duration: 2, delay: 1, ease: "linear" }}
-      >
-        {children}
-      </motion.span>
-    </div>
+      {children}
+    </motion.span>
   );
 };

@@ -1,77 +1,63 @@
-import { Children, MouseEvent, ReactNode, useRef, useState } from "react";
-import { motion, useSpring } from "framer-motion";
-import { cn } from "~/utils/cn";
+import { useSpring, motion } from "motion/react";
+import { MouseEvent, ReactNode } from "react";
+import { useTimeout } from "../hooks/useTimeout";
 
 export const CardTriDi = ({ children }: { children?: ReactNode }) => {
-  const rotateY = useSpring(0);
   const rotateX = useSpring(0);
-  const translateZ = useSpring(0, { bounce: 0 });
-  const translateZ2 = useSpring(0, { bounce: 0 });
-  const scale = useSpring(1);
-  //
-  const [hovered, setHovered] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const rotateY = useSpring(0);
+  const { placeTimeout } = useTimeout(2000);
 
-  const handleMouseEnter = () => {
-    setHovered(true);
-    translateZ.set(100);
-    translateZ2.set(70);
-    scale.set(0.95);
+  const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
+    const { clientX, clientY, currentTarget } = event;
+    const { width, height, left, top } = currentTarget.getBoundingClientRect();
+    const x = (clientX - left - width / 2) * 0.1; // 🪄✨
+    const y = (clientY - top - height / 2) * 0.1;
+    rotateX.set(-y); // invertimos
+    rotateY.set(x);
   };
 
   const handleMouseLeave = () => {
-    setHovered(false);
-    rotateX.set(0);
-    rotateY.set(0);
-    translateZ.set(0);
-    translateZ2.set(0);
-    scale.set(1);
+    placeTimeout(() => {
+      rotateX.set(0);
+      rotateY.set(0);
+    });
   };
-
-  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!hovered || !containerRef.current) return;
-    const { left, top, width, height } =
-      containerRef.current.getBoundingClientRect();
-    const x = (e.clientX - left - width / 2) / 6;
-    const y = (e.clientY - top - height / 2) / 6;
-    rotateX.set(-y);
-    rotateY.set(x);
-  };
-  const nodes = Children.toArray(children);
 
   return (
-    <motion.article
-      ref={containerRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseMove={handleMouseMove}
+    <section
       onMouseLeave={handleMouseLeave}
-      className={cn(
-        "rounded-xl w-[420px] relative z-0 shadow-xl bg-white p-6",
-        hovered && "shadow-lg"
-      )}
+      onMouseMove={handleMouseMove}
       style={{
-        rotateY,
-        rotateX,
-        scale,
         transformStyle: "preserve-3d",
-        perspective: "1000px",
+        perspective: 600,
+        overflow: "hidden",
+        padding: 40,
       }}
     >
+      {/* card */}
       <motion.div
         style={{
-          translateZ,
+          rotateX,
+          rotateY,
+          transformStyle: "preserve-3d",
         }}
-        className={cn("uppercase font-thin font-sans mb-6")}
+        className="border rounded-xl mx-auto max-w-md border-black p-6 flex flex-col gap-6"
       >
-        {nodes[0]}
+        <motion.div
+          style={{
+            z: 50,
+          }}
+        >
+          {children[0]}
+        </motion.div>
+        <motion.div
+          style={{
+            z: 70,
+          }}
+        >
+          {children[1]}
+        </motion.div>
       </motion.div>
-      <motion.div
-        style={{
-          translateZ: translateZ2,
-        }}
-      >
-        {nodes[1]}
-      </motion.div>
-    </motion.article>
+    </section>
   );
 };
