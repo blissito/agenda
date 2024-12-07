@@ -10,11 +10,11 @@ export default function Route() {
             Tarjetas 3D dinámicas 🪄✨🤩
           </h2>
         }
-        images={[
-          "https://i.imgur.com/oxKgjIb.png",
-          "https://i.imgur.com/nvs8UBe.png",
-          "https://i.imgur.com/ArpsLvc.png",
-        ]}
+        // images={[
+        //   "https://i.imgur.com/oxKgjIb.png",
+        //   "https://i.imgur.com/nvs8UBe.png",
+        //   "https://i.imgur.com/ArpsLvc.png",
+        // ]}
       />
 
       <section className="h-[50vh] bg-orange-800" />
