@@ -118,7 +118,7 @@ export const LyingCard = ({
           "shadow-xl": isActive,
         }
       )}
-      src={src || "/public/images/star.svg"}
+      src={src || "/images/star.svg"}
       alt="lying"
     />
   );
