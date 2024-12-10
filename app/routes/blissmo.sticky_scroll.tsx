@@ -1,17 +1,25 @@
-import { StickyScrollReveal } from "~/components/animated/StickyScrollReveal";
+import { StickyScroll } from "~/components/animated/StickyScrollReveal";
+
+const images = [
+  "/blissmo/anim_chat.gif",
+  "/blissmo/anim_phone.gif",
+  "/blissmo/anim.gif",
+  "/blissmo/chat.png",
+  "/blissmo/geek.png",
+];
 
 export default function Route() {
   return (
     <article className="h-screen bg-slate-950">
       <div className="h-[60%] bg-gray-900" />
-      <StickyScrollReveal
+      <StickyScroll
         items={[
           {
             twColor: "bg-indigo-500",
             img: (
               <img
                 className="object-cover h-full w-full"
-                src="https://i.imgur.com/WpmbbPu.png"
+                src={images[0]}
                 alt="perro"
               />
             ),
@@ -30,7 +38,7 @@ export default function Route() {
             img: (
               <img
                 className="w-full h-full object-cover"
-                src="https://i.imgur.com/FOFW9Oc.png"
+                src={images[1]}
                 alt="perro"
               />
             ),
@@ -42,7 +50,7 @@ export default function Route() {
                 eius cumque sed architecto dolorum iure.
               </p>
             ),
-            title: "Un gran título",
+            title: "Un gran título dos",
           },
           {
             twColor: "bg-indigo-700",
@@ -50,7 +58,7 @@ export default function Route() {
             img: (
               <img
                 className="aspect-square object-cover"
-                src="https://i.imgur.com/GIFCLAr.png"
+                src={images[2]}
                 alt="perro"
               />
             ),
@@ -62,7 +70,7 @@ export default function Route() {
                 eius cumque sed architecto dolorum iure.
               </p>
             ),
-            title: "Un gran título",
+            title: "Un feo título",
           },
           {
             twColor: "bg-indigo-800",
@@ -70,7 +78,7 @@ export default function Route() {
             img: (
               <img
                 className="aspect-square object-cover"
-                src="https://i.imgur.com/kt6SiY9.png"
+                src={images[3]}
                 alt="perro"
               />
             ),
@@ -82,7 +90,7 @@ export default function Route() {
                 eius cumque sed architecto dolorum iure.
               </p>
             ),
-            title: "Un gran título",
+            title: "Un raro título",
           },
           {
             twColor: "bg-indigo-900",
@@ -90,7 +98,7 @@ export default function Route() {
             img: (
               <img
                 className="aspect-square object-cover"
-                src="https://i.imgur.com/HITwAZk.png"
+                src={images[4]}
                 alt="perro"
               />
             ),
@@ -102,7 +110,7 @@ export default function Route() {
                 eius cumque sed architecto dolorum iure.
               </p>
             ),
-            title: "Un gran título",
+            title: "Un chido título",
           },
         ]}
       />
