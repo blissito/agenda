@@ -7,18 +7,16 @@ export const loader = () => ({
 });
 
 export default function Route() {
-  const { examples } = useLoaderData<typeof loader>();
-
   //yutu
   const [demo, setDemo] = useState("");
-
+  const { examples } = useLoaderData<typeof loader>();
   const handleUpdate = (list: string[]) => {
     setDemo(JSON.stringify(list));
     console.log("Ahora puedo hacer DB sync 🤓 con este orden:", list);
   };
 
   return (
-    <article className="h-screen bg-indigo-300 grid place-content-center">
+    <article className="h-screen bg-indigo-300 grid place-content-center overflow-hidden">
       <h1 className="text-4xl font-bold font-sans text-center mb-8">
         Reordena los cubos 🧊
       </h1>
@@ -26,7 +24,7 @@ export default function Route() {
         iterables={examples}
         onUpdate={handleUpdate}
         columns={3}
-        rows={3}
+        rows={2}
       >
         {examples.map((example, i) => (
           <div
