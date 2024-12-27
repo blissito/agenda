@@ -107,14 +107,14 @@ type WebSiteConfig {
 }
 
 model Org {
-  isActive          Boolean       @default(true)
+  isActive          Boolean        @default(true)
   // required
-  id                String        @id @default(auto()) @map("_id") @db.ObjectId
-  ownerId           String        @db.ObjectId
-  owner             User          @relation(fields: [ownerId], references: [id])
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId           String         @db.ObjectId
+  owner             User           @relation(fields: [ownerId], references: [id])
   // about your company
   name              String
-  slug              String        @unique
+  slug              String         @unique
   // logo              String?
   shopKeeper        String?
   numberOfEmployees String?
@@ -129,7 +129,7 @@ model Org {
   Service           Service[]
   // extra
   location          Json?
-  websiteConfig     WebSiteConfig
+  websiteConfig     WebSiteConfig?
 }
 
 enum EventStatus {
@@ -153,22 +153,26 @@ enum EventType {
 }
 
 model Event {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
-  type           EventType   @default(EVENT) // avoid scheduling even when multi enabled
-  start          DateTime
-  dateString     String
-  duration       Int // minutes
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  // mins for block
+  type     EventType @default(EVENT) // avoid scheduling even when multi enabled
+  start    DateTime
+  duration Int       @default(60)
+  orgId    String    @db.ObjectId
+  userId   String?   @db.ObjectId
+
+  end            DateTime? // @TODO: make it required?
+  dateString     String?
   allDay         Boolean     @default(false)
-  status         EventStatus @default(CANCELED)
+  status         EventStatus @default(ACTIVE)
   // relations
   // orgId      String
-  service        Service     @relation(fields: [serviceId], references: [id])
-  serviceId      String      @db.ObjectId
+  service        Service?    @relation(fields: [serviceId], references: [id])
+  serviceId      String?     @db.ObjectId
   // metadata
-  customer       Customer
+  customer       Customer?
   // optionals
-  title          String?
-  end            DateTime? // @TODO: make it required?
+  title          String?     @default("BLOCK")
   paid           Boolean     @default(false)
   notes          String?
   payment_method String?

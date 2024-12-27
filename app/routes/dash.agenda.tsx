@@ -1,10 +1,11 @@
-import {
-  ClientActionFunctionArgs,
-  ClientLoaderFunctionArgs,
-  useFetcher,
-} from "@remix-run/react";
+import { useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { LoaderFunctionArgs, useLoaderData } from "react-router";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+  useLoaderData,
+} from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { completeWeek } from "~/components/dash/agenda/agendaUtils";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
@@ -16,9 +17,35 @@ import { Drawer } from "~/components/animated/SimpleDrawer";
 import { Event } from "@prisma/client";
 import { EventForm } from "~/components/forms/agenda/EventForm";
 
-export const action = async ({ request }: ClientActionFunctionArgs) => {
+export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
+
+  if (intent === "remove_block") {
+    const id = formData.get("eventId") as string;
+    console.log("Removing:: ", id);
+    await db.event.delete({ where: { id, type: "BLOCK" } });
+  }
+
+  if (intent === "add_block") {
+    const start = formData.get("start") as string;
+    const d = new Date(start);
+    d.setMinutes(0);
+    const { org, user } = await getUserAndOrgOrRedirect(request);
+    /**
+     * 1. create block event
+     */
+    await db.event.create({
+      data: {
+        type: "BLOCK",
+        start: d,
+        orgId: org.id,
+        userId: user.id,
+      },
+    });
+    throw redirect("/dash/agenda?success=1");
+  }
+
   if (intent === "fetch_week") {
     const { org } = await getUserAndOrgOrRedirect(request);
     const orgServices = await db.service.findMany({
@@ -48,32 +75,23 @@ export const action = async ({ request }: ClientActionFunctionArgs) => {
   return null;
 };
 
-export const loader = async ({ request }: ClientLoaderFunctionArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { org, user } = await getUserAndOrgOrRedirect(request);
-  const orgServices = await db.service.findMany({
-    where: {
-      orgId: org.id,
-    },
-  });
-  const orgIds = orgServices.map((org) => org.id);
   const yesterday = new Date();
   yesterday.setDate(new Date().getDate() - 1);
   const events = await db.event.findMany({
     where: {
-      serviceId: {
-        in: orgIds,
-      },
-      start: {
-        gt: yesterday,
-      },
+      orgId: org.id,
     },
   });
   return { events, user };
 };
 
+export const shouldRevalidate = () => true;
+
 export default function Page() {
   const [week, setWeek] = useState(completeWeek(new Date()));
-  const fetcher = useFetcher<Record<string, string>>();
+  const fetcher = useFetcher<typeof action>();
   const { events, user } = useLoaderData<typeof loader>();
   const [weekEvents, setWeekEvents] = useState(events);
   // edit states
@@ -115,6 +133,10 @@ export default function Page() {
     }
   }, [fetcher]);
 
+  useEffect(() => {
+    setWeekEvents(events);
+  }, [events]);
+
   const handleEventClick = (event: Event) => {
     openDrawer();
     setEditingEvent(event);
@@ -122,11 +144,11 @@ export default function Page() {
 
   return (
     <>
-      <RouteTitle>
-        Mi agenda {new Date(events[0]?.start || undefined).getFullYear()}
-      </RouteTitle>
-      <WeekSelector onClick={handleWeekNavigation} week={week} />
-      {fetcher.state !== "idle" && <Spinner />}
+      <RouteTitle>Mi agenda {week[0].getFullYear()}</RouteTitle>
+      <div className="flex gap-4 items-center">
+        <WeekSelector onClick={handleWeekNavigation} week={week} />
+        {fetcher.state !== "idle" && <Spinner />}
+      </div>
       <SimpleBigWeekView
         events={weekEvents}
         date={week[0]}

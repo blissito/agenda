@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 export const useClickOutside = <T extends HTMLElement>({
   isActive,
   onOutsideClick,
-  includeEscape,
+  includeEscape = true,
 }: {
   includeEscape?: boolean;
   isActive: boolean;
