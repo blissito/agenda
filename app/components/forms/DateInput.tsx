@@ -10,7 +10,7 @@ export const DateInput = ({
 }: {
   type?: "time" | "date";
   register?: (arg0: string) => any;
-  onChange?: (arg0: string) => void;
+  onChange?: (arg0: number, arg1: number) => void;
   label?: string;
   name: string;
   [x: string]: unknown;
@@ -19,9 +19,6 @@ export const DateInput = ({
     <label>
       {label && <span>{label}</span>}
       <input
-        onChange={(event) =>
-          onChange?.(new Date(event.target.value).toISOString())
-        }
         name={name}
         type={type}
         {...props}
@@ -31,7 +28,16 @@ export const DateInput = ({
           "rounded-xl border-gray-200 h-12 w-full mt-1 ",
           "disabled:bg-brand_stroke disabled:cursor-not-allowed"
         )}
-        {...register?.(name)}
+        {...register?.(name, {
+          onChange(event) {
+            if (type !== "time") return;
+            // console.log("origin value", event.target.value);
+            onChange?.(
+              Number(event.target.value.split(":")[0]),
+              Number(event.target.value.split(":")[1])
+            );
+          },
+        })}
         // !!error && "border-red-500",
         // icon && "pl-12" // @TODO: does textarea needs this?)}
       />
