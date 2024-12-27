@@ -18,7 +18,7 @@ type Props = {
   icon?: ReactNode;
 };
 export const BasicInput = ({
-  icon,
+  icon = null,
   isDisabled,
   placeholder,
   className,
@@ -35,6 +35,9 @@ export const BasicInput = ({
   return (
     <>
       <div className={twMerge("grid w-full relative", containerClassName)}>
+        <span className="absolute bottom-[42%] left-3 text-gray-500">
+          {icon}
+        </span>
         <label
           className={twMerge(
             " text-brand_dark mb-1 font-satoMiddle",
@@ -45,7 +48,7 @@ export const BasicInput = ({
           {label}
         </label>
         {/* {icon && <div className="absolute top-[33%] left-4">{icon}</div>} */}
-        {icon && icon}
+
         {as === "textarea" ? (
           <textarea
             name={name}

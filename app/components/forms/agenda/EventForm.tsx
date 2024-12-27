@@ -3,100 +3,66 @@ import { Form } from "@remix-run/react";
 import { useForm } from "react-hook-form";
 import { BasicInput } from "../BasicInput";
 import { SelectInput } from "../SelectInput";
-import { CiCalendar } from "react-icons/ci";
-import { addMinutesToDate } from "~/components/dash/agenda/agendaUtils";
 import { Switch } from "~/components/common/Switch";
+import { RiUserSearchLine } from "react-icons/ri";
+import { DateInput } from "../DateInput";
+import { useEffect } from "react";
 
 export const EventForm = ({
-  event = {},
-  ownerName,
+  defaultValues,
+  onValid,
 }: {
-  event: Event;
+  onValid?: (arg0: boolean) => void;
+  defaultValues: Partial<Event>;
   ownerName?: string;
 }) => {
+  const d = new Date(defaultValues.start);
   const {
-    formState: { isValid },
     register,
-    handleSubmit,
-  } = useForm();
+    formState: { isValid },
+  } = useForm({
+    defaultValues: {
+      ...defaultValues,
+      start: `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
+    },
+  });
 
-  const formatDate = (date: Date | string) =>
-    new Date(date).toLocaleDateString("es-MX", {
-      month: "long",
-      day: "numeric",
-    });
-
-  const formatTime = (date: Date) =>
-    new Date(date).toLocaleTimeString("es-MX", {
-      hour: "numeric",
-      minute: "numeric",
-    });
-
-  const findEndTime = (event: Event) => {
-    const end = addMinutesToDate(event.start, event.duration);
-    return end?.toLocaleTimeString("es-MX", {
-      hour: "numeric",
-      minute: "numeric",
-    });
-  };
+  useEffect(() => {
+    onValid?.(isValid);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isValid]);
 
   return (
     <Form className="flex flex-col">
-      <hr className="w-[90%] self-center border-brand_pale mb-6" />
-      <section className="flex flex-wrap gap-x-20 gap-y-4">
-        <IconAndText
-          text={event.customer.tel}
-          icon="/agenda_icons/cellphone.svg"
-        />
-        <IconAndText
-          text={event.customer.email}
-          icon="/agenda_icons/mail.svg"
-        />
-        <IconAndText
-          text={event.customer.comments || "Sin comentarios"}
-          icon="/agenda_icons/note.svg"
-        />
-      </section>
-      <hr className="w-[90%] self-center border-brand_pale my-6" />
+      {/* @TODO: create a combobox */}
+      <BasicInput
+        label="Cliente"
+        icon={<RiUserSearchLine />}
+        name="customer"
+        placeholder="Buscar por correo"
+        registerOptions={{ required: false }}
+      />
+      <SelectInput
+        placeholder="Selecciona un servicio"
+        isDisabled
+        label="Servicio"
+        name="service"
+        registerOptions={{ required: false }}
+      />
       <SelectInput
         isDisabled
-        icon={<img src="/agenda_icons/id.svg" alt="icon" width="32px" />}
+        icon={<img src="/agenda_icons/id.svg" alt="icon" />}
         label="Profesional"
-        name="profesional"
-        placeholder={ownerName}
-        defaultValue={ownerName}
+        name="employee"
+        registerOptions={{ required: false }}
       />
       <p className="font-bold">Fecha y hora</p>
-      <div className="flex items-start">
-        <BasicInput
-          icon={
-            <span className="text-xl text-brand_gray absolute top-[26%] left-4 ">
-              <CiCalendar />
-            </span>
-          }
-          placeholder={formatDate(event.start)}
-          name="start"
-          register={register}
-          className="min-w-[170px]"
-        />
-        <span className="py-5 px-4">De</span>
-        <select
-          className="rounded-lg border-gray-200 h-12 w-full text-brand_gray my-2"
-          disabled
-          name="time"
-          defaultValue={""}
-        >
-          <option value="">{formatTime(event.start)}</option>
-        </select>
+      <div className="flex items-center mb-6">
+        <DateInput name="start" register={register} />
+        <span className="px-4">De</span>
+        <DateInput type="time" name="hours" register={register} />
         <span className="py-5 px-4">a</span>
-        <select
-          className="rounded-lg border-gray-200 h-12 w-full text-brand_gray my-2"
-          disabled
-          name="time"
-          defaultValue={""}
-        >
-          <option value="">{findEndTime(event)}</option>
-        </select>
+        <DateInput name="endHours" register={register} type="time" />
       </div>
       <BasicInput
         label="Notas"
@@ -105,20 +71,27 @@ export const EventForm = ({
         register={register}
         className="min-w-[170px]"
         placeholder="Agrega una nota o comentario"
+        registerOptions={{ required: false }}
       />
       <hr className="w-[90%] self-center border-brand_pale mt-2 mb-6" />
-      <Switch label="Pagado" name="paid" />
-      <div className="my-6">
-        <label htmlFor="payment">Forma de pago</label>
-        <select
-          className="rounded-lg border-gray-200 h-12 w-full text-brand_gray my-2"
-          disabled
-          name="payment_method"
-          defaultValue={""}
-        >
-          <option value="">Efectivo</option>
-        </select>
-      </div>
+      <Switch
+        label="Pagado"
+        name="paid"
+        register={register}
+        registerOptions={{ required: false }}
+      />
+      <SelectInput
+        name="paymode"
+        defaultValue="cash"
+        label="Forma de pago"
+        options={[
+          { value: "card", title: "Tarjeta" },
+          {
+            value: "cash",
+            title: "Efectivo",
+          },
+        ]}
+      />
     </Form>
   );
 };
@@ -135,3 +108,14 @@ const IconAndText = ({
     <span className="text-brand_gray text-xs">{text}</span>
   </div>
 );
+
+{
+  /* <hr className="w-[90%] self-center border-brand_pale mt-2 mb-6" /> */
+}
+//
+{
+  /* <IconAndText
+text={event.customer?.comments || "Sin comentarios"}
+icon="/agenda_icons/note.svg"
+/> */
+}

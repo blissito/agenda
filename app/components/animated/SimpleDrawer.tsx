@@ -2,15 +2,20 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ReactNode, useEffect, useRef } from "react";
 // import { createPortal } from "react-dom";
 import { IoClose } from "react-icons/io5";
+import { cn } from "~/utils/cn";
 
 export const Drawer = ({
   children,
   isOpen = false,
   onClose,
   title = "Título",
-  subtitle = "Subtítulo",
+  subtitle = "",
   cta,
+  size,
+  isValid,
 }: {
+  isValid?: boolean;
+  size?: "big";
   cta?: ReactNode;
   title?: string;
   subtitle?: string;
@@ -62,7 +67,12 @@ export const Drawer = ({
         animate={{ x: 0 }}
         exit={{ x: "120%" }}
         transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
-        className="bg-white lg:w-[40%] md:w-[60%] w-[90%] z-10 h-screen fixed top-0 right-0 shadow-xl rounded-tl-3xl rounded-bl-3xl p-8 flex flex-col"
+        className={cn(
+          "bg-white lg:w-[40%] md:w-[60%] w-[90%] z-10 h-screen fixed top-0 right-0 shadow-xl rounded-tl-3xl rounded-bl-3xl p-8 flex flex-col",
+          {
+            "md:w-[80%] lg:w-[60%]": size === "big",
+          }
+        )}
       >
         <header className="flex items-start justify-between mb-6">
           <div>
@@ -77,11 +87,18 @@ export const Drawer = ({
             <IoClose />
           </button>
         </header>
-        <section className="overflow-y-scroll h-[95%]">{children}</section>
+        <section
+          style={{
+            scrollbarWidth: "none",
+          }}
+          className="overflow-y-scroll h-[95%]"
+        >
+          {children}
+        </section>
         <nav className="flex justify-end gap-4  mt-auto">
           <button
             onClick={onClose}
-            className="text-red-500 bg-transparent px-8 py-2 hover:scale-95 transition-all"
+            className="text-gray-800 bg-gray-200 rounded-full px-8 py-2 hover:scale-95 transition-all"
           >
             Cancelar
           </button>
@@ -89,10 +106,16 @@ export const Drawer = ({
             cta
           ) : (
             <button
+              disabled={!isValid}
               onClick={onClose}
-              className="bg-brand_blue text-white hover:scale-95 rounded-full px-8 py-2 transition-all"
+              className={cn(
+                "bg-brand_blue text-white hover:scale-95 rounded-full px-8 py-2 transition-all",
+                {
+                  "disabled:bg-gray-200": true,
+                }
+              )}
             >
-              Aceptar
+              Guardar
             </button>
           )}
         </nav>

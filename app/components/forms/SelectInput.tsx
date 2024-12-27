@@ -24,7 +24,7 @@ type Props = {
   // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
 };
 export const SelectInput = ({
-  defaultValue,
+  defaultValue = "",
   isDisabled,
   icon,
   placeholder,
@@ -48,7 +48,7 @@ export const SelectInput = ({
       <div className={cn("custom-select relative")}>
         <div className="absolute top-3 left-3 z-10 ">{icon}</div>
         <select
-          defaultValue=""
+          defaultValue={defaultValue}
           disabled={isDisabled}
           name="pets"
           id="pet-select"

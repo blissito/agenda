@@ -153,28 +153,29 @@ enum EventType {
 }
 
 model Event {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
   // mins for block
-  type     EventType @default(EVENT) // avoid scheduling even when multi enabled
-  start    DateTime
-  duration Int       @default(60)
-  orgId    String    @db.ObjectId
-  userId   String?   @db.ObjectId
+  type       EventType @default(EVENT) // avoid scheduling even when multi enabled
+  start      DateTime
+  duration   Int       @default(60)
+  orgId      String    @db.ObjectId
+  userId     String?   @db.ObjectId
+  // mins for new
+  employee   String?
+  employeeId String?   @db.ObjectId
+  serviceId  String?   @db.ObjectId
+  customer   Customer?
 
+  paid           Boolean     @default(false)
+  notes          String?
   end            DateTime? // @TODO: make it required?
   dateString     String?
   allDay         Boolean     @default(false)
-  status         EventStatus @default(ACTIVE)
-  // relations
-  // orgId      String
-  service        Service?    @relation(fields: [serviceId], references: [id])
-  serviceId      String?     @db.ObjectId
   // metadata
-  customer       Customer?
+  status         EventStatus @default(ACTIVE)
+  service        Service?    @relation(fields: [serviceId], references: [id])
   // optionals
   title          String?     @default("BLOCK")
-  paid           Boolean     @default(false)
-  notes          String?
   payment_method String?
   // Dates
   updatedAt      DateTime    @updatedAt

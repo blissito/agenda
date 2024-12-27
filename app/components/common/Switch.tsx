@@ -11,14 +11,21 @@ export const Switch = forwardRef(
       setValue,
       defaultChecked = false,
       name,
+      register,
+      registerOptions = { required: true },
       ...props
     }: {
+      registerOptions?: { required: boolean };
+      register?: (
+        arg0: string,
+        arg1: Record<string, string | boolean>
+      ) => Record<string, string>;
       setValue?: (arg0: string, arg1: boolean) => void; // @TODO: fix
       className?: string;
       backgroundColor?: string;
       label?: string;
       defaultChecked?: boolean;
-      name?: string;
+      name: string;
     },
     ref // coming from register
   ) => {
@@ -40,11 +47,17 @@ export const Switch = forwardRef(
       <>
         <button
           type="button"
-          className={cn("flex items-center gap-4 justify-between")}
+          className={cn("flex items-center gap-4 justify-between", "mb-6")}
           onClick={handleClick}
         >
           <span>{label}</span>
-          <input type="checkbox" className="hidden" {...props} ref={ref} />
+          <input
+            type="checkbox"
+            className="hidden"
+            {...props}
+            ref={ref}
+            {...register?.(name, registerOptions)}
+          />
           {/* Container */}
           <div
             className={cn(

@@ -16,6 +16,8 @@ import { Spinner } from "~/components/common/Spinner";
 import { Drawer } from "~/components/animated/SimpleDrawer";
 import { Event } from "@prisma/client";
 import { EventForm } from "~/components/forms/agenda/EventForm";
+import { EventFormModal } from "~/components/forms/EventFormModal";
+import { useMexDate } from "~/utils/hooks/useMexDate";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -94,9 +96,12 @@ export default function Page() {
   const fetcher = useFetcher<typeof action>();
   const { events, user } = useLoaderData<typeof loader>();
   const [weekEvents, setWeekEvents] = useState(events);
-  // edit states
   const [isOpen, setIsOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [editableEvent, setEditableEvent] = useState<Partial<Event> | null>(
+    null
+  );
+
   const closeDrawer = () => {
     setIsOpen(false);
     setEditingEvent(null);
@@ -142,6 +147,10 @@ export default function Page() {
     setEditingEvent(event);
   };
 
+  const handleNewEvent = (date: Date) => {
+    setEditableEvent({ start: date });
+  };
+
   return (
     <>
       <RouteTitle>Mi agenda {week[0].getFullYear()}</RouteTitle>
@@ -150,6 +159,7 @@ export default function Page() {
         {fetcher.state !== "idle" && <Spinner />}
       </div>
       <SimpleBigWeekView
+        onNewEvent={handleNewEvent}
         events={weekEvents}
         date={week[0]}
         onEventClick={handleEventClick}
@@ -162,6 +172,11 @@ export default function Page() {
       >
         <EventForm event={editingEvent} ownerName={user.displayName} />
       </Drawer>
+      <EventFormModal
+        onClose={() => setEditableEvent(null)}
+        event={editableEvent}
+        isOpen={!!editableEvent}
+      />
     </>
   );
 }

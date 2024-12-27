@@ -3,7 +3,6 @@ import { completeWeek } from "./agendaUtils";
 import { type Event } from "@prisma/client";
 import { motion } from "framer-motion";
 import { cn } from "~/utils/cn";
-import { createPortal } from "react-dom";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { Form } from "@remix-run/react";
 import { useMexDate } from "~/utils/hooks/useMexDate";
@@ -56,12 +55,13 @@ export function SimpleBigWeekView({
   date = new Date(),
   events = [],
   onEventClick,
+  onNewEvent,
 }: {
+  onNewEvent?: (arg0: Date) => void;
   onEventClick?: (arg0: Event) => void;
   date?: Date;
   events: Date[];
 }) {
-  const today = new Date();
   const week = completeWeek(date);
 
   return (
@@ -83,6 +83,7 @@ export function SimpleBigWeekView({
         <TimeColumn />
         {week.map((dayOfWeek) => (
           <Column
+            onNewEvent={onNewEvent}
             dayOfWeek={dayOfWeek}
             onEventClick={onEventClick}
             key={dayOfWeek.toISOString()}
@@ -143,7 +144,9 @@ const Cell = ({
 const EmptyButton = ({
   hours,
   date,
+  onNewEvent,
 }: {
+  onNewEvent?: (arg0: Date) => void;
   onClick?: () => void;
   hours: number;
   date: Date;
@@ -164,17 +167,25 @@ const EmptyButton = ({
     setRect(r);
   }, [buttonRef]);
 
+  const handleClick = () => {
+    setRect((buttonRef.current as HTMLButtonElement).getBoundingClientRect());
+    setShow(true);
+  };
+
+  const handleReserva = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onNewEvent?.(d);
+    setShow(false);
+  };
+
   return (
     <>
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         ref={buttonRef}
         className="w-full h-full text-xs hover:bg-brand_blue/10 relative"
-        onClick={() => {
-          setRect(
-            (buttonRef.current as HTMLButtonElement).getBoundingClientRect()
-          );
-          setShow(true);
-        }}
+        onClick={handleClick}
       >
         {show && (
           <div
@@ -184,7 +195,10 @@ const EmptyButton = ({
             }}
             className="absolute border bg-white rounded-lg grid p-1 bottom-[-100%] left-0 z-20"
           >
-            <button className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg">
+            <button
+              onClick={handleReserva}
+              className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg"
+            >
               Reservar
             </button>
             <Form method="POST" action="/dash/agenda">
@@ -205,7 +219,7 @@ const EmptyButton = ({
             </Form>
           </div>
         )}
-      </button>
+      </div>
     </>
   );
 };
@@ -214,7 +228,9 @@ const EmptyButton = ({
 const Column = ({
   events = [],
   dayOfWeek,
+  onNewEvent,
 }: {
+  onNewEvent?: (arg0: Date) => void;
   dayOfWeek?: Date;
   events: Event[];
 }) => {
@@ -226,7 +242,7 @@ const Column = ({
     return event ? (
       <Event event={event} />
     ) : (
-      <EmptyButton hours={hours} date={dayOfWeek} />
+      <EmptyButton hours={hours} date={dayOfWeek} onNewEvent={onNewEvent} />
     );
   };
 
@@ -342,7 +358,7 @@ export const Options = ({
       ref={mainRef}
       style={{ top: "-100%", left: -12 }}
       className={cn(
-        "text-left z-10 bg-red-200",
+        "text-left z-10 bg-white",
         "absolute border rounded-lg grid p-3 w-[264px] top-[-100%] left-[-20%]"
       )}
     >
