@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useRef, useState } from "react";
 import { Drawer } from "../animated/SimpleDrawer";
 import { EventForm } from "./agenda/EventForm";
 
@@ -12,16 +12,15 @@ export const EventFormModal = ({
   event: Event;
   children: ReactNode;
 }) => {
-  const [isValid, setIsValid] = useState(false);
   return (
     <Drawer
-      isValid={isValid}
       title="Agendar cita"
       isOpen={isOpen}
       onClose={onClose}
       size="big"
+      footer={<></>}
     >
-      <EventForm defaultValues={event} onValid={setIsValid} />
+      <EventForm onCancel={onClose} defaultValues={event} />
     </Drawer>
   );
 };

@@ -18,3 +18,22 @@ export const weekDaysOrgSchema = z.object({
 });
 
 export type WeekDaysOrg = z.infer<typeof weekDaysOrgSchema>;
+
+//MODELS
+// Event
+export const newEventSchema = z.object({
+  start: z.coerce.date(),
+  end: z.coerce.date(),
+  // start: z.string().min(1),
+  // end: z.string().min(1),
+  paid: z.boolean().default(false),
+  payment_method: z.string().optional(),
+  notes: z.string().optional(),
+  duration: z
+    .number()
+    .min(5, { message: "La duración de la sesión, no puede ser negativa" })
+    .default(60),
+});
+
+const typeEnum = z.enum(["Private", "Business"]);
+// type: typeEnum.extract( [ 'Private' ] ),

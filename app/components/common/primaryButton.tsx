@@ -9,9 +9,13 @@ export const PrimaryButton = ({
   isLoading,
   className,
   children,
+  onClick,
+  mode = "primary",
   prefetch = "intent",
   ...props
 }: {
+  onClick?: () => void;
+  mode?: "ghost" | "cancel" | "primary";
   prefetch?: "intent" | "render" | "viewport" | "none";
   // booleanos útiles
   isDisabled?: boolean;
@@ -44,12 +48,14 @@ export const PrimaryButton = ({
       isLoading && getLoadingStyles(),
       isDisabled && getDisabledStyles(),
       !isDisabled && "hover:-translate-y-1", // hack para no repetir
+      mode === "cancel" && "bg-gray-300 text-gray-800",
       className
     );
   };
 
   return (
     <Element
+      onClick={onClick}
       prefetch={prefetch}
       disabled={isDisabled}
       {...props}

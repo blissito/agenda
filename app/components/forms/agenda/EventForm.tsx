@@ -1,5 +1,5 @@
 import { Event } from "@prisma/client";
-import { Form } from "@remix-run/react";
+import { Form, useFetcher } from "@remix-run/react";
 import { useForm } from "react-hook-form";
 import { BasicInput } from "../BasicInput";
 import { SelectInput } from "../SelectInput";
@@ -7,28 +7,36 @@ import { Switch } from "~/components/common/Switch";
 import { RiUserSearchLine } from "react-icons/ri";
 import { DateInput } from "../DateInput";
 import { useEffect, useState } from "react";
+import { PrimaryButton } from "~/components/common/primaryButton";
+import { newEventSchema } from "~/utils/zod_schemas";
 
 export const EventForm = ({
   defaultValues,
   onValid,
+  onCancel,
 }: {
-  onValid?: (arg0: boolean) => void;
+  onCancel?: () => void;
+  onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void;
   defaultValues: Partial<Event>;
   ownerName?: string;
 }) => {
   const d = new Date(defaultValues.start);
-  let oneMoreHour = new Date(d);
+  const oneMoreHour = new Date(d);
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
-  // console.log("D: ", d);
+
   const {
     register,
-    formState: { isValid },
+    formState: { isValid, errors },
     getValues,
+    setValue,
+    setError,
+    control,
+    handleSubmit,
   } = useForm({
     defaultValues: {
       ...defaultValues,
-      start: `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`,
-      startHours: d
+      start: d.toISOString().substring(0, 10),
+      startHour: d
         .toLocaleDateString("es-MX", {
           hour: "numeric",
           minute: "numeric",
@@ -36,7 +44,7 @@ export const EventForm = ({
         })
         .split(",")[1]
         .trim(),
-      endHours: oneMoreHour
+      endHour: oneMoreHour
         .toLocaleDateString("es-MX", {
           hour: "numeric",
           minute: "numeric",
@@ -48,17 +56,18 @@ export const EventForm = ({
   });
 
   useEffect(() => {
-    onValid?.(isValid);
+    onValid?.({ isValid, values: { ...getValues(), duration } });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isValid]);
+  }, [control]);
 
+  // duration calculation 🧠
   const [duration, setDuration] = useState(60);
-  const handleHoursChange = (h: number, m: number) => {
+  const handleHoursChange = () => {
     const v = getValues();
-    const sh = Number(v.startHours.split(":")[0]),
-      sm = Number(v.startHours.split(":")[1]),
-      eh = Number(v.endHours.split(":")[0]),
-      em = Number(v.endHours.split(":")[1]);
+    const sh = Number(v.startHour.split(":")[0]),
+      sm = Number(v.startHour.split(":")[1]),
+      eh = Number(v.endHour.split(":")[0]),
+      em = Number(v.endHour.split(":")[1]);
     const one = new Date(),
       dos = new Date();
     one.setHours(sh);
@@ -67,10 +76,57 @@ export const EventForm = ({
     dos.setMinutes(em);
     const du = (dos.getTime() - one.getTime()) / 1000 / 60; // mins
     setDuration(du);
+    setValue("startHour", v.startHour);
   };
 
+  const parseData = (values: Partial<Event>) => {
+    const start = new Date(values.start);
+    start.setDate(start.getDate() + 1); // why?
+    start.setHours(values.startHour.split(":")[0]);
+    start.setMinutes(values.startHour.split(":")[1]);
+
+    const end = new Date(start);
+    end.setHours(values.endHour.split(":")[0]);
+    end.setMinutes(values.endHour.split(":")[1]);
+
+    if (start > end) {
+      setError("startHour", {
+        message: "La fecha de inicio debe ser menor a la de finalización 🔁",
+      });
+      return;
+    }
+
+    const payload = {
+      ...values,
+      duration,
+      start,
+      end,
+    };
+    const r = newEventSchema.safeParse(payload);
+    if (!r.success) {
+      r.error.issues.map((issue) => {
+        setError(issue.path[0], issue.message);
+      });
+      return;
+    }
+    return r.data;
+  };
+
+  const fetcher = useFetcher();
+  const onSubmit = (v: Partial<Event>) => {
+    const validData = parseData(v);
+    if (!validData) return;
+    fetcher.submit(
+      { intent: "add_event", data: JSON.stringify(validData) },
+      { method: "POST", action: "/dash/agenda" }
+    );
+    onCancel?.();
+  };
+
+  const isLoading = fetcher.state !== "idle";
+
   return (
-    <Form className="flex flex-col">
+    <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
       {/* @TODO: create a combobox */}
       <BasicInput
         label="Cliente"
@@ -98,21 +154,26 @@ export const EventForm = ({
         <DateInput name="start" register={register} />
         <span className="px-4">De</span>
         <DateInput
-          // onChange={(h, m) => console.log("El value arriba:", h, m)}
           type="time"
-          name="startHours"
+          name="startHour"
           register={register}
           onChange={handleHoursChange}
+          error={errors.startHour}
         />
         <span className="py-5 px-4">a</span>
         <DateInput
-          name="endHours"
+          name="endHour"
           register={register}
           type="time"
           onChange={handleHoursChange}
+          error={errors.startHour}
         />
       </div>
-      <p className="mb-6">Duración: {duration}m</p>
+      {errors["startHour"] ? (
+        <p className="text-red-500">{errors.startHour.message}</p>
+      ) : (
+        <p className="mb-6">Duración: {duration}m</p>
+      )}
       <BasicInput
         label="Notas"
         as="textarea"
@@ -130,7 +191,9 @@ export const EventForm = ({
         registerOptions={{ required: false }}
       />
       <SelectInput
-        name="paymode"
+        register={register}
+        registerOptions={{ required: false }}
+        name="payment_method"
         defaultValue="cash"
         label="Forma de pago"
         options={[
@@ -141,6 +204,15 @@ export const EventForm = ({
           },
         ]}
       />
+      <hr className="mt-4 border-none" />
+      <nav className="absolute bottom-0 flex justify-end px-20 py-4 w-full gap-4 bg-white">
+        <PrimaryButton isDisabled={isLoading} onClick={onCancel} mode="cancel">
+          Cancelar
+        </PrimaryButton>
+        <PrimaryButton isLoading={isLoading} isDisabled={!isValid || isLoading}>
+          Guardar
+        </PrimaryButton>
+      </nav>
     </Form>
   );
 };

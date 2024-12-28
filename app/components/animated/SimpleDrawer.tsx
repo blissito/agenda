@@ -6,6 +6,7 @@ import { cn } from "~/utils/cn";
 
 export const Drawer = ({
   children,
+  onClick,
   isOpen = false,
   onClose,
   title = "Título",
@@ -13,7 +14,10 @@ export const Drawer = ({
   cta,
   size,
   isValid,
+  footer,
 }: {
+  footer?: ReactNode;
+  onClick?: () => void;
   isValid?: boolean;
   size?: "big";
   cta?: ReactNode;
@@ -95,30 +99,35 @@ export const Drawer = ({
         >
           {children}
         </section>
-        <nav className="flex justify-end gap-4  mt-auto">
-          <button
-            onClick={onClose}
-            className="text-gray-800 bg-gray-200 rounded-full px-8 py-2 hover:scale-95 transition-all"
-          >
-            Cancelar
-          </button>
-          {cta ? (
-            cta
-          ) : (
+        {footer ? (
+          footer
+        ) : (
+          <nav className="flex justify-end gap-4  mt-auto">
             <button
-              disabled={!isValid}
               onClick={onClose}
-              className={cn(
-                "bg-brand_blue text-white hover:scale-95 rounded-full px-8 py-2 transition-all",
-                {
-                  "disabled:bg-gray-200": true,
-                }
-              )}
+              className="text-gray-800 bg-gray-200 rounded-full px-8 py-2 hover:scale-95 transition-all"
             >
-              Guardar
+              Cancelar
             </button>
-          )}
-        </nav>
+            {cta ? (
+              cta
+            ) : (
+              <button
+                disabled={!isValid}
+                onClick={onClick}
+                className={cn(
+                  "bg-brand_blue text-white hover:scale-95 rounded-full px-8 py-2 transition-all",
+                  {
+                    "disabled:bg-gray-200": true,
+                    "active:bg-brand_blue/90": true,
+                  }
+                )}
+              >
+                Guardar
+              </button>
+            )}
+          </nav>
+        )}
       </motion.section>
     </article>
   );

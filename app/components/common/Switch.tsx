@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from "react";
+import { ChangeEvent, forwardRef, useEffect, useState } from "react";
 import { cn } from "~/utils/cn";
 import { motion } from "framer-motion";
 
@@ -32,31 +32,32 @@ export const Switch = forwardRef(
     // const ref = useRef<HTMLInputElement>(null);
     const [checked, set] = useState(defaultChecked);
 
-    const handleClick = () => {
-      set((s) => !s);
-      setValue?.(name, !checked);
+    const update = (checked: boolean) => {
+      set(checked);
+      setValue?.(name, checked);
     };
-
-    useEffect(() => {
-      setValue?.(name, defaultChecked);
-      set(defaultChecked);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [defaultChecked]);
 
     return (
       <>
-        <button
+        <label
           type="button"
-          className={cn("flex items-center gap-4 justify-between", "mb-6")}
-          onClick={handleClick}
+          className={cn(
+            "flex items-center gap-4 justify-between",
+            "mb-6",
+            "cursor-pointer"
+          )}
         >
           <span>{label}</span>
           <input
             type="checkbox"
             className="hidden"
             {...props}
-            ref={ref}
-            {...register?.(name, registerOptions)}
+            {...register?.(name, {
+              ...registerOptions,
+              onChange(event: ChangeEvent<HTMLInputElement>) {
+                update(event.target.checked);
+              },
+            })}
           />
           {/* Container */}
           <div
@@ -78,7 +79,7 @@ export const Switch = forwardRef(
               className="bg-white h-full w-3 rounded-full"
             />
           </div>
-        </button>
+        </label>
       </>
     );
   }

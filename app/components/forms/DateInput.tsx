@@ -1,3 +1,4 @@
+import { FieldError } from "react-hook-form";
 import { cn } from "~/utils/cn";
 
 export const DateInput = ({
@@ -6,8 +7,10 @@ export const DateInput = ({
   onChange,
   register,
   type = "date",
+  error,
   ...props
 }: {
+  error?: FieldError;
   type?: "time" | "date";
   register?: (arg0: string) => any;
   onChange?: (arg0: number, arg1: number) => void;
@@ -26,16 +29,14 @@ export const DateInput = ({
           "placeholder:text-brand_iron text-brand_gray font-satoshi",
           "focus:border-brand_blue",
           "rounded-xl border-gray-200 h-12 w-full mt-1 ",
-          "disabled:bg-brand_stroke disabled:cursor-not-allowed"
+          "disabled:bg-brand_stroke disabled:cursor-not-allowed",
+          {
+            "ring-2 ring-red-500": error,
+          }
         )}
         {...register?.(name, {
           onChange(event) {
-            if (type !== "time") return;
-            // console.log("origin value", event.target.value);
-            onChange?.(
-              Number(event.target.value.split(":")[0]),
-              Number(event.target.value.split(":")[1])
-            );
+            onChange?.(event.target.value);
           },
         })}
         // !!error && "border-red-500",

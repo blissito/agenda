@@ -17,15 +17,31 @@ import { Drawer } from "~/components/animated/SimpleDrawer";
 import { Event } from "@prisma/client";
 import { EventForm } from "~/components/forms/agenda/EventForm";
 import { EventFormModal } from "~/components/forms/EventFormModal";
-import { useMexDate } from "~/utils/hooks/useMexDate";
+import { newEventSchema } from "~/utils/zod_schemas";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
+  if (intent === "add_event") {
+    const { org, user } = await getUserAndOrgOrRedirect(request);
+    const validData = newEventSchema.parse(
+      JSON.parse(formData.get("data") as string)
+    );
+
+    await db.event.create({
+      data: {
+        ...validData,
+        orgId: org.id,
+        userId: user.id,
+        title: "Nuevo evento",
+      },
+    });
+  }
+
   if (intent === "remove_block") {
     const id = formData.get("eventId") as string;
-    console.log("Removing:: ", id);
+
     await db.event.delete({ where: { id, type: "BLOCK" } });
   }
 
@@ -97,14 +113,13 @@ export default function Page() {
   const { events, user } = useLoaderData<typeof loader>();
   const [weekEvents, setWeekEvents] = useState(events);
   const [isOpen, setIsOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [editableEvent, setEditableEvent] = useState<Partial<Event> | null>(
     null
   );
 
   const closeDrawer = () => {
     setIsOpen(false);
-    setEditingEvent(null);
+    setEditableEvent(null);
   };
   const openDrawer = () => setIsOpen(true);
 
@@ -144,7 +159,7 @@ export default function Page() {
 
   const handleEventClick = (event: Event) => {
     openDrawer();
-    setEditingEvent(event);
+    setEditableEvent(event);
   };
 
   const handleNewEvent = (date: Date) => {
@@ -167,10 +182,10 @@ export default function Page() {
       <Drawer
         isOpen={isOpen}
         onClose={closeDrawer}
-        title={editingEvent?.customer?.displayName || "Sin nombre"} // @todo connfirmed tag
-        subtitle={editingEvent?.service?.name || "Si nombre de servicio"}
+        title={editableEvent?.customer?.displayName || "Sin nombre"} // @todo connfirmed tag
+        subtitle={editableEvent?.service?.name || "Si nombre de servicio"}
       >
-        <EventForm event={editingEvent} ownerName={user.displayName} />
+        <EventForm event={editableEvent} ownerName={user.displayName} />
       </Drawer>
       <EventFormModal
         onClose={() => setEditableEvent(null)}
