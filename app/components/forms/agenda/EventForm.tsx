@@ -1,6 +1,6 @@
 import { Event } from "@prisma/client";
 import { Form, useFetcher } from "@remix-run/react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { BasicInput } from "../BasicInput";
 import { SelectInput } from "../SelectInput";
 import { Switch } from "~/components/common/Switch";
@@ -80,12 +80,12 @@ export const EventForm = ({
   };
 
   const parseData = (values: Partial<Event>) => {
-    const start = new Date(values.start);
-    start.setDate(start.getDate() + 1); // why?
+    const start = new Date(values.start + "T00:00:00");
+    start.setDate(start.getDate()); // why?
     start.setHours(values.startHour.split(":")[0]);
     start.setMinutes(values.startHour.split(":")[1]);
 
-    const end = new Date(start);
+    const end = new Date(values.start + "T00:00:00");
     end.setHours(values.endHour.split(":")[0]);
     end.setMinutes(values.endHour.split(":")[1]);
 
@@ -104,8 +104,9 @@ export const EventForm = ({
     };
     const r = newEventSchema.safeParse(payload);
     if (!r.success) {
-      r.error.issues.map((issue) => {
-        setError(issue.path[0], issue.message);
+      console.error("PARSE_ERROR: ", r.error);
+      r.error.issues.forEach((issue) => {
+        setError(issue.path[0], { message: issue.message });
       });
       return;
     }
@@ -115,7 +116,7 @@ export const EventForm = ({
   const fetcher = useFetcher();
   const onSubmit = (v: Partial<Event>) => {
     const validData = parseData(v);
-    if (!validData) return;
+    if (!validData) return console.error("EEROR_ON_VALIDATION", validData);
     fetcher.submit(
       { intent: "add_event", data: JSON.stringify(validData) },
       { method: "POST", action: "/dash/agenda" }
@@ -124,6 +125,14 @@ export const EventForm = ({
   };
 
   const isLoading = fetcher.state !== "idle";
+
+  const startHour = useWatch({ control, name: "startHour" });
+  const endHour = useWatch({ control, name: "endHour" });
+
+  useEffect(() => {
+    handleHoursChange();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startHour, endHour]);
 
   return (
     <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>

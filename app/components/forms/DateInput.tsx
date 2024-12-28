@@ -8,6 +8,7 @@ export const DateInput = ({
   register,
   type = "date",
   error,
+  registerOptions,
   ...props
 }: {
   error?: FieldError;
@@ -34,11 +35,7 @@ export const DateInput = ({
             "ring-2 ring-red-500": error,
           }
         )}
-        {...register?.(name, {
-          onChange(event) {
-            onChange?.(event.target.value);
-          },
-        })}
+        {...register?.(name, registerOptions)}
         // !!error && "border-red-500",
         // icon && "pl-12" // @TODO: does textarea needs this?)}
       />
