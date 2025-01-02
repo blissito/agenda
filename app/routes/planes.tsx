@@ -237,7 +237,7 @@ export const yearlyItems = [
     plan: "Profesional",
     price: "$159 mxn",
     children: (
-      <div className="h-full flex flex-col">
+      <div className="h-full flex flex-col ">
         <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
           <li className="flex gap-3">
             {" "}
@@ -270,7 +270,7 @@ export const yearlyItems = [
         {/* <PrimaryButton className="mt-10 md:mt-auto">
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton> */}
-        <DialogButton>
+        <DialogButton className="mt-10 md:mt-auto">
           Únete a la lista de espera <ArrowRight />{" "}
         </DialogButton>
       </div>
@@ -358,7 +358,7 @@ export const monthlyItems = [
         {/* <PrimaryButton className="mt-10 md:mt-auto">
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton> */}
-        <DialogButton>
+        <DialogButton className="mt-10 md:mt-auto">
           Únete a la lista de espera <ArrowRight />{" "}
         </DialogButton>
       </div>
