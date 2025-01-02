@@ -1,3 +1,4 @@
+import { DialogButton } from "../common/DialogButton";
 import { PrimaryButton } from "../common/primaryButton";
 import { SecondaryButton } from "../common/secondaryButton";
 import { ArrowRight } from "../icons/arrowRight";
@@ -15,12 +16,17 @@ export const Banner = () => {
         te muestre todo lo que puedes hacer con Denik. ¡Escríbenos!
       </p>
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 mt-12 justify-center">
-        <PrimaryButton className="w-full md:w-[180px]">
+        {/* <PrimaryButton className="w-full md:w-[180px]">
           Probar gratis <ArrowRight />{" "}
-        </PrimaryButton>
-        <SecondaryButton className="w-full md:w-[180px]">
-          Agendar demo{" "}
-        </SecondaryButton>
+        </PrimaryButton> */}
+        <DialogButton>
+          Únete a la lista de espera <ArrowRight />{" "}
+        </DialogButton>
+        <a href="https://wa.me/525539111285?text=¡Hola!%20Quiero%agendar%20un%demo.">
+          <SecondaryButton className="w-full md:w-[180px]">
+            Agendar demo{" "}
+          </SecondaryButton>
+        </a>
       </div>
       <Meteors />
     </section>

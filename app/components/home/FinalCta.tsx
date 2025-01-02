@@ -4,15 +4,19 @@ import { People } from "../icons/people";
 import { PrimaryButton } from "../common/primaryButton";
 import { CardLarge, CardSmall } from "./home";
 import { ReactNode } from "react";
+import { DialogButton } from "../common/DialogButton";
 
 export const FinalCta = ({ children }: { children?: ReactNode }) => (
   <section className="w-full h-[640px] md:h-[800px] overflow-hidden">
     <section className="max-w-7xl w-full mx-auto h-[640px] md:h-[800px]  text-center  relative ">
       <div className="flex flex-col justify-center h-full items-center -mt-20 md:-mt-16 leading-normal ">
         {children}
-        <PrimaryButton>
+        {/* <PrimaryButton>
           Probar gratis <ArrowRight />{" "}
-        </PrimaryButton>
+        </PrimaryButton> */}
+        <DialogButton>
+          Únete a la lista de espera <ArrowRight />{" "}
+        </DialogButton>
       </div>
       <div className="w-full flex justify-between text-left  absolute -bottom-40 md:-bottom-60 gap-4 ">
         <LineSteak />

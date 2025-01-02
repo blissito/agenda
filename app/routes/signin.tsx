@@ -171,7 +171,7 @@ export default function Page() {
   }
 
   return (
-    <section className="relative">
+    <section className="relative bg-white">
       {loaderData?.alert && (
         <div>
           <p

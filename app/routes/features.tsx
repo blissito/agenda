@@ -82,8 +82,7 @@ const Features = () => {
         <UserFeatures className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] md:w-16 md:h-16 mr-3" />
       </h2>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[90%]">
-        Toma el control de la agenda de tu negocio, prueba Deník y Prueba la
-        mejor agenda en línea y toma el control de la agenda de t
+        Prueba todo lo que Deník tiene para ti y tu negocio
       </p>
       <div className="mt-20 flex flex-col gap-8">
         <div className="grid grid-cols-8 h-[480px] gap-8 ">

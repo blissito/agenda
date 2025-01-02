@@ -17,6 +17,7 @@ import { Denik } from "~/components/icons/denik";
 import { Banner } from "~/components/home/Banner";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { Arrow } from "~/components/icons/arrow";
+import { DialogButton } from "~/components/common/DialogButton";
 
 export const meta: MetaFunction = () => {
   return [
@@ -266,9 +267,12 @@ export const yearlyItems = [
             <ListStar /> Expediente de clientes
           </li>
         </ul>
-        <PrimaryButton className="mt-10 md:mt-auto">
+        {/* <PrimaryButton className="mt-10 md:mt-auto">
           Probar gratis <ArrowRight />{" "}
-        </PrimaryButton>
+        </PrimaryButton> */}
+        <DialogButton>
+          Únete a la lista de espera <ArrowRight />{" "}
+        </DialogButton>
       </div>
     ),
     link: "https://stripe.com",
@@ -351,9 +355,12 @@ export const monthlyItems = [
             <ListStar /> Expediente de clientes
           </li>
         </ul>
-        <PrimaryButton className="mt-10 md:mt-auto">
+        {/* <PrimaryButton className="mt-10 md:mt-auto">
           Probar gratis <ArrowRight />{" "}
-        </PrimaryButton>
+        </PrimaryButton> */}
+        <DialogButton>
+          Únete a la lista de espera <ArrowRight />{" "}
+        </DialogButton>
       </div>
     ),
     link: "https://stripe.com",
