@@ -173,6 +173,7 @@ export default function Page() {
         <WeekSelector onClick={handleWeekNavigation} week={week} />
         {fetcher.state !== "idle" && <Spinner />}
       </div>
+      {/* @todo render today and current hour in client */}
       <SimpleBigWeekView
         onNewEvent={handleNewEvent}
         events={weekEvents}
