@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { newEventSchema } from "~/utils/zod_schemas";
 import { CustomersComboBox } from "../CustomersComboBox";
+import { ServiceSelect } from "../ServiceSelect";
+import { EmployeeSelect } from "../EmployeeSelect";
 
 const formatDate = (d: Date | string) =>
   new Date(d).toISOString().substring(0, 10);
@@ -163,20 +165,9 @@ export const EventForm = ({
         customers={customers}
         onNewClientClick={onNewClientClick}
       />
-      <SelectInput
-        placeholder="Selecciona un servicio"
-        isDisabled
-        label="Servicio"
-        name="service"
-        registerOptions={{ required: false }}
-      />
-      <SelectInput
-        isDisabled
-        icon={<img src="/agenda_icons/id.svg" alt="icon" />}
-        label="Profesional"
-        name="employee"
-        registerOptions={{ required: false }}
-      />
+      <ServiceSelect />
+      <EmployeeSelect />
+
       <p className="font-bold">Fecha y hora</p>
       <div className="flex items-center">
         <DateInput name="start" register={register} />
@@ -202,7 +193,10 @@ export const EventForm = ({
       {errors["startHour"] ? (
         <p className="text-red-500">{errors.startHour.message}</p>
       ) : (
-        <p className="mb-6">Duración: {duration}m</p>
+        <p className="mb-6">
+          Duración:{" "}
+          <strong className="font-sans font-bold"> {duration}m</strong>
+        </p>
       )}
       <BasicInput
         label="Notas"

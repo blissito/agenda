@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import type { FieldValues, UseFormRegister } from "react-hook-form";
+import type { ChangeEvent, ReactNode } from "react";
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 import { cn } from "~/utils/cn";
@@ -11,7 +11,7 @@ export type Option = {
 
 type Props = {
   defaultValue?: string;
-  name: string;
+  name?: string;
   register?: UseFormRegister<FieldValues> | any;
   error?: FieldError;
   label?: string;
@@ -21,7 +21,7 @@ type Props = {
   options?: Option[];
   icon?: ReactNode;
   isDisabled?: boolean;
-  // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (arg0: ChangeEvent<HTMLSelectElement>) => void;
 };
 export const SelectInput = ({
   defaultValue = "",
@@ -35,12 +35,13 @@ export const SelectInput = ({
   name,
   register,
   options = [],
+  onChange,
   ...props
 }: Props) => {
   return (
-    <>
+    <section className={className}>
       <label
-        className={twMerge(" text-brand_dark font-satoMiddle", className)}
+        className={twMerge(" text-brand_dark font-satoMiddle")}
         htmlFor={name}
       >
         {label}
@@ -48,6 +49,7 @@ export const SelectInput = ({
       <div className={cn("custom-select relative")}>
         <div className="absolute top-3 left-3 z-10 ">{icon}</div>
         <select
+          onChange={onChange}
           defaultValue={defaultValue}
           disabled={isDisabled}
           name="pets"
@@ -75,6 +77,6 @@ export const SelectInput = ({
         </select>
       </div>
       {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
-    </>
+    </section>
   );
 };

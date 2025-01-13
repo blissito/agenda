@@ -20,5 +20,9 @@ export default [
     ]),
   ]),
   // api
-  ...prefix("api", [route("customers", "routes/api/customers.ts")]),
+  ...prefix("api", [
+    route("customers", "routes/api/customers.ts"),
+    route("services", "routes/api/services.ts"),
+    route("employees", "routes/api/employees.ts"),
+  ]),
 ] satisfies RouteConfig;
