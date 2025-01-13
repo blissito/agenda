@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { generateSlug } from "./generateSlug";
 import { db } from "./db.server";
-import { Org } from "@prisma/client";
+import { type Org } from "@prisma/client";
 
 // aux functions for signup process
 

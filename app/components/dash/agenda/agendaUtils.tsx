@@ -1,5 +1,4 @@
-import { HourOrDay } from "~/components/hooks/useCoordinates";
-import { type Cell } from "./calendarGrid";
+import type { HourOrDay } from "~/components/hooks/useCoordinates";
 
 export interface Day {
   day: string;

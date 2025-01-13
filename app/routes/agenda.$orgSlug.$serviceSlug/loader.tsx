@@ -1,8 +1,7 @@
-import { Org, Service } from "@prisma/client";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+import { data as json } from "react-router";
 import { db } from "~/utils/db.server";
 
-export const loaderFunction = async ({ params }: LoaderFunctionArgs) => {
+export const loaderFunction = async ({ params }) => {
   const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
   const service = await db.service.findUnique({
     where: {

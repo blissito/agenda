@@ -8,7 +8,7 @@ import { Rocket } from "../icons/rocket";
 import { Expression } from "../icons/expression";
 import { Waves } from "../icons/waves";
 import { Arrow } from "../icons/arrow";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Search } from "../icons/search";
 import { Thunder } from "../icons/thunder";
 import { Comment } from "../icons/comment";

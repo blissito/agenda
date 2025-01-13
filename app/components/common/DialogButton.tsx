@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import React, { ReactNode, useRef, useState } from "react";
+import React, { type ReactNode, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
 import { motion } from "framer-motion";

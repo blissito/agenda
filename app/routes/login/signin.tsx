@@ -1,4 +1,3 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import {
   Form,
   redirect,
@@ -7,7 +6,7 @@ import {
   useLoaderData,
   useNavigation,
 } from "react-router";
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { z } from "zod";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
@@ -25,16 +24,17 @@ import { commitSession, destroySession, getSession } from "~/sessions";
 import { cn } from "~/utils/cn";
 import { sendMagicLink } from "~/utils/emails/sendMagicLink";
 import {
-  FirebaseUserData,
+  type FirebaseUserData,
   startGoogleLogin,
   startMicrosoftLogin,
 } from "~/utils/lib/firebase";
+import type { Route } from "./+types/signin";
 
 export const MICROSOFT_BRAND_NAME = "microsoft";
 export const GOOGLE_BRAND_NAME = "google";
 const REDIRECT_AFTER_LOGIN = "/dash";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
   const session = await getSession(request.headers.get("Cookie"));

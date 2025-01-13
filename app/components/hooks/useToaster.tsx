@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 const sleep = (s: number) => new Promise((r) => setTimeout(r, s * 1000));
 

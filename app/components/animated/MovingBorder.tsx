@@ -1,5 +1,5 @@
 import { motion, useAnimationControls } from "framer-motion";
-import { ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
 export const MovingBorder = ({ children }: { children?: ReactNode }) => {
   const containerRef = useRef<HTMLButtonElement>(null);

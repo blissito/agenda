@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 import { Barbershop } from "../icons/business/barbershop";
 import { Spa } from "../icons/business/spa";
 import { Sports } from "../icons/business/sports";

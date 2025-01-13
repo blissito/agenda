@@ -3,7 +3,7 @@ import { ArrowRight } from "../icons/arrowRight";
 import { People } from "../icons/people";
 import { PrimaryButton } from "../common/primaryButton";
 import { CardLarge, CardSmall } from "./home";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { DialogButton } from "../common/DialogButton";
 
 export const FinalCta = ({ children }: { children?: ReactNode }) => (

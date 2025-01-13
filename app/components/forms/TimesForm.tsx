@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { SLUGS } from "~/routes/login/signup.$stepSlug";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
 // @TODO: improve animation presence
 import {
@@ -14,8 +14,8 @@ import {
   TimePicker,
 } from "./TimePicker";
 import { nanoid } from "nanoid";
-import { Org } from "@prisma/client";
-import { WeekDaysType } from "./form_handlers/aboutYourCompanyHandler";
+import { type Org } from "@prisma/client";
+import { type WeekDaysType } from "./form_handlers/aboutYourCompanyHandler";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {

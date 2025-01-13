@@ -1,4 +1,4 @@
-import { Children, ReactNode, useRef, useState } from "react";
+import { Children, type ReactNode, useRef, useState } from "react";
 import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
 
 export const SimpleFlipper = ({ children }: { children?: ReactNode }) => {

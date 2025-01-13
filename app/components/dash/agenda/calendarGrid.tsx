@@ -1,15 +1,18 @@
 import { twMerge } from "tailwind-merge";
 import {
   createContext,
-  MouseEvent,
-  ReactNode,
+  type MouseEvent,
+  type ReactNode,
   useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { BasicBoxType, Day, generateWeekGrid } from "./agendaUtils";
-import { HourOrDay, useCoordinates } from "~/components/hooks/useCoordinates";
+import { type BasicBoxType, type Day, generateWeekGrid } from "./agendaUtils";
+import {
+  type HourOrDay,
+  useCoordinates,
+} from "~/components/hooks/useCoordinates";
 // animation stuff
 import { motion, useDragControls, useMotionValue } from "framer-motion";
 

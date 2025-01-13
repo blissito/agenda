@@ -1,19 +1,15 @@
-import { ReactNode, useState } from "react";
-import { Form, useFetcher } from "@remix-run/react";
+import { type ReactNode, useState } from "react";
 import { FaClock } from "react-icons/fa";
-import { Org, Service } from "@prisma/client";
+import { type Org, type Service } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { AnimatePresence, motion } from "framer-motion";
 import { nanoid } from "nanoid";
-import { BasicInput } from "~/components/forms/BasicInput";
 import {
   from12To24,
   fromMinsToLocaleTimeString,
   generateSecuense,
 } from "~/components/dash/agenda/agendaUtils";
-import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
+import { type WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import { Schedule } from "~/components/icons/appointment/schedule";
 import { Clook } from "~/components/icons/appointment/clook";
 import { Money } from "~/components/icons/appointment/money";

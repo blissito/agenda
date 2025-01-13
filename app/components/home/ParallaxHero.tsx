@@ -1,5 +1,5 @@
 import { motion, useTransform, useScroll } from "framer-motion";
-import { Children, createRef, ReactNode } from "react";
+import { Children, createRef, type ReactNode } from "react";
 
 //**********************************This is Still a Work in progress */
 

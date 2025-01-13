@@ -1,5 +1,5 @@
 import { useSpring, motion } from "motion/react";
-import { MouseEvent, ReactNode } from "react";
+import { type MouseEvent, type ReactNode } from "react";
 import { useTimeout } from "../hooks/useTimeout";
 
 export const CardTriDi = ({ children }: { children?: ReactNode }) => {

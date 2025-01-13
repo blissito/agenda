@@ -1,9 +1,9 @@
-import { LoaderFunctionArgs } from "react-router";
 import { useLoaderData } from "react-router";
 import { twMerge } from "tailwind-merge";
 import { getUserOrRedirect } from "~/.server/userGetters";
+import type { Route } from "./+types/dash._index";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const user = await getUserOrRedirect(request);
   return { user };
 };

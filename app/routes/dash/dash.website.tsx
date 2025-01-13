@@ -1,6 +1,5 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { ReactNode, useState } from "react";
+import { useLoaderData } from "react-router";
+import { type ReactNode, useState } from "react";
 import { FiCopy } from "react-icons/fi";
 import { IoQrCodeOutline } from "react-icons/io5";
 import { twMerge } from "tailwind-merge";
@@ -15,7 +14,7 @@ import { Twitter } from "~/components/icons/twitter";
 import { Youtube } from "~/components/icons/youtube";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { Org, Service } from "@prisma/client";
+import { type Org, type Service } from "@prisma/client";
 import { formatRange } from "~/components/common/FormatRange";
 import { db } from "~/utils/db.server";
 import { Image } from "~/components/common/Image";

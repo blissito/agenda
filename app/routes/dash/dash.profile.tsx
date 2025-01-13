@@ -1,14 +1,12 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { Children, ReactNode } from "react";
+import { useLoaderData } from "react-router";
+import type { ReactNode } from "react";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { Camera } from "~/components/icons/camera";
 import { Check } from "~/components/icons/check";
-import { Edit } from "~/components/icons/edit";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getUserOrRedirect } from "~/.server/userGetters";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }) => {
   const user = await getUserOrRedirect(request);
   return { user };
 };

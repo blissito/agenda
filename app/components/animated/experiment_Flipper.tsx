@@ -1,5 +1,5 @@
 import { motion, useAnimationControls } from "framer-motion";
-import { Children, ReactNode, useEffect, useRef, useState } from "react";
+import { Children, type ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "~/utils/cn";
 
 export function Flipper({

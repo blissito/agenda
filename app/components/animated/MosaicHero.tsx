@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { MouseEvent, ReactNode, useEffect, useState } from "react";
+import { type MouseEvent, type ReactNode, useEffect, useState } from "react";
 
 export const MosaicHero = ({ children }: { children?: ReactNode }) => {
   const [viewPortWidth, setViewportWidth] = useState(1);

@@ -1,10 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { TbDots } from "react-icons/tb";
 import { twMerge } from "tailwind-merge";
 import { useOutsideClick } from "../hooks/useOutsideClick";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 export const DropdownMenu = ({ children }: { children?: ReactNode }) => {
   const [show, setShow] = useState(false);

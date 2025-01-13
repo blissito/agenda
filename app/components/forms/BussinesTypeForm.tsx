@@ -4,10 +4,10 @@ import { MultipleOptions, Option, Otro } from "./MultipleOptions";
 import { Sports } from "../icons/business/sports";
 import { FaBusinessTime } from "react-icons/fa";
 import { PrimaryButton } from "../common/primaryButton";
-import { FieldValues, useForm } from "react-hook-form";
+import { type FieldValues, useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
 import { SLUGS } from "~/routes/login/signup.$stepSlug";
-import { Org } from "@prisma/client";
+import { type Org } from "@prisma/client";
 
 const OPTIONS = [
   "barbería",

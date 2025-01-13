@@ -1,11 +1,6 @@
 import { useFetcher } from "react-router";
 import { useEffect, useState } from "react";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-  useLoaderData,
-} from "react-router";
+import { redirect } from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { completeWeek } from "~/components/dash/agenda/agendaUtils";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
@@ -13,14 +8,13 @@ import { db } from "~/utils/db.server";
 import { SimpleBigWeekView } from "~/components/dash/agenda/SimpleBigWeekView";
 import { WeekSelector } from "~/components/dash/agenda/WeekSelector";
 import { Spinner } from "~/components/common/Spinner";
-import { Drawer } from "~/components/animated/SimpleDrawer";
-import { Event } from "@prisma/client";
-import { EventForm } from "~/components/forms/agenda/EventForm";
+import { type Event } from "@prisma/client";
 import { EventFormModal } from "~/components/forms/EventFormModal";
 import { newEventSchema } from "~/utils/zod_schemas";
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer";
+import type { Route } from "./+types/dash.agenda";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
@@ -94,7 +88,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org, user } = await getUserAndOrgOrRedirect(request);
   const yesterday = new Date();
   yesterday.setDate(new Date().getDate() - 1);
@@ -103,26 +97,23 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       orgId: org.id,
     },
   });
-  return { events, user };
+  const customers = await db.customer.findMany({
+    take: 1,
+    where: {
+      orgId: org.id,
+    },
+  });
+  return { events, customers };
 };
 
-export const shouldRevalidate = () => true;
-
-export default function Page() {
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { events, customers } = loaderData;
   const [week, setWeek] = useState(completeWeek(new Date()));
-  const fetcher = useFetcher<typeof action>();
-  const { events, user } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher();
   const [weekEvents, setWeekEvents] = useState(events);
-  const [isOpen, setIsOpen] = useState(false);
   const [editableEvent, setEditableEvent] = useState<Partial<Event> | null>(
     null
   );
-
-  const closeDrawer = () => {
-    setIsOpen(false);
-    setEditableEvent(null);
-  };
-  const openDrawer = () => setIsOpen(true);
 
   const handleWeekNavigation = (direction: -1 | 1) => {
     let d;
@@ -138,8 +129,8 @@ export default function Page() {
     fetcher.submit(
       {
         intent: "fetch_week",
-        monday: w[0],
-        sunday: w[w.length - 1],
+        monday: w[0] as string,
+        sunday: w[w.length - 1] as string,
       },
       {
         method: "post",
@@ -159,7 +150,6 @@ export default function Page() {
   }, [events]);
 
   const handleEventClick = (event: Event) => {
-    openDrawer();
     setEditableEvent(event);
   };
 
@@ -184,6 +174,7 @@ export default function Page() {
         onEventClick={handleEventClick}
       />
       <EventFormModal
+        customers={customers}
         onClose={() => setEditableEvent(null)}
         event={editableEvent}
         isOpen={!!editableEvent}

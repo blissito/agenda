@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 // import { createPortal } from "react-dom";
 import { IoClose } from "react-icons/io5";
 import { cn } from "~/utils/cn";

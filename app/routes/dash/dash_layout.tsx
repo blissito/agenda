@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import { getUserOrRedirect } from "~/.server/userGetters";
 import { SideBar } from "~/components/sideBar/sideBar";
-import { Route } from "./+types/dash_layout";
+import type { Route } from "./+types/dash_layout";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   return {

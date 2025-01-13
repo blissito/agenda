@@ -130,6 +130,7 @@ model Org {
   // extra
   location          Json?
   websiteConfig     WebSiteConfig?
+  Customer          Customer[]
 }
 
 enum EventStatus {
@@ -142,6 +143,8 @@ enum EventStatus {
 model Customer {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   email       String   @unique
+  orgId       String   @db.ObjectId
+  org         Org      @relation(fields: [orgId], references: [id])
   // optionals
   displayName String?
   userId      String?  @db.ObjectId
@@ -165,12 +168,13 @@ model Event {
   start          DateTime
   duration       Int         @default(60)
   orgId          String      @db.ObjectId
-  userId         String?     @db.ObjectId
+  userId         String?     @db.ObjectId // owner
   // mins for new
+  customerId     String?     @db.ObjectId // client
+  customer       Customer?   @relation(fields: [customerId], references: [id])
   employee       String?
   employeeId     String?     @db.ObjectId
   serviceId      String?     @db.ObjectId
-  customer       Customer?   @relation(fields: [customerId], references: [id])
   paid           Boolean     @default(false)
   notes          String?
   end            DateTime? // @TODO: make it required?
@@ -187,7 +191,6 @@ model Event {
   createdAt      DateTime    @default(now())
   // utils
   legacyService  Json?
-  customerId     String?     @db.ObjectId
 }
 
 model Job {

@@ -1,8 +1,8 @@
-import { Event, Org, Prisma, User } from "@prisma/client";
+import { type Event, type Org, Prisma, type User } from "@prisma/client";
 import { redirect } from "react-router";
 import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
-import { FirebaseUserData } from "~/utils/lib/firebase";
+import { type FirebaseUserData } from "~/utils/lib/firebase";
 import { validateUserToken } from "~/utils/tokens";
 
 export const redirectIfUser = async (request: Request) => {

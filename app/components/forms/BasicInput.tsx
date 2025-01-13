@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
+import type { ChangeEvent, ReactNode } from "react";
+import type { FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 
@@ -18,6 +18,7 @@ type Props = {
   icon?: ReactNode;
   onFocus?: () => void;
   onBlur?: () => void;
+  onChange?: (evt: ChangeEvent<HTMLInputElement>) => void;
 };
 export const BasicInput = ({
   icon = null,
@@ -34,6 +35,7 @@ export const BasicInput = ({
   type,
   onFocus,
   onBlur,
+  onChange,
   ...props
 }: Props) => {
   return (
@@ -57,6 +59,7 @@ export const BasicInput = ({
           <textarea
             onFocus={onFocus}
             onBlur={onBlur}
+            onChange={onChange}
             name={name}
             disabled={isDisabled}
             placeholder={placeholder}
@@ -75,6 +78,7 @@ export const BasicInput = ({
           <input
             onBlur={onBlur}
             onFocus={onFocus}
+            onChange={onChange}
             name={name}
             disabled={isDisabled}
             type={type}

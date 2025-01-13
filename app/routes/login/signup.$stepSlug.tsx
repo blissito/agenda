@@ -1,8 +1,7 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { useLoaderData, useNavigate } from "react-router";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm";
 import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 import { TimesForm } from "~/components/forms/TimesForm";
@@ -15,6 +14,7 @@ import {
   typeOfBusinessHandler,
 } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
 import { Denik } from "~/components/icons/denik";
+import type { Route } from "./+types/signup.$stepSlug";
 
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 export const SLUGS = [
@@ -34,7 +34,7 @@ const FORM_COMPONENT_NAMES = [
 // @TODO: saving with real user  1/3[]
 // @TODO: Show saved values when return (edit) 1/3[]
 // @TODO: secure route loader?
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
   const data = JSON.parse(formData.get("data") as string);
@@ -85,7 +85,7 @@ const getTitleByStepSlug = (slug?: string) => {
 export const loader = async ({
   request,
   params: { stepSlug },
-}: LoaderFunctionArgs) => {
+}: Route.LoaderArgs) => {
   // await getUser
 
   // @TODO: keyboard support

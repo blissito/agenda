@@ -1,9 +1,10 @@
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
 import { BasicInput } from "../BasicInput";
 import { PrimaryButton } from "~/components/common/primaryButton";
+import type { Customer } from "@prisma/client";
 
-export const ClientForm = ({}: {}) => {
+export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
   const {
     handleSubmit,
     register,
@@ -17,18 +18,18 @@ export const ClientForm = ({}: {}) => {
     },
   });
   const fetcher = useFetcher();
-  const onSubmit = (
-    values: SubmitHandler<{
-      displayName: string;
-      email: string;
-      tel: string;
-      comments: string;
-    }>
-  ) => {
-    fetcher.submit(
-      { data: JSON.stringify(values) },
-      { method: "post", action: "api/customers?intent=new" }
+  const onSubmit = async (values: Partial<Customer>) => {
+    // @todo validate
+    await fetcher.submit(
+      {
+        data: JSON.stringify(values),
+      },
+      {
+        method: "post",
+        action: "/api/customers?intent=new",
+      }
     );
+    onFetch?.();
   };
 
   return (
@@ -54,6 +55,7 @@ export const ClientForm = ({}: {}) => {
           name="tel"
           placeholder="555 555 55 66"
           register={register}
+          registerOptions={{ required: false }}
         />
       </div>
       <BasicInput

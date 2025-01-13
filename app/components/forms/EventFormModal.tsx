@@ -1,13 +1,16 @@
-import { ReactNode, useRef, useState } from "react";
+import { type ReactNode } from "react";
 import { Drawer } from "../animated/SimpleDrawer";
 import { EventForm } from "./agenda/EventForm";
+import type { Customer } from "@prisma/client";
 
 export const EventFormModal = ({
   event,
   onClose,
   isOpen = false,
   onNewClientClick,
+  customers,
 }: {
+  customers: Customer[];
   onNewClientClick: () => void;
   onClose?: () => void;
   isOpen?: boolean;
@@ -23,6 +26,7 @@ export const EventFormModal = ({
       footer={<></>}
     >
       <EventForm
+        customers={customers}
         onNewClientClick={onNewClientClick}
         onCancel={onClose}
         defaultValues={event}

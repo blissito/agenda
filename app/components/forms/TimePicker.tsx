@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { type ChangeEvent, useState } from "react";
 
 export const generateTimesFromRange = (range: string[], mins: number) => {
   const maxMins = getMinutesFromString(range[1]);

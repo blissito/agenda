@@ -1,14 +1,6 @@
-import { Children, ReactNode, useEffect, useState } from "react";
-import {
-  motion,
-  stagger,
-  useAnimate,
-  useMotionValue,
-  useSpring,
-} from "motion/react";
-
+import { Children, type ReactNode, useEffect, useState } from "react";
+import { stagger, useAnimate, useSpring } from "motion/react";
 import { nanoid } from "nanoid";
-import { cn } from "~/utils/cn";
 
 //@TODO: STILL A WIP, HOW TO STAGGER PAIR LETTERS ??
 

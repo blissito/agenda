@@ -1,4 +1,10 @@
-import { MouseEvent, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type MouseEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { completeWeek } from "./agendaUtils";
 import { type Event } from "@prisma/client";
 import { motion } from "framer-motion";

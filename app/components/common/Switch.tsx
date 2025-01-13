@@ -1,4 +1,4 @@
-import { ChangeEvent, forwardRef, useEffect, useState } from "react";
+import { type ChangeEvent, forwardRef, useState } from "react";
 import { cn } from "~/utils/cn";
 import { motion } from "framer-motion";
 

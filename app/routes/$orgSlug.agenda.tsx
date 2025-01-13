@@ -1,11 +1,11 @@
-import { data as json, LoaderFunctionArgs } from "react-router";
+import { data as json } from "react-router";
 import { useLoaderData } from "react-router";
 import { getServices } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
 import TemplateOne from "~/components/templates/TemplateOne";
 import TemplateTwo from "~/components/templates/TemplateTwo";
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }) => {
   const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
   const services = await getServices(request, false, { isActive: true });
   if (!org) return json(null, { status: 404 });

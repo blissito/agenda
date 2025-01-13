@@ -1,4 +1,4 @@
-import { Children, MouseEvent, ReactNode, useState } from "react";
+import { Children, type MouseEvent, type ReactNode, useState } from "react";
 import { LayoutGroup, motion, useDragControls } from "motion/react";
 import { cn } from "~/utils/cn";
 import { nanoid } from "nanoid";

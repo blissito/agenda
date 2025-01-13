@@ -11,7 +11,7 @@ export type Info = {
   parents: [Parent0],
   id: "routes/api/customers"
   file: "routes/api/customers.ts"
-  path: "dash/api/customers"
+  path: "api/customers"
   params: {} & { [key: string]: string | undefined }
   module: Module
   loaderData: T.CreateLoaderData<Module>

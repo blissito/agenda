@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cn } from "~/utils/cn";
 import { useMarquee } from "../hooks/useMarquee";
 

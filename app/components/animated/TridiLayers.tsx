@@ -1,5 +1,5 @@
 import { useAnimate } from "motion/react";
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { cn } from "~/utils/cn";
 
 const initial = { rotateZ: -50, rotateX: 50, rotateY: 10 };

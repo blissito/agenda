@@ -1,7 +1,13 @@
-import { ChangeEvent, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
-import { FieldValues, UseFormRegister } from "react-hook-form";
+import { type FieldValues, type UseFormRegister } from "react-hook-form";
 
 export const Switch = ({
   value,

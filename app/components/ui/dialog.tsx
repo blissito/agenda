@@ -1,16 +1,16 @@
 import { Button, Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import {
-  ChangeEvent,
-  ReactNode,
-  SyntheticEvent,
+  type ChangeEvent,
+  type ReactNode,
+  type SyntheticEvent,
   useRef,
   useState,
 } from "react";
 import { SecondaryButton } from "../common/secondaryButton";
 import { PrimaryButton } from "../common/primaryButton";
 import { twMerge } from "tailwind-merge";
-import { Org } from "@prisma/client";
-import { useFetcher } from "@remix-run/react";
+import type { Org } from "@prisma/client";
+import { useFetcher } from "react-router";
 
 export default function Modal({
   children,

@@ -1,7 +1,11 @@
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
-import { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
+import {
+  type FieldError,
+  type FieldValues,
+  type UseFormRegister,
+} from "react-hook-form";
 import { BasicInput } from "./BasicInput";
 
 const REQUIRED_MESSAGE = "Este campos es requerido";

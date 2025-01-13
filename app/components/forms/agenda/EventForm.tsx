@@ -1,22 +1,36 @@
-import { Event } from "@prisma/client";
+import type { Customer, Event } from "@prisma/client";
 import { Form, useFetcher } from "react-router";
 import { useForm, useWatch } from "react-hook-form";
 import { BasicInput } from "../BasicInput";
 import { SelectInput } from "../SelectInput";
 import { Switch } from "~/components/common/Switch";
-import { RiUserSearchLine } from "react-icons/ri";
 import { DateInput } from "../DateInput";
 import { useEffect, useState } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { newEventSchema } from "~/utils/zod_schemas";
-import { BasicComboBox } from "../BasicComboBox";
+import { CustomersComboBox } from "../CustomersComboBox";
+
+const formatDate = (d: Date | string) =>
+  new Date(d).toISOString().substring(0, 10);
+
+const formatHour = (d: Date | string) =>
+  new Date(d)
+    .toLocaleDateString("es-MX", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: false,
+    })
+    .split(",")[1]
+    .trim();
 
 export const EventForm = ({
   defaultValues,
   onValid,
   onCancel,
   onNewClientClick,
+  customers,
 }: {
+  customers: Customer[];
   onNewClientClick: () => void;
   onCancel?: () => void;
   onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void;
@@ -24,8 +38,7 @@ export const EventForm = ({
   ownerName?: string;
 }) => {
   const fetcher = useFetcher();
-  const d = new Date(defaultValues.start);
-  const oneMoreHour = new Date(d);
+  const oneMoreHour = new Date(defaultValues.start as Date);
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
 
   const {
@@ -38,24 +51,11 @@ export const EventForm = ({
     handleSubmit,
   } = useForm({
     defaultValues: {
+      customerId: "",
+      start: formatDate(defaultValues.start as Date),
+      startHour: formatHour(defaultValues.start as Date),
+      endHour: formatHour(oneMoreHour),
       ...defaultValues,
-      start: d.toISOString().substring(0, 10),
-      startHour: d
-        .toLocaleDateString("es-MX", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: false,
-        })
-        .split(",")[1]
-        .trim(),
-      endHour: oneMoreHour
-        .toLocaleDateString("es-MX", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: false,
-        })
-        .split(",")[1]
-        .trim(),
     },
   });
 
@@ -120,11 +120,20 @@ export const EventForm = ({
   const onSubmit = (v: Partial<Event>) => {
     const validData = parseData(v);
     if (!validData) return console.error("EEROR_ON_VALIDATION", validData);
+    return;
     fetcher.submit(
       { intent: "add_event", data: JSON.stringify(validData) },
       { method: "POST", action: "/dash/agenda" }
     );
     onCancel?.();
+  };
+
+  const handleCustomerSelection = (selectedCustomer: Customer | null) => {
+    if (!selectedCustomer) {
+      setValue("customerId", "", { shouldValidate: true });
+    } else {
+      setValue("customerId", selectedCustomer.id, { shouldValidate: true });
+    }
   };
 
   const isLoading = fetcher.state !== "idle";
@@ -137,10 +146,23 @@ export const EventForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startHour, endHour]);
 
+  const registerVirtualFields = () => {
+    // virtual fields
+    register("customerId", { required: true });
+  };
+
+  useEffect(() => {
+    registerVirtualFields();
+  }, []);
+
   return (
     <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
       {/* @TODO: create a combobox */}
-      <BasicComboBox register={register} onNewClientClick={onNewClientClick} />
+      <CustomersComboBox
+        onSelect={handleCustomerSelection}
+        customers={customers}
+        onNewClientClick={onNewClientClick}
+      />
       <SelectInput
         placeholder="Selecciona un servicio"
         isDisabled
@@ -165,6 +187,7 @@ export const EventForm = ({
           register={register}
           onChange={handleHoursChange}
           error={errors.startHour}
+          registerOptions={{ required: false }}
         />
         <span className="py-5 px-4">a</span>
         <DateInput
@@ -173,6 +196,7 @@ export const EventForm = ({
           type="time"
           onChange={handleHoursChange}
           error={errors.startHour}
+          registerOptions={{ required: false }}
         />
       </div>
       {errors["startHour"] ? (
@@ -212,10 +236,15 @@ export const EventForm = ({
       />
       <hr className="mt-4 border-none" />
       <nav className="absolute bottom-0 flex justify-end px-20 py-4 w-full gap-4 bg-white">
-        <PrimaryButton isDisabled={isLoading} onClick={onCancel} mode="cancel">
+        <PrimaryButton
+          type="button"
+          isDisabled={isLoading}
+          onClick={onCancel}
+          mode="cancel"
+        >
           Cancelar
         </PrimaryButton>
-        <PrimaryButton isLoading={isLoading} isDisabled={!isValid || isLoading}>
+        <PrimaryButton isLoading={isLoading} isDisabled={!isValid}>
           Guardar
         </PrimaryButton>
       </nav>

@@ -8,7 +8,7 @@ import {
   useVelocity,
   useSpring,
 } from "framer-motion";
-import { ReactNode, useRef } from "react";
+import { type ReactNode, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 
 export default function Route() {

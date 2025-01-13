@@ -6,7 +6,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { Children, ReactNode, useState } from "react";
+import { Children, type ReactNode, useState } from "react";
 
 export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
   const imgs = Children.toArray(children);

@@ -1,4 +1,4 @@
-import { Children, ReactNode, useEffect, useState } from "react";
+import { Children, type ReactNode, useEffect, useState } from "react";
 import { motion } from "motion/react";
 
 import { nanoid } from "nanoid";

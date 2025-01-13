@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { Drawer } from "../animated/SimpleDrawer";
 import { ClientForm } from "./agenda/ClientForm";
 
@@ -8,7 +8,6 @@ export const ClientFormDrawer = ({
 }: {
   onClose?: () => void;
   isOpen?: boolean;
-  children: ReactNode;
 }) => {
   return (
     <Drawer
@@ -18,7 +17,7 @@ export const ClientFormDrawer = ({
       size="big"
       footer={<></>}
     >
-      <ClientForm onCancel={onClose} ctaText={"Guardar"} />
+      <ClientForm onFetch={onClose} ctaText={"Guardar"} />
     </Drawer>
   );
 };

@@ -1,5 +1,3 @@
-import { ReactNode, useState } from "react";
-import { twMerge } from "tailwind-merge";
 import { Facebook } from "~/components/icons/facebook";
 import { Instagram } from "~/components/icons/insta";
 import { Linkedin } from "~/components/icons/linkedin";
@@ -11,14 +9,6 @@ import { PiPhone } from "react-icons/pi";
 import { IoMailOutline } from "react-icons/io5";
 import { IoLocationOutline } from "react-icons/io5";
 import { CiStopwatch } from "react-icons/ci";
-
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from "@headlessui/react";
-import { IoIosArrowDown } from "react-icons/io";
 import { ServiceCardClient } from "./ServiceCardClient";
 import { SocialMedia } from "./SocialMedia";
 import { ItemClient } from "./ItemClient";

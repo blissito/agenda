@@ -1,6 +1,6 @@
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useLoaderData, useNavigate } from "react-router";
 import { AnimatePresence } from "framer-motion";
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { Checklist } from "~/components/icons/menu/checklist";
 import { Landing } from "~/components/icons/menu/landing";
@@ -13,7 +13,7 @@ import { motion } from "framer-motion";
 import { twMerge } from "tailwind-merge";
 import { db } from "~/utils/db.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }) => {
   const url = new URL(request.url);
   const { org } = await getUserAndOrgOrRedirect(request);
   const servicesCount = await db.service.count({

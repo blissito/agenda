@@ -1,14 +1,11 @@
-import { useLoaderData } from "@remix-run/react";
-import React, { ReactNode } from "react";
+import { useLoaderData } from "react-router";
+import React, { type ReactNode } from "react";
 import { FaCheck } from "react-icons/fa6";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { Switch } from "~/components/common/Switch";
 import { BasicInput } from "~/components/forms/BasicInput";
-import { InputFile } from "~/components/forms/InputFile";
-import { Option, SelectInput } from "~/components/forms/SelectInput";
-import { Check } from "~/components/icons/check";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
-import SelectStylized, { Choice } from "~/components/ui/select";
+import SelectStylized, { type Choice } from "~/components/ui/select";
 
 const CHOICES: Choice[] = [
   { id: 1, name: "🇲🇽 México" },

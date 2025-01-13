@@ -1,4 +1,4 @@
-import { MouseEvent, ReactNode, useRef } from "react";
+import { type MouseEvent, type ReactNode, useRef } from "react";
 import { cn } from "~/utils/cn";
 import { useMeasure } from "~/utils/hooks/useMeasure";
 import { motion, useMotionTemplate, useSpring } from "motion/react";

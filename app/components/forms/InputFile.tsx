@@ -1,6 +1,11 @@
-import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
+import type { FieldValues, UseFormRegister } from "react-hook-form";
 import { FaRegTrashCan } from "react-icons/fa6";
-import { ChangeEvent, DragEvent, ReactNode, useState } from "react";
+import {
+  type ChangeEvent,
+  type DragEvent,
+  type ReactNode,
+  useState,
+} from "react";
 import { twMerge } from "tailwind-merge";
 // @TODO: scale and optimize images
 type Props = {

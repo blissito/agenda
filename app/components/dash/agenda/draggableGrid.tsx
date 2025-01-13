@@ -1,4 +1,10 @@
-import { DragEvent, ReactNode, useEffect, useRef, useState } from "react";
+import {
+  type DragEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { twMerge } from "tailwind-merge";
 import { getCoord } from "~/components/dash/agenda/agendaUtils";
 import { motion, Point } from "framer-motion";

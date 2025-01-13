@@ -1,12 +1,12 @@
 import { Form } from "react-router";
-import { FieldValues, useForm } from "react-hook-form";
+import { type FieldValues, useForm } from "react-hook-form";
 import { REQUIRED_MESSAGE, SLUGS } from "~/routes/login/signup.$stepSlug";
 import { BasicInput } from "./BasicInput";
 import { MultipleOptions } from "./MultipleOptions";
 import { PrimaryButton } from "../common/primaryButton";
 import { twMerge } from "tailwind-merge";
 import { useFetcher } from "react-router";
-import { Org } from "@prisma/client";
+import { type Org } from "@prisma/client";
 
 const OPTIONS = ["Solo yo", "2", "3 a 5", "6 a 14", "15 o más"];
 

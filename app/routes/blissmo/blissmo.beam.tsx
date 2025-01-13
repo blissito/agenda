@@ -1,5 +1,5 @@
-import { useScroll, useTransform, motion, useSpring } from "framer-motion";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { useScroll, useTransform, motion } from "framer-motion";
+import { type ReactNode, useRef } from "react";
 
 export default function Route() {
   return (

@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import { RxCross2 } from "react-icons/rx";
 
 export const Modal = ({
