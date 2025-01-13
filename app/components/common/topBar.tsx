@@ -1,8 +1,8 @@
 import { Denik } from "../icons/denik";
 import { ArrowRight } from "../icons/arrowRight";
 import { PrimaryButton } from "./primaryButton";
-import { Link } from "@remix-run/react";
 import { DialogButton } from "./DialogButton";
+import { Link } from "react-router";
 
 export const TopBar = () => (
   <section className=" fixed flex justify-center w-full z-50">

@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { Denik } from "../icons/denik";
 import { Facebook } from "../icons/facebook";
 import { Linkedin } from "../icons/linkedin";

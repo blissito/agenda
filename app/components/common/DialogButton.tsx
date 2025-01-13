@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import React, { ReactNode, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 

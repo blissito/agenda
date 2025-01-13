@@ -4,33 +4,40 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration,
   useRouteError,
-} from "@remix-run/react";
-import "./tailwind.css";
-import "./styles.css";
-import { NotFound } from "~/components/common/NotFound";
+} from "react-router";
+import stylesheet from "./app.css?url";
+import { getMetaTags } from "./utils/getMetaTags";
 
-export const ErrorBoundary = () => {
-  const error = useRouteError();
-  console.error(error);
-  if (isRouteErrorResponse(error)) {
-    return <NotFound />;
-  } else if (error instanceof Error) {
-    return (
-      <div>
-        <h1>Error</h1>
-        <p>{error.message}</p>
-        <p>The stack trace is:</p>
-        <pre>{error.stack}</pre>
-      </div>
-    );
-  } else {
-    return <h1>Unknown Error</h1>;
-  }
-};
+export const meta = () =>
+  getMetaTags({
+    title: "Tienes un mensaje sorpresa esperandote 🎁",
+    description: `Te han dejado un mensaje`,
+    image: "/xmas/message-alert.png",
+  });
+
+export const links: Route.LinksFunction = () => [
+  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  {
+    rel: "preconnect",
+    href: "https://fonts.gstatic.com",
+    crossOrigin: "anonymous",
+  },
+  {
+    rel: "stylesheet",
+    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+  },
+  { rel: "stylesheet", href: stylesheet },
+  {
+    rel: "icon",
+    href: "/ico.png",
+    type: "image/png",
+  },
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  // useGoogleTM();
+  // useHotjar();
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -41,7 +48,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body suppressHydrationWarning>
         {children}
-        <ScrollRestoration />
+        {/* <ScrollRestoration  /> */}
         <Scripts />
       </body>
     </html>
@@ -50,4 +57,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return <Outlet />;
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  const is404 = isRouteErrorResponse(error);
+  const isError = error instanceof Error;
+
+  return (
+    <div className="text-white pt-20">
+      <h1>
+        {!isError && !is404 ? (
+          <h1>Unknown Error</h1>
+        ) : is404 ? (
+          <>
+            {error.status} {error.statusText}
+          </>
+        ) : (
+          <p>{error.message}</p>
+        )}
+      </h1>
+      {is404 && <p>{error.data}</p>}
+      {isError && <pre>{error.stack}</pre>}
+    </div>
+  );
 }

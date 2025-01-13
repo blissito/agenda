@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { ElementType, type ReactNode } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";

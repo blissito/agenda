@@ -1,5 +1,5 @@
 import { cn } from "../../utils/cn";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { AnimatePresence, easeInOut, motion } from "framer-motion";
 import { ReactNode, useState } from "react";
 

@@ -1,4 +1,3 @@
-import type { MetaFunction } from "@remix-run/node";
 import { TopBar } from "~/components/common/topBar";
 import { Banner } from "~/components/home/Banner";
 import { Benefits } from "~/components/home/Benefits";
@@ -9,25 +8,16 @@ import { Footer } from "~/components/common/Footer";
 import { ParallaxHero } from "~/components/home/ParallaxHero";
 import { Features, Hero, ScrollReviews } from "~/components/home/home";
 import { People } from "~/components/icons/people";
-import { useEffect } from "react";
-import getBasicMetaTags from "~/utils/getBasicMetaTags";
+import { getMetaTags } from "~/utils/getMetaTags";
 
-export const meta: MetaFunction = () =>
-  getBasicMetaTags({
+export const meta = () =>
+  getMetaTags({
     title: "Deník | Tu agenda en un solo lugar",
     description: "Administra la agenda de tu negocio en un solo lugar",
     image: "https://i.imgur.com/zlnq8Jd.png",
   });
 
 export default function Index() {
-  // useEffect(() => {
-  //   window.scrollTo({
-  //     top: 0,
-  //     left: 0,
-  //     behavior: "smooth",
-  //   });
-  // }, []);
-
   return (
     <main className="bg-brand_dark">
       <div className="bg-white rounded-b-[40px]">

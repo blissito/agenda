@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "react-router";
 import { TopBar } from "~/components/common/topBar";
 import { FinalCta } from "~/components/home/FinalCta";
 import { Footer } from "~/components/common/Footer";
@@ -13,7 +13,6 @@ import { AnimatePresence, easeOut, motion } from "framer-motion";
 import { Bubble } from "~/components/icons/Bubble";
 import { ArrowCollapse } from "~/components/icons/arrowCollapse";
 import { HoverEffect } from "~/components/common/CardHoverEffect";
-import { Denik } from "~/components/icons/denik";
 import { Banner } from "~/components/home/Banner";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
 import { Arrow } from "~/components/icons/arrow";

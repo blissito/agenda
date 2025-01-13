@@ -1,24 +1,4 @@
-// import { type ReactNode } from "react";
-// import { twMerge } from "tailwind-merge";
-
-// export const SecondaryButton = ({
-//   children,
-//   className,
-// }: {
-//   className?: string;
-//   children: ReactNode;
-// }) => (
-//   <button
-//     className={twMerge(
-//       " bg-brand_pale font-satoshi text-brand-dark h-[48px] min-w-[120px] px-4 rounded-full flex items-center justify-center text-center gap-2 hover:-translate-y-1 transition duration-400 ",
-//       className
-//     )}
-//   >
-//     {children}
-//   </button>
-// );
-
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { forwardRef, type ReactNode } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
