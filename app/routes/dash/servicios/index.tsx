@@ -1,5 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
+import { Outlet, useLoaderData } from "react-router";
 import { AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useRef } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
@@ -9,15 +8,16 @@ import {
 } from "~/components/dash/servicios/ServiceCard";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
+import type { Route } from "./+types";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const services = await getServices(request);
   const { org } = await getUserAndOrgOrRedirect(request); // @TODO: not all  the org please!
   return { services, org };
 };
 
-export default function Services() {
-  const { services, org } = useLoaderData<typeof loader>();
+export default function Services({ loaderData }: Route.ComponentProps) {
+  const { services, org } = loaderData;
   const origin = useRef<string>("");
 
   useEffect(() => {

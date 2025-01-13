@@ -1,4 +1,4 @@
-import { SyntheticEvent } from "react";
+import type { SyntheticEvent } from "react";
 import { twMerge } from "tailwind-merge";
 
 export const Image = ({

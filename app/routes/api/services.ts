@@ -8,6 +8,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     services: await db.service.findMany({
       where: {
         orgId: org.id,
+        archived: false,
       },
     }),
   };

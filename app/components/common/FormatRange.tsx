@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { convertToMeridian } from "~/routes/dash/dash.servicios_.$serviceId";
+import { convertToMeridian } from "~/routes/dash/servicios/dash.servicios_.$serviceId";
 // @todo: escape from custom funcs
 export const formatRange = (array: [string, string][]) => {
   if (!array) return "Cerrado";

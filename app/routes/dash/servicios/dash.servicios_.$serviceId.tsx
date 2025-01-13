@@ -1,5 +1,5 @@
 import { SecondaryButton } from "~/components/common/secondaryButton";
-import { InfoBox } from "./dash.website";
+import { InfoBox } from "../dash.website";
 import { Form, useLoaderData } from "@remix-run/react";
 import {
   ActionFunctionArgs,

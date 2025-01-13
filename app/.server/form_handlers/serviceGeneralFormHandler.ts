@@ -1,9 +1,9 @@
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { generalFormSchema } from "../services_model/ServiceGeneralForm";
+import { generalFormSchema } from "../../components/forms/services_model/ServiceGeneralForm";
 import { db } from "~/utils/db.server";
-import { redirect } from "@remix-run/node";
+import { redirect } from "react-router";
 import { generateSlug } from "~/utils/generateSlug";
-import { Service } from "@prisma/client";
+import type { Service } from "@prisma/client";
 
 export const serviceUpdate = async (
   request: Request,

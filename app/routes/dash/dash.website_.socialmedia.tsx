@@ -19,7 +19,7 @@ import { useForm } from "react-hook-form";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { Org } from "@prisma/client";
-import { handleOrgUpdate } from "~/components/forms/form_handlers/serviceTimesFormHandler";
+import { handleOrgUpdate } from "~/.server/form_handlers/serviceTimesFormHandler";
 import { Youtube } from "~/components/icons/youtube";
 
 export const action = async ({ request }: LoaderFunctionArgs) => {

@@ -5,7 +5,7 @@ import { BasicInput } from "../BasicInput";
 import { SelectInput } from "../SelectInput";
 import { Switch } from "~/components/common/Switch";
 import { DateInput } from "../DateInput";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { newEventSchema } from "~/utils/zod_schemas";
 import { CustomersComboBox } from "../CustomersComboBox";
@@ -151,11 +151,21 @@ export const EventForm = ({
   const registerVirtualFields = () => {
     // virtual fields
     register("customerId", { required: true });
+    register("serviceId", { required: true });
   };
 
   useEffect(() => {
     registerVirtualFields();
   }, []);
+
+  const handleServiceSelect = (event: ChangeEvent<HTMLSelectElement>) => {
+    setValue("serviceId", event.currentTarget.value, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  console.log(getValues());
 
   return (
     <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
@@ -165,7 +175,7 @@ export const EventForm = ({
         customers={customers}
         onNewClientClick={onNewClientClick}
       />
-      <ServiceSelect />
+      <ServiceSelect onChange={handleServiceSelect} />
       <EmployeeSelect />
 
       <p className="font-bold">Fecha y hora</p>

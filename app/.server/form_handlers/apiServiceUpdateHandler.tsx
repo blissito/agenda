@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { data as json } from "react-router";
 import { db } from "~/utils/db.server";
 
 export const apiServiceUpdateHandler = async (

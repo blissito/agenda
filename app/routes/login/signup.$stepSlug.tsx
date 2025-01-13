@@ -12,7 +12,7 @@ import {
   aboutYourCompanyHandler,
   timesHandler,
   typeOfBusinessHandler,
-} from "~/components/forms/form_handlers/aboutYourCompanyHandler";
+} from "~/.server/form_handlers/aboutYourCompanyHandler";
 import { Denik } from "~/components/icons/denik";
 import type { Route } from "./+types/signup.$stepSlug";
 

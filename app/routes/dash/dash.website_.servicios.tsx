@@ -13,7 +13,7 @@ import { Service } from "@prisma/client";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { getServices } from "~/.server/userGetters";
 import { cn } from "~/utils/cn";
-import { serviceUpdate } from "~/components/forms/form_handlers/serviceGeneralFormHandler";
+import { serviceUpdate } from "~/.server/form_handlers/serviceGeneralFormHandler";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   await serviceUpdate(request, { redirectURL: "/dash/website/servicios" });

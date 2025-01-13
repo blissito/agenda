@@ -15,7 +15,6 @@ import {
 } from "./TimePicker";
 import { nanoid } from "nanoid";
 import { type Org } from "@prisma/client";
-import { type WeekDaysType } from "./form_handlers/aboutYourCompanyHandler";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {

@@ -15,8 +15,8 @@ import {
 } from "@remix-run/node";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { useFetcher, useLoaderData } from "@remix-run/react";
-import { WeekDaysType } from "~/components/forms/form_handlers/aboutYourCompanyHandler";
-import { handleOrgUpdate } from "~/components/forms/form_handlers/serviceTimesFormHandler";
+import { WeekDaysType } from "~/.server/form_handlers/aboutYourCompanyHandler";
+import { handleOrgUpdate } from "~/.server/form_handlers/serviceTimesFormHandler";
 import { weekDaysOrgSchema } from "~/utils/zod_schemas";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {

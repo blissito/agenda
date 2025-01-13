@@ -2,6 +2,7 @@ import { useEffect, type ChangeEvent } from "react";
 import { SelectInput } from "./SelectInput";
 import { Link, useFetcher } from "react-router";
 import { FaPlus } from "react-icons/fa6";
+import type { Service } from "@prisma/client";
 
 export const ServiceSelect = ({
   onChange,
@@ -9,20 +10,18 @@ export const ServiceSelect = ({
   onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
 }) => {
   const fetcher = useFetcher();
-  const handleChange = () => {};
-
   useEffect(() => {
     fetcher.load("/api/services");
   }, []);
 
-  const services = fetcher.data?.services || [];
+  const services: Service[] = fetcher.data?.services || [];
 
   return (
     <div className="flex items-center gap-2">
       <SelectInput
         className="flex-grow"
-        options={services}
-        onChange={handleChange}
+        options={services.map((s) => ({ title: s.name, value: s.id }))}
+        onChange={onChange}
         placeholder="Selecciona un servicio"
         label="Servicio"
       />

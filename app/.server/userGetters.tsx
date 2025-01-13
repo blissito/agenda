@@ -181,7 +181,7 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
 export const getServices = async (
   request: Request,
   includeOrg: boolean = false,
-  where: unknown = {}
+  where: Record<string, string | boolean | number> = {}
 ) => {
   const user = await getUserOrRedirect(request);
   if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
