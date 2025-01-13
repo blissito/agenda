@@ -53,7 +53,6 @@ export const EventForm = ({
     handleSubmit,
   } = useForm({
     defaultValues: {
-      customerId: "",
       start: formatDate(defaultValues.start as Date),
       startHour: formatHour(defaultValues.start as Date),
       endHour: formatHour(oneMoreHour),
@@ -152,6 +151,7 @@ export const EventForm = ({
     // virtual fields
     register("customerId", { required: true });
     register("serviceId", { required: true });
+    register("employeeId", { required: true });
   };
 
   useEffect(() => {
@@ -165,7 +165,12 @@ export const EventForm = ({
     });
   };
 
-  console.log(getValues());
+  const hanldeEmployeeSelect = (event: ChangeEvent<HTMLSelectElement>) => {
+    setValue("employeeId", event.currentTarget.value, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
 
   return (
     <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
@@ -176,7 +181,7 @@ export const EventForm = ({
         onNewClientClick={onNewClientClick}
       />
       <ServiceSelect onChange={handleServiceSelect} />
-      <EmployeeSelect />
+      <EmployeeSelect onChange={hanldeEmployeeSelect} />
 
       <p className="font-bold">Fecha y hora</p>
       <div className="flex items-center">

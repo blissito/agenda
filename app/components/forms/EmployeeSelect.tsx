@@ -2,6 +2,7 @@ import { useEffect, type ChangeEvent } from "react";
 import { SelectInput } from "./SelectInput";
 import { Link, useFetcher } from "react-router";
 import { FaPlus } from "react-icons/fa6";
+import type { User } from "@prisma/client";
 
 export const EmployeeSelect = ({
   onChange,
@@ -9,20 +10,18 @@ export const EmployeeSelect = ({
   onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
 }) => {
   const fetcher = useFetcher();
-  const handleChange = () => {};
-
   useEffect(() => {
     fetcher.load("/api/employees");
   }, []);
 
-  const employees = fetcher.data?.services || [];
+  const employees: User[] = fetcher.data?.employees || [];
 
   return (
     <div className="flex items-center gap-2">
       <SelectInput
+        onChange={onChange}
         className="flex-grow"
-        options={employees}
-        onChange={handleChange}
+        options={employees.map((s) => ({ title: s.displayName, value: s.id }))}
         placeholder="Selecciona un profesional"
         label="Profesional"
       />
