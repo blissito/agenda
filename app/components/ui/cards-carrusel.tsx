@@ -1,17 +1,9 @@
-"use client";
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  createContext,
-  useContext,
-} from "react";
-
 import { cn } from "~/utils/cn";
 import { AnimatePresence, motion } from "framer-motion";
 import { useOutsideClick } from "~/utils/hooks/use-outside-click";
 import { ArrowRight } from "../icons/arrowRight";
 import { BiCloset } from "react-icons/bi";
+import type { ReactNode } from "react";
 
 interface CarouselProps {
   items: JSX.Element[];
@@ -22,7 +14,7 @@ type Card = {
   src: string;
   title: string;
   category: string;
-  content: React.ReactNode;
+  content: ReactNode;
 };
 
 export const CarouselContext = createContext<{

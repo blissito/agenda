@@ -9,17 +9,21 @@ import { DateInput } from "../DateInput";
 import { useEffect, useState } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { newEventSchema } from "~/utils/zod_schemas";
+import { BasicComboBox } from "../BasicComboBox";
 
 export const EventForm = ({
   defaultValues,
   onValid,
   onCancel,
+  onNewClientClick,
 }: {
+  onNewClientClick: () => void;
   onCancel?: () => void;
   onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void;
   defaultValues: Partial<Event>;
   ownerName?: string;
 }) => {
+  const fetcher = useFetcher();
   const d = new Date(defaultValues.start);
   const oneMoreHour = new Date(d);
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
@@ -113,7 +117,6 @@ export const EventForm = ({
     return r.data;
   };
 
-  const fetcher = useFetcher();
   const onSubmit = (v: Partial<Event>) => {
     const validData = parseData(v);
     if (!validData) return console.error("EEROR_ON_VALIDATION", validData);
@@ -137,13 +140,7 @@ export const EventForm = ({
   return (
     <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
       {/* @TODO: create a combobox */}
-      <BasicInput
-        label="Cliente"
-        icon={<RiUserSearchLine />}
-        name="customer"
-        placeholder="Buscar por correo"
-        registerOptions={{ required: false }}
-      />
+      <BasicComboBox register={register} onNewClientClick={onNewClientClick} />
       <SelectInput
         placeholder="Selecciona un servicio"
         isDisabled
@@ -238,14 +235,3 @@ const IconAndText = ({
     <span className="text-brand_gray text-xs">{text}</span>
   </div>
 );
-
-{
-  /* <hr className="w-[90%] self-center border-brand_pale mt-2 mb-6" /> */
-}
-//
-{
-  /* <IconAndText
-text={event.customer?.comments || "Sin comentarios"}
-icon="/agenda_icons/note.svg"
-/> */
-}

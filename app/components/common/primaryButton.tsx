@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ElementType, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 
@@ -23,7 +23,7 @@ export const PrimaryButton = ({
   // Se puede sobreescribir cualquier clase o utilidad
   className?: string;
   // Se puede devolver un button o un anchor (<a>) si es necesario
-  as?: "a" | "button" | ElementType | "Link";
+  as?: "a" | "button" | "Link";
   // Si se elije anchor, se necesita de un href (link externos)
   href?: string;
   // Es probable que se quiera rutear internamente con Link

@@ -18,5 +18,7 @@ export default [
       index("routes/dash/dash._index.tsx"),
       route("agenda", "routes/dash/dash.agenda.tsx"),
     ]),
+    // api
+    ...prefix("api", [route("customers", "routes/api/customers.ts")]),
   ]),
 ] satisfies RouteConfig;

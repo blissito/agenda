@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "../../utils/cn";
 
@@ -8,7 +8,7 @@ export const WobbleCard = ({
   containerClassName,
   className,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   containerClassName?: string;
   className?: string;
 }) => {

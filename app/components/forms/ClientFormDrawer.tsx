@@ -1,17 +1,13 @@
 import { ReactNode, useRef, useState } from "react";
 import { Drawer } from "../animated/SimpleDrawer";
-import { EventForm } from "./agenda/EventForm";
+import { ClientForm } from "./agenda/ClientForm";
 
-export const EventFormModal = ({
-  event,
+export const ClientFormDrawer = ({
   onClose,
   isOpen = false,
-  onNewClientClick,
 }: {
-  onNewClientClick: () => void;
   onClose?: () => void;
   isOpen?: boolean;
-  event: Event;
   children: ReactNode;
 }) => {
   return (
@@ -22,11 +18,7 @@ export const EventFormModal = ({
       size="big"
       footer={<></>}
     >
-      <EventForm
-        onNewClientClick={onNewClientClick}
-        onCancel={onClose}
-        defaultValues={event}
-      />
+      <ClientForm onCancel={onClose} ctaText={"Guardar"} />
     </Drawer>
   );
 };

@@ -8,6 +8,7 @@ import {
 } from "react-router";
 import stylesheet from "./app.css?url";
 import { getMetaTags } from "./utils/getMetaTags";
+import type { ReactNode } from "react";
 
 export const meta = () =>
   getMetaTags({
@@ -35,7 +36,7 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({ children }: { children: ReactNode }) {
   // useGoogleTM();
   // useHotjar();
   return (

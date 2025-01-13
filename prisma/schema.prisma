@@ -139,12 +139,18 @@ enum EventStatus {
   ACTIVE
 }
 
-type Customer {
-  loggedUserId String? // @TODO: re-visit this
-  displayName  String?
-  email        String?
-  tel          String?
-  comments     String?
+model Customer {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  email       String   @unique
+  // optionals
+  displayName String?
+  userId      String?  @db.ObjectId
+  tel         String?
+  comments    String?
+  // Dates
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  Event       Event[]
 }
 
 enum EventType {
@@ -153,19 +159,18 @@ enum EventType {
 }
 
 model Event {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
   // mins for block
-  type       EventType @default(EVENT) // avoid scheduling even when multi enabled
-  start      DateTime
-  duration   Int       @default(60)
-  orgId      String    @db.ObjectId
-  userId     String?   @db.ObjectId
+  type           EventType   @default(EVENT) // avoid scheduling even when multi enabled
+  start          DateTime
+  duration       Int         @default(60)
+  orgId          String      @db.ObjectId
+  userId         String?     @db.ObjectId
   // mins for new
-  employee   String?
-  employeeId String?   @db.ObjectId
-  serviceId  String?   @db.ObjectId
-  customer   Customer?
-
+  employee       String?
+  employeeId     String?     @db.ObjectId
+  serviceId      String?     @db.ObjectId
+  customer       Customer?   @relation(fields: [customerId], references: [id])
   paid           Boolean     @default(false)
   notes          String?
   end            DateTime? // @TODO: make it required?
@@ -182,6 +187,7 @@ model Event {
   createdAt      DateTime    @default(now())
   // utils
   legacyService  Json?
+  customerId     String?     @db.ObjectId
 }
 
 model Job {

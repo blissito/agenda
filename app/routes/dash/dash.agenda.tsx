@@ -18,6 +18,7 @@ import { Event } from "@prisma/client";
 import { EventForm } from "~/components/forms/agenda/EventForm";
 import { EventFormModal } from "~/components/forms/EventFormModal";
 import { newEventSchema } from "~/utils/zod_schemas";
+import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -166,32 +167,31 @@ export default function Page() {
     setEditableEvent({ start: date });
   };
 
+  const [showNewClientDrawer, setShowNewClientDrawer] = useState(false);
+  const handleNewClientClick = () => {
+    setShowNewClientDrawer(true);
+  };
+
   return (
     <>
       <RouteTitle>Mi agenda {week[0].getFullYear()}</RouteTitle>
-      <div className="flex gap-4 items-center">
-        <WeekSelector onClick={handleWeekNavigation} week={week} />
-        {fetcher.state !== "idle" && <Spinner />}
-      </div>
-      {/* @todo render today and current hour in client */}
+      {fetcher.state !== "idle" && <Spinner />}
+      <WeekSelector onClick={handleWeekNavigation} week={week} />
       <SimpleBigWeekView
         onNewEvent={handleNewEvent}
         events={weekEvents}
         date={week[0]}
         onEventClick={handleEventClick}
       />
-      <Drawer
-        isOpen={isOpen}
-        onClose={closeDrawer}
-        title={editableEvent?.customer?.displayName || "Sin nombre"} // @todo connfirmed tag
-        subtitle={editableEvent?.service?.name || "Si nombre de servicio"}
-      >
-        <EventForm event={editableEvent} ownerName={user.displayName} />
-      </Drawer>
       <EventFormModal
         onClose={() => setEditableEvent(null)}
         event={editableEvent}
         isOpen={!!editableEvent}
+        onNewClientClick={handleNewClientClick}
+      />
+      <ClientFormDrawer
+        onClose={() => setShowNewClientDrawer(false)}
+        isOpen={showNewClientDrawer}
       />
     </>
   );

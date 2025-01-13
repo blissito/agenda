@@ -12,10 +12,12 @@ type Props = {
   registerOptions?: { required: string | boolean };
   placeholder?: string;
   as?: "textarea";
-  type?: "text" | "number";
+  type?: "text" | "number" | "email";
   isDisabled?: boolean;
   containerClassName?: string;
   icon?: ReactNode;
+  onFocus?: () => void;
+  onBlur?: () => void;
 };
 export const BasicInput = ({
   icon = null,
@@ -30,6 +32,8 @@ export const BasicInput = ({
   register,
   as,
   type,
+  onFocus,
+  onBlur,
   ...props
 }: Props) => {
   return (
@@ -51,6 +55,8 @@ export const BasicInput = ({
 
         {as === "textarea" ? (
           <textarea
+            onFocus={onFocus}
+            onBlur={onBlur}
             name={name}
             disabled={isDisabled}
             placeholder={placeholder}
@@ -67,6 +73,8 @@ export const BasicInput = ({
           />
         ) : (
           <input
+            onBlur={onBlur}
+            onFocus={onFocus}
             name={name}
             disabled={isDisabled}
             type={type}
