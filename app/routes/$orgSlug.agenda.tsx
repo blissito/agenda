@@ -1,5 +1,5 @@
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { data as json, LoaderFunctionArgs } from "react-router";
+import { useLoaderData } from "react-router";
 import { getServices } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
 import TemplateOne from "~/components/templates/TemplateOne";

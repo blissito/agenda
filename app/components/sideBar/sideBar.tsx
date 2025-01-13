@@ -1,5 +1,5 @@
 import { type User } from "@prisma/client";
-import { Form, Link, useLocation } from "@remix-run/react";
+import { Form, Link, useLocation } from "react-router";
 import { Children, cloneElement, ReactNode } from "react";
 import { twMerge } from "tailwind-merge";
 import { Dashboard } from "~/components/icons/dashboard";

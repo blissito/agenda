@@ -1,6 +1,6 @@
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
-import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 
 type Props = {
   name: string;

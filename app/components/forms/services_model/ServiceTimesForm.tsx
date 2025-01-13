@@ -3,7 +3,7 @@ import { Option, SelectInput } from "../SelectInput";
 import { useForm } from "react-hook-form";
 import { Form, useFetcher } from "@remix-run/react";
 import { ServiceFormFooter } from "./ServiceGeneralForm";
-import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 import { WeekDaysType } from "../form_handlers/aboutYourCompanyHandler";
 import { useState } from "react";
 import { z } from "zod";

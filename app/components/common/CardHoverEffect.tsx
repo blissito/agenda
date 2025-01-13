@@ -1,6 +1,6 @@
 import { cn } from "../../utils/cn";
 import { Link } from "react-router";
-import { AnimatePresence, easeInOut, motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ReactNode, useState } from "react";
 
 export const HoverEffect = ({
@@ -19,7 +19,6 @@ export const HoverEffect = ({
 
   return (
     <motion.div
-      className=""
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{
@@ -31,7 +30,7 @@ export const HoverEffect = ({
       <div className={cn("grid grid-cols-1 md:grid-cols-2 ", className)}>
         {items.map((item, idx) => (
           <Link
-            href={item?.link}
+            to={item?.link || ""}
             key={item?.link}
             className="relative group  block p-4 h-full w-full"
             onMouseEnter={() => setHoveredIndex(idx)}
@@ -40,7 +39,7 @@ export const HoverEffect = ({
             <AnimatePresence>
               {hoveredIndex === idx && (
                 <motion.span
-                  className="absolute inset-0 h-full w-full  bg-brand_blue dark:bg-brand_blue block   rounded-3xl"
+                  className="absolute inset-0 h-full w-fullbg-brand_blue dark:bg-brand_blue block rounded-3xl"
                   layoutId="hoverBackground"
                   initial={{ opacity: 0 }}
                   animate={{

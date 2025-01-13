@@ -1,5 +1,5 @@
 import { Event } from "@prisma/client";
-import { Form, useFetcher } from "@remix-run/react";
+import { Form, useFetcher } from "react-router";
 import { useForm, useWatch } from "react-hook-form";
 import { BasicInput } from "../BasicInput";
 import { SelectInput } from "../SelectInput";

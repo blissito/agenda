@@ -1,5 +1,5 @@
 import { Event, Org, Prisma, User } from "@prisma/client";
-import { redirect } from "@remix-run/react";
+import { redirect } from "react-router";
 import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
 import { FirebaseUserData } from "~/utils/lib/firebase";

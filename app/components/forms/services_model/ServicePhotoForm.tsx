@@ -5,7 +5,7 @@ import { Option, SelectInput } from "../SelectInput";
 import { ServiceFormFooter } from "./ServiceGeneralForm";
 import { isValid, z } from "zod";
 import { Form, useFetcher } from "@remix-run/react";
-import { REQUIRED_MESSAGE } from "~/routes/signup.$stepSlug";
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 import { Switch } from "~/components/common/Switch";
 
 export const servicePhotoFormSchema = z.object({

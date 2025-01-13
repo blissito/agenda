@@ -1,7 +1,7 @@
 import { getUserOrRedirect } from "../../../.server/userGetters";
 import { db } from "../../../utils/db.server";
 import { z } from "zod";
-import { json, redirect } from "@remix-run/node";
+import { data as json, redirect } from "react-router";
 import { generateSlug } from "~/utils/generateSlug";
 import { generateDummyService } from "~/utils/generators.server";
 

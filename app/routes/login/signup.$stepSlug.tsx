@@ -1,5 +1,5 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { ReactNode, useEffect, useMemo, useState } from "react";

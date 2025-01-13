@@ -1,8 +1,8 @@
-import { Form, useFetcher } from "@remix-run/react";
+import { Form, useFetcher } from "react-router";
 import { Switch } from "./Switch";
 import { PrimaryButton } from "../common/primaryButton";
 import { useForm } from "react-hook-form";
-import { SLUGS } from "~/routes/signup.$stepSlug";
+import { SLUGS } from "~/routes/login/signup.$stepSlug";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 import { ReactNode, useEffect, useState } from "react";

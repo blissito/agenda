@@ -5,8 +5,8 @@ import { Sports } from "../icons/business/sports";
 import { FaBusinessTime } from "react-icons/fa";
 import { PrimaryButton } from "../common/primaryButton";
 import { FieldValues, useForm } from "react-hook-form";
-import { Form, useFetcher } from "@remix-run/react";
-import { SLUGS } from "~/routes/signup.$stepSlug";
+import { Form, useFetcher } from "react-router";
+import { SLUGS } from "~/routes/login/signup.$stepSlug";
 import { Org } from "@prisma/client";
 
 const OPTIONS = [

@@ -3,10 +3,6 @@ import { TopBar } from "~/components/common/topBar";
 import { FinalCta } from "~/components/home/FinalCta";
 import { Footer } from "~/components/common/Footer";
 import { Rocket } from "~/components/icons/rocket";
-import { Calendar } from "~/components/icons/calendar";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { ArrowRight } from "~/components/icons/arrowRight";
 import { HandShake } from "~/components/icons/handshake";
 import { Card, Carousel } from "~/components/ui/cards-carrusel";
 import {
