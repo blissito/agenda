@@ -175,6 +175,7 @@ model Event {
   employee       String?
   employeeId     String?     @db.ObjectId
   serviceId      String?     @db.ObjectId
+  service        Service?    @relation(fields: [serviceId], references: [id])
   paid           Boolean     @default(false)
   notes          String?
   end            DateTime? // @TODO: make it required?
@@ -182,7 +183,6 @@ model Event {
   allDay         Boolean     @default(false)
   // metadata
   status         EventStatus @default(ACTIVE)
-  service        Service?    @relation(fields: [serviceId], references: [id])
   // optionals
   title          String?     @default("BLOCK")
   payment_method String?

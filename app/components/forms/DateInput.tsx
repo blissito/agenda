@@ -1,3 +1,4 @@
+import type { FieldError } from "react-hook-form";
 import { cn } from "~/utils/cn";
 
 export const DateInput = ({
@@ -7,12 +8,12 @@ export const DateInput = ({
   register,
   type = "date",
   error,
-  registerOptions,
+  registerOptions = { required: true },
   ...props
 }: {
   error?: FieldError;
   type?: "time" | "date";
-  register?: (arg0: string) => any;
+  register?: any;
   onChange?: (arg0: number, arg1: number) => void;
   label?: string;
   name: string;
@@ -35,8 +36,7 @@ export const DateInput = ({
           }
         )}
         {...register?.(name, registerOptions)}
-        // !!error && "border-red-500",
-        // icon && "pl-12" // @TODO: does textarea needs this?)}
+        // value="2024-12-12"
       />
     </label>
   );

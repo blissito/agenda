@@ -321,8 +321,10 @@ const Event = ({
         dragSnapToOrigin
         drag
         className={cn(
-          "text-xs text-left pl-1 absolute top-0 left-0 bg-brand_blue text-white rounded-md z-10 w-[80%]",
-          new Date(event.start).getMinutes() > 29 && "top-8",
+          "grid gap-y-1 overflow-hidden",
+          "text-xs text-left pl-1 absolute top-0 left-0 bg-brand_blue text-white rounded-md z-10 w-[90%]",
+          event.duration < 31 ? "h-8" : "h-14",
+          new Date(event.start).getMinutes() > 29 && "top-8 h-8",
           "active:cursor-grabbing",
           {
             "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0":
@@ -333,7 +335,8 @@ const Event = ({
         {event.type === "BLOCK" && (
           <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
         )}
-        {event.title}
+        <span>{event.title}</span>
+        <span className="text-gray-300">{event.service?.name}</span>
       </motion.button>
       <Options
         event={event}
@@ -362,10 +365,10 @@ export const Options = ({
   return isOpen ? (
     <div
       ref={mainRef}
-      style={{ top: "-100%", left: -12 }}
+      style={{ top: "-100%", left: "-350%" }}
       className={cn(
-        "text-left z-10 bg-white",
-        "absolute border rounded-lg grid p-3 w-[264px] top-[-100%] left-[-20%]"
+        "text-left z-20 bg-white",
+        "absolute border rounded-lg grid p-3 w-[264px]"
       )}
     >
       <header>

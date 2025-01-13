@@ -6,7 +6,9 @@ import type { User } from "@prisma/client";
 
 export const EmployeeSelect = ({
   onChange,
+  defaultValue,
 }: {
+  defaultValue?: string;
   onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
 }) => {
   const fetcher = useFetcher();
@@ -19,6 +21,7 @@ export const EmployeeSelect = ({
   return (
     <div className="flex items-center gap-2">
       <SelectInput
+        defaultValue={defaultValue}
         onChange={onChange}
         className="flex-grow"
         options={employees.map((s) => ({ title: s.displayName, value: s.id }))}

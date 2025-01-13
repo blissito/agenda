@@ -9,7 +9,7 @@ import { SimpleBigWeekView } from "~/components/dash/agenda/SimpleBigWeekView";
 import { WeekSelector } from "~/components/dash/agenda/WeekSelector";
 import { Spinner } from "~/components/common/Spinner";
 import { type Event } from "@prisma/client";
-import { EventFormModal } from "~/components/forms/EventFormModal";
+import { EventFormDrawer } from "~/components/forms/EventFormDrawer";
 import { newEventSchema } from "~/utils/zod_schemas";
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer";
 import type { Route } from "./+types/dash.agenda";
@@ -96,6 +96,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     where: {
       orgId: org.id,
     },
+    include: { service: true },
   });
   const customers = await db.customer.findMany({
     take: 1,
@@ -103,11 +104,26 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       orgId: org.id,
     },
   });
-  return { events, customers };
+
+  const employees = await db.user.findMany({
+    take: 1,
+    where: {
+      orgId: org.id,
+    },
+  });
+
+  const services = await db.service.findMany({
+    take: 1,
+    where: {
+      orgId: org.id,
+    },
+  });
+
+  return { events, customers, services, employees };
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { events, customers } = loaderData;
+  const { events, customers, services, employees } = loaderData;
   const [week, setWeek] = useState(completeWeek(new Date()));
   const fetcher = useFetcher();
   const [weekEvents, setWeekEvents] = useState(events);
@@ -173,7 +189,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         date={week[0]}
         onEventClick={handleEventClick}
       />
-      <EventFormModal
+      <EventFormDrawer
+        services={services}
+        employees={employees}
         customers={customers}
         onClose={() => setEditableEvent(null)}
         event={editableEvent}

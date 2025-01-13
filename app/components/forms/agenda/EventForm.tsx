@@ -1,4 +1,4 @@
-import type { Customer, Event } from "@prisma/client";
+import type { Customer, Event, Service, User } from "@prisma/client";
 import { Form, useFetcher } from "react-router";
 import { useForm, useWatch } from "react-hook-form";
 import { BasicInput } from "../BasicInput";
@@ -15,8 +15,8 @@ import { EmployeeSelect } from "../EmployeeSelect";
 const formatDate = (d: Date | string) =>
   new Date(d).toISOString().substring(0, 10);
 
-const formatHour = (d: Date | string) =>
-  new Date(d)
+const formatHour = (d: Date | string, reset?: boolean) => {
+  const time = new Date(d)
     .toLocaleDateString("es-MX", {
       hour: "numeric",
       minute: "numeric",
@@ -24,14 +24,23 @@ const formatHour = (d: Date | string) =>
     })
     .split(",")[1]
     .trim();
+  if (reset) {
+    return time.split(":")[0] + ":00";
+  } else {
+    return time;
+  }
+};
 
 export const EventForm = ({
   defaultValues,
-  onValid,
   onCancel,
   onNewClientClick,
   customers,
+  services,
+  employees,
 }: {
+  services: Service[];
+  employees: User[];
   customers: Customer[];
   onNewClientClick: () => void;
   onCancel?: () => void;
@@ -53,17 +62,12 @@ export const EventForm = ({
     handleSubmit,
   } = useForm({
     defaultValues: {
-      start: formatDate(defaultValues.start as Date),
-      startHour: formatHour(defaultValues.start as Date),
-      endHour: formatHour(oneMoreHour),
       ...defaultValues,
+      startHour: formatHour(defaultValues.start as Date, true),
+      endHour: formatHour(oneMoreHour, true),
+      start: formatDate(defaultValues.start as Date),
     },
   });
-
-  useEffect(() => {
-    onValid?.({ isValid, values: { ...getValues(), duration } });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [control]);
 
   // duration calculation 🧠
   const [duration, setDuration] = useState(60);
@@ -118,13 +122,12 @@ export const EventForm = ({
     return r.data;
   };
 
-  const onSubmit = (v: Partial<Event>) => {
+  const onSubmit = async (v: Partial<Event>) => {
     const validData = parseData(v);
     if (!validData) return console.error("EEROR_ON_VALIDATION", validData);
-    return;
-    fetcher.submit(
-      { intent: "add_event", data: JSON.stringify(validData) },
-      { method: "POST", action: "/dash/agenda" }
+    await fetcher.submit(
+      { data: JSON.stringify(validData) },
+      { method: "POST", action: "/api/events?intent=new" }
     );
     onCancel?.();
   };
@@ -150,8 +153,8 @@ export const EventForm = ({
   const registerVirtualFields = () => {
     // virtual fields
     register("customerId", { required: true });
-    register("serviceId", { required: true });
-    register("employeeId", { required: true });
+    register("serviceId", { required: true, value: services[0].id });
+    register("employeeId", { required: true, value: employees[0].id });
   };
 
   useEffect(() => {
@@ -180,8 +183,14 @@ export const EventForm = ({
         customers={customers}
         onNewClientClick={onNewClientClick}
       />
-      <ServiceSelect onChange={handleServiceSelect} />
-      <EmployeeSelect onChange={hanldeEmployeeSelect} />
+      <ServiceSelect
+        defaultValue={services[0].id}
+        onChange={handleServiceSelect}
+      />
+      <EmployeeSelect
+        defaultValue={employees[0].id}
+        onChange={hanldeEmployeeSelect}
+      />
 
       <p className="font-bold">Fecha y hora</p>
       <div className="flex items-center">
@@ -193,7 +202,6 @@ export const EventForm = ({
           register={register}
           onChange={handleHoursChange}
           error={errors.startHour}
-          registerOptions={{ required: false }}
         />
         <span className="py-5 px-4">a</span>
         <DateInput
@@ -202,7 +210,6 @@ export const EventForm = ({
           type="time"
           onChange={handleHoursChange}
           error={errors.startHour}
-          registerOptions={{ required: false }}
         />
       </div>
       {errors["startHour"] ? (
@@ -230,6 +237,7 @@ export const EventForm = ({
         registerOptions={{ required: false }}
       />
       <SelectInput
+        placeholder="Selecciona la forma de pago"
         register={register}
         registerOptions={{ required: false }}
         name="payment_method"
@@ -240,6 +248,10 @@ export const EventForm = ({
           {
             value: "cash",
             title: "Efectivo",
+          },
+          {
+            value: "transfer",
+            title: "Transferencia bancaria",
           },
         ]}
       />
@@ -260,16 +272,3 @@ export const EventForm = ({
     </Form>
   );
 };
-
-const IconAndText = ({
-  text,
-  icon,
-}: {
-  text?: string | null;
-  icon?: string;
-}) => (
-  <div className="flex gap-2">
-    <img src={icon} alt="icon" width="18px" />
-    <span className="text-brand_gray text-xs">{text}</span>
-  </div>
-);

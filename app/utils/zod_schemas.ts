@@ -24,8 +24,9 @@ export type WeekDaysOrg = z.infer<typeof weekDaysOrgSchema>;
 export const newEventSchema = z.object({
   start: z.coerce.date(),
   end: z.coerce.date(),
-  // start: z.string().min(1),
-  // end: z.string().min(1),
+  customerId: z.string().min(1),
+  employeeId: z.string().min(1),
+  serviceId: z.string().min(1),
   paid: z.boolean().default(false),
   payment_method: z.string().optional(),
   notes: z.string().optional(),

@@ -6,7 +6,9 @@ import type { Service } from "@prisma/client";
 
 export const ServiceSelect = ({
   onChange,
+  defaultValue,
 }: {
+  defaultValue?: string;
   onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
 }) => {
   const fetcher = useFetcher();
@@ -19,6 +21,7 @@ export const ServiceSelect = ({
   return (
     <div className="flex items-center gap-2">
       <SelectInput
+        defaultValue={defaultValue}
         className="flex-grow"
         options={services.map((s) => ({ title: s.name, value: s.id }))}
         onChange={onChange}

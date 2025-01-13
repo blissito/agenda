@@ -1,15 +1,19 @@
 import { type ReactNode } from "react";
 import { Drawer } from "../animated/SimpleDrawer";
 import { EventForm } from "./agenda/EventForm";
-import type { Customer } from "@prisma/client";
+import type { Customer, Service, User } from "@prisma/client";
 
-export const EventFormModal = ({
+export const EventFormDrawer = ({
   event,
   onClose,
   isOpen = false,
   onNewClientClick,
   customers,
+  employees,
+  services,
 }: {
+  employees: User[];
+  services: Service[];
   customers: Customer[];
   onNewClientClick: () => void;
   onClose?: () => void;
@@ -26,6 +30,8 @@ export const EventFormModal = ({
       footer={<></>}
     >
       <EventForm
+        services={services}
+        employees={employees}
         customers={customers}
         onNewClientClick={onNewClientClick}
         onCancel={onClose}
