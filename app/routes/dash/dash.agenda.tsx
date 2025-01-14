@@ -95,6 +95,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const events = await db.event.findMany({
     where: {
       orgId: org.id,
+      archived: false,
     },
     include: { service: true },
   });

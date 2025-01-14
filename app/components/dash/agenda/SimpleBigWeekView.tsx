@@ -232,10 +232,12 @@ const EmptyButton = ({
 
 // @TODO: scroll intoview
 const Column = ({
+  onEventClick,
   events = [],
   dayOfWeek,
   onNewEvent,
 }: {
+  onEventClick?: () => void;
   onNewEvent?: (arg0: Date) => void;
   dayOfWeek?: Date;
   events: Event[];
@@ -246,7 +248,7 @@ const Column = ({
     );
 
     return event ? (
-      <Event event={event} />
+      <Event onClick={() => onEventClick?.(event)} event={event} />
     ) : (
       <EmptyButton hours={hours} date={dayOfWeek} onNewEvent={onNewEvent} />
     );
@@ -321,16 +323,18 @@ const Event = ({
         dragSnapToOrigin
         drag
         className={cn(
-          "grid gap-y-1 overflow-hidden",
+          "border",
+          "grid gap-y-1 overflow-hidden place-content-start",
           "text-xs text-left pl-1 absolute top-0 left-0 bg-brand_blue text-white rounded-md z-10 w-[90%]",
-          event.duration < 31 ? "h-8" : "h-14",
-          new Date(event.start).getMinutes() > 29 && "top-8 h-8",
           "active:cursor-grabbing",
           {
             "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0":
               event.type === "BLOCK",
           }
         )}
+        style={{
+          height: (event.duration / 60) * 60, // revisit
+        }}
       >
         {event.type === "BLOCK" && (
           <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />

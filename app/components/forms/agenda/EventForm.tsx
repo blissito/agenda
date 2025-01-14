@@ -45,7 +45,7 @@ export const EventForm = ({
   onNewClientClick: () => void;
   onCancel?: () => void;
   onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void;
-  defaultValues: Partial<Event>;
+  defaultValues: Event;
   ownerName?: string;
 }) => {
   const fetcher = useFetcher();
@@ -54,7 +54,7 @@ export const EventForm = ({
 
   const {
     register,
-    formState: { isValid, errors },
+    formState: { isValid, errors, isDirty },
     getValues,
     setValue,
     setError,
@@ -64,7 +64,7 @@ export const EventForm = ({
     defaultValues: {
       ...defaultValues,
       startHour: formatHour(defaultValues.start as Date, true),
-      endHour: formatHour(oneMoreHour, true),
+      endHour: formatHour(defaultValues.end || oneMoreHour, true),
       start: formatDate(defaultValues.start as Date),
     },
   });
@@ -124,19 +124,28 @@ export const EventForm = ({
 
   const onSubmit = async (v: Partial<Event>) => {
     const validData = parseData(v);
-    if (!validData) return console.error("EEROR_ON_VALIDATION", validData);
-    await fetcher.submit(
+    if (!validData) return console.error("::ERROR_ON_VALIDATION::", validData);
+    // return;
+    fetcher.submit(
       { data: JSON.stringify(validData) },
-      { method: "POST", action: "/api/events?intent=new" }
+      {
+        method: "POST",
+        action: v.id
+          ? `/api/events?intent=update&eventId=${v.id}`
+          : "/api/events?intent=new",
+      }
     );
     onCancel?.();
   };
 
   const handleCustomerSelection = (selectedCustomer: Customer | null) => {
     if (!selectedCustomer) {
-      setValue("customerId", "", { shouldValidate: true });
+      setValue("customerId", "", { shouldValidate: true, shouldDirty: true });
     } else {
-      setValue("customerId", selectedCustomer.id, { shouldValidate: true });
+      setValue("customerId", selectedCustomer.id, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
   };
 
@@ -152,7 +161,7 @@ export const EventForm = ({
 
   const registerVirtualFields = () => {
     // virtual fields
-    register("customerId", { required: true });
+    register("customerId", { required: true, value: defaultValues.customerId });
     register("serviceId", { required: true, value: services[0].id });
     register("employeeId", { required: true, value: employees[0].id });
   };
@@ -175,6 +184,16 @@ export const EventForm = ({
     });
   };
 
+  const handleDelete = async () => {
+    if (!confirm("Esta acción no es reversible")) return;
+
+    await fetcher.submit(null, {
+      method: "delete",
+      action: `/api/events?intent=delete&eventId=${defaultValues.id}`,
+    });
+    onCancel?.();
+  };
+
   return (
     <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
       {/* @TODO: create a combobox */}
@@ -182,6 +201,7 @@ export const EventForm = ({
         onSelect={handleCustomerSelection}
         customers={customers}
         onNewClientClick={onNewClientClick}
+        defaultValue={defaultValues.customerId}
       />
       <ServiceSelect
         defaultValue={services[0].id}
@@ -265,7 +285,21 @@ export const EventForm = ({
         >
           Cancelar
         </PrimaryButton>
-        <PrimaryButton isLoading={isLoading} isDisabled={!isValid}>
+        {defaultValues.id && (
+          <PrimaryButton
+            type="button"
+            isLoading={isLoading}
+            className="bg-red-500 text-white"
+            onClick={handleDelete}
+          >
+            Eliminar
+          </PrimaryButton>
+        )}
+        <PrimaryButton
+          type="submit"
+          isLoading={isLoading}
+          isDisabled={!isDirty || !isValid}
+        >
           Guardar
         </PrimaryButton>
       </nav>

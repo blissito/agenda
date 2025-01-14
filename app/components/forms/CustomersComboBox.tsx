@@ -11,7 +11,9 @@ export const CustomersComboBox = ({
   onNewClientClick,
   customers,
   onSelect,
+  defaultValue,
 }: {
+  defaultValue?: string;
   onSelect?: (arg0: Customer | null) => void;
   customers: Customer[];
   onNewClientClick?: () => void;
@@ -31,9 +33,18 @@ export const CustomersComboBox = ({
     fetcher.load("/api/customers?search");
   }, []);
 
+  const renders = useRef(0);
   useEffect(() => {
     if (fetcher.data && "customers" in fetcher.data) {
       setSearchableElements(fetcher.data.customers);
+      if (renders.current < 1) {
+        // default value
+        const found = fetcher.data.customers?.find(
+          (c) => c.id === defaultValue
+        );
+        setSelected(found);
+        renders.current = renders.current + 1;
+      }
     }
   }, [fetcher]);
 
@@ -45,7 +56,12 @@ export const CustomersComboBox = ({
     }, 500);
   };
 
+  const loadAgain = () => {
+    fetcher.load("/api/customers?search");
+  };
+
   const handleCustomerSelection = (customer: Customer) => {
+    loadAgain();
     setSelected(customer);
     onSelect?.(customer);
     setShowClientList(false);
@@ -61,7 +77,7 @@ export const CustomersComboBox = ({
       className="relative"
       onFocus={() => setShowClientList(true)}
       onBlur={() => {
-        setTimeout(() => setShowClientList(false), 300);
+        setTimeout(() => setShowClientList(false), 500);
       }}
     >
       {selected ? (
@@ -76,7 +92,7 @@ export const CustomersComboBox = ({
         />
       )}
       {showClientList && (
-        <div className="rounded-2xl bg-white w-full absolute z-20 top-[90%] grid border py-2 px-2">
+        <div className="rounded-2xl bg-white w-full absolute z-20 top-[90%] grid border py-2 px-2 shadow-xl">
           <CustomerList
             onClick={handleCustomerSelection}
             customers={searchableElements}
@@ -96,18 +112,21 @@ const SelectedCustomer = ({
   customer: Customer;
 }) => {
   return (
-    <div className={cn("border rounded-xl p-2 flex items-center gap-4 px-3")}>
-      <span>
-        <RiUserSearchLine />
-      </span>
-      <div className="bg-gray-200 rounded-lg py-1 px-3 w-max flex items-center gap-3">
-        <span>{customer.displayName}</span>
-        <span className="text-gray-400">{customer.email}</span>
-        <button onClick={onClear} className="text-gray-400 hover:text-black">
-          <CgRemove />
-        </button>
+    <section className="mb-6">
+      <h3 className="mb-2">Cliente</h3>
+      <div className={cn("border rounded-xl p-2 flex items-center gap-4 px-3")}>
+        <span>
+          <RiUserSearchLine />
+        </span>
+        <div className="bg-gray-200 rounded-lg py-1 px-3 w-max flex items-center gap-3">
+          <span>{customer.displayName}</span>
+          <span className="text-gray-400">{customer.email}</span>
+          <button onClick={onClear} className="text-gray-400 hover:text-black">
+            <CgRemove />
+          </button>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -119,7 +138,7 @@ const CustomerList = ({
   customers: Customer[];
 }) => {
   return (
-    <div>
+    <div className="max-h-[200px] overflow-scroll">
       {customers.map((customer) => (
         <button
           onClick={() => onClick?.(customer)}

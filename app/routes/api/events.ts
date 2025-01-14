@@ -3,11 +3,38 @@ import type { Route } from "./+types/customers";
 import { db } from "~/utils/db.server";
 import type { Event } from "@prisma/client";
 import { newEventSchema } from "~/utils/zod_schemas";
+import invariant from "tiny-invariant";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const url = new URL(request.url);
   const intent = url.searchParams.get("intent");
   const formData = await request.formData();
+
+  if (intent === "delete") {
+    const eventId = url.searchParams.get("eventId") as string;
+    const { org } = await getUserAndOrgOrRedirect(request);
+    return await db.event.update({
+      where: { id: eventId, orgId: org.id },
+      data: { archived: true },
+    });
+  }
+
+  if (intent === "update") {
+    const eventId = url.searchParams.get("eventId") as string;
+    const data: Event = JSON.parse(formData.get("data") as string);
+    const customer = await db.customer.findUnique({
+      where: { id: data.customerId as string },
+      select: { displayName: true },
+    });
+    invariant(customer);
+    const updatedEvent = await db.event.update({
+      where: {
+        id: eventId,
+      },
+      data: { ...data, title: customer.displayName as string },
+    });
+    return updatedEvent;
+  }
 
   if (intent === "new") {
     const { org, user } = await getUserAndOrgOrRedirect(request);

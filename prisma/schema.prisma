@@ -191,6 +191,7 @@ model Event {
   createdAt      DateTime    @default(now())
   // utils
   legacyService  Json?
+  archived       Boolean     @default(false)
 }
 
 model Job {
