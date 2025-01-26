@@ -184,8 +184,13 @@ export default function Clients() {
             />
           </div>
         </div>
-        <div className="items-center max-w-4xl w-full rounded-b-2xl  backdrop-blur bottom-0 py-6 bg-white/50 z-10 fixed flex justify-end pr-6">
-          <PrimaryButton type="submit">Guardar</PrimaryButton>
+        <div className="fixed right-4 bottom-4 py-10 px-4 rounded-xl backdrop-blur-sm">
+          <PrimaryButton
+            type="submit"
+            className="hover:-translate-y-1 hover:shadow-md transition-all active:translate-y-0"
+          >
+            Guardar
+          </PrimaryButton>
         </div>
       </section>
     </main>

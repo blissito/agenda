@@ -18,6 +18,16 @@ export default [
       index("routes/dash/dash._index.tsx"),
       route("agenda", "routes/dash/dash.agenda.tsx"),
       route("servicios", "routes/dash/servicios/index.tsx"),
+      route(
+        "servicios/:serviceId",
+        "routes/dash/servicios/dash.servicios_.$serviceId.tsx"
+      ),
+      route("website", "routes/dash/dash.website.tsx"),
+      route("clientes", "routes/dash/dash.clientes.tsx"),
+      route("lealtad", "routes/dash/dash.lealtad.tsx"),
+      route("evaluaciones", "routes/dash/dash.reviews.tsx"),
+      route("ajustes", "routes/dash/dash.ajustes.tsx"),
+      route("pagos", "routes/dash/pagos.tsx"),
     ]),
   ]),
   // api

@@ -1,22 +1,21 @@
-import { useLoaderData } from "react-router";
+import type { User } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
-import { getUserOrRedirect } from "~/.server/userGetters";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import type { Route } from "./+types/dash._index";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const user = await getUserOrRedirect(request);
-  return { user };
+  const { user } = await getUserAndOrgOrRedirect(request);
+  return {
+    user,
+  };
 };
 
-export default function Page() {
-  const { user } = useLoaderData<typeof loader>();
-
+export default function Page({ loaderData: { user } }) {
   return (
     <section className=" w-full h-full 	">
       <div className="h-auto lg:h-screen  flex flex-col  box-border ">
-        <Summary />
+        <Summary user={user} />
         <EmptyStateDash />
-        {/* <Data /> */}
       </div>
     </section>
   );
@@ -164,9 +163,7 @@ const Data = () => {
   );
 };
 
-const Summary = () => {
-  const { user } = useLoaderData<typeof loader>();
-
+const Summary = ({ user }: { user: User }) => {
   return (
     <div className="grid grid-cols-6 gap-10">
       <div className="col-span-6 xl:col-span-2 flex items-center">

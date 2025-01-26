@@ -19,12 +19,7 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
     // watch,
   } = useForm({
     mode: "onChange",
-    defaultValues: org || {
-      name: "",
-      shopKeeper: "",
-      numberOfEmployees: "",
-      address: "",
-    },
+    defaultValues: { ...org },
   });
 
   const onSubmit = (values: FieldValues) => {
@@ -34,9 +29,6 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
       { method: "post" }
     );
   };
-
-  const isDisabled = !isValid;
-
   return (
     <>
       <Form
@@ -63,23 +55,23 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
         />
         <BasicInput
           name="address"
-          registerOptions={{ required: false }}
           label="Dirección de tu negocio (opcional)"
           error={errors["address"]}
           register={register}
+          registerOptions={{ required: false }}
         />
         <MultipleOptions
-          className="grid grid-cols-3 gap-4"
-          defaultValue={org?.numberOfEmployees}
-          error={errors["numberOfEmployees"]}
-          label="¿Cuantas personas trabajan en tu negocio?"
           name="numberOfEmployees"
+          label="¿Cuantas personas trabajan en tu negocio?"
           options={OPTIONS}
           register={register}
+          registerOptions={{ required: REQUIRED_MESSAGE }}
+          error={errors["numberOfEmployees"]}
+          className="grid grid-cols-3 gap-4"
         />
         <AbsoluteCentered className="px-2 pb-8">
           <PrimaryButton
-            isDisabled={isDisabled}
+            isDisabled={!isValid}
             isLoading={fetcher.state !== "idle"}
             type="submit"
           >

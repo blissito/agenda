@@ -21,7 +21,8 @@ const EmptyStateReviews = () => {
           ¡Nada por aquí! <span className="text-2xl ">📝</span>{" "}
         </p>
         <p className="mt-2 text-brand_gray">
-          Tus clientes están agarrando confianza, sigue compartiendo tu agenda
+          La confianza de tus clientes es muy valiosa, sigue compartiendo tu
+          agenda
         </p>
         <SecondaryButton className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]">
           <Anchor /> Copiar link

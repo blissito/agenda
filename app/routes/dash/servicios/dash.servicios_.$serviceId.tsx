@@ -1,12 +1,5 @@
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { InfoBox } from "../dash.website";
-import { Form, useLoaderData } from "@remix-run/react";
-import {
-  ActionFunctionArgs,
-  json,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
 import { db } from "~/utils/db.server";
 import {
   Breadcrumb,
@@ -15,49 +8,27 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump";
-import { Service } from "@prisma/client";
+import type { Service } from "@prisma/client";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { Image } from "~/components/common/Image";
-import { nanoid } from "nanoid";
 import { formatRange } from "~/components/common/FormatRange";
+import type { Route } from "./+types/dash.servicios_.$serviceId";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
   // @TODO ensure is the owner
   const { org } = await getUserAndOrgOrRedirect(request);
   const service = await db.service.findUnique({
     where: { id: params.serviceId, orgId: org.id }, // @TODO: this can vary if multiple orgs
   });
-  if (!service) return json(null, { status: 404 });
+  if (!service) throw new Response(null, { status: 404 });
   return {
     service,
     orgWeekDays: org.weekDays,
   };
 };
-
-export const action = async ({ request }: ActionFunctionArgs) => {
-  // const formData = await request.formData();
-  // const intent = formData.get("intent");
-  // if (intent == "delete_service") {
-  //   // delete
-  //   const serviceId = formData.get("serviceId") as string;
-  //   if (!serviceId) return json("no service id found on body", { status: 422 });
-  //   const service = await db.service.findUnique({ where: { id: serviceId } });
-  //   await db.event.updateMany({
-  //     where: { serviceId },
-  //     data: {
-  //       status: "DELETED",
-  //       legacyService: { ...service },
-  //     },
-  //   }); // @TODO: should we delete in cascade?
-  //   await db.service.delete({ where: { id: serviceId } });
-  //   return redirect("/dash/servicios");
-  // }
-  return null;
-};
 // @TODO: orgWeekDays type
-export default function Page() {
-  const { service, orgWeekDays } = useLoaderData<typeof loader>();
-
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { service, orgWeekDays } = loaderData;
   return (
     <section>
       {/* TODO: This should be a single component something like: <Bread pathname="dash/servicios" /> */}

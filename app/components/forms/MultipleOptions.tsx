@@ -38,11 +38,10 @@ export const MultipleOptions = ({
         <p className="mb-1">{label}</p>
         <div
           className={twMerge(
-            "grid grid-cols-3 gap-1",
             !!error && "border-red-500 border rounded-2xl p-1 transition-all",
             className
           )}
-          style={{ gridTemplateRows: "50px 50px" }}
+          style={{ gridTemplateColumns: "1fr 1fr" }}
         >
           {options.map(renderFunction)}
         </div>
@@ -71,10 +70,11 @@ export const MultipleOptions = ({
         {options.map((option, index) => {
           return (
             <Option
+              onChange={(val) => set(val)}
+              label={option}
               index={index}
               key={option}
               name={name}
-              option={option}
               isCurrent={option === current}
               onClick={() => set(option)}
               register={register}
@@ -83,7 +83,7 @@ export const MultipleOptions = ({
           );
         })}
       </motion.div>
-      <p className="h-1 text-red-500 text-xs pl-1 my-1">{error?.message}</p>
+      <p className="h-1 text-red-500 text-xs pl-1 mb-10 ">{error?.message}</p>
     </>
   );
 };
@@ -93,7 +93,7 @@ export const Option = ({
   transition,
   index,
   name,
-  option,
+  label,
   onClick,
   isCurrent,
   registerOptions = { required: REQUIRED_MESSAGE },
@@ -106,7 +106,7 @@ export const Option = ({
   transition?: any;
   icon?: ReactNode;
   name: string;
-  option: string;
+  label: string;
   onClick?: () => void;
   isCurrent?: boolean;
   register?: UseFormRegister<FieldValues> | any;
@@ -140,17 +140,8 @@ export const Option = ({
           capitalize ? "capitalize" : null
         )}
       >
-        {option}
+        {label}
       </span>
-      <input
-        type="radio"
-        className="peer opacity-0"
-        value={option}
-        id={option}
-        name={name}
-        {...props}
-        {...register?.(name, registerOptions)}
-      />
     </button>
   );
 };

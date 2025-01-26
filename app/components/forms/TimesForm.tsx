@@ -52,11 +52,11 @@ export const TimesForm = ({
   children?: ReactNode; // acting as footer
   onChange?: (data: WeekDaysType) => void;
   onSubmit?: (data: WeekDaysType) => void;
-  org?: Org;
+  org: Org;
 }) => {
   const fetcher = useFetcher();
   const [data, setData] = useState<WeekDaysType>(
-    org?.weekDays || initialValues // @TODO custom aliases
+    org.weekDays || initialValues // @TODO custom aliases
   );
   const initialData = org?.weekDays
     ? Object.keys(org?.weekDays as WeekDaysType)
@@ -74,14 +74,14 @@ export const TimesForm = ({
     },
   });
 
-  const submit = (values) => {
-    if (onSubmit) {
-      onSubmit(data);
-      return; // @todo this is no necessary, is doing the same ?
-    }
-    // @TODO: validate?
+  const submit = () => {
+    onSubmit?.(data);
     fetcher.submit(
-      { intent: "update_org", data: JSON.stringify(values), next: "/signup/4" },
+      {
+        intent: "update_org",
+        data: JSON.stringify({ weekDays: data, id: org.id }),
+        next: "/signup/4",
+      },
       { method: "post" }
     );
   };
@@ -150,17 +150,14 @@ export const TimesForm = ({
   const removeRange = (day: string, index: number) => {
     const arr = [...data[day]];
     arr.splice(index, 1);
-    // console.log("REMOVED? ", r);
     setData((d) => ({ ...d, [day]: arr }));
   };
 
   const handleUpdate = (day: string, ranges: string[][]) => {
-    // console.log("UPDATE", day, ranges);
     setData((d) => ({ ...d, [day]: ranges }));
   };
 
   useEffect(() => {
-    // console.log("DATA: ", data);
     onChange?.(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
@@ -240,12 +237,7 @@ export const DayTimesSelector = ({
     onUpdate?.(arr);
   };
 
-  // const r = [...ranges];
-  // const lastRange = r.pop();
-  // console.log("ranges?: ", lastRange, ranges);
-  // const lastHourMins = getMinutesFromString(lastRange?.[1]);
-
-  // console.log("LAst Hot", lastHourMins, getStringFromMinutes(lastHourMins));
+  type Range = [string, string]; // ['09:00','16:00']
 
   return (
     <>
@@ -256,7 +248,7 @@ export const DayTimesSelector = ({
         exit={{ y: -10, opacity: 0 }}
         className={twMerge("gap-2", isActive && "grid", "text-brand_gray mt-2")}
       >
-        {ranges.map((range, index) => (
+        {ranges.map((range: Range, index) => (
           <div className="flex gap-4" key={nanoid()}>
             <RangeTimePicker
               isDisabled={!isActive}
@@ -324,7 +316,8 @@ export const RangeTimePicker = ({
         <span>De</span>
         <TimePicker
           isDisabled={isDisabled}
-          initialTime={startTime}
+          defaultSelected={startTime}
+          // initialTime={startTime}
           onChange={changeStartTime}
           all
         />
@@ -332,7 +325,7 @@ export const RangeTimePicker = ({
         <TimePicker
           isDisabled={isDisabled}
           defaultSelected={endTime}
-          initialTime={getTime(endTime)}
+          // initialTime={getTime(endTime)}
           onChange={changeEndTime}
         />
         {index !== 0 && (

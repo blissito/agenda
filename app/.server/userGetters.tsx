@@ -9,9 +9,13 @@ import { validateUserToken } from "~/utils/tokens";
 import {
   signup1Schema,
   signup2Schema,
+  signup3Schema,
   type Signup1SchemaType,
   type Signup2SchemaType,
+  type Signup3SchemaType,
 } from "~/utils/zod_schemas";
+import { nanoid } from "nanoid";
+import slugify from "slugify";
 
 export const redirectIfUser = async (request: Request) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -72,18 +76,34 @@ export const getAdminUserOrRedirect = async (
 /**
  * Org stuff
  */
-export const getOrCreateOrg = async (request: Request) => {
+export const getOrCreateOrgOrRedirect = async (request: Request) => {
   const user = await getUserOrNull(request);
   if (!user) throw new Error("No user present");
-  let exists = await db.org.findFirst({ where: { ownerId: user.id } }); // Multi orgs? YES
+  // if working fine
+  if (user.orgId) {
+    let found = await db.org.findUnique({ where: { id: user.orgId } });
+    if (found) {
+      return found;
+    }
+  }
+  // Multi orgs? YES
+  let exists = await db.org.findFirst({ where: { ownerId: user.id } });
   if (!exists) {
     exists = await db.org.create({
       data: {
         ownerId: user.id,
-        name: "Fancy Org",
-        slug: "fancy-org" + randomUUID(),
+        name: "New Denik Org",
+        slug: "new-denik-org-" + nanoid(4),
+        email: user.email,
       },
     });
+  }
+  await db.user.update({
+    where: { id: user.id },
+    data: { orgIds: { push: exists.id }, orgId: exists.id },
+  });
+  if (exists.isActive) {
+    throw redirect("/dash");
   }
   return exists;
 };
@@ -105,27 +125,6 @@ export const getUserAndOrgOrRedirect = async (
 
   return { user, org };
 };
-
-// export const getOrgFromLoggedUserOrRedirect = async <T,>(
-//   request: Request,
-//   options: {
-//     select: Prisma.UserSelect;
-//     redirectURL: string;
-//   }
-// ) => {
-//   const { select, redirectURL = "/sigin" } = options || {};
-//   const user = await getUserOrRedirect(request);
-//   if (!user.orgId) throw redirect(redirectURL);
-//   const org = await db.org.findUnique({
-//     where: {
-//       id: user.orgId,
-//     },
-//     select,
-//   });
-//   if (!org) throw redirect(redirectURL);
-//   return org;
-// };
-
 export const getServicefromSearchParams = async (
   request: Request,
   options: any = {}
@@ -231,7 +230,7 @@ const getCurrentSchema = (stepSlug: string) => {
     : stepSlug === "2"
     ? signup2Schema
     : stepSlug === "3"
-    ? signup1Schema
+    ? signup3Schema
     : signup1Schema;
 };
 
@@ -239,24 +238,39 @@ export const updateOrg = async (formData: FormData, stepSlug: string) => {
   type ORG = Signup1SchemaType | Signup2SchemaType | Signup3SchemaType;
 
   const next = (formData.get("next") as string) || "/signup/" + (+stepSlug + 1);
-  const org: ORG = JSON.parse(formData.get("data") as string);
+  const data: ORG = JSON.parse(formData.get("data") as string);
   // validation
   const {
     success,
     error,
     data: validData,
-  } = validateWith<ORG>(org, getCurrentSchema(stepSlug));
+  } = validateWith<ORG>(data, getCurrentSchema(stepSlug));
   if (!success) {
-    throw new Response(JSON.stringify({ error, success, org }), {
+    return new Response(JSON.stringify({ error, success, data }), {
       status: 400,
     });
   }
-  await db.org.update({
+  const isLastCall = next === "/signup/4";
+  const actualOrg = await db.org.update({
     where: {
       id: validData.id,
     },
-    data: { ...validData, id: undefined },
+    data: {
+      ...validData,
+      isActive: isLastCall ? true : false,
+      slug: validData.name
+        ? slugify(validData.name) + "_" + nanoid(4)
+        : undefined,
+      id: undefined,
+    },
   });
+  isLastCall &&
+    (await db.user.update({
+      where: { id: actualOrg.ownerId },
+      data: {
+        orgId: actualOrg.id,
+      },
+    }));
   throw redirect(next);
 };
 

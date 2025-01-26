@@ -1,5 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData } from "react-router";
 import { Avatar } from "~/components/common/Avatar";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { useCopyLink } from "~/components/hooks/useCopyLink";
@@ -14,9 +13,9 @@ import { BiSolidUserDetail } from "react-icons/bi";
 import { twMerge } from "tailwind-merge";
 import { usePluralize } from "~/components/hooks/usePluralize";
 import { Download } from "~/components/icons/download";
-import { LuSettings2 } from "react-icons/lu";
 import { Settings } from "~/components/icons/settings";
 import { Upload } from "~/components/icons/upload";
+import type { Route } from "./+types/dash.clientes";
 
 // @TODO: actions, search with searchParams, real user avatars?, row actions (delete)
 
@@ -40,7 +39,7 @@ type Stats = {
 };
 
 // @TODO generate custom model
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   // @TODO: consider the search input working via searchParams
   // @TODO: upload / download
   const { org } = await getUserAndOrgOrRedirect(request);
@@ -48,7 +47,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const services = await getServices(request);
   const events = await db.event.findMany({
     where: {
-      NOT: { customer: { email: null } },
       service: {
         id: { in: services.map((s) => s.id) },
       },

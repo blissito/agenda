@@ -1,6 +1,12 @@
 import { type User } from "@prisma/client";
 import { Form, Link, useLocation } from "react-router";
-import { Children, cloneElement, type ReactNode } from "react";
+import {
+  Children,
+  cloneElement,
+  useEffect,
+  useRef,
+  type ReactNode,
+} from "react";
 import { twMerge } from "tailwind-merge";
 import { Dashboard } from "~/components/icons/dashboard";
 import { Agenda } from "../icons/menu/agenda";
@@ -218,7 +224,7 @@ const Title = ({
 }) => (
   <h3
     className={twMerge(
-      "hover:opacity-70",
+      "hover:opacity-70 capitalize",
       "text-base text-brand_dark",
       isActive && "text-brand_blue"
     )}
@@ -272,20 +278,8 @@ const MainMenu = ({ className }: { className?: string }) => {
             Servicios
           </MenuButton.Title>
         </MenuButton>
-        <MenuButton>
-          <MenuButton.Icon>
-            <Financial />
-          </MenuButton.Icon>
-          <MenuButton.Title>Pagos</MenuButton.Title>
-        </MenuButton>
-        <MenuButton to="/dash/clientes" isActive={match("clients")}>
-          <MenuButton.Icon isActive={match("clients")}>
-            <Clients />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("clients")}>
-            Clientes
-          </MenuButton.Title>
-        </MenuButton>
+        <NavButton pathname="pagos" icon={<Financial />} />
+        <NavButton pathname="clientes" />
         <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
           <MenuButton.Icon isActive={match("lealtad")}>
             <Loyalty />
@@ -294,23 +288,38 @@ const MainMenu = ({ className }: { className?: string }) => {
             Lealtad
           </MenuButton.Title>
         </MenuButton>
-        <MenuButton to="/dash/reviews" isActive={match("reviews")}>
-          <MenuButton.Icon isActive={match("reviews")}>
-            <Rank />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("reviews")}>
-            Evaluaciones
-          </MenuButton.Title>
-        </MenuButton>
-        <MenuButton to="/dash/ajustes" isActive={match("ajustes")}>
-          <MenuButton.Icon isActive={match("ajustes")}>
-            <Settings />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("ajustes")}>
-            Ajustes
-          </MenuButton.Title>
-        </MenuButton>
+        <NavButton pathname="evaluaciones" icon={<Rank />} />
+        <NavButton pathname="ajustes" icon={<Settings />} />
       </section>
+    </div>
+  );
+};
+
+const NavButton = ({
+  pathname,
+  icon,
+}: {
+  icon?: ReactNode;
+  pathname: string;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const match = (string: string) => location.pathname.includes(string);
+  useEffect(() => {
+    if (match(pathname) && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [location]);
+  return (
+    <div ref={ref}>
+      <MenuButton to={"/dash/" + pathname} isActive={match(pathname)}>
+        <MenuButton.Icon isActive={match(pathname)}>
+          {icon || <Clients />}
+        </MenuButton.Icon>
+        <MenuButton.Title isActive={match(pathname)}>
+          {pathname}
+        </MenuButton.Title>
+      </MenuButton>
     </div>
   );
 };

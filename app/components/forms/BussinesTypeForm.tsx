@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Barbershop } from "../icons/business/barbershop";
 import { MultipleOptions, Option, Otro } from "./MultipleOptions";
 import { Sports } from "../icons/business/sports";
@@ -14,7 +14,7 @@ const OPTIONS = [
   "centro deportivo",
   "consultorio médico",
   "estudios clínicos",
-  "clases",
+  "tutorias",
   "podólogo",
   "nutriologo",
   "crossfit",
@@ -28,6 +28,10 @@ const OPTIONS = [
   "yoga / meditación",
   "coaching",
   "terapia física",
+  "reparaciones",
+  "hojalatería",
+  "code review",
+  "uñas",
   "otro",
 ];
 
@@ -48,15 +52,14 @@ const getIconByOption = (string?: string) => {
 
 export const BussinesTypeForm = ({ org }: { org: Org }) => {
   const fetcher = useFetcher();
-  const [current, set] = useState<string>(org.businessType || "");
-  const isOther = !OPTIONS.includes(current);
+  const [current, setCurrent] = useState<string>(org.businessType || "");
+  const isOther = current !== "" && !OPTIONS.includes(current);
   const [isOtro, setIsOtro] = useState(isOther);
   const {
     formState: { isValid },
     register,
     handleSubmit,
     setValue,
-    // watch,
   } = useForm({
     defaultValues: {
       id: org.id,
@@ -64,19 +67,13 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
     },
   });
 
-  const handleOptionClick = (option: string) => {
-    setIsOtro(false);
-    set(option);
-    setValue("businessType", option, {
-      shouldValidate: true,
-      //   shouldDirty: true,
-      //   shouldTouch: true,
-    });
-  };
+  useEffect(() => {
+    register("businessType", { required: true });
+  }, []);
 
   const handleOtroClick = () => {
     setIsOtro(true);
-    set("");
+    setCurrent("");
     setValue("businessType", "", { shouldValidate: true });
   };
 
@@ -89,6 +86,19 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
       },
       { method: "post" }
     );
+  };
+
+  const onCancel = () => {
+    setValue("businessType", "", { shouldValidate: true });
+    setCurrent("");
+    setTimeout(() => {
+      setIsOtro(false);
+    }, 300);
+  };
+
+  const handleSelection = (option: string) => {
+    setValue("businessType", option, { shouldValidate: true });
+    setCurrent(option);
   };
 
   return (
@@ -106,8 +116,7 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
             if (index === OPTIONS.length - 1) {
               return (
                 <Otro
-                  // defaultValue={org.businessType}
-                  onCancel={() => setIsOtro(false)}
+                  onCancel={onCancel}
                   label="Describe tu negocio"
                   name="businessType"
                   isActive={isOtro}
@@ -117,18 +126,18 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
                 />
               );
             }
-            if (isOtro) return null;
+            if (isOtro) return null; // @todo remove?
             return (
               <Option
-                capitalize
+                key={option}
+                label={option}
+                onClick={() => handleSelection(option)}
                 name="businessType"
+                icon={getIconByOption(option)}
+                capitalize
+                isCurrent={current === option}
                 register={register}
                 transition={{ type: "spring", bounce: 0.3 }}
-                onClick={() => handleOptionClick(option)}
-                isCurrent={current === option}
-                key={option}
-                option={option}
-                icon={getIconByOption(option)}
               />
             );
           }}

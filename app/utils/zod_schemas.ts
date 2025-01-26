@@ -1,5 +1,22 @@
 import { z } from "zod";
 
+const rangesSchema = z
+  .array(z.array(z.string(), z.string()), z.array(z.string(), z.string()))
+  .optional();
+export const signup3Schema = z.object({
+  id: z.string().min(3),
+  weekDays: z.object({
+    lunes: rangesSchema,
+    martes: rangesSchema,
+    miércoles: rangesSchema,
+    jueves: rangesSchema,
+    viernes: rangesSchema,
+    sábado: rangesSchema,
+    domingo: rangesSchema,
+  }),
+});
+export type Signup3SchemaType = z.infer<typeof signup2Schema>;
+
 export const signup2Schema = z.object({
   id: z.string().min(3),
   businessType: z.string().min(3),
@@ -10,8 +27,8 @@ export const signup1Schema = z.object({
   id: z.string().min(3),
   name: z.string().min(3),
   shopKeeper: z.string().min(3),
-  address: z.string().optional(),
-  numberOfEmployees: z.string().min(3),
+  address: z.string().optional().nullable(),
+  numberOfEmployees: z.string().min(1),
 });
 export type Signup1SchemaType = z.infer<typeof signup1Schema>;
 

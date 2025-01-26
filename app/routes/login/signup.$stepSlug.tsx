@@ -7,7 +7,7 @@ import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 import { TimesForm } from "~/components/forms/TimesForm";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
-import { getOrCreateOrg, updateOrg } from "~/.server/userGetters";
+import { getOrCreateOrgOrRedirect, updateOrg } from "~/.server/userGetters";
 import { Denik } from "~/components/icons/denik";
 import type { Route } from "./+types/signup.$stepSlug";
 import { cn } from "~/utils/cn";
@@ -18,7 +18,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
   if (intent === "update_org") {
-    await updateOrg(formData, params.stepSlug);
+    return await updateOrg(formData, params.stepSlug);
   }
   return null;
 };
@@ -27,7 +27,7 @@ export const loader = async ({
   request,
   params: { stepSlug },
 }: Route.LoaderArgs) => {
-  const org = await getOrCreateOrg(request);
+  const org = await getOrCreateOrgOrRedirect(request); // redirect if isActive
   return {
     org, // @todo send only needed by each step
     stepSlug,

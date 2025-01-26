@@ -17,11 +17,11 @@ enum Role {
 }
 
 model User {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
-  role          Role    @default(GUEST)
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  role          Role     @default(GUEST)
   // UNIQUE
-  email         String  @unique
-  emailVerified Boolean @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   // LOGIN
   accessToken   String?
   displayName   String?
@@ -30,8 +30,9 @@ model User {
   photoURL      String?
   uid           String?
   // ADMIN 
-  orgs          Org[]
-  orgId         String? @db.ObjectId // provisional
+  orgIds        String[] @db.ObjectId
+  orgId         String?  @db.ObjectId // provisional
+  Org           Org[]
 }
 
 enum Place {
@@ -107,7 +108,7 @@ type WebSiteConfig {
 }
 
 model Org {
-  isActive          Boolean        @default(true)
+  isActive          Boolean        @default(false)
   // required
   id                String         @id @default(auto()) @map("_id") @db.ObjectId
   ownerId           String         @db.ObjectId
@@ -115,6 +116,7 @@ model Org {
   // about your company
   name              String
   slug              String         @unique
+  email             String?
   // logo              String?
   shopKeeper        String?
   numberOfEmployees String?
@@ -126,7 +128,7 @@ model Org {
   businessType      String?
   // Times
   weekDays          Json?
-  Service           Service[]
+  services          Service[]
   // extra
   location          Json?
   websiteConfig     WebSiteConfig?
