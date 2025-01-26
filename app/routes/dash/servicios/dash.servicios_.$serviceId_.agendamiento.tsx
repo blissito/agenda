@@ -8,18 +8,18 @@ import {
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { db } from "~/utils/db.server";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import type { Route } from "./+types/dash.servicios_.$serviceId_.agendamiento";
+import type { Service } from "@prisma/client";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
   const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) return json(null, { status: 404 });
+  if (!service) throw new Response(null, { status: 404 });
   return { service };
 };
 
-export default function Index() {
-  const { service } = useLoaderData<typeof loader>();
+export default function Index({ loaderData }: Route.ComponentProps) {
+  const { service } = loaderData;
 
   return (
     <section>
@@ -46,7 +46,9 @@ export default function Index() {
         <h2 className="font-satoMiddle mb-8 text-xl">
           Información del agendamiento
         </h2>
-        <div></div>
+        <section>
+          <Info service={service} />
+        </section>
         <div className="flex mt-16 justify-end gap-6">
           <SecondaryButton as="Link" to="/dash/website" className="w-[120px]">
             Cancelar
@@ -57,3 +59,7 @@ export default function Index() {
     </section>
   );
 }
+
+const Info = ({ service }: { service: Partial<Service> }) => {
+  return <></>;
+};

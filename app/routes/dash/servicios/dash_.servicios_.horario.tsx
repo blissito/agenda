@@ -1,9 +1,9 @@
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { serviceTimesFormHandler } from "~/.server/form_handlers/serviceTimesFormHandler";
 import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm";
 import { getServicefromSearchParams } from "~/.server/userGetters";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const action = async ({ request }) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
   if (intent === "update_service") {
@@ -12,7 +12,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   return null;
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }) => {
   // will redirect when 404
   const service = await getServicefromSearchParams(request, {
     select: {

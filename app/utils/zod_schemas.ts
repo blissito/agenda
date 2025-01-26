@@ -1,19 +1,33 @@
 import { z } from "zod";
 
+export const serviceUpdateSchema = z.object({
+  id: z.string().min(3),
+  name: z.string().min(3),
+  slug: z.string().min(3),
+  orgId: z.string().min(3),
+  description: z.string().optional().nullable(),
+  price: z.coerce.number().optional(),
+  points: z.coerce.number().optional(),
+});
+export type ServiceUpdateSchema = z.infer<typeof signup2Schema>;
+
 const rangesSchema = z
   .array(z.array(z.string(), z.string()), z.array(z.string(), z.string()))
   .optional();
+export const weekSchema = z.object({
+  lunes: rangesSchema,
+  martes: rangesSchema,
+  miércoles: rangesSchema,
+  jueves: rangesSchema,
+  viernes: rangesSchema,
+  sábado: rangesSchema,
+  domingo: rangesSchema,
+});
+export type WeekSchema = z.infer<typeof weekSchema>;
+
 export const signup3Schema = z.object({
   id: z.string().min(3),
-  weekDays: z.object({
-    lunes: rangesSchema,
-    martes: rangesSchema,
-    miércoles: rangesSchema,
-    jueves: rangesSchema,
-    viernes: rangesSchema,
-    sábado: rangesSchema,
-    domingo: rangesSchema,
-  }),
+  weekDays: weekSchema,
 });
 export type Signup3SchemaType = z.infer<typeof signup2Schema>;
 

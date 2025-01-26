@@ -14,6 +14,7 @@ import {
 } from "./TimePicker";
 import { nanoid } from "nanoid";
 import { type Org } from "@prisma/client";
+import type { WeekSchema } from "~/utils/zod_schemas";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
@@ -35,8 +36,8 @@ const ENTIRE_WEEK = [
   "sábado",
   "domingo",
 ];
-// @TODO: remove unnecesary types
-const initialValues: WeekDaysType = {
+
+const initialValues: WeekSchema = {
   lunes: [["09:00", "16:00"]],
 };
 
@@ -50,16 +51,14 @@ export const TimesForm = ({
   children,
 }: {
   children?: ReactNode; // acting as footer
-  onChange?: (data: WeekDaysType) => void;
-  onSubmit?: (data: WeekDaysType) => void;
-  org: Org;
+  onChange?: (data: WeekSchema) => void;
+  onSubmit?: (data: WeekSchema) => void;
+  org?: Org;
 }) => {
   const fetcher = useFetcher();
-  const [data, setData] = useState<WeekDaysType>(
-    org.weekDays || initialValues // @TODO custom aliases
-  );
+  const [data, setData] = useState<WeekSchema>(initialValues);
   const initialData = org?.weekDays
-    ? Object.keys(org?.weekDays as WeekDaysType)
+    ? Object.keys(org?.weekDays)
     : Object.keys(initialValues);
   const {
     clearErrors,
@@ -75,14 +74,15 @@ export const TimesForm = ({
   });
 
   const submit = () => {
+    return; // @todo
     onSubmit?.(data);
     fetcher.submit(
       {
-        intent: "update_org",
-        data: JSON.stringify({ weekDays: data, id: org.id }),
+        intent: "update_service",
+        data: JSON.stringify({ weekDays: data }),
         next: "/signup/4",
       },
-      { method: "post" }
+      { method: "post", action: `/` }
     );
   };
 

@@ -101,14 +101,14 @@ export const ServiceDetail = ({
         <div className="flex justify-between items-center">
           {" "}
           <h3 className="text-lg font-bold">Agendamiento</h3>
-          <SecondaryButton
+          {/* <SecondaryButton
             as="Link"
             to={`/dash/servicios/${service.id}/agendamiento`}
             className="h-10"
           >
             {" "}
             Editar
-          </SecondaryButton>
+          </SecondaryButton> */}
         </div>
         <InfoBox title="Servicio" value={service.place} />
         <InfoBox

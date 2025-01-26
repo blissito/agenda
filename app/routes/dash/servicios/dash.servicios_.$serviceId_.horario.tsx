@@ -5,22 +5,28 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { db } from "~/utils/db.server";
-import { useLoaderData } from "@remix-run/react";
+import type { Route } from "./+types/dash.servicios_.$serviceId_.horario";
+import { TimesForm } from "~/components/forms/TimesForm";
+import { PrimaryButton } from "~/components/common/primaryButton";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
   const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) return json(null, { status: 404 });
+  if (!service) throw new Response(null, { status: 404 });
   return { service };
 };
 
-export default function Index() {
-  const { service } = useLoaderData<typeof loader>();
+export const action = async ({ request, params }: Route.ActionArgs) => {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  if (intent === "update_org") {
+  }
+  return null;
+};
 
+export default function Index({ loaderData }: Route.ComponentProps) {
+  const { service } = loaderData;
   return (
     <section>
       <Breadcrumb className="text-brand_gray">
@@ -49,12 +55,27 @@ export default function Index() {
         >
           Horario: Actualiza los días y horarios en los que ofreces servicio
         </h2>
-        <div className="flex mt-16 justify-end gap-6">
-          <SecondaryButton as="Link" to="/dash/website" className="w-[120px]">
-            Cancelar
-          </SecondaryButton>
-          <PrimaryButton>Guardar</PrimaryButton>
-        </div>
+        <section>
+          <h2>Este servicio utiliza los mismos horarios que la organización</h2>
+          {/* <TimesForm /> */}
+          <nav className="flex gap-4">
+            <PrimaryButton
+              as="Link"
+              to={"/dash/servicios/" + service.id}
+              className="my-4"
+            >
+              Volver
+            </PrimaryButton>
+            <PrimaryButton
+              as="button"
+              to={"/dash/servicios/" + service.id}
+              className="my-4 disabled:bg-yellow-500/40"
+              isDisabled
+            >
+              Crear horarios específicos
+            </PrimaryButton>
+          </nav>
+        </section>
       </div>
     </section>
   );

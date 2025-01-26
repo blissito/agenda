@@ -19,8 +19,10 @@ type Props = {
   onFocus?: () => void;
   onBlur?: () => void;
   onChange?: (evt: ChangeEvent<HTMLInputElement>) => void;
+  defaultValue?: string | number;
 };
 export const BasicInput = ({
+  defaultValue,
   icon = null,
   isDisabled,
   placeholder,
@@ -57,6 +59,7 @@ export const BasicInput = ({
 
         {as === "textarea" ? (
           <textarea
+            defaultValue={defaultValue}
             onFocus={onFocus}
             onBlur={onBlur}
             onChange={onChange}
@@ -76,6 +79,7 @@ export const BasicInput = ({
           />
         ) : (
           <input
+            defaultValue={defaultValue}
             onBlur={onBlur}
             onFocus={onFocus}
             onChange={onChange}

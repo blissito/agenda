@@ -10,6 +10,26 @@ import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { db } from "~/utils/db.server";
 import type { Route } from "./+types/dash.servicios_.$serviceId_.general";
+import { Form, redirect, useFetcher } from "react-router";
+import { serviceUpdateSchema } from "~/utils/zod_schemas";
+import { Spinner } from "~/components/common/Spinner";
+
+export const action = async ({ request }: Route.ActionArgs) => {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  if (intent === "update_service") {
+    const form = Object.fromEntries(formData);
+    const validData = serviceUpdateSchema.parse(form);
+    await db.service.update({
+      where: {
+        id: validData.id,
+      },
+      data: { ...validData, id: undefined, slug: undefined },
+    });
+    return redirect("/dash/servicios/" + validData.id);
+  }
+  return null;
+};
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
@@ -21,6 +41,8 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { service } = loaderData;
+  const fetcher = useFetcher();
+  const isFetching = fetcher.state !== "idle";
 
   return (
     <section>
@@ -43,7 +65,14 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="bg-white rounded-2xl max-w-3xl p-8 mt-6">
+      <fetcher.Form
+        method="post"
+        className="bg-white rounded-2xl max-w-3xl p-8 mt-6"
+      >
+        <input type="hidden" name="id" value={service.id} />
+        <input type="hidden" name="slug" value={service.slug} />
+        <input type="hidden" name="orgId" value={service.orgId} />
+
         <h2
           className="font-satoMiddle mb-8 text-xl
         "
@@ -51,68 +80,52 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           Información General
         </h2>
         {/* Revisar props */}
-        <div className="flex gap-6">
-          {/* <InputFile // @TODO: this should contain an input with string value coming from upload
-            action={action}
-            name="photoURL"
-            title="Foto de portada"
-            description="  Carga 1 imagen de tu servicio. Te recomendamos que tenga un aspect ratio 16:9 y un peso máximo de 1MB."
-            register={register}
-            registerOptions={{ required: false }}
-          >
-            <AddImage className="mx-auto mb-3" />
-            <span className="font-satoshi">
-              Arrastra o selecciona tu foto de portada
-            </span>
-          </InputFile>
-          <InputFile // @TODO: this should contain an input with string value coming from upload
-            action={action}
-            name="photoURL"
-            title="Foto de portada"
-            description="  Carga 1 imagen de tu servicio. Te recomendamos que tenga un aspect ratio 16:9 y un peso máximo de 1MB."
-            register={register}
-            registerOptions={{ required: false }}
-          >
-            <AddImage className="mx-auto mb-3" />
-            <span className="font-satoshi">
-              Arrastra o selecciona tu foto de portada
-            </span>
-          </InputFile> */}
-        </div>
+        <div className="flex gap-6"></div>
         <BasicInput
           placeholder="Clase de piano"
           label="Nombre del servicio"
           name="name"
-          value={service.name}
+          defaultValue={service.name}
         />
         <BasicInput
           placeholder="$0.00"
           label="Precio"
           name="price"
           type="number"
-          value={service.price}
+          defaultValue={service.price}
         />
         <BasicInput
           name="points"
           placeholder="100"
           label="¿A cuántos puntos de recompensas equivale el servicio?"
-          value={service.points}
+          defaultValue={service.points}
         />
         <BasicInput
           as="textarea"
           name="description"
           placeholder="Cuéntale a tus clientes sobre tu servicio"
           label="Descripción"
-          value={service.description}
+          defaultValue={service.description}
         />
 
         <div className="flex mt-16 justify-end gap-6">
-          <SecondaryButton as="Link" to="/dash/servicios" className="w-[120px]">
+          <SecondaryButton
+            as="Link"
+            to={`/dash/servicios/${service.id}`}
+            className="w-[120px]"
+          >
             Cancelar
           </SecondaryButton>
-          <PrimaryButton>Guardar</PrimaryButton>
+          <PrimaryButton
+            isDisabled={isFetching}
+            name="intent"
+            value="update_service"
+            type="submit"
+          >
+            {isFetching ? <Spinner /> : "Guardar"}
+          </PrimaryButton>
         </div>
-      </div>
+      </fetcher.Form>
     </section>
   );
 }
