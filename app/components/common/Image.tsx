@@ -18,7 +18,7 @@ export const Image = ({
       alt={alt}
       {...props}
       className={twMerge("w-full h-[180px] object-cover object-top", className)}
-      src={src}
+      src={src || defaultSrc}
       onError={(e: SyntheticEvent<HTMLImageElement, Event>) => {
         (e.target as HTMLInputElement).onerror = null; // previene el loop
         (e.target as HTMLInputElement).src = defaultSrc;

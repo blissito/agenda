@@ -176,16 +176,20 @@ export const ServiceCard = ({
 };
 
 export const AddService = () => {
+  const fetcher = useFetcher();
   return (
-    <Link to="/dash/servicios/nuevo">
-      <button className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center">
-        <div>
-          <Plus className="mx-auto group-hover:scale-125 transition-all" />
-          <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
-            Agrega un nuevo servicio
-          </p>
-        </div>
-      </button>
-    </Link>
+    <button
+      onClick={() => {
+        fetcher.submit({ intent: "create_dummy_service" }, { method: "post" });
+      }}
+      className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center"
+    >
+      <div>
+        <Plus className="mx-auto group-hover:scale-125 transition-all" />
+        <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
+          Agrega un nuevo servicio
+        </p>
+      </div>
+    </button>
   );
 };

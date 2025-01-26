@@ -22,7 +22,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   });
   if (!service) throw new Response(null, { status: 404 });
   return {
-    service,
+    service: { ...service, config: service.config ? service.config : {} },
     orgWeekDays: org.weekDays,
   };
 };

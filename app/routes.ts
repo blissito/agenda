@@ -17,11 +17,17 @@ export default [
     layout("routes/dash/dash_layout.tsx", [
       index("routes/dash/dash._index.tsx"),
       route("agenda", "routes/dash/dash.agenda.tsx"),
-      route("servicios", "routes/dash/servicios/index.tsx"),
-      route(
-        "servicios/:serviceId",
-        "routes/dash/servicios/dash.servicios_.$serviceId.tsx"
-      ),
+      ...prefix("servicios", [
+        index("routes/dash/servicios/index.tsx"),
+        route(
+          ":serviceId",
+          "routes/dash/servicios/dash.servicios_.$serviceId.tsx"
+        ),
+        route(
+          ":serviceId/general",
+          "routes/dash/servicios/dash.servicios_.$serviceId_.general.tsx"
+        ),
+      ]),
       route("website", "routes/dash/dash.website.tsx"),
       route("clientes", "routes/dash/dash.clientes.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),

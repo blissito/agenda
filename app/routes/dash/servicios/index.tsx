@@ -1,4 +1,4 @@
-import { Outlet, useLoaderData } from "react-router";
+import { Outlet, redirect, useFetcher, useLoaderData } from "react-router";
 import { AnimatePresence } from "framer-motion";
 import { useCallback, useEffect, useRef } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
@@ -9,6 +9,25 @@ import {
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import type { Route } from "./+types";
+import { db } from "~/utils/db.server";
+import slugify from "slugify";
+import { nanoid } from "nanoid";
+
+export const action = async ({ request }: Route.ActionArgs) => {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  if (intent === "create_dummy_service") {
+    const { org } = await getUserAndOrgOrRedirect(request);
+    const dummy = await db.service.create({
+      data: {
+        name: "Fancy Service",
+        slug: slugify("Fance Service") + nanoid(4),
+        orgId: org.id,
+      },
+    });
+    return redirect(`/dash/servicios/${dummy.id}`);
+  }
+};
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const services = await getServices(request);
@@ -62,6 +81,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
 }
 
 const EmptyStateServices = () => {
+  const fetcher = useFetcher();
   return (
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
@@ -78,9 +98,14 @@ const EmptyStateServices = () => {
         </p>
 
         <PrimaryButton
-          as="Link"
-          to="/dash/servicios/nuevo"
           className="mx-auto mt-12"
+          type="button"
+          onClick={() => {
+            fetcher.submit(
+              { intent: "create_dummy_service" },
+              { method: "post" }
+            );
+          }}
         >
           + Agregar servicio
         </PrimaryButton>

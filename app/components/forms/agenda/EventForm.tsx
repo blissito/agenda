@@ -51,7 +51,7 @@ export const EventForm = ({
   const fetcher = useFetcher();
   const oneMoreHour = new Date(defaultValues.start as Date);
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
-
+  console.log("SERVICES", services);
   const {
     register,
     formState: { isValid, errors, isDirty },
@@ -63,9 +63,8 @@ export const EventForm = ({
   } = useForm({
     defaultValues: {
       ...defaultValues,
-      startHour: formatHour(defaultValues.start as Date, true),
-      endHour: formatHour(defaultValues.end || oneMoreHour, true),
       start: formatDate(defaultValues.start as Date),
+      end: defaultValues.end ? formatDate(defaultValues.end as Date) : "",
     },
   });
 
@@ -130,8 +129,8 @@ export const EventForm = ({
       { data: JSON.stringify(validData) },
       {
         method: "POST",
-        action: v.id
-          ? `/api/events?intent=update&eventId=${v.id}`
+        action: validData.id
+          ? `/api/events?intent=update&eventId=${validData.id}`
           : "/api/events?intent=new",
       }
     );
@@ -161,9 +160,9 @@ export const EventForm = ({
 
   const registerVirtualFields = () => {
     // virtual fields
-    register("customerId", { required: true, value: defaultValues.customerId });
-    register("serviceId", { required: true, value: services[0].id });
-    register("employeeId", { required: true, value: employees[0].id });
+    register("customerId", { required: true, value: "" });
+    register("serviceId", { required: true });
+    register("employeeId", { required: true });
   };
 
   useEffect(() => {
@@ -204,11 +203,11 @@ export const EventForm = ({
         defaultValue={defaultValues.customerId}
       />
       <ServiceSelect
-        defaultValue={services[0].id}
+        defaultValue={services[0]?.id}
         onChange={handleServiceSelect}
       />
       <EmployeeSelect
-        defaultValue={employees[0].id}
+        defaultValue={employees[0]?.id}
         onChange={hanldeEmployeeSelect}
       />
 

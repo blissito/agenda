@@ -78,7 +78,7 @@ export const Drawer = ({
           }
         )}
       >
-        <header className="flex items-start justify-between mb-6">
+        <header className="flex items-start justify-between mb-3">
           <div>
             <h4 className="fot-bold text-2xl">{title}</h4>
             <p className="text-brand_gray">{subtitle}</p>
@@ -95,7 +95,6 @@ export const Drawer = ({
           style={{
             scrollbarWidth: "none",
           }}
-          className="overflow-y-scroll h-[95%]"
         >
           {children}
         </section>

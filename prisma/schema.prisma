@@ -59,36 +59,36 @@ type Limit {
 }
 
 model Service {
-  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
   name          String
-  slug          String       @unique
-  points        Int          @default(1)
-  price         Int
+  slug          String        @unique
+  points        Int           @default(1)
+  price         Int           @default(999)
   // relations
-  orgId         String       @db.ObjectId
-  org           Org          @relation(fields: [orgId], references: [id])
+  orgId         String        @db.ObjectId
+  org           Org           @relation(fields: [orgId], references: [id])
   events        Event[]
   // config
-  payment       Boolean      @default(false)
-  config        NotifyConfig
+  payment       Boolean       @default(false)
+  config        NotifyConfig?
   // status
-  paid          Boolean      @default(false)
-  place         Place        @default(INPLACE)
-  isActive      Boolean      @default(true)
-  archived      Boolean      @default(false)
-  allowMultiple Boolean      @default(false)
-  limit         Json?        @default("{\"bookings\":6,\"per\":\"day\"}") // @json because I'm still figuringt it out
+  paid          Boolean       @default(false)
+  place         Place         @default(INPLACE)
+  isActive      Boolean       @default(true)
+  archived      Boolean       @default(false)
+  allowMultiple Boolean       @default(false)
+  limit         Json?         @default("{\"bookings\":6,\"per\":\"day\"}") // @json because I'm still figuringt it out
   // numberOfSessionsInAnHour Int     @default(1)
   // horario
-  duration      Int          @default(60) // mins
+  duration      Int           @default(60) // mins
   weekDays      Json?
   // optionals
   address       String?
-  seats         Int?         @default(1)
+  seats         Int?          @default(1)
   photoURL      String?
   description   String?
   category      String?
-  currency      String?      @default("MXN")
+  currency      String?       @default("MXN")
   employeeName  String? // @TODO: where is this requested?
 }
 
@@ -168,6 +168,7 @@ model Event {
   // mins for block
   type           EventType   @default(EVENT) // avoid scheduling even when multi enabled
   start          DateTime
+  end            DateTime? // @TODO: make it required?
   duration       Int         @default(60)
   orgId          String      @db.ObjectId
   userId         String?     @db.ObjectId // owner
@@ -180,7 +181,6 @@ model Event {
   service        Service?    @relation(fields: [serviceId], references: [id])
   paid           Boolean     @default(false)
   notes          String?
-  end            DateTime? // @TODO: make it required?
   dateString     String?
   allDay         Boolean     @default(false)
   // metadata
