@@ -2,7 +2,6 @@ import { Form, useFetcher } from "react-router";
 import { Switch } from "./Switch";
 import { PrimaryButton } from "../common/primaryButton";
 import { useForm } from "react-hook-form";
-import { SLUGS } from "~/routes/login/signup.$stepSlug";
 import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 import { type ReactNode, useEffect, useState } from "react";
@@ -75,15 +74,14 @@ export const TimesForm = ({
     },
   });
 
-  const submit = () => {
+  const submit = (values) => {
     if (onSubmit) {
       onSubmit(data);
       return; // @todo this is no necessary, is doing the same ?
     }
     // @TODO: validate?
     fetcher.submit(
-      // tipo-de-negocio
-      { intent: SLUGS[2], data: JSON.stringify(data) },
+      { intent: "update_org", data: JSON.stringify(values), next: "/signup/4" },
       { method: "post" }
     );
   };

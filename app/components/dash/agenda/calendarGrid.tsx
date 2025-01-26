@@ -569,7 +569,6 @@ export const VirtualGrid = ({
   const setCurrentCell = (index: number) => {
     map.current.unshift(index);
     map.current = [...new Set(map.current)];
-    // console.log("current: ", index, map);
   };
 
   return (

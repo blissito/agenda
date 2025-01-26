@@ -1,6 +1,6 @@
 import { Form } from "react-router";
 import { type FieldValues, useForm } from "react-hook-form";
-import { REQUIRED_MESSAGE, SLUGS } from "~/routes/login/signup.$stepSlug";
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 import { BasicInput } from "./BasicInput";
 import { MultipleOptions } from "./MultipleOptions";
 import { PrimaryButton } from "../common/primaryButton";
@@ -30,7 +30,7 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
   const onSubmit = (values: FieldValues) => {
     fetcher.submit(
       // about-your-company
-      { intent: SLUGS[0], data: JSON.stringify(values) },
+      { intent: "update_org", data: JSON.stringify(values), next: "/signup/2" },
       { method: "post" }
     );
   };

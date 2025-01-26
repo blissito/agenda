@@ -89,7 +89,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { org, user } = await getUserAndOrgOrRedirect(request);
+  const { org } = await getUserAndOrgOrRedirect(request, {
+    redirectURL: "/signup/1",
+  });
   const yesterday = new Date();
   yesterday.setDate(new Date().getDate() - 1);
   const events = await db.event.findMany({

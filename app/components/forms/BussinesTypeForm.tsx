@@ -6,7 +6,6 @@ import { FaBusinessTime } from "react-icons/fa";
 import { PrimaryButton } from "../common/primaryButton";
 import { type FieldValues, useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
-import { SLUGS } from "~/routes/login/signup.$stepSlug";
 import { type Org } from "@prisma/client";
 
 const OPTIONS = [
@@ -47,10 +46,11 @@ const getIconByOption = (string?: string) => {
   }
 };
 
-export const BussinesTypeForm = ({ org }: { org?: Org }) => {
+export const BussinesTypeForm = ({ org }: { org: Org }) => {
   const fetcher = useFetcher();
-  const [current, set] = useState<string>(org?.businessType);
-  const [isOtro, setIsOtro] = useState(false);
+  const [current, set] = useState<string>(org.businessType || "");
+  const isOther = !OPTIONS.includes(current);
+  const [isOtro, setIsOtro] = useState(isOther);
   const {
     formState: { isValid },
     register,
@@ -59,6 +59,7 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
     // watch,
   } = useForm({
     defaultValues: {
+      id: org.id,
       businessType: org?.businessType || "",
     },
   });
@@ -74,7 +75,6 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
   };
 
   const handleOtroClick = () => {
-    console.log("WTF otro", current);
     setIsOtro(true);
     set("");
     setValue("businessType", "", { shouldValidate: true });
@@ -82,8 +82,11 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
 
   const onSubmit = (values: FieldValues) => {
     fetcher.submit(
-      // tipo-de-negocio
-      { intent: SLUGS[1], data: JSON.stringify(values) },
+      {
+        intent: "update_org",
+        data: JSON.stringify(values),
+        next: "/signup/3",
+      },
       { method: "post" }
     );
   };
@@ -96,7 +99,6 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
         className="gap-4 px-4 h-full flex flex-col place-content-between	pt-0 lg:pt-20  max-w-xl mx-auto"
       >
         <MultipleOptions
-          //   error={errors["businessType"]}
           className="grid grid-cols-2 gap-4 md:pt-8"
           name="businessType"
           options={OPTIONS}
@@ -104,7 +106,7 @@ export const BussinesTypeForm = ({ org }: { org?: Org }) => {
             if (index === OPTIONS.length - 1) {
               return (
                 <Otro
-                  // className="mt-[35vh]"
+                  // defaultValue={org.businessType}
                   onCancel={() => setIsOtro(false)}
                   label="Describe tu negocio"
                   name="businessType"

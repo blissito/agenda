@@ -39,6 +39,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   const intent = formData.get("intent");
   const session = await getSession(request.headers.get("Cookie"));
   console.log("SIGNIN_INTENT ::: ", intent);
+
   if (intent === MICROSOFT_BRAND_NAME) {
     const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
     const user = await getOrCreateUser(data);

@@ -1,5 +1,20 @@
 import { z } from "zod";
 
+export const signup2Schema = z.object({
+  id: z.string().min(3),
+  businessType: z.string().min(3),
+});
+export type Signup2SchemaType = z.infer<typeof signup2Schema>;
+
+export const signup1Schema = z.object({
+  id: z.string().min(3),
+  name: z.string().min(3),
+  shopKeeper: z.string().min(3),
+  address: z.string().optional(),
+  numberOfEmployees: z.string().min(3),
+});
+export type Signup1SchemaType = z.infer<typeof signup1Schema>;
+
 export const dayTupleSchema = z
   .array(z.array(z.string().min(5), z.string().min(5)))
   .optional();

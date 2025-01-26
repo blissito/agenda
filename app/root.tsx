@@ -31,8 +31,8 @@ export const links: Route.LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
   {
     rel: "icon",
-    href: "/ico.png",
-    type: "image/png",
+    href: "/favicon.ico",
+    type: "image/ico",
   },
 ];
 

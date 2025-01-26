@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import {
   type FieldError,
   type FieldValues,
@@ -49,6 +49,7 @@ export const MultipleOptions = ({
       </>
     );
   }
+
   return (
     <>
       <p className="mb-1">{label}</p>{" "}
@@ -113,24 +114,14 @@ export const Option = ({
   [x: string]: unknown;
 }) => {
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events
-    <motion.label
-      whileHover={{ scale: 1.01 }}
-      key={index}
-      initial={{ y: -10, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
+    <button
+      type="button"
       onClick={onClick}
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-      role="button"
-      // Im doing this because of the ability of the label of activate the radio on click
-      htmlFor={option}
       className={twMerge(
         "active:scale-95 active:shadow-inner",
         "relative",
         "flex items-center gap-1 md:gap-4",
         "py-2 rounded-lg pl-2 md:pl-4 pr-0 border border-gray-200"
-        // "checked:border-blue-600" // no funciona U_U
-        //   "overflow-hidden"
       )}
     >
       {isCurrent ? (
@@ -152,15 +143,15 @@ export const Option = ({
         {option}
       </span>
       <input
-        value={option}
         type="radio"
+        className="peer opacity-0"
+        value={option}
         id={option}
         name={name}
-        className="peer opacity-0"
         {...props}
         {...register?.(name, registerOptions)}
       />
-    </motion.label>
+    </button>
   );
 };
 
@@ -192,7 +183,7 @@ export const Otro = ({
           <BasicInput
             className="w-full "
             label={label}
-            placeholder="¿Qué tipo de negocio?"
+            placeholder="¿Qué tipo de negocio tienes?"
             name={name}
             register={register}
           />

@@ -1,9 +1,17 @@
 import { type Event, type Org, Prisma, type User } from "@prisma/client";
+import { randomUUID } from "crypto";
 import { redirect } from "react-router";
+import type { ZodSchema } from "zod";
 import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
 import { type FirebaseUserData } from "~/utils/lib/firebase";
 import { validateUserToken } from "~/utils/tokens";
+import {
+  signup1Schema,
+  signup2Schema,
+  type Signup1SchemaType,
+  type Signup2SchemaType,
+} from "~/utils/zod_schemas";
 
 export const redirectIfUser = async (request: Request) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -64,10 +72,20 @@ export const getAdminUserOrRedirect = async (
 /**
  * Org stuff
  */
-export const getFirstOrgOrNull = async (request: Request) => {
+export const getOrCreateOrg = async (request: Request) => {
   const user = await getUserOrNull(request);
-  if (!user) return null;
-  return await db.org.findFirst({ where: { ownerId: user.id } }); // @TODO: multi orgs?
+  if (!user) throw new Error("No user present");
+  let exists = await db.org.findFirst({ where: { ownerId: user.id } }); // Multi orgs? YES
+  if (!exists) {
+    exists = await db.org.create({
+      data: {
+        ownerId: user.id,
+        name: "Fancy Org",
+        slug: "fancy-org" + randomUUID(),
+      },
+    });
+  }
+  return exists;
 };
 
 // used in loaders
@@ -200,8 +218,47 @@ export const getService = async (slug?: string) => {
   });
 };
 
-export const updateOrg = async ({ id, ...data }: Partial<Org>) =>
-  await db.org.update({ where: { id }, data });
+const validateWith = <T extends Record<string, string>>(
+  data: T,
+  schema: ZodSchema
+) => {
+  return schema.safeParse(data);
+};
+
+const getCurrentSchema = (stepSlug: string) => {
+  return stepSlug === "1"
+    ? signup1Schema
+    : stepSlug === "2"
+    ? signup2Schema
+    : stepSlug === "3"
+    ? signup1Schema
+    : signup1Schema;
+};
+
+export const updateOrg = async (formData: FormData, stepSlug: string) => {
+  type ORG = Signup1SchemaType | Signup2SchemaType | Signup3SchemaType;
+
+  const next = (formData.get("next") as string) || "/signup/" + (+stepSlug + 1);
+  const org: ORG = JSON.parse(formData.get("data") as string);
+  // validation
+  const {
+    success,
+    error,
+    data: validData,
+  } = validateWith<ORG>(org, getCurrentSchema(stepSlug));
+  if (!success) {
+    throw new Response(JSON.stringify({ error, success, org }), {
+      status: 400,
+    });
+  }
+  await db.org.update({
+    where: {
+      id: validData.id,
+    },
+    data: { ...validData, id: undefined },
+  });
+  throw redirect(next);
+};
 
 export const getEvents = async (serviceId: string) => {
   return await db.event.findMany({

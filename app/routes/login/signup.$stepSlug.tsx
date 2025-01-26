@@ -1,4 +1,4 @@
-import { useLoaderData, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { twMerge } from "tailwind-merge";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
@@ -7,131 +7,61 @@ import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
 import { TimesForm } from "~/components/forms/TimesForm";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
-import { getFirstOrgOrNull } from "~/.server/userGetters";
-import {
-  aboutYourCompanyHandler,
-  timesHandler,
-  typeOfBusinessHandler,
-} from "~/.server/form_handlers/aboutYourCompanyHandler";
+import { getOrCreateOrg, updateOrg } from "~/.server/userGetters";
 import { Denik } from "~/components/icons/denik";
 import type { Route } from "./+types/signup.$stepSlug";
+import { cn } from "~/utils/cn";
 
 export const REQUIRED_MESSAGE = "Este campo es requerido";
-export const SLUGS = [
-  "sobre-tu-negocio",
-  "tipo-de-negocio",
-  "horario",
-  "cargando",
-];
-const FORM_COMPONENT_NAMES = [
-  "AboutYourCompanyForm",
-  "BussinesTypeForm",
-  "TimesForm",
-  "LoaderScreen",
-];
 
-// @TODO: check mobile sizes
-// @TODO: saving with real user  1/3[]
-// @TODO: Show saved values when return (edit) 1/3[]
-// @TODO: secure route loader?
-export const action = async ({ request }: Route.ActionArgs) => {
+export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const data = JSON.parse(formData.get("data") as string);
-  // sobre-tu-negocio
-  if (intent === SLUGS[0]) return await aboutYourCompanyHandler(request, data);
-  // tipo-de-negocio
-  if (intent === SLUGS[1]) return await typeOfBusinessHandler(request, data);
-  // horario
-  // @todo: remove back stack
-  if (intent === SLUGS[2]) return await timesHandler(request, data);
-  console.log("MISSING:::Intent:::", intent);
+  if (intent === "update_org") {
+    await updateOrg(formData, params.stepSlug);
+  }
   return null;
-};
-
-const getStepComponentNameByStepSlug = (slug?: string) => {
-  switch (slug) {
-    case SLUGS[3]:
-      return FORM_COMPONENT_NAMES[3];
-    case SLUGS[2]:
-      return FORM_COMPONENT_NAMES[2];
-    case SLUGS[1]:
-      return FORM_COMPONENT_NAMES[1];
-    default:
-      return FORM_COMPONENT_NAMES[0];
-  }
-};
-
-// Section titles
-const getTitleByStepSlug = (slug?: string) => {
-  const title = [
-    "Cuéntanos más sobre tu negocio",
-    "¿Qué tipo de negocio tienes?",
-    "Y por último... \n ¿Qué días abre tu negocio?",
-    "¡Solo un poco más!... \n Estamos creando tu agenda",
-  ];
-  switch (slug) {
-    case SLUGS[3]:
-      return title[3];
-    case SLUGS[2]:
-      return title[2];
-    case SLUGS[1]:
-      return title[1];
-    default:
-      return title[0];
-  }
 };
 
 export const loader = async ({
   request,
   params: { stepSlug },
 }: Route.LoaderArgs) => {
-  // await getUser
-
-  // @TODO: keyboard support
-  // @TODO: Load user id?
-  // @TODO: if org exists?
-  const org = await getFirstOrgOrNull(request);
+  const org = await getOrCreateOrg(request);
   return {
-    org,
-    stepComponentName: getStepComponentNameByStepSlug(stepSlug),
-    title: getTitleByStepSlug(stepSlug),
+    org, // @todo send only needed by each step
+    stepSlug,
   };
 };
 
-export default function Page() {
-  const { org, stepComponentName, title } = useLoaderData<typeof loader>();
-  // Components here ========================================================================================= <=
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { org, stepSlug } = loaderData;
+
   const FormComponent = useMemo(() => {
-    switch (stepComponentName) {
-      case FORM_COMPONENT_NAMES[3]:
+    switch (stepSlug) {
+      case "4":
         return LoaderScreen;
-      case FORM_COMPONENT_NAMES[2]:
+      case "3":
         return TimesForm;
-      case FORM_COMPONENT_NAMES[1]:
+      case "2":
         return BussinesTypeForm;
       default:
         return AboutYourCompanyForm;
     }
-  }, [stepComponentName]);
-
-  // @todo: make a counter to redirect
+  }, [stepSlug]);
 
   return (
-    <article className={twMerge("h-screen flex flex-col", "md:flex-row ")}>
+    <article className={cn("h-screen", "grid grid-cols-6")}>
       <section
-        className={twMerge(
-          "md:px-2 flex flex-col justify-between px-[5%] sticky",
-          "bg-brand_blue",
-          "md:flex-1 pt-8  md:pt-10 pb-8"
-        )}
+        className={twMerge("px-2 grid py-8", "bg-brand_blue", "col-span-2")}
       >
-        <BackButton />
-        <LeftHero title={title} />
-        <DenikWatermark />
+        <nav className="flex justify-center ">
+          {+stepSlug > 1 ? <BackButton /> : <DenikWatermark />}
+        </nav>
+        <LeftHero title={org.name} />
       </section>
-      <section className="flex-1 overflow-scroll">
-        <FormComponent title={title} org={org} />
+      <section className="col-span-4 overflow-scroll bg-white">
+        <FormComponent title={org.name} org={org} />
       </section>
     </article>
   );
@@ -212,13 +142,12 @@ export const DenikWatermark = () => {
   return (
     <div
       className={twMerge(
-        " w-full",
         "transition-all top-0 left-0 text-white text-3xl justify-center items-center block",
         "max-w-xl mx-auto",
         "active:opacity-50" // Improve please! 🥶
       )}
     >
-      <Denik fill="#ffffff" className="hidden lg:block" />
+      <Denik fill="#ffffff" />
     </div>
   );
 };

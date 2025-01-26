@@ -179,9 +179,8 @@ const Summary = () => {
             {user.displayName}
           </h2>
           <p className="mt-4 text-brand_gray">
-            Lorem ipsum dolor sit amet consectetur. Faucibus leo leo leo lectus
-            etiam consequat sit adipiscing justo. Sed orci ipsum facilisis
-            euismod pellentesque interdum egest
+            “La falta de dirección, no la falta de tiempo, es el problema. Todos
+            tenemos días de 24 horas”. – Zig Ziglar
           </p>
         </div>
       </div>
