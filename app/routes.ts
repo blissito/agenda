@@ -40,7 +40,7 @@ export default [
           "routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx"
         ),
       ]),
-      route("website", "routes/dash/dash.website.tsx"),
+      route("website", "routes/dash/website/dash.website.tsx"),
       route("clientes", "routes/dash/dash.clientes.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),
       route("evaluaciones", "routes/dash/dash.reviews.tsx"),

@@ -1,5 +1,4 @@
 import { SecondaryButton } from "~/components/common/secondaryButton";
-import { InfoBox } from "../dash.website";
 import { db } from "~/utils/db.server";
 import {
   Breadcrumb,
@@ -10,9 +9,10 @@ import {
 } from "~/components/ui/breadcrump";
 import type { Service } from "@prisma/client";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { Image } from "~/components/common/Image";
+import { Image, ImageInput } from "~/components/common/Image";
 import { formatRange } from "~/components/common/FormatRange";
 import type { Route } from "./+types/dash.servicios_.$serviceId";
+import { InfoBox } from "../website/InfoBox";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   // @TODO ensure is the owner
@@ -72,10 +72,7 @@ export const ServiceDetail = ({
   return (
     <div className="bg-white rounded-2xl p-8 col-span-4 lg:col-span-3">
       <div className="grid grid-cols-1 gap-8 ">
-        <Image
-          className="h-[180px] rounded-2xl object-center"
-          src={service.photoURL}
-        />
+        <ImageInput />
       </div>
       <div className="mt-8">
         <div className="flex justify-between items-center">
@@ -173,7 +170,7 @@ export const ServiceDetail = ({
       <InfoBox
         title="Mail de confirmación"
         value={
-          service.config.confirmation
+          service.config?.confirmation
             ? "Lo enviamos en cuanto se completa la reservación"
             : "Desactivado"
         }
@@ -181,7 +178,7 @@ export const ServiceDetail = ({
       <InfoBox
         title="Whats app de recordatorio"
         value={
-          service.config.survey
+          service.config?.survey
             ? "Lo enviamos 4hrs antes de la sesión"
             : "Desactivado"
         }
@@ -189,7 +186,7 @@ export const ServiceDetail = ({
       <InfoBox
         title="Mail de evaluación"
         value={
-          service.config.confirmation
+          service.config?.confirmation
             ? "Lo enviamos 10 min después de terminar la sesión"
             : "Desactivado"
         }

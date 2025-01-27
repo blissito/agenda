@@ -11,6 +11,7 @@ import type { Route } from "./+types/dash.servicios_.$serviceId_.cobros";
 import { Switch } from "~/components/common/Switch";
 import { useState } from "react";
 import { FaWhatsapp } from "react-icons/fa6";
+import { PrimaryButton } from "~/components/common/primaryButton";
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
@@ -37,7 +38,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { service } = loaderData;
-  const [current, setCurrent] = useState(service);
   const fetcher = useFetcher();
   const handleSwitchChange = (name: string, checked: boolean) => {
     if (name === "payment") {
@@ -135,6 +135,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Lo enviaremos 24 hrs antes de la sesión"
             icon={<FaWhatsapp />}
           />
+          <PrimaryButton as="Link" to={"/dash/servicios/" + service.id}>
+            Volver
+          </PrimaryButton>
         </section>
       </div>
     </section>

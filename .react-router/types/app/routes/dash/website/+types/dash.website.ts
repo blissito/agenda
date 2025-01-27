@@ -1,17 +1,17 @@
 // React Router generated types for route:
-// routes/dash/dash.website.tsx
+// routes/dash/website/dash.website.tsx
 
 import type * as T from "react-router/route-module"
 
-import type { Info as Parent0 } from "../../../+types/root.js"
-import type { Info as Parent1 } from "./dash_layout.js"
+import type { Info as Parent0 } from "../../../../+types/root.js"
+import type { Info as Parent1 } from "../../+types/dash_layout.js"
 
 type Module = typeof import("../dash.website.js")
 
 export type Info = {
   parents: [Parent0, Parent1],
-  id: "routes/dash/dash.website"
-  file: "routes/dash/dash.website.tsx"
+  id: "routes/dash/website/dash.website"
+  file: "routes/dash/website/dash.website.tsx"
   path: "dash/website"
   params: {} & { [key: string]: string | undefined }
   module: Module
