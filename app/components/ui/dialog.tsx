@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "~/utils/cn";
 import { useDisclosure } from "~/utils/hooks/useDisclosure";
 
+// left here to demo
 export function TemplateFormModal({
   org,
   trigger,
@@ -71,7 +72,10 @@ const OpenedModal = ({
         initial={{ backdropFilter: "blur(0px)" }}
         animate={{ backdropFilter: "blur(4px)" }}
         exit={{ backdropFilter: "blur(0px)" }}
-        className="fixed bg-black/50 backdrop-blur z-10 inset-0 grid place-content-center"
+        className={cn(
+          "relative",
+          "fixed bg-black/50 backdrop-blur z-10 inset-0 grid place-content-center"
+        )}
       >
         <motion.section
           onClick={(event) => event.stopPropagation()} // to avoid closing by upper onClick
@@ -79,9 +83,9 @@ const OpenedModal = ({
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -10, opacity: 0 }}
           className={cn(
-            "overflow-y-scroll",
-            "bg-white px-6 pt-6 overflow-hidden h-[80vh] rounded-xl mx-auto w-max"
+            "bg-white px-6 pt-6 overflow-auto rounded-xl mx-auto w-max h-[80vh]"
           )}
+          style={{ scrollbarWidth: "none" }}
         >
           {children}
         </motion.section>

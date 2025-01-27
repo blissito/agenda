@@ -12,6 +12,7 @@ import qrcode from "qrcode";
 import { InfoBox } from "./InfoBox";
 import { InfoService } from "./InfoService";
 import { MediaBox } from "./MediaBox";
+import { SocialDataFormModal } from "~/components/ui/modals/SocialDataFormModal";
 
 export const CompanyInfo = ({
   services = [],
@@ -103,14 +104,9 @@ export const CompanyInfo = ({
           {" "}
           <h3 className="text-lg font-bold">Redes sociales</h3>
           {!isPublic && (
-            <SecondaryButton
-              as="Link"
-              to="/dash/website/socialmedia"
-              className="h-10"
-            >
-              {" "}
-              Editar
-            </SecondaryButton>
+            <SocialDataFormModal>
+              <SecondaryButton className="h-10"> Editar</SecondaryButton>
+            </SocialDataFormModal>
           )}
         </div>
 
