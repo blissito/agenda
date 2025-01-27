@@ -1,4 +1,10 @@
-import { type ChangeEvent, forwardRef, useState } from "react";
+import {
+  type ChangeEvent,
+  forwardRef,
+  type ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import { cn } from "~/utils/cn";
 import { motion } from "framer-motion";
 
@@ -13,8 +19,14 @@ export const Switch = forwardRef(
       name,
       register,
       registerOptions = { required: true },
+      onChange,
+      subtitle,
+      icon,
       ...props
     }: {
+      icon?: ReactNode;
+      subtitle?: string;
+      onChange?: (arg0: boolean) => void;
       registerOptions?: { required: boolean };
       register?: (
         arg0: string,
@@ -31,12 +43,9 @@ export const Switch = forwardRef(
   ) => {
     // const ref = useRef<HTMLInputElement>(null);
     const [checked, set] = useState(defaultChecked);
-
-    const update = (checked: boolean) => {
-      set(checked);
-      setValue?.(name, checked);
-    };
-
+    useEffect(() => {
+      onChange?.(checked);
+    }, [checked]);
     return (
       <>
         <label
@@ -47,17 +56,20 @@ export const Switch = forwardRef(
             "cursor-pointer"
           )}
         >
-          <span>{label}</span>
+          <div className="grid">
+            <div className="flex gap-1 items-center">
+              <span>{icon}</span>
+              <span>{label}</span>
+            </div>
+            <span className="text-xs text-gray-500">{subtitle}</span>
+          </div>
           <input
             type="checkbox"
             className="hidden"
             {...props}
-            {...register?.(name, {
-              ...registerOptions,
-              onChange(event: ChangeEvent<HTMLInputElement>) {
-                update(event.target.checked);
-              },
-            })}
+            {...register?.(name, registerOptions)}
+            onChange={(event) => set(event.currentTarget.checked)}
+            checked={checked}
           />
           {/* Container */}
           <div

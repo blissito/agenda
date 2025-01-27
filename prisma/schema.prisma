@@ -42,9 +42,11 @@ enum Place {
 }
 
 type NotifyConfig {
-  confirmation Boolean @default(true)
-  reminder     Boolean @default(true)
-  survey       Boolean @default(true)
+  confirmation          Boolean @default(true)
+  reminder              Boolean @default(true)
+  survey                Boolean @default(true)
+  whatsapp_reminder     Boolean @default(true)
+  whatsapp_confirmation Boolean @default(true)
 }
 
 enum Per {

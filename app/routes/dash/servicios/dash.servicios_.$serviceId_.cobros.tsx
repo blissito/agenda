@@ -5,23 +5,63 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { ServiceConfigForm } from "~/components/forms/services_model/ServiceConfigForm";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { db } from "~/utils/db.server";
-import { useLoaderData } from "@remix-run/react";
+import { useFetcher } from "react-router";
+import type { Route } from "./+types/dash.servicios_.$serviceId_.cobros";
+import { Switch } from "~/components/common/Switch";
+import { useState } from "react";
+import { FaWhatsapp } from "react-icons/fa6";
 
-export const loader = async ({ params }: LoaderFunctionArgs) => {
+export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
   const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) return json(null, { status: 404 });
+  if (!service) throw new Response(null, { status: 404 });
   return { service };
 };
 
-export default function Index() {
-  const { service } = useLoaderData<typeof loader>();
+export const action = async ({ request }: Route.ActionArgs) => {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+  if (intent === "update_service") {
+    const data = JSON.parse(formData.get("data") as string);
+    await db.service.update({
+      where: { id: data.id },
+      data: {
+        ...data,
+        id: undefined,
+      },
+    });
+  }
+  return null;
+};
 
+export default function Index({ loaderData }: Route.ComponentProps) {
+  const { service } = loaderData;
+  const [current, setCurrent] = useState(service);
+  const fetcher = useFetcher();
+  const handleSwitchChange = (name: string, checked: boolean) => {
+    if (name === "payment") {
+      fetcher.submit(
+        {
+          intent: "update_service",
+          data: JSON.stringify({ payment: checked, id: service.id }),
+        },
+        { method: "post" }
+      );
+      return;
+    }
+
+    fetcher.submit(
+      {
+        intent: "update_service",
+        data: JSON.stringify({
+          id: service.id,
+          config: { ...service.config, [name]: checked },
+        }),
+      },
+      { method: "post" }
+    );
+  };
   return (
     <section>
       <Breadcrumb className="text-brand_gray">
@@ -47,13 +87,55 @@ export default function Index() {
         <h2 className="font-satoMiddle mb-8 text-xl">
           Actualiza tus cobros y recordatorios
         </h2>
-        <div></div>
-        <div className="flex mt-16 justify-end gap-6">
-          <SecondaryButton as="Link" to="/dash/website" className="w-[120px]">
-            Cancelar
-          </SecondaryButton>
-          <PrimaryButton>Guardar</PrimaryButton>
-        </div>
+        <section>
+          <Switch
+            defaultChecked={service.payment}
+            onChange={(checked: boolean) =>
+              handleSwitchChange("payment", checked)
+            }
+            name="payment"
+            label="Pago al agendar"
+            subtitle="Activar los pagos para este servicio"
+          />
+          <Switch
+            defaultChecked={service.config?.confirmation}
+            onChange={(checked: boolean) =>
+              handleSwitchChange("confirmation", checked)
+            }
+            name="confirmation"
+            label="Mail de confirmación"
+            subtitle="Lo enviaremos en cuanto se complete la reservación"
+          />
+          <Switch
+            defaultChecked={service.config?.whatsapp_confirmation}
+            onChange={(checked: boolean) =>
+              handleSwitchChange("whatsapp_confirmation", checked)
+            }
+            name="whatsapp_confirmation"
+            label="Whatsapp de confirmación"
+            subtitle="Lo enviaremos en cuanto se complete la reservación"
+            icon={<FaWhatsapp />}
+          />
+          <Switch
+            defaultChecked={service.config?.reminder}
+            onChange={(checked: boolean) =>
+              handleSwitchChange("reminder", checked)
+            }
+            name="reminder"
+            label="Mail de recordatorio"
+            subtitle="Lo enviaremos 24 hrs antes de la sesión"
+          />
+          <Switch
+            defaultChecked={service.config?.whatsapp_reminder}
+            onChange={(checked: boolean) =>
+              handleSwitchChange("whatsapp_reminder", checked)
+            }
+            name="whatsapp_reminder"
+            label="Whatsapp de recordatorio"
+            subtitle="Lo enviaremos 24 hrs antes de la sesión"
+            icon={<FaWhatsapp />}
+          />
+        </section>
       </div>
     </section>
   );
