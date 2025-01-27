@@ -65,10 +65,10 @@ export const ServiceCard = ({
     }
     fetcher.submit(
       {
-        intent: "api_update_service",
-        data: JSON.stringify({ serviceId: id, archived: true }),
+        intent: "update_service",
+        data: JSON.stringify({ id, archived: true }),
       },
-      { method: "post", action: "/dash/servicios/nuevo" }
+      { method: "post" }
     );
   };
 

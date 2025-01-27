@@ -16,6 +16,21 @@ import { nanoid } from "nanoid";
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
+
+  if (intent === "update_service") {
+    const data = JSON.parse(formData.get("data") as string);
+    // @todo validate
+    await db.service.update({
+      where: {
+        id: data.id as string,
+      },
+      data: {
+        ...data,
+        id: undefined,
+      },
+    });
+  }
+
   if (intent === "create_dummy_service") {
     const { org } = await getUserAndOrgOrRedirect(request);
     const dummy = await db.service.create({
