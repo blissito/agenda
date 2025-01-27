@@ -9,7 +9,7 @@ import { getQRImageURL } from "~/utils/getQR";
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
   const { org } = await getUserAndOrgOrRedirect(request);
-  url.pathname = `/${org.slug}/agenda`;
+  url.pathname = `/agenda/${org.slug}`;
   const qr = await getQRImageURL(url.toString());
   const services = await db.service.findMany({
     where: { orgId: org.id, archived: false },

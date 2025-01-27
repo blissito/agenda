@@ -1,18 +1,18 @@
 // React Router generated types for route:
-// routes/clientwebsite.tsx
+// routes/agenda.$orgSlug.$serviceSlug/route.tsx
 
 import type * as T from "react-router/route-module"
 
-import type { Info as Parent0 } from "../../+types/root.js"
+import type { Info as Parent0 } from "../../../+types/root.js"
 
-type Module = typeof import("../clientwebsite.js")
+type Module = typeof import("../route.js")
 
 export type Info = {
   parents: [Parent0],
-  id: "routes/clientwebsite"
-  file: "routes/clientwebsite.tsx"
-  path: "agenda/:orgSlug"
-  params: {"orgSlug": string} & { [key: string]: string | undefined }
+  id: "routes/agenda.$orgSlug.$serviceSlug/route"
+  file: "routes/agenda.$orgSlug.$serviceSlug/route.tsx"
+  path: "agenda/:orgSlug/services/:serviceSlug"
+  params: {"orgSlug": string; "serviceSlug": string} & { [key: string]: string | undefined }
   module: Module
   loaderData: T.CreateLoaderData<Module>
   actionData: T.CreateActionData<Module>

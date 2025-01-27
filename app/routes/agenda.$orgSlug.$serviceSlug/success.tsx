@@ -1,4 +1,4 @@
-import { Org, Service } from "@prisma/client";
+import type { Org, Service } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import { PrimaryButton } from "~/components/common/primaryButton";

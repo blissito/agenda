@@ -49,7 +49,7 @@ export const ServiceListCard = ({
       exit={{ opacity: 0, y: -5 }}
       className="relative group"
     >
-      <Link to={link ? link : "/dash/servicios"} className="group ">
+      <Link to={link} className="group ">
         <section className="bg-white border-[1px] border-[#EFEFEF] flex items-center justify-between rounded-2xl overflow-hidden hover:scale-95 transition-all cursor-pointer">
           <div className="p-3 flex justify-between w-full items-center">
             <div className="flex items-center gap-3">
@@ -68,11 +68,9 @@ export const ServiceListCard = ({
                 </p>
               </article>
             </div>
-            <Link to={getLink(serviceSlug)}>
-              <Tag className="bg-brand_dark rounded-full h-8 text-white text-xs">
-                Agendar
-              </Tag>
-            </Link>
+            <Tag className="bg-brand_dark rounded-full h-8 text-white text-xs">
+              Agendar
+            </Tag>
           </div>
         </section>
       </Link>

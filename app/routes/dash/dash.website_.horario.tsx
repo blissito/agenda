@@ -8,18 +8,12 @@ import {
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { TimesForm } from "~/components/forms/TimesForm";
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import { WeekDaysType } from "~/.server/form_handlers/aboutYourCompanyHandler";
+import { useFetcher, useLoaderData } from "react-router";
 import { handleOrgUpdate } from "~/.server/form_handlers/serviceTimesFormHandler";
 import { weekDaysOrgSchema } from "~/utils/zod_schemas";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }) => {
   return await getUserAndOrgOrRedirect(request, {
     select: {
       weekDays: true,
@@ -27,8 +21,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 };
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  await handleOrgUpdate(request, () => redirect("/dash/website"));
+export const action = async ({ request }) => {
+  await handleOrgUpdate(request, () => Response.redirect("/dash/website"));
   return null;
 };
 
@@ -36,7 +30,7 @@ export default function Index() {
   const { org } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
 
-  const handleSubmit = (weekDays: WeekDaysType) => {
+  const handleSubmit = (weekDays) => {
     weekDaysOrgSchema.parse({ weekDays });
     fetcher.submit(
       {

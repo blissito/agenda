@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form, useFetcher, useLoaderData } from "@remix-run/react";
+import { Form, useFetcher, useLoaderData } from "react-router";
 import { Footer, Header, InfoShower } from "./components";
 import { loaderFunction } from "./loader";
 import { twMerge } from "tailwind-merge";
@@ -9,7 +9,6 @@ import TimeView from "~/components/forms/agenda/TimeView";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { ActionFunctionArgs, json } from "@remix-run/node";
 import { z } from "zod";
 import { createEvent, getService } from "~/.server/userGetters";
 import { Success } from "./success";
@@ -24,13 +23,13 @@ export const userInfoSchema = z.object({
     .min(10, { message: "El teléfono debe ser de al menos 10 dígitos" }),
 });
 
-export const action = async ({ request, params }: ActionFunctionArgs) => {
+export const action = async ({ request, params }) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
   if (intent === "get_times_for_selected_date") {
     const service = await getService(params.serviceSlug);
-    if (!service) throw json(null, { status: 404 });
+    if (!service) throw new Response(null, { status: 404 });
     const selectedDate = new Date(formData.get("date"));
     const tommorrow = new Date(selectedDate);
     tommorrow.setDate(selectedDate.getDate() + 1);

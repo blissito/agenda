@@ -1,10 +1,10 @@
-import { useFetcher } from "@remix-run/react";
+import { useFetcher } from "react-router";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { cn } from "~/utils/cn";
 import { convertDayToString } from "~/components/dash/agenda/agendaUtils";
 import { generateTimesFromRange } from "../TimePicker";
-import { DayTuple, WeekTuples } from "../TimesForm";
+import type { DayTuple, WeekTuples } from "../TimesForm";
 import { Spinner } from "~/components/common/Spinner";
 
 export default function TimeView({

@@ -56,5 +56,9 @@ export default [
     route("events", "routes/api/events.ts"),
   ]),
   // Public
-  route(":orgSlug/agenda", "routes/clientwebsite.tsx"),
+  route(
+    "agenda/:orgSlug/services/:serviceSlug",
+    "routes/agenda.$orgSlug.$serviceSlug/route.tsx"
+  ),
+  route("agenda/:orgSlug", "routes/clientwebsite.tsx"),
 ] satisfies RouteConfig;

@@ -9,7 +9,6 @@ import {
   fromMinsToLocaleTimeString,
   generateSecuense,
 } from "~/components/dash/agenda/agendaUtils";
-import { type WeekDaysType } from "../../../.server/form_handlers/aboutYourCompanyHandler";
 import { Schedule } from "~/components/icons/appointment/schedule";
 import { Clook } from "~/components/icons/appointment/clook";
 import { Money } from "~/components/icons/appointment/money";

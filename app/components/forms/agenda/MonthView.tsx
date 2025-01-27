@@ -7,7 +7,6 @@ import {
   isToday,
 } from "~/components/dash/agenda/agendaUtils";
 import { cn } from "~/utils/cn";
-import { WeekDaysType } from "../../../.server/form_handlers/aboutYourCompanyHandler";
 
 const monthNames = [
   "enero",
