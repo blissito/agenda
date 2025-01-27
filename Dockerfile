@@ -4,9 +4,6 @@
 ARG NODE_VERSION=20.8.0
 FROM node:${NODE_VERSION}-slim as base
 
-# Install openssl for Prisma
-RUN apt-get update && apt-get install -y openssl
-
 LABEL fly_launch_runtime="Remix"
 
 # Remix app lives here
@@ -27,10 +24,10 @@ RUN apt-get update -qq && \
 COPY --link package-lock.json package.json ./
 RUN npm install
 RUN npm ci --include=dev
-
 # Copy application code
 COPY --link . .
 
+RUN npx prisma generate
 # Build application
 RUN npm run build
 
@@ -43,6 +40,8 @@ FROM base
 
 # Copy built application
 COPY --from=build /app /app
+
+RUN apt-get update && apt-get install -y openssl
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000

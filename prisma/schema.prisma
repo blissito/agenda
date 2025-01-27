@@ -1,8 +1,7 @@
 // @TODO: when DB restarts set missing createdAt and updatedAt
 generator client {
   provider      = "prisma-client-js"
-  // output        = "node_modules/@prisma/client/.prisma/client"
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+  binaryTargets = ["debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
