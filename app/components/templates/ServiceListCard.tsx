@@ -1,7 +1,6 @@
-import { motion, useInstantTransition } from "framer-motion";
-import { Link, useFetcher } from "@remix-run/react";
+import { motion } from "framer-motion";
+import { Link, useFetcher } from "react-router";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { action } from "../../../routes/signup.$stepSlug";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Tag } from "~/components/common/Tag";
 
@@ -23,7 +22,7 @@ export const ServiceListCard = ({
   serviceSlug?: string;
 }) => {
   // lets try with an api endpoint...
-  const fetcher = useFetcher<typeof action>();
+  const fetcher = useFetcher();
   const [show, setShow] = useState(false);
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: () => {

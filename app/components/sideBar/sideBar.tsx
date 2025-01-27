@@ -44,17 +44,22 @@ export function SideBar({
   const t = useTransform(x, [-300, 0, 300], [60, 360, 660]);
 
   const handleClick = () => {
-    if (!isClosed) return;
-    animate("#aside", { x: 0 }, { type: "spring", bounce: 0.2 }); // open
+    if (!isClosed.get()) {
+      isClosed.set(true);
+      animate(scope.current, { x: -290 }, { type: "spring", bounce: 0.5 });
+    } else {
+      isClosed.set(false);
+      animate(scope.current, { x: 0 }, { type: "spring", bounce: 0.2 }); // open
+    }
   };
 
   const handleDragEnd = () => {
     if (x.get() < -180) {
-      animate("#aside", { x: -300 }, { type: "spring", bounce: 0.5 }); // close
+      animate(scope.current, { x: -290 }, { type: "spring", bounce: 0.5 }); // close
       isClosed.set(true);
     } else {
       animate(
-        "#aside",
+        scope.current,
         { x: 0 },
         { type: "spring", bounce: 0.5, duration: 0.5 }
       ); // open
@@ -64,20 +69,17 @@ export function SideBar({
 
   return (
     <article
-      ref={scope}
       className="bg-brand_light_gray flex h-auto min-h-screen relative z-500 "
       {...props}
     >
       <motion.aside
         dragElastic={0.5}
         whileTap={{ cursor: "grabbing" }}
-        id="aside"
+        ref={scope}
         onDragEnd={handleDragEnd}
         dragSnapToOrigin
         drag="x"
-        dragConstraints={{ right: 0, left: -300 }}
-        key="spring"
-        // transition={{ type: "spring", bounce: 0.7 }}
+        dragConstraints={{ right: 0, left: -290 }}
         style={{
           x,
         }}
@@ -87,7 +89,7 @@ export function SideBar({
           dragElement={
             <button
               onClick={handleClick}
-              className="h-12 rounded-full w-2 bg-brand_gray/30 absolute bottom-0 right-1 cursor-grab active:cursor-grabbing hover:bg-brand_gray/40 hover:scale-110 transition-all"
+              className="h-8 rounded-full w-5 bg-brand_gray/30 absolute bottom-0 right-1 cursor-grab active:cursor-grabbing hover:bg-brand_gray/40 hover:scale-110 transition-all"
             />
           }
           user={user}

@@ -14,14 +14,14 @@ import { Instagram } from "~/components/icons/insta";
 import { Linkedin } from "~/components/icons/linkedin";
 import { Tiktok } from "~/components/icons/tiktok";
 import { Twitter } from "~/components/icons/twitter";
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { Website } from "~/components/icons/menu/webiste";
 import { Denik } from "~/components/icons/denik";
 import { ServiceListCard } from "./ServiceListCard";
 import { SocialMedia } from "./SocialMedia";
 import { ItemClient } from "./ItemClient";
 import { formatRange } from "../common/FormatRange";
-import { Org } from "@prisma/client";
+import type { Org, Service } from "@prisma/client";
 
 const week = [
   { id: 1, name: "Lun 9:00 a 5:00pm" },
@@ -34,7 +34,7 @@ const week = [
 export default function TemplateTwo({
   services = [],
   isPublic,
-  org,
+  org = {},
 }: {
   isPublic?: boolean;
   services?: Service[];
@@ -155,7 +155,7 @@ export const WorkHour = ({
               Lun -{" "}
               <span className="ml-1">
                 {" "}
-                {formatRange(org.weekDays["lunes"])}
+                {formatRange(org.weekDays?.["lunes"])}
               </span>
             </div>
           </ListboxOption>
@@ -167,7 +167,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Mar -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays["martes"])}
+                {formatRange(org.weekDays?.["martes"])}
               </span>
             </div>
           </ListboxOption>
@@ -179,7 +179,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Mié -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays["miércoles"])}
+                {formatRange(org.weekDays?.["miércoles"])}
               </span>
             </div>
           </ListboxOption>
@@ -191,7 +191,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Jue -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays["jueves"])}
+                {formatRange(org.weekDays?.["jueves"])}
               </span>
             </div>
           </ListboxOption>
@@ -203,7 +203,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Vie -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays["viernes"])}
+                {formatRange(org.weekDays?.["viernes"])}
               </span>
             </div>
           </ListboxOption>
@@ -215,7 +215,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Sáb -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays["sábado"])}
+                {formatRange(org.weekDays?.["sábado"])}
               </span>
             </div>
           </ListboxOption>
@@ -227,7 +227,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Dom -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays["domingo"])}
+                {formatRange(org.weekDays?.["domingo"])}
               </span>
             </div>
           </ListboxOption>

@@ -13,6 +13,7 @@ import { ServiceCardClient } from "./ServiceCardClient";
 import { SocialMedia } from "./SocialMedia";
 import { ItemClient } from "./ItemClient";
 import { WorkHour } from "./TemplateTwo";
+import type { Org, Service } from "@prisma/client";
 
 const week = [
   { id: 1, name: "Lun 9:00 a 5:00pm" },
@@ -25,7 +26,7 @@ const week = [
 export default function TemplateOne({
   services = [],
   isPublic,
-  org,
+  org = {},
 }: {
   isPublic?: boolean;
   services?: Service[];
