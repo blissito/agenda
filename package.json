@@ -24,10 +24,8 @@
     "@react-router/node": "^7.1.1",
     "@react-router/serve": "^7.1.1",
     "@tailwindcss/forms": "^0.5.9",
-    "@types/jsonwebtoken": "^9.0.6",
-    "@types/nodemailer": "^6.4.15",
-    "@types/qrcode": "^1.5.5",
     "clsx": "^2.1.1",
+    "cross-env": "^7.0.3",
     "firebase": "^10.12.4",
     "framer-motion": "^11.3.7",
     "isbot": "^4.1.0",
@@ -50,6 +48,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/qrcode": "^1.5.5",
     "@react-router/dev": "^7.0.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
