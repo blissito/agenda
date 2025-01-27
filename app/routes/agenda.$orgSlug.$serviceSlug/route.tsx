@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Form, useFetcher, useLoaderData } from "react-router";
+import { Form, useFetcher } from "react-router";
 import { Footer, Header, InfoShower } from "./components";
-import { loaderFunction } from "./loader";
 import { twMerge } from "tailwind-merge";
 import { getMaxDate } from "./utils";
 import { MonthView } from "~/components/forms/agenda/MonthView";
@@ -13,6 +12,7 @@ import { z } from "zod";
 import { createEvent, getService } from "~/.server/userGetters";
 import { Success } from "./success";
 import { db } from "~/utils/db.server";
+import type { Route } from "./+types/route";
 
 export const userInfoSchema = z.object({
   displayName: z.string().min(1),
@@ -23,7 +23,7 @@ export const userInfoSchema = z.object({
     .min(10, { message: "El teléfono debe ser de al menos 10 dígitos" }),
 });
 
-export const action = async ({ request, params }) => {
+export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
@@ -51,10 +51,26 @@ export const action = async ({ request, params }) => {
   return null;
 };
 
-export const loader = loaderFunction;
+export const loader = async ({ params }: Route.LoaderArgs) => {
+  const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
+  const service = await db.service.findUnique({
+    where: {
+      slug: params.serviceSlug,
+    },
+    include: {
+      events: {
+        where: {
+          status: "ACTIVE", // chulada 🤤
+        },
+      },
+    },
+  });
+  if (!service || !org) throw json(null, { status: 404 });
+  return { org, service };
+};
 
-export default function Page() {
-  const { org, service } = useLoaderData<typeof loaderFunction>();
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { org, service } = loaderData;
   const [time, setTime] = useState<number>();
   const [date, setDate] = useState<Date>();
   const [show, setShow] = useState("");
