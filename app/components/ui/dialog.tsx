@@ -16,7 +16,7 @@ export function TemplateFormModal({
   const { isOpen, close, open } = useDisclosure(false);
   return (
     <Modal onOpen={open} onClose={close} open={isOpen} trigger={trigger}>
-      {<TemplateForm defaultValues={org} />}
+      {<TemplateForm onClose={close} defaultValues={org} />}
     </Modal>
   );
 }
@@ -79,9 +79,9 @@ const OpenedModal = ({
       >
         <motion.section
           onClick={(event) => event.stopPropagation()} // to avoid closing by upper onClick
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -10, opacity: 0 }}
+          initial={{ y: 10, opacity: 0, filter: "blur(4px)" }}
+          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+          exit={{ y: -10, opacity: 0, filter: "blur(4px)" }}
           className={cn(
             "bg-white px-6 pt-6 overflow-auto rounded-xl mx-auto w-max h-[80vh]"
           )}

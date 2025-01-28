@@ -13,6 +13,9 @@ import { InfoBox } from "./InfoBox";
 import { InfoService } from "./InfoService";
 import { MediaBox } from "./MediaBox";
 import { SocialDataFormModal } from "~/components/ui/modals/SocialDataFormModal";
+import { GeneralFormModal } from "~/components/ui/modals/GeneralFormModal";
+import { ServicesFormModal } from "~/components/ui/modals/ServicesFormModal";
+import { TimesFormModal } from "~/components/ui/modals/TimesFormModal";
 
 export const CompanyInfo = ({
   services = [],
@@ -20,7 +23,7 @@ export const CompanyInfo = ({
   org,
 }: {
   isPublic?: boolean;
-  services?: Partial<Service>[];
+  services?: Service[];
   org: Org;
 }) => {
   return (
@@ -30,14 +33,9 @@ export const CompanyInfo = ({
           {" "}
           <h2 className="text-2xl font-bold">{org?.name} </h2>
           {!isPublic && (
-            <SecondaryButton
-              as="Link"
-              to="/dash/website/general"
-              className="h-10"
-            >
-              {" "}
-              Editar
-            </SecondaryButton>
+            <GeneralFormModal org={org}>
+              <SecondaryButton className="h-10">Editar</SecondaryButton>
+            </GeneralFormModal>
           )}
         </div>
 
@@ -51,14 +49,9 @@ export const CompanyInfo = ({
           {" "}
           <h3 className="text-lg font-bold">Horario</h3>
           {!isPublic && (
-            <SecondaryButton
-              as="Link"
-              to="/dash/website/horario"
-              className="h-10"
-            >
-              {" "}
-              Editar
-            </SecondaryButton>
+            <TimesFormModal org={org}>
+              <SecondaryButton className="h-10"> Editar</SecondaryButton>
+            </TimesFormModal>
           )}
         </div>
 
@@ -78,14 +71,9 @@ export const CompanyInfo = ({
           {" "}
           <h3 className="text-lg font-bold">Servicios</h3>
           {!isPublic && (
-            <SecondaryButton
-              as="Link"
-              to="/dash/website/servicios"
-              className="h-10"
-            >
-              {" "}
-              Editar
-            </SecondaryButton>
+            <ServicesFormModal services={services}>
+              <SecondaryButton className="h-10"> Editar</SecondaryButton>
+            </ServicesFormModal>
           )}
         </div>
         <div className="flex gap-x-6 flex-wrap pr-[10%]">
@@ -104,7 +92,7 @@ export const CompanyInfo = ({
           {" "}
           <h3 className="text-lg font-bold">Redes sociales</h3>
           {!isPublic && (
-            <SocialDataFormModal>
+            <SocialDataFormModal org={org}>
               <SecondaryButton className="h-10"> Editar</SecondaryButton>
             </SocialDataFormModal>
           )}

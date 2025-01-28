@@ -6,7 +6,6 @@ import { twMerge } from "tailwind-merge";
 import { motion } from "framer-motion";
 import { type ReactNode, useEffect, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
-// @TODO: improve animation presence
 import {
   getMinutesFromString,
   getStringFromMinutes,
@@ -49,11 +48,13 @@ export const TimesForm = ({
   onChange,
   onSubmit,
   children,
+  onClose,
 }: {
+  onClose?: () => void;
   children?: ReactNode; // acting as footer
   onChange?: (data: WeekSchema) => void;
   onSubmit?: (data: WeekSchema) => void;
-  org?: Org;
+  org: Org;
 }) => {
   const fetcher = useFetcher();
   const [data, setData] = useState<WeekSchema>(initialValues);
@@ -74,16 +75,16 @@ export const TimesForm = ({
   });
 
   const submit = () => {
-    return; // @todo
     onSubmit?.(data);
     fetcher.submit(
       {
-        intent: "update_service",
-        data: JSON.stringify({ weekDays: data }),
-        next: "/signup/4",
+        intent: "org_update",
+        data: JSON.stringify({ weekDays: data, id: org.id }),
+        next: "/signup/4", // this is used in /signup/3
       },
-      { method: "post", action: `/` }
+      { method: "post", action: "/api/org" }
     );
+    onClose?.();
   };
 
   const handleSwitchChange = (node: HTMLInputElement) => {

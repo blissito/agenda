@@ -1,4 +1,4 @@
-import { Form, useFetcher } from "react-router";
+import { useFetcher } from "react-router";
 import { BasicInput } from "../BasicInput";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
@@ -12,27 +12,42 @@ import { useForm } from "react-hook-form";
 import type { Org } from "@prisma/client";
 import { Youtube } from "~/components/icons/youtube";
 
-export const SocialDataForm = ({ org }: { org?: Org }) => {
+export const SocialDataForm = ({
+  defaultValues,
+  onClose,
+}: {
+  onClose?: () => void;
+  defaultValues?: Org;
+}) => {
   const fetcher = useFetcher();
 
-  const { handleSubmit, register } = useForm({
-    defaultValues: org?.social || {},
+  const {
+    handleSubmit,
+    register,
+    formState: { isValid, isDirty },
+  } = useForm({
+    defaultValues: defaultValues?.social || {},
   });
 
   const onSubmit = (values: unknown) => {
+    console.log("SUBMITING", values);
     fetcher.submit(
       {
-        data: JSON.stringify({ social: values }),
-        intent: "update_org_social",
+        data: JSON.stringify({ social: values, id: defaultValues?.id }),
+        intent: "org_update",
       },
-      { method: "POST" }
+      { method: "POST", action: "/api/org" }
     );
+    onClose?.();
   };
 
+  const isDisabled = !isDirty || !isValid;
+  const isLoading = fetcher.state !== "idle";
+
   return (
-    <Form
+    <fetcher.Form
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white rounded-2xl max-w-3xl px-4 pb-20"
+      className="bg-white rounded-2xl w-[320px]"
     >
       <h2
         className="font-satoMiddle mb-8 text-xl
@@ -41,7 +56,7 @@ export const SocialDataForm = ({ org }: { org?: Org }) => {
         Actualiza tus redes sociales
       </h2>
       <BasicInput
-        registerOptions={{ required: false }}
+        registerOptions={{ required: true }}
         register={register}
         name="youtube"
         placeholder="youtube.com"
@@ -124,21 +139,22 @@ export const SocialDataForm = ({ org }: { org?: Org }) => {
           </span>
         }
       />
-      <hr />
-      <footer className="flex mt-16 justify-end gap-6 absolute bottom-28">
+      <footer className="flex justify-center gap-4 sticky bottom-0 py-4 bg-white">
         <SecondaryButton
-          isDisabled={fetcher.state !== "idle"}
-          as="Link"
-          to="/dash/website"
+          onClick={onClose}
           className="w-[120px]"
           prefetch="render"
         >
           Cancelar
         </SecondaryButton>
-        <PrimaryButton isDisabled={fetcher.state !== "idle"}>
+        <PrimaryButton
+          isLoading={isLoading}
+          type="submit"
+          isDisabled={isDisabled}
+        >
           Guardar
         </PrimaryButton>
       </footer>
-    </Form>
+    </fetcher.Form>
   );
 };

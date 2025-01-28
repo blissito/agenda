@@ -1,20 +1,20 @@
 import { useDisclosure } from "~/utils/hooks/useDisclosure";
 import { Modal } from "../dialog";
-import { SocialDataForm } from "~/components/forms/website/SocialDataForm";
 import type { ReactNode } from "react";
+import { GeneralForm } from "~/components/forms/website/GeneralForm";
 import type { Org } from "@prisma/client";
 
-export const SocialDataFormModal = ({
+export const GeneralFormModal = ({
   org,
   children,
 }: {
-  org: Org;
+  org?: Org;
   children: ReactNode;
 }) => {
   const { isOpen, close, open } = useDisclosure();
   return (
     <Modal trigger={children} onClose={close} onOpen={open} open={isOpen}>
-      <SocialDataForm onClose={close} defaultValues={org} />
+      <GeneralForm onClose={close} defaultValues={org} />
     </Modal>
   );
 };

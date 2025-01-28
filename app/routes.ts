@@ -54,6 +54,7 @@ export default [
     route("services", "routes/api/services.ts"),
     route("employees", "routes/api/employees.ts"),
     route("events", "routes/api/events.ts"),
+    route("org", "routes/api/api.org.ts"),
   ]),
   // Public
   route(

@@ -1,61 +1,26 @@
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "~/components/ui/breadcrump";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { Switch } from "~/components/common/Switch";
+import type { Service } from "@prisma/client";
+import { useFetcher } from "react-router";
 import { Image } from "~/components/common/Image";
-import { Service } from "@prisma/client";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { getServices } from "~/.server/userGetters";
+import { SecondaryButton } from "~/components/common/secondaryButton";
+import { Switch } from "~/components/common/Switch";
 import { cn } from "~/utils/cn";
-import { serviceUpdate } from "~/.server/form_handlers/serviceGeneralFormHandler";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  await serviceUpdate(request, { redirectURL: "/dash/website/servicios" });
-  return null;
-};
-
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const services = await getServices(request);
-  return { services };
-};
-
-export default function Index() {
-  const { services } = useLoaderData<typeof loader>();
+export default function ServicesForm({
+  onCancel,
+  services,
+}: {
+  services: Service[];
+  onCancel?: () => void;
+}) {
   return (
-    <section>
-      <Breadcrumb className="text-brand_gray">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/website">Mi sitio web</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/website/servicios">
-              Servicios
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="bg-white rounded-2xl max-w-3xl p-8 mt-6">
-        <ServiceRows services={services} />
-        <div className="flex mt-16 justify-end gap-6">
-          <SecondaryButton
-            reloadDocument
-            as="Link"
-            to="/dash/website"
-            className="w-[120px]"
-          >
-            Volver
-          </SecondaryButton>
-        </div>
+    <div className="rounded-2xl max-w-3xl mt-6">
+      <ServiceRows services={services} />
+      <div className="absolute bottom-10 right-10">
+        <SecondaryButton onClick={onCancel} className="w-[120px] mt-auto">
+          Volver
+        </SecondaryButton>
       </div>
-    </section>
+    </div>
   );
 }
 

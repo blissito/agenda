@@ -38,9 +38,11 @@ export function SideBar({
   user: User;
   props?: unknown;
 }) {
-  const isClosed = useMotionValue(false);
+  // default closed:
+  const isClosed = useMotionValue(true);
+  const x = useMotionValue(-290);
+  //
   const [scope, animate] = useAnimate();
-  const x = useMotionValue(0);
   const t = useTransform(x, [-300, 0, 300], [60, 360, 660]);
 
   const handleClick = () => {
