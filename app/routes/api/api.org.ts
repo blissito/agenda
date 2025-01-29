@@ -20,5 +20,14 @@ export const action = async ({ request }) => {
     delete data.id;
     await db.org.update({ where: { id }, data });
   }
+
+  if (intent === "org_update_and_redirect") {
+    const next = formData.get("next");
+    const { id } = data;
+    delete data.id;
+    await db.org.update({ where: { id }, data });
+    throw redirect(next);
+  }
+
   return null;
 };

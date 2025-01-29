@@ -7,6 +7,7 @@ import { PrimaryButton } from "../common/primaryButton";
 import { twMerge } from "tailwind-merge";
 import { useFetcher } from "react-router";
 import { type Org } from "@prisma/client";
+import { useEffect } from "react";
 
 const OPTIONS = ["Solo yo", "2", "3 a 5", "6 a 14", "15 o más"];
 
@@ -15,6 +16,7 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
   const {
     handleSubmit,
     register,
+    setValue,
     formState: { errors, isValid },
     // watch,
   } = useForm({
@@ -29,6 +31,12 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
       { method: "post" }
     );
   };
+
+  useEffect(() => {
+    // virtual defaults
+    setValue("numberOfEmployees", "Solo yo", { shouldValidate: true });
+  }, []);
+
   return (
     <>
       <Form

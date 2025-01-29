@@ -114,9 +114,10 @@ export const getUserAndOrgOrRedirect = async (
   request: Request,
   options: { redirectURL?: string; select?: Prisma.OrgSelect } = {}
 ): Promise<{ user: User; org: Org }> => {
-  const rurl = options?.redirectURL || "/signin";
+  const rurl = options?.redirectURL || "/signup/1";
   const user = await getUserOrNull(request);
   if (!user?.orgId) throw redirect(rurl);
+
   const org = await db.org.findUnique({
     where: { id: user.orgId },
     select: options && options.select ? options.select : undefined,

@@ -52,7 +52,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
     const user = await getOrCreateUser(data);
     session.set("userId", user.id); // @TODO: move this to a reusable function
-    return redirect(REDIRECT_AFTER_LOGIN, {
+    throw redirect(REDIRECT_AFTER_LOGIN, {
       headers: { "Set-Cookie": await commitSession(session) },
     });
   }
@@ -75,9 +75,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
   return null;
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const { searchParams } = new URL(request.url);
   const intent = searchParams.get("intent");
+
   if (searchParams.has("token")) {
     // is magic link
     return await handleMagicLinkLogin(
@@ -85,13 +86,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       request
     );
   }
+
   if (intent === "logout") {
     const session = await getSession(request.headers.get("Cookie"));
     return redirect("/", {
       headers: { "Set-Cookie": await destroySession(session) },
     });
   }
-  return (await redirectIfUser(request)) ?? null;
+
+  return await redirectIfUser(request);
 };
 
 export default function Page() {
@@ -143,7 +146,6 @@ export default function Page() {
       { data: JSON.stringify(userData), intent: GOOGLE_BRAND_NAME },
       { method: "post" }
     );
-    console.log("sent from client=>", userData);
   };
 
   const isLoading = fetcher.state !== "idle";
@@ -207,7 +209,7 @@ export default function Page() {
 
         <LoginButton
           onClick={handleGoogle}
-          // isLoading={provider === GOOGLE_BRAND_NAME && isLoading}
+          isLoading={provider === GOOGLE_BRAND_NAME && isLoading}
           spinner={<Spinner />}
         >
           <img alt="microsoft logo" src="/images/logos/google.svg" />

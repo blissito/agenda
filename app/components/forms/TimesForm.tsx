@@ -78,7 +78,7 @@ export const TimesForm = ({
     onSubmit?.(data);
     fetcher.submit(
       {
-        intent: "org_update",
+        intent: "org_update_and_redirect",
         data: JSON.stringify({ weekDays: data, id: org.id }),
         next: "/signup/4", // this is used in /signup/3
       },
