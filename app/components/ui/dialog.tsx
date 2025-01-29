@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect } from "react";
 import type { Org } from "@prisma/client";
 import { TemplateForm } from "../forms/website/TemplateForm";
 import { AnimatePresence, motion } from "framer-motion";
@@ -52,7 +52,7 @@ const OpenedModal = ({
   children: ReactNode;
 }) => {
   useEffect(() => {
-    const escListener = (e) => {
+    const escListener = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose?.();
       }
@@ -78,7 +78,7 @@ const OpenedModal = ({
         )}
       >
         <motion.section
-          onClick={(event) => event.stopPropagation()} // to avoid closing by upper onClick
+          onClick={(event: MouseEvent) => event.stopPropagation()} // to avoid closing by upper onClick
           initial={{ y: 10, opacity: 0, filter: "blur(4px)" }}
           animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
           exit={{ y: -10, opacity: 0, filter: "blur(4px)" }}

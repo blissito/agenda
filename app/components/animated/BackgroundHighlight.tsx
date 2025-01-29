@@ -11,8 +11,10 @@ export const BackgroundHighlight = ({
   children?: ReactNode;
   className?: string;
 }) => {
-  const ref = useRef<HTMLSpanElement>(null);
-  const { left, width } = useMeasure(ref);
+  const {
+    ref,
+    state: { left, width },
+  } = useMeasure();
   const percentage = useSpring(0, { bounce: 0.2 });
 
   const { placeTimeout } = useTimeout(1000);

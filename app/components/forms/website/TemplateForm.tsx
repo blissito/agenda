@@ -1,9 +1,4 @@
-import {
-  type ChangeEvent,
-  type ReactNode,
-  type SyntheticEvent,
-  useRef,
-} from "react";
+import { type ChangeEvent, type SyntheticEvent, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 import type { Org } from "@prisma/client";
 import { Form, useFetcher } from "react-router";
@@ -47,7 +42,7 @@ export const TemplateForm = ({
         },
         { method: "POST", action: "/api/org" }
       );
-    }, 500);
+    }, 1000);
   };
 
   const handleSlugUpdate = () => {
@@ -78,6 +73,8 @@ export const TemplateForm = ({
       })
     );
   };
+
+  const errors = fetcher.data?.errors || {}; // {slug:"lo tienes muy corto"}
 
   return (
     <Form className="grid">

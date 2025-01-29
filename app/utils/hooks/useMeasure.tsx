@@ -1,6 +1,7 @@
-import { RefObject, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export const useMeasure = (ref: RefObject<HTMLElement>) => {
+export const useMeasure = () => {
+  const ref = useRef<HTMLElement>(null);
   const [state, setState] = useState<DOMRect>({
     height: 0,
     width: 0,
@@ -23,5 +24,5 @@ export const useMeasure = (ref: RefObject<HTMLElement>) => {
     }
   }, [ref]);
 
-  return state;
+  return { ref, state };
 };
