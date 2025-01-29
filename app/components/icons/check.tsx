@@ -6,7 +6,7 @@ export const Check = ({
 }: {
   fill?: string;
   props?: unknown;
-  className: string;
+  className?: string;
 }) => (
   <svg
     className={twMerge("min-w-[28px]", className)}

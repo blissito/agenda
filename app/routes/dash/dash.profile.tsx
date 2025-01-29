@@ -1,17 +1,17 @@
-import { useLoaderData } from "react-router";
 import type { ReactNode } from "react";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { Camera } from "~/components/icons/camera";
 import { Check } from "~/components/icons/check";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getUserOrRedirect } from "~/.server/userGetters";
+import type { Route } from "./+types/dash.profile";
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const user = await getUserOrRedirect(request);
   return { user };
 };
-export default function Profile() {
-  const { user } = useLoaderData<typeof loader>();
+export default function Profile({ loaderData }: Route.ComponentProps) {
+  const { user } = loaderData;
 
   return (
     <main className=" ">
