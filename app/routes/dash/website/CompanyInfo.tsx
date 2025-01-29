@@ -28,87 +28,92 @@ export const CompanyInfo = ({
 }) => {
   return (
     <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
-      <div className="">
-        <div className="flex justify-between items-center">
-          {" "}
-          <h2 className="text-2xl font-bold">{org?.name} </h2>
-          {!isPublic && (
-            <GeneralFormModal org={org}>
-              <SecondaryButton className="h-10">Editar</SecondaryButton>
-            </GeneralFormModal>
-          )}
-        </div>
-
-        <InfoBox title="Encargad@" value={org?.shopKeeper} />
-        <InfoBox title="Teléfono" value="55 662 66 66" />
-        <InfoBox title="Dirección" value={org?.address} />
-        <InfoBox title="Descripción" value={org?.description} />
-        <hr className="bg-brand_stroke my-6" />
-
-        <div className="flex justify-between items-center">
-          {" "}
-          <h3 className="text-lg font-bold">Horario</h3>
-          {!isPublic && (
-            <TimesFormModal org={org}>
-              <SecondaryButton className="h-10"> Editar</SecondaryButton>
-            </TimesFormModal>
-          )}
-        </div>
-
-        <InfoBox title="Lunes" value={formatRange(org?.weekDays?.lunes)} />
-        <InfoBox title="Martes" value={formatRange(org?.weekDays?.martes)} />
-        <InfoBox
-          title="Miércoles"
-          value={formatRange(org.weekDays?.["miércoles"])}
-        />
-        <InfoBox title="Jueves" value={formatRange(org.weekDays?.jueves)} />
-        <InfoBox title="Viernes" value={formatRange(org.weekDays?.viernes)} />
-        <InfoBox title="Sábado" value={formatRange(org.weekDays?.["sábado"])} />
-        <InfoBox title="Domingo" value={formatRange(org.weekDays?.domingo)} />
-        <hr className="bg-brand_stroke my-6" />
-
-        <div className="flex justify-between items-center">
-          {" "}
-          <h3 className="text-lg font-bold">Servicios</h3>
-          {!isPublic && (
-            <ServicesFormModal services={services}>
-              <SecondaryButton className="h-10"> Editar</SecondaryButton>
-            </ServicesFormModal>
-          )}
-        </div>
-        <div className="flex gap-x-6 flex-wrap pr-[10%]">
-          {services.map((s) => (
-            <InfoService
-              title={s.name ?? "untitled"}
-              link={s.isActive ? `/agenda/${org.slug}/${s.slug}` : undefined}
-              image={s.photoURL ?? undefined}
-              key={s.id}
-              isActive={s.isActive}
-            />
-          ))}
-        </div>
-        <hr className="bg-brand_stroke my-6" />
-        <div className="flex justify-between items-center">
-          {" "}
-          <h3 className="text-lg font-bold">Redes sociales</h3>
-          {!isPublic && (
-            <SocialDataFormModal org={org}>
-              <SecondaryButton className="h-10"> Editar</SecondaryButton>
-            </SocialDataFormModal>
-          )}
-        </div>
-
-        <MediaBox icon={<Facebook />} link={org?.social?.facebook} />
-
-        <MediaBox icon={<Instagram />} link={org?.social?.instagram} />
-        <MediaBox icon={<Twitter />} link={org?.social?.x} />
-
-        <MediaBox icon={<Tiktok />} link={org?.social?.tiktok} />
-        <MediaBox icon={<Youtube />} link={org?.social?.youtube} />
-        <MediaBox icon={<Linkedin />} link={org?.social?.linkedin} />
-
-        <MediaBox icon={<Anchor />} link={org?.social?.website} />
+      <div className="flex justify-between items-center">
+        {" "}
+        <h2 className="text-2xl font-bold">{org?.name} </h2>
+        {!isPublic && (
+          <GeneralFormModal org={org}>
+            <SecondaryButton as="span" className="h-10">
+              Editar
+            </SecondaryButton>
+          </GeneralFormModal>
+        )}
       </div>
+
+      <InfoBox title="Encargad@" value={org?.shopKeeper} />
+      <InfoBox title="Teléfono" value="55 662 66 66" />
+      <InfoBox title="Dirección" value={org?.address} />
+      <InfoBox title="Descripción" value={org?.description} />
+      <hr className="bg-brand_stroke my-6" />
+
+      <div className="flex justify-between items-center">
+        {" "}
+        <h3 className="text-lg font-bold">Horario</h3>
+        {!isPublic && (
+          <TimesFormModal org={org}>
+            <SecondaryButton as="span" className="h-10">
+              Editar
+            </SecondaryButton>
+          </TimesFormModal>
+        )}
+      </div>
+      {/* times */}
+      <InfoBox title="Lunes" value={formatRange(org?.weekDays?.lunes)} />
+      <InfoBox title="Martes" value={formatRange(org?.weekDays?.martes)} />
+      <InfoBox
+        title="Miércoles"
+        value={formatRange(org.weekDays?.["miércoles"])}
+      />
+      <InfoBox title="Jueves" value={formatRange(org.weekDays?.jueves)} />
+      <InfoBox title="Viernes" value={formatRange(org.weekDays?.viernes)} />
+      <InfoBox title="Sábado" value={formatRange(org.weekDays?.["sábado"])} />
+      <InfoBox title="Domingo" value={formatRange(org.weekDays?.domingo)} />
+      <hr className="bg-brand_stroke my-6" />
+
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-bold">Servicios</h3>
+        {!isPublic && (
+          <ServicesFormModal services={services}>
+            <SecondaryButton as="span" className="h-10">
+              Editar
+            </SecondaryButton>
+          </ServicesFormModal>
+        )}
+      </div>
+      <div className="flex gap-x-6 flex-wrap pr-[10%]">
+        {services.map((s) => (
+          <InfoService
+            title={s.name ?? "untitled"}
+            link={s.isActive ? `/agenda/${org.slug}/${s.slug}` : undefined}
+            image={s.photoURL ?? undefined}
+            key={s.id}
+            isActive={s.isActive}
+          />
+        ))}
+      </div>
+      <hr className="bg-brand_stroke my-6" />
+      <div className="flex justify-between items-center">
+        {" "}
+        <h3 className="text-lg font-bold">Redes sociales</h3>
+        {!isPublic && (
+          <SocialDataFormModal org={org}>
+            <SecondaryButton as="span" className="h-10">
+              Editar
+            </SecondaryButton>
+          </SocialDataFormModal>
+        )}
+      </div>
+
+      <MediaBox icon={<Facebook />} link={org?.social?.facebook} />
+
+      <MediaBox icon={<Instagram />} link={org?.social?.instagram} />
+      <MediaBox icon={<Twitter />} link={org?.social?.x} />
+
+      <MediaBox icon={<Tiktok />} link={org?.social?.tiktok} />
+      <MediaBox icon={<Youtube />} link={org?.social?.youtube} />
+      <MediaBox icon={<Linkedin />} link={org?.social?.linkedin} />
+
+      <MediaBox icon={<Anchor />} link={org?.social?.website} />
     </div>
   );
 };

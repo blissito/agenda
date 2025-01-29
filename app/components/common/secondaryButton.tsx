@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge";
 export const SecondaryButton = forwardRef(
   (
     {
-      as = "button",
+      as,
       onClick,
       isDisabled,
       isLoading,
@@ -20,7 +20,7 @@ export const SecondaryButton = forwardRef(
       // Se puede sobreescribir cualquier clase o utilidad
       className?: string;
       // Se puede devolver un button o un anchor (<a>) si es necesario
-      as?: "a" | "button" | ReactNode | "Link";
+      as?: "a" | "button" | ReactNode | "Link" | "span";
       // Si se elije anchor, se necesita de un href (link externos)
       href?: string;
       // Es probable que se quiera rutear internamente con Link
@@ -31,7 +31,7 @@ export const SecondaryButton = forwardRef(
     },
     ref
   ) => {
-    const Element = as === "Link" ? Link : as;
+    const Element = as === "Link" ? Link : as || "button";
 
     return (
       <Element

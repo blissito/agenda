@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 import type { Org } from "@prisma/client";
 import { TemplateForm } from "../forms/website/TemplateForm";
 import { AnimatePresence, motion } from "framer-motion";
@@ -16,7 +16,7 @@ export function TemplateFormModal({
   const { isOpen, close, open } = useDisclosure(false);
   return (
     <Modal onOpen={open} onClose={close} open={isOpen} trigger={trigger}>
-      {<TemplateForm onClose={close} defaultValues={org} />}
+      {<TemplateForm onClose={close} org={org} />}
     </Modal>
   );
 }
@@ -51,6 +51,7 @@ const OpenedModal = ({
   onClose: () => void;
   children: ReactNode;
 }) => {
+  const overlayRef = useRef(null);
   useEffect(() => {
     const escListener = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -65,10 +66,17 @@ const OpenedModal = ({
       document.body.style.overflowY = "auto";
     };
   }, []);
+
   return (
     <>
       <motion.article
-        onClick={onClose}
+        ref={overlayRef}
+        onClick={(event) => {
+          console.log("THIS", overlayRef.current);
+          if (event.currentTarget === overlayRef.current) {
+            onClose?.();
+          }
+        }}
         initial={{ backdropFilter: "blur(0px)" }}
         animate={{ backdropFilter: "blur(4px)" }}
         exit={{ backdropFilter: "blur(0px)" }}
