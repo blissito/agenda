@@ -139,7 +139,7 @@ const Footer = () => {
   return (
     <div className="">
       <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3>
-      <MenuButton to="/dash/profile" isActive={match("profile")}>
+      <MenuButton to="/dash/perfil" isActive={match("profile")}>
         <MenuButton.Icon isActive={match("profile")}>
           <Profile />
         </MenuButton.Icon>

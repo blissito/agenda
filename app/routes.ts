@@ -16,7 +16,9 @@ export default [
   ...prefix("dash", [
     layout("routes/dash/dash_layout.tsx", [
       index("routes/dash/dash._index.tsx"),
+      route("perfil", "routes/dash/dash.profile.tsx"),
       route("agenda", "routes/dash/dash.agenda.tsx"),
+      route("onboarding", "routes/dash/dash.onboarding.tsx"),
       ...prefix("servicios", [
         index("routes/dash/servicios/index.tsx"),
         route(
