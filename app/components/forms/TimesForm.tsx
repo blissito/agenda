@@ -14,6 +14,7 @@ import {
 import { nanoid } from "nanoid";
 import { type Org } from "@prisma/client";
 import type { WeekSchema } from "~/utils/zod_schemas";
+import invariant from "tiny-invariant";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
@@ -45,11 +46,13 @@ export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
 export const TimesForm = ({
   org,
+  cta,
   onChange,
   onSubmit,
   children,
   onClose,
 }: {
+  cta?: string;
   onClose?: () => void;
   children?: ReactNode; // acting as footer
   onChange?: (data: WeekSchema) => void;
@@ -57,9 +60,10 @@ export const TimesForm = ({
   org: Org;
 }) => {
   const fetcher = useFetcher();
-  const [data, setData] = useState<WeekSchema>(initialValues);
-  const initialData = org?.weekDays
-    ? Object.keys(org?.weekDays)
+  invariant(org.weekDays);
+  const [data, setData] = useState<WeekSchema>(org.weekDays || initialValues);
+  const initialData = org.weekDays
+    ? Object.keys(org.weekDays)
     : Object.keys(initialValues);
   const {
     clearErrors,
@@ -205,7 +209,7 @@ export const TimesForm = ({
             isDisabled={isDisabled}
             type="submit"
           >
-            Continuar
+            {cta || " Continuar"}
           </PrimaryButton>
         )}
         <p className="mb-8 ml-2 h-auto text-red-500 text-xs">

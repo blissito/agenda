@@ -13,8 +13,14 @@ export const TimesFormModal = ({
 }) => {
   const { isOpen, close, open } = useDisclosure();
   return (
-    <Modal trigger={children} onClose={close} onOpen={open} open={isOpen}>
-      <TimesForm onClose={close} org={org} />
+    <Modal
+      title="Modifica tus horarios"
+      trigger={children}
+      onClose={close}
+      onOpen={open}
+      open={isOpen}
+    >
+      <TimesForm cta="Actualizar" onClose={close} org={org} />
     </Modal>
   );
 };

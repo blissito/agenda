@@ -27,7 +27,9 @@ export const Modal = ({
   open,
   trigger,
   children,
+  title,
 }: {
+  title?: string;
   onOpen: () => void;
   onClose: () => void;
   open: boolean;
@@ -38,7 +40,11 @@ export const Modal = ({
     <>
       <button onClick={onOpen}>{trigger}</button>
       <AnimatePresence>
-        {open && <OpenedModal onClose={onClose}>{children}</OpenedModal>}
+        {open && (
+          <OpenedModal title={title} onClose={onClose}>
+            {children}
+          </OpenedModal>
+        )}
       </AnimatePresence>
     </>
   );
@@ -46,8 +52,10 @@ export const Modal = ({
 
 const OpenedModal = ({
   children,
+  title,
   onClose,
 }: {
+  title?: string;
   onClose: () => void;
   children: ReactNode;
 }) => {
@@ -72,7 +80,6 @@ const OpenedModal = ({
       <motion.article
         ref={overlayRef}
         onClick={(event) => {
-          console.log("THIS", overlayRef.current);
           if (event.currentTarget === overlayRef.current) {
             onClose?.();
           }
@@ -95,6 +102,7 @@ const OpenedModal = ({
           )}
           style={{ scrollbarWidth: "none" }}
         >
+          <h2 className="text-2xl">{title}</h2>
           {children}
         </motion.section>
       </motion.article>
