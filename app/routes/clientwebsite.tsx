@@ -12,11 +12,10 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
   });
   if (!org) throw new Response("Empresa no encontrada", { status: 404 });
 
-  return { org };
+  return org;
 };
 
-export default function Index({ loaderData }: Route.ComponentProps) {
-  const { org } = loaderData;
+export default function Index({ loaderData: org }: Route.ComponentProps) {
   return org.websiteConfig?.template === "defaultTemplate" ? (
     <TemplateOne org={org} services={org.services} />
   ) : (
