@@ -5,13 +5,14 @@ import { twMerge } from "tailwind-merge";
 import { Edit } from "~/components/icons/edit";
 import type { Org } from "@prisma/client";
 import { TemplateFormModal } from "~/components/ui/dialog";
+import { PlantillaSelect } from "~/components/forms/website/Plantilla";
 
 export const Template = ({
   url,
   qr,
   org,
 }: {
-  org?: Org;
+  org: Org;
   qr: string;
   url: string;
 }) => {
@@ -79,11 +80,7 @@ export const Template = ({
           <p className="text-base text-brand_dark font-satoMiddle mb-3">
             Plantilla
           </p>
-          <img
-            className="w-full object-cover rounded-2xl"
-            alt="template selected"
-            src="https://i.imgur.com/Q7vLmZ0.png"
-          />
+          <PlantillaSelect org={org} readOnly />
         </div>
       </div>
     </section>

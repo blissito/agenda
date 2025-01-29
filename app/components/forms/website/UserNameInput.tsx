@@ -68,7 +68,7 @@ export const UsernameInput = ({ org }: { org: Org }) => {
           Actualizar
         </PrimaryButton>
       </div>
-      <p className="text-red-500 px-4">{fetcher.data?.errors.slug}</p>
+      <p className="text-red-500 px-4 text-xs">{fetcher.data?.errors.slug}</p>
     </section>
   );
 };
