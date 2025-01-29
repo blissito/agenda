@@ -46,7 +46,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const services = await getServices(request);
-  const { org } = await getUserAndOrgOrRedirect(request); // @TODO: not all  the org please!
+  const { org } = await getUserAndOrgOrRedirect(request);
   return { services, org };
 };
 
@@ -75,6 +75,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
         <AnimatePresence>
           {services.map((service) => (
             <ServiceCard
+              service={service}
               isActive={service.isActive}
               id={service.id}
               image={service.photoURL ?? undefined}

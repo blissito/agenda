@@ -202,7 +202,8 @@ export const getServices = async (
   where: Record<string, string | boolean | number> = {}
 ) => {
   const user = await getUserOrRedirect(request);
-  if (!user.orgId) throw redirect("/signup/sobre-tu-negocio");
+  if (!user.orgId) throw redirect("/signup/1");
+
   return await db.service.findMany({
     where: { orgId: user.orgId, archived: false, ...where },
     include: { org: includeOrg },

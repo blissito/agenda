@@ -16,6 +16,6 @@ export const generateSlug = (string: string, addDate: boolean = true) => {
 
 export const generateLink = (uri: string, orgSlug: string) => {
   const url = new URL(uri);
-  url.pathname = `${orgSlug}/agenda`;
+  url.pathname = `/agenda/${orgSlug}`;
   return url.toString();
 };

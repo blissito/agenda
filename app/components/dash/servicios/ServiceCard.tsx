@@ -11,8 +11,10 @@ import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { twMerge } from "tailwind-merge";
 import { useCopyLink } from "~/components/hooks/useCopyLink";
 import { Image } from "~/components/common/Image";
+import type { Service } from "@prisma/client";
 
 export const ServiceCard = ({
+  service,
   title,
   image,
   duration,
@@ -22,6 +24,7 @@ export const ServiceCard = ({
   id,
   isActive,
 }: {
+  service: Service;
   isActive: boolean;
   id: string;
   title: string;
@@ -148,11 +151,11 @@ export const ServiceCard = ({
         )}
       </AnimatePresence>
       <Link to={path ? path : "/dash/servicios"} className="group ">
-        <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer">
-          <Image alt="service cover" src={image} />
+        <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer flex flex-col">
+          <Image alt="service" src={image} />
           <div className="my-2 px-3 flex flex-col  justify-between">
             <h3 className=" text-brand_dark text-lg font-satoMiddle">
-              {title}
+              {service.name}
             </h3>
             <article className="flex items-end justify-between pt-auto pb-1">
               <p className="text-brand_gray font-satoshi mt-1">

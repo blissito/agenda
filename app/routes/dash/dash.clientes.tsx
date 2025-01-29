@@ -259,7 +259,7 @@ export const Summary = ({ stats }: { stats: Stats }) => {
       <div>
         <p>
           <span className="text-brand_blue text-2xl font-satoMedium mr-1">
-            {stats.clientsCount} {pluralize("cliente", 1)}{" "}
+            {stats.clientsCount} {pluralize("cliente", stats.clientsCount)}{" "}
             {pluralize("nuevo", stats.clientsCount)}
           </span>{" "}
           este mes
