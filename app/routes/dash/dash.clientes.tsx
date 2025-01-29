@@ -53,6 +53,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     },
     include: {
       service: true,
+      customer: true,
     },
   });
 
@@ -61,7 +62,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const counter: Record<string, number> = {};
   events.forEach((e) => {
     const tomorrow = new Date();
-    const { email } = e.customer;
+    const { email } = e.customer || {};
     if (!email) return;
     counter[email] =
       counter[email] && typeof counter[email] === "number"
@@ -87,7 +88,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     link,
     stats: {
       clientsCount: clients.length, // @todo: real data
-      percentage: "0%",
+      percentage: `${clients.length * 100}%`, // @todo real percentage
       srcset: [], // @TODO: real user images?
     } as Stats,
   };

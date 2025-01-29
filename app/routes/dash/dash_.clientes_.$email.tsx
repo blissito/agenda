@@ -1,54 +1,44 @@
-import {
-  Link,
-  useLoaderData,
-  useLocation,
-  useNavigate,
-} from "@remix-run/react";
-import { cn } from "~/utils/cn";
+import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect } from "react";
 import { db } from "~/utils/db.server";
 import { TbEdit } from "react-icons/tb";
 import { FiDownload, FiMapPin } from "react-icons/fi";
 import { HiOutlineMail } from "react-icons/hi";
 import { BsEnvelopePlus } from "react-icons/bs";
-import { Event, Service } from "@prisma/client";
+import type { Customer, Event, Service } from "@prisma/client";
 import { HiCalendarDays } from "react-icons/hi2";
 import { IoIosPhonePortrait } from "react-icons/io";
 import { Avatar } from "~/components/common/Avatar";
-import { Client, TableHeader } from "./dash.clientes";
+import { Client } from "./dash.clientes";
 import { IoDocumentTextOutline } from "react-icons/io5";
-import { FaRegClock, FaWhatsapp } from "react-icons/fa6";
+import { FaWhatsapp } from "react-icons/fa6";
 import { BasicInput } from "~/components/forms/BasicInput";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { DropdownMenu } from "~/components/common/DropDownMenu";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { usePluralize } from "~/components/hooks/usePluralize";
+import type { Route } from "./+types/dash_.clientes_.$email";
+import { EventTable } from "./clientes/EventTable";
 //@TODO: filter by date, edit contact, send email, send whats, download contacts?one?all?, delete contact
 export const loader = async ({
   request,
   params: { email },
-}: LoaderFunctionArgs) => {
+}: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
-  if (!org || !email) throw json(null, { status: 404 });
-  const services = await db.service.findMany({ where: { orgId: org.id } });
-  const serviceIdsList = services.map((s) => ({ $oid: s.id })); // in order to findRaw to work
-  const rawEvents: Partial<Event & { _id: { $oid: string } }>[] =
-    (await db.event.findRaw({
-      filter: {
-        $and: [
-          { "customer.email": email },
-          { serviceId: { $in: serviceIdsList } },
-        ],
-      },
-    })) ?? [];
-  const specificIds = rawEvents.map((re) => re._id?.$oid);
-  const events = (await db.event.findMany({
-    where: { id: { in: specificIds } },
+  if (!org || !email) throw new Response(null, { status: 404 });
+
+  const customer = await db.customer.findUnique({ where: { email } });
+  if (!customer) throw new Response("Customer not found", { status: 404 });
+
+  const events = await db.event.findMany({
+    where: {
+      customerId: customer.id,
+      orgId: org.id,
+    },
     include: { service: true },
-  })) as (Event & { service: Service })[];
+  });
 
   return {
+    customer,
     org,
     events,
     stats: {
@@ -59,10 +49,8 @@ export const loader = async ({
   };
 };
 
-// type LoaderType = Awaited<ReturnType<typeof loader>>;
-
-export default function Page() {
-  const { events, stats } = useLoaderData<typeof loader>();
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { events, stats, customer } = loaderData;
   const location = useLocation();
   const { client } = location.state
     ? (location.state as Client)
@@ -87,13 +75,13 @@ export default function Page() {
             alt="cover"
             className="object-cover h-full w-full absolute"
           />
-          <div className="text-brand_gray flex items-center gap-2 max-w-4xl mx-auto relative pt-8">
+          <div className="text-brand_gray flex items-center gap-2 max-w-4xl mx-auto relative pt-8 ml-10">
             <Link to={`/dash/clientes`} className="text-xs text-white">
               Clientes
             </Link>
             <span className="text-white pb-1">&gt;</span>
             <Link to="" className="text-xs text-white">
-              {/* {client?.displayName} */} Isabel Lozano
+              {customer?.displayName}
             </Link>
           </div>
         </div>
@@ -103,7 +91,7 @@ export default function Page() {
           <div className="md:flex-row flex flex-col">
             <section className="pl-20 pr-6 pt-4 font-bold text-lg flex flex-col items-start justify-between w-full">
               <div className="flex items-center w-full justify-between">
-                <h1>Isabel Lozano</h1>
+                <h1>{customer?.displayName}</h1>
                 <div className="flex gap-3 items-center">
                   <button className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center active:scale-95 active:shadow-inner ">
                     <FaWhatsapp />
@@ -120,7 +108,7 @@ export default function Page() {
                   >
                     <BsEnvelopePlus />
                   </button>
-                  <PrimaryButton>
+                  <PrimaryButton isDisabled>
                     <span>
                       <HiCalendarDays />
                     </span>
@@ -134,35 +122,28 @@ export default function Page() {
                   <span>
                     <HiOutlineMail />
                   </span>
-                  <span>Isabela_lozano_lopez@gmail.com</span>
+                  <span> {customer?.email}</span>
                 </p>
                 <p className="flex gap-2 items-center text-brand_gray text-xs">
                   <span>
                     <IoIosPhonePortrait />
                   </span>
-                  <span>55 5555 55 55</span>
+                  <span> {customer?.tel}</span>
                 </p>
                 <p className="flex gap-2 items-center text-brand_gray text-xs">
                   <span>
                     <FiMapPin />
                   </span>
-                  <span className="w-32">
-                    Av. Lopez Mateos 116, col. centro. CDMX, MEX
-                  </span>
+                  <span className="w-32">{customer?.address}</span>
                 </p>
               </div>
-              {/* Description */}
 
+              {/* comments */}
               <p className="flex gap-2 items-center text-brand_gray text-xs -ml-12">
                 <span>
                   <IoDocumentTextOutline />
                 </span>
-                <span>
-                  Lorem ipsum dolor sit amet consectetur. At mattis nulla sed
-                  curabitur gravida et quam sed at. Sit tellus hendrerit
-                  volutpat sed ac consequat eros in et. Phasellus odio nisi
-                  urna. nulla sed curabitur gravida et quam sed at. Sit
-                </span>
+                <span>{customer?.comments}</span>
               </p>
             </section>
             {/* Datos */}
@@ -190,93 +171,20 @@ export default function Page() {
         </div>
         <section className="flex items-center justify-between max-w-4xl mx-auto my-4">
           <BasicInput
-            // isDisabled
+            containerClassName="max-w-[180px]"
+            name="dateFilter"
             type="date"
-            containerClassName="max-w-[240px]"
+            isDisabled
           />
-          <Link className="pt-3" to="">
-            <button
-              disabled
-              className="text-gray-400 border rounded-full h-8 w-8 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100"
-            >
-              <FiDownload />
-            </button>
-          </Link>
+          <button
+            disabled
+            className="text-gray-400 border rounded-full h-8 w-8 p-1 grid place-content-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100"
+          >
+            <FiDownload />
+          </button>
         </section>
-        <section className="max-w-4xl mx-auto">
-          <TableHeader
-            titles={[
-              "fecha",
-              "servicio",
-              "encargado",
-              ["puntos", "col-span-1"],
-              "precio",
-              "estatus",
-              ["acciones", "col-span-1"],
-            ]}
-          />
-
-          {events.map((event) => (
-            <EventRow event={event} key={event.id} />
-          ))}
-        </section>
+        <EventTable events={events} />
       </article>
     </>
   );
 }
-
-export const EventRow = ({
-  event,
-}: {
-  event: Event & { service: Service };
-}) => {
-  const getEventDate = () => {
-    return new Date(event.start).toLocaleDateString("es-MX", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
-  };
-
-  return (
-    <div className="grid grid-cols-12 px-8 py-4 bg-white border-b text-xs">
-      <p className="flex items-center gap-2 col-span-2">
-        <span>
-          <FaRegClock />
-        </span>
-        {getEventDate()}
-      </p>
-      <p className="col-span-2 font-satoMedium">{event.service.name}</p>
-      <p className="col-span-2">{event.service.employeeName || "s/n"}</p>
-      <p className="col-span-1">{event.service.points}</p>
-      <p className="col-span-1">{event.service.price}</p>
-      {/* @TODO: crea un componente con las multiples tags */}
-      <p className="col-span-3 flex gap-1 items-start">
-        <span
-          className={cn("px-1 py-[1px] rounded", {
-            "bg-brand_blue/30": true,
-            "bg-green-300": event.status === "ACTIVE",
-            "bg-red-300": event.status === "CANCELED",
-          })}
-        >
-          {event.status == "ACTIVE"
-            ? "🔔 confirmada"
-            : event.status === "CANCELED"
-            ? "⛔️ cancelada"
-            : "💤 atrasada"}
-        </span>
-        <span
-          className={cn("px-1 py-[1px] rounded", {
-            "bg-brand_blue/30": event.paid,
-            "bg-blue-200": !event.paid,
-          })}
-        >
-          {event.paid ? "💵 pagado" : "💸 sin pagar"}
-        </span>
-      </p>
-      <div className="col-span-1">
-        <DropdownMenu />
-      </div>
-    </div>
-  );
-};

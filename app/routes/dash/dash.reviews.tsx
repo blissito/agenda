@@ -24,8 +24,14 @@ const EmptyStateReviews = () => {
           La confianza de tus clientes es muy valiosa, sigue compartiendo tu
           agenda
         </p>
-        <SecondaryButton className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]">
-          <Anchor /> Copiar link
+        <SecondaryButton
+          isDisabled
+          className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]"
+        >
+          <span className="text-inherit">
+            <Anchor />
+          </span>
+          <span>Copiar link</span>
         </SecondaryButton>
       </div>
     </div>

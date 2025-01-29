@@ -148,6 +148,7 @@ model Customer {
   email       String   @unique
   orgId       String   @db.ObjectId
   org         Org      @relation(fields: [orgId], references: [id])
+  address     String?
   // optionals
   displayName String?
   userId      String?  @db.ObjectId

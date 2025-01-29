@@ -23,8 +23,8 @@ const EmptyStateLoyalty = () => {
         <p className="mt-2 text-brand_gray">
           Ofrece tarjetas de regalo y descuentos a tus clientes más fieles
         </p>
-        <PrimaryButton className="mx-auto mt-12">
-          Activar <ArrowRight />{" "}
+        <PrimaryButton isDisabled className="mx-auto mt-12">
+          Próximamente... <ArrowRight />{" "}
         </PrimaryButton>
       </div>
     </div>

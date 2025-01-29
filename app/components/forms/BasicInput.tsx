@@ -1,5 +1,5 @@
 import type { ChangeEvent, ReactNode } from "react";
-import type { FieldValues, UseFormRegister } from "react-hook-form";
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 
@@ -12,7 +12,7 @@ type Props = {
   registerOptions?: { required: string | boolean };
   placeholder?: string;
   as?: "textarea";
-  type?: "text" | "number" | "email";
+  type?: "text" | "number" | "email" | "date";
   isDisabled?: boolean;
   containerClassName?: string;
   icon?: ReactNode;
@@ -47,10 +47,7 @@ export const BasicInput = ({
           {icon}
         </span>
         <label
-          className={twMerge(
-            " text-brand_dark mb-1 font-satoMiddle",
-            className
-          )}
+          className={twMerge(" text-brand_dark font-satoMiddle", className)}
           htmlFor={name}
         >
           {label}
@@ -102,7 +99,7 @@ export const BasicInput = ({
           />
         )}
 
-        <p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>
+        <p className="text-xs text-red-500 h-1 pl-1">{error?.message}</p>
       </div>
     </>
   );

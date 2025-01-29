@@ -43,6 +43,7 @@ export default [
         ),
       ]),
       route("website", "routes/dash/website/dash.website.tsx"),
+      route("clientes/:email", "routes/dash/dash_.clientes_.$email.tsx"),
       route("clientes", "routes/dash/dash.clientes.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),
       route("evaluaciones", "routes/dash/dash.reviews.tsx"),
