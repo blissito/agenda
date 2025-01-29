@@ -24,23 +24,20 @@ export default function ServicesForm({
   );
 }
 
-export const ServiceRows = ({
-  services = [],
-}: {
-  services: Partial<Service>[];
-}) => {
+export const ServiceRows = ({ services = [] }: { services: Service[] }) => {
   const fetcher = useFetcher();
   const generalClassName = "col-span-2";
 
-  const handleChange = (slug: string, bool: boolean) => {
+  const handleChange = (id: string, bool: boolean) => {
     fetcher.submit(
       {
-        data: JSON.stringify({ isActive: bool, slug }),
-        intent: "service_update_isActive",
+        data: JSON.stringify({ isActive: bool, id }),
+        intent: "service_update",
       },
-      { method: "POST" }
+      { method: "post", action: "/api/services" }
     );
   };
+
   return (
     <>
       <div className="grid grid-cols-12 gap-3 items-center text-sm font-semibold mb-4">
@@ -65,11 +62,11 @@ export const ServiceRows = ({
           </span>
           <span className={generalClassName}>{service.duration} min</span>
           <span className={generalClassName}>${service.price}MXN</span>
-          <span className={generalClassName}>
+          <span className={generalClassName + " flex justify-start"}>
             <Switch
               defaultChecked={service.isActive}
-              setValue={handleChange}
-              name={service.slug}
+              onChange={(bool) => handleChange(service.id, bool)}
+              name={service.id}
             />
           </span>
         </div>

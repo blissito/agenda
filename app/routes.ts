@@ -63,5 +63,5 @@ export default [
     "agenda/:orgSlug/services/:serviceSlug",
     "routes/agenda.$orgSlug.$serviceSlug/route.tsx"
   ),
-  route("agenda/:orgSlug", "routes/clientwebsite.tsx"),
+  route("a/:orgSlug", "routes/clientwebsite.tsx"),
 ] satisfies RouteConfig;
