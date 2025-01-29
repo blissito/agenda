@@ -8,7 +8,7 @@ import { Meteors } from "./Meteors";
 export const Banner = () => {
   return (
     <section className="max-w-[90%] xl:max-w-7xl w-full mx-auto rounded-[40px] bg-brand_dark my-[120px] md:my-[160px] p-8 md:py-16 md:px-[10%] xl:px-[5%] relative overflow-hidden text-center">
-      <h2 className="text-2xl lg:text-4xl text-white font-bold">
+      <h2 className="text-2xl lg:text-4xl text-white ">
         ¡Prueba Deník y crece tu negocio!
       </h2>
       <p className="text-xl lg:text-2xl text-brand_ash/80 mt-6 font-satoshi">
