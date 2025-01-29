@@ -51,7 +51,6 @@ export const EventForm = ({
   const fetcher = useFetcher();
   const oneMoreHour = new Date(defaultValues.start as Date);
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
-  console.log("SERVICES", services);
   const {
     register,
     formState: { isValid, errors, isDirty },
@@ -123,6 +122,7 @@ export const EventForm = ({
 
   const onSubmit = async (v: Partial<Event>) => {
     const validData = parseData(v);
+
     if (!validData) return console.error("::ERROR_ON_VALIDATION::", validData);
     // return;
     fetcher.submit(
@@ -161,8 +161,8 @@ export const EventForm = ({
   const registerVirtualFields = () => {
     // virtual fields
     register("customerId", { required: true, value: "" });
-    register("serviceId", { required: true });
-    register("employeeId", { required: true });
+    register("serviceId", { required: true, value: services[0]?.id });
+    register("employeeId", { required: true, value: employees[0]?.id });
   };
 
   useEffect(() => {
