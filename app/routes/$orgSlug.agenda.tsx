@@ -1,15 +1,13 @@
-import { data as json } from "react-router";
 import { useLoaderData } from "react-router";
-import { getServices } from "~/.server/userGetters";
-import { db } from "~/utils/db.server";
+import { getPublicServicesFor } from "~/.server/userGetters";
 import TemplateOne from "~/components/templates/TemplateOne";
 import TemplateTwo from "~/components/templates/TemplateTwo";
 
-export const loader = async ({ request, params }) => {
-  const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
-  const services = await getServices(request, false, { isActive: true });
-  if (!org) return json(null, { status: 404 });
-  return { org, services };
+export const loader = async ({ params }: Route) => {
+  const services = await getPublicServicesFor(params.orgSlug);
+  if (services.length < 1) throw new Response(null, { status: 404 });
+
+  return { services, org: services.org };
 };
 
 export default function Page() {

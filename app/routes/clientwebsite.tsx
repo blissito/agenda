@@ -8,7 +8,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     where: {
       slug: params.orgSlug,
     },
-    include: { services: true },
+    include: { services: { where: { isActive: true, archived: false } } },
   });
   if (!org) throw new Response("Empresa no encontrada", { status: 404 });
 

@@ -87,7 +87,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     link,
     stats: {
       clientsCount: clients.length, // @todo: real data
-      percentage: "250%",
+      percentage: "0%",
       srcset: [], // @TODO: real user images?
     } as Stats,
   };

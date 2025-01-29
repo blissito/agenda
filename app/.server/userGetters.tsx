@@ -195,6 +195,14 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
   });
 };
 
+// PUBLIC READING
+export const getPublicServicesFor = async (orgId: string) => {
+  return await db.service.findMany({
+    where: { orgId, archived: false, isActive: true },
+    include: { org: true },
+  });
+};
+
 // SERVICES =====================================================================================
 export const getServices = async (
   request: Request,
