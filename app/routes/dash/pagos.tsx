@@ -3,12 +3,12 @@ import {
   createConnectedAccount,
   getOrCreateStripeAccount,
 } from "~/.server/stripe";
-import type { Route } from "./+types/pagos";
-import { getUserOrRedirect } from "~/.server/userGetters";
-import { db } from "~/utils/db.server";
-import { redirect, useFetcher } from "react-router";
 import { cn } from "~/utils/cn";
+import { db } from "~/utils/db.server";
+import type { Route } from "./+types/pagos";
+import { redirect, useFetcher } from "react-router";
 import { Spinner } from "~/components/common/Spinner";
+import { getUserOrRedirect } from "~/.server/userGetters";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const user = await getUserOrRedirect(request);
@@ -38,13 +38,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const account = await getOrCreateStripeAccount(request);
-  return { stripeAccountId: account?.id };
+  const { account, error } = await getOrCreateStripeAccount(request); // test/prod mix can occur
+  return { stripeAccountId: account?.id, error };
 };
 
 export default function Pagos({ loaderData }: Route.ComponentProps) {
+  const { stripeAccountId, error } = loaderData;
   const fetcher = useFetcher();
-  const { stripeAccountId } = loaderData;
 
   const navigateToStripeAccountLink = () => {
     fetcher.submit(
@@ -79,6 +79,11 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
           {isLoading && <Spinner />}
         </button>
       </section>
+      {error && (
+        <section>
+          <p className="text-red-500 my-8 text-2xl">{error.message}</p>
+        </section>
+      )}
     </article>
   );
 }

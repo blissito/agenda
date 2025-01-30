@@ -3,8 +3,9 @@ import { getUserOrRedirect } from "./userGetters";
 import { db } from "~/utils/db.server";
 
 export const getOrCreateStripeAccount = async (request: Request) => {
-  const user = await getUserOrRedirect(request);
   let account;
+  let error;
+  const user = await getUserOrRedirect(request);
   try {
     if (user.stripe?.id) {
       account = await retrieveAccountSafe(user.stripe.id);
@@ -15,26 +16,20 @@ export const getOrCreateStripeAccount = async (request: Request) => {
         data: { stripe: account },
       });
     }
-  } catch (e: unknown) {
-    if (e instanceof Error) {
-      console.error(e);
-      console.log("::POSIBLE_CUENTA_MODO_TEST::");
-    }
-  }
-  return (account as { id: string }) || null;
-};
-
-const retrieveAccountSafe = async (id: string) => {
-  let account;
-  try {
-    account = await getClient().accounts.retrieve(id);
   } catch (e) {
     if (e instanceof Error) {
-      console.error("::NOT_EXISTING_STRIPE_ACCOUNT:: " + e.message);
+      console.error(e);
+      error = e;
     }
   }
-  return account;
+  return { account, error } as {
+    account: { id: string } | null;
+    error: null | Error;
+  };
 };
+
+const retrieveAccountSafe = async (id: string) =>
+  getClient().accounts.retrieve(id);
 
 export const createAccountLink = (connectedAccountId: string, origin: string) =>
   getClient().accountLinks.create({
