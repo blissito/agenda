@@ -71,7 +71,7 @@ export function SideBar({
 
   return (
     <article
-      className="bg-brand_light_gray flex h-auto min-h-screen relative z-500 "
+      className="bg-brand_light_gray flex h-auto min-h-screen relative z-500  "
       {...props}
     >
       <motion.aside
@@ -104,7 +104,7 @@ export function SideBar({
       </motion.aside>
       <motion.section
         style={{ paddingLeft: t }}
-        className="pl-[360px] lg:pr-10 pr-6 py-6 lg:py-10 w-full min-h-screen h-auto box-border "
+        className="pl-[360px] lg:pr-10 pr-6 py-6 lg:py-10 w-full h-auto min-h-screen  box-border "
       >
         {children}
       </motion.section>
@@ -138,7 +138,7 @@ const Footer = () => {
   const match = (string: string) => location.pathname.includes(string);
   return (
     <div className="">
-      <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3>
+      {/* <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3> */}
       <MenuButton to="/dash/perfil" isActive={match("profile")}>
         <MenuButton.Icon isActive={match("profile")}>
           <Profile />
@@ -187,14 +187,14 @@ const MenuButton = ({
       className={twMerge(
         isActive && "text-brand_blue",
         className,
-        "relative h-12 flex items-center gap-3 cursor-pointer"
+        "relative h-12 flex items-center gap-3 cursor-pointer "
       )}
       {...props}
     >
       <span
         className={twMerge(
           "mr-2 w-1 h-11",
-          isActive && "bg-brand_blue rounded-e-lg font-satoshi"
+          isActive && "bg-brand_blue rounded-e-lg "
         )}
       />
       {children}
@@ -229,7 +229,7 @@ const Title = ({
   <h3
     className={twMerge(
       "hover:opacity-70 capitalize",
-      "text-base text-brand_dark",
+      "text-base font-normal text-brand_dark",
       isActive && "text-brand_blue"
     )}
     {...props}
@@ -248,7 +248,9 @@ const MainMenu = ({ className }: { className?: string }) => {
 
   return (
     <div className={twMerge("overflow-auto mb-auto h-full", className)}>
-      <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
+      {/* <h3 className="pl-6 pb-0 font-light uppercase text-xs text-gray-300">
+        Tu negocio
+      </h3> */}
       <section className="gri ">
         <MenuButton isActive={matchIndex()} to="/dash">
           <MenuButton.Icon isActive={matchIndex()}>
@@ -344,7 +346,7 @@ const User = ({ user }: { user: Partial<User> }) => (
     />
     <div className="grid">
       <p className="text-lg font-satoMiddle mb-0">{user.displayName}</p>
-      <p className="text-gray-400 font-thin -mt-1">{user.email}</p>
+      <p className="text-gray-400 font-thin text-sm -mt-1">{user.email}</p>
     </div>
   </div>
 );

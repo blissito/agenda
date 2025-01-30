@@ -30,7 +30,7 @@ export const CompanyInfo = ({
     <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
       <div className="flex justify-between items-center">
         {" "}
-        <h2 className="text-2xl font-bold">{org?.name} </h2>
+        <h2 className="text-2xl ">{org?.name} </h2>
         {!isPublic && (
           <GeneralFormModal org={org}>
             <SecondaryButton as="span" className="h-10">
@@ -48,7 +48,7 @@ export const CompanyInfo = ({
 
       <div className="flex justify-between items-center">
         {" "}
-        <h3 className="text-lg font-bold">Horario</h3>
+        <h3 className="text-lg ">Horario</h3>
         {!isPublic && (
           <TimesFormModal org={org}>
             <SecondaryButton as="span" className="h-10">
@@ -71,7 +71,7 @@ export const CompanyInfo = ({
       <hr className="bg-brand_stroke my-6" />
 
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-bold">Servicios</h3>
+        <h3 className="text-lg ">Servicios</h3>
         {!isPublic && (
           <ServicesFormModal services={services}>
             <SecondaryButton as="span" className="h-10">
@@ -94,7 +94,7 @@ export const CompanyInfo = ({
       <hr className="bg-brand_stroke my-6" />
       <div className="flex justify-between items-center">
         {" "}
-        <h3 className="text-lg font-bold">Redes sociales</h3>
+        <h3 className="text-lg ">Redes sociales</h3>
         {!isPublic && (
           <SocialDataFormModal org={org}>
             <SecondaryButton as="span" className="h-10">

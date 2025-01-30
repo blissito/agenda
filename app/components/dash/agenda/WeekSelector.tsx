@@ -11,7 +11,7 @@ export function WeekSelector({
     month: "long",
   });
   return (
-    <nav className="flex mb-6 ">
+    <nav className="flex  ">
       <h3 className="text-base text-brand_gray font-satoMiddle">
         {/* {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()} */}
         {week[0].getDate()} - {week[week.length - 1].getDate()} de {monthString}

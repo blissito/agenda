@@ -12,18 +12,16 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
 export default function Page({ loaderData: { user } }) {
   return (
-    <section className=" w-full h-full 	">
-      <div className="h-auto lg:h-screen  flex flex-col  box-border ">
-        <Summary user={user} />
-        <EmptyStateDash />
-      </div>
+    <section className=" w-full h-full  box-border flex flex-col ">
+      <Summary user={user} />
+      <EmptyStateDash />
     </section>
   );
 }
 
 const EmptyStateDash = () => {
   return (
-    <div className="bg-dashEmpty w-full h-screen bg-cover  mt-10 flex justify-center items-center">
+    <div className="bg-dashEmpty w-full rounded-3xl  bg-cover  mt-10  grow grid place-content-center">
       <div className="text-center">
         <img className="mx-auto" src="/images/no-files.svg" />
         <p className="font-satoMedium text-xl font-bold">

@@ -41,7 +41,7 @@ export const PrimaryButton = ({
       "bg-brand_blue/50 text-gray-600 pointer-events-none flex items-center gap-2";
 
     const getDisabledStyles = () =>
-      "disabled:bg-gray-300 disabled:cursor-not-allowed";
+      "disabled:bg-gray-300 disabled:text-brand_iron disabled:cursor-not-allowed";
 
     return twMerge(
       getGeneral(),
