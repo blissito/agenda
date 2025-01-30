@@ -39,7 +39,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const account = await getOrCreateStripeAccount(request);
-  return { stripeAccountId: account.id };
+  return { stripeAccountId: account?.id };
 };
 
 export default function Pagos({ loaderData }: Route.ComponentProps) {

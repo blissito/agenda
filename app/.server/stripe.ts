@@ -5,13 +5,23 @@ import { db } from "~/utils/db.server";
 export const getOrCreateStripeAccount = async (request: Request) => {
   const user = await getUserOrRedirect(request);
   let account;
-  if (user.stripe?.id) {
-    account = await retrieveAccountSafe(user.stripe.id);
-  } else {
-    account = await createConnectedAccount(user.email);
-    await db.user.update({ where: { id: user.id }, data: { stripe: account } });
+  try {
+    if (user.stripe?.id) {
+      account = await retrieveAccountSafe(user.stripe.id);
+    } else {
+      account = await createConnectedAccount(user.email);
+      await db.user.update({
+        where: { id: user.id },
+        data: { stripe: account },
+      });
+    }
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      console.error(e);
+      console.log("::POSIBLE_CUENTA_MODO_TEST::");
+    }
   }
-  return account;
+  return (account as { id: string }) || null;
 };
 
 const retrieveAccountSafe = async (id: string) => {
