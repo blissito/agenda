@@ -9,6 +9,7 @@ import type { Route } from "./+types/pagos";
 import { redirect, useFetcher } from "react-router";
 import { Spinner } from "~/components/common/Spinner";
 import { getUserOrRedirect } from "~/.server/userGetters";
+import invariant from "tiny-invariant";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const user = await getUserOrRedirect(request);
@@ -17,7 +18,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
   const intent = formData.get("intent");
 
   if (intent === "navigate_to_stripe_account_link") {
-    const account = await getOrCreateStripeAccount(request);
+    const { account, error } = await getOrCreateStripeAccount(request);
+    if (error) throw new Response(null, { status: 404 });
+    invariant(account);
+
     const url = new URL(request.url);
     const link = await createAccountLink(account.id, url.origin);
     throw redirect(link.url);
@@ -25,7 +29,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "create_stripe_account") {
     const email = formData.get("email") as string;
-    const account = await createConnectedAccount({ email });
+    const account = await createConnectedAccount(email);
     return await db.user.update({
       where: {
         id: user.id,
@@ -82,6 +86,9 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
       {error && (
         <section>
           <p className="text-red-500 my-8 text-2xl">{error.message}</p>
+          <p className="text-red-500 my-8 text-2xl">
+            {"Probablemente una mezcla de TEST y PROD account keys..."}
+          </p>
         </section>
       )}
     </article>
