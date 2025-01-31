@@ -1,286 +1,215 @@
-import { cn } from "~/utils/cn";
-import { AnimatePresence, motion } from "framer-motion";
-import { useOutsideClick } from "~/utils/hooks/use-outside-click";
-import { ArrowRight } from "../icons/arrowRight";
-import { BiCloset } from "react-icons/bi";
-import type { ReactNode } from "react";
+"use client";
 
-interface CarouselProps {
-  items: JSX.Element[];
-  initialScroll?: number;
+import { useState, useId, useEffect, useRef } from "react";
+import { ArrowRight } from "../icons/arrowRight";
+
+interface SlideData {
+  title: string;
+  button: string;
+  src: string;
 }
 
-type Card = {
-  src: string;
-  title: string;
-  category: string;
-  content: ReactNode;
-};
-
-export const CarouselContext = createContext<{
-  onCardClose: (index: number) => void;
-  currentIndex: number;
-}>({
-  onCardClose: () => {},
-  currentIndex: 0,
-});
-
-export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
-  const carouselRef = React.useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
-  const [canScrollRight, setCanScrollRight] = React.useState(true);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollLeft = initialScroll;
-      checkScrollability();
-    }
-  }, [initialScroll]);
-
-  const checkScrollability = () => {
-    if (carouselRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = carouselRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth);
-    }
-  };
-
-  const scrollLeft = () => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
-  };
-
-  const scrollRight = () => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
-
-  const handleCardClose = (index: number) => {
-    if (carouselRef.current) {
-      const cardWidth = isMobile() ? 230 : 384; // (md:w-96)
-      const gap = isMobile() ? 4 : 8;
-      const scrollPosition = (cardWidth + gap) * (index + 1);
-      carouselRef.current.scrollTo({
-        left: scrollPosition,
-        behavior: "smooth",
-      });
-      setCurrentIndex(index);
-    }
-  };
-
-  const isMobile = () => {
-    return window && window.innerWidth < 768;
-  };
-
-  return (
-    <CarouselContext.Provider
-      value={{ onCardClose: handleCardClose, currentIndex }}
-    >
-      <div className="relative w-full">
-        <div
-          className="flex w-full overflow-x-scroll overscroll-x-auto py-10 md:py-20 scroll-smooth [scrollbar-width:none]"
-          ref={carouselRef}
-          onScroll={checkScrollability}
-        >
-          <div
-            className={cn(
-              "absolute right-0  z-[1000] h-auto  w-[5%] overflow-hidden bg-gradient-to-l"
-            )}
-          ></div>
-
-          <div
-            className={cn(
-              "flex flex-row justify-start gap-4 pl-4",
-              "mx-auto" // remove max-w-4xl if you want the carousel to span the full width of its container
-            )}
-          >
-            {items.map((item, index) => (
-              <motion.div
-                initial={{
-                  opacity: 0,
-                  y: 20,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                  transition: {
-                    duration: 0.5,
-                    delay: 0.2 * index,
-                    ease: "easeOut",
-                    once: true,
-                  },
-                }}
-                key={"card" + index}
-                className="last:pr-[5%] md:last:pr-[33%]  rounded-3xl"
-              >
-                {item}
-              </motion.div>
-            ))}
-          </div>
-        </div>
-        <div className="flex justify-end gap-2 mr-10">
-          <button
-            className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-50"
-            onClick={scrollLeft}
-            disabled={!canScrollLeft}
-          >
-            <ArrowRight className="h-6 w-6 text-gray-500" />
-          </button>
-          <button
-            className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-50"
-            onClick={scrollRight}
-            disabled={!canScrollRight}
-          >
-            <ArrowRight className="h-6 w-6 text-gray-500" />
-          </button>
-        </div>
-      </div>
-    </CarouselContext.Provider>
-  );
-};
-
-export const Card = ({
-  card,
-  index,
-  layout = false,
-}: {
-  card: Card;
+interface SlideProps {
+  slide: SlideData;
   index: number;
-  layout?: boolean;
-}) => {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { onCardClose, currentIndex } = useContext(CarouselContext);
+  current: number;
+  handleSlideClick: (index: number) => void;
+}
+
+const Slide = ({ slide, index, current, handleSlideClick }: SlideProps) => {
+  const slideRef = useRef<HTMLLIElement>(null);
+
+  const xRef = useRef(0);
+  const yRef = useRef(0);
+  const frameRef = useRef<number>();
 
   useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        handleClose();
+    const animate = () => {
+      if (!slideRef.current) return;
+
+      const x = xRef.current;
+      const y = yRef.current;
+
+      slideRef.current.style.setProperty("--x", `${x}px`);
+      slideRef.current.style.setProperty("--y", `${y}px`);
+
+      frameRef.current = requestAnimationFrame(animate);
+    };
+
+    frameRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
       }
-    }
+    };
+  }, []);
 
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+  const handleMouseMove = (event: React.MouseEvent) => {
+    const el = slideRef.current;
+    if (!el) return;
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open]);
-
-  useOutsideClick(containerRef, () => handleClose());
-
-  const handleOpen = () => {
-    setOpen(true);
+    const r = el.getBoundingClientRect();
+    xRef.current = event.clientX - (r.left + Math.floor(r.width / 2));
+    yRef.current = event.clientY - (r.top + Math.floor(r.height / 2));
   };
 
-  const handleClose = () => {
-    setOpen(false);
-    onCardClose(index);
+  const handleMouseLeave = () => {
+    xRef.current = 0;
+    yRef.current = 0;
   };
+
+  const imageLoaded = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    event.currentTarget.style.opacity = "1";
+  };
+
+  const { src, button, title } = slide;
 
   return (
-    <>
-      <AnimatePresence>
-        {open && (
-          <div className="fixed inset-0 h-screen z-50 overflow-auto">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="bg-black/80 backdrop-blur-lg h-full w-full fixed inset-0"
-            />
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              ref={containerRef}
-              layoutId={layout ? `card-${card.title}` : undefined}
-              className="max-w-5xl mx-auto bg-white dark:bg-neutral-900 h-fit  z-[60] my-10 p-4 md:p-10 rounded-3xl font-sans relative"
-            >
-              <button
-                className="sticky top-4 h-8 w-8 right-0 ml-auto bg-black dark:bg-white rounded-full flex items-center justify-center"
-                onClick={handleClose}
-              >
-                <BiCloset className="h-6 w-6 text-neutral-100 dark:text-neutral-900" />
-              </button>
-              <motion.p
-                layoutId={layout ? `category-${card.title}` : undefined}
-                className="text-base font-medium text-black dark:text-white"
-              >
-                {card.category}
-              </motion.p>
-              <motion.p
-                layoutId={layout ? `title-${card.title}` : undefined}
-                className="text-2xl md:text-5xl font-semibold text-neutral-700 mt-4 dark:text-white"
-              >
-                {card.title}
-              </motion.p>
-              <div className="py-10">{card.content}</div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-      <motion.button
-        layoutId={layout ? `card-${card.title}` : undefined}
-        onClick={handleOpen}
-        className="rounded-3xl bg-gray-100 dark:bg-neutral-900 h-80 w-56 md:h-[40rem] md:w-96 overflow-hidden flex flex-col items-start justify-start relative z-10"
+    <div className="[perspective:1200px] [transform-style:preserve-3d]">
+      <li
+        ref={slideRef}
+        className="flex flex-1 flex-col items-center justify-center relative text-center text-white opacity-100 transition-all duration-300 ease-in-out w-[70vmin] h-[70vmin] mx-[4vmin] z-10 "
+        onClick={() => handleSlideClick(index)}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          transform:
+            current !== index
+              ? "scale(0.98) rotateX(8deg)"
+              : "scale(1) rotateX(0deg)",
+          transition: "transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+          transformOrigin: "bottom",
+        }}
       >
-        <div className="absolute h-full top-0 inset-x-0 bg-gradient-to-b from-black/50 via-transparent to-transparent z-30 pointer-events-none" />
-        <div className="relative z-40 p-8">
-          <motion.p
-            layoutId={layout ? `category-${card.category}` : undefined}
-            className="text-white text-sm md:text-base font-medium font-sans text-left"
-          >
-            {card.category}
-          </motion.p>
-          <motion.p
-            layoutId={layout ? `title-${card.title}` : undefined}
-            className="text-white text-xl md:text-3xl font-semibold max-w-xs text-left [text-wrap:balance] font-sans mt-2"
-          >
-            {card.title}
-          </motion.p>
+        <div
+          className="absolute top-0 left-0 w-full h-full bg-[#1D1F2F] rounded-[1%] overflow-hidden transition-all duration-150 ease-out"
+          style={{
+            transform:
+              current === index
+                ? "translate3d(calc(var(--x) / 30), calc(var(--y) / 30), 0)"
+                : "none",
+          }}
+        >
+          <img
+            className="absolute inset-0 w-[120%] h-[120%] object-cover opacity-100 transition-opacity duration-600 ease-in-out"
+            style={{
+              opacity: current === index ? 1 : 0.5,
+            }}
+            alt={title}
+            src={src}
+            onLoad={imageLoaded}
+            loading="eager"
+            decoding="sync"
+          />
+          {current === index && (
+            <div className="absolute inset-0 bg-black/30 transition-all duration-1000" />
+          )}
         </div>
-        <BlurImage
-          src={card.src}
-          alt={card.title}
-          fill
-          className="object-cover absolute z-10 inset-0"
-        />
-      </motion.button>
-    </>
+
+        <article
+          className={`relative p-[4vmin] transition-opacity duration-1000 ease-in-out ${
+            current === index ? "opacity-100 visible" : "opacity-0 invisible"
+          }`}
+        >
+          <h2 className="text-lg md:text-2xl lg:text-4xl font-semibold  relative">
+            {title}
+          </h2>
+          <div className="flex justify-center">
+            <button className="mt-6  px-4 py-2 w-fit mx-auto sm:text-sm text-black bg-white h-12 border border-transparent text-xs flex justify-center items-center rounded-2xl hover:shadow-lg transition duration-200 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+              {button}
+            </button>
+          </div>
+        </article>
+      </li>
+    </div>
   );
 };
 
-export const BlurImage = ({
-  height,
-  width,
-  src,
-  className,
-  alt,
-  ...rest
-}: ImageProps) => {
-  const [isLoading, setLoading] = useState(true);
+interface CarouselControlProps {
+  type: string;
+  title: string;
+  handleClick: () => void;
+}
+
+const CarouselControl = ({
+  type,
+  title,
+  handleClick,
+}: CarouselControlProps) => {
   return (
-    <img
-      className={cn(
-        "transition duration-300 object-cover w-full h-full ",
-        isLoading ? "blur-sm" : "blur-0",
-        className
-      )}
-      onLoad={() => setLoading(false)}
-      src={src}
-      //   width={width}
-      //   height={height}
-      //   loading="lazy"
-      //   decoding="async"
-      //   blurDataURL={typeof src === "string" ? src : undefined}
-      alt={alt ? alt : "Background of a beautiful view"}
-      {...rest}
-    />
+    <button
+      className={`w-10 h-10 flex items-center mx-2 justify-center bg-neutral-200 dark:bg-neutral-800 border-3 border-transparent rounded-full focus:border-[#6D64F7] focus:outline-none hover:-translate-y-0.5 active:translate-y-0.5 transition duration-200 ${
+        type === "previous" ? "rotate-180" : ""
+      }`}
+      title={title}
+      onClick={handleClick}
+    >
+      <ArrowRight className="text-neutral-600 dark:text-neutral-200" />
+    </button>
   );
 };
+
+interface CarouselProps {
+  slides: SlideData[];
+}
+
+export function Carousel({ slides }: CarouselProps) {
+  const [current, setCurrent] = useState(0);
+
+  const handlePreviousClick = () => {
+    const previous = current - 1;
+    setCurrent(previous < 0 ? slides.length - 1 : previous);
+  };
+
+  const handleNextClick = () => {
+    const next = current + 1;
+    setCurrent(next === slides.length ? 0 : next);
+  };
+
+  const handleSlideClick = (index: number) => {
+    if (current !== index) {
+      setCurrent(index);
+    }
+  };
+
+  const id = useId();
+
+  return (
+    <div
+      className="relative w-[70vmin] h-[70vmin] mx-auto"
+      aria-labelledby={`carousel-heading-${id}`}
+    >
+      <ul
+        className="absolute flex mx-[-4vmin] transition-transform duration-1000 ease-in-out"
+        style={{
+          transform: `translateX(-${current * (100 / slides.length)}%)`,
+        }}
+      >
+        {slides.map((slide, index) => (
+          <Slide
+            key={index}
+            slide={slide}
+            index={index}
+            current={current}
+            handleSlideClick={handleSlideClick}
+          />
+        ))}
+      </ul>
+
+      <div className="absolute flex justify-center w-full top-[calc(100%+1rem)]">
+        <CarouselControl
+          type="previous"
+          title="Go to previous slide"
+          handleClick={handlePreviousClick}
+        />
+
+        <CarouselControl
+          type="next"
+          title="Go to next slide"
+          handleClick={handleNextClick}
+        />
+      </div>
+    </div>
+  );
+}

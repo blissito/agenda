@@ -9,6 +9,7 @@ import {
 export default [
   index("routes/home.tsx"),
   route("planes", "routes/planes.tsx"),
+  route("features", "routes/features.tsx"),
   //login
   route("signin", "routes/login/signin.tsx"),
   route("signup/:stepSlug", "routes/login/signup.$stepSlug.tsx"),

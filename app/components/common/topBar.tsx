@@ -11,9 +11,9 @@ export const TopBar = () => (
         <Denik className="w-[96px]" />
       </Link>
       <div className="flex items-center gap-4 md:gap-8  text-brand_dark">
-        {/* <Link to="/features">
+        <Link to="/features">
           <p className="font-satoshi font-medium">Features</p>
-        </Link> */}
+        </Link>
         <Link to="/planes">
           <p className="font-satoshi font-medium">Planes</p>
         </Link>
