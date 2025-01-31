@@ -33,6 +33,8 @@ model User {
   orgIds        String[] @db.ObjectId
   orgId         String?  @db.ObjectId // provisional
   Org           Org[]
+  // stripe
+  stripe        Json?
 }
 
 enum Place {

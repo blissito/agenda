@@ -60,6 +60,8 @@ export default [
     route("events", "routes/api/events.ts"),
     route("org", "routes/api/api.org.ts"),
   ]),
+  // Stripe
+  ...prefix("stripe", [index("routes/stripe/api.ts")]),
   // Public
   route(
     "agenda/:orgSlug/services/:serviceSlug",
