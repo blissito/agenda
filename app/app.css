@@ -37,7 +37,8 @@ html {
 /* Header for all website titles */
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: "Outfit", serif;
   font-weight: 600;
 }

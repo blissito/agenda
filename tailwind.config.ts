@@ -22,6 +22,7 @@ export default {
         schedule: "url(/images/schedule.png)",
         onboarding: "url(/images/bg-banner.svg)",
         dashEmpty: "url(/images/dash-empty.png)",
+        instaback: "url(/features/insta-back.svg)",
       },
       animation: {
         "meteor-effect": "meteor 5s linear infinite",
