@@ -184,8 +184,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <RouteTitle>Mi agenda {week[0].getFullYear()}</RouteTitle>
-      {fetcher.state !== "idle" && <Spinner />}
-      <WeekSelector onClick={handleWeekNavigation} week={week} />
+      <div className="flex items-center  h-5 mb-6">
+        <WeekSelector onClick={handleWeekNavigation} week={week} />{" "}
+        {fetcher.state !== "idle" && <Spinner className="w-5 ml-2" />}
+      </div>
       <SimpleBigWeekView
         onNewEvent={handleNewEvent}
         events={weekEvents}

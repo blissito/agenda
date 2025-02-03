@@ -62,13 +62,15 @@ export const HoverEffect = ({
                 className="absolute w-[200px] -right-10 top-0 md:-right-12 md:top-0 opacity-0 group-hover:opacity-100  transition-all"
                 src="/images/Rocket.gif"
               />
-              <span className="text-xl uppercase font-satoshi_bold text-brand_blue ">
+              <h3 className="text-xl uppercase  text-brand_blue ">
                 {item?.plan}
-              </span>
-              <p className="text-5xl md:text-6xl	font-satoshi_bold font-bold mt-4">
+              </h3>
+              <h4 className="text-5xl md:text-6xl	 font-semibold mt-4">
                 {item?.price}{" "}
-                <span className="text-2xl text-brand_gray">/mes</span>
-              </p>
+                <span className="text-2xl text-brand_gray font-light">
+                  /mes
+                </span>
+              </h4>
               <div className="mt-8 h- w-full h-full grow flex flex-col justify-between gap-12">
                 {item.children}
               </div>
