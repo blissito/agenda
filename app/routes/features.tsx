@@ -22,6 +22,8 @@ import { FaFacebookF } from "react-icons/fa6";
 import { AiFillInstagram } from "react-icons/ai";
 import { RiDiscountPercentLine, RiWhatsappFill } from "react-icons/ri";
 import { CiDiscount1 } from "react-icons/ci";
+import { Description } from "@headlessui/react";
+import { Trophy } from "~/components/icons/trophy";
 
 export default function Index() {
   useEffect(() => {
@@ -38,12 +40,12 @@ export default function Index() {
         <Features />
         <Business />
         <FinalCta>
-          <h2 className="group text-4xl xl:text-6xl	 text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+          <h2 className="group text-4xl xl:text-6xl	 text-brand_dark !leading-tight flex flex-wrap items-center text-center justify-center ">
             <span className="mr-4">No lo pienses </span>
             <Rocket className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
             <span className="ml-4"> más.</span>
           </h2>
-          <h2 className="text-4xl lg:text-6xl   text-brand_dark mb-16 mt-4 leading-normal ">
+          <h2 className="text-4xl lg:text-6xl   text-brand_dark mb-16 mt-2 md:mt-4 leading-normal ">
             ¡Empieza ahora!
           </h2>
         </FinalCta>
@@ -59,17 +61,18 @@ const Business = () => {
   // ));
   return (
     <section className="my-[160px] relative ">
-      <div className="py-[120px] bg-[#F3F6FA] h-[1200px]  mx-auto rounded-[40px] max-w-7xl">
-        <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
-          <span className="mr-4"> Para todos los negocios </span>
-          <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />
+      <div className="py-[120px] bg-[#F3F6FA] h-[800px] md:h-[1200px]  mx-auto rounded-[40px] max-w-7xl">
+        <h2 className="group text-4xl lg:text-6xl	 text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+          <span className="mr-0 md:mr-4"> Para todos los negocios </span>
+          <Trophy className="group-hover:animate-vibration-effect cursor-pointer w-14 h-14 md:w-16 md:h-16 mr-0 md:mr-3" />
         </h2>
         <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full text-center mx-auto md:w-[90%]">
-          Toma el control de la agenda de tu negocio, prueba Deník y Prueba la
-          mejor agenda en línea y toma el control de la agenda de t
+          Di adiós a las agendas físicas, define tus horarios y servicios en tan
+          solo unos minutos mientras nosotros nos encargamos de administrar el
+          día a día de tu agenda.
         </p>
       </div>{" "}
-      <div className="-mt-[900px]">
+      <div className="-mt-[400px] md:-mt-[840px]">
         <Carousel slides={data} />
       </div>
     </section>
@@ -78,15 +81,16 @@ const Business = () => {
 
 const Features = () => {
   return (
-    <section className=" flex flex-col   justify-center text-center max-w-[90%] xl:max-w-7xl box mx-auto pt-[200px] lg:pt-[24%] xl:pt-[16%] ">
+    <section className=" flex flex-col   justify-center text-center max-w-[90%] xl:max-w-7xl box mx-auto pt-[160px] lg:pt-[24%] xl:pt-[16%] ">
       <h2 className="group text-4xl lg:text-6xl	 text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
-        <span className="mr-4"> Funcionalidades </span>
+        <span className="mr-4"> Transforma tu negocio </span>
         <UserFeatures className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] md:w-16 md:h-16 mr-3" />
       </h2>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[90%]">
-        Prueba todo lo que Deník tiene para ti y tu negocio
+        Prueba todo lo que Deník tiene para optimizar tu tiempo e impulsar tu
+        negocio
       </p>
-      <div className="mt-20 flex flex-col gap-8">
+      <div className="mt-12 lg:mt-20 flex flex-col gap-8">
         <div className="grid grid-cols-4 lg:grid-cols-8 h-auto lg:h-[480px] gap-8 ">
           <div className="relative col-span-4 lg:col-span-5 h-[480px] group">
             <ExpressionOne className="opacity-0 absolute w-20 rotate-[270deg] -left-12 -top-12 group-hover:opacity-100 transition-all " />
@@ -132,22 +136,25 @@ const Features = () => {
                 <Cube image="/features/mastercard.svg" />
                 <Cube image="/features/visa.svg" />
                 <Cube image="/features/oxxo-logo.svg" />
-                <Cube className="bg-brand_pale/50" />
-                <Cube className="bg-brand_pale/50" />
-                <Cube image="/features/spei.png" />
+                <Cube className="bg-brand_pale/50 block md:hidden lg:block" />
+                <Cube className="bg-brand_pale/50 block md:hidden lg:block" />
+                <Cube image="/features/g-pay.svg" />
                 <Cube image="/features/american.svg" />
-                <Cube image="/features/mastercard.svg" />
+                <Cube image="/features/apple-pay.svg" />
                 <Cube className="bg-brand_pale/50" />
                 <Cube className="bg-brand_pale/50" />
                 <Cube className="bg-brand_pale/50" />
                 <Cube className="bg-brand_pale/50" />
                 <Cube className="bg-brand_pale/50" />
                 <Cube className="bg-brand_pale/50" />
+                <Cube className="bg-brand_pale/50 block lg:hidden" />
+                <Cube className="bg-brand_pale/50 block lg:hidden" />
+                <Cube className="bg-brand_pale/50 block lg:hidden" />
               </div>
             </div>
           </div>
         </div>
-        <div className="h-[360px] w-full group transition-all cursor-pointer hover:-translate-y-1 relative  ">
+        <div className="h-[440px] md:h-[360px] w-full group transition-all cursor-pointer hover:-translate-y-1 relative  ">
           <ExpressionFour className="opacity-0 absolute w-20 -right-14 bottom-16 group-hover:opacity-100 transition-all " />
           <div className="group w-full h-full p-8 text-left rounded-2xl border-[1px] border-[#EFEFEF] overflow-hidden ">
             <h3 className="text-2xl font-jakarta text-brand_dark">
@@ -160,7 +167,7 @@ const Features = () => {
               información de contacto y hasta tus redes sociales para que tus
               clientes puedes empezar a seguirte.
             </p>
-            <div className="mt-10 relative left-0 lg:left-16 flex gap-40">
+            <div className="mt-10 relative left-0 md:left-6 lg:left-16 flex gap-10 md:gap-40">
               <img
                 className="w-52 h-fit lg:w-96 border-[1px] border-brand_stroke rounded-2xl object-cover"
                 alt="template"
@@ -220,8 +227,8 @@ const Features = () => {
                 lealtad en donde acumulen puntos cada que acuden a una cita para
                 después canjearlos por descuentos mayores o servicios gratis.
               </p>
-              <div className="mt-16 flex gap-8">
-                <div className="h-fit z-10 flex rounded-full gap-1 p-3 bg-brand_dark mt-32 ml-20">
+              <div className="mt-6 lg:mt-16 flex justify-center gap-8">
+                <div className="h-fit z-10 flex rounded-full gap-1 p-3 bg-brand_dark mt-32 ml-0 lg:ml-20">
                   <div className="h-12 hover:scale-90 transition-all bg-white grid place-content-center text-2xl w-12 rounded-full border-[1px] border-brand_stroke">
                     🔥
                   </div>
@@ -257,11 +264,11 @@ const Features = () => {
                 </p>{" "}
               </div>
               <img
-                className="ml-40  transition-all group-hover:ml-20"
+                className="ml-20 md:ml-96 lg:ml-40  transition-all lg:group-hover:ml-20 md:group-hover:ml-80"
                 src="/features/feature6-1.svg"
               />
               <img
-                className="-ml-20 group-hover:-ml-8 transition-all  "
+                className="md:-mt-40 lg:mt-0 mt-0 -ml-20 group-hover:-ml-8 transition-all  "
                 src="/features/feature6-2.svg"
               />
               <img
@@ -318,7 +325,7 @@ const Features = () => {
               </div>
             </div>
           </div>
-          <div className="group col-span-2 h-full p-8 text-left relative rounded-2xl border-[1px] border-[#EFEFEF]  group transition-all cursor-pointer hover:-translate-y-1 hover:translate-x-1">
+          <div className="group col-span-4 md:col-span-2 h-full p-8 text-left relative rounded-2xl border-[1px] border-[#EFEFEF]  group transition-all cursor-pointer hover:-translate-y-1 hover:translate-x-1">
             <ExpressionSeven className="opacity-0 rotate-90 absolute w-20 -right-16 -bottom-16 group-hover:opacity-100 transition-all " />
             <h3 className="text-2xl font-jakarta text-brand_dark">
               Recibe soporte prioritario 🎧
@@ -364,38 +371,74 @@ const data = [
   {
     category: "Clases de idiomas",
     title: "Clases de idiomas",
-    src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=3556&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description:
+      "Permite a actuales y nuevos estudiantes conocer tus clases y horarios, y agendar clases completamente en línea",
+    src: "https://i.imgur.com/GOeor8Yl.jpg",
     content: "You can do more with AI.",
   },
   {
     category: "Estudio de belleza",
     title: "Estudio de belleza",
-    src: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description:
+      "Olvídate de organizar tu día a tía de forma tradicional, nos encargamos de tu agenda y tú te encargas de lo más improtante: tus clientes.",
+    src: "https://i.imgur.com/FTagU5xm.jpg",
     content: "You can do more with AI.",
   },
   {
     category: "Gimnasios",
-    title: "Gimnasios",
-    src: "https://images.unsplash.com/photo-1713869791518-a770879e60dc?q=80&w=2333&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    title: "Entrenador personal",
+    description:
+      "Deja de perder tiempo agendando citas a mano, ahora tus clientes pueden agendar y pagar con anticipación desde tu sitio web.",
+    src: "https://i.imgur.com/nVjjfGTl.jpg",
     content: "You can do more with AI.",
   },
 
   {
     category: "Centros deportivos",
     title: "Centros deportivos",
-    src: "https://images.unsplash.com/photo-1599202860130-f600f4948364?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description:
+      "Olvídate del trabajo administrativo, automatiza tu agenda con Deník, desde cobros hasta recordatorios para tus clientes.",
+    src: "https://i.imgur.com/DLhUX62l.jpg",
     content: "You can do more with AI.",
   },
   {
     category: "Spas",
     title: "Spas",
-    src: "https://images.unsplash.com/photo-1602081957921-9137a5d6eaee?q=80&w=2793&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    description:
+      "Que no te dejen esperando, disminuye la inasistencia y las cancelaciones de último momento automatizando el proceso de agendamiento con Deník.",
+    src: "https://i.imgur.com/tTvKLpGl.jpg",
     content: "You can do more with AI.",
   },
   {
-    category: "Experiencias turísticas",
-    title: "Experiencias turísticas",
-    src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    category: "Agencias turísticas",
+    title: "Agencias turísticas",
+    description:
+      "Comparte tu sitio web de agendamiento y llega a más clientes, aumenta tus reservas y cobra directamente sin intermediarios. ",
+    src: "https://i.imgur.com/gwpepotl.jpg",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Consultorios médicos",
+    title: "Consultorios médicos",
+    description:
+      "Lleva tu consulta al siguiente nivel con nuestra plataforma de agendamiento en línea, permite a tus clientes conocer tus horarios disponibles y agendar de forma fácil.",
+    src: "https://i.imgur.com/BOV30Mfl.jpg",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Clínica Veterinaria",
+    title: "Clínica Veterinaria",
+    description:
+      "Administrar tu agenda ya no es un problema, agendamiento, cobros y recordatorios: déjanoslo a nosotros. Tú solo enfocate en esas mascotas que te necesitan. ",
+    src: "https://i.imgur.com/BePLg7Cl.jpg",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Coaching y consultoría",
+    title: "Coaching y consultoría",
+    description:
+      "No hagas esperar a tus clientes y evita los tiempo muertos entre citas, optimiza tu tiempo utilizando nuestra agenda en línea. ",
+    src: "https://i.imgur.com/wNfoxUk.jpg",
     content: "You can do more with AI.",
   },
 ];
