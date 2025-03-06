@@ -11,7 +11,12 @@ import { TimesForm } from "~/components/forms/TimesForm";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { useState } from "react";
 import { Modal } from "~/components/common/Modal";
-import { SimpleTimeSelector } from "~/components/forms/services_model/SimpleTimeSelector";
+import {
+  SimpleTimeSelector,
+  type Week,
+} from "~/components/forms/services_model/SimpleTimeSelector";
+import { useFetcher } from "react-router";
+import { useToast } from "~/components/hooks/useToaster";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
@@ -22,7 +27,22 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { service } = loaderData;
-  const [showForm, setShowForm] = useState(false);
+  const fetcher = useFetcher();
+  const handleSubmit = (weekDays: Week) => {
+    if (Object.values(weekDays).length < 1) return;
+
+    fetcher.submit(
+      {
+        data: JSON.stringify({ weekDays, id: service.id }),
+        intent: "service_update",
+      },
+      { method: "post", action: "/api/services" }
+    );
+    useToast().success({ text: "Los horarios se guardarón con éxito " });
+  };
+
+  const isLoading = fetcher.state !== "idle";
+
   return (
     <>
       <section>
@@ -46,7 +66,11 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </BreadcrumbList>
         </Breadcrumb>
         {service.weekDays ? (
-          <SimpleTimeSelector />
+          <SimpleTimeSelector
+            isLoading={isLoading}
+            defaultValue={service.weekDays}
+            onSubmit={handleSubmit}
+          />
         ) : (
           <div className="bg-white rounded-2xl max-w-3xl p-8 mt-6">
             <h2

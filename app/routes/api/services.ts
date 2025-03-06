@@ -17,7 +17,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "service_update") {
     const { id } = data;
     delete data.id;
-    await db.service.update({ where: { id }, data });
+    return await db.service.update({ where: { id }, data });
   }
   //67c90587bd7089263a5cf40b
 

@@ -6,7 +6,7 @@ export const useToast = () => {
   const setInitial = (toast) => {
     toast.style.transition = "all .3s ease";
     toast.style.position = "fixed";
-    toast.style.bottom = "64px";
+    toast.style.top = "64px";
     toast.style.right = "40px";
     toast.style.transform = "translateY(20px)";
     toast.style.opacity = 0;
