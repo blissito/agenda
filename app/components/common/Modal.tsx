@@ -5,7 +5,9 @@ export const Modal = ({
   children,
   isOpen,
   onClose,
+  title,
 }: {
+  title: ReactNode;
   isOpen: boolean;
   onClose?: () => void;
   children?: ReactNode;
@@ -14,7 +16,7 @@ export const Modal = ({
     <article className="fixed bg-brand_blue/50 backdrop-blur-sm z-20 inset-0 grid place-content-center">
       <section className="bg-white rounded-2xl border shadow p-4 w-[320px]">
         <nav className="flex justify-between ">
-          <h1>Modal</h1>
+          {title && <h1>{title}</h1>}
           <button
             onClick={onClose}
             className="hover:bg-gray-200 active:bg-gray-300 rounded-full w-6 grid place-content-center"

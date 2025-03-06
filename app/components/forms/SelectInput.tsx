@@ -10,6 +10,7 @@ export type Option = {
 };
 
 type Props = {
+  value?: string;
   defaultValue?: string;
   name?: string;
   register?: UseFormRegister<FieldValues> | any;
@@ -24,6 +25,7 @@ type Props = {
   onChange?: (arg0: ChangeEvent<HTMLSelectElement>) => void;
 };
 export const SelectInput = ({
+  value,
   defaultValue = "",
   isDisabled,
   icon,
@@ -49,8 +51,9 @@ export const SelectInput = ({
       <div className={cn("custom-select relative")}>
         <div className="absolute top-3 left-3 z-10 ">{icon}</div>
         <select
+          value={value}
           onChange={onChange}
-          defaultValue={defaultValue}
+          defaultValue={value ? undefined : defaultValue}
           disabled={isDisabled}
           name="pets"
           id="pet-select"
@@ -76,7 +79,9 @@ export const SelectInput = ({
           })}
         </select>
       </div>
-      {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
+      {error?.message && (
+        <p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>
+      )}
     </section>
   );
 };

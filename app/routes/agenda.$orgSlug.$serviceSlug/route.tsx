@@ -65,12 +65,13 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
       },
     },
   });
-  if (!service || !org) throw json(null, { status: 404 });
+  if (!service || !org) throw new Response(null, { status: 404 });
   return { org, service };
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { org, service } = loaderData;
+  console.log("SERVICE", service);
   const [time, setTime] = useState<number>();
   const [date, setDate] = useState<Date>();
   const [show, setShow] = useState("");
@@ -149,9 +150,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <article className=" bg-[#f8f8f8] min-h-screen h-screen relative">
+    <article className=" bg-[#f8f8f8] relative">
       <Header org={org} />
-      <main className="shadow mx-auto rounded-xl p-8 w-[90%] min-h-[506px] md:w-fit z-50">
+      <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2">
         <section className={twMerge("flex flex-wrap")}>
           <InfoShower service={service} org={org} date={date} />
           {show !== "user_info" && (

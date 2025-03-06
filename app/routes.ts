@@ -63,9 +63,11 @@ export default [
   // Stripe
   ...prefix("stripe", [index("routes/stripe/api.ts")]),
   // Public
+  //scheduler:
   route(
     "a/:orgSlug/s/:serviceSlug",
     "routes/agenda.$orgSlug.$serviceSlug/route.tsx"
   ),
+  // website:
   route("a/:orgSlug", "routes/clientwebsite.tsx"),
 ] satisfies RouteConfig;
