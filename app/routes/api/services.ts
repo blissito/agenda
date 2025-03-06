@@ -6,6 +6,8 @@ import { generalFormSchema } from "~/components/forms/services_model/ServiceGene
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 import { serverServicePhotoFormSchema } from "~/components/forms/services_model/ServicePhotoForm";
+import { serviceTimesSchema } from "~/components/forms/services_model/ServiceTimesForm";
+import { ServerServiceConfigFormSchema } from "~/components/forms/services_model/ServiceConfigForm";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
@@ -18,6 +20,39 @@ export const action = async ({ request }: Route.ActionArgs) => {
     await db.service.update({ where: { id }, data });
   }
   //67c90587bd7089263a5cf40b
+
+  if (intent === "config_form") {
+    const {
+      success,
+      data: parsedData,
+      error,
+    } = ServerServiceConfigFormSchema.safeParse(data); // change
+    console.error("ZOD_ERROR", error);
+    if (!success) throw new Response("Error in form fields", { status: 400 });
+
+    await db.service.update({
+      where: { id: data.id },
+      // @ts-ignore
+      data: { ...parsedData, isActive: true }, // revisit
+    });
+    return { id: data.id, nextIndex: 4 };
+  }
+
+  if (intent === "times_form") {
+    const {
+      success,
+      data: parsedData,
+      error,
+    } = serviceTimesSchema.safeParse(data); // change
+    if (!success) throw new Response("Error in form fields", { status: 400 });
+
+    await db.service.update({
+      where: { id: data.id },
+      // @ts-ignore
+      data: parsedData,
+    });
+    return { id: data.id, nextIndex: 3 };
+  }
 
   if (intent === "photo_form") {
     const {

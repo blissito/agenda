@@ -9,9 +9,9 @@ import { type Option, SelectInput } from "../SelectInput";
 import { z, ZodError } from "zod";
 import { Form, useFetcher } from "react-router";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
-import { Switch } from "~/components/common/Switch";
+import { motion } from "motion/react";
 import { cn } from "~/utils/cn";
-import type { RefObject } from "react";
+import { useRef, useState, type RefObject } from "react";
 
 export const serverServicePhotoFormSchema = z.object({
   photoURL: z.string().optional(),
@@ -25,13 +25,13 @@ export const servicePhotoFormSchema = z.object({
   photoURL: z.string().optional(),
   place: z.string(),
   allowMultiple: z
-    .enum(["true", "false"])
+    .enum(["true", "false", "on"])
     .optional()
-    .transform((value) => value === "true"),
+    .transform((value) => value === "true" || value === "on"),
   isActive: z
-    .enum(["true", "false"])
+    .enum(["true", "false", "on"])
     .optional()
-    .transform((value) => value === "true"),
+    .transform((value) => value === "true" || value == "on"),
   // seats: z.coerce.number(), // @TODO update in other place?
 });
 
@@ -90,12 +90,10 @@ export const ServicePhotoForm = ({
     );
   };
 
-  console.log("ERRORS: ", errors);
-
   return (
-    <Form ref={formRef}>
+    <Form ref={formRef} method="post">
       <InputFile // @TODO: this should contain an input with string value coming from upload
-        action={action}
+        // action={action}
         name="photoURL"
         title="Foto de portada"
         description="  Carga 1 imagen de tu servicio. Te recomendamos que tenga un aspect ratio 16:9 y un peso máximo de 1MB."
@@ -120,7 +118,6 @@ export const ServicePhotoForm = ({
       />
       <SwitchOption
         defaultChecked={defaultValues.isActive}
-        setValue={setValue}
         register={register}
         registerOptions={{ required: false }}
         name="isActive"
@@ -128,7 +125,6 @@ export const ServicePhotoForm = ({
       />
       <SwitchOption
         isDisabled // @todo implent two or more
-        setValue={setValue}
         defaultChecked={defaultValues.allowMultiple}
         registerOptions={{ required: false }}
         register={register}
@@ -165,9 +161,23 @@ export const SwitchOption = ({
   description?: string;
   registerOptions?: { required: string | false };
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isOn, setOn] = useState(false);
+
+  const onClick = () => {
+    setOn((o) => {
+      inputRef.current!.checked = !o;
+      return !o;
+    });
+  };
+
   return (
-    <article className="flex justify-between items-center w-full mb-6">
-      <div className="flex flex-col justify-center">
+    <button
+      type="button"
+      onClick={isDisabled ? undefined : onClick}
+      className="flex justify-between items-center w-full mb-6"
+    >
+      <div className="text-left">
         <p
           className={cn("text-brand_dark font-satoMiddle", {
             "text-gray-300": isDisabled,
@@ -177,13 +187,31 @@ export const SwitchOption = ({
         </p>
         <p>{description}</p>
       </div>
-      <Switch
-        containerClassName={isDisabled ? "pointer-events-none" : ""}
-        defaultChecked={defaultChecked}
-        setValue={setValue}
+      <div
+        className={cn(
+          "flex bg-gray-100 w-7 p-1 rounded-full",
+
+          {
+            "justify-end bg-brand_blue/30 shadow": isOn,
+          }
+        )}
+      >
+        <motion.div
+          transition={{ type: "spring" }}
+          layout
+          className={cn("bg-gray-300 h-3 w-3 rounded-full", {
+            "bg-brand_blue ": isOn,
+          })}
+        ></motion.div>
+      </div>
+      <input
         name={name}
-        {...register?.(name, registerOptions)}
+        ref={inputRef}
+        className="hidden"
+        disabled={isDisabled}
+        type="checkbox"
+        // {...register?.(name, registerOptions)}
       />
-    </article>
+    </button>
   );
 };

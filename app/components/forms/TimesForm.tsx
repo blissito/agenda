@@ -51,7 +51,9 @@ export const TimesForm = ({
   onSubmit,
   children,
   onClose,
+  noSubmit,
 }: {
+  noSubmit?: boolean;
   cta?: string;
   onClose?: () => void;
   children?: ReactNode; // acting as footer
@@ -79,6 +81,8 @@ export const TimesForm = ({
   });
 
   const submit = () => {
+    if (noSubmit) return;
+
     onSubmit?.(data);
     fetcher.submit(
       {
@@ -202,7 +206,7 @@ export const TimesForm = ({
         {" "}
         {children ? (
           children
-        ) : (
+        ) : noSubmit ? null : (
           <PrimaryButton
             isLoading={fetcher.state !== "idle"}
             className="w-full mt-auto"

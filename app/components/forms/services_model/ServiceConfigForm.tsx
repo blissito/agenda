@@ -1,59 +1,49 @@
-import { Form, useFetcher } from "@remix-run/react";
+import { Form, useFetcher } from "react-router";
 import { SwitchOption } from "./ServicePhotoForm";
 import { RadioButton } from "./ServiceTimesForm";
-import { ServiceFormFooter } from "./ServiceGeneralForm";
 import { useForm } from "react-hook-form";
-import { isValid, z } from "zod";
+import { isValid, z, ZodError } from "zod";
+import type { RefObject } from "react";
+
+export const corceBooleanSchema = z
+  .enum(["true", "false", "on"])
+  .optional()
+  .transform((value) => value === "true" || value === "on");
 
 const configSchema = z.object({
-  confirmation: z.boolean().default(true),
-  reminder: z.boolean().default(true),
-  survey: z.boolean().default(true),
+  confirmation: corceBooleanSchema,
+  reminder: corceBooleanSchema,
+  survey: corceBooleanSchema,
 });
 export const serviceConfigFormSchema = z.object({
   payment: z.string().transform((value) => value === "true"),
   config: configSchema,
 });
+export const ServerServiceConfigFormSchema = z.object({
+  payment: z.boolean(),
+  config: z.object({
+    confirmation: z.boolean(),
+    reminder: z.boolean(),
+    survey: z.boolean(),
+  }),
+});
 
 type ServiceConfigFormFields = z.infer<typeof serviceConfigFormSchema>;
-const initialConfigValues = {
-  payment: "false",
-  config: {
-    confirmation: true,
-    reminder: true,
-    survey: true,
-  },
-};
 export const ServiceConfigForm = ({
-  backButtonLink,
-  defaultValues = initialConfigValues,
+  formRef,
+  errors,
+  defaultValues = { payment: true, config: {} },
 }: {
-  backButtonLink?: string;
+  errors?: Record<string, ZodError>;
+  formRef?: RefObject<HTMLFormElement>;
   defaultValues?: ServiceConfigFormFields;
 }) => {
-  const fetcher = useFetcher();
-  const {
-    // getValues,
-    handleSubmit,
-    register,
-    formState: { errors },
-    setValue,
-  } = useForm({
-    defaultValues: {
-      ...defaultValues,
-      payment: defaultValues.payment === true ? "true" : "false", // @TODO: improve
-    },
+  const { register } = useForm({
+    defaultValues,
   });
-  // console.log("Default", defaultValues);
-  const onSubmit = (values: ServiceConfigFormFields) => {
-    fetcher.submit(
-      { data: JSON.stringify(values), intent: "update_service" },
-      { method: "post" }
-    );
-  };
-  // @TODO: fix switches
+
   return (
-    <Form onSubmit={handleSubmit(onSubmit)} className="mt-14">
+    <Form ref={formRef} className="mt-14">
       <div className="text-brand_gray">
         <p className="text-brand_dark font-satoMiddle">
           ¿En que horario ofrecerás este servicio?
@@ -70,44 +60,37 @@ export const ServiceConfigForm = ({
           value="false"
           label="  Después de agendar (tu cliente no necesita pagar para reservar, podrás cobrarle en el establecimiento)"
         />
-        <p className="text-red-500 text-xs">{errors.payment}</p>
-        <p className="mt-8 mb-3 text-brand_dark font-satoMiddle">
+        <p className="text-red-500 text-xs">{errors?.payment?.message}</p>
+        <p className="mt-8 mb-2 text-brand_dark font-satoMiddle">
           ¿Qué notificaciones quieres que enviemos a tus clientes?
         </p>
+        {errors?.config && <p className="text-xs text-red-500">Enciende una</p>}
         <SwitchOption
-          setValue={setValue}
-          defaultChecked={defaultValues.config.confirmation}
+          defaultChecked={defaultValues?.config.confirmation}
           register={register}
-          name="config.confirmation"
+          registerOptions={{ required: false }}
+          name="confirmation"
           title="Mail de confirmación"
           description="Lo enviaremos en cuanto se complete la reservación"
-          registerOptions={{ required: false }}
         />
         <SwitchOption
-          setValue={setValue}
-          defaultChecked={defaultValues.config.reminder}
+          defaultChecked={defaultValues?.config.reminder}
           register={register}
-          name="config.reminder"
+          name="reminder"
           title="Whats app de recordatorio"
           description="Lo enviaremos 4hrs antes de la sesión"
           registerOptions={{ required: false }}
         />
 
         <SwitchOption
-          setValue={setValue}
-          defaultChecked={defaultValues.config.survey}
+          defaultChecked={defaultValues?.config.survey}
           register={register}
-          name="config.survey"
+          name="survey"
           title="  Mail de evaluación"
           description="Lo enviaremos 10 min después de terminar la sesión"
           registerOptions={{ required: false }}
         />
       </div>
-      <ServiceFormFooter
-        isLoading={fetcher.state !== "idle"}
-        isDisabled={!isValid}
-        backButtonLink={backButtonLink}
-      />
     </Form>
   );
 };

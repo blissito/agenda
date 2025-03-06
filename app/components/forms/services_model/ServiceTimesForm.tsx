@@ -1,13 +1,12 @@
 import { twMerge } from "tailwind-merge";
-import { Option, SelectInput } from "../SelectInput";
+import { type Option, SelectInput } from "../SelectInput";
 import { useForm } from "react-hook-form";
-import { Form, useFetcher } from "@remix-run/react";
-import { ServiceFormFooter } from "./ServiceGeneralForm";
+import { Form, useFetcher } from "react-router";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
-import { WeekDaysType } from "../../../.server/form_handlers/aboutYourCompanyHandler";
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import { z } from "zod";
 import { TimesForm } from "../TimesForm";
+import type { WeekSchema } from "~/utils/zod_schemas";
 
 const tuple = z.array(z.array(z.string(), z.string())).optional();
 const weekDaysSchema = z.object({
@@ -62,9 +61,11 @@ const initialValues = {
 };
 export const ServiceTimesForm = ({
   defaultValues = initialValues,
-  backButtonLink,
+  onTimesChange,
+  formRef,
 }: {
-  backButtonLink?: string;
+  onTimesChange?: (t: WeekSchema) => void;
+  formRef?: RefObject<HTMLFormElement>;
   defaultValues: ServiceTimesFields;
 }) => {
   const fetcher = useFetcher();
@@ -102,7 +103,7 @@ export const ServiceTimesForm = ({
 
   return (
     <>
-      <Form onSubmit={handleSubmit(onSubmit)} className="mt-14">
+      <Form ref={formRef} className="mt-14">
         <SelectInput
           register={register}
           className="mt-8"
@@ -128,21 +129,16 @@ export const ServiceTimesForm = ({
             label="Un horario específico para este servicio"
           />
         </div>
-
-        <ServiceFormFooter
-          backButtonLink={backButtonLink}
-          isDisabled={!isValid}
-          isLoading={fetcher.state !== "idle"}
-        />
       </Form>
       {localWeekDays === "specific" && (
         <>
           <TimesForm
+            noSubmit
             org={{ weekDays: week }} // @TODO: hack, please improve
             submitButton={<></>}
             onChange={(data: WeekDaysType) => {
-              console.log("Data: ", data);
-              // clearErrors();
+              console.info("TIMES: ", data); // remove?
+              onTimesChange?.(data);
               const initialValues = {
                 lunes: [
                   ["09:00", "16:00"],
