@@ -3,17 +3,61 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { cn } from "~/utils/cn";
 import { SelectInput } from "../SelectInput";
 
+type Gap = [string, string];
+type Gaps = Gap[];
+type Week = {
+  lunes?: Gaps;
+  martes?: Gaps;
+  miércoles?: Gaps;
+  jueves?: Gaps;
+  viernes?: Gaps;
+  sábado?: Gaps;
+  domingo?: Gaps;
+};
+type DayName = "lunes" | "martes" | "miércoles" | "jueves" | "viernes";
+
 export const SimpleTimeSelector = () => {
+  const [week, setWeek] = useState<Week>({});
+  const handleDayChange = (dayName: DayName) => (gaps: Gaps) => {
+    const w = { ...week };
+    w[dayName] = gaps;
+    setWeek(w);
+  };
+
+  const handleRemove = (dayName: DayName) => () => {
+    const w = { ...week };
+    delete w[dayName];
+    setWeek(w);
+  };
+
+  // debug
+  useEffect(() => {
+    console.log("week: ", week);
+  }, [week]);
+
   return (
     <article className="my-3 rounded-xl bg-white shadow py-6 px-6 max-w-2xl mx-auto">
       <h3>Actualiza los días y horarios en los que ofreces servicio</h3>
-      <DaySelector dayName="Lunes" />
+      <DaySelector
+        onDeactivate={handleRemove("lunes")}
+        dayName="Lunes"
+        onChange={handleDayChange("lunes")}
+      />
     </article>
   );
 };
 
-const DaySelector = ({ dayName }: { dayName: string }) => {
-  const [gaps, setGaps] = useState<[string, string][]>([["09:00", "16:00"]]);
+const DaySelector = ({
+  dayName,
+  onChange,
+  onDeactivate,
+}: {
+  onChange?: (arg0: Gaps) => void;
+  dayName: string;
+  onDeactivate?: () => void;
+}) => {
+  const [isActive, setIsActive] = useState(false);
+  const [gaps, setGaps] = useState<Gaps>([["09:00", "16:00"]]);
   const handleChange = (index: number, gap: [string, string]) => {
     let gps = [...gaps];
     if (Array.isArray(gap) && gap[0] && gap[1]) {
@@ -22,17 +66,27 @@ const DaySelector = ({ dayName }: { dayName: string }) => {
       gps.splice(index, 1);
     }
     setGaps(gps);
+    isActive && onChange?.(gps);
+  };
+
+  const handleActivation = (bool: boolean) => {
+    if (bool) {
+      setIsActive(bool);
+      onChange?.(gaps);
+    } else {
+      onDeactivate?.();
+    }
   };
 
   // debug
   useEffect(() => {
-    console.log("Gaps: ", gaps);
+    // console.log("Gaps: ", gaps);
   }, [gaps]);
 
   return (
     <section className="flex items-center justify-evenly py-2">
       <h4>{dayName}</h4>
-      <SimpleSwitch />
+      <SimpleSwitch value={isActive} onChange={handleActivation} />
       <main className="">
         {gaps.map((gap, i) => (
           <Gap
@@ -65,9 +119,9 @@ const Gap = ({
 }: {
   onError?: () => void;
   gap: [string, string];
-  onChange?: (arg0: [string, string]) => void;
+  onChange?: (arg0: Gap) => void;
 }) => {
-  const [range, setRange] = useState<[string, string]>(["09:00", "16:00"]);
+  const [range, setRange] = useState<Gap>(["09:00", "16:00"]);
   const [error, setError] = useState<string | null>(null);
   const options = generateHours();
   const timeout = useRef<ReturnType<typeof setTimeout>>(null);
@@ -77,7 +131,7 @@ const Gap = ({
     let err = null;
     const n1 = Number(pair[0].split(":")[0]);
     const n2 = Number(pair[1].split(":")[0]);
-    console.log("Validating", n1, n2, n1 < n2);
+    // console.log("Validating", n1, n2, n1 < n2);
     const valid = n1 < n2;
     if (!valid) {
       err = "La hora final, no puede ser menor.";
@@ -86,15 +140,20 @@ const Gap = ({
     timeout.current = setTimeout(() => setError(null), 3000);
     return n1 < n2;
   };
+
+  const handleUpdate = (update: Gap) => {
+    if (isValid(update)) {
+      setRange(update);
+      onChange?.(update);
+    }
+  };
+
   const handleChange =
     (index: number) => (ev: ChangeEvent<HTMLSelectElement>) => {
       const val = ev.currentTarget.value;
       const update = [...range] as [string, string];
       update.splice(index, 1, val);
-      if (isValid(update)) {
-        setRange(update);
-        onChange?.(update);
-      }
+      handleUpdate(update);
     };
 
   return (
@@ -118,16 +177,32 @@ const Gap = ({
   );
 };
 
-const SimpleSwitch = ({ isDisabled, name }) => {
+export const SimpleSwitch = ({
+  isDisabled,
+  name,
+  value,
+  onChange,
+}: {
+  isDisabled?: boolean;
+  name?: string;
+  value?: boolean;
+  onChange?: (arg0: boolean) => void;
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isOn, setOn] = useState(false);
 
   const onClick = () => {
     setOn((o) => {
       inputRef.current!.checked = !o;
+      onChange?.(!o);
       return !o;
     });
   };
+
+  useEffect(() => {
+    setOn(value);
+  }, [value]);
+
   return (
     <button
       type="button"
