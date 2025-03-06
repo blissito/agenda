@@ -12,6 +12,7 @@ import type { Route } from "./+types";
 import { db } from "~/utils/db.server";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
+import type { Service } from "@prisma/client";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
@@ -59,8 +60,8 @@ export default function Services({ loaderData }: Route.ComponentProps) {
   }, []);
 
   const getLink = useCallback(
-    (serviceSlug: string) =>
-      `${origin.current}/agenda/${org.slug}/${serviceSlug}`,
+    (service: Service) =>
+      `${origin.current}/agenda/${org.slug}/${service.slug}`,
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [origin]
   );
@@ -84,8 +85,12 @@ export default function Services({ loaderData }: Route.ComponentProps) {
               duration={service.duration} // @TODO: format function this is minutes for now
               price={`${service.price} mxn`}
               status={service.isActive ? "Activo" : "Desactivado"}
-              link={getLink(service.slug)} // for copy link action
-              path={`/dash/servicios/${service.id}`}
+              link={getLink(service)} // for copy link action
+              path={
+                service.isActive
+                  ? `/dash/servicios/${service.id}`
+                  : `/dash/servicios/nuevo?id=${service.id}`
+              }
             />
           ))}
           {!!services.length && <AddService />}

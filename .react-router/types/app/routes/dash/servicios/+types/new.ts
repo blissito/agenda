@@ -1,18 +1,19 @@
 // React Router generated types for route:
-// routes/agenda.$orgSlug.$serviceSlug/route.tsx
+// routes/dash/servicios/new.tsx
 
 import type * as T from "react-router/route-module"
 
-import type { Info as Parent0 } from "../../../+types/root.js"
+import type { Info as Parent0 } from "../../../../+types/root.js"
+import type { Info as Parent1 } from "../../+types/dash_layout.js"
 
-type Module = typeof import("../route.js")
+type Module = typeof import("../new.js")
 
 export type Info = {
-  parents: [Parent0],
-  id: "routes/agenda.$orgSlug.$serviceSlug/route"
-  file: "routes/agenda.$orgSlug.$serviceSlug/route.tsx"
-  path: "a/:orgSlug/s/:serviceSlug"
-  params: {"orgSlug": string; "serviceSlug": string} & { [key: string]: string | undefined }
+  parents: [Parent0, Parent1],
+  id: "routes/dash/servicios/new"
+  file: "routes/dash/servicios/new.tsx"
+  path: "dash/servicios/nuevo"
+  params: {} & { [key: string]: string | undefined }
   module: Module
   loaderData: T.CreateLoaderData<Module>
   actionData: T.CreateActionData<Module>

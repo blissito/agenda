@@ -89,8 +89,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       {
         intent: "create_event",
         data: JSON.stringify({
-          start: new Date(date),
-          dateString: new Date(date).toLocaleString(),
+          start: new Date(date).toISOString(),
+          dateString: new Date(date).toISOString(),
           customer, // @todo: add logged user id
           duration: service.duration,
           serviceId: service.id,

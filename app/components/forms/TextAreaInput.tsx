@@ -23,7 +23,7 @@ export const TextAreaInput = ({
   ...props
 }: Props) => {
   return (
-    <>
+    <div>
       <label
         className={twMerge(" text-neutral-950 mb-1", className)}
         htmlFor={name}
@@ -34,6 +34,7 @@ export const TextAreaInput = ({
       <textarea
         placeholder={placeholder}
         className={twMerge(
+          "w-full",
           "focus:border-brand_blue h-20 font-satoshi text-brand_gray",
           "rounded-xl border-gray-200 h-20 placeholder:text-brand_iron",
           !!error && "border-red-500"
@@ -44,6 +45,6 @@ export const TextAreaInput = ({
       />
 
       {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
-    </>
+    </div>
   );
 };

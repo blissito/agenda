@@ -27,7 +27,9 @@ export default function TemplateOne({
   services = [],
   isPublic,
   org = {},
+  link,
 }: {
+  link?: string;
   isPublic?: boolean;
   services?: Service[];
   org?: Org;

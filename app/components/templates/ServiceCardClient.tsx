@@ -9,7 +9,7 @@ export const ServiceCardClient = ({
   image,
   duration,
   price,
-  link,
+  link = "",
   serviceSlug,
   slug,
 }: {
@@ -21,16 +21,6 @@ export const ServiceCardClient = ({
   link?: string;
   serviceSlug?: string;
 }) => {
-  // lets try with an api endpoint...
-  const fetcher = useFetcher();
-  const [show, setShow] = useState(false);
-  const ref = useClickOutside<HTMLDivElement>({
-    onOutsideClick: () => {
-      setShow(false);
-    },
-    isActive: show,
-    includeEscape: true, // captures [Esc] key press
-  });
   const origin = useRef<string>("");
 
   useEffect(() => {
@@ -49,7 +39,7 @@ export const ServiceCardClient = ({
       exit={{ opacity: 0, y: -5 }}
       className="relative group"
     >
-      <Link to={link ? link : "/dash/servicios"} className="group ">
+      <Link to={link} className="group ">
         <section className="bg-white border-[1px] border-[#EFEFEF] rounded-2xl overflow-hidden hover:scale-95 transition-all cursor-pointer">
           <img
             alt="cover"

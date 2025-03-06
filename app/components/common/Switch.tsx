@@ -14,6 +14,7 @@ export const Switch = forwardRef(
       label,
       backgroundColor,
       className,
+      containerClassName,
       setValue,
       defaultChecked = false,
       name,
@@ -34,6 +35,7 @@ export const Switch = forwardRef(
       ) => Record<string, string>;
       setValue?: (arg0: string, arg1: boolean) => void; // @TODO: fix
       className?: string;
+      containerClassName?: string;
       backgroundColor?: string;
       label?: string;
       defaultChecked?: boolean;
@@ -52,8 +54,8 @@ export const Switch = forwardRef(
           type="button"
           className={cn(
             "flex items-center gap-4 justify-between",
-            "mb-6",
-            "cursor-pointer"
+            "cursor-pointer",
+            containerClassName
           )}
         >
           <div className="grid">

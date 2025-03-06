@@ -21,6 +21,7 @@ export default [
       route("onboarding", "routes/dash/dash.onboarding.tsx"),
       ...prefix("servicios", [
         index("routes/dash/servicios/index.tsx"),
+        route("nuevo", "routes/dash/servicios/new.tsx"),
         route(
           ":serviceId",
           "routes/dash/servicios/dash.servicios_.$serviceId.tsx"
@@ -63,7 +64,7 @@ export default [
   ...prefix("stripe", [index("routes/stripe/api.ts")]),
   // Public
   route(
-    "agenda/:orgSlug/services/:serviceSlug",
+    "a/:orgSlug/s/:serviceSlug",
     "routes/agenda.$orgSlug.$serviceSlug/route.tsx"
   ),
   route("a/:orgSlug", "routes/clientwebsite.tsx"),

@@ -8,7 +8,7 @@ import { type FieldValues, useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
 import { type Org } from "@prisma/client";
 
-const OPTIONS = [
+export const OPTIONS = [
   "barbería",
   "estética",
   "centro deportivo",

@@ -77,7 +77,7 @@ model Service {
   // status
   paid          Boolean       @default(false)
   place         Place         @default(INPLACE)
-  isActive      Boolean       @default(true)
+  isActive      Boolean       @default(false)
   archived      Boolean       @default(false)
   allowMultiple Boolean       @default(false)
   limit         Json?         @default("{\"bookings\":6,\"per\":\"day\"}") // @json because I'm still figuringt it out

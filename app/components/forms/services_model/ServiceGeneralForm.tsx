@@ -1,19 +1,18 @@
-import { Form, useFetcher } from "react-router";
-import { useForm } from "react-hook-form";
+import { Form } from "react-router";
+import { useForm, type FieldError } from "react-hook-form";
 import { z } from "zod";
 import { BasicInput } from "../BasicInput";
 import { TextAreaInput } from "../TextAreaInput";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { FaArrowLeftLong } from "react-icons/fa6";
+import type { RefObject } from "react";
 
 // Type stuff
 export const generalFormSchema = z.object({
-  name: z.string(),
-  price: z.coerce.number(), // @TODO: min and implications 🙂
+  name: z.string().min(1),
+  price: z.coerce.number().min(1), // @TODO: min and implications 🙂
   points: z.coerce.number().optional(),
-  description: z.string(),
+  description: z.string().min(5),
 });
-type GeneralFormFields = z.infer<typeof generalFormSchema>;
+export type GeneralFormFields = z.infer<typeof generalFormSchema>;
 const initialValues: GeneralFormFields = {
   name: "",
   price: Infinity,
@@ -27,43 +26,55 @@ const initialValues: GeneralFormFields = {
  */
 export const ServiceGeneralForm = ({
   defaultValues = initialValues,
+  onSubmit,
+  formRef,
+  errors = {},
 }: {
+  errors?: Record<string, FieldError>;
+  formRef?: RefObject<HTMLFormElement | null>;
+  onSubmit?: (values: GeneralFormFields) => {};
   defaultValues?: GeneralFormFields;
 }) => {
   const {
     handleSubmit,
     register,
-    formState: { errors, isValid },
+    formState: { isValid },
   } = useForm({
     defaultValues,
   });
-  const fetcher = useFetcher();
-
-  const onSubmit = (values: GeneralFormFields) => {
-    generalFormSchema.parse(values);
-    fetcher.submit({ ...values, intent: "general_form" }, { method: "post" });
+  const submit = (values: GeneralFormFields) => {
+    const parsedVals = generalFormSchema.parse(values) as GeneralFormFields; // revisit
+    // fetcher.submit({ ...values, intent: "general_form" }, { method: "post" });
+    onSubmit?.(parsedVals);
   };
 
   return (
     <Form
-      onSubmit={handleSubmit(onSubmit)}
+      ref={formRef}
+      onSubmit={handleSubmit(submit)}
       method="post"
-      className="flex flex-col mx-auto max-w-xl  mt-14"
+      className="flex flex-col gap-4"
     >
-      <BasicInput
-        error={errors.name}
-        register={register}
-        label="Nombre del servicio"
-        name="name"
-      />
-      <BasicInput // @TODO_BRENDI: improve to a Money input
-        error={errors.price}
-        register={register}
-        placeholder="$0.00"
-        label="Precio"
-        name="price"
-        type="number"
-      />
+      <div className="flex gap-6">
+        <BasicInput
+          error={errors.name}
+          register={register}
+          label="Nombre del servicio"
+          name="name"
+        />
+        <BasicInput // @TODO_BRENDI: improve to a Money input
+          error={errors.price}
+          register={register}
+          placeholder="$0.00"
+          label="Precio"
+          name="price"
+          type="number"
+        />
+      </div>
+      {/* <SelectInput
+        label="Categoría"
+        options={OPTIONS.map((o) => ({ value: o, title: o }))}
+      /> */}
       <BasicInput
         error={errors.points}
         registerOptions={{ required: false }}
@@ -79,35 +90,6 @@ export const ServiceGeneralForm = ({
         label="Descripción"
         name="description"
       />
-      <ServiceFormFooter
-        isLoading={fetcher.state !== "idle"}
-        isDisabled={!isValid}
-      />
     </Form>
   );
 };
-
-export const ServiceFormFooter = ({
-  isDisabled,
-  isLoading,
-  backButtonLink = "/dash/servicios",
-}: {
-  backButtonLink?: string;
-  isLoading?: boolean;
-  isDisabled?: boolean;
-}) => (
-  <div className="items-center px-4 w-full max-w-[36rem] flex justify-between fixed bottom-8 bg-white z-10">
-    <PrimaryButton
-      type="button"
-      className="bg-transparent text-brand_dark font-satoMiddle flex gap-2 items-center group transition-all"
-      as="Link"
-      to={backButtonLink}
-    >
-      <FaArrowLeftLong />
-      <span className="group-hover:ml-1 transition-all">Volver</span>
-    </PrimaryButton>
-    <PrimaryButton isDisabled={isDisabled} isLoading={isLoading} type="submit">
-      Continuar
-    </PrimaryButton>
-  </div>
-);

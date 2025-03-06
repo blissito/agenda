@@ -17,7 +17,8 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
 export default function Index({ loaderData: org }: Route.ComponentProps) {
   return org.websiteConfig?.template === "defaultTemplate" ? (
-    <TemplateOne org={org} services={org.services} />
+    // @Todo check links in one
+    <TemplateOne org={org} services={org.services} link={""} />
   ) : (
     <TemplateTwo org={org} services={org.services} />
   );

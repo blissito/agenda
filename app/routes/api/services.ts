@@ -2,6 +2,10 @@ import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
 import type { Route } from "./+types/services";
 import type { Service } from "@prisma/client";
+import { generalFormSchema } from "~/components/forms/services_model/ServiceGeneralForm";
+import slugify from "slugify";
+import { nanoid } from "nanoid";
+import { serverServicePhotoFormSchema } from "~/components/forms/services_model/ServicePhotoForm";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
@@ -12,6 +16,43 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const { id } = data;
     delete data.id;
     await db.service.update({ where: { id }, data });
+  }
+  //67c90587bd7089263a5cf40b
+
+  if (intent === "photo_form") {
+    const {
+      success,
+      data: parsedData,
+      error,
+    } = serverServicePhotoFormSchema.safeParse(data);
+    if (!success) throw new Response("Error in form fields", { status: 400 });
+
+    await db.service.update({
+      where: { id: data.id },
+      // @ts-ignore
+      data: parsedData,
+    });
+    return { id: data.id, nextIndex: 2 };
+  }
+
+  if (intent === "general_form") {
+    const {
+      success,
+      error,
+      data: parsedData,
+    } = generalFormSchema.safeParse(data);
+    if (!success) throw new Response("Error in form fields", { status: 400 });
+
+    const { org } = await getUserAndOrgOrRedirect(request);
+    const newService = await db.service.create({
+      data: {
+        ...parsedData,
+        orgId: org.id,
+        slug: slugify(parsedData.name + "_" + nanoid(4)),
+      },
+    });
+    // throw redirect("/dash/servicios/nuevo?id=" + newService.id);
+    return new Response(JSON.stringify({ id: newService.id, nextIndex: 1 }));
   }
 
   return null;

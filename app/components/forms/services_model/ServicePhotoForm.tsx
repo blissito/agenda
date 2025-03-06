@@ -1,24 +1,41 @@
-import { FieldValues, useForm, UseFormRegister } from "react-hook-form";
+import {
+  type FieldValues,
+  useForm,
+  type UseFormRegister,
+} from "react-hook-form";
 import { InputFile } from "../InputFile";
 import { AddImage } from "~/components/icons/addImage";
-import { Option, SelectInput } from "../SelectInput";
-import { ServiceFormFooter } from "./ServiceGeneralForm";
-import { isValid, z } from "zod";
-import { Form, useFetcher } from "@remix-run/react";
+import { type Option, SelectInput } from "../SelectInput";
+import { z, ZodError } from "zod";
+import { Form, useFetcher } from "react-router";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 import { Switch } from "~/components/common/Switch";
+import { cn } from "~/utils/cn";
+import type { RefObject } from "react";
+
+export const serverServicePhotoFormSchema = z.object({
+  photoURL: z.string().optional(),
+  place: z.string(),
+  allowMultiple: z.boolean().optional(),
+  isActive: z.boolean().optional(),
+  // seats: z.coerce.number(), // @TODO update in other place?
+});
 
 export const servicePhotoFormSchema = z.object({
   photoURL: z.string().optional(),
   place: z.string(),
   allowMultiple: z
     .enum(["true", "false"])
+    .optional()
     .transform((value) => value === "true"),
-  isActive: z.enum(["true", "false"]).transform((value) => value === "true"),
+  isActive: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((value) => value === "true"),
   // seats: z.coerce.number(), // @TODO update in other place?
 });
 
-type ServicePhotoFormFields = z.infer<typeof ServicePhotoFormFields>;
+type ServicePhotoFormFields = z.infer<typeof servicePhotoFormSchema>;
 
 const OPTIONS: Option[] = [
   {
@@ -44,22 +61,23 @@ const initialPhotoValues = {
 };
 export const ServicePhotoForm = ({
   action,
+  formRef,
   defaultValues = initialPhotoValues,
-  backButtonLink,
+  errors = {},
 }: {
+  formRef?: RefObject<HTMLFormElement | null>;
   action?: string;
-  backButtonLink?: string;
+  errors?: ZodError[];
   defaultValues?: ServicePhotoFormFields;
 }) => {
   const fetcher = useFetcher();
   const {
-    // getValues,
     handleSubmit,
     register,
-    formState: { errors },
+    // formState: { errors },
     setValue,
   } = useForm({
-    defaultValues: { ...defaultValues, photoURL: action.readUrl },
+    defaultValues: { ...defaultValues, photoURL: action?.readUrl },
   });
 
   const onSubmit = (values: ServicePhotoFormFields) => {
@@ -72,10 +90,10 @@ export const ServicePhotoForm = ({
     );
   };
 
-  // console.log("Defaults: ", defaultValues);
+  console.log("ERRORS: ", errors);
 
   return (
-    <Form onSubmit={handleSubmit(onSubmit)} className="mt-14 ">
+    <Form ref={formRef}>
       <InputFile // @TODO: this should contain an input with string value coming from upload
         action={action}
         name="photoURL"
@@ -83,6 +101,7 @@ export const ServicePhotoForm = ({
         description="  Carga 1 imagen de tu servicio. Te recomendamos que tenga un aspect ratio 16:9 y un peso máximo de 1MB."
         register={register}
         registerOptions={{ required: false }}
+        accept="image/*"
       >
         <AddImage className="mx-auto mb-3" />
         <span className="font-satoshi">
@@ -108,6 +127,7 @@ export const ServicePhotoForm = ({
         title="Permitir que este servicio se agende en línea"
       />
       <SwitchOption
+        isDisabled // @todo implent two or more
         setValue={setValue}
         defaultChecked={defaultValues.allowMultiple}
         registerOptions={{ required: false }}
@@ -121,11 +141,6 @@ export const ServicePhotoForm = ({
         name="seats"
         type="number"
       /> */}
-      <ServiceFormFooter
-        backButtonLink={backButtonLink}
-        isDisabled={!isValid}
-        isLoading={fetcher.state !== "idle"}
-      />
     </Form>
   );
 };
@@ -133,6 +148,7 @@ export const ServicePhotoForm = ({
 // @TODO: Swith props pending
 export const SwitchOption = ({
   title,
+  isDisabled,
   description,
   register,
   name,
@@ -140,6 +156,7 @@ export const SwitchOption = ({
   setValue,
   defaultChecked,
 }: {
+  isDisabled?: boolean;
   defaultChecked?: boolean;
   setValue?: () => void; // @todo: fix
   name: string;
@@ -151,10 +168,17 @@ export const SwitchOption = ({
   return (
     <article className="flex justify-between items-center w-full mb-6">
       <div className="flex flex-col justify-center">
-        <p className="text-brand_dark font-satoMiddle">{title}</p>
+        <p
+          className={cn("text-brand_dark font-satoMiddle", {
+            "text-gray-300": isDisabled,
+          })}
+        >
+          {title}
+        </p>
         <p>{description}</p>
       </div>
       <Switch
+        containerClassName={isDisabled ? "pointer-events-none" : ""}
         defaultChecked={defaultChecked}
         setValue={setValue}
         name={name}
