@@ -51,9 +51,15 @@ export const EventForm = ({
   const fetcher = useFetcher();
   const oneMoreHour = new Date(defaultValues.start as Date);
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
+
+  // Pre-populate start and end hours from the clicked date/time
+  const startDate = new Date(defaultValues.start as Date);
+  const endDate = new Date(startDate);
+  endDate.setHours(startDate.getHours() + 1); // Default to 1 hour duration
+
   const {
     register,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, isValid },
     getValues,
     setValue,
     setError,
@@ -64,6 +70,8 @@ export const EventForm = ({
       ...defaultValues,
       start: formatDate(defaultValues.start as Date),
       end: defaultValues.end ? formatDate(defaultValues.end as Date) : "",
+      startHour: formatHour(startDate),
+      endHour: formatHour(endDate),
     },
   });
 

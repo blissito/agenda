@@ -8,7 +8,7 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
   const {
     handleSubmit,
     register,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     defaultValues: {
       displayName: "",
@@ -70,9 +70,7 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
         isLoading={fetcher.state !== "idle"}
         isDisabled={!isValid}
         type="submit"
-        // isDisabled={!isValid}
-        // onClick={onSubmit}
-        className=" ml-auto mr-6 mb-6 mt-14 hover:shadow-md"
+        className="ml-auto mr-6 mb-6 mt-14 hover:shadow-md"
       >
         Guardar
       </PrimaryButton>

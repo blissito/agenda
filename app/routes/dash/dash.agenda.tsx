@@ -59,6 +59,19 @@ export const action = async ({ request }: Route.ActionArgs) => {
     throw redirect("/dash/agenda?success=1");
   }
 
+  if (intent === "move_event") {
+    const eventId = formData.get("eventId") as string;
+    const newStart = formData.get("newStart") as string;
+
+    // Update the event's start time
+    await db.event.update({
+      where: { id: eventId },
+      data: { start: new Date(newStart) },
+    });
+
+    return { success: true };
+  }
+
   if (intent === "fetch_week") {
     const { org } = await getUserAndOrgOrRedirect(request);
     const orgServices = await db.service.findMany({
@@ -176,6 +189,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setEditableEvent({ start: date });
   };
 
+  // Optimistic update when moving events via drag & drop
+  const handleEventMove = (eventId: string, newStart: Date) => {
+    setWeekEvents((prevEvents) =>
+      prevEvents.map((event) =>
+        event.id === eventId ? { ...event, start: newStart } : event
+      )
+    );
+  };
+
   const [showNewClientDrawer, setShowNewClientDrawer] = useState(false);
   const handleNewClientClick = () => {
     setShowNewClientDrawer(true);
@@ -191,6 +213,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         events={weekEvents}
         date={week[0]}
         onEventClick={handleEventClick}
+        onEventMove={handleEventMove}
       />
       <EventFormDrawer
         services={services}

@@ -68,6 +68,7 @@ export type WeekDaysOrg = z.infer<typeof weekDaysOrgSchema>;
 //MODELS
 // Event
 export const newEventSchema = z.object({
+  id: z.string().optional(), // Allow id for updates
   start: z.coerce.date(),
   end: z.coerce.date(),
   customerId: z.string().min(1),

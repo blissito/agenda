@@ -22,16 +22,33 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "update") {
     const eventId = url.searchParams.get("eventId") as string;
     const data: Event = JSON.parse(formData.get("data") as string);
+
+    // Validate with schema
+    const validData = newEventSchema.parse(data);
+
     const customer = await db.customer.findUnique({
-      where: { id: data.customerId as string },
+      where: { id: validData.customerId as string },
       select: { displayName: true },
     });
     invariant(customer);
+
+    // Only update allowed fields
     const updatedEvent = await db.event.update({
       where: {
         id: eventId,
       },
-      data: { ...data, title: customer.displayName as string },
+      data: {
+        start: validData.start,
+        end: validData.end,
+        duration: validData.duration,
+        customerId: validData.customerId,
+        employeeId: validData.employeeId,
+        serviceId: validData.serviceId,
+        paid: validData.paid,
+        payment_method: validData.payment_method,
+        notes: validData.notes,
+        title: customer.displayName as string,
+      },
     });
     return updatedEvent;
   }
