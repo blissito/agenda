@@ -1,4 +1,4 @@
-import { useScroll, useSpring, useTransform, useVelocity } from "framer-motion";
+import { useScroll, useSpring, useTransform, useVelocity } from "motion/react";
 
 export const useScrollVelocityFactor = (
   mode: "fast" | "normal" | "slow" = "fast"

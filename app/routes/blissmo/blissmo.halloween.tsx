@@ -1,5 +1,5 @@
 import { defaultImages } from "~/components/animated/SimpleGallery";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
 export default function Route() {

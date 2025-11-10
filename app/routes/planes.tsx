@@ -7,7 +7,7 @@ import { PrimaryButton } from "~/components/common/primaryButton";
 import { type ReactNode, Suspense, useEffect, useState } from "react";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { Lamp } from "~/components/icons/lamp";
-import { AnimatePresence, easeOut, motion } from "framer-motion";
+import { AnimatePresence, easeOut, motion } from "motion/react";
 import { Bubble } from "~/components/icons/Bubble";
 import { ArrowCollapse } from "~/components/icons/arrowCollapse";
 import { HoverEffect } from "~/components/common/CardHoverEffect";

@@ -2,7 +2,7 @@ import { type ReactNode, useState } from "react";
 import { FaClock } from "react-icons/fa";
 import { type Org, type Service } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { nanoid } from "nanoid";
 import {
   from12To24,

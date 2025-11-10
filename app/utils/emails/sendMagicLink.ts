@@ -1,16 +1,6 @@
 import { generateUserToken } from "../tokens";
 import magicLinkTemplate from "./magicLinkTemplate";
-import nodemailer from "nodemailer";
-
-// create transporter
-export const sendgridTransport = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 465,
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_KEY,
-  },
-});
+import { getSesTransport, getRemitent } from "./ses";
 
 export const sendMagicLink = async (
   email: string,
@@ -22,12 +12,14 @@ export const sendMagicLink = async (
   const url = new URL(uri);
   url.pathname = "/signin";
   url.searchParams.set("token", token);
-  //   return;
-  return sendgridTransport
+
+  const sesTransport = getSesTransport();
+
+  return sesTransport
     .sendMail({
-      from: "hola@formmy.app",
+      from: getRemitent(),
       subject: subject || "🗓️ Inicia sesión en Denik.me",
-      bcc: [email],
+      to: email,
       html: magicLinkTemplate({ link: url.toString() }),
     })
     .then((r: unknown) => {

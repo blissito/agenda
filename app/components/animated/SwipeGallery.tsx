@@ -5,7 +5,7 @@ import {
   useMotionValue,
   useSpring,
   useTransform,
-} from "framer-motion";
+} from "motion/react";
 import { Children, type ReactNode, useState } from "react";
 
 export const SwipeGallery = ({ children }: { children?: ReactNode }) => {

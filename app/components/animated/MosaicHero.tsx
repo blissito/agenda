@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import { type MouseEvent, type ReactNode, useEffect, useState } from "react";
 
 export const MosaicHero = ({ children }: { children?: ReactNode }) => {

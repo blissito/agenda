@@ -124,7 +124,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   const {
-    formState: { isValid, errors },
+    formState: { errors },
     setError,
     handleSubmit,
     register,

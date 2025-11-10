@@ -1,4 +1,4 @@
-import { useMotionValue } from "framer-motion";
+import { useMotionValue } from "motion/react";
 import { useRef, useState } from "react";
 
 export const useMousePosition = () => {

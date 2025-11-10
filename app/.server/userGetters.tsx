@@ -1,10 +1,8 @@
 import { type Event, type Org, Prisma, type User } from "@prisma/client";
-import { randomUUID } from "crypto";
 import { redirect } from "react-router";
 import type { ZodSchema } from "zod";
 import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
-import { type FirebaseUserData } from "~/utils/lib/firebase";
 import { validateUserToken } from "~/utils/tokens";
 import {
   signup1Schema,
@@ -39,17 +37,6 @@ export const getUserOrNull = async (request: Request): Promise<User | null> => {
   });
   if (!user) return null;
   return user;
-};
-
-// @TODO: validate accessToken
-export const getOrCreateUser = async (firebaseUserData: FirebaseUserData) => {
-  return await db.user.upsert({
-    where: {
-      email: firebaseUserData.email,
-    },
-    create: firebaseUserData,
-    update: firebaseUserData,
-  });
 };
 
 const ADMINS = ["fixtergeek@gmail.com", "bremin11.20.93@gmail.com"];

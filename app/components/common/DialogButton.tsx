@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import React, { type ReactNode, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { cn } from "~/utils/cn";
 
 export const DialogButton = ({

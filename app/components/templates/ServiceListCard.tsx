@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Link, useFetcher } from "react-router";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { useCallback, useEffect, useRef, useState } from "react";

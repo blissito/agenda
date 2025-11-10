@@ -8,7 +8,7 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
   const {
     handleSubmit,
     register,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm({
     defaultValues: {
       displayName: "",

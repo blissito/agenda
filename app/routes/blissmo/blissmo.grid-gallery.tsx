@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { createPortal } from "react-dom";
 
 export default function Page() {

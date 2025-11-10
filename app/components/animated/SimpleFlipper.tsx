@@ -1,5 +1,5 @@
 import { Children, type ReactNode, useRef, useState } from "react";
-import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
+import { motion, useAnimationFrame, useMotionValue } from "motion/react";
 
 export const SimpleFlipper = ({ children }: { children?: ReactNode }) => {
   const items = Children.toArray(children);

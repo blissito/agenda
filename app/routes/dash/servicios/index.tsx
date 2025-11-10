@@ -1,5 +1,5 @@
 import { Outlet, redirect, useFetcher, useLoaderData } from "react-router";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { useCallback, useEffect, useRef } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import {

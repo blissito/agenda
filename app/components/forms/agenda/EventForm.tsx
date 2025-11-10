@@ -53,7 +53,7 @@ export const EventForm = ({
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
   const {
     register,
-    formState: { isValid, errors, isDirty },
+    formState: { errors, isDirty },
     getValues,
     setValue,
     setError,

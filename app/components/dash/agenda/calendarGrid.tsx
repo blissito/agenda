@@ -14,7 +14,7 @@ import {
   useCoordinates,
 } from "~/components/hooks/useCoordinates";
 // animation stuff
-import { motion, useDragControls, useMotionValue } from "framer-motion";
+import { motion, useDragControls, useMotionValue } from "motion/react";
 
 type Rect = {
   x: number;

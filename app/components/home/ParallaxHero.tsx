@@ -1,5 +1,5 @@
-import { motion, useTransform, useScroll } from "framer-motion";
-import { Children, createRef, type ReactNode } from "react";
+import { motion, useTransform, useScroll } from "motion/react";
+import { Children, useRef, type ReactNode } from "react";
 
 //**********************************This is Still a Work in progress */
 
@@ -9,7 +9,7 @@ export const ParallaxHero = ({ children }: { children: ReactNode }) => {
 
   const hero = Children.toArray(children)[0];
   const section = Children.toArray(children)[1];
-  const target = createRef<HTMLDivElement>();
+  const target = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     offset: ["start start", "end start"], // 1. 0 end start, 1 when start start
     target,

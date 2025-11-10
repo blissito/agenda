@@ -7,7 +7,7 @@ import {
   useMotionTemplate,
   useMotionValue,
   useSpring,
-} from "framer-motion";
+} from "motion/react";
 import { FeaturesList } from "~/components/icons/cathegories/featuresList";
 import { Graduate } from "~/components/icons/cathegories/graduate";
 

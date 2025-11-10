@@ -5,7 +5,7 @@ import {
   useTransform,
   motion,
   MotionValue,
-} from "framer-motion";
+} from "motion/react";
 import { Children, type ReactNode, useRef } from "react";
 import { cn } from "~/utils/cn";
 

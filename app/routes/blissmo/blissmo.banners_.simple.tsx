@@ -7,7 +7,7 @@ import {
   useTransform,
   useVelocity,
   useSpring,
-} from "framer-motion";
+} from "motion/react";
 import { type ReactNode, useRef } from "react";
 import { twMerge } from "tailwind-merge";
 

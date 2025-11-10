@@ -7,7 +7,7 @@ import {
 } from "react";
 import { twMerge } from "tailwind-merge";
 import { getCoord } from "~/components/dash/agenda/agendaUtils";
-import { motion, Point } from "framer-motion";
+import { motion, Point } from "motion/react";
 
 // @TODO Allow multiple in same cell
 export type CellData = {

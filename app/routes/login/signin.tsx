@@ -2,60 +2,28 @@ import {
   Form,
   redirect,
   useActionData,
-  useFetcher,
   useLoaderData,
   useNavigation,
 } from "react-router";
-import { type ReactNode, useState } from "react";
-import { twMerge } from "tailwind-merge";
 import { z } from "zod";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import { PrimaryButton } from "~/components/common/primaryButton";
-import { Spinner } from "~/components/common/Spinner";
 import { TopBar } from "~/components/common/topBar";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import {
-  getOrCreateUser,
   handleMagicLinkLogin,
   redirectIfUser,
 } from "~/.server/userGetters";
-import { commitSession, destroySession, getSession } from "~/sessions";
+import { destroySession, getSession } from "~/sessions";
 import { cn } from "~/utils/cn";
 import { sendMagicLink } from "~/utils/emails/sendMagicLink";
-import {
-  type FirebaseUserData,
-  startGoogleLogin,
-  startMicrosoftLogin,
-} from "~/utils/lib/firebase";
 import type { Route } from "./+types/signin";
-
-export const MICROSOFT_BRAND_NAME = "microsoft";
-export const GOOGLE_BRAND_NAME = "google";
-const REDIRECT_AFTER_LOGIN = "/dash";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
-  const session = await getSession(request.headers.get("Cookie"));
-  console.log("SIGNIN_INTENT ::: ", intent);
 
-  if (intent === MICROSOFT_BRAND_NAME) {
-    const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
-    const user = await getOrCreateUser(data);
-    session.set("userId", user.id); // @TODO: move this to a reusable function
-    return redirect(REDIRECT_AFTER_LOGIN, {
-      headers: { "Set-Cookie": await commitSession(session) },
-    });
-  }
-  if (intent === GOOGLE_BRAND_NAME) {
-    const data = JSON.parse(formData.get("data") as string) as FirebaseUserData;
-    const user = await getOrCreateUser(data);
-    session.set("userId", user.id); // @TODO: move this to a reusable function
-    throw redirect(REDIRECT_AFTER_LOGIN, {
-      headers: { "Set-Cookie": await commitSession(session) },
-    });
-  }
   if (intent === "magic_link") {
     const email = formData.get("email");
     const emailSchema = z.string().email();
@@ -69,9 +37,8 @@ export const action = async ({ request }: Route.ActionArgs) => {
     // send email
     await sendMagicLink(email as string, request.url);
     return { success: true };
-  } // sending actionData
+  }
 
-  console.log("SIGNIN_INTENT ::: ", "Not successful", null);
   return null;
 };
 
@@ -101,54 +68,6 @@ export default function Page() {
   const navigation = useNavigation();
   const loaderData = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
-  const fetcher = useFetcher<typeof action>();
-  const [provider, setProvider] = useState(GOOGLE_BRAND_NAME);
-
-  const handleMicrosoft = async () => {
-    setProvider(MICROSOFT_BRAND_NAME);
-    const resutl = await startMicrosoftLogin();
-    const userData = {
-      ...resutl.user.providerData[0],
-    };
-    fetcher.submit(
-      { data: JSON.stringify(userData), intent: MICROSOFT_BRAND_NAME },
-      { method: "post" }
-    );
-    console.log("Client ok=>", userData);
-  };
-
-  const handleGoogle = async () => {
-    setProvider(GOOGLE_BRAND_NAME);
-    const {
-      user: {
-        accessToken,
-        uid,
-        email,
-        displayName,
-        phoneNumber,
-        emailVerified,
-        providerId,
-        photoURL,
-      },
-    } = await startGoogleLogin();
-
-    const userData = {
-      accessToken,
-      uid,
-      email,
-      displayName,
-      phoneNumber,
-      emailVerified,
-      providerId,
-      photoURL,
-    };
-    fetcher.submit(
-      { data: JSON.stringify(userData), intent: GOOGLE_BRAND_NAME },
-      { method: "post" }
-    );
-  };
-
-  const isLoading = fetcher.state !== "idle";
 
   if (actionData?.success) {
     // success screen (magic link)
@@ -197,36 +116,11 @@ export default function Page() {
         src="/images/denik-markwater.png"
       />
       <TopBar />
-      {fetcher.data && (
-        <section>
-          <img alt="avatar" src={fetcher.data.photoURL} />
-        </section>
-      )}
       <section className="flex justify-center items-center h-screen flex-col gap-6 w-[90%]  md:max-w-sm mx-auto z-50">
         <h1 className="text-xl font-semibold mb-4">
           Inicia sesión o crea una cuenta
         </h1>
 
-        <LoginButton
-          onClick={handleGoogle}
-          isLoading={provider === GOOGLE_BRAND_NAME && isLoading}
-          spinner={<Spinner />}
-        >
-          <img alt="microsoft logo" src="/images/logos/google.svg" />
-          <span className="font-medium text-xs">Continua con Gmail</span>
-        </LoginButton>
-
-        <LoginButton
-          spinner={<Spinner />}
-          isLoading={provider === MICROSOFT_BRAND_NAME && isLoading}
-          onClick={handleMicrosoft}
-          type="button"
-          intent="microsoft"
-        >
-          <img alt="microsoft logo" src="/images/logos/microsoft.svg" />
-          <span className="font-medium text-xs">Continua con Microsoft</span>
-        </LoginButton>
-        <hr className="bg-brand_stroke  mt-2 h-[1px] w-full border-none" />
         <Form className="w-full" method="post">
           <BasicInput
             placeholder="ejemplo@gmail.com"
@@ -250,38 +144,3 @@ export default function Page() {
     </section>
   );
 }
-
-const LoginButton = ({
-  intent,
-  spinner,
-  isLoading,
-  children,
-  ...props
-}: {
-  spinner?: ReactNode;
-  children?: ReactNode;
-  isLoading?: boolean;
-  intent?: typeof GOOGLE_BRAND_NAME | typeof MICROSOFT_BRAND_NAME;
-  [x: string]: unknown;
-}) => {
-  return (
-    <button
-      disabled={isLoading}
-      type="submit"
-      name="intent"
-      value={intent}
-      className={twMerge(
-        "transition-all flex gap-4 items-center justify-center w-full rounded-full border active:bg-transparent hover:shadow-sm active:translate-y-[1px] h-12",
-        isLoading && "pointer-events-none bg-gray-50 border-gray-100"
-      )}
-      {...props}
-    >
-      {isLoading && spinner
-        ? spinner
-        : isLoading && (
-            <div className="h-6 w-6 rounded-full border-4 animate-spin border-brand_blue border-l-brand_light_gray" />
-          )}
-      {!isLoading && children}
-    </button>
-  );
-};

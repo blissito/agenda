@@ -3,7 +3,7 @@ import { Switch } from "./Switch";
 import { PrimaryButton } from "../common/primaryButton";
 import { useForm } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { type ReactNode, useEffect, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
@@ -72,7 +72,7 @@ export const TimesForm = ({
     setValue,
     getValues,
     setError,
-    formState: { isValid, errors },
+    formState: { errors },
     handleSubmit,
   } = useForm({
     defaultValues: {

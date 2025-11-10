@@ -1,4 +1,4 @@
-import { motion, useAnimationControls } from "framer-motion";
+import { motion, useAnimationControls } from "motion/react";
 import { Children, type ReactNode, useEffect, useRef, useState } from "react";
 
 export const BetterFlipper = ({ children }: { children?: ReactNode }) => {

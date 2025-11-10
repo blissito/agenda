@@ -1,17 +1,8 @@
-import nodemailer from "nodemailer";
 import appointmentCustomerTemplate from "./appointmentCustomerTemplate";
-import { Event, Org, Service, User } from "@prisma/client";
+import type { Event, Org, Service, User } from "@prisma/client";
 import appointmentOwnerTemplate from "./appointmentOwnerTemplate";
+import { getRemitent, getSesTransport } from "./ses";
 
-// create transporter
-export const sendgridTransport = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 465,
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_KEY,
-  },
-});
 type FullOrg = Org & {
   org: (Org & { owner: User }) | Org;
 };
@@ -32,12 +23,14 @@ export const sendAppointmentToCustomer = async ({
 }) => {
   const url = new URL(request?.url || "https://denik.me");
   url.pathname = "/dash";
-  //   return;
-  return sendgridTransport
+
+  const sesTransport = getSesTransport();
+
+  return sesTransport
     .sendMail({
-      from: "hola@formmy.app",
+      from: getRemitent(),
       subject: subject || "🗓️ ¡Cita agendada!",
-      bcc: [email],
+      to: email,
       html: appointmentCustomerTemplate({
         // @TODO: Is it worth to save all this info in the event? 🧐
         displayName: event.service.org.shopKeeper ?? undefined, // <======================
@@ -73,12 +66,14 @@ export const sendAppointmentToOwner = async ({
   if (!email) return console.error("NO_EMAIL_FOUND_ON_CALL");
   const url = new URL(request?.url || "https://denik.me");
   url.pathname = "/dash";
-  //   return;
-  return sendgridTransport
+
+  const sesTransport = getSesTransport();
+
+  return sesTransport
     .sendMail({
-      from: "hola@formmy.app",
+      from: getRemitent(),
       subject: subject || "🗓️ Tienes una nueva reunion",
-      bcc: [email],
+      to: email,
       html: appointmentOwnerTemplate({
         // @TODO: Is it worth to save all this info in the event? 🧐
         displayName: event.service.org.shopKeeper ?? undefined, // <======================

@@ -1,5 +1,5 @@
 import { useLoaderData, useNavigate } from "react-router";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "motion/react";
 import { type ReactNode, useEffect, useState } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { Checklist } from "~/components/icons/menu/checklist";
@@ -9,7 +9,7 @@ import { StepDone } from "~/components/icons/menu/stepdone";
 import { Stripe } from "~/components/icons/menu/stripe";
 import { User } from "~/components/icons/menu/user";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { twMerge } from "tailwind-merge";
 import { db } from "~/utils/db.server";
 

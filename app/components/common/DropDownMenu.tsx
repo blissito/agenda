@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { TbDots } from "react-icons/tb";

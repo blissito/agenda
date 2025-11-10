@@ -1,4 +1,4 @@
-import { motion, useAnimationControls, useSpring } from "framer-motion";
+import { motion, useAnimationControls, useSpring } from "motion/react";
 import {
   Children,
   type MouseEvent,

@@ -17,7 +17,7 @@ export const AboutYourCompanyForm = ({ org }: { org: Org | null }) => {
     handleSubmit,
     register,
     setValue,
-    formState: { errors, isValid },
+    formState: { errors },
     // watch,
   } = useForm({
     mode: "onChange",

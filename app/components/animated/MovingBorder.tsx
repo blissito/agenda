@@ -1,4 +1,4 @@
-import { motion, useAnimationControls } from "framer-motion";
+import { motion, useAnimationControls } from "motion/react";
 import { type ReactNode, useEffect, useRef } from "react";
 
 export const MovingBorder = ({ children }: { children?: ReactNode }) => {

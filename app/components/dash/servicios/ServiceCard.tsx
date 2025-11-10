@@ -5,7 +5,7 @@ import { TbDots } from "react-icons/tb";
 import { FaLink, FaRegTrashCan } from "react-icons/fa6";
 import { FiToggleLeft, FiToggleRight } from "react-icons/fi";
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import { Spinner } from "~/components/common/Spinner";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { twMerge } from "tailwind-merge";

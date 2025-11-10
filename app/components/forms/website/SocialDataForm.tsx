@@ -24,7 +24,7 @@ export const SocialDataForm = ({
   const {
     handleSubmit,
     register,
-    formState: { isValid, isDirty },
+    formState: { isDirty },
   } = useForm({
     defaultValues: defaultValues?.social || {},
   });

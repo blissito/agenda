@@ -7,7 +7,7 @@ import {
 } from "react";
 import { completeWeek } from "./agendaUtils";
 import { type Event } from "@prisma/client";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { cn } from "~/utils/cn";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
 import { Form } from "react-router";

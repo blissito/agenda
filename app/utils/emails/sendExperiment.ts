@@ -1,14 +1,4 @@
-import nodemailer from "nodemailer";
-
-// create transporter
-export const sendgridTransport = nodemailer.createTransport({
-  host: "smtp.sendgrid.net",
-  port: 465,
-  auth: {
-    user: "apikey",
-    pass: process.env.SENDGRID_KEY,
-  },
-});
+import { getRemitent, getSesTransport } from "./ses";
 
 export const sendExperiment = async (
   emails: string[],
@@ -26,9 +16,11 @@ export const sendExperiment = async (
     timeZone: "America/Mexico_City",
   });
 
-  return sendgridTransport
+  const sesTransport = getSesTransport();
+
+  return sesTransport
     .sendMail({
-      from: "hola@formmy.app",
+      from: getRemitent(),
       subject: subject || "🔧 Experimentando 🪛",
       bcc: emails,
       html: `

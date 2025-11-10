@@ -6,7 +6,7 @@ import {
   useState,
 } from "react";
 import { twMerge } from "tailwind-merge";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { type FieldValues, type UseFormRegister } from "react-hook-form";
 
 export const Switch = ({

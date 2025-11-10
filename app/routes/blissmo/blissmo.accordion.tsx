@@ -11,7 +11,7 @@ import {
   LayoutGroup,
   motion,
   useMotionValue,
-} from "framer-motion";
+} from "motion/react";
 import { createPortal } from "react-dom";
 
 const MouseEnterContext = createContext<
