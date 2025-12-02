@@ -79,4 +79,8 @@ export const getMetaTags = ({
     property: "twitter:image",
     content: image,
   },
+  {
+    name: "facebook-domain-verification",
+    content: "9cs2yjdol8os1yyxqmrghha3dhdr6l",
+  },
 ];
