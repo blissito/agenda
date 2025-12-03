@@ -1,0 +1,38 @@
+import { getRemitent, getSesTransport } from "./ses";
+
+export const sendExperiment = async (
+  emails: string[],
+  { when, subject }: { when?: string | Date; subject?: string }
+) => {
+  const formatedDate = new Date(when).toLocaleDateString("es-MX", {
+    timeZone: "America/Mexico_City",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
+  const formatTime = new Date().toLocaleTimeString("es-MX", {
+    hour: "numeric",
+    timeZone: "America/Mexico_City",
+  });
+
+  const sesTransport = getSesTransport();
+
+  return sesTransport
+    .sendMail({
+      from: getRemitent(),
+      subject: subject || "🔧 Experimentando 🪛",
+      bcc: emails,
+      html: `
+      <article>
+      <h1>Bliss' experiments</h1>
+      <p>Hola pelusina, este corre debería llegarte a las ${formatTime} el ${formatedDate}</p>
+      <p>DEBUGGING::${when}</p>
+      </article>
+      `,
+    })
+    .then((r: unknown) => {
+      console.log(r);
+    })
+    .catch((e: unknown) => console.log(e));
+};

@@ -1,0 +1,177 @@
+/* // google fonts */
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pixelify+Sans:wght@400..700&family=Space+Grotesk:wght@300..700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  background: black;
+}
+
+* {
+  box-sizing: "border-box";
+}
+
+@font-face {
+  font-family: "Satoshi ";
+  src: url("/fonts/Satoshi-Regular.ttf");
+}
+@font-face {
+  font-family: "Jakarta";
+  src: url("/fonts/PlusJakartaRegular.ttf");
+}
+
+@font-face {
+  font-family: "JakarBold";
+  src: url("/fonts/PlusJakartaMedium.ttf");
+}
+@font-face {
+  font-family: "Denik bold ";
+  src: url("/fonts/Satoshi-Bold.ttf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: "Medium Font ";
+  src: url("/fonts/Satoshi-Medium.ttf");
+  font-weight: bold;
+}
+@font-face {
+  font-family: "Outfit Medium";
+  src: url("/fonts/Outfit-Medium.ttf");
+  font-weight: bold;
+}
+
+/* // experiment SE PUEDE BORRAR */
+@font-face {
+  font-family: "Balloon";
+  src: url("/fonts/balloon.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+.font-balloon {
+  font-family: "Balloon";
+}
+.font-grotesk {
+  font-family: "Space Grotesk";
+}
+
+html {
+  --bg-mask-color: red;
+}
+
+/* Header for all website titles */
+h1,
+h2,
+h3 {
+  font-family: "JakarBold";
+}
+p {
+  font-family: "Satoshi ";
+}
+.font-title {
+  font-family: "JakarBold";
+  font-weight: 800;
+}
+.font-satoMiddle {
+  font-family: "Medium Font ", sans-serif;
+}
+
+.font-satoshi {
+  font-family: "Satoshi ";
+}
+
+.font-satoMedium {
+  font-family: "Denik bold ";
+}
+
+.overlay {
+  background-color: white;
+  padding: 80px 120px;
+  mask-image: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    black 40%,
+    transparent 50%
+  );
+}
+
+/* .frame {
+  background-color: white;
+
+  backdrop-filter: blur(20px);
+  padding: 120px 0px;
+  mask-image: linear-gradient(transparent, black, transparent);
+} */
+
+.container-input {
+  text-align: center;
+  background: #282828;
+  border-top: 5px solid #c39f77;
+  padding: 50px 0;
+  border-radius: 6px;
+  width: 50%;
+  margin: 0 auto;
+  margin-bottom: 20px;
+}
+
+.inputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.inputfile + label {
+  max-width: 80%;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.625rem 1.25rem;
+  font-family: "Satoshi ";
+  font-size: 16px;
+}
+
+.inputfile-3 + label {
+  color: #4b5563;
+}
+
+.inputfile-3:focus + label,
+.inputfile-3.has-focus + label,
+.inputfile-3 + label:hover {
+  color: #5158f6;
+}
+
+input[type="color"].custom {
+  --size: 45px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  padding: 0px;
+  border: none;
+
+  &::-webkit-color-swatch {
+    border: transparent;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 520px) {
+  .overlay {
+    padding: 80px 40px;
+  }
+}
+
+@media (max-width: 520px) {
+  h1,
+  h2,
+  h3 {
+    font-family: "Outfit Medium";
+  }
+}
