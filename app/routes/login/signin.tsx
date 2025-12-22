@@ -122,7 +122,7 @@ export default function Page() {
   
       {/* Layout 2 columnas */}
       <section className="relative z-10 flex min-h-screen w-full">
-        {/* LADO IZQUIERDO (imagen fija) */}
+        {/* LADO IZQUIERDO  */}
         <aside className="hidden lg:block lg:w-[35%] relative">
 
           <img
@@ -159,7 +159,7 @@ export default function Page() {
                 type="button"
                 className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
               >
-                {/* Google icon (inline SVG) */}
+                {/* Imagenes de gogle  */}
                 <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
                   <path
                     fill="#FFC107"
@@ -185,7 +185,7 @@ export default function Page() {
                 type="button"
                 className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
               >
-                {/* Microsoft icon */}
+                {/* icon de micrsoft */}
                 <span className="grid grid-cols-2 gap-[2px] w-[16px] h-[16px]" aria-hidden="true">
                   <span className="bg-[#F25022] rounded-[2px]" />
                   <span className="bg-[#7FBA00] rounded-[2px]" />
