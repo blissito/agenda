@@ -48,7 +48,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="overflow-x-hidden">
         {children}
         {/* <ScrollRestoration  /> */}
         <Scripts />

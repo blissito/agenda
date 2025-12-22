@@ -55,115 +55,116 @@ export const Hero = () => (
 );
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-hidden pb-12 w-full items-start md:items-center mt-10 md:mt-0 ">
-    
-    {/* FILA 1 */}
+  <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-y-visible pb-12 w-full items-start md:items-center mt-10 md:mt-0 ">
     <div className="flex justify-center xl:justify-between pr-0  gap-6 lg:gap-20 ">
       <div className="w-[120px] lg:w-[320px] md:flex justify-center hidden">
         <LineSteak />
       </div>
 
-      <Parallax speed={-25}>
+      <Parallax speed={-2} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
         <CardSmall
           className="rotate-[4deg] -left-4 md:left-0 "
           name="Paola Alvarado"
           rol="Nutrióloga"
-          comment="Desde que uso Deník, administrar mis citas es más fácil."
+          comment="Desde que uso Deník, administrar mis citas es más fácil. Mis clientes agendan directamente en cualquier momento. "
           img="https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=800"
         />
       </Parallax>
 
-      <Parallax speed={10}>
+      <Parallax speed={-3} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
         <CardImage className="-rotate-[4deg] top-16 md:top-16" />
       </Parallax>
 
-      <Parallax speed={-35}>
+      <Parallax speed={-10} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
         <CardLarge
           className="rotate-[4deg] "
           name="Luis Escobedo"
           rol="Entrenador"
-          comment="Descubrí Deník hace poco, y es la agenda más completa."
+          comment="Descubrí Deník hace poco, y es la agenda en línea más completa que he utilizado. "
           icon={<Search />}
           img="https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=800"
         />
       </Parallax>
     </div>
 
-    {/* FILA 2 */}
     <div className="flex justify-between gap-10 md:gap-20">
-      <Parallax speed={15}>
+      <Parallax speed={-12} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
         <CardSmall
-          className="rotate-[4deg] mt-10 md:-mt-20"
+          className="rotate-[4deg] mt-10 md:-mt-20  "
           name="Catalina López"
           rol="Maestra de inglés"
-          comment="Deník me permitió organizar mis citas digitalmente."
+          comment="Deník es un sistema completo de administración que me ha permitido organizar mis citas de forma digital."
           icon={<Thunder />}
           img="https://images.pexels.com/photos/3856027/pexels-photo-3856027.jpeg?auto=compress&cs=tinysrgb&w=800"
         />
       </Parallax>
 
-      <Parallax speed={-20}>
-        <CardImage className="-rotate-[4deg] top-20 md:top-0" img="/images/img1.jpg" />
+      <Parallax speed={-8} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+        <CardImage
+          className="-rotate-[4deg] top-20 md:top-0 "
+          img="/images/img1.jpg"
+        />
       </Parallax>
 
-      <Parallax speed={12}>
+      <Parallax speed={-16} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
         <CardLarge
-          className="rotate-[4deg]"
+          className="rotate-[4deg] "
           name="Georgina Hernández"
           rol="Estilista"
-          comment="Tengo todo en un solo lugar."
-          img="https://images.pexels.com/photos/3268732/pexels-photo-3268732.jpeg"
+          comment="Deník me permite tener mis citas, clientes y ventas en solo lugar."
+          img="https://images.pexels.com/photos/3268732/pexels-photo-3268732.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
           icon={<Comment />}
         />
       </Parallax>
 
-      <Parallax speed={-15}>
-        <CardImage className="-rotate-[4deg]" img="/images/img4.jpg" />
+      <Parallax speed={-4} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+        <CardImage className="-rotate-[4deg] " img="/images/img4.jpg" />
       </Parallax>
     </div>
 
-    {/* FILA 3 */}
-    <div className="flex justify-between items-center gap-10 md:gap-20 relative -mt-6 md:-mt-20">
-      
-      <span className="absolute left-20 bottom-0">
+    <div className="flex justify-between  items-center  gap-10 md:gap-20 relative -mt-6 md:-mt-20">
+      <span className="absolute left-20  bottom-0">
         <Arrow />
       </span>
       <span className="absolute right-28 -top-28">
         <Waves />
       </span>
 
-      <Parallax speed={20}>
-        <CardImage className="rotate-[4deg] mt-0 md:-mt-28 -left-16 md:left-0" img="/images/img3.jpg" />
+      <Parallax speed={-12} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+        <CardImage
+          className="rotate-[4deg] mt-0 md:-mt-28 -left-16 md:left-0"
+          img="/images/img3.jpg"
+        />
       </Parallax>
 
-      <Parallax speed={-25}>
+      <Parallax speed={-20} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
         <CardLarge
           className="-rotate-[4deg] mt-32 md:-mt-10 -left-16 md:left-0"
           name="Jose Luis González"
-          rol="Médico"
-          comment="Los recordatorios son mi función favorita."
+          rol="Médico general"
+          comment="Los recordatorios de Deník son la parte favorita de mis clientes, ahora ni ellos ni yo olvidamos las citas."
           icon={<Search />}
-          img="https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg"
+          img="https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=800"
         />
       </Parallax>
 
-      <Parallax speed={20}>
-        <CardImage className="rotate-[4deg]" img="/images/img2.jpg" />
+      <Parallax speed={-8} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+        <CardImage className="rotate-[4deg] " img="/images/img2.jpg" />
       </Parallax>
 
-      <Parallax speed={-12}>
+      <Parallax speed={-16} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
         <CardSmall
-          className="-rotate-[4deg]"
+          className="-rotate-[4deg] "
           name="Paola Alvarado"
           rol="Couch"
-          img="https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg"
-          comment="He recibido más clientes con Deník."
+          img="https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg?auto=compress&cs=tinysrgb&w=800"
+          comment="Desde que empecé a utilizar Deník he recibido más clientes, ya que para ellos es más fácil agendar y pagar citas en línea."
         />
       </Parallax>
-
     </div>
   </section>
 );
+
 
 export const CardSmall = ({
   className,
