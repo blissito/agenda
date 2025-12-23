@@ -92,6 +92,7 @@ export default function Page() {
     );
   }
 
+ 
   return (
     <section className="relative bg-white">
       {loaderData?.alert && (
@@ -110,37 +111,123 @@ export default function Page() {
           </p>
         </div>
       )}
+  
+      {/* marca de agua derecha */}
       <img
         alt="denik markwater"
-        className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto"
+        className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto pointer-events-none select-none opacity-60"
         src="/images/denik-markwater.png"
       />
+  
       <TopBar />
-      <section className="flex justify-center items-center h-screen flex-col gap-6 w-[90%]  md:max-w-sm mx-auto z-50">
-        <h1 className="text-xl font-semibold mb-4">
-          Inicia sesión o crea una cuenta
-        </h1>
+  
+      {/* Layout 2 columnas */}
+      <section className="relative z-10 flex min-h-screen w-full">
+        {/* LADO IZQUIERDO  */}
+        <aside className="hidden lg:block lg:w-[35%] relative">
 
-        <Form className="w-full" method="post">
-          <BasicInput
-            placeholder="ejemplo@gmail.com"
-            label="Email"
-            name="email"
-            className="mb-0 pb-0"
-            error={actionData?.error}
+          <img
+            src="public/images/signin/ignin-cover.png"
+            alt="signin cover"
+            className="absolute inset-0 h-full w-full object-cover"
           />
-
-          <PrimaryButton
-            isLoading={navigation.state !== "idle"}
-            type="submit"
-            className="w-full"
-            name="intent"
-            value="magic_link"
-          >
-            Continuar <ArrowRight />{" "}
-          </PrimaryButton>
-        </Form>
+  
+          {/* degradado para mejorar legibilidad del texto */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+  
+          <p className="absolute left-10 bottom-10 max-w-md text-white text-lg font-medium leading-snug">
+            “Simplifica todas las herramientas
+            <br />
+            que tu negocio necesita”
+          </p>
+        </aside>
+  
+        {/* LADO DERECHO (formulario) */}
+        <main className="flex-1 flex items-center justify-center px-6">
+          <section className="w-full max-w-md flex flex-col items-center text-center gap-4">
+            <h1 className="text-2xl md:text-3xl font-semibold text-brand_dark">
+              Bienvenid@ a Deník
+            </h1>
+  
+            <p className="text-sm md:text-base text-brand_gray max-w-sm">
+              La forma fácil de agendar, cobrar y crecer. Deja que Deník lleve tu
+              agenda, tú lleva tu negocio.
+            </p>
+  
+            {/* Botones OAuth (solo UI) */}
+            <div className="w-full flex flex-col gap-3 mt-4">
+              <button
+                type="button"
+                className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
+              >
+                {/* Imagenes de gogle  */}
+                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                  <path
+                    fill="#FFC107"
+                    d="M43.611 20.083H42V20H24v8h11.303C33.676 32.657 29.246 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.272 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+                  />
+                  <path
+                    fill="#FF3D00"
+                    d="M6.306 14.691l6.571 4.819C14.655 16.108 19.01 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.272 4 24 4c-7.682 0-14.35 4.329-17.694 10.691z"
+                  />
+                  <path
+                    fill="#4CAF50"
+                    d="M24 44c5.164 0 9.86-1.977 13.409-5.197l-6.19-5.238C29.196 35.091 26.715 36 24 36c-5.224 0-9.64-3.318-11.271-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+                  />
+                  <path
+                    fill="#1976D2"
+                    d="M43.611 20.083H42V20H24v8h11.303a11.99 11.99 0 0 1-4.084 5.565l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+                  />
+                </svg>
+                Continua con Gmail
+              </button>
+  
+              <button
+                type="button"
+                className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
+              >
+                {/* icon de micrsoft */}
+                <span className="grid grid-cols-2 gap-[2px] w-[16px] h-[16px]" aria-hidden="true">
+                  <span className="bg-[#F25022] rounded-[2px]" />
+                  <span className="bg-[#7FBA00] rounded-[2px]" />
+                  <span className="bg-[#00A4EF] rounded-[2px]" />
+                  <span className="bg-[#FFB900] rounded-[2px]" />
+                </span>
+                Continua con Microsoft
+              </button>
+  
+             
+              <div className="flex items-center justify-center gap-3 my-2">
+                <span className="h-px w-full bg-black/10" />
+                <span className="text-xs text-brand_gray">o</span>
+                <span className="h-px w-full bg-black/10" />
+              </div>
+  
+             
+              <Form className="w-full text-left" method="post">
+                <BasicInput
+                  placeholder="ejemplo@gmail.com"
+                  label="Email"
+                  name="email"
+                  className="mb-0 pb-0"
+                  error={actionData?.error}
+                />
+  
+                <PrimaryButton
+                  isLoading={navigation.state !== "idle"}
+                  type="submit"
+                  className="w-full mt-4"
+                  name="intent"
+                  value="magic_link"
+                >
+                  Continuar <ArrowRight />{" "}
+                </PrimaryButton>
+              </Form>
+            </div>
+          </section>
+        </main>
       </section>
     </section>
   );
+  
 }

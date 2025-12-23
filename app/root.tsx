@@ -57,7 +57,11 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <ParallaxProvider>
+      <Outlet />
+    </ParallaxProvider>
+  );
 }
 
 export function ErrorBoundary() {
