@@ -9,6 +9,7 @@ import {
 import stylesheet from "./app.css?url";
 import { getMetaTags } from "./utils/getMetaTags";
 import type { ReactNode } from "react";
+import { ParallaxProvider } from "react-scroll-parallax";
 
 export const meta = () =>
   getMetaTags({
@@ -57,7 +58,12 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <ParallaxProvider
+    >
+      <Outlet />
+    </ParallaxProvider>
+  );
 }
 
 export function ErrorBoundary() {
