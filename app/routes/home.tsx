@@ -1,4 +1,3 @@
-import { TopBar } from "~/components/common/topBar";
 import { Banner } from "~/components/home/Banner";
 import { Benefits } from "~/components/home/Benefits";
 import { CompaniesScroll } from "~/components/home/CompaniesScroll";
@@ -9,6 +8,7 @@ import { ParallaxHero } from "~/components/home/ParallaxHero";
 import { Features, Hero, ScrollReviews } from "~/components/home/home";
 import { People } from "~/components/icons/people";
 import { getMetaTags } from "~/utils/getMetaTags";
+import { TopBar } from "~/components/common/topBar";
 
 export const meta = () =>
   getMetaTags({

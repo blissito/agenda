@@ -34,9 +34,18 @@ export const action = async ({ request }: Route.ActionArgs) => {
         error: sp.success ? null : { message: "Ingresa un correo válido" },
       };
     }
-    // send email
-    await sendMagicLink(email as string, request.url);
-    return { success: true };
+
+    try {
+      // send email
+      await sendMagicLink(email as string, request.url);
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to send magic link:", error);
+      return {
+        success: false,
+        error: { message: "Error al enviar el correo. Por favor intenta de nuevo." },
+      };
+    }
   }
 
   return null;
@@ -72,7 +81,7 @@ export default function Page() {
   if (actionData?.success) {
     // success screen (magic link)
     return (
-      <section className="flex flex-col items-center justify-center h-screen max-w-4xl mx-auto ">
+      <section className="flex flex-col items-center justify-center h-screen max-w-4xl mx-auto bg-white ">
         <img src="/images/signin/sending-email.svg" alt="illustration" />
         <h1 className="text-center text-2xl font-jakarta text-brand_dark mt-6">
           ¡Hemos enviado un mail a tu correo! 👋🏻
@@ -211,12 +220,19 @@ export default function Page() {
             </div>
           )}
 
+        <Form className="w-full" method="post">
+          {actionData && !actionData.success && actionData.error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{actionData.error.message}</p>
+            </div>
+          )}
+
           <BasicInput
             placeholder="ejemplo@gmail.com"
             label="Email"
             name="email"
             className="mb-0 pb-0"
-            error={actionData?.error?.message || undefined}
+            error={actionData?.error || undefined}
           />
                 <PrimaryButton
                   isLoading={navigation.state !== "idle"}

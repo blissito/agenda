@@ -15,15 +15,17 @@ export const sendMagicLink = async (
 
   const sesTransport = getSesTransport();
 
-  return sesTransport
-    .sendMail({
+  try {
+    const result = await sesTransport.sendMail({
       from: getRemitent(),
       subject: subject || "🗓️ Inicia sesión en Denik.me",
       to: email,
       html: magicLinkTemplate({ link: url.toString() }),
-    })
-    .then((r: unknown) => {
-      console.log(r);
-    })
-    .catch((e: unknown) => console.log(e));
+    });
+    console.log("Magic link sent successfully:", result);
+    return result;
+  } catch (error) {
+    console.error("Error sending magic link:", error);
+    throw error; // Propagar el error para que el action lo maneje
+  }
 };
