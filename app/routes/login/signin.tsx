@@ -204,15 +204,20 @@ export default function Page() {
               </div>
   
              
-              <Form className="w-full text-left" method="post">
-                <BasicInput
-                  placeholder="ejemplo@gmail.com"
-                  label="Email"
-                  name="email"
-                  className="mb-0 pb-0"
-                  error={actionData?.error}
-                />
-  
+         <Form className="w-full" method="post">
+          {actionData && !actionData.success && actionData.error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{actionData.error.message}</p>
+            </div>
+          )}
+
+          <BasicInput
+            placeholder="ejemplo@gmail.com"
+            label="Email"
+            name="email"
+            className="mb-0 pb-0"
+            error={actionData?.error?.message || undefined}
+          />
                 <PrimaryButton
                   isLoading={navigation.state !== "idle"}
                   type="submit"
