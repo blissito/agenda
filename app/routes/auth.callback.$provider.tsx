@@ -18,7 +18,8 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     throw redirect("/signin");
   }
 
-  const origin = url.origin;
+  // Usar APP_URL en producción, o detectar del request en desarrollo
+  const origin = process.env.APP_URL || url.origin;
   const redirectUri = `${origin}/auth/callback/${provider}`;
 
   try {
