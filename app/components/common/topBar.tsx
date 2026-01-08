@@ -1,7 +1,6 @@
 import { Denik } from "../icons/denik";
 import { ArrowRight } from "../icons/arrowRight";
 import { PrimaryButton } from "./primaryButton";
-import { DialogButton } from "./DialogButton";
 import { Link } from "react-router";
 
 export const TopBar = () => (
@@ -20,9 +19,9 @@ export const TopBar = () => (
         {/* <PrimaryButton as="Link" to={"/dash"} prefetch="render">
           Probar gratis <ArrowRight className="hidden md:block" />{" "}
         </PrimaryButton> */}
-        <DialogButton>
-          Únete <ArrowRight />{" "}
-        </DialogButton>
+        <PrimaryButton as="Link" to="/signin">
+          Únete <ArrowRight />
+        </PrimaryButton>
       </div>
     </article>
   </section>

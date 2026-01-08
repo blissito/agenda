@@ -12,6 +12,9 @@ export default [
   //login
   route("signin", "routes/login/signin.tsx"),
   route("signup/:stepSlug", "routes/login/signup.$stepSlug.tsx"),
+  // OAuth
+  route("auth/:provider", "routes/auth.$provider.tsx"),
+  route("auth/callback/:provider", "routes/auth.callback.$provider.tsx"),
   // dashboard
   ...prefix("dash", [
     layout("routes/dash/dash_layout.tsx", [

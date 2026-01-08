@@ -25,6 +25,16 @@ type Pages = {
       "stepSlug": string;
     };
   };
+  "/auth/:provider": {
+    params: {
+      "provider": string;
+    };
+  };
+  "/auth/callback/:provider": {
+    params: {
+      "provider": string;
+    };
+  };
   "/dash": {
     params: {};
   };
@@ -125,7 +135,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup/:stepSlug" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/stripe" | "/a/:orgSlug/s/:serviceSlug" | "/a/:orgSlug";
+    page: "/" | "/planes" | "/signin" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/stripe" | "/a/:orgSlug/s/:serviceSlug" | "/a/:orgSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -142,6 +152,14 @@ type RouteFiles = {
   "routes/login/signup.$stepSlug.tsx": {
     id: "routes/login/signup.$stepSlug";
     page: "/signup/:stepSlug";
+  };
+  "routes/auth.$provider.tsx": {
+    id: "routes/auth.$provider";
+    page: "/auth/:provider";
+  };
+  "routes/auth.callback.$provider.tsx": {
+    id: "routes/auth.callback.$provider";
+    page: "/auth/callback/:provider";
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
@@ -259,6 +277,8 @@ type RouteModules = {
   "routes/planes": typeof import("./app/routes/planes.tsx");
   "routes/login/signin": typeof import("./app/routes/login/signin.tsx");
   "routes/login/signup.$stepSlug": typeof import("./app/routes/login/signup.$stepSlug.tsx");
+  "routes/auth.$provider": typeof import("./app/routes/auth.$provider.tsx");
+  "routes/auth.callback.$provider": typeof import("./app/routes/auth.callback.$provider.tsx");
   "routes/dash/dash_layout": typeof import("./app/routes/dash/dash_layout.tsx");
   "routes/dash/dash._index": typeof import("./app/routes/dash/dash._index.tsx");
   "routes/dash/dash.profile": typeof import("./app/routes/dash/dash.profile.tsx");

@@ -11,10 +11,7 @@ import { PrimaryButton } from "~/components/common/primaryButton";
 import { TopBar } from "~/components/common/topBar";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { ArrowRight } from "~/components/icons/arrowRight";
-import {
-  handleMagicLinkLogin,
-  redirectIfUser,
-} from "~/.server/userGetters";
+import { handleMagicLinkLogin, redirectIfUser } from "~/.server/userGetters";
 import { destroySession, getSession } from "~/sessions";
 import { cn } from "~/utils/cn";
 import { sendMagicLink } from "~/utils/emails/sendMagicLink";
@@ -52,17 +49,18 @@ export const action = async ({ request }: Route.ActionArgs) => {
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { searchParams } = new URL(request.url);
-  const intent = searchParams.get("intent");
+  const url = new URL(request.url);
+  const intent = url.searchParams.get("intent");
 
-  if (searchParams.has("token")) {
-    // is magic link
+  // Magic link
+  if (url.searchParams.has("token")) {
     return await handleMagicLinkLogin(
-      searchParams.get("token") as string,
+      url.searchParams.get("token") as string,
       request
     );
   }
 
+  // Logout
   if (intent === "logout") {
     const session = await getSession(request.headers.get("Cookie"));
     return redirect("/", {
@@ -163,13 +161,12 @@ export default function Page() {
               agenda, tú lleva tu negocio.
             </p>
   
-            {/* Botones OAuth (solo UI) */}
+            {/* Botones OAuth */}
             <div className="w-full flex flex-col gap-3 mt-4">
-              <button
-                type="button"
+              <a
+                href="/auth/google"
                 className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
               >
-                {/* Imagenes de gogle  */}
                 <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
                   <path
                     fill="#FFC107"
@@ -188,22 +185,24 @@ export default function Page() {
                     d="M43.611 20.083H42V20H24v8h11.303a11.99 11.99 0 0 1-4.084 5.565l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
                   />
                 </svg>
-                Continua con Gmail
-              </button>
-  
-              <button
-                type="button"
+                Continua con Google
+              </a>
+
+              <a
+                href="/auth/outlook"
                 className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
               >
-                {/* icon de micrsoft */}
-                <span className="grid grid-cols-2 gap-[2px] w-[16px] h-[16px]" aria-hidden="true">
+                <span
+                  className="grid grid-cols-2 gap-[2px] w-[16px] h-[16px]"
+                  aria-hidden="true"
+                >
                   <span className="bg-[#F25022] rounded-[2px]" />
                   <span className="bg-[#7FBA00] rounded-[2px]" />
                   <span className="bg-[#00A4EF] rounded-[2px]" />
                   <span className="bg-[#FFB900] rounded-[2px]" />
                 </span>
                 Continua con Microsoft
-              </button>
+              </a>
   
 
               <div className="flex items-center justify-center gap-3 my-2">

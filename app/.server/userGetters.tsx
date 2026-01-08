@@ -4,6 +4,7 @@ import type { ZodSchema } from "zod";
 import { commitSession, getSession } from "~/sessions";
 import { db } from "~/utils/db.server";
 import { validateUserToken } from "~/utils/tokens";
+import { getOAuthUser, isValidProvider } from "./oauth";
 import {
   signup1Schema,
   signup2Schema,
@@ -180,6 +181,48 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
     userId: user.id,
     request,
   });
+};
+
+// OAUTH =============================================================
+export const handleOAuthCallback = async (
+  provider: string,
+  code: string,
+  request: Request
+) => {
+  if (!isValidProvider(provider)) {
+    return { alert: { type: "error", message: "Proveedor no válido" } };
+  }
+
+  const redirectUri =
+    new URL(request.url).origin +
+    `/signin?intent=oauth_callback&provider=${provider}`;
+
+  try {
+    const oauthUser = await getOAuthUser(provider, code, redirectUri);
+
+    const user = await db.user.upsert({
+      where: { email: oauthUser.email },
+      create: {
+        email: oauthUser.email,
+        emailVerified: true,
+        displayName: oauthUser.name,
+        photoURL: oauthUser.picture,
+        providerId: provider,
+        uid: oauthUser.id,
+      },
+      update: {
+        emailVerified: true,
+        displayName: oauthUser.name || undefined,
+        photoURL: oauthUser.picture || undefined,
+        providerId: provider,
+      },
+    });
+
+    return setUserSessionAndRedirect({ userId: user.id, request });
+  } catch (error) {
+    console.error(`OAuth ${provider} error:`, error);
+    return { alert: { type: "error", message: `Error con ${provider}` } };
+  }
 };
 
 // PUBLIC READING
