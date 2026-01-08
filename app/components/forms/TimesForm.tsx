@@ -62,7 +62,6 @@ export const TimesForm = ({
   org: Org;
 }) => {
   const fetcher = useFetcher();
-  invariant(org.weekDays);
   const [data, setData] = useState<WeekSchema>(org.weekDays || initialValues);
   const initialData = org.weekDays
     ? Object.keys(org.weekDays)
@@ -72,7 +71,7 @@ export const TimesForm = ({
     setValue,
     getValues,
     setError,
-    formState: { errors },
+    formState: { errors, isValid },
     handleSubmit,
   } = useForm({
     defaultValues: {

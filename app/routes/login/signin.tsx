@@ -229,6 +229,7 @@ export default function Page() {
                 </span>
                 Continua con Microsoft
               </button>
+  
 
               <div className="flex items-center justify-center gap-3 my-2">
                 <span className="h-px w-full bg-black/10" />
@@ -236,13 +237,11 @@ export default function Page() {
                 <span className="h-px w-full bg-black/10" />
               </div>
 
-             
+              {/* Formulario de magic link */}
               <Form className="w-full" method="post">
                 {actionData && !actionData.success && actionData.error && (
                   <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-600 text-sm">
-                      {actionData.error.message}
-                    </p>
+                    <p className="text-red-600 text-sm">{actionData.error.message}</p>
                   </div>
                 )}
 
@@ -253,7 +252,6 @@ export default function Page() {
                   className="mb-0 pb-0"
                   error={actionData?.error || undefined}
                 />
-
                 <PrimaryButton
                   isLoading={navigation.state !== "idle"}
                   type="submit"
@@ -261,7 +259,7 @@ export default function Page() {
                   name="intent"
                   value="magic_link"
                 >
-                  Continuar <ArrowRight />{" "}
+                  Continuar <ArrowRight />
                 </PrimaryButton>
               </Form>
             </div>
