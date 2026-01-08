@@ -12,6 +12,8 @@ export default [
   //login
   route("signin", "routes/login/signin.tsx"),
   route("signup/:stepSlug", "routes/login/signup.$stepSlug.tsx"),
+  route("community", "routes/Community/Community.tsx"),
+  route("community/:slug", "routes/community.$slug.tsx"),
   // dashboard
   ...prefix("dash", [
     layout("routes/dash/dash_layout.tsx", [
