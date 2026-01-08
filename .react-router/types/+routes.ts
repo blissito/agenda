@@ -25,6 +25,14 @@ type Pages = {
       "stepSlug": string;
     };
   };
+  "/community": {
+    params: {};
+  };
+  "/community/:slug": {
+    params: {
+      "slug": string;
+    };
+  };
   "/dash": {
     params: {};
   };
@@ -125,7 +133,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup/:stepSlug" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/stripe" | "/a/:orgSlug/s/:serviceSlug" | "/a/:orgSlug";
+    page: "/" | "/planes" | "/signin" | "/signup/:stepSlug" | "/community" | "/community/:slug" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/stripe" | "/a/:orgSlug/s/:serviceSlug" | "/a/:orgSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -142,6 +150,14 @@ type RouteFiles = {
   "routes/login/signup.$stepSlug.tsx": {
     id: "routes/login/signup.$stepSlug";
     page: "/signup/:stepSlug";
+  };
+  "routes/Community/Community.tsx": {
+    id: "routes/Community/Community";
+    page: "/community";
+  };
+  "routes/community.$slug.tsx": {
+    id: "routes/community.$slug";
+    page: "/community/:slug";
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
@@ -259,6 +275,8 @@ type RouteModules = {
   "routes/planes": typeof import("./app/routes/planes.tsx");
   "routes/login/signin": typeof import("./app/routes/login/signin.tsx");
   "routes/login/signup.$stepSlug": typeof import("./app/routes/login/signup.$stepSlug.tsx");
+  "routes/Community/Community": typeof import("./app/routes/Community/Community.tsx");
+  "routes/community.$slug": typeof import("./app/routes/community.$slug.tsx");
   "routes/dash/dash_layout": typeof import("./app/routes/dash/dash_layout.tsx");
   "routes/dash/dash._index": typeof import("./app/routes/dash/dash._index.tsx");
   "routes/dash/dash.profile": typeof import("./app/routes/dash/dash.profile.tsx");
