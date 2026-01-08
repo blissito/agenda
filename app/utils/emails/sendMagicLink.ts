@@ -9,7 +9,9 @@ export const sendMagicLink = async (
 ) => {
   // generate token
   const token = await generateUserToken(email);
-  const url = new URL(uri);
+  // Use APP_URL in production to avoid localhost issues behind reverse proxy
+  const baseUrl = process.env.APP_URL || uri;
+  const url = new URL(baseUrl);
   url.pathname = "/signin";
   url.searchParams.set("token", token);
 
