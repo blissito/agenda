@@ -1,6 +1,10 @@
 import { getProvider, type OAuthProvider } from "./providers";
 
-export function getAuthURL(provider: OAuthProvider, redirectUri: string): string {
+export function getAuthURL(
+  provider: OAuthProvider,
+  redirectUri: string,
+  state?: string
+): string {
   const config = getProvider(provider);
   const params = new URLSearchParams({
     client_id: config.clientId,
@@ -8,6 +12,7 @@ export function getAuthURL(provider: OAuthProvider, redirectUri: string): string
     response_type: "code",
     scope: config.scope,
   });
+  if (state) params.set("state", state);
   return `${config.authUrl}?${params}`;
 }
 

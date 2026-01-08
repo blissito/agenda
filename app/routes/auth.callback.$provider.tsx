@@ -46,7 +46,19 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     const session = await getSession(request.headers.get("Cookie"));
     session.set("userId", user.id);
 
-    throw redirect("/dash", {
+    // Decodificar state para obtener next
+    const stateParam = url.searchParams.get("state");
+    let nextUrl = "/dash";
+    if (stateParam) {
+      try {
+        const { next } = JSON.parse(
+          Buffer.from(stateParam, "base64url").toString()
+        );
+        if (next?.startsWith("/")) nextUrl = next;
+      } catch {}
+    }
+
+    throw redirect(nextUrl, {
       headers: { "Set-Cookie": await commitSession(session) },
     });
   } catch (error) {

@@ -54,10 +54,12 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   // Magic link
   if (url.searchParams.has("token")) {
-    return await handleMagicLinkLogin(
+    const result = await handleMagicLinkLogin(
       url.searchParams.get("token") as string,
       request
     );
+    // Si retorna (error), agregar next vacío para tipos consistentes
+    return { ...result, next: "" };
   }
 
   // Logout
@@ -68,7 +70,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     });
   }
 
-  return await redirectIfUser(request);
+  const next = url.searchParams.get("next") || "";
+  await redirectIfUser(request);
+  return { next, alert: undefined };
 };
 
 export default function Page() {
@@ -164,7 +168,7 @@ export default function Page() {
             {/* Botones OAuth */}
             <div className="w-full flex flex-col gap-3 mt-4">
               <a
-                href="/auth/google"
+                href={`/auth/google${loaderData?.next ? `?next=${encodeURIComponent(loaderData.next)}` : ""}`}
                 className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
               >
                 <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -189,7 +193,7 @@ export default function Page() {
               </a>
 
               <a
-                href="/auth/outlook"
+                href={`/auth/outlook${loaderData?.next ? `?next=${encodeURIComponent(loaderData.next)}` : ""}`}
                 className="w-full h-11 rounded-full border border-black/10 bg-white flex items-center justify-center gap-3 text-sm font-medium text-brand_dark hover:bg-black/[0.02] transition"
               >
                 <span
