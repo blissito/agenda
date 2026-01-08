@@ -77,7 +77,7 @@ export default function Page() {
   if (actionData?.success) {
     return (
       <section className="relative bg-white min-h-screen">
-        {/* marca de agua derecha (igual que en login) */}
+        {/* marca de agua (igual que en login) */}
         <img
           alt="denik markwater"
           className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto pointer-events-none select-none opacity-60"
@@ -86,10 +86,9 @@ export default function Page() {
 
         <TopBar />
 
-        {/* contenido centrado como la imagen 1 */}
         <main className="relative z-10 flex min-h-screen items-center justify-center px-6">
           <section className="w-full max-w-2xl mx-auto flex flex-col items-center text-center pt-24 pb-10">
-            {/* ✅ CAMBIADO: email (no bell) + tamaño controlado */}
+            
             <img
               src="/images/signin/sending-bell.svg"
               alt="illustration"
