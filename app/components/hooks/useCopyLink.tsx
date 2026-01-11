@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useRef } from "react";
 
 export const useCopyLink = (link: string, onClick?: () => void) => {

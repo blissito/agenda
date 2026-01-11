@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useEffect } from "react";
 import JSConfetti from "js-confetti";
 

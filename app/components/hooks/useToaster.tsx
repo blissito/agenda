@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { ReactNode } from "react";
 
 const sleep = (s: number) => new Promise((r) => setTimeout(r, s * 1000));

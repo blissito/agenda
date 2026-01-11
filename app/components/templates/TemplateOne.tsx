@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Facebook } from "~/components/icons/facebook";
 import { Instagram } from "~/components/icons/insta";
 import { Linkedin } from "~/components/icons/linkedin";

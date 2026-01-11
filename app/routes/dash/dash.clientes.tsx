@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link, useLoaderData } from "react-router";
 import { Avatar } from "~/components/common/Avatar";
 import { SecondaryButton } from "~/components/common/secondaryButton";

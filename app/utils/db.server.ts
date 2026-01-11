@@ -1,11 +1,10 @@
-// import { PrismaClient } from "@prisma/client";
 import { PrismaClient } from "@prisma/client";
 
 let db: PrismaClient;
 
-declare global {
-  let __db__: PrismaClient | undefined;
-}
+const globalForPrisma = globalThis as unknown as {
+  __db__: PrismaClient | undefined;
+};
 
 // This is needed because in development we don't want to restart
 // the server with every change, but we want to make sure we don't
@@ -14,10 +13,10 @@ declare global {
 if (process.env.NODE_ENV === "production") {
   db = new PrismaClient();
 } else {
-  if (!global.__db__) {
-    global.__db__ = new PrismaClient();
+  if (!globalForPrisma.__db__) {
+    globalForPrisma.__db__ = new PrismaClient();
   }
-  db = global.__db__;
+  db = globalForPrisma.__db__;
   db.$connect();
 }
 

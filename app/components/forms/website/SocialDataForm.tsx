@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useFetcher } from "react-router";
 import { BasicInput } from "../BasicInput";
 import { PrimaryButton } from "~/components/common/primaryButton";

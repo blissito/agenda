@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";

@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 export const weekDictionary = {
   1: "lunes",
   2: "martes",

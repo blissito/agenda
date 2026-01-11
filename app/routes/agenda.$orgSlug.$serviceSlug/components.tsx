@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
 

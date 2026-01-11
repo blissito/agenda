@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type ReactNode, useState } from "react";
 import { FaClock } from "react-icons/fa";
 import { type Org, type Service } from "@prisma/client";

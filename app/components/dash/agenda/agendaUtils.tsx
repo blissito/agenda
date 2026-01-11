@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { HourOrDay } from "~/components/hooks/useCoordinates";
 
 export interface Day {

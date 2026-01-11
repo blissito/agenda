@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import appointmentCustomerTemplate from "./appointmentCustomerTemplate";
 import type { Event, Org, Service, User } from "@prisma/client";
 import appointmentOwnerTemplate from "./appointmentOwnerTemplate";

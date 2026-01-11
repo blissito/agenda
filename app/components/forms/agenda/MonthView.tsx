@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";

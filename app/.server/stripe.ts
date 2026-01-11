@@ -2,18 +2,21 @@ import { Stripe } from "stripe";
 import { getUserOrRedirect } from "./userGetters";
 import { db } from "~/utils/db.server";
 
+type StripeData = { id: string } | null;
+
 export const getOrCreateStripeAccount = async (request: Request) => {
   let account;
   let error;
   const user = await getUserOrRedirect(request);
+  const stripeData = user.stripe as StripeData;
   try {
-    if (user.stripe?.id) {
-      account = await retrieveAccountSafe(user.stripe.id);
+    if (stripeData?.id) {
+      account = await retrieveAccountSafe(stripeData.id);
     } else {
       account = await createConnectedAccount(user.email);
       await db.user.update({
         where: { id: user.id },
-        data: { stripe: account },
+        data: { stripe: { id: account.id } },
       });
     }
   } catch (e) {
@@ -39,11 +42,9 @@ export const createAccountLink = (connectedAccountId: string, origin: string) =>
     type: "account_onboarding",
   });
 
-let client;
+let client: Stripe;
 const getClient = () => {
-  client ??= new Stripe(process.env.STRIPE_SECRET_TEST as string, {
-    apiVersion: "2023-08-16",
-  });
+  client ??= new Stripe(process.env.STRIPE_SECRET_TEST as string);
   return client;
 };
 

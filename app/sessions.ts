@@ -9,16 +9,18 @@ type SessionFlashData = {
   error: string;
 };
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const { getSession, commitSession, destroySession } =
   createCookieSessionStorage<SessionData, SessionFlashData>({
     cookie: {
       name: "__session",
-      // httpOnly: true,
+      httpOnly: true,
       maxAge: 60 * 60 * 24 * 7,
       path: "/",
       sameSite: "lax",
-      secrets: ["blissm0_2024"],
-      // secure: true,
+      secrets: [process.env.SESSION_SECRET || "dev-secret-change-me"],
+      secure: isProduction,
     },
   });
 

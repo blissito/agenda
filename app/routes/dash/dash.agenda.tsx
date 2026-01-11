@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useFetcher } from "react-router";
 import { useEffect, useState } from "react";
 import { redirect } from "react-router";

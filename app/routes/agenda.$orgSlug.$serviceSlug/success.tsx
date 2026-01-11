@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Org, Service } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";

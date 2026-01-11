@@ -18,7 +18,7 @@ export const meta = () =>
     image: "/xmas/message-alert.png",
   });
 
-export const links: Route.LinksFunction = () => [
+export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -68,25 +68,40 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
+  const isDev = process.env.NODE_ENV === "development";
 
   const is404 = isRouteErrorResponse(error);
   const isError = error instanceof Error;
 
   return (
-    <div className="text-white pt-20">
-      <h1>
-        {!isError && !is404 ? (
-          <h1>Unknown Error</h1>
-        ) : is404 ? (
+    <div className="text-white pt-20 p-8">
+      <h1 className="text-2xl font-bold mb-4">
+        {is404 ? (
           <>
             {error.status} {error.statusText}
           </>
         ) : (
-          <p>{error.message}</p>
+          "Ha ocurrido un error"
         )}
       </h1>
       {is404 && <p>{error.data}</p>}
-      {isError && <pre>{error.stack}</pre>}
+      {isError && isDev && (
+        <details className="mt-4">
+          <summary className="cursor-pointer text-gray-400">
+            Detalles del error (solo en desarrollo)
+          </summary>
+          <pre className="mt-2 text-sm bg-gray-900 p-4 rounded overflow-auto">
+            {error.message}
+            {"\n\n"}
+            {error.stack}
+          </pre>
+        </details>
+      )}
+      {!isDev && isError && (
+        <p className="text-gray-400">
+          Por favor intenta de nuevo o contacta soporte si el problema persiste.
+        </p>
+      )}
     </div>
   );
 }

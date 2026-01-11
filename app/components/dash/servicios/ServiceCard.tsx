@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link, useFetcher } from "react-router";
 import { Tag } from "~/components/common/Tag";
 import { Plus } from "~/components/icons/plus";

@@ -26,7 +26,7 @@ export const getUserOrRedirect = async (
   options: { redirectURL?: string } = { redirectURL: "/signin" }
 ) => {
   const user = await getUserOrNull(request);
-  if (!user) throw redirect(options.redirectURL);
+  if (!user) throw redirect(options.redirectURL || "/signin");
   return user;
 };
 
@@ -40,7 +40,7 @@ export const getUserOrNull = async (request: Request): Promise<User | null> => {
   return user;
 };
 
-const ADMINS = ["fixtergeek@gmail.com", "bremin11.20.93@gmail.com"];
+const ADMINS = (process.env.ADMIN_EMAILS || "").split(",").filter(Boolean);
 
 export const getAdminUserOrRedirect = async (
   request: Request
@@ -154,7 +154,8 @@ const setUserSessionAndRedirect = async ({
 
 // MAGIC LINK =============================================================
 export const handleMagicLinkLogin = async (token: string, request: Request) => {
-  const { isValid, decoded: { email } = {} } = validateUserToken(token);
+  const { isValid, decoded } = validateUserToken(token);
+  const email = typeof decoded === "object" && decoded !== null ? (decoded as { email?: string }).email : undefined;
   // @TODO make sure expiration is working
   const genericError = {
     alert: {
@@ -162,7 +163,7 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
       message: "El link ha expirado, solicita uno nuevo",
     },
   };
-  if (!isValid) return genericError;
+  if (!isValid || !email) return genericError;
 
   const user = await db.user.upsert({
     where: { email },
@@ -257,10 +258,7 @@ export const getService = async (slug?: string) => {
   });
 };
 
-const validateWith = <T extends Record<string, string>>(
-  data: T,
-  schema: ZodSchema
-) => {
+const validateWith = <T,>(data: T, schema: ZodSchema) => {
   return schema.safeParse(data);
 };
 
@@ -280,29 +278,37 @@ export const updateOrg = async (formData: FormData, stepSlug: string) => {
   const next = (formData.get("next") as string) || "/signup/" + (+stepSlug + 1);
   const data: ORG = JSON.parse(formData.get("data") as string);
   // validation
-  const {
-    success,
-    error,
-    data: validData,
-  } = validateWith<ORG>(data, getCurrentSchema(stepSlug));
-  if (!success) {
-    return new Response(JSON.stringify({ error, success, data }), {
+  const result = validateWith(data, getCurrentSchema(stepSlug));
+  if (!result.success) {
+    return new Response(JSON.stringify({ error: result.error, success: result.success, data }), {
       status: 400,
     });
   }
+  const validData = result.data as ORG;
   const isLastCall = next === "/signup/4";
+
+  // Build update data based on step
+  const updateData: Record<string, unknown> = {
+    isActive: isLastCall ? true : false,
+  };
+
+  if ("name" in validData) {
+    updateData.name = validData.name;
+    updateData.slug = slugify(validData.name) + "_" + nanoid(4);
+    updateData.shopKeeper = validData.shopKeeper;
+    updateData.address = validData.address;
+    updateData.numberOfEmployees = validData.numberOfEmployees;
+  }
+  if ("businessType" in validData) {
+    updateData.businessType = validData.businessType;
+  }
+  if ("weekDays" in validData) {
+    updateData.weekDays = validData.weekDays;
+  }
+
   const actualOrg = await db.org.update({
-    where: {
-      id: validData.id,
-    },
-    data: {
-      ...validData,
-      isActive: isLastCall ? true : false,
-      slug: validData.name
-        ? slugify(validData.name) + "_" + nanoid(4)
-        : undefined,
-      id: undefined,
-    },
+    where: { id: validData.id },
+    data: updateData,
   });
   isLastCall &&
     (await db.user.update({

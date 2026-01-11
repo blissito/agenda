@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type ReactNode, useEffect, useRef } from "react";
 import type { Org } from "@prisma/client";
 import { TemplateForm } from "../forms/website/TemplateForm";

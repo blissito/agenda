@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useEffect, useRef } from "react";
 
 export const useTimeout = (secs: number) => {

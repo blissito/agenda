@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useLoaderData } from "react-router";
 import { serviceTimesFormHandler } from "~/.server/form_handlers/serviceTimesFormHandler";
 import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm";

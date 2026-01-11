@@ -1,6 +1,7 @@
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import type { Route } from "./+types/customers";
 import { db } from "~/utils/db.server";
+import { newCustomerSchema } from "~/utils/zod_schemas";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const url = new URL(request.url);
@@ -9,10 +10,23 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "new") {
     const { org } = await getUserAndOrgOrRedirect(request);
-    const data = JSON.parse(formData.get("data") as string);
-    data.orgId = org.id;
-    // @todo validate & user relation
-    return await db.customer.create({ data });
+    const rawData = JSON.parse(formData.get("data") as string);
+    const result = newCustomerSchema.safeParse(rawData);
+    if (!result.success) {
+      return Response.json(
+        { error: "Datos inválidos", details: result.error.flatten() },
+        { status: 400 }
+      );
+    }
+    return await db.customer.create({
+      data: {
+        displayName: result.data.displayName,
+        email: result.data.email,
+        tel: result.data.tel ?? undefined,
+        comments: result.data.comments ?? undefined,
+        orgId: org.id,
+      },
+    });
   }
   return null;
 };

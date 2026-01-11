@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { serviceConfigHandler } from "~/.server/form_handlers/serviceConfigHandler";

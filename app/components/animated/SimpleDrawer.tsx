@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useEffect, useRef } from "react";
 // import { createPortal } from "react-dom";

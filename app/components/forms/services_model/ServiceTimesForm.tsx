@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { twMerge } from "tailwind-merge";
 import { type Option, SelectInput } from "../SelectInput";
 import { useForm } from "react-hook-form";

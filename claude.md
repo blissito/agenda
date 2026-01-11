@@ -129,27 +129,48 @@ prisma/
 6. **app/components/common/Image.tsx:12** - Upload sin implementar
 7. **app/components/forms/InputFile.tsx:10,45** - Optimización imágenes
 
-## 🚀 Plan de Acción Sugerido
+## 🚀 TODO: Checklist para Producción
 
-### HOY
-1. Crear `.env.example`
-2. Mover secretos a variables de entorno
-3. Agregar validación básica a APIs críticas
+### 🔴 BLOQUEANTES (No deployar sin esto)
 
-### ESTA SEMANA
-4. Setup migraciones Prisma
-5. Implementar webhooks Stripe (si se necesita)
-6. Rate limiting en auth
-7. Reemplazar console.logs con logger
-8. Agregar tests básicos (auth + booking)
+- [x] **Secretos hardcodeados** - Mover a env vars ✅
+  - [x] `app/sessions.ts` → SESSION_SECRET
+  - [x] `app/utils/tokens.ts` → JWT_SECRET
+  - [x] `app/.server/userGetters.tsx` → ADMIN_EMAILS
+- [x] **Crear `.env.example`** con todas las variables necesarias ✅
+- [x] **Validación en APIs críticas** (prevenir inyección/crash) ✅
+  - [x] `app/routes/api/customers.ts` - newCustomerSchema
+  - [x] `app/routes/api/events.ts` - newEventSchema (ya existía)
+  - [x] `app/routes/api/api.org.ts` - orgUpdateSchema
+- [x] **Cookies seguras** - `httpOnly: true`, `secure: true` en producción ✅
+- [x] **Manejo de errores** - Stack traces solo en desarrollo ✅
 
-### ESTE MES
-9. Completar timezone handling
-10. Cola de emails con retry
-11. Paginación en listas
-12. Documentar API y setup
-13. Auditoría seguridad completa
-14. Limpiar rutas experimentales
+### 🟠 IMPORTANTE (Producción frágil sin esto)
+
+- [ ] **Rate limiting** en endpoints de auth (magic link abuse)
+- [ ] **Timezone handling** en `sendAppointment.ts` y `DateAndTimePicker.tsx`
+- [ ] **Limpiar console.logs** (59 encontrados) - usar logger
+- [ ] **Resolver @ts-ignore** (8 encontrados) - type safety
+- [ ] **Índices en MongoDB** para queries frecuentes
+- [ ] **Paginación** en listados (customers, events, services)
+
+### 🟡 RECOMENDADO (Mejora estabilidad)
+
+- [ ] **Tests básicos** - Auth flow + Booking flow
+- [ ] **Webhook Stripe** (si se usa checkout)
+- [ ] **Cola de emails** con retry logic
+- [ ] **Documentar API** endpoints
+- [ ] **Limpiar rutas /blissmo/** (37 rutas experimentales)
+- [ ] **Health check endpoint** para monitoreo
+
+### ⚪ NICE TO HAVE (Post-launch)
+
+- [ ] WhatsApp notifications
+- [ ] Upload de archivos/imágenes
+- [ ] i18n formal
+- [ ] Caching layer
+- [ ] Sentry/error tracking
+- [ ] Analytics
 
 ## 💡 Notas de Contexto
 

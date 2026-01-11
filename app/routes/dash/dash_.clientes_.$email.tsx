@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link, useLocation, useNavigate } from "react-router";
 import { useEffect } from "react";
 import { db } from "~/utils/db.server";

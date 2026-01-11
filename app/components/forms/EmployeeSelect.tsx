@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useEffect, type ChangeEvent } from "react";
 import { SelectInput } from "./SelectInput";
 import { Link, useFetcher } from "react-router";

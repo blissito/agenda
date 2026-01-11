@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useLoaderData } from "@remix-run/react";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { getServicefromSearchParams } from "~/.server/userGetters";

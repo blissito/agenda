@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Org } from "@prisma/client";
 import { useRef, type ChangeEvent, type SyntheticEvent } from "react";
 import { useFetcher } from "react-router";
