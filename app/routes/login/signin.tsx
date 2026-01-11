@@ -13,6 +13,12 @@ import { TopBar } from "~/components/common/topBar";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { ArrowRight } from "~/components/icons/arrowRight";
 import { handleMagicLinkLogin, redirectIfUser } from "~/.server/userGetters";
+import {
+  checkRateLimit,
+  getClientIP,
+  rateLimitPresets,
+  rateLimitResponse,
+} from "~/.server/rateLimit";
 import { destroySession, getSession } from "~/sessions";
 import { cn } from "~/utils/cn";
 import { sendMagicLink } from "~/utils/emails/sendMagicLink";
@@ -23,6 +29,17 @@ export const action = async ({ request }: Route.ActionArgs) => {
   const intent = formData.get("intent");
 
   if (intent === "magic_link") {
+    // Rate limit magic link requests
+    const clientIP = getClientIP(request);
+    const rateLimit = checkRateLimit(
+      `magic_link:${clientIP}`,
+      rateLimitPresets.magicLink
+    );
+
+    if (!rateLimit.success) {
+      return rateLimitResponse(rateLimit.resetAt);
+    }
+
     const email = formData.get("email");
     const emailSchema = z.string().email();
     const sp = emailSchema.safeParse(email);

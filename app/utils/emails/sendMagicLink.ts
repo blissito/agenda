@@ -24,10 +24,9 @@ export const sendMagicLink = async (
       to: email,
       html: magicLinkTemplate({ link: url.toString() }),
     });
-    console.log("Magic link sent successfully:", result);
     return result;
   } catch (error) {
     console.error("Error sending magic link:", error);
-    throw error; // Propagar el error para que el action lo maneje
+    throw error;
   }
 };

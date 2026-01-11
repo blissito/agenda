@@ -138,7 +138,6 @@ export const ServiceTimesForm = ({
             org={{ weekDays: week }} // @TODO: hack, please improve
             submitButton={<></>}
             onChange={(data: WeekDaysType) => {
-              console.info("TIMES: ", data); // remove?
               onTimesChange?.(data);
               const initialValues = {
                 lunes: [

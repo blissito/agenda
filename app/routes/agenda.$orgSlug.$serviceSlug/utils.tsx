@@ -1,5 +1,12 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-export const weekDictionary = {
+import type { Event } from "@prisma/client";
+import { getDaysInMonth } from "~/components/dash/agenda/agendaUtils";
+
+type WeekDaysType = Record<string, string[][]>;
+
+// Extended Event type with dateString (added at query time)
+type EventWithDateString = Event & { dateString: string };
+
+export const weekDictionary: Record<number, string> = {
   1: "lunes",
   2: "martes",
   3: "miércoles",
@@ -14,67 +21,58 @@ export const getMaxDate = (initialDate: Date) => {
   return new Date(initialDate);
 };
 
-const getAvailableDays = (weekDays: WeekDaysType) => {
-  // 1.- Map over the month?
-  let days = getDaysInMonth(new Date()); // @TODO: better get grid?
+export const getAvailableDays = (weekDays: WeekDaysType): string[] => {
+  let days = getDaysInMonth(new Date());
   const daysInNextMonth = getDaysInMonth(
     new Date(new Date().getFullYear(), new Date().getMonth() + 1)
   );
   const daysInAnotherMonth = getDaysInMonth(
     new Date(new Date().getFullYear(), new Date().getMonth() + 2)
   );
-  // @TODO: Re-visit this, including just 3 months...
   days = days.concat(daysInNextMonth).concat(daysInAnotherMonth);
+
   const availableDays = days
-    .filter((day) => {
+    .filter((day: Date) => {
       const date = new Date(day);
       const includedDays = Object.keys(weekDays);
       const today = new Date();
-      if (
-        new Date(
-          date.getFullYear(),
-          date.getMonth(),
-          date.getDate()
-        ).getTime() <
-        new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate()
-        ).getTime()
-      ) {
-        return false; // not yesterday ✅
+      const dateTime = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+      ).getTime();
+      const todayTime = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      ).getTime();
+
+      if (dateTime < todayTime) {
+        return false;
       }
       return includedDays.includes(weekDictionary[date.getDay()]);
     })
-    .map((d) => `${d.getMonth()}/${d.getDate()}`);
-  // console.log("Available", availableDays.length);
-  // console.log("DAYS: ", days);
+    .map((d: Date) => `${d.getMonth()}/${d.getDate()}`);
 
-  // 2.- group them up
-  // console.log("Dates: ", availableDays);
-  // 3.- if week includes day:
-  // 3.1.- save in available
-  // 3.2.- ^ this with days for now. 👷🏼‍♂️
   return availableDays;
 };
 
-const getScheduledDates = (events: Event[]) => {
-  if (!events || !events.length) return [];
-  const obj: { [x: string]: Record<string, string[]> } = { "0": { "1": [] } };
+export const getScheduledDates = (
+  events: EventWithDateString[]
+): Record<string, Record<string, string[]>> => {
+  if (!events || !events.length) return {};
+
+  const obj: Record<string, Record<string, string[]>> = {};
+
   events.forEach((e) => {
-    // @TODO: get locale from client
+    const month = String(Number(e.dateString.split("/")[1]) - 1);
+    const date = e.dateString.split("/")[0];
+    const timeString = e.dateString.split(",")[1]?.trim() ?? "";
 
-    // const month = new Date(e.start).toLocaleString("es-MX").split("/")[1];
-    const month = Number(e.dateString.split("/")[1]) - 1; // @TODO: improve please
-
-    const date = Number(e.dateString.split("/")[0]);
-
-    // {date,strings}
-    // const timeString = fromDateToTimeString(e.start);
-    const timeString = e.dateString.split(",")[1].trim();
-    obj[month] ||= { "1": [] };
+    obj[month] ||= {};
     obj[month][date] ||= [];
-    obj[month][date] = [...new Set([...obj[month][date], timeString])]; // Avoiding repeatition
+    obj[month][date] = [...new Set([...obj[month][date], timeString])];
   });
+
   return obj;
-}; // r
+};

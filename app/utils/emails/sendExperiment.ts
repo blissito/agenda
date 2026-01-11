@@ -32,8 +32,7 @@ export const sendExperiment = async (
       </article>
       `,
     })
-    .then((r: unknown) => {
-      console.log(r);
-    })
-    .catch((e: unknown) => console.log(e));
+    .catch((e: unknown) => {
+      console.error("Error sending experiment email:", e);
+    });
 };

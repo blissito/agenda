@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
@@ -8,6 +7,8 @@ import {
   isToday,
 } from "~/components/dash/agenda/agendaUtils";
 import { cn } from "~/utils/cn";
+
+type WeekDaysType = Record<string, string[][]>;
 
 const monthNames = [
   "enero",
@@ -32,7 +33,7 @@ export const MonthView = ({
   selected,
 }: {
   selected?: Date;
-  weekDays: WeekDaysType[];
+  weekDays: WeekDaysType;
   maxDate?: Date;
   onSelect?: (arg0: Date) => void;
 }) => {

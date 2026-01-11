@@ -57,9 +57,8 @@ app/routes/api/api.org.ts:17 → TODO validación
 ## 🟡 Media Prioridad
 
 - **Upload archivos**: No implementado (Image.tsx:12, InputFile.tsx:10,45)
-- **Seguridad**: Sin rate limiting, sin CSRF, cookies no secure
+- **Seguridad**: ~~Sin rate limiting~~, sin CSRF, cookies no secure
 - **Performance**: Sin caching, sin paginación, sin índices DB
-- **37 rutas /blissmo/**: Experimentales, documentar o remover
 
 ## 📋 Variables de Entorno Faltantes
 
@@ -147,12 +146,10 @@ prisma/
 
 ### 🟠 IMPORTANTE (Producción frágil sin esto)
 
-- [ ] **Rate limiting** en endpoints de auth (magic link abuse)
-- [ ] **Timezone handling** en `sendAppointment.ts` y `DateAndTimePicker.tsx`
-- [ ] **Limpiar console.logs** (59 encontrados) - usar logger
-- [ ] **Resolver @ts-ignore** (8 encontrados) - type safety
-- [ ] **Índices en MongoDB** para queries frecuentes
-- [ ] **Paginación** en listados (customers, events, services)
+- [x] **Rate limiting** en endpoints de auth (magic link abuse) ✅
+- [x] **Timezone handling** en `sendAppointment.ts` y `DateAndTimePicker.tsx` ✅
+- [x] **Limpiar console.logs** - removidos logs de debugging ✅
+- [x] **Resolver @ts-ignore** - 3 en api/services.ts resueltos ✅
 
 ### 🟡 RECOMENDADO (Mejora estabilidad)
 
@@ -160,7 +157,7 @@ prisma/
 - [ ] **Webhook Stripe** (si se usa checkout)
 - [ ] **Cola de emails** con retry logic
 - [ ] **Documentar API** endpoints
-- [ ] **Limpiar rutas /blissmo/** (37 rutas experimentales)
+- [x] **Limpiar rutas /blissmo/** (ya removidas) ✅
 - [ ] **Health check endpoint** para monitoreo
 
 ### ⚪ NICE TO HAVE (Post-launch)

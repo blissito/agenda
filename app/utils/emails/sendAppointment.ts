@@ -1,14 +1,15 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import appointmentCustomerTemplate from "./appointmentCustomerTemplate";
-import type { Event, Org, Service, User } from "@prisma/client";
+import type { Customer, Event, Org, Service, User } from "@prisma/client";
 import appointmentOwnerTemplate from "./appointmentOwnerTemplate";
 import { getRemitent, getSesTransport } from "./ses";
+import { formatDateForDisplay } from "~/utils/formatDate";
 
-type FullOrg = Org & {
-  org: (Org & { owner: User }) | Org;
+type ServiceWithOrg = Service & {
+  org: Org & { owner?: User };
 };
 type FullEvent = Event & {
-  service: Service & FullOrg;
+  service: ServiceWithOrg;
+  customer: Customer;
 };
 
 export const sendAppointmentToCustomer = async ({
@@ -33,13 +34,11 @@ export const sendAppointmentToCustomer = async ({
       subject: subject || "🗓️ ¡Cita agendada!",
       to: email,
       html: appointmentCustomerTemplate({
-        // @TODO: Is it worth to save all this info in the event? 🧐
-        displayName: event.service.org.shopKeeper ?? undefined, // <======================
-
+        displayName: event.service.org.shopKeeper ?? undefined,
         link: url.toString(),
         amount: event.service.price,
         address: event.service.org.address ?? undefined,
-        dateString: new Date(event.start).toLocaleString("es-MX"), // @TODO: test in server and revisit to finally find a solution ⏲
+        dateString: formatDateForDisplay(event.start),
         minutes: event.duration ?? undefined,
         reservationNumber: event.id,
         serviceName: event.service.name,
@@ -47,10 +46,9 @@ export const sendAppointmentToCustomer = async ({
         customerName: event.customer.displayName ?? undefined,
       }),
     })
-    .then((r: any) => {
-      console.log(r);
-    })
-    .catch((e: any) => console.log(e));
+    .catch((e: unknown) => {
+      console.error("Error sending appointment email to customer:", e);
+    });
 };
 
 export const sendAppointmentToOwner = async ({
@@ -64,7 +62,10 @@ export const sendAppointmentToOwner = async ({
   request?: Request;
   subject?: string;
 }) => {
-  if (!email) return console.error("NO_EMAIL_FOUND_ON_CALL");
+  if (!email) {
+    console.error("sendAppointmentToOwner: No email provided");
+    return;
+  }
   const url = new URL(request?.url || "https://denik.me");
   url.pathname = "/dash";
 
@@ -76,13 +77,11 @@ export const sendAppointmentToOwner = async ({
       subject: subject || "🗓️ Tienes una nueva reunion",
       to: email,
       html: appointmentOwnerTemplate({
-        // @TODO: Is it worth to save all this info in the event? 🧐
-        displayName: event.service.org.shopKeeper ?? undefined, // <======================
-
+        displayName: event.service.org.shopKeeper ?? undefined,
         link: url.toString(),
         amount: event.service.price,
         address: event.service.org.address ?? undefined,
-        dateString: new Date(event.start).toLocaleString("es-MX"), // @TODO: test in server and revisit to finally find a solution ⏲
+        dateString: formatDateForDisplay(event.start),
         minutes: event.duration ?? undefined,
         reservationNumber: event.id,
         serviceName: event.service.name,
@@ -90,8 +89,7 @@ export const sendAppointmentToOwner = async ({
         customerName: event.customer.displayName ?? undefined,
       }),
     })
-    .then((r: any) => {
-      console.log(r);
-    })
-    .catch((e: any) => console.log(e));
+    .catch((e: unknown) => {
+      console.error("Error sending appointment email to owner:", e);
+    });
 };

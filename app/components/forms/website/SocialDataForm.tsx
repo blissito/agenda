@@ -31,7 +31,6 @@ export const SocialDataForm = ({
   });
 
   const onSubmit = (values: unknown) => {
-    console.log("SUBMITING", values);
     fetcher.submit(
       {
         data: JSON.stringify({ social: values, id: defaultValues?.id }),

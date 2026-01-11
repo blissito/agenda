@@ -29,23 +29,10 @@ export const scheduleMail = async ({
   data?: unknown;
 }) => {
   await agenda.start();
-  console.log("Agendando envío de::", template);
   const r = when
     ? await agenda.schedule(when, template, { emails, when })
     : await agenda.now("send_experiment");
 
-  console.log(
-    "AGENDADO::",
-    r.attrs, // return id
-    new Date(r.attrs.nextRunAt).toLocaleString("es-MX", {
-      hour: "numeric",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      minute: "numeric",
-      timeZone: "America/Mexico_City",
-    })
-  );
   return r.attrs._id;
 };
 

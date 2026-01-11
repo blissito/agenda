@@ -29,7 +29,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Page() {
   const { service } = useLoaderData<typeof loader>();
-  console.log("Service", service);
   return (
     <main className="max-w-xl mx-auto pt-20  min-h-screen relative ">
       <h2 className="text-4xl font-bold font-title text-center leading-tight">

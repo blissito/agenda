@@ -131,7 +131,6 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { org, service } = loaderData;
-  console.log("SERVICE", service);
   const [time, setTime] = useState<number>();
   const [date, setDate] = useState<Date>();
   const [show, setShow] = useState("");

@@ -339,8 +339,7 @@ const User = ({ user }: { user: Partial<User> }) => (
       alt="avatar"
       src={user.photoURL ?? "https://loremflickr.com/640/480?lock=1234"}
       onError={(e) => {
-        console.log("Error loading Avatar image");
-        e.target.src = "https://loremflickr.com/640/480?lock=1234";
+        (e.target as HTMLImageElement).src = "https://loremflickr.com/640/480?lock=1234";
       }}
     />
     <div className="grid">
