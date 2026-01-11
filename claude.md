@@ -1,207 +1,74 @@
-# Auditoría Denik Agenda - Resumen para Claude
+# Denik Agenda
 
-**Fecha**: 2025-11-10
-**Estado**: MVP funcional pero incompleto (~60-70% completitud)
 **Stack**: React Router v7, TypeScript, Prisma (MongoDB), Stripe, AWS SES
 
-## 🎯 ¿Qué es esta app?
+## Qué es esta app
 
 Sistema de agendamiento/citas multi-tenant donde:
 - Negocios crean cuenta y servicios
 - Clientes reservan citas en `/agenda/:orgSlug/:serviceSlug`
 - Dashboard para gestionar agenda, clientes, servicios
 - Magic link auth (sin password)
-- Pagos con Stripe (incompleto)
+- Pagos con Stripe
 - Notificaciones por email (SES)
 
-## 🔴 CRÍTICO - Resolver Primero
-
-### 1. Secretos Hardcodeados
-```
-app/sessions.ts:20 → "blissm0_2024"
-app/utils/tokens.ts:4,9 → "denik.me"
-app/.server/userGetters.tsx:42 → emails admin hardcodeados
-```
-**Acción**: Mover a variables de entorno
-
-### 2. Stripe Incompleto
-- ❌ No hay webhook handler
-- ❌ No hay flujo de pago real
-- ❌ Faltan: `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLIC_KEY`
-- País hardcodeado a "MX"
-
-### 3. Base de Datos
-- ❌ No existe `prisma/migrations/`
-- Cambios de schema no trackeados
-- TODO en schema.prisma:1 sobre timestamps
-
-### 4. Validación APIs
-```
-app/routes/api/customers.ts:14,24 → sin validación
-app/routes/api/events.ts:42 → validación comentada
-app/routes/api/api.org.ts:17 → TODO validación
-```
-
-### 5. Timezone
-- Múltiples TODOs en `sendAppointment.ts`
-- `DateAndTimePicker.tsx` incompleto
-
-## 🟠 Alta Prioridad
-
-- **Testing**: 0% cobertura, sin framework configurado
-- **Docs**: README minimalista, sin .env.example
-- **59 console.logs**: Usar logger apropiado
-- **8 @ts-ignore**: Evadiendo type safety
-- **Notificaciones**: WhatsApp en schema pero no implementado
-
-## 🟡 Media Prioridad
-
-- **Upload archivos**: No implementado (Image.tsx:12, InputFile.tsx:10,45)
-- **Seguridad**: ~~Sin rate limiting~~, sin CSRF, cookies no secure
-- **Performance**: Sin caching, sin paginación, sin índices DB
-
-## 📋 Variables de Entorno Faltantes
-
-```bash
-# Faltantes
-STRIPE_SECRET_TEST=
-STRIPE_PUBLIC_KEY=
-STRIPE_WEBHOOK_SECRET=
-
-# Hardcodeadas (mover a .env)
-SESSION_SECRET=
-JWT_SECRET=
-
-# Recomendadas
-NODE_ENV=production
-LOG_LEVEL=info
-SENTRY_DSN=
-APP_URL=
-```
-
-## 📊 Estado de Features
-
-| Feature | Estado |
-|---------|--------|
-| Auth (magic link) | ✅ Funciona |
-| Booking público | ✅ Funciona |
-| Dashboard | ✅ Funciona |
-| Email notifications | ✅ Funciona (timezone incompleto) |
-| Stripe payments | ⚠️ Conexión básica |
-| Stripe checkout | ❌ No implementado |
-| Webhooks Stripe | ❌ No implementado |
-| WhatsApp | ❌ No implementado |
-| Tests | ❌ 0% |
-| Docs | ❌ Mínima |
-
-## 🗂️ Estructura Importante
+## Estructura
 
 ```
 app/
-├── .server/
-│   ├── userGetters.tsx (auth, TODOs en línea 42, 112, 157)
-│   ├── stripe.ts (básico, 67 líneas, país hardcodeado)
+├── .server/          # Server-only code (auth, stripe)
 ├── routes/
-│   ├── api/ (7 endpoints, mayoría sin validación)
-│   ├── dash/ (dashboard completo)
-│   ├── agenda.$orgSlug.$serviceSlug/ (booking público)
-│   ├── blissmo/ (37 rutas experimentales)
-├── components/
-│   ├── forms/agenda/ (DateAndTimePicker con TODOs)
-│   ├── common/ (Image upload pendiente)
-├── utils/
-│   ├── emails/ (SES, TODOs en sendAppointment.ts)
-│   ├── tokens.ts (JWT secret hardcodeado)
-├── sessions.ts (session secret hardcodeado)
+│   ├── api/          # API endpoints (customers, services, events, org)
+│   ├── dash/         # Dashboard
+│   ├── agenda.$orgSlug.$serviceSlug/  # Booking público
+│   └── stripe/       # Stripe endpoints + webhook
+├── components/       # UI components
+├── utils/            # Helpers, emails, tokens
+└── sessions.ts       # Session management
 
 prisma/
-├── schema.prisma (TODO línea 1, sin migrations/)
+└── schema.prisma     # 6 modelos: User, Org, Service, Event, Customer, Employee
 ```
 
-## 📝 TODOs Principales por Archivo
+## Estado de Features
 
-1. **prisma/schema.prisma:1** - Timestamps al reiniciar DB
-2. **app/.server/userGetters.tsx:42,112,157** - Auth issues
-3. **app/routes/api/*.ts** - Validación faltante (5 archivos)
-4. **app/utils/emails/sendAppointment.ts:35,41,78,84** - Timezone
-5. **app/components/forms/agenda/DateAndTimePicker.tsx:19,49,82,95** - Lógica incompleta
-6. **app/components/common/Image.tsx:12** - Upload sin implementar
-7. **app/components/forms/InputFile.tsx:10,45** - Optimización imágenes
+| Feature | Estado |
+|---------|--------|
+| Auth (magic link) | ✅ |
+| Booking público | ✅ |
+| Dashboard | ✅ |
+| Email notifications | ✅ |
+| Stripe Connect | ✅ |
+| Webhooks Stripe | ⚠️ Handler básico creado |
+| Tests | ❌ 0% |
 
-## 🚀 TODO: Checklist para Producción
+## TODO
 
-### 🔴 BLOQUEANTES (No deployar sin esto)
+- [ ] **Completar webhook Stripe** (`app/routes/stripe/webhook.ts`)
+  - Actualizar estado de pagos en DB cuando `checkout.session.completed`
+  - Manejar `payment_intent.failed` para notificar al usuario
+  - Agregar `STRIPE_WEBHOOK_SECRET` a producción
 
-- [x] **Secretos hardcodeados** - Mover a env vars ✅
-  - [x] `app/sessions.ts` → SESSION_SECRET
-  - [x] `app/utils/tokens.ts` → JWT_SECRET
-  - [x] `app/.server/userGetters.tsx` → ADMIN_EMAILS
-- [x] **Crear `.env.example`** con todas las variables necesarias ✅
-- [x] **Validación en APIs críticas** (prevenir inyección/crash) ✅
-  - [x] `app/routes/api/customers.ts` - newCustomerSchema
-  - [x] `app/routes/api/events.ts` - newEventSchema (ya existía)
-  - [x] `app/routes/api/api.org.ts` - orgUpdateSchema
-- [x] **Cookies seguras** - `httpOnly: true`, `secure: true` en producción ✅
-- [x] **Manejo de errores** - Stack traces solo en desarrollo ✅
-
-### 🟠 IMPORTANTE (Producción frágil sin esto)
-
-- [x] **Rate limiting** en endpoints de auth (magic link abuse) ✅
-- [x] **Timezone handling** en `sendAppointment.ts` y `DateAndTimePicker.tsx` ✅
-- [x] **Limpiar console.logs** - removidos logs de debugging ✅
-- [x] **Resolver @ts-ignore** - 3 en api/services.ts resueltos ✅
-
-### 🟡 RECOMENDADO (Mejora estabilidad)
-
-- [ ] **Tests básicos** - Auth flow + Booking flow
-- [ ] **Webhook Stripe** (si se usa checkout)
-- [ ] **Cola de emails** con retry logic
-- [ ] **Documentar API** endpoints
-- [x] **Limpiar rutas /blissmo/** (ya removidas) ✅
-- [ ] **Health check endpoint** para monitoreo
-
-### ⚪ NICE TO HAVE (Post-launch)
-
-- [ ] WhatsApp notifications
-- [ ] Upload de archivos/imágenes
-- [ ] i18n formal
-- [ ] Caching layer
-- [ ] Sentry/error tracking
-- [ ] Analytics
-
-## 💡 Notas de Contexto
-
-- **Onboarding**: 4 pasos, Stripe step deshabilitado
-- **Multi-tenant**: Basado en Org (organizaciones)
-- **Admin**: Basado en emails hardcodeados (no roles)
-- **I18n**: Mezcla español/inglés, no i18n formal
-- **Deploy**: Dockerfile + Fly.io + GitHub Actions
-- **Codebase**: 82 rutas, 15,937 líneas de componentes
-
-## 🔍 Buscar Issues
+## Variables de Entorno
 
 ```bash
-# Encontrar TODOs
-grep -r "TODO" app/
+# Requeridas
+DATABASE_URL=
+SESSION_SECRET=
+JWT_SECRET=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+STRIPE_SECRET_TEST=
+STRIPE_WEBHOOK_SECRET=
+APP_URL=
 
-# Encontrar console.logs
-grep -r "console\." app/
-
-# Encontrar @ts-ignore
-grep -r "@ts-ignore" app/
-
-# Encontrar hardcoded secrets
-grep -r "blissm0\|denik\.me" app/
+# Opcionales
+ADMIN_EMAILS=email1@x.com,email2@x.com
 ```
 
-## 📚 Recursos
+## Recursos
 
-- **Schema**: `prisma/schema.prisma` (6 modelos)
-- **APIs**: `app/routes/api/` (customers, services, events, org, employees)
 - **Auth**: `app/.server/userGetters.tsx`, `app/utils/tokens.ts`
 - **Email**: `app/utils/emails/`
-- **Stripe**: `app/.server/stripe.ts`, `app/routes/stripe/api.ts`
-
----
-
-**Próxima sesión**: Empezar por los items CRÍTICOS antes de agregar nuevas features.
+- **Stripe**: `app/.server/stripe.ts`, `app/routes/stripe/`
+- **Validación**: `app/utils/zod_schemas.ts`
