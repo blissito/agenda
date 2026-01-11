@@ -32,8 +32,8 @@ export const links = () => [
   { rel: "stylesheet", href: stylesheet },
   {
     rel: "icon",
-    href: "/favicon.ico",
-    type: "image/ico",
+    href: "/images/agenda-dash.svg",
+    type: "image/svg+xml",
   },
 ];
 
