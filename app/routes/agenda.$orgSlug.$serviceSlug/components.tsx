@@ -33,7 +33,7 @@ export const InfoShower = ({ org, service, date }) => {
   );
 };
 
-export const Footer = ({ errors = false, isLoading, onSubmit }) => {
+export const Footer = ({ errors = false, isLoading, onSubmit, isValid = false }) => {
   return (
     <>
       <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">

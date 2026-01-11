@@ -37,8 +37,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "remove_block") {
     const id = formData.get("eventId") as string;
-
-    await db.event.delete({ where: { id, type: "BLOCK" } });
+    const block = await db.event.findUnique({ where: { id } });
+    if (block?.type === "BLOCK") {
+      await db.event.delete({ where: { id } });
+    }
   }
 
   if (intent === "add_block") {

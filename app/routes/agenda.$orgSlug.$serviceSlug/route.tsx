@@ -10,10 +10,14 @@ import { BasicInput } from "~/components/forms/BasicInput";
 import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { z } from "zod";
-import { createEvent, getService } from "~/.server/userGetters";
+import { getService } from "~/.server/userGetters";
 import { Success } from "./success";
 import { db } from "~/utils/db.server";
 import type { Route } from "./+types/route";
+import {
+  sendAppointmentToCustomer,
+  sendAppointmentToOwner,
+} from "~/utils/emails/sendAppointment";
 
 export const userInfoSchema = z.object({
   displayName: z.string().min(1),
@@ -46,8 +50,63 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   }
   if (intent === "create_event") {
     const data = JSON.parse(formData.get("data") as string);
-    // @todo: add logged user id & validation
-    return { event: await createEvent(data) };
+
+    // 1. Obtener org
+    const org = await db.org.findUnique({
+      where: { slug: params.orgSlug },
+    });
+    if (!org) throw new Response("Org not found", { status: 404 });
+
+    // 2. Crear Customer
+    const customer = await db.customer.create({
+      data: {
+        displayName: data.customer.displayName,
+        email: data.customer.email,
+        tel: data.customer.tel || null,
+        comments: data.customer.comments || null,
+        orgId: org.id,
+      },
+    });
+
+    // 3. Calcular end time
+    const startDate = new Date(data.start);
+    const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000);
+
+    // 4. Crear Event con orgId y customerId
+    const event = await db.event.create({
+      data: {
+        start: startDate,
+        end: endDate,
+        duration: data.duration,
+        serviceId: data.serviceId,
+        title: data.title,
+        status: data.status,
+        orgId: org.id,
+        customerId: customer.id,
+      },
+      include: {
+        customer: true,
+        service: { include: { org: true } },
+      },
+    });
+
+    // 5. Enviar emails de confirmación
+    try {
+      await sendAppointmentToCustomer({
+        email: customer.email,
+        event: event as any,
+      });
+      if (org.email) {
+        await sendAppointmentToOwner({
+          email: org.email,
+          event: event as any,
+        });
+      }
+    } catch (e) {
+      console.error("Email send failed:", e);
+    }
+
+    return { event, org };
   }
   return null;
 };
