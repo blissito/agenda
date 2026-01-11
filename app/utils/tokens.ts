@@ -12,13 +12,16 @@ export const validateUserToken = (token: string) => {
     return {
       isValid: true,
       decoded,
+      expired: false,
     };
-  } catch (e: any) {
-    console.error(e);
+  } catch (e: unknown) {
+    const error = e as Error & { name?: string };
+    const isExpired = error.name === "TokenExpiredError";
     return {
       isValid: false,
-      error: e,
-      errorMessage: e.message,
+      expired: isExpired,
+      error,
+      errorMessage: isExpired ? "El link ha expirado" : error.message,
     };
   }
 };

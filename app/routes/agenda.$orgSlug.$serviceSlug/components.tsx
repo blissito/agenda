@@ -1,24 +1,33 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
+import type { Org, Service } from "@prisma/client";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
 
 const example =
   "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg";
 
-export const Header = ({ org }) => {
+export const Header = ({ org }: { org: Org }) => {
+  const orgWithLogo = org as Org & { logo?: string };
   return (
     <div className="flex gap-3 items-center justify-center py-12">
       <img
         className="w-8 rounded-full"
         alt="org logo"
-        src={org?.logo || example}
+        src={orgWithLogo?.logo || example}
       />
       <h1 className="font-bold text-sm ">{org?.name}</h1>
     </div>
   );
 };
 
-export const InfoShower = ({ org, service, date }) => {
+export const InfoShower = ({
+  org,
+  service,
+  date,
+}: {
+  org: Org;
+  service: Service;
+  date?: Date;
+}) => {
   return (
     <>
       <div className="w-full min-w-[260px] max-w-[260px]">
@@ -33,11 +42,18 @@ export const InfoShower = ({ org, service, date }) => {
   );
 };
 
-export const Footer = ({ errors = false, isLoading, onSubmit, isValid = false }) => {
+type FooterProps = {
+  errors?: Record<string, { message?: string }>;
+  isLoading: boolean;
+  onSubmit: () => void;
+  isValid?: boolean;
+};
+
+export const Footer = ({ errors = {}, isLoading, onSubmit, isValid = false }: FooterProps) => {
   return (
     <>
       <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">
-        {errors.time?.message}
+        {errors?.time?.message}
         {errors.date?.message}
       </p>
       <PrimaryButton

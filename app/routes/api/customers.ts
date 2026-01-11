@@ -34,8 +34,19 @@ export const action = async ({ request }: Route.ActionArgs) => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
   const url = new URL(request.url);
-  const search = url.searchParams.get("search") as string;
-  // @todo lower and upper (regex) match
+  const rawSearch = url.searchParams.get("search") || "";
+  // Sanitize: remove special regex chars and limit length
+  const search = rawSearch.replace(/[.*+?^${}()|[\]\\]/g, "").slice(0, 100);
+
+  if (!search) {
+    return {
+      customers: await db.customer.findMany({
+        where: { orgId: org.id },
+        take: 50,
+      }),
+    };
+  }
+
   return {
     customers: await db.customer.findMany({
       where: {
@@ -43,26 +54,31 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         OR: [
           {
             displayName: {
-              startsWith: search,
+              contains: search,
+              mode: "insensitive",
             },
           },
           {
             email: {
-              startsWith: search,
+              contains: search,
+              mode: "insensitive",
             },
           },
           {
             comments: {
-              startsWith: search,
+              contains: search,
+              mode: "insensitive",
             },
           },
           {
             tel: {
-              startsWith: search,
+              contains: search,
+              mode: "insensitive",
             },
           },
         ],
       },
+      take: 50,
     }),
   };
 };

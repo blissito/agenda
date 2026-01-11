@@ -1,9 +1,13 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import type { Org, Service } from "@prisma/client";
+import type { Customer, Event as PrismaEvent, Org, Service } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
+
+type EventWithRelations = PrismaEvent & {
+  customer?: Customer | null;
+  service?: (Service & { org: Org }) | null;
+};
 
 export const Success = ({
   event,
@@ -14,7 +18,7 @@ export const Success = ({
   onFinish: () => void;
   org: Org;
   service: Service;
-  event?: Event;
+  event?: EventWithRelations;
 }) => {
   const [on, set] = useState(true);
   useEffect(() => {
@@ -61,13 +65,7 @@ export const Success = ({
         <ServiceList
           org={org}
           service={{ ...service }}
-          date={new Date(event?.start).toLocaleString("es-MX", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-          })}
+          date={event?.start ? new Date(event.start) : undefined}
         />
       </div>
       {/* @TODO: link to another schedule */}

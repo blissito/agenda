@@ -154,13 +154,22 @@ const setUserSessionAndRedirect = async ({
 
 // MAGIC LINK =============================================================
 export const handleMagicLinkLogin = async (token: string, request: Request) => {
-  const { isValid, decoded } = validateUserToken(token);
+  const { isValid, decoded, expired, errorMessage } = validateUserToken(token);
   const email = typeof decoded === "object" && decoded !== null ? (decoded as { email?: string }).email : undefined;
-  // @TODO make sure expiration is working
+
+  if (expired) {
+    return {
+      alert: {
+        type: "error",
+        message: "El link ha expirado, solicita uno nuevo",
+      },
+    };
+  }
+
   const genericError = {
     alert: {
       type: "error",
-      message: "El link ha expirado, solicita uno nuevo",
+      message: errorMessage || "Link inválido, solicita uno nuevo",
     },
   };
   if (!isValid || !email) return genericError;
