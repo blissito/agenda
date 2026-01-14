@@ -18,7 +18,7 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import type { CalendarEvent, CalendarProps, CalendarConfig } from "./types";
+import type { CalendarEvent, CalendarProps, CalendarConfig, ColumnHeaderProps } from "./types";
 import { useCalendarEvents } from "./useCalendarEvents";
 import { useClickOutside, formatDate } from "./hooks";
 import { completeWeek, isToday as checkIsToday } from "./utils";
@@ -51,20 +51,44 @@ const getComparableTime = (date: Date) => {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 };
 
-const DayHeader = ({ date, locale }: { date: Date; locale: string }) => (
-  <p className="grid place-items-center">
-    <span className="capitalize">
-      {date.toLocaleDateString(locale, { weekday: "short" })}
-    </span>
-    <span
-      className={cn(
-        checkIsToday(date) && "bg-blue-500 rounded-full p-1 text-white"
-      )}
-    >
-      {date.getDate()}
-    </span>
-  </p>
-);
+const DayHeader = ({
+  date,
+  locale,
+  index,
+  renderColumnHeader,
+}: {
+  date: Date;
+  locale: string;
+  index: number;
+  renderColumnHeader?: (props: ColumnHeaderProps) => ReactNode;
+}) => {
+  const isToday = checkIsToday(date);
+
+  // Custom renderer takes priority
+  if (renderColumnHeader) {
+    return (
+      <div className="grid place-items-center">
+        {renderColumnHeader({ date, index, isToday, locale })}
+      </div>
+    );
+  }
+
+  // Default: weekday + date number
+  return (
+    <p className="grid place-items-center">
+      <span className="capitalize">
+        {date.toLocaleDateString(locale, { weekday: "short" })}
+      </span>
+      <span
+        className={cn(
+          isToday && "bg-blue-500 rounded-full p-1 text-white"
+        )}
+      >
+        {date.getDate()}
+      </span>
+    </p>
+  );
+};
 
 export function Calendar({
   date = new Date(),
@@ -76,7 +100,7 @@ export function Calendar({
   onRemoveBlock,
   config = {},
 }: CalendarProps) {
-  const { locale = "es-MX", icons = {} } = config;
+  const { locale = "es-MX", icons = {}, renderColumnHeader } = config;
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState<string | null>(null);
   const { canMove } = useCalendarEvents(events);
@@ -149,8 +173,14 @@ export function Calendar({
               {Intl.DateTimeFormat().resolvedOptions().timeZone}
             </span>
           </p>
-          {week.map((day) => (
-            <DayHeader key={day.toISOString()} date={day} locale={locale} />
+          {week.map((day, index) => (
+            <DayHeader
+              key={day.toISOString()}
+              date={day}
+              locale={locale}
+              index={index}
+              renderColumnHeader={renderColumnHeader}
+            />
           ))}
         </section>
         <section className="grid grid-cols-8 max-h-[80vh] overflow-y-auto">

@@ -2,6 +2,20 @@ import * as react_jsx_runtime from 'react/jsx-runtime';
 import { ReactNode, RefObject } from 'react';
 
 /**
+ * Props passed to custom column header renderer
+ * Use this to build custom headers for resources (courts, rooms, employees, etc.)
+ */
+interface ColumnHeaderProps {
+    /** The date for this column */
+    date: Date;
+    /** Column index (0-6) */
+    index: number;
+    /** Whether this column represents today */
+    isToday: boolean;
+    /** The configured locale */
+    locale: string;
+}
+/**
  * Generic calendar event - decoupled from any ORM
  */
 interface CalendarEvent {
@@ -30,6 +44,23 @@ interface CalendarConfig {
         edit?: ReactNode;
         close?: ReactNode;
     };
+    /**
+     * Custom renderer for column headers.
+     * Use this to display resources (courts, rooms, employees) instead of weekdays.
+     *
+     * @example
+     * // Padel courts
+     * renderColumnHeader: ({ index }) => <span>Court {index + 1}</span>
+     *
+     * @example
+     * // With custom styling
+     * renderColumnHeader: ({ date, isToday }) => (
+     *   <div className={isToday ? "font-bold" : ""}>
+     *     {date.toLocaleDateString("en", { weekday: "short" })}
+     *   </div>
+     * )
+     */
+    renderColumnHeader?: (props: ColumnHeaderProps) => ReactNode;
 }
 /**
  * Calendar component props
@@ -128,4 +159,4 @@ declare function useClickOutside<T extends HTMLElement>({ isActive, onOutsideCli
  */
 declare function formatDate(date: Date, locale?: string): string;
 
-export { Calendar, type CalendarConfig, type CalendarEvent, type CalendarProps, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarEvents, useClickOutside, useEventOverlap };
+export { Calendar, type CalendarConfig, type CalendarEvent, type CalendarProps, type ColumnHeaderProps, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarEvents, useClickOutside, useEventOverlap };

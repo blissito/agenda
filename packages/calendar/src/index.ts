@@ -5,7 +5,12 @@ export { Calendar, SimpleBigWeekView } from "./Calendar";
 export { useCalendarEvents, useEventOverlap } from "./useCalendarEvents";
 
 // Types
-export type { CalendarEvent, CalendarProps, CalendarConfig } from "./types";
+export type {
+  CalendarEvent,
+  CalendarProps,
+  CalendarConfig,
+  ColumnHeaderProps,
+} from "./types";
 
 // Utilities
 export {

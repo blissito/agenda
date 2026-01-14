@@ -111,7 +111,60 @@ interface CalendarConfig {
     edit?: ReactNode;
     close?: ReactNode;
   };
+  renderColumnHeader?: (props: ColumnHeaderProps) => ReactNode;
 }
+
+interface ColumnHeaderProps {
+  date: Date;
+  index: number;
+  isToday: boolean;
+  locale: string;
+}
+```
+
+## Custom Column Headers
+
+Transform the calendar from weekdays to any resource type:
+
+```tsx
+// Padel courts booking
+<Calendar
+  events={courtEvents}
+  config={{
+    renderColumnHeader: ({ index }) => (
+      <div className="text-center font-semibold">
+        Court {index + 1}
+      </div>
+    )
+  }}
+/>
+
+// Meeting rooms
+<Calendar
+  events={roomEvents}
+  config={{
+    renderColumnHeader: ({ index }) => {
+      const rooms = ["Sala A", "Sala B", "Sala C", "Sala D", "Sala E", "Sala F", "Sala G"];
+      return <span>{rooms[index]}</span>;
+    }
+  }}
+/>
+
+// Employees schedule
+<Calendar
+  events={shifts}
+  config={{
+    renderColumnHeader: ({ index }) => {
+      const team = ["Ana", "Carlos", "María", "Pedro", "Laura", "Diego", "Sofia"];
+      return (
+        <div className="flex flex-col items-center">
+          <img src={`/avatars/${index}.jpg`} className="w-8 h-8 rounded-full" />
+          <span className="text-sm">{team[index]}</span>
+        </div>
+      );
+    }
+  }}
+/>
 ```
 
 ## Features
@@ -121,6 +174,7 @@ interface CalendarConfig {
 - Block time slots
 - Week navigation
 - Auto-scroll to current hour
+- Custom column headers (resources, courts, rooms, employees)
 - Customizable icons
 - Locale support
 - TypeScript support
