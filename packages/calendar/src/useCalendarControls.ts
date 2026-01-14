@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { completeWeek, addDaysToDate } from "./utils";
 
 export type CalendarView = "week" | "day";
@@ -27,8 +27,8 @@ export interface CalendarControls {
   goToPrev: () => void;
   /** Navigate to next period (week or day) */
   goToNext: () => void;
-  /** Toggle between week and day view */
-  toggleView: () => void;
+  /** Toggle between week and day view (or pass event/value) */
+  toggleView: (e?: React.ChangeEvent<HTMLSelectElement> | CalendarView) => void;
   /** Set specific date */
   setDate: (date: Date) => void;
   /** Set specific view */
@@ -79,9 +79,21 @@ export function useCalendarControls(
     setDate((d) => addDaysToDate(d, view === "week" ? 7 : 1));
   }, [view]);
 
-  const toggleView = useCallback(() => {
-    setView((v) => (v === "week" ? "day" : "week"));
-  }, []);
+  const toggleView = useCallback(
+    (e?: React.ChangeEvent<HTMLSelectElement> | CalendarView) => {
+      if (typeof e === "string") {
+        // Direct value passed
+        setView(e);
+      } else if (e?.target?.value) {
+        // Select onChange event
+        setView(e.target.value as CalendarView);
+      } else {
+        // No arg - toggle
+        setView((v) => (v === "week" ? "day" : "week"));
+      }
+    },
+    []
+  );
 
   const isToday = useMemo(() => {
     const today = new Date();

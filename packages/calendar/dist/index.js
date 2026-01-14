@@ -1028,9 +1028,18 @@ function useCalendarControls(options = {}) {
   const goToNext = useCallback(() => {
     setDate((d) => addDaysToDate(d, view === "week" ? 7 : 1));
   }, [view]);
-  const toggleView = useCallback(() => {
-    setView((v) => v === "week" ? "day" : "week");
-  }, []);
+  const toggleView = useCallback(
+    (e) => {
+      if (typeof e === "string") {
+        setView(e);
+      } else if (e?.target?.value) {
+        setView(e.target.value);
+      } else {
+        setView((v) => v === "week" ? "day" : "week");
+      }
+    },
+    []
+  );
   const isToday2 = useMemo(() => {
     const today = /* @__PURE__ */ new Date();
     return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();

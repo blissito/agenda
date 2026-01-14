@@ -1,5 +1,5 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ReactNode, RefObject } from 'react';
+import React, { ReactNode, RefObject } from 'react';
 
 /**
  * Resource definition for day/resource view mode
@@ -234,8 +234,8 @@ interface CalendarControls$1 {
     goToPrev: () => void;
     /** Navigate to next period (week or day) */
     goToNext: () => void;
-    /** Toggle between week and day view */
-    toggleView: () => void;
+    /** Toggle between week and day view (or pass event/value) */
+    toggleView: (e?: React.ChangeEvent<HTMLSelectElement> | CalendarView) => void;
     /** Set specific date */
     setDate: (date: Date) => void;
     /** Set specific view */
