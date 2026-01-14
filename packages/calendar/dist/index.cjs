@@ -248,13 +248,26 @@ var formatTimeRange = (start, duration, locale, format = "12h", customFormatter)
   if (customFormatter) {
     return customFormatter(start, end, locale);
   }
-  const options = {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: format === "12h"
+  if (format === "24h") {
+    const options = {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: false
+    };
+    const startStr2 = start.toLocaleTimeString(locale, options);
+    const endStr2 = end.toLocaleTimeString(locale, options);
+    return `${startStr2} - ${endStr2}`;
+  }
+  const formatTime = (date, showPeriod) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const h = hours % 12 || 12;
+    const m = minutes.toString().padStart(2, "0");
+    const period = hours >= 12 ? "pm" : "am";
+    return showPeriod ? `${h}:${m}${period}` : `${h}:${m}`;
   };
-  const startStr = start.toLocaleTimeString(locale, options);
-  const endStr = end.toLocaleTimeString(locale, options);
+  const startStr = formatTime(start, false);
+  const endStr = formatTime(end, true);
   return `${startStr} - ${endStr}`;
 };
 var DefaultTrashIcon = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 24 24", className: "w-4 h-4", fill: "currentColor", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" }) });
@@ -348,7 +361,13 @@ function Calendar({
   onRemoveBlock,
   config = {}
 }) {
-  const { locale = "es-MX", icons = {}, renderColumnHeader } = config;
+  const {
+    locale = "es-MX",
+    icons = {},
+    renderColumnHeader,
+    hoursStart = 0,
+    hoursEnd = 24
+  } = config;
   const week = completeWeek(date);
   const [activeId, setActiveId] = react.useState(null);
   const { canMove } = useCalendarEvents(events);
@@ -457,7 +476,7 @@ function Calendar({
                 isResourceMode && "overflow-x-auto"
               ),
               children: [
-                /* @__PURE__ */ jsxRuntime.jsx(TimeColumn, {}),
+                /* @__PURE__ */ jsxRuntime.jsx(TimeColumn, { hoursStart, hoursEnd }),
                 Array.from({ length: columnCount }, (_, colIndex) => /* @__PURE__ */ jsxRuntime.jsx(
                   Column,
                   {
@@ -471,7 +490,9 @@ function Calendar({
                     locale,
                     icons,
                     resourceId: isResourceMode ? resources[colIndex].id : void 0,
-                    config
+                    config,
+                    hoursStart,
+                    hoursEnd
                   },
                   isResourceMode ? resources[colIndex].id : week[colIndex].toISOString()
                 ))
@@ -622,7 +643,9 @@ var Column = ({
   locale,
   icons,
   resourceId,
-  config = {}
+  config = {},
+  hoursStart = 0,
+  hoursEnd = 24
 }) => {
   const columnRef = react.useRef(null);
   const eventsWithPositions = calculateOverlapPositions(events);
@@ -676,19 +699,28 @@ var Column = ({
       }
     );
   };
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { ref: columnRef, className: "grid", children: Array.from({ length: 24 }, (_, hours) => /* @__PURE__ */ jsxRuntime.jsx(
-    Cell,
-    {
-      hours,
-      date: dayOfWeek,
-      className: "relative",
-      dayIndex,
-      children: findEventsAtHour(hours)
-    },
-    hours
-  )) });
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { ref: columnRef, className: "grid", children: Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
+    const hours = hoursStart + i;
+    return /* @__PURE__ */ jsxRuntime.jsx(
+      Cell,
+      {
+        hours,
+        date: dayOfWeek,
+        className: "relative",
+        dayIndex,
+        children: findEventsAtHour(hours)
+      },
+      hours
+    );
+  }) });
 };
-var TimeColumn = () => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "grid", children: Array.from({ length: 24 }, (_, i) => /* @__PURE__ */ jsxRuntime.jsx(Cell, { children: `${i < 10 ? "0" : ""}${i}:00` }, i)) });
+var TimeColumn = ({
+  hoursStart = 0,
+  hoursEnd = 24
+}) => /* @__PURE__ */ jsxRuntime.jsx("div", { className: "grid", children: Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
+  const hour = hoursStart + i;
+  return /* @__PURE__ */ jsxRuntime.jsx(Cell, { children: `${hour < 10 ? "0" : ""}${hour}:00` }, hour);
+}) });
 var DraggableEvent = ({
   event,
   onClick,
@@ -771,18 +803,19 @@ var DraggableEvent = ({
         ...listeners,
         ...attributes,
         className: cn(
-          "border grid gap-y-0 overflow-hidden place-content-start",
-          "text-xs text-left pl-2 pr-1 py-1 absolute top-0 text-white rounded-md z-10",
+          "border-0 grid gap-y-0 overflow-hidden place-content-start",
+          "text-xs text-left pl-3 pr-1 py-1 absolute top-0 text-white rounded-lg z-10",
           colorClass,
           event.type === "BLOCK" && "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
-          event.type !== "BLOCK" && "cursor-grab",
+          event.type !== "BLOCK" && "cursor-grab shadow-sm",
           isDragging && event.type !== "BLOCK" && "cursor-grabbing opacity-50"
         ),
         children: [
+          event.type !== "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" }),
           event.type === "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" }),
           showTime && event.type !== "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-[10px] opacity-90 font-medium", children: timeString }),
           /* @__PURE__ */ jsxRuntime.jsx("span", { className: "font-medium truncate", children: event.title }),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-white/70 truncate", children: event.service?.name }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-white/80 truncate text-[10px]", children: event.service?.name }),
           event.participants && event.participants.length > 0 && /* @__PURE__ */ jsxRuntime.jsx(
             ParticipantAvatars,
             {
@@ -816,15 +849,16 @@ var EventOverlay = ({
     "div",
     {
       className: cn(
-        "border grid gap-y-0 overflow-hidden place-content-start",
-        "text-xs text-left pl-2 pr-1 py-1 text-white rounded-md w-[200px] opacity-90 shadow-lg",
+        "border-0 grid gap-y-0 overflow-hidden place-content-start relative",
+        "text-xs text-left pl-3 pr-1 py-1 text-white rounded-lg w-[200px] opacity-90 shadow-lg",
         colorClass
       ),
       style: { height: event.duration / 60 * 64, ...colorStyle },
       children: [
+        event.type !== "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" }),
         event.type === "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" }),
         /* @__PURE__ */ jsxRuntime.jsx("span", { className: "font-medium truncate", children: event.title }),
-        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-white/70 truncate", children: event.service?.name })
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-white/80 truncate text-[10px]", children: event.service?.name })
       ]
     }
   );
@@ -888,6 +922,7 @@ var Options = ({
 };
 var DefaultPrevIcon = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 24 24", className: "w-5 h-5", fill: "currentColor", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" }) });
 var DefaultNextIcon = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 24 24", className: "w-5 h-5", fill: "currentColor", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" }) });
+var DefaultExportIcon = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 24 24", className: "w-5 h-5", fill: "none", stroke: "currentColor", strokeWidth: 2, children: /* @__PURE__ */ jsxRuntime.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", d: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" }) });
 function CalendarControls({
   controls,
   todayLabel = "HOY",
@@ -897,7 +932,13 @@ function CalendarControls({
   prevIcon,
   nextIcon,
   actions,
-  className = ""
+  className = "",
+  showExport = false,
+  onExport,
+  exportIcon,
+  showAdd = false,
+  onAdd,
+  addLabel = "AGREGAR"
 }) {
   const { label, goToToday, goToPrev, goToNext, view, toggleView, isToday: isToday2 } = controls;
   return /* @__PURE__ */ jsxRuntime.jsxs(
@@ -946,6 +987,23 @@ function CalendarControls({
                 /* @__PURE__ */ jsxRuntime.jsx("option", { value: "week", children: weekLabel }),
                 /* @__PURE__ */ jsxRuntime.jsx("option", { value: "day", children: dayLabel })
               ]
+            }
+          ),
+          showExport && /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              onClick: onExport,
+              className: "p-2 border rounded-lg hover:bg-gray-50 transition-colors",
+              "aria-label": "Export",
+              children: exportIcon ?? /* @__PURE__ */ jsxRuntime.jsx(DefaultExportIcon, {})
+            }
+          ),
+          showAdd && /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              onClick: onAdd,
+              className: "px-5 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors",
+              children: addLabel
             }
           ),
           actions

@@ -20,6 +20,18 @@ export interface CalendarControlsProps {
   actions?: ReactNode;
   /** Custom class name */
   className?: string;
+  /** Show export/download button */
+  showExport?: boolean;
+  /** Export button click handler */
+  onExport?: () => void;
+  /** Custom export icon */
+  exportIcon?: ReactNode;
+  /** Show add button */
+  showAdd?: boolean;
+  /** Add button click handler */
+  onAdd?: () => void;
+  /** Add button label */
+  addLabel?: string;
 }
 
 const DefaultPrevIcon = () => (
@@ -31,6 +43,12 @@ const DefaultPrevIcon = () => (
 const DefaultNextIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
     <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+  </svg>
+);
+
+const DefaultExportIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
   </svg>
 );
 
@@ -56,6 +74,12 @@ export function CalendarControls({
   nextIcon,
   actions,
   className = "",
+  showExport = false,
+  onExport,
+  exportIcon,
+  showAdd = false,
+  onAdd,
+  addLabel = "AGREGAR",
 }: CalendarControlsProps) {
   const { label, goToToday, goToPrev, goToNext, view, toggleView, isToday } =
     controls;
@@ -109,6 +133,27 @@ export function CalendarControls({
             <option value="week">{weekLabel}</option>
             <option value="day">{dayLabel}</option>
           </select>
+        )}
+
+        {/* Export button */}
+        {showExport && (
+          <button
+            onClick={onExport}
+            className="p-2 border rounded-lg hover:bg-gray-50 transition-colors"
+            aria-label="Export"
+          >
+            {exportIcon ?? <DefaultExportIcon />}
+          </button>
+        )}
+
+        {/* Add button */}
+        {showAdd && (
+          <button
+            onClick={onAdd}
+            className="px-5 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+          >
+            {addLabel}
+          </button>
         )}
 
         {/* Custom actions */}

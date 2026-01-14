@@ -1,10 +1,35 @@
 import { useState } from "react";
 import {
   Calendar,
+  CalendarControls,
   useCalendarControls,
   type CalendarEvent,
   type EventParticipant,
+  type Resource,
 } from "@hectorbliss/denik-calendar";
+
+// Iconos de canchas de pádel
+const CourtIcon = ({ color = "#22c55e" }: { color?: string }) => (
+  <div
+    className="w-10 h-10 rounded-full flex items-center justify-center"
+    style={{ backgroundColor: `${color}20` }}
+  >
+    <svg viewBox="0 0 24 24" className="w-6 h-6" fill={color}>
+      <circle cx="12" cy="6" r="2" />
+      <circle cx="8" cy="10" r="2" />
+      <circle cx="16" cy="10" r="2" />
+      <circle cx="12" cy="14" r="2" />
+    </svg>
+  </div>
+);
+
+// Resources (Canchas)
+const courts: Resource[] = [
+  { id: "cancha-1", name: "Cancha 1", icon: <CourtIcon color="#22c55e" /> },
+  { id: "cancha-2", name: "Cancha 2", icon: <CourtIcon color="#3b82f6" /> },
+  { id: "cancha-3", name: "Cancha 3", icon: <CourtIcon color="#f59e0b" /> },
+  { id: "cancha-4", name: "Cancha 4", icon: <CourtIcon color="#f97316" /> },
+];
 
 // Participantes de ejemplo
 const demoParticipants: EventParticipant[] = [
@@ -28,183 +53,99 @@ const mixedParticipants: EventParticipant[] = [
   { id: "x4", name: "Pedro Gómez", avatarColor: "bg-purple-200" },
 ];
 
-// Generar eventos de ejemplo para simular partidos de pádel
+// Generar eventos de ejemplo para simular partidos de pádel (como en el screenshot)
 const generateDemoEvents = (): CalendarEvent[] => {
-  const baseDate = new Date();
-  const monday = new Date(baseDate);
-  monday.setDate(baseDate.getDate() - baseDate.getDay() + 1);
+  // Usamos la fecha actual para el demo
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const events: CalendarEvent[] = [];
 
-  // Viernes eventos
-  const friday = new Date(monday);
-  friday.setDate(monday.getDate() + 4);
-
+  // Cancha 1 - eventos verdes
   events.push({
     id: "1",
-    title: "4ta femenil - Femenil",
-    start: new Date(friday.setHours(8, 0, 0, 0)),
+    title: "Suma 3 - Varonil",
+    service: { name: "Fase de grupos" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 0),
     duration: 90,
     color: "green",
-    participants: demoParticipants,
+    participants: maleParticipants,
+    resourceId: "cancha-1",
   });
 
+  // Cancha 2 - eventos azules
   events.push({
     id: "2",
-    title: "Suma 3 - Varonil - Oct",
-    start: new Date(new Date(friday).setHours(9, 0, 0, 0)),
-    duration: 120,
-    color: "orange",
-    participants: maleParticipants,
+    title: "4ta femenil - Femenil",
+    service: { name: "Semifinal" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 30),
+    duration: 90,
+    color: "blue",
+    participants: demoParticipants,
+    resourceId: "cancha-2",
   });
 
+  // Cancha 3 - eventos amarillos/dorados
   events.push({
     id: "3",
-    title: "Suma 3 - Varonil - Oct",
-    start: new Date(new Date(friday).setHours(10, 30, 0, 0)),
+    title: "Suma 3 - Varonil",
+    service: { name: "Octavos de final" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10, 30),
     duration: 90,
-    color: "orange",
+    color: "yellow",
     participants: maleParticipants,
+    resourceId: "cancha-3",
   });
 
   events.push({
     id: "4",
-    title: "4ta femenil - Fem",
-    start: new Date(new Date(friday).setHours(11, 30, 0, 0)),
+    title: "Suma 3 - Varonil",
+    service: { name: "Cuartos de final" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 16, 0),
     duration: 90,
-    color: "pink",
-    participants: demoParticipants,
+    color: "yellow",
+    participants: maleParticipants,
+    resourceId: "cancha-3",
   });
 
+  // Cancha 4 - eventos naranjas
   events.push({
     id: "5",
-    title: "Suma 3 - Varonil - Cua",
-    start: new Date(new Date(friday).setHours(14, 0, 0, 0)),
+    title: "4to femenil - Femenil",
+    service: { name: "Final" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 8, 0),
     duration: 90,
     color: "orange",
-    participants: maleParticipants,
+    participants: demoParticipants,
+    resourceId: "cancha-4",
   });
 
   events.push({
     id: "6",
-    title: "Suma 3 - Varonil - Cua",
-    start: new Date(new Date(friday).setHours(16, 0, 0, 0)),
+    title: "Mixtos B - Mixta",
+    service: { name: "Cuartos de final" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10, 45),
     duration: 90,
     color: "orange",
-    participants: maleParticipants,
+    participants: mixedParticipants,
+    resourceId: "cancha-4",
   });
 
-  // Sábado eventos (overlaps!)
-  const saturday = new Date(monday);
-  saturday.setDate(monday.getDate() + 5);
-
+  // Evento placeholder gris en Cancha 4
   events.push({
     id: "7",
-    title: "Suma 3 - Varonil - Oct",
-    start: new Date(saturday.setHours(8, 30, 0, 0)),
-    duration: 90,
-    color: "orange",
-    participants: maleParticipants,
-  });
-
-  events.push({
-    id: "8",
-    title: "Suma 3 - Varonil",
-    start: new Date(new Date(saturday).setHours(10, 45, 0, 0)),
-    duration: 90,
-    color: "orange",
-    participants: maleParticipants,
-  });
-
-  events.push({
-    id: "9",
-    title: "Mixtos B - Mixta",
-    start: new Date(new Date(saturday).setHours(10, 45, 0, 0)),
-    duration: 90,
-    color: "purple",
-    participants: mixedParticipants,
-  });
-
-  events.push({
-    id: "10",
-    title: "4ta femenil - Fem",
-    start: new Date(new Date(saturday).setHours(11, 30, 0, 0)),
-    duration: 90,
-    color: "pink",
-    participants: demoParticipants,
-  });
-
-  events.push({
-    id: "11",
-    title: "Suma 3 - Varonil - Cua",
-    start: new Date(new Date(saturday).setHours(15, 0, 0, 0)),
-    duration: 90,
-    color: "orange",
-    participants: maleParticipants,
-  });
-
-  // Domingo eventos
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-
-  events.push({
-    id: "12",
-    title: "4ta femenil - Femenil",
-    start: new Date(sunday.setHours(8, 0, 0, 0)),
-    duration: 90,
-    color: "green",
-    participants: demoParticipants,
-  });
-
-  events.push({
-    id: "13",
-    title: "Mixtos B - Mixta - Cua",
-    start: new Date(new Date(sunday).setHours(10, 45, 0, 0)),
-    duration: 90,
-    color: "purple",
-    participants: mixedParticipants,
-  });
-
-  // Miércoles
-  const wednesday = new Date(monday);
-  wednesday.setDate(monday.getDate() + 2);
-
-  events.push({
-    id: "14",
-    title: "Suma 3 - Varonil - Oct",
-    start: new Date(wednesday.setHours(9, 30, 0, 0)),
-    duration: 90,
-    color: "orange",
-    participants: maleParticipants,
-  });
-
-  // Jueves con overlap
-  const thursday = new Date(monday);
-  thursday.setDate(monday.getDate() + 3);
-
-  events.push({
-    id: "15",
-    title: "Suma 3 - Varonil - Oct",
-    start: new Date(thursday.setHours(10, 30, 0, 0)),
-    duration: 90,
-    color: "orange",
-    participants: maleParticipants,
-  });
-
-  events.push({
-    id: "16",
-    title: "4ta femenil - Fem",
-    start: new Date(new Date(thursday).setHours(11, 30, 0, 0)),
-    duration: 90,
-    color: "pink",
-    participants: demoParticipants,
+    title: "",
+    type: "BLOCK",
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 15, 0),
+    duration: 60,
+    resourceId: "cancha-4",
   });
 
   return events;
 };
 
 export default function SmatchDemo() {
-  const controls = useCalendarControls({ locale: "es-MX" });
+  const controls = useCalendarControls({ locale: "es-MX", initialView: "day" });
   const [events] = useState(generateDemoEvents);
 
   const handleEventClick = (event: CalendarEvent) => {
@@ -230,67 +171,27 @@ export default function SmatchDemo() {
           Torneo {">"} Estructura del torneo {">"} <span className="text-gray-900">Partidos</span>
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center justify-between bg-white rounded-xl p-4 mb-4 shadow-sm">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={controls.goToToday}
-              className={`px-5 py-2 rounded-full text-sm font-medium ${
-                controls.isToday
-                  ? "bg-gray-200 text-gray-500"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-              }`}
-            >
-              HOY
-            </button>
-            <button
-              onClick={controls.goToPrev}
-              className="p-2 hover:bg-gray-100 rounded-full"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              onClick={controls.goToNext}
-              className="p-2 hover:bg-gray-100 rounded-full"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-            <span className="text-lg font-medium capitalize ml-2">
-              {controls.label}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <select
-              value={controls.view}
-              onChange={() => controls.toggleView()}
-              className="px-4 py-2 border rounded-lg bg-white text-sm font-medium"
-            >
-              <option value="week">SEMANA</option>
-              <option value="day">DÍA</option>
-            </select>
-            <button className="p-2 border rounded-lg hover:bg-gray-50">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            </button>
-            <button className="px-5 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600">
-              AGREGAR PARTIDO
-            </button>
-          </div>
-        </div>
+        {/* Controls - using CalendarControls component */}
+        <CalendarControls
+          controls={controls}
+          className="bg-white rounded-xl px-4 mb-4 shadow-sm"
+          showExport
+          onExport={() => alert("Exportar calendario")}
+          showAdd
+          addLabel="AGREGAR PARTIDO"
+          onAdd={() => alert("Agregar partido")}
+        />
 
         {/* Calendar */}
         <Calendar
           date={controls.date}
           events={events}
+          resources={controls.view === "day" ? courts : undefined}
           onEventClick={handleEventClick}
           config={{
             locale: "es-MX",
+            hoursStart: 8,
+            hoursEnd: 18,
             eventTime: {
               enabled: true,
               format: "12h",

@@ -280,6 +280,18 @@ interface CalendarControlsProps {
     actions?: ReactNode;
     /** Custom class name */
     className?: string;
+    /** Show export/download button */
+    showExport?: boolean;
+    /** Export button click handler */
+    onExport?: () => void;
+    /** Custom export icon */
+    exportIcon?: ReactNode;
+    /** Show add button */
+    showAdd?: boolean;
+    /** Add button click handler */
+    onAdd?: () => void;
+    /** Add button label */
+    addLabel?: string;
 }
 /**
  * Pre-built calendar controls component
@@ -293,7 +305,7 @@ interface CalendarControlsProps {
  * />
  * <Calendar date={controls.date} />
  */
-declare function CalendarControls({ controls, todayLabel, weekLabel, dayLabel, showViewToggle, prevIcon, nextIcon, actions, className, }: CalendarControlsProps): react_jsx_runtime.JSX.Element;
+declare function CalendarControls({ controls, todayLabel, weekLabel, dayLabel, showViewToggle, prevIcon, nextIcon, actions, className, showExport, onExport, exportIcon, showAdd, onAdd, addLabel, }: CalendarControlsProps): react_jsx_runtime.JSX.Element;
 
 /**
  * Hook for managing calendar events - overlap detection, filtering, and availability

@@ -1,4 +1,3 @@
-// @TODO: when DB restarts set missing createdAt and updatedAt
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
@@ -9,204 +8,358 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  CUSTOMER
-  GUEST
-  ADMIN
+type OrgSocial {
+  facebook  String
+  instagram String
+  linkedin  String
+  tiktok    String
+  website   String
+  x         String
+  youtube   String
 }
 
-model User {
-  id            String   @id @default(auto()) @map("_id") @db.ObjectId
-  role          Role     @default(GUEST)
-  // UNIQUE
-  email         String   @unique
-  emailVerified Boolean  @default(false)
-  // LOGIN
-  accessToken   String?
-  displayName   String?
-  providerId    String?
-  phoneNumber   String?
-  photoURL      String?
-  uid           String?
-  // ADMIN 
-  orgIds        String[] @db.ObjectId
-  orgId         String?  @db.ObjectId // provisional
-  Org           Org[]
-  // stripe
-  stripe        Json?
+type OrgWebsiteConfig {
+  color    String?
+  template String?
 }
 
-enum Place {
-  ONLINE
-  INPLACE
-  ATHOME
+type OrgWeekDays {
+  domingo   Json?
+  jueves    Json?
+  lunes     Json?
+  martes    Json?
+  mi_rcoles Json? @map("miércoles")
+  s_bado    Json? @map("sábado")
+  viernes   Json?
 }
 
-type NotifyConfig {
-  confirmation          Boolean @default(true)
-  reminder              Boolean @default(true)
-  survey                Boolean @default(true)
-  whatsapp_reminder     Boolean @default(true)
-  whatsapp_confirmation Boolean @default(true)
+type ServiceConfig {
+  confirmation          Boolean
+  reminder              Boolean
+  survey                Boolean
+  whatsapp_confirmation Boolean?
+  whatsapp_reminder     Boolean?
 }
 
-enum Per {
-  DAY
-  HOUR
+type ServiceLimit {
+  bookings Int
+  per      String
 }
 
-// not in use
-type Limit {
-  bookings Int @default(6)
-  per      Per @default(DAY)
+type ServiceWeekDays {
+  s_bado Json @map("sábado")
 }
 
-model Service {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  name          String
-  slug          String        @unique
-  points        Int           @default(1)
-  price         Int           @default(999)
-  // relations
-  orgId         String        @db.ObjectId
-  org           Org           @relation(fields: [orgId], references: [id])
-  events        Event[]
-  // config
-  payment       Boolean       @default(false)
-  config        NotifyConfig?
-  // status
-  paid          Boolean       @default(false)
-  place         Place         @default(INPLACE)
-  isActive      Boolean       @default(false)
-  archived      Boolean       @default(false)
-  allowMultiple Boolean       @default(false)
-  limit         Json?         @default("{\"bookings\":6,\"per\":\"day\"}") // @json because I'm still figuringt it out
-  // numberOfSessionsInAnHour Int     @default(1)
-  // horario
-  duration      Int           @default(60) // mins
-  weekDays      Json?
-  // optionals
-  address       String?
-  seats         Int?          @default(1)
-  photoURL      String?
-  description   String?
-  category      String?
-  currency      String?       @default("MXN")
-  employeeName  String? // @TODO: where is this requested?
+type UserStripe {
+  business_profile    UserStripeBusinessProfile
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  business_type       Json?
+  /// Nested objects had no data in the sample dataset to introspect a nested type.
+  capabilities        Json
+  charges_enabled     Boolean
+  controller          UserStripeController
+  country             String
+  created             Int
+  default_currency    String
+  details_submitted   Boolean
+  email               String
+  external_accounts   UserStripeExternalAccounts
+  future_requirements UserStripeFutureRequirements
+  id                  String
+  /// Nested objects had no data in the sample dataset to introspect a nested type.
+  metadata            Json
+  object              String
+  payouts_enabled     Boolean
+  requirements        UserStripeRequirements
+  settings            UserStripeSettings
+  tos_acceptance      UserStripeTosAcceptance
+  type                String
 }
 
-type Social {
-  facebook  String?
-  instagram String?
-  x         String?
-  tiktok    String?
-  linkedin  String?
-  website   String?
-  youtube   String?
+type UserStripeBusinessProfile {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  annual_revenue                      Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  estimated_worker_count              Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  mcc                                 Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  minority_owned_business_designation Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  name                                Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  product_description                 Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  support_address                     Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  support_email                       Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  support_phone                       Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  support_url                         Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  url                                 Json?
 }
 
-type WebSiteConfig {
-  template String @default("defaultTemplate")
-  color    String @default("#705fe0")
+type UserStripeController {
+  fees                   UserStripeControllerFees
+  is_controller          Boolean
+  losses                 UserStripeControllerLosses
+  requirement_collection String
+  stripe_dashboard       UserStripeControllerStripeDashboard
+  type                   String
 }
 
-model Org {
-  isActive          Boolean        @default(false)
-  // required
-  id                String         @id @default(auto()) @map("_id") @db.ObjectId
-  ownerId           String         @db.ObjectId
-  owner             User           @relation(fields: [ownerId], references: [id])
-  // about your company
-  name              String
-  slug              String         @unique
-  email             String?
-  // logo              String?
-  shopKeeper        String?
-  numberOfEmployees String?
-  address           String?
-  week              String?
-  description       String?
-  social            Social?
-  // Business type
-  businessType      String?
-  // Times
-  weekDays          Json?
-  services          Service[]
-  // extra
-  location          Json?
-  websiteConfig     WebSiteConfig?
-  Customer          Customer[]
+type UserStripeControllerFees {
+  payer String
 }
 
-enum EventStatus {
-  OVERDUE
-  CANCELED
-  DELETED
-  ACTIVE
+type UserStripeControllerLosses {
+  payments String
+}
+
+type UserStripeControllerStripeDashboard {
+  type String
+}
+
+type UserStripeExternalAccounts {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  data        Json?
+  has_more    Boolean
+  object      String
+  total_count Int
+  url         String
+}
+
+type UserStripeFutureRequirements {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  alternatives         Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  current_deadline     Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  currently_due        Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  disabled_reason      Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  errors               Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  eventually_due       Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  past_due             Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  pending_verification Json?
+}
+
+type UserStripeRequirements {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  alternatives         Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  current_deadline     Json?
+  currently_due        String[]
+  disabled_reason      String
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  errors               Json?
+  eventually_due       String[]
+  past_due             String[]
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  pending_verification Json?
+}
+
+type UserStripeSettings {
+  bacs_debit_payments UserStripeSettingsBacsDebitPayments
+  branding            UserStripeSettingsBranding
+  card_issuing        UserStripeSettingsCardIssuing
+  card_payments       UserStripeSettingsCardPayments
+  dashboard           UserStripeSettingsDashboard
+  invoices            UserStripeSettingsInvoices
+  payments            UserStripeSettingsPayments
+  payouts             UserStripeSettingsPayouts
+  /// Nested objects had no data in the sample dataset to introspect a nested type.
+  sepa_debit_payments Json
+}
+
+type UserStripeSettingsBacsDebitPayments {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  display_name        Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  service_user_number Json?
+}
+
+type UserStripeSettingsBranding {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  icon            Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  logo            Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  primary_color   Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  secondary_color Json?
+}
+
+type UserStripeSettingsCardIssuing {
+  tos_acceptance UserStripeSettingsCardIssuingTosAcceptance
+}
+
+type UserStripeSettingsCardIssuingTosAcceptance {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  date Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  ip   Json?
+}
+
+type UserStripeSettingsCardPayments {
+  decline_on                        UserStripeSettingsCardPaymentsDeclineOn
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  statement_descriptor_prefix       Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  statement_descriptor_prefix_kana  Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  statement_descriptor_prefix_kanji Json?
+}
+
+type UserStripeSettingsCardPaymentsDeclineOn {
+  avs_failure Boolean
+  cvc_failure Boolean
+}
+
+type UserStripeSettingsDashboard {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  display_name Json?
+  timezone     String
+}
+
+type UserStripeSettingsInvoices {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  default_account_tax_ids    Json?
+  hosted_payment_method_save String?
+}
+
+type UserStripeSettingsPayments {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  statement_descriptor       Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  statement_descriptor_kana  Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  statement_descriptor_kanji Json?
+}
+
+type UserStripeSettingsPayouts {
+  debit_negative_balances Boolean
+  schedule                UserStripeSettingsPayoutsSchedule
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  statement_descriptor    Json?
+}
+
+type UserStripeSettingsPayoutsSchedule {
+  delay_days Int
+  interval   String
+}
+
+type UserStripeTosAcceptance {
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  date       Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  ip         Json?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  user_agent Json?
 }
 
 model Customer {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  email       String   @unique
+  comments    String
+  createdAt   DateTime @db.Date
+  displayName String
+  email       String
   orgId       String   @db.ObjectId
-  org         Org      @relation(fields: [orgId], references: [id])
-  address     String?
-  // optionals
-  displayName String?
-  userId      String?  @db.ObjectId
-  tel         String?
-  comments    String?
-  // Dates
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
-  Event       Event[]
-}
-
-enum EventType {
-  BLOCK
-  EVENT
+  tel         String
+  updatedAt   DateTime @db.Date
 }
 
 model Event {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
-  // mins for block
-  type           EventType   @default(EVENT) // avoid scheduling even when multi enabled
-  start          DateTime
-  end            DateTime? // @TODO: make it required?
-  duration       Int         @default(60)
-  orgId          String      @db.ObjectId
-  userId         String?     @db.ObjectId // owner
-  // mins for new
-  customerId     String?     @db.ObjectId // client
-  customer       Customer?   @relation(fields: [customerId], references: [id])
-  employee       String?
-  employeeId     String?     @db.ObjectId
-  serviceId      String?     @db.ObjectId
-  service        Service?    @relation(fields: [serviceId], references: [id])
-  paid           Boolean     @default(false)
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  allDay         Boolean
+  archived       Boolean
+  createdAt      DateTime  @db.Date
+  customerId     String?   @db.ObjectId
+  duration       BigInt
+  employeeId     String?   @db.ObjectId
+  end            DateTime? @db.Date
   notes          String?
-  dateString     String?
-  allDay         Boolean     @default(false)
-  // metadata
-  status         EventStatus @default(ACTIVE)
-  // optionals
-  title          String?     @default("BLOCK")
+  orgId          String    @db.ObjectId
+  paid           Boolean
   payment_method String?
-  // Dates
-  updatedAt      DateTime    @updatedAt
-  createdAt      DateTime    @default(now())
-  // utils
-  legacyService  Json?
-  archived       Boolean     @default(false)
+  serviceId      String?   @db.ObjectId
+  start          DateTime  @db.Date
+  status         String
+  title          String
+  type           String
+  updatedAt      DateTime  @db.Date
+  userId         String    @db.ObjectId
 }
 
 model Job {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  startDate DateTime
-  type      String
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+}
 
-  endDate DateTime?
-  orgId   String?
-  userId  String?
-  eventId String?
+model Org {
+  id                String            @id @default(auto()) @map("_id") @db.ObjectId
+  address           String?
+  businessType      String?
+  description       String?
+  email             String?
+  isActive          Boolean
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  location          Json?
+  name              String
+  numberOfEmployees String?
+  ownerId           String            @db.ObjectId
+  shopKeeper        String?
+  slug              String            @unique
+  social            OrgSocial?
+  websiteConfig     OrgWebsiteConfig?
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  week              Json?
+  weekDays          OrgWeekDays?
+}
+
+model Service {
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
+  address       String?
+  allowMultiple Boolean
+  archived      Boolean
+  config        ServiceConfig?
+  currency      String
+  description   String?
+  duration      BigInt
+  employeeName  String?
+  isActive      Boolean
+  limit         ServiceLimit?
+  name          String
+  orgId         String           @db.ObjectId
+  paid          Boolean
+  payment       Boolean
+  photoURL      String?
+  place         String
+  points        BigInt
+  price         BigInt
+  seats         BigInt
+  slug          String           @unique
+  weekDays      ServiceWeekDays?
+}
+
+model User {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  accessToken   String?
+  displayName   String?
+  email         String      @unique
+  emailVerified Boolean
+  orgId         String?     @db.ObjectId
+  orgIds        String[]
+  /// Could not determine type: the field only had null or empty values in the sample set.
+  phoneNumber   Json?
+  photoURL      String?
+  providerId    String?
+  role          String
+  stripe        UserStripe?
+  uid           String?
 }

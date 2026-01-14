@@ -85,6 +85,7 @@ const getColorStyle = (color: string | undefined): React.CSSProperties => {
 
 /**
  * Format time range for display
+ * Produces compact format like "9:00 - 10:30am" or "9:00 - 10:30"
  */
 const formatTimeRange = (
   start: Date,
@@ -100,14 +101,30 @@ const formatTimeRange = (
     return customFormatter(start, end, locale);
   }
 
-  const options: Intl.DateTimeFormatOptions = {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: format === "12h",
+  if (format === "24h") {
+    const options: Intl.DateTimeFormatOptions = {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: false,
+    };
+    const startStr = start.toLocaleTimeString(locale, options);
+    const endStr = end.toLocaleTimeString(locale, options);
+    return `${startStr} - ${endStr}`;
+  }
+
+  // Compact 12h format: "9:00 - 10:30am"
+  const formatTime = (date: Date, showPeriod: boolean) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const h = hours % 12 || 12;
+    const m = minutes.toString().padStart(2, "0");
+    const period = hours >= 12 ? "pm" : "am";
+    return showPeriod ? `${h}:${m}${period}` : `${h}:${m}`;
   };
 
-  const startStr = start.toLocaleTimeString(locale, options);
-  const endStr = end.toLocaleTimeString(locale, options);
+  // Only show period on the end time for compact display
+  const startStr = formatTime(start, false);
+  const endStr = formatTime(end, true);
 
   return `${startStr} - ${endStr}`;
 };
@@ -262,7 +279,14 @@ export function Calendar({
   onRemoveBlock,
   config = {},
 }: CalendarProps) {
-  const { locale = "es-MX", icons = {}, renderColumnHeader } = config;
+  const {
+    locale = "es-MX",
+    icons = {},
+    renderColumnHeader,
+    hoursStart = 0,
+    hoursEnd = 24,
+  } = config;
+  const totalHours = hoursEnd - hoursStart;
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState<string | null>(null);
   const { canMove } = useCalendarEvents(events);
@@ -404,7 +428,7 @@ export function Calendar({
             isResourceMode && "overflow-x-auto"
           )}
         >
-          <TimeColumn />
+          <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} />
           {Array.from({ length: columnCount }, (_, colIndex) => (
             <Column
               key={isResourceMode ? resources![colIndex].id : week[colIndex].toISOString()}
@@ -419,6 +443,8 @@ export function Calendar({
               icons={icons}
               resourceId={isResourceMode ? resources![colIndex].id : undefined}
               config={config}
+              hoursStart={hoursStart}
+              hoursEnd={hoursEnd}
             />
           ))}
         </section>
@@ -600,6 +626,8 @@ const Column = ({
   icons,
   resourceId,
   config = {},
+  hoursStart = 0,
+  hoursEnd = 24,
 }: {
   onEventClick?: (event: CalendarEvent) => void;
   onNewEvent?: (arg0: Date) => void;
@@ -612,6 +640,8 @@ const Column = ({
   icons: CalendarConfig["icons"];
   resourceId?: string;
   config?: CalendarConfig;
+  hoursStart?: number;
+  hoursEnd?: number;
 }) => {
   const columnRef = useRef<HTMLDivElement>(null);
 
@@ -683,26 +713,38 @@ const Column = ({
 
   return (
     <div ref={columnRef} className="grid">
-      {Array.from({ length: 24 }, (_, hours) => (
-        <Cell
-          key={hours}
-          hours={hours}
-          date={dayOfWeek}
-          className="relative"
-          dayIndex={dayIndex}
-        >
-          {findEventsAtHour(hours)}
-        </Cell>
-      ))}
+      {Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
+        const hours = hoursStart + i;
+        return (
+          <Cell
+            key={hours}
+            hours={hours}
+            date={dayOfWeek}
+            className="relative"
+            dayIndex={dayIndex}
+          >
+            {findEventsAtHour(hours)}
+          </Cell>
+        );
+      })}
     </div>
   );
 };
 
-const TimeColumn = () => (
+const TimeColumn = ({
+  hoursStart = 0,
+  hoursEnd = 24,
+}: {
+  hoursStart?: number;
+  hoursEnd?: number;
+}) => (
   <div className="grid">
-    {Array.from({ length: 24 }, (_, i) => (
-      <Cell key={i}>{`${i < 10 ? "0" : ""}${i}:00`}</Cell>
-    ))}
+    {Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
+      const hour = hoursStart + i;
+      return (
+        <Cell key={hour}>{`${hour < 10 ? "0" : ""}${hour}:00`}</Cell>
+      );
+    })}
   </div>
 );
 
@@ -815,15 +857,19 @@ const DraggableEvent = ({
         {...listeners}
         {...attributes}
         className={cn(
-          "border grid gap-y-0 overflow-hidden place-content-start",
-          "text-xs text-left pl-2 pr-1 py-1 absolute top-0 text-white rounded-md z-10",
+          "border-0 grid gap-y-0 overflow-hidden place-content-start",
+          "text-xs text-left pl-3 pr-1 py-1 absolute top-0 text-white rounded-lg z-10",
           colorClass,
           event.type === "BLOCK" &&
             "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
-          event.type !== "BLOCK" && "cursor-grab",
+          event.type !== "BLOCK" && "cursor-grab shadow-sm",
           isDragging && event.type !== "BLOCK" && "cursor-grabbing opacity-50"
         )}
       >
+        {/* Color accent bar on left side */}
+        {event.type !== "BLOCK" && (
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
+        )}
         {event.type === "BLOCK" && (
           <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
         )}
@@ -831,7 +877,7 @@ const DraggableEvent = ({
           <span className="text-[10px] opacity-90 font-medium">{timeString}</span>
         )}
         <span className="font-medium truncate">{event.title}</span>
-        <span className="text-white/70 truncate">{event.service?.name}</span>
+        <span className="text-white/80 truncate text-[10px]">{event.service?.name}</span>
         {event.participants && event.participants.length > 0 && (
           <ParticipantAvatars
             participants={event.participants}
@@ -868,17 +914,20 @@ const EventOverlay = ({
   return (
     <div
       className={cn(
-        "border grid gap-y-0 overflow-hidden place-content-start",
-        "text-xs text-left pl-2 pr-1 py-1 text-white rounded-md w-[200px] opacity-90 shadow-lg",
+        "border-0 grid gap-y-0 overflow-hidden place-content-start relative",
+        "text-xs text-left pl-3 pr-1 py-1 text-white rounded-lg w-[200px] opacity-90 shadow-lg",
         colorClass
       )}
       style={{ height: (event.duration / 60) * 64, ...colorStyle }}
     >
+      {event.type !== "BLOCK" && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
+      )}
       {event.type === "BLOCK" && (
         <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
       )}
       <span className="font-medium truncate">{event.title}</span>
-      <span className="text-white/70 truncate">{event.service?.name}</span>
+      <span className="text-white/80 truncate text-[10px]">{event.service?.name}</span>
     </div>
   );
 };
