@@ -49,9 +49,9 @@ jobs:
         if: steps.check-app.outputs.exists == 'false'
         run: |
           flyctl secrets set \
-            DATABASE_URL="mongodb+srv://new_denik:***REMOVED***@cluster0.ahniito.mongodb.net/denik_preview?appName=Cluster0" \
+            DATABASE_URL="${{ secrets.DATABASE_URL_PREVIEW }}" \
             SESSION_SECRET="${{ secrets.SESSION_SECRET }}" \
-            JWT_SECRET="***REMOVED***" \
+            JWT_SECRET="${{ secrets.JWT_SECRET }}" \
             AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
             AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
             APP_URL="https://${{ steps.app-name.outputs.name }}.fly.dev" \
