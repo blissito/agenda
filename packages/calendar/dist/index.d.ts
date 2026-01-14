@@ -14,6 +14,57 @@ interface Resource {
     icon?: ReactNode;
 }
 /**
+ * Participant/attendee for an event
+ */
+interface EventParticipant {
+    /** Unique identifier */
+    id: string;
+    /** Display name (shown on hover/tooltip) */
+    name?: string;
+    /** Avatar URL */
+    avatar?: string;
+    /** Fallback color for initials when no avatar */
+    avatarColor?: string;
+}
+/**
+ * Color presets for events
+ */
+type EventColorPreset = "blue" | "green" | "orange" | "pink" | "purple" | "red" | "yellow" | "gray";
+/**
+ * Custom color mapping for presets
+ */
+interface EventColors {
+    blue?: string;
+    green?: string;
+    orange?: string;
+    pink?: string;
+    purple?: string;
+    red?: string;
+    yellow?: string;
+    gray?: string;
+    default?: string;
+}
+/**
+ * Time display configuration
+ */
+interface TimeDisplayConfig {
+    /** Show time on all events by default */
+    enabled?: boolean;
+    /** Time format: "12h" or "24h" */
+    format?: "12h" | "24h";
+    /** Custom formatter function */
+    formatter?: (start: Date, end: Date, locale: string) => string;
+}
+/**
+ * Participants display configuration
+ */
+interface ParticipantsDisplayConfig {
+    /** Maximum avatars to show before "+N" (default: 4) */
+    maxVisible?: number;
+    /** Avatar size in pixels (default: 20) */
+    size?: number;
+}
+/**
  * Props passed to custom column header renderer
  * Use this to build custom headers for resources (courts, rooms, employees, etc.)
  */
@@ -43,6 +94,33 @@ interface CalendarEvent {
     } | null;
     /** Resource ID for day/resource view (court, room, etc.) */
     resourceId?: string;
+    /**
+     * Event color - can be a preset, tailwind class, or hex color
+     * @example "green" | "bg-emerald-500" | "#10B981"
+     */
+    color?: EventColorPreset | string;
+    /**
+     * Event participants/attendees with avatars
+     */
+    participants?: EventParticipant[];
+    /**
+     * Whether to show time range on the event card (overrides config)
+     */
+    showTime?: boolean;
+}
+/**
+ * Props passed to custom event renderer
+ */
+interface EventRenderProps {
+    event: CalendarEvent;
+    /** Computed time string (e.g., "8:00 - 9:30am") */
+    timeString: string;
+    /** Computed background color class */
+    colorClass: string;
+    /** Is event being dragged */
+    isDragging: boolean;
+    /** Click handler */
+    onClick: () => void;
 }
 /**
  * Calendar configuration options
@@ -77,6 +155,24 @@ interface CalendarConfig {
      * )
      */
     renderColumnHeader?: (props: ColumnHeaderProps) => ReactNode;
+    /**
+     * Custom color mapping for presets
+     */
+    colors?: EventColors;
+    /**
+     * Configure time display on events
+     * @example { enabled: true, format: "12h" }
+     */
+    eventTime?: TimeDisplayConfig;
+    /**
+     * Configure participant avatars display
+     * @example { maxVisible: 3, size: 24 }
+     */
+    participants?: ParticipantsDisplayConfig;
+    /**
+     * Custom event renderer for complete control
+     */
+    renderEvent?: (props: EventRenderProps) => ReactNode;
 }
 /**
  * Calendar component props
@@ -272,4 +368,4 @@ declare function useClickOutside<T extends HTMLElement>({ isActive, onOutsideCli
  */
 declare function formatDate(date: Date, locale?: string): string;
 
-export { Calendar, type CalendarConfig, CalendarControls, type CalendarControlsProps, type CalendarControls$1 as CalendarControlsState, type CalendarEvent, type CalendarProps, type CalendarView, type ColumnHeaderProps, type Resource, Calendar as SimpleBigWeekView, type UseCalendarControlsOptions, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarControls, useCalendarEvents, useClickOutside, useEventOverlap };
+export { Calendar, type CalendarConfig, CalendarControls, type CalendarControlsProps, type CalendarControls$1 as CalendarControlsState, type CalendarEvent, type CalendarProps, type CalendarView, type ColumnHeaderProps, type EventColorPreset, type EventColors, type EventParticipant, type EventRenderProps, type ParticipantsDisplayConfig, type Resource, Calendar as SimpleBigWeekView, type TimeDisplayConfig, type UseCalendarControlsOptions, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarControls, useCalendarEvents, useClickOutside, useEventOverlap };

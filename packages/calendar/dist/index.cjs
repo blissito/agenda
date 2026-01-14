@@ -214,9 +214,99 @@ function formatDate(date, locale = "es-MX") {
   });
 }
 var cn = (...classes) => classes.filter(Boolean).join(" ");
+var DEFAULT_COLORS = {
+  blue: "bg-blue-500",
+  green: "bg-emerald-500",
+  orange: "bg-orange-500",
+  pink: "bg-pink-500",
+  purple: "bg-purple-500",
+  red: "bg-red-500",
+  yellow: "bg-yellow-500",
+  gray: "bg-gray-400",
+  default: "bg-blue-500"
+};
+var resolveColorClass = (color, colors = {}) => {
+  if (!color) return colors.default || DEFAULT_COLORS.default;
+  const mergedColors = { ...DEFAULT_COLORS, ...colors };
+  if (color in mergedColors) {
+    return mergedColors[color] || DEFAULT_COLORS.default;
+  }
+  if (color.startsWith("#")) {
+    return "";
+  }
+  return color;
+};
+var getColorStyle = (color) => {
+  if (color?.startsWith("#")) {
+    return { backgroundColor: color };
+  }
+  return {};
+};
+var formatTimeRange = (start, duration, locale, format = "12h", customFormatter) => {
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + duration);
+  if (customFormatter) {
+    return customFormatter(start, end, locale);
+  }
+  const options = {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: format === "12h"
+  };
+  const startStr = start.toLocaleTimeString(locale, options);
+  const endStr = end.toLocaleTimeString(locale, options);
+  return `${startStr} - ${endStr}`;
+};
 var DefaultTrashIcon = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 24 24", className: "w-4 h-4", fill: "currentColor", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" }) });
 var DefaultEditIcon = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 24 24", className: "w-4 h-4", fill: "currentColor", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" }) });
 var DefaultCloseIcon = () => /* @__PURE__ */ jsxRuntime.jsx("svg", { viewBox: "0 0 24 24", className: "w-4 h-4", fill: "currentColor", children: /* @__PURE__ */ jsxRuntime.jsx("path", { d: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" }) });
+var ParticipantAvatars = ({
+  participants,
+  config = {}
+}) => {
+  const { maxVisible = 4, size = 20 } = config;
+  if (!participants.length) return null;
+  const visible = participants.slice(0, maxVisible);
+  const remaining = participants.length - maxVisible;
+  const avatarStyle = {
+    width: size,
+    height: size,
+    minWidth: size
+  };
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex -space-x-1 mt-1", children: [
+    visible.map((participant) => /* @__PURE__ */ jsxRuntime.jsx(
+      "div",
+      {
+        className: cn(
+          "rounded-full border border-white flex items-center justify-center text-[8px] bg-gray-200 overflow-hidden",
+          participant.avatarColor
+        ),
+        style: avatarStyle,
+        title: participant.name,
+        children: participant.avatar ? /* @__PURE__ */ jsxRuntime.jsx(
+          "img",
+          {
+            src: participant.avatar,
+            alt: participant.name || "",
+            className: "w-full h-full object-cover"
+          }
+        ) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "font-medium text-gray-600", children: participant.name?.charAt(0)?.toUpperCase() || "?" })
+      },
+      participant.id
+    )),
+    remaining > 0 && /* @__PURE__ */ jsxRuntime.jsxs(
+      "div",
+      {
+        className: "rounded-full border border-white bg-gray-300 flex items-center justify-center text-[8px] font-medium text-gray-600",
+        style: avatarStyle,
+        children: [
+          "+",
+          remaining
+        ]
+      }
+    )
+  ] });
+};
 var DayHeader = ({
   date,
   locale,
@@ -380,7 +470,8 @@ function Calendar({
                     onEventClick,
                     locale,
                     icons,
-                    resourceId: isResourceMode ? resources[colIndex].id : void 0
+                    resourceId: isResourceMode ? resources[colIndex].id : void 0,
+                    config
                   },
                   isResourceMode ? resources[colIndex].id : week[colIndex].toISOString()
                 ))
@@ -388,7 +479,7 @@ function Calendar({
             }
           )
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx(core.DragOverlay, { children: activeEvent ? /* @__PURE__ */ jsxRuntime.jsx(EventOverlay, { event: activeEvent }) : null })
+        /* @__PURE__ */ jsxRuntime.jsx(core.DragOverlay, { children: activeEvent ? /* @__PURE__ */ jsxRuntime.jsx(EventOverlay, { event: activeEvent, config }) : null })
       ]
     }
   );
@@ -421,7 +512,7 @@ var Cell = ({
         isOver && dayIndex !== void 0 && "bg-blue-100",
         className
       ),
-      children: children || hours
+      children
     }
   );
 };
@@ -530,7 +621,8 @@ var Column = ({
   dayIndex,
   locale,
   icons,
-  resourceId
+  resourceId,
+  config = {}
 }) => {
   const columnRef = react.useRef(null);
   const eventsWithPositions = calculateOverlapPositions(events);
@@ -561,7 +653,8 @@ var Column = ({
           locale,
           icons,
           overlapColumn: column,
-          overlapTotal: totalColumns
+          overlapTotal: totalColumns,
+          config
         },
         event.id
       ));
@@ -603,7 +696,8 @@ var DraggableEvent = ({
   locale,
   icons,
   overlapColumn = 0,
-  overlapTotal = 1
+  overlapTotal = 1,
+  config = {}
 }) => {
   const [showOptions, setShowOptions] = react.useState(false);
   const { attributes, listeners, setNodeRef, transform, isDragging } = core.useDraggable({
@@ -612,11 +706,60 @@ var DraggableEvent = ({
   });
   const widthPercent = event.type === "BLOCK" ? 100 : 90 / overlapTotal;
   const leftPercent = event.type === "BLOCK" ? 0 : overlapColumn * (90 / overlapTotal);
+  const colorClass = event.type === "BLOCK" ? "bg-gray-300" : resolveColorClass(event.color, config.colors);
+  const colorStyle = event.type === "BLOCK" ? {} : getColorStyle(event.color);
+  const showTime = event.showTime ?? config.eventTime?.enabled ?? false;
+  const timeString = showTime ? formatTimeRange(
+    new Date(event.start),
+    event.duration,
+    locale,
+    config.eventTime?.format,
+    config.eventTime?.formatter
+  ) : "";
+  if (config.renderEvent && event.type !== "BLOCK") {
+    return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntime.jsx(
+        "button",
+        {
+          ref: setNodeRef,
+          style: {
+            height: event.duration / 60 * 64,
+            transform: transform ? utilities.CSS.Translate.toString(transform) : void 0,
+            width: `${widthPercent}%`,
+            left: `${leftPercent}%`
+          },
+          onClick: () => onClick?.(event),
+          ...listeners,
+          ...attributes,
+          className: "absolute top-0 z-10 cursor-grab",
+          children: config.renderEvent({
+            event,
+            timeString,
+            colorClass,
+            isDragging,
+            onClick: () => onClick?.(event)
+          })
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        Options,
+        {
+          event,
+          onClose: () => setShowOptions(false),
+          isOpen: showOptions,
+          onRemoveBlock,
+          locale,
+          icons
+        }
+      )
+    ] });
+  }
   const style = {
     height: event.duration / 60 * 64,
     transform: transform ? utilities.CSS.Translate.toString(transform) : void 0,
     width: `${widthPercent}%`,
-    left: `${leftPercent}%`
+    left: `${leftPercent}%`,
+    ...colorStyle
   };
   return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs(
@@ -628,16 +771,25 @@ var DraggableEvent = ({
         ...listeners,
         ...attributes,
         className: cn(
-          "border grid gap-y-1 overflow-hidden place-content-start",
-          "text-xs text-left pl-1 absolute top-0 bg-blue-500 text-white rounded-md z-10",
+          "border grid gap-y-0 overflow-hidden place-content-start",
+          "text-xs text-left pl-2 pr-1 py-1 absolute top-0 text-white rounded-md z-10",
+          colorClass,
           event.type === "BLOCK" && "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
           event.type !== "BLOCK" && "cursor-grab",
           isDragging && event.type !== "BLOCK" && "cursor-grabbing opacity-50"
         ),
         children: [
           event.type === "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" }),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { children: event.title }),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-gray-300", children: event.service?.name })
+          showTime && event.type !== "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-[10px] opacity-90 font-medium", children: timeString }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "font-medium truncate", children: event.title }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-white/70 truncate", children: event.service?.name }),
+          event.participants && event.participants.length > 0 && /* @__PURE__ */ jsxRuntime.jsx(
+            ParticipantAvatars,
+            {
+              participants: event.participants,
+              config: config.participants
+            }
+          )
         ]
       }
     ),
@@ -654,22 +806,29 @@ var DraggableEvent = ({
     )
   ] });
 };
-var EventOverlay = ({ event }) => /* @__PURE__ */ jsxRuntime.jsxs(
-  "div",
-  {
-    className: cn(
-      "border grid gap-y-1 overflow-hidden place-content-start",
-      "text-xs text-left pl-1 bg-blue-500 text-white rounded-md w-[200px] opacity-90 shadow-lg",
-      event.type === "BLOCK" && "bg-gray-300"
-    ),
-    style: { height: event.duration / 60 * 64 },
-    children: [
-      event.type === "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" }),
-      /* @__PURE__ */ jsxRuntime.jsx("span", { children: event.title }),
-      /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-gray-300", children: event.service?.name })
-    ]
-  }
-);
+var EventOverlay = ({
+  event,
+  config = {}
+}) => {
+  const colorClass = event.type === "BLOCK" ? "bg-gray-300" : resolveColorClass(event.color, config.colors);
+  const colorStyle = event.type === "BLOCK" ? {} : getColorStyle(event.color);
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
+    {
+      className: cn(
+        "border grid gap-y-0 overflow-hidden place-content-start",
+        "text-xs text-left pl-2 pr-1 py-1 text-white rounded-md w-[200px] opacity-90 shadow-lg",
+        colorClass
+      ),
+      style: { height: event.duration / 60 * 64, ...colorStyle },
+      children: [
+        event.type === "BLOCK" && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" }),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "font-medium truncate", children: event.title }),
+        /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-white/70 truncate", children: event.service?.name })
+      ]
+    }
+  );
+};
 var Options = ({
   event,
   onClose,

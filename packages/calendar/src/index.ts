@@ -21,6 +21,12 @@ export type {
   CalendarConfig,
   ColumnHeaderProps,
   Resource,
+  EventParticipant,
+  EventColorPreset,
+  EventColors,
+  TimeDisplayConfig,
+  ParticipantsDisplayConfig,
+  EventRenderProps,
 } from "./types";
 
 // Utilities

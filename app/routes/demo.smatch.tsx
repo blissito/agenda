@@ -3,7 +3,30 @@ import {
   Calendar,
   useCalendarControls,
   type CalendarEvent,
+  type EventParticipant,
 } from "@hectorbliss/denik-calendar";
+
+// Participantes de ejemplo
+const demoParticipants: EventParticipant[] = [
+  { id: "p1", name: "Ana García", avatarColor: "bg-yellow-200" },
+  { id: "p2", name: "María López", avatarColor: "bg-pink-200" },
+  { id: "p3", name: "Laura Sánchez", avatarColor: "bg-blue-200" },
+  { id: "p4", name: "Sofía Martínez", avatarColor: "bg-green-200" },
+];
+
+const maleParticipants: EventParticipant[] = [
+  { id: "m1", name: "Carlos Ruiz", avatarColor: "bg-orange-200" },
+  { id: "m2", name: "Pedro Gómez", avatarColor: "bg-purple-200" },
+  { id: "m3", name: "Juan Díaz", avatarColor: "bg-teal-200" },
+  { id: "m4", name: "Miguel Torres", avatarColor: "bg-red-200" },
+];
+
+const mixedParticipants: EventParticipant[] = [
+  { id: "x1", name: "Ana García", avatarColor: "bg-yellow-200" },
+  { id: "x2", name: "Carlos Ruiz", avatarColor: "bg-orange-200" },
+  { id: "x3", name: "María López", avatarColor: "bg-pink-200" },
+  { id: "x4", name: "Pedro Gómez", avatarColor: "bg-purple-200" },
+];
 
 // Generar eventos de ejemplo para simular partidos de pádel
 const generateDemoEvents = (): CalendarEvent[] => {
@@ -12,12 +35,6 @@ const generateDemoEvents = (): CalendarEvent[] => {
   monday.setDate(baseDate.getDate() - baseDate.getDay() + 1);
 
   const events: CalendarEvent[] = [];
-  const titles = [
-    "4ta femenil - Femenil",
-    "Suma 3 - Varonil - Oct",
-    "Mixtos B - Mixta - Cuartos",
-    "Suma 3 - Varonil - Cuartos",
-  ];
 
   // Viernes eventos
   const friday = new Date(monday);
@@ -28,6 +45,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "4ta femenil - Femenil",
     start: new Date(friday.setHours(8, 0, 0, 0)),
     duration: 90,
+    color: "green",
+    participants: demoParticipants,
   });
 
   events.push({
@@ -35,6 +54,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Oct",
     start: new Date(new Date(friday).setHours(9, 0, 0, 0)),
     duration: 120,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   events.push({
@@ -42,6 +63,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Oct",
     start: new Date(new Date(friday).setHours(10, 30, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   events.push({
@@ -49,6 +72,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "4ta femenil - Fem",
     start: new Date(new Date(friday).setHours(11, 30, 0, 0)),
     duration: 90,
+    color: "pink",
+    participants: demoParticipants,
   });
 
   events.push({
@@ -56,6 +81,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Cua",
     start: new Date(new Date(friday).setHours(14, 0, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   events.push({
@@ -63,6 +90,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Cua",
     start: new Date(new Date(friday).setHours(16, 0, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   // Sábado eventos (overlaps!)
@@ -74,6 +103,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Oct",
     start: new Date(saturday.setHours(8, 30, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   events.push({
@@ -81,6 +112,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil",
     start: new Date(new Date(saturday).setHours(10, 45, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   events.push({
@@ -88,6 +121,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Mixtos B - Mixta",
     start: new Date(new Date(saturday).setHours(10, 45, 0, 0)),
     duration: 90,
+    color: "purple",
+    participants: mixedParticipants,
   });
 
   events.push({
@@ -95,6 +130,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "4ta femenil - Fem",
     start: new Date(new Date(saturday).setHours(11, 30, 0, 0)),
     duration: 90,
+    color: "pink",
+    participants: demoParticipants,
   });
 
   events.push({
@@ -102,6 +139,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Cua",
     start: new Date(new Date(saturday).setHours(15, 0, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   // Domingo eventos
@@ -113,6 +152,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "4ta femenil - Femenil",
     start: new Date(sunday.setHours(8, 0, 0, 0)),
     duration: 90,
+    color: "green",
+    participants: demoParticipants,
   });
 
   events.push({
@@ -120,6 +161,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Mixtos B - Mixta - Cua",
     start: new Date(new Date(sunday).setHours(10, 45, 0, 0)),
     duration: 90,
+    color: "purple",
+    participants: mixedParticipants,
   });
 
   // Miércoles
@@ -131,6 +174,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Oct",
     start: new Date(wednesday.setHours(9, 30, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   // Jueves con overlap
@@ -142,6 +187,8 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "Suma 3 - Varonil - Oct",
     start: new Date(thursday.setHours(10, 30, 0, 0)),
     duration: 90,
+    color: "orange",
+    participants: maleParticipants,
   });
 
   events.push({
@@ -149,24 +196,12 @@ const generateDemoEvents = (): CalendarEvent[] => {
     title: "4ta femenil - Fem",
     start: new Date(new Date(thursday).setHours(11, 30, 0, 0)),
     duration: 90,
+    color: "pink",
+    participants: demoParticipants,
   });
 
   return events;
 };
-
-// Avatars placeholder
-const Avatars = () => (
-  <div className="flex -space-x-1 mt-1">
-    {[1, 2, 3, 4].map((i) => (
-      <div
-        key={i}
-        className="w-5 h-5 rounded-full bg-yellow-200 border border-white flex items-center justify-center text-[8px]"
-      >
-        😊
-      </div>
-    ))}
-  </div>
-);
 
 export default function SmatchDemo() {
   const controls = useCalendarControls({ locale: "es-MX" });
@@ -256,6 +291,14 @@ export default function SmatchDemo() {
           onEventClick={handleEventClick}
           config={{
             locale: "es-MX",
+            eventTime: {
+              enabled: true,
+              format: "12h",
+            },
+            participants: {
+              maxVisible: 4,
+              size: 20,
+            },
           }}
         />
       </div>

@@ -18,7 +18,16 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import type { CalendarEvent, CalendarProps, CalendarConfig, ColumnHeaderProps, Resource } from "./types";
+import type {
+  CalendarEvent,
+  CalendarProps,
+  CalendarConfig,
+  ColumnHeaderProps,
+  Resource,
+  EventColors,
+  EventParticipant,
+  ParticipantsDisplayConfig,
+} from "./types";
 import { useCalendarEvents } from "./useCalendarEvents";
 import { useClickOutside, formatDate } from "./hooks";
 import { completeWeek, isToday as checkIsToday, areSameDates } from "./utils";
@@ -26,6 +35,82 @@ import { completeWeek, isToday as checkIsToday, areSameDates } from "./utils";
 // Simple classname utility (inline clsx replacement)
 const cn = (...classes: (string | boolean | undefined | null)[]) =>
   classes.filter(Boolean).join(" ");
+
+// Default color preset mapping
+const DEFAULT_COLORS: Record<string, string> = {
+  blue: "bg-blue-500",
+  green: "bg-emerald-500",
+  orange: "bg-orange-500",
+  pink: "bg-pink-500",
+  purple: "bg-purple-500",
+  red: "bg-red-500",
+  yellow: "bg-yellow-500",
+  gray: "bg-gray-400",
+  default: "bg-blue-500",
+};
+
+/**
+ * Resolve event color to CSS class
+ */
+const resolveColorClass = (
+  color: string | undefined,
+  colors: EventColors = {}
+): string => {
+  if (!color) return colors.default || DEFAULT_COLORS.default;
+
+  // Check if it's a preset
+  const mergedColors: Record<string, string | undefined> = { ...DEFAULT_COLORS, ...colors };
+  if (color in mergedColors) {
+    return mergedColors[color] || DEFAULT_COLORS.default;
+  }
+
+  // Check if it's a hex color (will use inline style instead)
+  if (color.startsWith("#")) {
+    return "";
+  }
+
+  // Assume it's a tailwind class
+  return color;
+};
+
+/**
+ * Get inline style for hex colors
+ */
+const getColorStyle = (color: string | undefined): React.CSSProperties => {
+  if (color?.startsWith("#")) {
+    return { backgroundColor: color };
+  }
+  return {};
+};
+
+/**
+ * Format time range for display
+ */
+const formatTimeRange = (
+  start: Date,
+  duration: number,
+  locale: string,
+  format: "12h" | "24h" = "12h",
+  customFormatter?: (start: Date, end: Date, locale: string) => string
+): string => {
+  const end = new Date(start);
+  end.setMinutes(end.getMinutes() + duration);
+
+  if (customFormatter) {
+    return customFormatter(start, end, locale);
+  }
+
+  const options: Intl.DateTimeFormatOptions = {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: format === "12h",
+  };
+
+  const startStr = start.toLocaleTimeString(locale, options);
+  const endStr = end.toLocaleTimeString(locale, options);
+
+  return `${startStr} - ${endStr}`;
+};
 
 // Default SVG Icons
 const DefaultTrashIcon = () => (
@@ -45,6 +130,66 @@ const DefaultCloseIcon = () => (
     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
   </svg>
 );
+
+/**
+ * Participant avatars component
+ */
+const ParticipantAvatars = ({
+  participants,
+  config = {},
+}: {
+  participants: EventParticipant[];
+  config?: ParticipantsDisplayConfig;
+}) => {
+  const { maxVisible = 4, size = 20 } = config;
+
+  if (!participants.length) return null;
+
+  const visible = participants.slice(0, maxVisible);
+  const remaining = participants.length - maxVisible;
+
+  const avatarStyle = {
+    width: size,
+    height: size,
+    minWidth: size,
+  };
+
+  return (
+    <div className="flex -space-x-1 mt-1">
+      {visible.map((participant) => (
+        <div
+          key={participant.id}
+          className={cn(
+            "rounded-full border border-white flex items-center justify-center text-[8px] bg-gray-200 overflow-hidden",
+            participant.avatarColor
+          )}
+          style={avatarStyle}
+          title={participant.name}
+        >
+          {participant.avatar ? (
+            <img
+              src={participant.avatar}
+              alt={participant.name || ""}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="font-medium text-gray-600">
+              {participant.name?.charAt(0)?.toUpperCase() || "?"}
+            </span>
+          )}
+        </div>
+      ))}
+      {remaining > 0 && (
+        <div
+          className="rounded-full border border-white bg-gray-300 flex items-center justify-center text-[8px] font-medium text-gray-600"
+          style={avatarStyle}
+        >
+          +{remaining}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const getComparableTime = (date: Date) => {
   const d = new Date(date);
@@ -273,12 +418,13 @@ export function Calendar({
               locale={locale}
               icons={icons}
               resourceId={isResourceMode ? resources![colIndex].id : undefined}
+              config={config}
             />
           ))}
         </section>
       </article>
       <DragOverlay>
-        {activeEvent ? <EventOverlay event={activeEvent} /> : null}
+        {activeEvent ? <EventOverlay event={activeEvent} config={config} /> : null}
       </DragOverlay>
     </DndContext>
   );
@@ -321,7 +467,7 @@ const Cell = ({
         className
       )}
     >
-      {children || hours}
+      {children}
     </div>
   );
 };
@@ -453,6 +599,7 @@ const Column = ({
   locale,
   icons,
   resourceId,
+  config = {},
 }: {
   onEventClick?: (event: CalendarEvent) => void;
   onNewEvent?: (arg0: Date) => void;
@@ -464,6 +611,7 @@ const Column = ({
   locale: string;
   icons: CalendarConfig["icons"];
   resourceId?: string;
+  config?: CalendarConfig;
 }) => {
   const columnRef = useRef<HTMLDivElement>(null);
 
@@ -508,6 +656,7 @@ const Column = ({
           icons={icons}
           overlapColumn={column}
           overlapTotal={totalColumns}
+          config={config}
         />
       ));
     }
@@ -565,6 +714,7 @@ const DraggableEvent = ({
   icons,
   overlapColumn = 0,
   overlapTotal = 1,
+  config = {},
 }: {
   onClick?: (arg0: CalendarEvent) => void;
   onRemoveBlock?: (eventId: string) => void;
@@ -573,6 +723,7 @@ const DraggableEvent = ({
   icons?: CalendarConfig["icons"];
   overlapColumn?: number;
   overlapTotal?: number;
+  config?: CalendarConfig;
 }) => {
   const [showOptions, setShowOptions] = useState(false);
 
@@ -586,11 +737,69 @@ const DraggableEvent = ({
   const widthPercent = event.type === "BLOCK" ? 100 : (90 / overlapTotal);
   const leftPercent = event.type === "BLOCK" ? 0 : (overlapColumn * (90 / overlapTotal));
 
+  // Resolve color
+  const colorClass = event.type === "BLOCK"
+    ? "bg-gray-300"
+    : resolveColorClass(event.color, config.colors);
+  const colorStyle = event.type === "BLOCK"
+    ? {}
+    : getColorStyle(event.color);
+
+  // Determine if time should be shown
+  const showTime = event.showTime ?? config.eventTime?.enabled ?? false;
+  const timeString = showTime
+    ? formatTimeRange(
+        new Date(event.start),
+        event.duration,
+        locale,
+        config.eventTime?.format,
+        config.eventTime?.formatter
+      )
+    : "";
+
+  // Custom renderer support
+  if (config.renderEvent && event.type !== "BLOCK") {
+    return (
+      <>
+        <button
+          ref={setNodeRef}
+          style={{
+            height: (event.duration / 60) * 64,
+            transform: transform ? CSS.Translate.toString(transform) : undefined,
+            width: `${widthPercent}%`,
+            left: `${leftPercent}%`,
+          }}
+          onClick={() => onClick?.(event)}
+          {...listeners}
+          {...attributes}
+          className="absolute top-0 z-10 cursor-grab"
+        >
+          {config.renderEvent({
+            event,
+            timeString,
+            colorClass,
+            isDragging,
+            onClick: () => onClick?.(event),
+          })}
+        </button>
+        <Options
+          event={event}
+          onClose={() => setShowOptions(false)}
+          isOpen={showOptions}
+          onRemoveBlock={onRemoveBlock}
+          locale={locale}
+          icons={icons}
+        />
+      </>
+    );
+  }
+
   const style: React.CSSProperties = {
     height: (event.duration / 60) * 64,
     transform: transform ? CSS.Translate.toString(transform) : undefined,
     width: `${widthPercent}%`,
     left: `${leftPercent}%`,
+    ...colorStyle,
   };
 
   return (
@@ -606,8 +815,9 @@ const DraggableEvent = ({
         {...listeners}
         {...attributes}
         className={cn(
-          "border grid gap-y-1 overflow-hidden place-content-start",
-          "text-xs text-left pl-1 absolute top-0 bg-blue-500 text-white rounded-md z-10",
+          "border grid gap-y-0 overflow-hidden place-content-start",
+          "text-xs text-left pl-2 pr-1 py-1 absolute top-0 text-white rounded-md z-10",
+          colorClass,
           event.type === "BLOCK" &&
             "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
           event.type !== "BLOCK" && "cursor-grab",
@@ -617,8 +827,17 @@ const DraggableEvent = ({
         {event.type === "BLOCK" && (
           <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
         )}
-        <span>{event.title}</span>
-        <span className="text-gray-300">{event.service?.name}</span>
+        {showTime && event.type !== "BLOCK" && (
+          <span className="text-[10px] opacity-90 font-medium">{timeString}</span>
+        )}
+        <span className="font-medium truncate">{event.title}</span>
+        <span className="text-white/70 truncate">{event.service?.name}</span>
+        {event.participants && event.participants.length > 0 && (
+          <ParticipantAvatars
+            participants={event.participants}
+            config={config.participants}
+          />
+        )}
       </button>
       <Options
         event={event}
@@ -632,22 +851,37 @@ const DraggableEvent = ({
   );
 };
 
-const EventOverlay = ({ event }: { event: CalendarEvent }) => (
-  <div
-    className={cn(
-      "border grid gap-y-1 overflow-hidden place-content-start",
-      "text-xs text-left pl-1 bg-blue-500 text-white rounded-md w-[200px] opacity-90 shadow-lg",
-      event.type === "BLOCK" && "bg-gray-300"
-    )}
-    style={{ height: (event.duration / 60) * 64 }}
-  >
-    {event.type === "BLOCK" && (
-      <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
-    )}
-    <span>{event.title}</span>
-    <span className="text-gray-300">{event.service?.name}</span>
-  </div>
-);
+const EventOverlay = ({
+  event,
+  config = {},
+}: {
+  event: CalendarEvent;
+  config?: CalendarConfig;
+}) => {
+  const colorClass = event.type === "BLOCK"
+    ? "bg-gray-300"
+    : resolveColorClass(event.color, config.colors);
+  const colorStyle = event.type === "BLOCK"
+    ? {}
+    : getColorStyle(event.color);
+
+  return (
+    <div
+      className={cn(
+        "border grid gap-y-0 overflow-hidden place-content-start",
+        "text-xs text-left pl-2 pr-1 py-1 text-white rounded-md w-[200px] opacity-90 shadow-lg",
+        colorClass
+      )}
+      style={{ height: (event.duration / 60) * 64, ...colorStyle }}
+    >
+      {event.type === "BLOCK" && (
+        <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
+      )}
+      <span className="font-medium truncate">{event.title}</span>
+      <span className="text-white/70 truncate">{event.service?.name}</span>
+    </div>
+  );
+};
 
 const Options = ({
   event,
