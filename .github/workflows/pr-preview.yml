@@ -1,0 +1,130 @@
+name: PR Preview Deploy
+
+on:
+  pull_request:
+    types: [labeled, synchronize]
+
+jobs:
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    # Solo ejecutar si tiene el label 'ultrathink'
+    if: |
+      (github.event.action == 'labeled' && github.event.label.name == 'ultrathink') ||
+      (github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'ultrathink'))
+
+    concurrency:
+      group: pr-preview-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Fly.io
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Set preview app name
+        id: app-name
+        run: echo "name=denik-preview-pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+
+      - name: Check if app exists
+        id: check-app
+        run: |
+          if flyctl apps list | grep -q "${{ steps.app-name.outputs.name }}"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Create preview app
+        if: steps.check-app.outputs.exists == 'false'
+        run: |
+          flyctl apps create ${{ steps.app-name.outputs.name }} --org personal
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Set secrets for preview
+        if: steps.check-app.outputs.exists == 'false'
+        run: |
+          flyctl secrets set \
+            DATABASE_URL="mongodb+srv://new_denik:***REMOVED***@cluster0.ahniito.mongodb.net/denik_preview?appName=Cluster0" \
+            SESSION_SECRET="${{ secrets.SESSION_SECRET }}" \
+            JWT_SECRET="***REMOVED***" \
+            AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+            AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+            APP_URL="https://${{ steps.app-name.outputs.name }}.fly.dev" \
+            --app ${{ steps.app-name.outputs.name }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Generate fly.toml for preview
+        run: |
+          cat > fly.preview.toml << EOF
+          app = '${{ steps.app-name.outputs.name }}'
+          primary_region = 'dfw'
+
+          [build]
+
+          [http_service]
+            internal_port = 3000
+            force_https = true
+            auto_stop_machines = 'stop'
+            auto_start_machines = true
+            min_machines_running = 0
+            processes = ['app']
+
+          [[vm]]
+            size = 'shared-cpu-1x'
+            memory = '512mb'
+          EOF
+
+      - name: Deploy preview
+        run: flyctl deploy --remote-only --config fly.preview.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Comment PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const appName = '${{ steps.app-name.outputs.name }}';
+            const previewUrl = `https://${appName}.fly.dev`;
+
+            // Buscar comentario existente
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('🚀 Preview deployed!')
+            );
+
+            const body = `## 🚀 Preview deployed!
+
+            **URL**: ${previewUrl}
+
+            **App**: \`${appName}\`
+
+            ---
+            _Este preview se actualiza automáticamente con cada push mientras el label \`ultrathink\` esté presente._`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body
+              });
+            }

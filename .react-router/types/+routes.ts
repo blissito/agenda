@@ -130,12 +130,15 @@ type Pages = {
       "orgSlug": string;
     };
   };
+  "/demo/smatch": {
+    params: {};
+  };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/stripe" | "/a/:orgSlug/s/:serviceSlug" | "/a/:orgSlug";
+    page: "/" | "/planes" | "/signin" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/stripe" | "/a/:orgSlug/s/:serviceSlug" | "/a/:orgSlug" | "/demo/smatch";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -269,6 +272,10 @@ type RouteFiles = {
     id: "routes/clientwebsite";
     page: "/a/:orgSlug";
   };
+  "routes/demo.smatch.tsx": {
+    id: "routes/demo.smatch";
+    page: "/demo/smatch";
+  };
 };
 
 type RouteModules = {
@@ -306,4 +313,5 @@ type RouteModules = {
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
   "routes/agenda.$orgSlug.$serviceSlug/route": typeof import("./app/routes/agenda.$orgSlug.$serviceSlug/route.tsx");
   "routes/clientwebsite": typeof import("./app/routes/clientwebsite.tsx");
+  "routes/demo.smatch": typeof import("./app/routes/demo.smatch.tsx");
 };

@@ -22,8 +22,12 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY --link package-lock.json package.json ./
-RUN npm install
-RUN npm ci --include=dev
+# Remove workspaces for production (packages/ is not copied)
+RUN sed -i '/"workspaces"/,/]/d' package.json
+# Install all dependencies including dev
+RUN npm install --legacy-peer-deps --include=dev
+# Explicitly install calendar package from npm registry
+RUN npm install @hectorbliss/denik-calendar@0.0.4 --save
 # Copy application code
 COPY --link . .
 

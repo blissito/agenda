@@ -73,4 +73,6 @@ export default [
   ),
   // website:
   route("a/:orgSlug", "routes/clientwebsite.tsx"),
+  // Demo
+  route("demo/smatch", "routes/demo.smatch.tsx"),
 ] satisfies RouteConfig;
