@@ -56,15 +56,17 @@ interface CalendarProps {
 declare function Calendar({ date, events, onEventClick, onNewEvent, onEventMove, onAddBlock, onRemoveBlock, config, }: CalendarProps): react_jsx_runtime.JSX.Element;
 
 /**
- * Hook for detecting event overlaps in a calendar
- * Can be used standalone (headless) or with the Calendar component
+ * Hook for managing calendar events - overlap detection, filtering, and availability
  */
-declare function useEventOverlap(events: CalendarEvent[]): {
+declare function useCalendarEvents(events: CalendarEvent[]): {
     hasOverlap: (start: Date, duration: number, excludeId?: string) => boolean;
     findConflicts: (start: Date, duration: number, excludeId?: string) => CalendarEvent[];
     canMove: (eventId: string, newStart: Date) => boolean;
     getEventsForDay: (date: Date) => CalendarEvent[];
+    getEventsForWeek: (date: Date) => CalendarEvent[];
+    findAvailableSlots: (date: Date, duration: number, startHour?: number, endHour?: number) => Date[];
 };
+declare const useEventOverlap: typeof useCalendarEvents;
 
 /**
  * Get the Monday of the week for a given date
@@ -126,4 +128,4 @@ declare function useClickOutside<T extends HTMLElement>({ isActive, onOutsideCli
  */
 declare function formatDate(date: Date, locale?: string): string;
 
-export { Calendar, type CalendarConfig, type CalendarEvent, type CalendarProps, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useClickOutside, useEventOverlap };
+export { Calendar, type CalendarConfig, type CalendarEvent, type CalendarProps, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarEvents, useClickOutside, useEventOverlap };

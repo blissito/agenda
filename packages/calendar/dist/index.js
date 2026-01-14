@@ -1,96 +1,9 @@
-import { useCallback, useMemo, useRef, useEffect, useState } from 'react';
+import { useCallback, useRef, useEffect, useState } from 'react';
 import { useSensors, useSensor, PointerSensor, KeyboardSensor, DndContext, closestCenter, DragOverlay, useDroppable, useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
 
 // src/Calendar.tsx
-function useEventOverlap(events) {
-  const hasOverlap = useCallback(
-    (start, duration, excludeId) => {
-      const hour = start.getHours() + start.getMinutes() / 60;
-      const endHour = hour + duration / 60;
-      return events.some((existing) => {
-        if (excludeId && existing.id === excludeId) return false;
-        const existingStart = new Date(existing.start);
-        if (existingStart.getDate() !== start.getDate() || existingStart.getMonth() !== start.getMonth() || existingStart.getFullYear() !== start.getFullYear()) {
-          return false;
-        }
-        const existingHour = existingStart.getHours() + existingStart.getMinutes() / 60;
-        const existingEnd = existingHour + existing.duration / 60;
-        return hour >= existingHour && hour < existingEnd || endHour > existingHour && endHour <= existingEnd || hour <= existingHour && endHour >= existingEnd;
-      });
-    },
-    [events]
-  );
-  const findConflicts = useCallback(
-    (start, duration, excludeId) => {
-      const hour = start.getHours() + start.getMinutes() / 60;
-      const endHour = hour + duration / 60;
-      return events.filter((existing) => {
-        if (excludeId && existing.id === excludeId) return false;
-        const existingStart = new Date(existing.start);
-        if (existingStart.getDate() !== start.getDate() || existingStart.getMonth() !== start.getMonth() || existingStart.getFullYear() !== start.getFullYear()) {
-          return false;
-        }
-        const existingHour = existingStart.getHours() + existingStart.getMinutes() / 60;
-        const existingEnd = existingHour + existing.duration / 60;
-        return hour >= existingHour && hour < existingEnd || endHour > existingHour && endHour <= existingEnd || hour <= existingHour && endHour >= existingEnd;
-      });
-    },
-    [events]
-  );
-  const canMove = useCallback(
-    (eventId, newStart) => {
-      const event = events.find((e) => e.id === eventId);
-      if (!event) return false;
-      return !hasOverlap(newStart, event.duration, eventId);
-    },
-    [events, hasOverlap]
-  );
-  const getEventsForDay = useMemo(() => {
-    return (date) => {
-      return events.filter((event) => {
-        const eventDate = new Date(event.start);
-        return eventDate.getDate() === date.getDate() && eventDate.getMonth() === date.getMonth() && eventDate.getFullYear() === date.getFullYear();
-      });
-    };
-  }, [events]);
-  return {
-    hasOverlap,
-    findConflicts,
-    canMove,
-    getEventsForDay
-  };
-}
-function useClickOutside({
-  isActive,
-  onOutsideClick
-}) {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!isActive) return;
-    const handleClickOutside = (event) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        onOutsideClick();
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isActive, onOutsideClick]);
-  return ref;
-}
-function formatDate(date, locale = "es-MX") {
-  return new Date(date).toLocaleDateString(locale, {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
 
 // src/utils.ts
 var getMonday = (today = /* @__PURE__ */ new Date()) => {
@@ -170,6 +83,134 @@ var getDaysInMonth = (date) => {
   }
   return days;
 };
+
+// src/useCalendarEvents.ts
+function useCalendarEvents(events) {
+  const hasOverlap = useCallback(
+    (start, duration, excludeId) => {
+      const hour = start.getHours() + start.getMinutes() / 60;
+      const endHour = hour + duration / 60;
+      return events.some((existing) => {
+        if (excludeId && existing.id === excludeId) return false;
+        const existingStart = new Date(existing.start);
+        if (existingStart.getDate() !== start.getDate() || existingStart.getMonth() !== start.getMonth() || existingStart.getFullYear() !== start.getFullYear()) {
+          return false;
+        }
+        const existingHour = existingStart.getHours() + existingStart.getMinutes() / 60;
+        const existingEnd = existingHour + existing.duration / 60;
+        return hour >= existingHour && hour < existingEnd || endHour > existingHour && endHour <= existingEnd || hour <= existingHour && endHour >= existingEnd;
+      });
+    },
+    [events]
+  );
+  const findConflicts = useCallback(
+    (start, duration, excludeId) => {
+      const hour = start.getHours() + start.getMinutes() / 60;
+      const endHour = hour + duration / 60;
+      return events.filter((existing) => {
+        if (excludeId && existing.id === excludeId) return false;
+        const existingStart = new Date(existing.start);
+        if (existingStart.getDate() !== start.getDate() || existingStart.getMonth() !== start.getMonth() || existingStart.getFullYear() !== start.getFullYear()) {
+          return false;
+        }
+        const existingHour = existingStart.getHours() + existingStart.getMinutes() / 60;
+        const existingEnd = existingHour + existing.duration / 60;
+        return hour >= existingHour && hour < existingEnd || endHour > existingHour && endHour <= existingEnd || hour <= existingHour && endHour >= existingEnd;
+      });
+    },
+    [events]
+  );
+  const canMove = useCallback(
+    (eventId, newStart) => {
+      const event = events.find((e) => e.id === eventId);
+      if (!event) return false;
+      return !hasOverlap(newStart, event.duration, eventId);
+    },
+    [events, hasOverlap]
+  );
+  const getEventsForDay = useCallback(
+    (date) => {
+      return events.filter((event) => {
+        const eventDate = new Date(event.start);
+        return eventDate.getDate() === date.getDate() && eventDate.getMonth() === date.getMonth() && eventDate.getFullYear() === date.getFullYear();
+      });
+    },
+    [events]
+  );
+  const getEventsForWeek = useCallback(
+    (date) => {
+      const week = completeWeek(date);
+      const start = week[0];
+      const end = new Date(week[6]);
+      end.setHours(23, 59, 59, 999);
+      return events.filter((event) => {
+        const eventDate = new Date(event.start);
+        return eventDate >= start && eventDate <= end;
+      });
+    },
+    [events]
+  );
+  const findAvailableSlots = useCallback(
+    (date, duration, startHour = 8, endHour = 18) => {
+      const slots = [];
+      const dayEvents = getEventsForDay(date);
+      for (let hour = startHour; hour <= endHour - duration / 60; hour++) {
+        const slotStart = new Date(date);
+        slotStart.setHours(hour, 0, 0, 0);
+        const hasConflict = dayEvents.some((event) => {
+          const eventStart = new Date(event.start);
+          const eventHour = eventStart.getHours();
+          const eventEnd = eventHour + event.duration / 60;
+          const slotEnd = hour + duration / 60;
+          return hour >= eventHour && hour < eventEnd || slotEnd > eventHour && slotEnd <= eventEnd || hour <= eventHour && slotEnd >= eventEnd;
+        });
+        if (!hasConflict) {
+          slots.push(slotStart);
+        }
+      }
+      return slots;
+    },
+    [getEventsForDay]
+  );
+  return {
+    hasOverlap,
+    findConflicts,
+    canMove,
+    getEventsForDay,
+    getEventsForWeek,
+    findAvailableSlots
+  };
+}
+var useEventOverlap = useCalendarEvents;
+function useClickOutside({
+  isActive,
+  onOutsideClick
+}) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!isActive) return;
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        onOutsideClick();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isActive, onOutsideClick]);
+  return ref;
+}
+function formatDate(date, locale = "es-MX") {
+  return new Date(date).toLocaleDateString(locale, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
 var cn = (...classes) => classes.filter(Boolean).join(" ");
 var DefaultTrashIcon = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 24 24", className: "w-4 h-4", fill: "currentColor", children: /* @__PURE__ */ jsx("path", { d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" }) });
 var DefaultEditIcon = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 24 24", className: "w-4 h-4", fill: "currentColor", children: /* @__PURE__ */ jsx("path", { d: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" }) });
@@ -199,7 +240,7 @@ function Calendar({
   const { locale = "es-MX", icons = {} } = config;
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState(null);
-  const { canMove } = useEventOverlap(events);
+  const { canMove } = useCalendarEvents(events);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 }
@@ -565,4 +606,4 @@ var Options = ({
   );
 };
 
-export { Calendar, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useClickOutside, useEventOverlap };
+export { Calendar, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarEvents, useClickOutside, useEventOverlap };

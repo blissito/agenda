@@ -45,23 +45,31 @@ function App() {
 
 ## Headless Hook
 
-Use the overlap detection logic without the UI:
+Use the calendar logic without the UI:
 
 ```tsx
-import { useEventOverlap } from "@hectorbliss/denik-calendar";
+import { useCalendarEvents } from "@hectorbliss/denik-calendar";
 
 function MyCustomCalendar({ events }) {
-  const { canMove, hasOverlap, findConflicts } = useEventOverlap(events);
+  const {
+    canMove,
+    hasOverlap,
+    findConflicts,
+    getEventsForDay,
+    getEventsForWeek,
+    findAvailableSlots
+  } = useCalendarEvents(events);
 
   const handleDrop = (eventId, newStart) => {
     if (canMove(eventId, newStart)) {
-      // Safe to move
       updateEvent(eventId, newStart);
     } else {
-      // Conflict detected
       toast.error("Time slot occupied");
     }
   };
+
+  // Get available 60-min slots for today (8am-6pm)
+  const slots = findAvailableSlots(new Date(), 60);
 }
 ```
 
@@ -120,6 +128,12 @@ interface CalendarConfig {
 ## Peer Dependencies
 
 - React 18+ or 19+
+
+## Author
+
+Made by [@blissito](https://github.com/blissito)
+
+Learn React & web development at [fixtergeek.com](https://fixtergeek.com)
 
 ## License
 

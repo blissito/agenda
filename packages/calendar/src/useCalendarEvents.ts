@@ -1,11 +1,11 @@
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import type { CalendarEvent } from "./types";
+import { completeWeek } from "./utils";
 
 /**
- * Hook for detecting event overlaps in a calendar
- * Can be used standalone (headless) or with the Calendar component
+ * Hook for managing calendar events - overlap detection, filtering, and availability
  */
-export function useEventOverlap(events: CalendarEvent[]) {
+export function useCalendarEvents(events: CalendarEvent[]) {
   /**
    * Check if a time slot overlaps with existing events
    */
@@ -89,8 +89,8 @@ export function useEventOverlap(events: CalendarEvent[]) {
   /**
    * Get events for a specific day
    */
-  const getEventsForDay = useMemo(() => {
-    return (date: Date): CalendarEvent[] => {
+  const getEventsForDay = useCallback(
+    (date: Date): CalendarEvent[] => {
       return events.filter((event) => {
         const eventDate = new Date(event.start);
         return (
@@ -99,13 +99,72 @@ export function useEventOverlap(events: CalendarEvent[]) {
           eventDate.getFullYear() === date.getFullYear()
         );
       });
-    };
-  }, [events]);
+    },
+    [events]
+  );
+
+  /**
+   * Get events for a week (Mon-Sun)
+   */
+  const getEventsForWeek = useCallback(
+    (date: Date): CalendarEvent[] => {
+      const week = completeWeek(date);
+      const start = week[0];
+      const end = new Date(week[6]);
+      end.setHours(23, 59, 59, 999);
+
+      return events.filter((event) => {
+        const eventDate = new Date(event.start);
+        return eventDate >= start && eventDate <= end;
+      });
+    },
+    [events]
+  );
+
+  /**
+   * Find available time slots for a given day and duration
+   */
+  const findAvailableSlots = useCallback(
+    (date: Date, duration: number, startHour = 8, endHour = 18): Date[] => {
+      const slots: Date[] = [];
+      const dayEvents = getEventsForDay(date);
+
+      for (let hour = startHour; hour <= endHour - duration / 60; hour++) {
+        const slotStart = new Date(date);
+        slotStart.setHours(hour, 0, 0, 0);
+
+        const hasConflict = dayEvents.some((event) => {
+          const eventStart = new Date(event.start);
+          const eventHour = eventStart.getHours();
+          const eventEnd = eventHour + event.duration / 60;
+          const slotEnd = hour + duration / 60;
+
+          return (
+            (hour >= eventHour && hour < eventEnd) ||
+            (slotEnd > eventHour && slotEnd <= eventEnd) ||
+            (hour <= eventHour && slotEnd >= eventEnd)
+          );
+        });
+
+        if (!hasConflict) {
+          slots.push(slotStart);
+        }
+      }
+
+      return slots;
+    },
+    [getEventsForDay]
+  );
 
   return {
     hasOverlap,
     findConflicts,
     canMove,
     getEventsForDay,
+    getEventsForWeek,
+    findAvailableSlots,
   };
 }
+
+// Backwards compatibility
+export const useEventOverlap = useCalendarEvents;

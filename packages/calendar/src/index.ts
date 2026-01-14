@@ -1,8 +1,8 @@
 // Main component
 export { Calendar, SimpleBigWeekView } from "./Calendar";
 
-// Headless hook for overlap detection
-export { useEventOverlap } from "./useEventOverlap";
+// Headless hook for calendar events management
+export { useCalendarEvents, useEventOverlap } from "./useCalendarEvents";
 
 // Types
 export type { CalendarEvent, CalendarProps, CalendarConfig } from "./types";

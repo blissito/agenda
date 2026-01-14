@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import type { CalendarEvent, CalendarProps, CalendarConfig } from "./types";
-import { useEventOverlap } from "./useEventOverlap";
+import { useCalendarEvents } from "./useCalendarEvents";
 import { useClickOutside, formatDate } from "./hooks";
 import { completeWeek, isToday as checkIsToday } from "./utils";
 
@@ -79,7 +79,7 @@ export function Calendar({
   const { locale = "es-MX", icons = {} } = config;
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const { canMove } = useEventOverlap(events);
+  const { canMove } = useCalendarEvents(events);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
