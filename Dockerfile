@@ -20,14 +20,10 @@ FROM base as build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
-# Install node modules
+# Install node modules (including dev for build)
 COPY --link package-lock.json package.json ./
-# Remove workspaces for production (packages/ is not copied)
-RUN sed -i '/"workspaces"/,/]/d' package.json
-# Install all dependencies including dev
-RUN npm install --legacy-peer-deps --include=dev
-# Explicitly install calendar package from npm registry
-RUN npm install @hectorbliss/denik-calendar@0.0.4 --save
+COPY --link packages ./packages
+RUN npm ci --include=dev
 # Copy application code
 COPY --link . .
 
