@@ -1,8 +1,18 @@
 // Main component
 export { Calendar, SimpleBigWeekView } from "./Calendar";
 
-// Headless hook for calendar events management
+// Controls component
+export { CalendarControls } from "./CalendarControls";
+export type { CalendarControlsProps } from "./CalendarControls";
+
+// Headless hooks
 export { useCalendarEvents, useEventOverlap } from "./useCalendarEvents";
+export { useCalendarControls } from "./useCalendarControls";
+export type {
+  CalendarView,
+  CalendarControls as CalendarControlsState,
+  UseCalendarControlsOptions,
+} from "./useCalendarControls";
 
 // Types
 export type {
@@ -10,6 +20,7 @@ export type {
   CalendarProps,
   CalendarConfig,
   ColumnHeaderProps,
+  Resource,
 } from "./types";
 
 // Utilities

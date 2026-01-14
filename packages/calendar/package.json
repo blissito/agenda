@@ -1,6 +1,6 @@
 {
   "name": "@hectorbliss/denik-calendar",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": false,
   "description": "A React drag-and-drop week calendar component with overlap detection. Built with @dnd-kit.",
   "type": "module",

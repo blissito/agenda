@@ -1,18 +1,33 @@
 import type { ReactNode } from "react";
 
 /**
+ * Resource definition for day/resource view mode
+ * Use this to represent courts, rooms, employees, etc.
+ */
+export interface Resource {
+  /** Unique identifier for the resource */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Optional icon/avatar */
+  icon?: ReactNode;
+}
+
+/**
  * Props passed to custom column header renderer
  * Use this to build custom headers for resources (courts, rooms, employees, etc.)
  */
 export interface ColumnHeaderProps {
   /** The date for this column */
   date: Date;
-  /** Column index (0-6) */
+  /** Column index */
   index: number;
   /** Whether this column represents today */
   isToday: boolean;
   /** The configured locale */
   locale: string;
+  /** Resource data (only in resource mode) */
+  resource?: Resource;
 }
 
 /**
@@ -25,6 +40,8 @@ export interface CalendarEvent {
   title?: string | null;
   type?: "BLOCK" | "EVENT";
   service?: { name: string } | null;
+  /** Resource ID for day/resource view (court, room, etc.) */
+  resourceId?: string;
 }
 
 /**
@@ -70,6 +87,18 @@ export interface CalendarProps {
   date?: Date;
   /** Array of events to display */
   events?: CalendarEvent[];
+  /**
+   * Resources for day/resource view mode.
+   * When provided, columns represent resources instead of weekdays.
+   * Events are filtered by date and grouped by resourceId.
+   *
+   * @example
+   * resources={[
+   *   { id: "court-1", name: "Cancha 1", icon: <PadelIcon /> },
+   *   { id: "court-2", name: "Cancha 2", icon: <PadelIcon /> },
+   * ]}
+   */
+  resources?: Resource[];
   /** Callback when an event is clicked */
   onEventClick?: (event: CalendarEvent) => void;
   /** Callback when an event is moved via drag & drop */

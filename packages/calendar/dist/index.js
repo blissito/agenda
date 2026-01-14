@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, useState } from 'react';
+import { useCallback, useRef, useEffect, useState, useMemo } from 'react';
 import { useSensors, useSensor, PointerSensor, KeyboardSensor, DndContext, closestCenter, DragOverlay, useDroppable, useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { jsxs, jsx, Fragment } from 'react/jsx-runtime';
@@ -219,11 +219,18 @@ var DayHeader = ({
   date,
   locale,
   index,
+  resource,
   renderColumnHeader
 }) => {
   const isToday2 = isToday(date);
   if (renderColumnHeader) {
-    return /* @__PURE__ */ jsx("div", { className: "grid place-items-center", children: renderColumnHeader({ date, index, isToday: isToday2, locale }) });
+    return /* @__PURE__ */ jsx("div", { className: "grid place-items-center", children: renderColumnHeader({ date, index, isToday: isToday2, locale, resource }) });
+  }
+  if (resource) {
+    return /* @__PURE__ */ jsxs("div", { className: "grid place-items-center gap-1", children: [
+      resource.icon && /* @__PURE__ */ jsx("div", { className: "w-8 h-8 flex items-center justify-center", children: resource.icon }),
+      /* @__PURE__ */ jsx("span", { className: "text-sm font-medium", children: resource.name })
+    ] });
   }
   return /* @__PURE__ */ jsxs("p", { className: "grid place-items-center", children: [
     /* @__PURE__ */ jsx("span", { className: "capitalize", children: date.toLocaleDateString(locale, { weekday: "short" }) }),
@@ -241,6 +248,7 @@ var DayHeader = ({
 function Calendar({
   date = /* @__PURE__ */ new Date(),
   events = [],
+  resources,
   onEventClick,
   onNewEvent,
   onEventMove,
@@ -252,6 +260,8 @@ function Calendar({
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState(null);
   const { canMove } = useCalendarEvents(events);
+  const isResourceMode = !!resources && resources.length > 0;
+  const columnCount = isResourceMode ? resources.length : 7;
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 }
@@ -266,10 +276,10 @@ function Calendar({
     setActiveId(null);
     if (!over) return;
     const eventId = active.id.toString().replace("event-", "");
-    const [, dayIndexStr, hourStr] = over.id.toString().split("-");
-    const dayIndex = parseInt(dayIndexStr);
+    const [, colIndexStr, hourStr] = over.id.toString().split("-");
+    const colIndex = parseInt(colIndexStr);
     const hour = parseInt(hourStr);
-    const targetDay = week[dayIndex];
+    const targetDay = isResourceMode ? date : week[colIndex];
     const newStart = new Date(targetDay);
     newStart.setHours(hour, 0, 0, 0);
     const movedEvent = events.find((e) => e.id === eventId);
@@ -288,6 +298,24 @@ function Calendar({
     setActiveId(null);
   };
   const activeEvent = activeId ? events.find((e) => `event-${e.id}` === activeId) : null;
+  const getColumnEvents = (colIndex) => {
+    if (isResourceMode) {
+      const resourceId = resources[colIndex].id;
+      return events.filter((event) => {
+        const eventDate = new Date(event.start);
+        return event.resourceId === resourceId && areSameDates(eventDate, date);
+      });
+    }
+    const dayOfWeek = week[colIndex];
+    return events.filter((event) => {
+      const eventDate = new Date(event.start);
+      return eventDate.getDate() === dayOfWeek.getDate() && eventDate.getMonth() === dayOfWeek.getMonth();
+    });
+  };
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: `auto repeat(${columnCount}, minmax(120px, 1fr))`
+  };
   return /* @__PURE__ */ jsxs(
     DndContext,
     {
@@ -297,41 +325,66 @@ function Calendar({
       onDragEnd: handleDragEnd,
       onDragCancel: handleDragCancel,
       children: [
-        /* @__PURE__ */ jsxs("article", { className: "w-full bg-white shadow rounded-xl", children: [
-          /* @__PURE__ */ jsxs("section", { className: "grid grid-cols-8 place-items-center py-4", children: [
-            /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-500", children: Intl.DateTimeFormat().resolvedOptions().timeZone }) }),
-            week.map((day, index) => /* @__PURE__ */ jsx(
-              DayHeader,
-              {
-                date: day,
-                locale,
-                index,
-                renderColumnHeader
-              },
-              day.toISOString()
-            ))
-          ] }),
-          /* @__PURE__ */ jsxs("section", { className: "grid grid-cols-8 max-h-[80vh] overflow-y-auto", children: [
-            /* @__PURE__ */ jsx(TimeColumn, {}),
-            week.map((dayOfWeek, dayIndex) => /* @__PURE__ */ jsx(
-              Column,
-              {
-                dayIndex,
-                dayOfWeek,
-                events: events.filter((event) => {
-                  const eventDate = new Date(event.start);
-                  return eventDate.getDate() === dayOfWeek.getDate() && eventDate.getMonth() === dayOfWeek.getMonth();
-                }),
-                onNewEvent,
-                onAddBlock,
-                onRemoveBlock,
-                onEventClick,
-                locale,
-                icons
-              },
-              dayOfWeek.toISOString()
-            ))
-          ] })
+        /* @__PURE__ */ jsxs("article", { className: "w-full bg-white shadow rounded-xl overflow-hidden", children: [
+          /* @__PURE__ */ jsxs(
+            "section",
+            {
+              style: gridStyle,
+              className: "place-items-center py-4 border-b",
+              children: [
+                /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-500", children: Intl.DateTimeFormat().resolvedOptions().timeZone }) }),
+                isResourceMode ? resources.map((resource, index) => /* @__PURE__ */ jsx(
+                  DayHeader,
+                  {
+                    date,
+                    locale,
+                    index,
+                    resource,
+                    renderColumnHeader
+                  },
+                  resource.id
+                )) : week.map((day, index) => /* @__PURE__ */ jsx(
+                  DayHeader,
+                  {
+                    date: day,
+                    locale,
+                    index,
+                    renderColumnHeader
+                  },
+                  day.toISOString()
+                ))
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxs(
+            "section",
+            {
+              style: gridStyle,
+              className: cn(
+                "max-h-[80vh] overflow-y-auto",
+                isResourceMode && "overflow-x-auto"
+              ),
+              children: [
+                /* @__PURE__ */ jsx(TimeColumn, {}),
+                Array.from({ length: columnCount }, (_, colIndex) => /* @__PURE__ */ jsx(
+                  Column,
+                  {
+                    dayIndex: colIndex,
+                    dayOfWeek: isResourceMode ? date : week[colIndex],
+                    events: getColumnEvents(colIndex),
+                    onNewEvent,
+                    onAddBlock,
+                    onRemoveBlock,
+                    onEventClick,
+                    locale,
+                    icons,
+                    resourceId: isResourceMode ? resources[colIndex].id : void 0
+                  },
+                  isResourceMode ? resources[colIndex].id : week[colIndex].toISOString()
+                ))
+              ]
+            }
+          )
         ] }),
         /* @__PURE__ */ jsx(DragOverlay, { children: activeEvent ? /* @__PURE__ */ jsx(EventOverlay, { event: activeEvent }) : null })
       ]
@@ -429,6 +482,42 @@ var EmptyButton = ({
     }
   );
 };
+var calculateOverlapPositions = (events) => {
+  if (events.length === 0) return [];
+  const sorted = [...events].sort(
+    (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()
+  );
+  const positions = /* @__PURE__ */ new Map();
+  const groups = [];
+  let currentGroup = [];
+  let groupEnd = 0;
+  for (const event of sorted) {
+    const eventStart = new Date(event.start);
+    const startHour = eventStart.getHours() + eventStart.getMinutes() / 60;
+    const endHour = startHour + event.duration / 60;
+    if (currentGroup.length === 0 || startHour < groupEnd) {
+      currentGroup.push(event);
+      groupEnd = Math.max(groupEnd, endHour);
+    } else {
+      groups.push(currentGroup);
+      currentGroup = [event];
+      groupEnd = endHour;
+    }
+  }
+  if (currentGroup.length > 0) {
+    groups.push(currentGroup);
+  }
+  for (const group of groups) {
+    const totalColumns = group.length;
+    group.forEach((event, index) => {
+      positions.set(event.id, { column: index, totalColumns });
+    });
+  }
+  return sorted.map((event) => ({
+    event,
+    ...positions.get(event.id)
+  }));
+};
 var Column = ({
   onEventClick,
   events = [],
@@ -438,9 +527,11 @@ var Column = ({
   onRemoveBlock,
   dayIndex,
   locale,
-  icons
+  icons,
+  resourceId
 }) => {
   const columnRef = useRef(null);
+  const eventsWithPositions = calculateOverlapPositions(events);
   useEffect(() => {
     if (!columnRef.current) return;
     const today = /* @__PURE__ */ new Date();
@@ -454,21 +545,24 @@ var Column = ({
       }, 100);
     }
   }, [dayOfWeek]);
-  const findEvent = (hours) => {
-    const eventStartsHere = events.find(
-      (event) => new Date(event.start).getHours() === hours
+  const findEventsAtHour = (hours) => {
+    const eventsStartingHere = eventsWithPositions.filter(
+      ({ event }) => new Date(event.start).getHours() === hours
     );
-    if (eventStartsHere) {
-      return /* @__PURE__ */ jsx(
+    if (eventsStartingHere.length > 0) {
+      return eventsStartingHere.map(({ event, column, totalColumns }) => /* @__PURE__ */ jsx(
         DraggableEvent,
         {
-          onClick: () => onEventClick?.(eventStartsHere),
-          event: eventStartsHere,
+          onClick: () => onEventClick?.(event),
+          event,
           onRemoveBlock,
           locale,
-          icons
-        }
-      );
+          icons,
+          overlapColumn: column,
+          overlapTotal: totalColumns
+        },
+        event.id
+      ));
     }
     const eventSpansHere = events.find((event) => {
       const eventStart = new Date(event.start);
@@ -494,7 +588,7 @@ var Column = ({
       date: dayOfWeek,
       className: "relative",
       dayIndex,
-      children: findEvent(hours)
+      children: findEventsAtHour(hours)
     },
     hours
   )) });
@@ -505,16 +599,22 @@ var DraggableEvent = ({
   onClick,
   onRemoveBlock,
   locale,
-  icons
+  icons,
+  overlapColumn = 0,
+  overlapTotal = 1
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `event-${event.id}`,
     disabled: event.type === "BLOCK"
   });
+  const widthPercent = event.type === "BLOCK" ? 100 : 90 / overlapTotal;
+  const leftPercent = event.type === "BLOCK" ? 0 : overlapColumn * (90 / overlapTotal);
   const style = {
     height: event.duration / 60 * 64,
-    transform: transform ? CSS.Translate.toString(transform) : void 0
+    transform: transform ? CSS.Translate.toString(transform) : void 0,
+    width: `${widthPercent}%`,
+    left: `${leftPercent}%`
   };
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsxs(
@@ -527,7 +627,7 @@ var DraggableEvent = ({
         ...attributes,
         className: cn(
           "border grid gap-y-1 overflow-hidden place-content-start",
-          "text-xs text-left pl-1 absolute top-0 left-0 bg-blue-500 text-white rounded-md z-10 w-[90%]",
+          "text-xs text-left pl-1 absolute top-0 bg-blue-500 text-white rounded-md z-10",
           event.type === "BLOCK" && "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
           event.type !== "BLOCK" && "cursor-grab",
           isDragging && event.type !== "BLOCK" && "cursor-grabbing opacity-50"
@@ -625,5 +725,132 @@ var Options = ({
     }
   );
 };
+var DefaultPrevIcon = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 24 24", className: "w-5 h-5", fill: "currentColor", children: /* @__PURE__ */ jsx("path", { d: "M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" }) });
+var DefaultNextIcon = () => /* @__PURE__ */ jsx("svg", { viewBox: "0 0 24 24", className: "w-5 h-5", fill: "currentColor", children: /* @__PURE__ */ jsx("path", { d: "M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" }) });
+function CalendarControls({
+  controls,
+  todayLabel = "HOY",
+  weekLabel = "SEMANA",
+  dayLabel = "D\xCDA",
+  showViewToggle = true,
+  prevIcon,
+  nextIcon,
+  actions,
+  className = ""
+}) {
+  const { label, goToToday, goToPrev, goToNext, view, toggleView, isToday: isToday2 } = controls;
+  return /* @__PURE__ */ jsxs(
+    "div",
+    {
+      className: `flex items-center justify-between gap-4 py-3 ${className}`,
+      children: [
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              onClick: goToToday,
+              disabled: isToday2,
+              className: `px-4 py-2 text-sm font-medium rounded-full border transition-colors ${isToday2 ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`,
+              children: todayLabel
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              onClick: goToPrev,
+              className: "p-2 rounded-full hover:bg-gray-100 transition-colors",
+              "aria-label": "Previous",
+              children: prevIcon ?? /* @__PURE__ */ jsx(DefaultPrevIcon, {})
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            "button",
+            {
+              onClick: goToNext,
+              className: "p-2 rounded-full hover:bg-gray-100 transition-colors",
+              "aria-label": "Next",
+              children: nextIcon ?? /* @__PURE__ */ jsx(DefaultNextIcon, {})
+            }
+          ),
+          /* @__PURE__ */ jsx("span", { className: "text-lg font-medium capitalize ml-2", children: label })
+        ] }),
+        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+          showViewToggle && /* @__PURE__ */ jsxs(
+            "select",
+            {
+              value: view,
+              onChange: toggleView,
+              className: "px-4 py-2 text-sm font-medium border rounded-lg bg-white hover:bg-gray-50 cursor-pointer",
+              children: [
+                /* @__PURE__ */ jsx("option", { value: "week", children: weekLabel }),
+                /* @__PURE__ */ jsx("option", { value: "day", children: dayLabel })
+              ]
+            }
+          ),
+          actions
+        ] })
+      ]
+    }
+  );
+}
+function useCalendarControls(options = {}) {
+  const {
+    initialDate = /* @__PURE__ */ new Date(),
+    initialView = "week",
+    locale = "es-MX"
+  } = options;
+  const [date, setDate] = useState(initialDate);
+  const [view, setView] = useState(initialView);
+  const week = useMemo(() => completeWeek(date), [date]);
+  const goToToday = useCallback(() => {
+    setDate(/* @__PURE__ */ new Date());
+  }, []);
+  const goToPrev = useCallback(() => {
+    setDate((d) => addDaysToDate(d, view === "week" ? -7 : -1));
+  }, [view]);
+  const goToNext = useCallback(() => {
+    setDate((d) => addDaysToDate(d, view === "week" ? 7 : 1));
+  }, [view]);
+  const toggleView = useCallback(() => {
+    setView((v) => v === "week" ? "day" : "week");
+  }, []);
+  const isToday2 = useMemo(() => {
+    const today = /* @__PURE__ */ new Date();
+    return date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+  }, [date]);
+  const label = useMemo(() => {
+    if (view === "week") {
+      const monthName = week[0].toLocaleDateString(locale, { month: "long" });
+      const year = week[0].getFullYear();
+      const endMonth = week[6].getMonth();
+      if (week[0].getMonth() !== endMonth) {
+        const endMonthName = week[6].toLocaleDateString(locale, {
+          month: "short"
+        });
+        return `${week[0].getDate()} ${week[0].toLocaleDateString(locale, { month: "short" })} - ${week[6].getDate()} ${endMonthName} ${year}`;
+      }
+      return `${week[0].getDate()} - ${week[6].getDate()} ${monthName} ${year}`;
+    }
+    return date.toLocaleDateString(locale, {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  }, [view, week, date, locale]);
+  return {
+    date,
+    view,
+    week,
+    label,
+    goToToday,
+    goToPrev,
+    goToNext,
+    toggleView,
+    setDate,
+    setView,
+    isToday: isToday2
+  };
+}
 
-export { Calendar, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarEvents, useClickOutside, useEventOverlap };
+export { Calendar, CalendarControls, Calendar as SimpleBigWeekView, addDaysToDate, addMinutesToDate, areSameDates, completeWeek, formatDate, fromDateToTimeString, fromMinsToLocaleTimeString, fromMinsToTimeString, generateHours, getDaysInMonth, getMonday, isToday, useCalendarControls, useCalendarEvents, useClickOutside, useEventOverlap };

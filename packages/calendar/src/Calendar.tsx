@@ -18,10 +18,10 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import type { CalendarEvent, CalendarProps, CalendarConfig, ColumnHeaderProps } from "./types";
+import type { CalendarEvent, CalendarProps, CalendarConfig, ColumnHeaderProps, Resource } from "./types";
 import { useCalendarEvents } from "./useCalendarEvents";
 import { useClickOutside, formatDate } from "./hooks";
-import { completeWeek, isToday as checkIsToday } from "./utils";
+import { completeWeek, isToday as checkIsToday, areSameDates } from "./utils";
 
 // Simple classname utility (inline clsx replacement)
 const cn = (...classes: (string | boolean | undefined | null)[]) =>
@@ -55,11 +55,13 @@ const DayHeader = ({
   date,
   locale,
   index,
+  resource,
   renderColumnHeader,
 }: {
   date: Date;
   locale: string;
   index: number;
+  resource?: Resource;
   renderColumnHeader?: (props: ColumnHeaderProps) => ReactNode;
 }) => {
   const isToday = checkIsToday(date);
@@ -68,7 +70,21 @@ const DayHeader = ({
   if (renderColumnHeader) {
     return (
       <div className="grid place-items-center">
-        {renderColumnHeader({ date, index, isToday, locale })}
+        {renderColumnHeader({ date, index, isToday, locale, resource })}
+      </div>
+    );
+  }
+
+  // Resource mode: show icon + name
+  if (resource) {
+    return (
+      <div className="grid place-items-center gap-1">
+        {resource.icon && (
+          <div className="w-8 h-8 flex items-center justify-center">
+            {resource.icon}
+          </div>
+        )}
+        <span className="text-sm font-medium">{resource.name}</span>
       </div>
     );
   }
@@ -93,6 +109,7 @@ const DayHeader = ({
 export function Calendar({
   date = new Date(),
   events = [],
+  resources,
   onEventClick,
   onNewEvent,
   onEventMove,
@@ -104,6 +121,10 @@ export function Calendar({
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState<string | null>(null);
   const { canMove } = useCalendarEvents(events);
+
+  // Determine mode: resources (day view) or week view
+  const isResourceMode = !!resources && resources.length > 0;
+  const columnCount = isResourceMode ? resources.length : 7;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -123,11 +144,12 @@ export function Calendar({
     if (!over) return;
 
     const eventId = active.id.toString().replace("event-", "");
-    const [, dayIndexStr, hourStr] = over.id.toString().split("-");
-    const dayIndex = parseInt(dayIndexStr);
+    const [, colIndexStr, hourStr] = over.id.toString().split("-");
+    const colIndex = parseInt(colIndexStr);
     const hour = parseInt(hourStr);
 
-    const targetDay = week[dayIndex];
+    // In resource mode, date stays the same; in week mode, use day from week
+    const targetDay = isResourceMode ? date : week[colIndex];
     const newStart = new Date(targetDay);
     newStart.setHours(hour, 0, 0, 0);
 
@@ -158,6 +180,36 @@ export function Calendar({
     ? events.find((e) => `event-${e.id}` === activeId)
     : null;
 
+  // Get events for a specific column
+  const getColumnEvents = (colIndex: number) => {
+    if (isResourceMode) {
+      // Resource mode: filter by resourceId + current date
+      const resourceId = resources![colIndex].id;
+      return events.filter((event) => {
+        const eventDate = new Date(event.start);
+        return (
+          event.resourceId === resourceId &&
+          areSameDates(eventDate, date)
+        );
+      });
+    }
+    // Week mode: filter by day
+    const dayOfWeek = week[colIndex];
+    return events.filter((event) => {
+      const eventDate = new Date(event.start);
+      return (
+        eventDate.getDate() === dayOfWeek.getDate() &&
+        eventDate.getMonth() === dayOfWeek.getMonth()
+      );
+    });
+  };
+
+  // Dynamic grid columns: 1 for time + N for days/resources
+  const gridStyle = {
+    display: "grid",
+    gridTemplateColumns: `auto repeat(${columnCount}, minmax(120px, 1fr))`,
+  };
+
   return (
     <DndContext
       sensors={sensors}
@@ -166,43 +218,61 @@ export function Calendar({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <article className="w-full bg-white shadow rounded-xl">
-        <section className="grid grid-cols-8 place-items-center py-4">
+      <article className="w-full bg-white shadow rounded-xl overflow-hidden">
+        {/* Header */}
+        <section
+          style={gridStyle}
+          className="place-items-center py-4 border-b"
+        >
           <p>
             <span className="text-sm text-gray-500">
               {Intl.DateTimeFormat().resolvedOptions().timeZone}
             </span>
           </p>
-          {week.map((day, index) => (
-            <DayHeader
-              key={day.toISOString()}
-              date={day}
-              locale={locale}
-              index={index}
-              renderColumnHeader={renderColumnHeader}
-            />
-          ))}
+          {isResourceMode
+            ? resources!.map((resource, index) => (
+                <DayHeader
+                  key={resource.id}
+                  date={date}
+                  locale={locale}
+                  index={index}
+                  resource={resource}
+                  renderColumnHeader={renderColumnHeader}
+                />
+              ))
+            : week.map((day, index) => (
+                <DayHeader
+                  key={day.toISOString()}
+                  date={day}
+                  locale={locale}
+                  index={index}
+                  renderColumnHeader={renderColumnHeader}
+                />
+              ))}
         </section>
-        <section className="grid grid-cols-8 max-h-[80vh] overflow-y-auto">
+
+        {/* Grid - with horizontal scroll for resources */}
+        <section
+          style={gridStyle}
+          className={cn(
+            "max-h-[80vh] overflow-y-auto",
+            isResourceMode && "overflow-x-auto"
+          )}
+        >
           <TimeColumn />
-          {week.map((dayOfWeek, dayIndex) => (
+          {Array.from({ length: columnCount }, (_, colIndex) => (
             <Column
-              key={dayOfWeek.toISOString()}
-              dayIndex={dayIndex}
-              dayOfWeek={dayOfWeek}
-              events={events.filter((event) => {
-                const eventDate = new Date(event.start);
-                return (
-                  eventDate.getDate() === dayOfWeek.getDate() &&
-                  eventDate.getMonth() === dayOfWeek.getMonth()
-                );
-              })}
+              key={isResourceMode ? resources![colIndex].id : week[colIndex].toISOString()}
+              dayIndex={colIndex}
+              dayOfWeek={isResourceMode ? date : week[colIndex]}
+              events={getColumnEvents(colIndex)}
               onNewEvent={onNewEvent}
               onAddBlock={onAddBlock}
               onRemoveBlock={onRemoveBlock}
               onEventClick={onEventClick}
               locale={locale}
               icons={icons}
+              resourceId={isResourceMode ? resources![colIndex].id : undefined}
             />
           ))}
         </section>
@@ -318,6 +388,60 @@ const EmptyButton = ({
   );
 };
 
+/**
+ * Calculate overlap groups for events in a column
+ * Returns events with their visual position (column index and total columns)
+ */
+const calculateOverlapPositions = (events: CalendarEvent[]) => {
+  if (events.length === 0) return [];
+
+  // Sort events by start time
+  const sorted = [...events].sort((a, b) =>
+    new Date(a.start).getTime() - new Date(b.start).getTime()
+  );
+
+  // Track which events overlap with which
+  const positions: Map<string, { column: number; totalColumns: number }> = new Map();
+
+  // Find overlapping groups
+  const groups: CalendarEvent[][] = [];
+  let currentGroup: CalendarEvent[] = [];
+  let groupEnd = 0;
+
+  for (const event of sorted) {
+    const eventStart = new Date(event.start);
+    const startHour = eventStart.getHours() + eventStart.getMinutes() / 60;
+    const endHour = startHour + event.duration / 60;
+
+    if (currentGroup.length === 0 || startHour < groupEnd) {
+      // Event overlaps with current group
+      currentGroup.push(event);
+      groupEnd = Math.max(groupEnd, endHour);
+    } else {
+      // New group
+      groups.push(currentGroup);
+      currentGroup = [event];
+      groupEnd = endHour;
+    }
+  }
+  if (currentGroup.length > 0) {
+    groups.push(currentGroup);
+  }
+
+  // Assign columns within each group
+  for (const group of groups) {
+    const totalColumns = group.length;
+    group.forEach((event, index) => {
+      positions.set(event.id, { column: index, totalColumns });
+    });
+  }
+
+  return sorted.map((event) => ({
+    event,
+    ...positions.get(event.id)!,
+  }));
+};
+
 const Column = ({
   onEventClick,
   events = [],
@@ -328,6 +452,7 @@ const Column = ({
   dayIndex,
   locale,
   icons,
+  resourceId,
 }: {
   onEventClick?: (event: CalendarEvent) => void;
   onNewEvent?: (arg0: Date) => void;
@@ -338,8 +463,12 @@ const Column = ({
   dayIndex: number;
   locale: string;
   icons: CalendarConfig["icons"];
+  resourceId?: string;
 }) => {
   const columnRef = useRef<HTMLDivElement>(null);
+
+  // Calculate overlap positions for all events
+  const eventsWithPositions = calculateOverlapPositions(events);
 
   useEffect(() => {
     if (!columnRef.current) return;
@@ -362,23 +491,28 @@ const Column = ({
     }
   }, [dayOfWeek]);
 
-  const findEvent = (hours: number) => {
-    const eventStartsHere = events.find(
-      (event) => new Date(event.start).getHours() === hours
+  const findEventsAtHour = (hours: number) => {
+    // Find all events that START at this hour
+    const eventsStartingHere = eventsWithPositions.filter(({ event }) =>
+      new Date(event.start).getHours() === hours
     );
 
-    if (eventStartsHere) {
-      return (
+    if (eventsStartingHere.length > 0) {
+      return eventsStartingHere.map(({ event, column, totalColumns }) => (
         <DraggableEvent
-          onClick={() => onEventClick?.(eventStartsHere)}
-          event={eventStartsHere}
+          key={event.id}
+          onClick={() => onEventClick?.(event)}
+          event={event}
           onRemoveBlock={onRemoveBlock}
           locale={locale}
           icons={icons}
+          overlapColumn={column}
+          overlapTotal={totalColumns}
         />
-      );
+      ));
     }
 
+    // Check if any event spans this hour (don't show empty button)
     const eventSpansHere = events.find((event) => {
       const eventStart = new Date(event.start);
       const startHour = eventStart.getHours();
@@ -408,7 +542,7 @@ const Column = ({
           className="relative"
           dayIndex={dayIndex}
         >
-          {findEvent(hours)}
+          {findEventsAtHour(hours)}
         </Cell>
       ))}
     </div>
@@ -429,12 +563,16 @@ const DraggableEvent = ({
   onRemoveBlock,
   locale,
   icons,
+  overlapColumn = 0,
+  overlapTotal = 1,
 }: {
   onClick?: (arg0: CalendarEvent) => void;
   onRemoveBlock?: (eventId: string) => void;
   event: CalendarEvent;
   locale: string;
   icons?: CalendarConfig["icons"];
+  overlapColumn?: number;
+  overlapTotal?: number;
 }) => {
   const [showOptions, setShowOptions] = useState(false);
 
@@ -444,9 +582,15 @@ const DraggableEvent = ({
       disabled: event.type === "BLOCK",
     });
 
-  const style = {
+  // Calculate width and position for overlapping events
+  const widthPercent = event.type === "BLOCK" ? 100 : (90 / overlapTotal);
+  const leftPercent = event.type === "BLOCK" ? 0 : (overlapColumn * (90 / overlapTotal));
+
+  const style: React.CSSProperties = {
     height: (event.duration / 60) * 64,
     transform: transform ? CSS.Translate.toString(transform) : undefined,
+    width: `${widthPercent}%`,
+    left: `${leftPercent}%`,
   };
 
   return (
@@ -463,7 +607,7 @@ const DraggableEvent = ({
         {...attributes}
         className={cn(
           "border grid gap-y-1 overflow-hidden place-content-start",
-          "text-xs text-left pl-1 absolute top-0 left-0 bg-blue-500 text-white rounded-md z-10 w-[90%]",
+          "text-xs text-left pl-1 absolute top-0 bg-blue-500 text-white rounded-md z-10",
           event.type === "BLOCK" &&
             "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
           event.type !== "BLOCK" && "cursor-grab",
