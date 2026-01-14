@@ -3,6 +3,9 @@
   "private": true,
   "sideEffects": false,
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "deploy": "npm run build && fly deploy --remote-only",
     "build": "cross-env NODE_ENV=production react-router build",
