@@ -359,7 +359,7 @@ model User {
   phoneNumber   Json?
   photoURL      String?
   providerId    String?
-  role          String
+  role          String      @default("user")
   stripe        UserStripe?
   uid           String?
 }
