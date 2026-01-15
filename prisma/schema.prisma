@@ -273,6 +273,8 @@ model Customer {
   orgId       String   @db.ObjectId
   tel         String
   updatedAt   DateTime @db.Date
+  org         Org      @relation(fields: [orgId], references: [id])
+  events      Event[]
 }
 
 model Event {
@@ -295,6 +297,9 @@ model Event {
   type           String
   updatedAt      DateTime  @db.Date
   userId         String    @db.ObjectId
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  org            Org       @relation(fields: [orgId], references: [id])
+  service        Service?  @relation(fields: [serviceId], references: [id])
 }
 
 model Job {
@@ -320,6 +325,9 @@ model Org {
   /// Could not determine type: the field only had null or empty values in the sample set.
   week              Json?
   weekDays          OrgWeekDays?
+  customers         Customer[]
+  events            Event[]
+  services          Service[]
 }
 
 model Service {
@@ -345,6 +353,8 @@ model Service {
   seats         BigInt
   slug          String           @unique
   weekDays      ServiceWeekDays?
+  org           Org              @relation(fields: [orgId], references: [id])
+  events        Event[]
 }
 
 model User {

@@ -179,6 +179,7 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
     create: {
       email,
       emailVerified: true,
+      role: "user",
     },
     update: {
       emailVerified: true, // we can verify it here
@@ -219,6 +220,7 @@ export const handleOAuthCallback = async (
         photoURL: oauthUser.picture,
         providerId: provider,
         uid: oauthUser.id,
+        role: "user",
       },
       update: {
         emailVerified: true,

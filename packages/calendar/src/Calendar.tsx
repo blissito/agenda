@@ -12,7 +12,7 @@ import {
   KeyboardSensor,
   useSensor,
   useSensors,
-  closestCenter,
+  pointerWithin,
   DragOverlay,
   useDraggable,
   useDroppable,
@@ -376,7 +376,7 @@ export function Calendar({
   // Dynamic grid columns: 1 for time + N for days/resources
   const gridStyle = {
     display: "grid",
-    gridTemplateColumns: `auto repeat(${columnCount}, minmax(120px, 1fr))`,
+    gridTemplateColumns: `60px repeat(${columnCount}, minmax(140px, 1fr))`,
   };
 
   // For resource mode, we need min-width to enable horizontal scroll
@@ -391,12 +391,12 @@ export function Calendar({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <article className="w-full bg-white shadow rounded-xl overflow-hidden">
+      <article className="w-full bg-white shadow rounded-xl">
         {/* Scrollable container for resource mode */}
         <div
           ref={scrollContainerRef}
@@ -501,7 +501,7 @@ const Cell = ({
       onClick={onClick}
       role="button"
       className={cn(
-        "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 flex justify-center items-start relative cursor-pointer",
+        "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
         isTodayCell && isThisHour && "border-t-2 border-t-blue-500",
         isOver && dayIndex !== undefined && "bg-blue-100",
         className
@@ -544,7 +544,7 @@ const EmptyButton = ({
       role="button"
       tabIndex={0}
       ref={buttonRef}
-      className="w-full h-full text-xs hover:bg-blue-50 relative"
+      className="w-full h-full text-xs hover:bg-blue-100 cursor-pointer relative"
       onClick={() => setShow(true)}
     >
       {show && (

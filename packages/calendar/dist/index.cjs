@@ -426,7 +426,7 @@ function Calendar({
   };
   const gridStyle = {
     display: "grid",
-    gridTemplateColumns: `auto repeat(${columnCount}, minmax(120px, 1fr))`
+    gridTemplateColumns: `60px repeat(${columnCount}, minmax(140px, 1fr))`
   };
   const resourceGridStyle = isResourceMode ? {
     display: "grid",
@@ -437,12 +437,12 @@ function Calendar({
     core.DndContext,
     {
       sensors,
-      collisionDetection: core.closestCenter,
+      collisionDetection: core.pointerWithin,
       onDragStart: handleDragStart,
       onDragEnd: handleDragEnd,
       onDragCancel: handleDragCancel,
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx("article", { className: "w-full bg-white shadow rounded-xl overflow-hidden", children: /* @__PURE__ */ jsxRuntime.jsxs(
+        /* @__PURE__ */ jsxRuntime.jsx("article", { className: "w-full bg-white shadow rounded-xl", children: /* @__PURE__ */ jsxRuntime.jsxs(
           "div",
           {
             ref: scrollContainerRef,
@@ -540,7 +540,7 @@ var Cell = ({
       onClick,
       role: "button",
       className: cn(
-        "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 flex justify-center items-start relative cursor-pointer",
+        "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
         isTodayCell && isThisHour && "border-t-2 border-t-blue-500",
         isOver && dayIndex !== void 0 && "bg-blue-100",
         className
@@ -574,7 +574,7 @@ var EmptyButton = ({
       role: "button",
       tabIndex: 0,
       ref: buttonRef,
-      className: "w-full h-full text-xs hover:bg-blue-50 relative",
+      className: "w-full h-full text-xs hover:bg-blue-100 cursor-pointer relative",
       onClick: () => setShow(true),
       children: show && /* @__PURE__ */ jsxRuntime.jsxs(
         "div",
