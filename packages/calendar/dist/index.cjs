@@ -371,6 +371,7 @@ function Calendar({
   const week = completeWeek(date);
   const [activeId, setActiveId] = react.useState(null);
   const { canMove } = useCalendarEvents(events);
+  const scrollContainerRef = react.useRef(null);
   const isResourceMode = !!resources && resources.length > 0;
   const columnCount = isResourceMode ? resources.length : 7;
   const sensors = core.useSensors(
@@ -420,13 +421,18 @@ function Calendar({
     const dayOfWeek = week[colIndex];
     return events.filter((event) => {
       const eventDate = new Date(event.start);
-      return eventDate.getDate() === dayOfWeek.getDate() && eventDate.getMonth() === dayOfWeek.getMonth();
+      return areSameDates(eventDate, dayOfWeek);
     });
   };
   const gridStyle = {
     display: "grid",
     gridTemplateColumns: `auto repeat(${columnCount}, minmax(120px, 1fr))`
   };
+  const resourceGridStyle = isResourceMode ? {
+    display: "grid",
+    gridTemplateColumns: `60px repeat(${columnCount}, minmax(150px, 1fr))`,
+    minWidth: `${60 + columnCount * 150}px`
+  } : gridStyle;
   return /* @__PURE__ */ jsxRuntime.jsxs(
     core.DndContext,
     {
@@ -436,70 +442,76 @@ function Calendar({
       onDragEnd: handleDragEnd,
       onDragCancel: handleDragCancel,
       children: [
-        /* @__PURE__ */ jsxRuntime.jsxs("article", { className: "w-full bg-white shadow rounded-xl overflow-hidden", children: [
-          /* @__PURE__ */ jsxRuntime.jsxs(
-            "section",
-            {
-              style: gridStyle,
-              className: "place-items-center py-4 border-b",
-              children: [
-                /* @__PURE__ */ jsxRuntime.jsx("p", { children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-sm text-gray-500", children: Intl.DateTimeFormat().resolvedOptions().timeZone }) }),
-                isResourceMode ? resources.map((resource, index) => /* @__PURE__ */ jsxRuntime.jsx(
-                  DayHeader,
-                  {
-                    date,
-                    locale,
-                    index,
-                    resource,
-                    renderColumnHeader
-                  },
-                  resource.id
-                )) : week.map((day, index) => /* @__PURE__ */ jsxRuntime.jsx(
-                  DayHeader,
-                  {
-                    date: day,
-                    locale,
-                    index,
-                    renderColumnHeader
-                  },
-                  day.toISOString()
-                ))
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsxRuntime.jsxs(
-            "section",
-            {
-              style: gridStyle,
-              className: cn(
-                "max-h-[80vh] overflow-y-auto",
-                isResourceMode && "overflow-x-auto"
+        /* @__PURE__ */ jsxRuntime.jsx("article", { className: "w-full bg-white shadow rounded-xl overflow-hidden", children: /* @__PURE__ */ jsxRuntime.jsxs(
+          "div",
+          {
+            ref: scrollContainerRef,
+            className: cn(
+              isResourceMode && "overflow-x-auto"
+            ),
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsxs(
+                "section",
+                {
+                  style: resourceGridStyle,
+                  className: "place-items-center py-4 border-b sticky top-0 bg-white z-10",
+                  children: [
+                    /* @__PURE__ */ jsxRuntime.jsx("p", { children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-sm text-gray-500", children: isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone }) }),
+                    isResourceMode ? resources.map((resource, index) => /* @__PURE__ */ jsxRuntime.jsx(
+                      DayHeader,
+                      {
+                        date,
+                        locale,
+                        index,
+                        resource,
+                        renderColumnHeader
+                      },
+                      resource.id
+                    )) : week.map((day, index) => /* @__PURE__ */ jsxRuntime.jsx(
+                      DayHeader,
+                      {
+                        date: day,
+                        locale,
+                        index,
+                        renderColumnHeader
+                      },
+                      day.toISOString()
+                    ))
+                  ]
+                }
               ),
-              children: [
-                /* @__PURE__ */ jsxRuntime.jsx(TimeColumn, { hoursStart, hoursEnd }),
-                Array.from({ length: columnCount }, (_, colIndex) => /* @__PURE__ */ jsxRuntime.jsx(
-                  Column,
-                  {
-                    dayIndex: colIndex,
-                    dayOfWeek: isResourceMode ? date : week[colIndex],
-                    events: getColumnEvents(colIndex),
-                    onNewEvent,
-                    onAddBlock,
-                    onRemoveBlock,
-                    onEventClick,
-                    locale,
-                    icons,
-                    resourceId: isResourceMode ? resources[colIndex].id : void 0,
-                    config,
-                    hoursStart,
-                    hoursEnd
-                  },
-                  isResourceMode ? resources[colIndex].id : week[colIndex].toISOString()
-                ))
-              ]
-            }
-          )
-        ] }),
+              /* @__PURE__ */ jsxRuntime.jsxs(
+                "section",
+                {
+                  style: resourceGridStyle,
+                  className: "max-h-[70vh] overflow-y-auto",
+                  children: [
+                    /* @__PURE__ */ jsxRuntime.jsx(TimeColumn, { hoursStart, hoursEnd }),
+                    Array.from({ length: columnCount }, (_, colIndex) => /* @__PURE__ */ jsxRuntime.jsx(
+                      Column,
+                      {
+                        dayIndex: colIndex,
+                        dayOfWeek: isResourceMode ? date : week[colIndex],
+                        events: getColumnEvents(colIndex),
+                        onNewEvent,
+                        onAddBlock,
+                        onRemoveBlock,
+                        onEventClick,
+                        locale,
+                        icons,
+                        resourceId: isResourceMode ? resources[colIndex].id : void 0,
+                        config,
+                        hoursStart,
+                        hoursEnd
+                      },
+                      isResourceMode ? resources[colIndex].id : week[colIndex].toISOString()
+                    ))
+                  ]
+                }
+              )
+            ]
+          }
+        ) }),
         /* @__PURE__ */ jsxRuntime.jsx(core.DragOverlay, { children: activeEvent ? /* @__PURE__ */ jsxRuntime.jsx(EventOverlay, { event: activeEvent, config }) : null })
       ]
     }
@@ -738,6 +750,8 @@ var DraggableEvent = ({
   });
   const widthPercent = event.type === "BLOCK" ? 100 : 90 / overlapTotal;
   const leftPercent = event.type === "BLOCK" ? 0 : overlapColumn * (90 / overlapTotal);
+  const startMinutes = new Date(event.start).getMinutes();
+  const topOffset = startMinutes / 60 * 64;
   const colorClass = event.type === "BLOCK" ? "bg-gray-300" : resolveColorClass(event.color, config.colors);
   const colorStyle = event.type === "BLOCK" ? {} : getColorStyle(event.color);
   const showTime = event.showTime ?? config.eventTime?.enabled ?? false;
@@ -758,12 +772,13 @@ var DraggableEvent = ({
             height: event.duration / 60 * 64,
             transform: transform ? utilities.CSS.Translate.toString(transform) : void 0,
             width: `${widthPercent}%`,
-            left: `${leftPercent}%`
+            left: `${leftPercent}%`,
+            top: topOffset
           },
           onClick: () => onClick?.(event),
           ...listeners,
           ...attributes,
-          className: "absolute top-0 z-10 cursor-grab",
+          className: "absolute z-10 cursor-grab",
           children: config.renderEvent({
             event,
             timeString,
@@ -791,6 +806,7 @@ var DraggableEvent = ({
     transform: transform ? utilities.CSS.Translate.toString(transform) : void 0,
     width: `${widthPercent}%`,
     left: `${leftPercent}%`,
+    top: topOffset,
     ...colorStyle
   };
   return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
@@ -804,7 +820,7 @@ var DraggableEvent = ({
         ...attributes,
         className: cn(
           "border-0 grid gap-y-0 overflow-hidden place-content-start",
-          "text-xs text-left pl-3 pr-1 py-1 absolute top-0 text-white rounded-lg z-10",
+          "text-xs text-left pl-3 pr-1 py-1 absolute text-white rounded-lg z-10",
           colorClass,
           event.type === "BLOCK" && "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
           event.type !== "BLOCK" && "cursor-grab shadow-sm",

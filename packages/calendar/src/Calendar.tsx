@@ -291,6 +291,9 @@ export function Calendar({
   const [activeId, setActiveId] = useState<string | null>(null);
   const { canMove } = useCalendarEvents(events);
 
+  // Ref for scrollable container
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   // Determine mode: resources (day view) or week view
   const isResourceMode = !!resources && resources.length > 0;
   const columnCount = isResourceMode ? resources.length : 7;
@@ -362,14 +365,11 @@ export function Calendar({
         );
       });
     }
-    // Week mode: filter by day
+    // Week mode: filter by day (check year, month, and day)
     const dayOfWeek = week[colIndex];
     return events.filter((event) => {
       const eventDate = new Date(event.start);
-      return (
-        eventDate.getDate() === dayOfWeek.getDate() &&
-        eventDate.getMonth() === dayOfWeek.getMonth()
-      );
+      return areSameDates(eventDate, dayOfWeek);
     });
   };
 
@@ -378,6 +378,15 @@ export function Calendar({
     display: "grid",
     gridTemplateColumns: `auto repeat(${columnCount}, minmax(120px, 1fr))`,
   };
+
+  // For resource mode, we need min-width to enable horizontal scroll
+  const resourceGridStyle = isResourceMode
+    ? {
+        display: "grid",
+        gridTemplateColumns: `60px repeat(${columnCount}, minmax(150px, 1fr))`,
+        minWidth: `${60 + columnCount * 150}px`,
+      }
+    : gridStyle;
 
   return (
     <DndContext
@@ -388,66 +397,71 @@ export function Calendar({
       onDragCancel={handleDragCancel}
     >
       <article className="w-full bg-white shadow rounded-xl overflow-hidden">
-        {/* Header */}
-        <section
-          style={gridStyle}
-          className="place-items-center py-4 border-b"
-        >
-          <p>
-            <span className="text-sm text-gray-500">
-              {Intl.DateTimeFormat().resolvedOptions().timeZone}
-            </span>
-          </p>
-          {isResourceMode
-            ? resources!.map((resource, index) => (
-                <DayHeader
-                  key={resource.id}
-                  date={date}
-                  locale={locale}
-                  index={index}
-                  resource={resource}
-                  renderColumnHeader={renderColumnHeader}
-                />
-              ))
-            : week.map((day, index) => (
-                <DayHeader
-                  key={day.toISOString()}
-                  date={day}
-                  locale={locale}
-                  index={index}
-                  renderColumnHeader={renderColumnHeader}
-                />
-              ))}
-        </section>
-
-        {/* Grid - with horizontal scroll for resources */}
-        <section
-          style={gridStyle}
+        {/* Scrollable container for resource mode */}
+        <div
+          ref={scrollContainerRef}
           className={cn(
-            "max-h-[80vh] overflow-y-auto",
             isResourceMode && "overflow-x-auto"
           )}
         >
-          <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} />
-          {Array.from({ length: columnCount }, (_, colIndex) => (
-            <Column
-              key={isResourceMode ? resources![colIndex].id : week[colIndex].toISOString()}
-              dayIndex={colIndex}
-              dayOfWeek={isResourceMode ? date : week[colIndex]}
-              events={getColumnEvents(colIndex)}
-              onNewEvent={onNewEvent}
-              onAddBlock={onAddBlock}
-              onRemoveBlock={onRemoveBlock}
-              onEventClick={onEventClick}
-              locale={locale}
-              icons={icons}
-              resourceId={isResourceMode ? resources![colIndex].id : undefined}
-              config={config}
-              hoursStart={hoursStart}
-              hoursEnd={hoursEnd}
-            />
-          ))}
-        </section>
+          {/* Header */}
+          <section
+            style={resourceGridStyle}
+            className="place-items-center py-4 border-b sticky top-0 bg-white z-10"
+          >
+            <p>
+              <span className="text-sm text-gray-500">
+                {isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone}
+              </span>
+            </p>
+            {isResourceMode
+              ? resources!.map((resource, index) => (
+                  <DayHeader
+                    key={resource.id}
+                    date={date}
+                    locale={locale}
+                    index={index}
+                    resource={resource}
+                    renderColumnHeader={renderColumnHeader}
+                  />
+                ))
+              : week.map((day, index) => (
+                  <DayHeader
+                    key={day.toISOString()}
+                    date={day}
+                    locale={locale}
+                    index={index}
+                    renderColumnHeader={renderColumnHeader}
+                  />
+                ))}
+          </section>
+
+          {/* Grid */}
+          <section
+            style={resourceGridStyle}
+            className="max-h-[70vh] overflow-y-auto"
+          >
+            <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} />
+            {Array.from({ length: columnCount }, (_, colIndex) => (
+              <Column
+                key={isResourceMode ? resources![colIndex].id : week[colIndex].toISOString()}
+                dayIndex={colIndex}
+                dayOfWeek={isResourceMode ? date : week[colIndex]}
+                events={getColumnEvents(colIndex)}
+                onNewEvent={onNewEvent}
+                onAddBlock={onAddBlock}
+                onRemoveBlock={onRemoveBlock}
+                onEventClick={onEventClick}
+                locale={locale}
+                icons={icons}
+                resourceId={isResourceMode ? resources![colIndex].id : undefined}
+                config={config}
+                hoursStart={hoursStart}
+                hoursEnd={hoursEnd}
+              />
+            ))}
+          </section>
+        </div>
       </article>
       <DragOverlay>
         {activeEvent ? <EventOverlay event={activeEvent} config={config} /> : null}
@@ -779,6 +793,10 @@ const DraggableEvent = ({
   const widthPercent = event.type === "BLOCK" ? 100 : (90 / overlapTotal);
   const leftPercent = event.type === "BLOCK" ? 0 : (overlapColumn * (90 / overlapTotal));
 
+  // Calculate top offset for events that don't start at exact hour
+  const startMinutes = new Date(event.start).getMinutes();
+  const topOffset = (startMinutes / 60) * 64; // 64px per hour cell
+
   // Resolve color
   const colorClass = event.type === "BLOCK"
     ? "bg-gray-300"
@@ -810,11 +828,12 @@ const DraggableEvent = ({
             transform: transform ? CSS.Translate.toString(transform) : undefined,
             width: `${widthPercent}%`,
             left: `${leftPercent}%`,
+            top: topOffset,
           }}
           onClick={() => onClick?.(event)}
           {...listeners}
           {...attributes}
-          className="absolute top-0 z-10 cursor-grab"
+          className="absolute z-10 cursor-grab"
         >
           {config.renderEvent({
             event,
@@ -841,6 +860,7 @@ const DraggableEvent = ({
     transform: transform ? CSS.Translate.toString(transform) : undefined,
     width: `${widthPercent}%`,
     left: `${leftPercent}%`,
+    top: topOffset,
     ...colorStyle,
   };
 
@@ -858,7 +878,7 @@ const DraggableEvent = ({
         {...attributes}
         className={cn(
           "border-0 grid gap-y-0 overflow-hidden place-content-start",
-          "text-xs text-left pl-3 pr-1 py-1 absolute top-0 text-white rounded-lg z-10",
+          "text-xs text-left pl-3 pr-1 py-1 absolute text-white rounded-lg z-10",
           colorClass,
           event.type === "BLOCK" &&
             "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",

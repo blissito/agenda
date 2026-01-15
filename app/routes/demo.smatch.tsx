@@ -23,12 +23,16 @@ const CourtIcon = ({ color = "#22c55e" }: { color?: string }) => (
   </div>
 );
 
-// Resources (Canchas)
+// Resources (Canchas) - 8 canchas para mostrar scroll horizontal
 const courts: Resource[] = [
   { id: "cancha-1", name: "Cancha 1", icon: <CourtIcon color="#22c55e" /> },
   { id: "cancha-2", name: "Cancha 2", icon: <CourtIcon color="#3b82f6" /> },
   { id: "cancha-3", name: "Cancha 3", icon: <CourtIcon color="#f59e0b" /> },
   { id: "cancha-4", name: "Cancha 4", icon: <CourtIcon color="#f97316" /> },
+  { id: "cancha-5", name: "Cancha 5", icon: <CourtIcon color="#8b5cf6" /> },
+  { id: "cancha-6", name: "Cancha 6", icon: <CourtIcon color="#ec4899" /> },
+  { id: "cancha-7", name: "Cancha 7", icon: <CourtIcon color="#14b8a6" /> },
+  { id: "cancha-8", name: "Cancha 8", icon: <CourtIcon color="#ef4444" /> },
 ];
 
 // Participantes de ejemplo
@@ -139,6 +143,54 @@ const generateDemoEvents = (): CalendarEvent[] => {
     start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 15, 0),
     duration: 60,
     resourceId: "cancha-4",
+  });
+
+  // Cancha 5 - eventos morados
+  events.push({
+    id: "8",
+    title: "3ra Mixta - Mixta",
+    service: { name: "Semifinal" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 0),
+    duration: 90,
+    color: "purple",
+    participants: mixedParticipants,
+    resourceId: "cancha-5",
+  });
+
+  // Cancha 6 - eventos rosas
+  events.push({
+    id: "9",
+    title: "2da femenil - Femenil",
+    service: { name: "Final" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 11, 0),
+    duration: 120,
+    color: "pink",
+    participants: demoParticipants,
+    resourceId: "cancha-6",
+  });
+
+  // Cancha 7 - eventos teal
+  events.push({
+    id: "10",
+    title: "1ra Varonil - Varonil",
+    service: { name: "Cuartos" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 14, 0),
+    duration: 90,
+    color: "#14b8a6",
+    participants: maleParticipants,
+    resourceId: "cancha-7",
+  });
+
+  // Cancha 8 - eventos rojos
+  events.push({
+    id: "11",
+    title: "Open - Libre",
+    service: { name: "Exhibición" },
+    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 10, 0),
+    duration: 60,
+    color: "red",
+    participants: [...maleParticipants.slice(0, 2), ...demoParticipants.slice(0, 2)],
+    resourceId: "cancha-8",
   });
 
   return events;
