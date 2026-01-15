@@ -156,7 +156,7 @@ export default function Page() {
         <aside className="hidden lg:block lg:w-[35%] relative">
 
           <img
-            src="public/images/signin/ignin-cover.png"
+            src="/images/signin/signin-cover.png"
             alt="signin cover"
             className="absolute inset-0 h-full w-full object-cover"
           />

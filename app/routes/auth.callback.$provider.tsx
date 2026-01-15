@@ -34,6 +34,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
         photoURL: oauthUser.picture,
         providerId: provider,
         uid: oauthUser.id,
+        role: "user",
       },
       update: {
         emailVerified: true,
