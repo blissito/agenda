@@ -20,9 +20,9 @@ FROM base as build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
-# Install node modules
+# Install node modules (including dev for build)
 COPY --link package-lock.json package.json ./
-RUN npm install
+COPY --link packages ./packages
 RUN npm ci --include=dev
 # Copy application code
 COPY --link . .

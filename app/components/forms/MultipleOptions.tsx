@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type ReactNode, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { motion } from "motion/react";

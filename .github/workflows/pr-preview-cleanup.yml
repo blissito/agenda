@@ -1,0 +1,54 @@
+name: PR Preview Cleanup
+
+on:
+  pull_request:
+    types: [closed, unlabeled]
+
+jobs:
+  cleanup-preview:
+    name: Cleanup Preview
+    runs-on: ubuntu-latest
+    # Ejecutar si se cierra el PR con label ultrathink, o si se remueve el label ultrathink
+    if: |
+      (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'ultrathink')) ||
+      (github.event.action == 'unlabeled' && github.event.label.name == 'ultrathink')
+
+    steps:
+      - name: Setup Fly.io
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Set preview app name
+        id: app-name
+        run: echo "name=denik-preview-pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+
+      - name: Check if app exists
+        id: check-app
+        run: |
+          if flyctl apps list | grep -q "${{ steps.app-name.outputs.name }}"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Destroy preview app
+        if: steps.check-app.outputs.exists == 'true'
+        run: flyctl apps destroy ${{ steps.app-name.outputs.name }} --yes
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Comment PR about cleanup
+        if: steps.check-app.outputs.exists == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const appName = '${{ steps.app-name.outputs.name }}';
+            const reason = '${{ github.event.action }}' === 'closed' ? 'PR cerrado' : 'Label `ultrathink` removido';
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: `## 🧹 Preview eliminado\n\n**App**: \`${appName}\`\n**Razón**: ${reason}`
+            });

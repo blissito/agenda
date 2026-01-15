@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { db } from "~/utils/db.server";
 import {

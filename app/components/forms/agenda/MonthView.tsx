@@ -8,6 +8,8 @@ import {
 } from "~/components/dash/agenda/agendaUtils";
 import { cn } from "~/utils/cn";
 
+type WeekDaysType = Record<string, string[][]>;
+
 const monthNames = [
   "enero",
   "febrero",
@@ -31,7 +33,7 @@ export const MonthView = ({
   selected,
 }: {
   selected?: Date;
-  weekDays: WeekDaysType[];
+  weekDays: WeekDaysType;
   maxDate?: Date;
   onSelect?: (arg0: Date) => void;
 }) => {

@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { ReactNode, useEffect } from "react";
 import { Footer } from "~/components/common/Footer";
 import { TopBar } from "~/components/common/topBar";

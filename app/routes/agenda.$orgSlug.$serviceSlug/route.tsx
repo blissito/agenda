@@ -9,10 +9,16 @@ import { BasicInput } from "~/components/forms/BasicInput";
 import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { z } from "zod";
-import { createEvent, getService } from "~/.server/userGetters";
+import { getService } from "~/.server/userGetters";
 import { Success } from "./success";
 import { db } from "~/utils/db.server";
 import type { Route } from "./+types/route";
+import {
+  sendAppointmentToCustomer,
+  sendAppointmentToOwner,
+} from "~/utils/emails/sendAppointment";
+
+type WeekDaysType = Record<string, string[][]>;
 
 export const userInfoSchema = z.object({
   displayName: z.string().min(1),
@@ -23,6 +29,8 @@ export const userInfoSchema = z.object({
     .min(10, { message: "El teléfono debe ser de al menos 10 dígitos" }),
 });
 
+type UserInfoForm = z.infer<typeof userInfoSchema>;
+
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
@@ -30,7 +38,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   if (intent === "get_times_for_selected_date") {
     const service = await getService(params.serviceSlug);
     if (!service) throw new Response(null, { status: 404 });
-    const selectedDate = new Date(formData.get("date"));
+    const dateStr = formData.get("date") as string;
+    const selectedDate = new Date(dateStr);
     const tommorrow = new Date(selectedDate);
     tommorrow.setDate(selectedDate.getDate() + 1);
     const events = await db.event.findMany({
@@ -45,8 +54,63 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   }
   if (intent === "create_event") {
     const data = JSON.parse(formData.get("data") as string);
-    // @todo: add logged user id & validation
-    return { event: await createEvent(data) };
+
+    // 1. Obtener org
+    const org = await db.org.findUnique({
+      where: { slug: params.orgSlug },
+    });
+    if (!org) throw new Response("Org not found", { status: 404 });
+
+    // 2. Crear Customer
+    const customer = await db.customer.create({
+      data: {
+        displayName: data.customer.displayName,
+        email: data.customer.email,
+        tel: data.customer.tel || null,
+        comments: data.customer.comments || null,
+        orgId: org.id,
+      },
+    });
+
+    // 3. Calcular end time
+    const startDate = new Date(data.start);
+    const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000);
+
+    // 4. Crear Event con orgId y customerId
+    const event = await db.event.create({
+      data: {
+        start: startDate,
+        end: endDate,
+        duration: data.duration,
+        serviceId: data.serviceId,
+        title: data.title,
+        status: data.status,
+        orgId: org.id,
+        customerId: customer.id,
+      },
+      include: {
+        customer: true,
+        service: { include: { org: true } },
+      },
+    });
+
+    // 5. Enviar emails de confirmación
+    try {
+      await sendAppointmentToCustomer({
+        email: customer.email,
+        event: event as any,
+      });
+      if (org.email) {
+        await sendAppointmentToOwner({
+          email: org.email,
+          event: event as any,
+        });
+      }
+    } catch (e) {
+      console.error("Email send failed:", e);
+    }
+
+    return { event, org };
   }
   return null;
 };
@@ -71,27 +135,27 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { org, service } = loaderData;
-  console.log("SERVICE", service);
   const [time, setTime] = useState<number>();
   const [date, setDate] = useState<Date>();
   const [show, setShow] = useState("");
   const fetcher = useFetcher<typeof action>();
 
-  const onSubmit = (vals) => {
+  const onSubmit = (vals: UserInfoForm) => {
     const result = userInfoSchema.safeParse(vals);
     if (!result.success) {
-      result.error.errors.map((e) => {
-        setError(e.path[0], e);
+      result.error.issues.forEach((e) => {
+        setError(e.path[0] as keyof UserInfoForm, { message: e.message });
       });
       return;
     }
+    if (!date) return;
     const customer = result.data;
     fetcher.submit(
       {
         intent: "create_event",
         data: JSON.stringify({
-          start: new Date(date).toISOString(),
-          dateString: new Date(date).toISOString(),
+          start: date.toISOString(),
+          dateString: date.toISOString(),
           customer, // @todo: add logged user id
           duration: service.duration,
           serviceId: service.id,
@@ -109,12 +173,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
   );
 
-  const handleTimeSelection = (timeString, h, m) => {
-    const updated = new Date(date);
+  const handleTimeSelection = (timeString: string, h: number, m: number) => {
+    const updated = new Date(date as Date);
     updated.setHours(h);
     updated.setMinutes(m);
     setDate(updated);
-    setTime(timeString);
+    setTime(Number(timeString));
   };
 
   const handleNextForm = () => {
@@ -124,12 +188,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   const {
-    formState: { errors },
+    formState: { errors, isValid },
     setError,
     handleSubmit,
     register,
-  } = useForm({
+  } = useForm<UserInfoForm>({
     defaultValues: { displayName: "", email: "", tel: "", comments: "" },
+    mode: "onChange",
   });
 
   const reset = () => {
@@ -161,14 +226,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 selected={date}
                 onSelect={setDate}
                 maxDate={maxDate}
-                weekDays={service.weekDays || org.weekDays}
+                weekDays={(service.weekDays || org.weekDays) as WeekDaysType}
               />
               {date && (
                 <TimeView
                   intent="get_times_for_selected_date"
                   slotDuration={service.duration}
                   onSelect={handleTimeSelection}
-                  weekDays={service.weekDays || org.weekDays}
+                  weekDays={(service.weekDays || org.weekDays) as WeekDaysType}
                   selected={date}
                   action={`/agenda/${org.slug}/${service.slug}`}
                 />
@@ -217,11 +282,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </section>
         {show !== "user_info" && (
           <Footer
-            //   onSubmit={onSubmit}
             onSubmit={handleNextForm}
             isValid={!!date && !!time}
             isLoading={fetcher.state !== "idle"}
-            errors={errors} // @todo fix this
           />
         )}
       </main>

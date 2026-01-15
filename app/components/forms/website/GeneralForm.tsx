@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Org } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";

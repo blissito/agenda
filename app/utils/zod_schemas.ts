@@ -12,7 +12,7 @@ export const serviceUpdateSchema = z.object({
 export type ServiceUpdateSchema = z.infer<typeof signup2Schema>;
 
 const rangesSchema = z
-  .array(z.array(z.string(), z.string()), z.array(z.string(), z.string()))
+  .array(z.tuple([z.string(), z.string()]))
   .optional();
 export const weekSchema = z.object({
   lunes: rangesSchema,
@@ -47,7 +47,7 @@ export const signup1Schema = z.object({
 export type Signup1SchemaType = z.infer<typeof signup1Schema>;
 
 export const dayTupleSchema = z
-  .array(z.array(z.string().min(5), z.string().min(5)))
+  .array(z.tuple([z.string().min(5), z.string().min(5)]))
   .optional();
 export const weekTuples = z.object({
   lunes: dayTupleSchema,
@@ -85,3 +85,27 @@ export const newEventSchema = z.object({
 
 const typeEnum = z.enum(["Private", "Business"]);
 // type: typeEnum.extract( [ 'Private' ] ),
+
+// Customer
+export const newCustomerSchema = z.object({
+  displayName: z.string().min(1, "Nombre requerido"),
+  email: z.string().email("Email inválido"),
+  tel: z.string().optional().nullable(),
+  comments: z.string().optional().nullable(),
+});
+export type NewCustomerSchema = z.infer<typeof newCustomerSchema>;
+
+// Org update
+export const orgUpdateSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).optional(),
+  slug: z.string().min(1).optional(),
+  shopKeeper: z.string().optional().nullable(),
+  address: z.string().optional().nullable(),
+  businessType: z.string().optional().nullable(),
+  weekDays: weekTuples.optional(),
+  email: z.string().email().optional().nullable(),
+  tel: z.string().optional().nullable(),
+  logo: z.string().optional().nullable(),
+});
+export type OrgUpdateSchema = z.infer<typeof orgUpdateSchema>;

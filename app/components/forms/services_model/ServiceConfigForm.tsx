@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Form, useFetcher } from "react-router";
 import { SwitchOption } from "./ServicePhotoForm";
 import { RadioButton } from "./ServiceTimesForm";

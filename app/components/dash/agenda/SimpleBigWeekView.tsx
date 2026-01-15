@@ -6,10 +6,10 @@ import {
   useState,
 } from "react";
 import { completeWeek } from "./agendaUtils";
-import { type Event } from "@prisma/client";
+import { type CalendarEvent, type CalendarProps } from "./types";
+import { useEventOverlap } from "./useEventOverlap";
 import { cn } from "~/utils/cn";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { Form, useFetcher } from "react-router";
 import { useMexDate } from "~/utils/hooks/useMexDate";
 import { useOutsideClick } from "~/components/hooks/useOutsideClick";
 import { FaTrash } from "react-icons/fa6";
@@ -75,16 +75,12 @@ export function SimpleBigWeekView({
   onEventClick,
   onNewEvent,
   onEventMove,
-}: {
-  onNewEvent?: (arg0: Date) => void;
-  onEventClick?: (arg0: Event) => void;
-  onEventMove?: (eventId: string, newStart: Date) => void;
-  date?: Date;
-  events: Event[];
-}) {
+  onAddBlock,
+  onRemoveBlock,
+}: CalendarProps) {
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const fetcher = useFetcher();
+  const { canMove } = useEventOverlap(events ?? []);
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
@@ -130,50 +126,14 @@ export function SimpleBigWeekView({
       return; // No change
     }
 
-    // Validation: Check for overlapping events
-    const durationInHours = movedEvent.duration / 60;
-    const targetEndHour = hour + durationInHours;
-
-    const hasOverlap = events.some((existingEvent) => {
-      if (existingEvent.id === eventId) return false; // Skip the event being moved
-
-      const existingStart = new Date(existingEvent.start);
-      const existingHour = existingStart.getHours();
-      const existingDuration = existingEvent.duration / 60;
-      const existingEndHour = existingHour + existingDuration;
-
-      // Check if on same day
-      if (
-        existingStart.getDate() !== newStart.getDate() ||
-        existingStart.getMonth() !== newStart.getMonth()
-      ) {
-        return false;
-      }
-
-      // Check time overlap
-      return (
-        (hour >= existingHour && hour < existingEndHour) ||
-        (targetEndHour > existingHour && targetEndHour <= existingEndHour) ||
-        (hour <= existingHour && targetEndHour >= existingEndHour)
-      );
-    });
-
-    if (hasOverlap) {
+    // Validation: Check for overlapping events using hook
+    if (!canMove(eventId, newStart)) {
       console.warn("Cannot move event: time slot is occupied");
-      // TODO: Show toast notification to user
       return;
     }
 
-    // Optimistic update: update local state immediately before server responds
+    // Call parent callback - parent handles persistence and optimistic updates
     onEventMove?.(eventId, newStart);
-
-    // Update event on server
-    const formData = new FormData();
-    formData.append("intent", "move_event");
-    formData.append("eventId", eventId);
-    formData.append("newStart", newStart.toISOString());
-
-    fetcher.submit(formData, { method: "POST" });
   };
 
   const handleDragCancel = () => {
@@ -213,10 +173,12 @@ export function SimpleBigWeekView({
             <Column
               dayIndex={dayIndex}
               onNewEvent={onNewEvent}
+              onAddBlock={onAddBlock}
+              onRemoveBlock={onRemoveBlock}
               dayOfWeek={dayOfWeek}
               onEventClick={onEventClick}
               key={dayOfWeek.toISOString()}
-              events={events.filter((event) => {
+              events={(events ?? []).filter((event) => {
                 const date = new Date(event.start);
                 return (
                   date.getDate() + date.getMonth() ===
@@ -243,7 +205,7 @@ const Cell = ({
   dayIndex,
 }: {
   className?: string;
-  data?: Date;
+  date?: Date;
   onClick?: () => void;
   hours?: number;
   children?: ReactNode;
@@ -288,8 +250,10 @@ const EmptyButton = ({
   hours,
   date,
   onNewEvent,
+  onAddBlock,
 }: {
   onNewEvent?: (arg0: Date) => void;
+  onAddBlock?: (start: Date) => void;
   onClick?: () => void;
   hours: number;
   date: Date;
@@ -347,22 +311,16 @@ const EmptyButton = ({
             >
               Reservar
             </button>
-            <Form method="POST" action="/dash/agenda">
-              <input
-                type="hidden"
-                name="start"
-                value={new Date(d).toISOString()}
-              />
-              <button
-                onClick={() => setTimeout(() => setShow(false), 1000)}
-                name="intent"
-                value="add_block"
-                type="submit"
-                className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg"
-              >
-                Bloquear
-              </button>
-            </Form>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddBlock?.(d);
+                setShow(false);
+              }}
+              className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg"
+            >
+              Bloquear
+            </button>
           </div>
         )}
       </div>
@@ -375,12 +333,16 @@ const Column = ({
   events = [],
   dayOfWeek,
   onNewEvent,
+  onAddBlock,
+  onRemoveBlock,
   dayIndex,
 }: {
-  onEventClick?: (event: Event) => void;
+  onEventClick?: (event: CalendarEvent) => void;
   onNewEvent?: (arg0: Date) => void;
+  onAddBlock?: (start: Date) => void;
+  onRemoveBlock?: (eventId: string) => void;
   dayOfWeek?: Date;
-  events: Event[];
+  events: CalendarEvent[];
   dayIndex: number;
 }) => {
   const columnRef = useRef<HTMLDivElement>(null);
@@ -408,7 +370,7 @@ const Column = ({
       }, 100);
     }
   }, [dayOfWeek]);
-  const findEvent = (hours: number, events: Event[]) => {
+  const findEvent = (hours: number, events: CalendarEvent[]) => {
     // Find event that STARTS at this hour
     const eventStartsHere = events.find(
       (event) => new Date(event.start).getHours() === hours
@@ -419,6 +381,7 @@ const Column = ({
         <DraggableEvent
           onClick={() => onEventClick?.(eventStartsHere)}
           event={eventStartsHere}
+          onRemoveBlock={onRemoveBlock}
         />
       );
     }
@@ -440,7 +403,14 @@ const Column = ({
     }
 
     // Cell is empty, show EmptyButton
-    return <EmptyButton hours={hours} date={dayOfWeek} onNewEvent={onNewEvent} />;
+    return (
+      <EmptyButton
+        hours={hours}
+        date={dayOfWeek}
+        onNewEvent={onNewEvent}
+        onAddBlock={onAddBlock}
+      />
+    );
   };
 
   return (
@@ -497,9 +467,11 @@ const TimeColumn = () => {
 const DraggableEvent = ({
   event,
   onClick,
+  onRemoveBlock,
 }: {
-  onClick?: (arg0: Event) => void;
-  event: Event;
+  onClick?: (arg0: CalendarEvent) => void;
+  onRemoveBlock?: (eventId: string) => void;
+  event: CalendarEvent;
 }) => {
   const [showOptions, setShowOptions] = useState(false);
 
@@ -551,13 +523,14 @@ const DraggableEvent = ({
         event={event}
         onClose={() => setShowOptions(false)}
         isOpen={showOptions}
+        onRemoveBlock={onRemoveBlock}
       />
     </>
   );
 };
 
 // EventOverlay component for DragOverlay
-const EventOverlay = ({ event }: { event: Event }) => {
+const EventOverlay = ({ event }: { event: CalendarEvent }) => {
   return (
     <div
       className={cn(
@@ -585,10 +558,12 @@ export const Options = ({
   event,
   onClose = noop,
   isOpen,
+  onRemoveBlock,
 }: {
-  event: Event;
+  event: CalendarEvent;
   onClose?: () => void;
   isOpen?: boolean;
+  onRemoveBlock?: (eventId: string) => void;
 }) => {
   const mainRef = useOutsideClick({
     isActive: isOpen,
@@ -596,6 +571,12 @@ export const Options = ({
   });
 
   const eventDate = useMexDate(event.start);
+
+  const handleRemove = () => {
+    onRemoveBlock?.(event.id);
+    onClose();
+  };
+
   return isOpen ? (
     <div
       ref={mainRef}
@@ -609,26 +590,16 @@ export const Options = ({
         <h3>Horario bloqueado</h3>
         <p className="text-xs text-brand_gray">{eventDate}</p>
       </header>
-      <Form
-        method="POST"
-        action="/dash/agenda"
-        className="absolute flex left-0 right-0 justify-end gap-3 px-2 py-2 overflow-hidden"
-      >
-        <input type="hidden" name="eventId" value={event.id} />
+      <div className="absolute flex left-0 right-0 justify-end gap-3 px-2 py-2 overflow-hidden">
         <div className="border-l-2 border-b-2 rounded-full absolute pointer-events-none left-[65%] right-0 h-10 -top-2" />
         <button
-          onClick={() => setTimeout(onClose, 1000)}
-          name="intent"
-          value="remove_block"
-          type="submit"
+          onClick={handleRemove}
+          type="button"
           className="hover:bg-brand_blue/10 rounded-lg active:text-black"
         >
           <FaTrash />
         </button>
         <button
-          onClick={() => setTimeout(onClose, 1000)}
-          name="intent"
-          value="edit_block"
           type="button"
           className="hover:bg-brand_blue/10 rounded-lg"
         >
@@ -636,14 +607,12 @@ export const Options = ({
         </button>
         <button
           onClick={onClose}
-          name="intent"
-          value="remove_block"
           type="button"
           className="hover:bg-brand_blue/10 rounded-lg"
         >
           <RxCross2 />
         </button>
-      </Form>
+      </div>
     </div>
   ) : null;
 };

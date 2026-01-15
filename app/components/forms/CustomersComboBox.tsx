@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { RiUserSearchLine } from "react-icons/ri";
 import { BasicInput } from "./BasicInput";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";

@@ -21,4 +21,5 @@ export const getSesTransport = () => {
   });
 };
 
-export const getRemitent = () => "Denik <denik@easybits.cloud>";
+export const getRemitent = () =>
+  process.env.SES_FROM_EMAIL || "Denik <hola@denik.me>";

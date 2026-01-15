@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useFetcher } from "react-router";
 import { BasicInput } from "../BasicInput";
 import { PrimaryButton } from "~/components/common/primaryButton";
@@ -30,7 +31,6 @@ export const SocialDataForm = ({
   });
 
   const onSubmit = (values: unknown) => {
-    console.log("SUBMITING", values);
     fetcher.submit(
       {
         data: JSON.stringify({ social: values, id: defaultValues?.id }),

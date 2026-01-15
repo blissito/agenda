@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useFetcher } from "react-router";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";

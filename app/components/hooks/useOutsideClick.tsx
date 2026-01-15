@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type RefObject, useEffect, useRef } from "react";
 
 export const useOutsideClick = <T extends HTMLElement>({

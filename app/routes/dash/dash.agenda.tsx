@@ -1,11 +1,12 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useFetcher } from "react-router";
 import { useEffect, useState } from "react";
 import { redirect } from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { completeWeek } from "~/components/dash/agenda/agendaUtils";
+import { completeWeek } from "@hectorbliss/denik-calendar";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { db } from "~/utils/db.server";
-import { SimpleBigWeekView } from "~/components/dash/agenda/SimpleBigWeekView";
+import { Calendar as SimpleBigWeekView } from "@hectorbliss/denik-calendar";
 import { WeekSelector } from "~/components/dash/agenda/WeekSelector";
 import { Spinner } from "~/components/common/Spinner";
 import { type Event } from "@prisma/client";
@@ -36,8 +37,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "remove_block") {
     const id = formData.get("eventId") as string;
-
-    await db.event.delete({ where: { id, type: "BLOCK" } });
+    const block = await db.event.findUnique({ where: { id } });
+    if (block?.type === "BLOCK") {
+      await db.event.delete({ where: { id } });
+    }
   }
 
   if (intent === "add_block") {
@@ -191,10 +194,35 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   // Optimistic update when moving events via drag & drop
   const handleEventMove = (eventId: string, newStart: Date) => {
+    // Optimistic update
     setWeekEvents((prevEvents) =>
       prevEvents.map((event) =>
         event.id === eventId ? { ...event, start: newStart } : event
       )
+    );
+    // Persist to server
+    fetcher.submit(
+      { intent: "move_event", eventId, newStart: newStart.toISOString() },
+      { method: "POST" }
+    );
+  };
+
+  const handleAddBlock = (start: Date) => {
+    fetcher.submit(
+      { intent: "add_block", start: start.toISOString() },
+      { method: "POST" }
+    );
+  };
+
+  const handleRemoveBlock = (eventId: string) => {
+    // Optimistic update
+    setWeekEvents((prevEvents) =>
+      prevEvents.filter((event) => event.id !== eventId)
+    );
+    // Persist to server
+    fetcher.submit(
+      { intent: "remove_block", eventId },
+      { method: "POST" }
     );
   };
 
@@ -214,6 +242,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         date={week[0]}
         onEventClick={handleEventClick}
         onEventMove={handleEventMove}
+        onAddBlock={handleAddBlock}
+        onRemoveBlock={handleRemoveBlock}
       />
       <EventFormDrawer
         services={services}

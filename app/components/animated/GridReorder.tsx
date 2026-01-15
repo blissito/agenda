@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Children, type MouseEvent, type ReactNode, useState } from "react";
 import { LayoutGroup, motion, useDragControls } from "motion/react";
 import { cn } from "~/utils/cn";

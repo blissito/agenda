@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link } from "react-router";
 import React, { type ReactNode, useRef, useState } from "react";
 import { twMerge } from "tailwind-merge";

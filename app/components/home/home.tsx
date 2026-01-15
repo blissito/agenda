@@ -13,7 +13,6 @@ import { Search } from "../icons/search";
 import { Thunder } from "../icons/thunder";
 import { Comment } from "../icons/comment";
 import { WobbleCard } from "../animated/WoobleCard";
-import { DialogButton } from "../common/DialogButton";
 import { Parallax } from "react-scroll-parallax";
 
 export const Hero = () => (
@@ -36,12 +35,9 @@ export const Hero = () => (
         clientes y envía encuestas de satisfacción
       </p>
       <div className="flex gap-8 mt-12 justify-center ">
-        {/* <PrimaryButton as="Link" to="/signin">
-          Probar gratis <ArrowRight />{" "}
-        </PrimaryButton> */}
-        <DialogButton>
-          Únete a la lista de espera <ArrowRight />{" "}
-        </DialogButton>
+        <PrimaryButton as="Link" to="/signin">
+          Únete <ArrowRight />
+        </PrimaryButton>
         <a
           href="https://wa.me/525539111285?text=¡Hola!%20Quiero%20agendar%20un%20demo."
           target="_blank"
@@ -303,12 +299,9 @@ export const Features = () => (
           Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
           ¡Ahora tienes el control!
         </p>
-        {/* <PrimaryButton>
-          Crear agenda <ArrowRight />
-        </PrimaryButton> */}
-        <DialogButton>
-          Únete <ArrowRight />{" "}
-        </DialogButton>
+        <PrimaryButton as="Link" to="/signin">
+          Únete <ArrowRight />
+        </PrimaryButton>
       </div>
       <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%]">
         <img
@@ -355,12 +348,9 @@ export const Features = () => (
           Ofrece más alternativas de pago a tus clientes o pacientes con pagos
           desde tu sitio web.
         </p>
-        {/* <PrimaryButton>
-          Probar gratis <ArrowRight />
-        </PrimaryButton> */}
-        <DialogButton>
-          Únete a la lista de espera <ArrowRight />{" "}
-        </DialogButton>
+        <PrimaryButton as="Link" to="/signin">
+          Únete <ArrowRight />
+        </PrimaryButton>
       </div>
 
       <WobbleCard className="w-full  lg:w-[90%] mx-auto min-h-auto lg:min-h-[520px] flex justify-center items-center">

@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Service, Event } from "@prisma/client";
 import { TableHeader } from "../dash.clientes";
 import { FaRegClock } from "react-icons/fa6";

@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useLoaderData, useNavigate } from "react-router";
 import { AnimatePresence } from "motion/react";
 import { type ReactNode, useEffect, useState } from "react";

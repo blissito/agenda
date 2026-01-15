@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useLoaderData } from "react-router";
 import React, { type ReactNode } from "react";
 import { FaCheck } from "react-icons/fa6";

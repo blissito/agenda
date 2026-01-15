@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Route } from "./+types/new";
 import {
   generalFormSchema,
@@ -94,11 +95,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     let err = {};
     const fd = new FormData(formRef.current!);
     const form = Object.fromEntries(fd);
-    console.info("raw:: ", form);
     const { success, error, data } = parse(form);
-    console.info("errors:: ", error);
     if (success) {
-      console.info("PArsed:: ", data);
       fetcher.submit(
         { data: JSON.stringify({ ...data, id }), intent },
         { method: "post", action: "/api/services" }

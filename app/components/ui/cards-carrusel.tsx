@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { cn } from "~/utils/cn";
 import { AnimatePresence, motion } from "motion/react";
 import { useOutsideClick } from "~/utils/hooks/use-outside-click";

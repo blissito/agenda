@@ -1,7 +1,7 @@
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
 import type { Route } from "./+types/services";
-import type { Service } from "@prisma/client";
+import type { Prisma, Service } from "@prisma/client";
 import { generalFormSchema } from "~/components/forms/services_model/ServiceGeneralForm";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
@@ -26,14 +26,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
       success,
       data: parsedData,
       error,
-    } = ServerServiceConfigFormSchema.safeParse(data); // change
-    console.error("ZOD_ERROR", error);
+    } = ServerServiceConfigFormSchema.safeParse(data);
     if (!success) throw new Response("Error in form fields", { status: 400 });
 
     await db.service.update({
       where: { id: data.id },
-      // @ts-ignore
-      data: { ...parsedData, isActive: true }, // revisit
+      data: { ...parsedData, isActive: true } as Prisma.ServiceUpdateInput,
     });
     return { id: data.id, nextIndex: 4 };
   }
@@ -48,8 +46,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
     await db.service.update({
       where: { id: data.id },
-      // @ts-ignore
-      data: parsedData,
+      data: parsedData as Prisma.ServiceUpdateInput,
     });
     return { id: data.id, nextIndex: 3 };
   }
@@ -64,8 +61,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
     await db.service.update({
       where: { id: data.id },
-      // @ts-ignore
-      data: parsedData,
+      data: parsedData as Prisma.ServiceUpdateInput,
     });
     return { id: data.id, nextIndex: 2 };
   }

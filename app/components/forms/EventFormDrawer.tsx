@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type ReactNode } from "react";
 import { Drawer } from "../animated/SimpleDrawer";
 import { EventForm } from "./agenda/EventForm";

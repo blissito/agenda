@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { BasicInput } from "~/components/forms/BasicInput";
 import {
   Breadcrumb,

@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { User } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";

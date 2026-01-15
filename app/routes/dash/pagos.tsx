@@ -35,7 +35,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         id: user.id,
       },
       data: {
-        stripe: account,
+        stripe: { id: account.id },
       },
     });
   }

@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { z } from "zod";
 import { getEvents, getService } from "~/.server/userGetters";

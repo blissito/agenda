@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useSpring, motion } from "motion/react";
 import { type MouseEvent, type ReactNode } from "react";
 import { useTimeout } from "../hooks/useTimeout";

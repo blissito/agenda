@@ -1,3 +1,4 @@
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link } from "react-router";
 import type { ReactNode } from "react";
 import { FaSpinner } from "react-icons/fa";

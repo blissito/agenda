@@ -15,45 +15,37 @@ import { Money } from "~/components/icons/appointment/money";
 import { Id } from "~/components/icons/appointment/id";
 import { Location } from "~/components/icons/appointment/location";
 import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug/utils";
+import { MonthView } from "./MonthView";
 
-// @TODO: Improve with date and time in route to generate specific links
+type WeekDaysType = Record<string, string[][]>;
+type ScheduledDatesType = Record<string, Record<string, string[]>>;
 
-// Calendar picker and time
+// Calendar picker and time (Legacy component - consider using MonthView + TimeView directly)
 export const DateAndTimePicker = ({
   onDateChange,
-  scheduledDates = [],
+  scheduledDates = {},
   weekDays,
   duration = 60,
   selectedDate,
   onTimeChange,
   time,
-  availableDays,
 }: {
-  scheduledDates?: { [x: string]: { [y: string]: string[] } }[];
+  scheduledDates?: ScheduledDatesType;
   weekDays: WeekDaysType;
   duration?: number;
-  availableDays?: Date[];
   selectedDate: Date | null;
   time?: string;
   onTimeChange?: (arg0: string) => void;
   onDateChange: (arg0: Date) => void;
 }) => {
-  // console.log("?????", scheduledDates, scheduledDates["8"]["28"]);
-  const [times, setTimes] = useState([]);
-  const handleDayPress = (date: Date) => {
+  const [times, setTimes] = useState<string[]>([]);
+
+  const handleDaySelect = (date: Date) => {
     onDateChange?.(date);
     updateTimes(date);
   };
 
-  // const times = ["08:00", "09:15", "10:00", "12:30", "13:00", "15:45", "16:00"];
-  // @TODO: when no times to show disable the day 😒 server side?
-  // This is good stuff: 🔥🤓
   const updateTimes = (date: Date) => {
-    // 0.- get the
-    // console.log("Dict: ", weekDictionary[new Date(date).getDay()]);
-    // console.log("Weekdays: ", weekDays);
-    // already sheduled
-
     const today = new Date();
     const isToday =
       new Date(
@@ -62,10 +54,16 @@ export const DateAndTimePicker = ({
         today.getDate()
       ).getTime() ===
       new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
-    const range = weekDays[weekDictionary[new Date(date).getDay()]]; // improve
-    // console.log("Range: ", range);
+
+    const dayName = weekDictionary[new Date(date).getDay()];
+    const range = weekDays[dayName];
+    if (!range) {
+      setTimes([]);
+      return;
+    }
+
     const minutes = range.map((tuple: string[]) =>
-      tuple.map((string) => Number(string.split(":")[0]) * 60)
+      tuple.map((str) => Number(str.split(":")[0]) * 60)
     );
 
     let slots: string[] = [];
@@ -74,31 +72,18 @@ export const DateAndTimePicker = ({
         tuple[0],
         tuple[1],
         duration,
-        isToday ? today.getHours() * 60 + today.getMinutes() : undefined // minimum minutes (filter v1)
-      ).map(fromMinsToLocaleTimeString); // 17:00:00, 9:00:00
+        isToday ? today.getHours() * 60 + today.getMinutes() : undefined
+      ).map(fromMinsToLocaleTimeString);
       slots = slots.concat(secuence);
     });
-    // here we have the general all.
-    const month = String(new Date(date).getMonth()); // @TODO: maybe from dateString to match perfectly?
+
+    const month = String(new Date(date).getMonth());
     const day = String(new Date(date).getDate());
 
-    // this is because server sent iso dates and we need locales
-    const localeStrings = !scheduledDates[month]
-      ? []
-      : !scheduledDates[month][day]
-      ? []
-      : scheduledDates[month][day];
-    const notAvailableStrings = localeStrings;
-
-    slots = slots.filter((slot) => !notAvailableStrings?.includes(slot));
+    const scheduledSlots = scheduledDates?.[month]?.[day] ?? [];
+    slots = slots.filter((slot) => !scheduledSlots.includes(slot));
     setTimes(slots);
-    // @TODO: Filter already reserved !!
-    // 2.- get the reserved
-    // 3.- filter
-    // 4.- update times
   };
-
-  // console.log("Valid dates?", availableDays, weekDays); //??
 
   return (
     <main className="min-w-fit ">
@@ -108,9 +93,9 @@ export const DateAndTimePicker = ({
       <article className={twMerge("flex-1", "md:flex md:w-fit gap-6")}>
         <section className="w-full">
           <MonthView
-            // selectedDate={selectedDate}
-            onDayPress={handleDayPress}
-            validDates={availableDays}
+            selected={selectedDate ?? undefined}
+            onSelect={handleDaySelect}
+            weekDays={weekDays}
           />
         </section>
         {selectedDate && (
