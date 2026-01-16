@@ -66,7 +66,7 @@ export const getAdminUserOrRedirect = async (
  */
 export const getOrCreateOrgOrRedirect = async (request: Request) => {
   const user = await getUserOrNull(request);
-  if (!user) throw new Error("No user present");
+  if (!user) throw redirect("/signin");
   // if working fine
   if (user.orgId) {
     let found = await db.org.findUnique({ where: { id: user.orgId } });
