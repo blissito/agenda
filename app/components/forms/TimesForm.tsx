@@ -45,6 +45,11 @@ const initialValues: WeekSchema = {
 const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
 
+function cap(s: string) {
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 export const TimesForm = ({
   org,
   cta,
@@ -67,6 +72,7 @@ export const TimesForm = ({
   const initialData = org.weekDays
     ? Object.keys(org.weekDays)
     : Object.keys(initialValues);
+
   const {
     clearErrors,
     setValue,
@@ -134,7 +140,6 @@ export const TimesForm = ({
 
   const addRange = (dayString: string) => {
     if (data[dayString]?.length) {
-      // if (data[dayString].length > 5) return console.error("ONLY 6 PERMITED");
       setData((d) => {
         const dd = JSON.parse(JSON.stringify(d));
         const lastRange = dd[dayString].pop();
@@ -145,7 +150,6 @@ export const TimesForm = ({
         if (!Array.isArray(lastRange)) return d;
         const nextRange = [
           nextH,
-          // getStringFromMinutes(getMinutesFromString(lastRange[1])),
           getStringFromMinutes(getMinutesFromString(lastRange[1]) + 60),
         ];
         return {
@@ -174,51 +178,92 @@ export const TimesForm = ({
   const isDisabled = !isValid || (errors.weekDays ? true : false);
 
   return (
-    <Form
-      onSubmit={handleSubmit(submit)}
-      className={twMerge(
-        "h-full pt-6 md:pt-20 px-[5%] md:px-2  max-w-xl mx-auto",
-        "flex flex-col justify-evenly h-full gap-5 text-brand_dark"
-      )}
-    >
-      {/* Switches */}
-      {ENTIRE_WEEK.map((dayString: string) => (
-        <DayTimesSelector
-          key={dayString}
-          ranges={data[dayString]}
-          addRange={() => addRange(dayString)}
-          onRemoveRange={(index) => removeRange(dayString, index)}
-          onUpdate={(ranges) => handleUpdate(dayString, ranges)}
-          // onRange={(range) => handleRange(dayString, range)}
-          isActive={getValues().weekDays.includes(dayString)}
-          id={dayString}
-        >
-          <Switch
-            defaultChecked={getValues().weekDays.includes(dayString)}
-            name="weekDays"
-            value={dayString}
-            onChange={handleSwitchChange}
-          />
-        </DayTimesSelector>
-      ))}
-
-      <div className="mt-auto">
-        {" "}
-        {children ? (
-          children
-        ) : noSubmit ? null : (
-          <PrimaryButton
-            isLoading={fetcher.state !== "idle"}
-            className="w-full mt-auto"
-            isDisabled={isDisabled}
-            type="submit"
-          >
-            {cta || " Continuar"}
-          </PrimaryButton>
+    <Form onSubmit={handleSubmit(submit)} className="w-full">
+      {/* Layout tipo Figma: izquierda controles / derecha preview */}
+      <div
+        className={twMerge(
+          "grid gap-10",
+          "lg:grid-cols-[1fr_420px]",
+          "items-center",
+          "min-h-[calc(100vh-190px)]",
+          "pt-10"
         )}
-        <p className="mb-8 ml-2 h-auto text-red-500 text-xs">
-          {errors.weekDays?.message}
-        </p>
+      >
+        {/* ==================== IZQUIERDA ==================== */}
+        <div className="w-full max-w-3xl">
+          {/* Back (solo UI) */}
+          <a
+            href="/signup/2"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
+          >
+            <span className="text-lg leading-none">‹</span> Volver
+          </a>
+
+          <h1 className="text-xl md:text-2xl font-semibold text-neutral-900">
+            Y por último, ¿Cuál es el horario de tu negocio?
+          </h1>
+
+          {/* Lista de días */}
+          <div className="mt-6 space-y-4">
+            {ENTIRE_WEEK.map((dayString: string) => {
+              const active = getValues().weekDays.includes(dayString);
+              return (
+                <DayTimesSelector
+                  key={dayString}
+                  ranges={data[dayString]}
+                   /*ranges={data[dayString] ?? []}*/
+                  addRange={() => addRange(dayString)}
+                  onRemoveRange={(index) => removeRange(dayString, index)}
+                  onUpdate={(ranges) => handleUpdate(dayString, ranges)}
+                  isActive={active}
+                  id={dayString}
+                >
+                  <div className="grid grid-cols-[1fr_auto] items-center gap-6">
+                    <span className="text-sm text-neutral-700">
+                      {cap(dayString)}
+                    </span>
+                    <Switch
+                      defaultChecked={active}
+                      name="weekDays"
+                      value={dayString}
+                      onChange={handleSwitchChange}
+                    />
+                  </div>
+                </DayTimesSelector>
+              );
+            })}
+          </div>
+
+          {/* Botón + error */}
+          <div className="mt-10 max-w-sm">
+            {children ? (
+              children
+            ) : noSubmit ? null : (
+              <PrimaryButton
+                isLoading={fetcher.state !== "idle"}
+                className="w-full"
+                isDisabled={isDisabled}
+                type="submit"
+              >
+                {cta || "Continuar"}
+              </PrimaryButton>
+            )}
+
+            <p className="mt-3 ml-1 h-auto text-red-500 text-xs">
+              {errors.weekDays?.message}
+            </p>
+          </div>
+        </div>
+
+        {/* ==================== DERECHA (preview) ==================== */}
+        <div className="hidden lg:flex w-full justify-center items-center">
+          <img
+            src="/images/agenda.png"
+            alt="preview"
+            className="w-full max-w-[360px] select-none pointer-events-none"
+            draggable={false}
+          />
+        </div>
       </div>
     </Form>
   );
@@ -249,16 +294,21 @@ export const DayTimesSelector = ({
   type Range = [string, string]; // ['09:00','16:00']
 
   return (
-    <>
+    <div className="rounded-xl">
       {children}
+
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ y: -10, opacity: 0 }}
-        className={twMerge("gap-2", isActive && "grid", "text-brand_gray mt-2")}
+        exit={{ y: -8, opacity: 0 }}
+        className={twMerge(
+          "mt-3 pl-1",
+          isActive ? "grid gap-3" : "hidden",
+          "text-neutral-600"
+        )}
       >
         {ranges.map((range: Range, index) => (
-          <div className="flex gap-4" key={nanoid()}>
+          <div className="flex items-center gap-4" key={nanoid()}>
             <RangeTimePicker
               isDisabled={!isActive}
               index={index}
@@ -267,6 +317,7 @@ export const DayTimesSelector = ({
               endTime={range[1]}
               onDelete={() => onRemoveRange?.(index)}
             />
+
             {index === 0 &&
               Number(ranges[ranges.length - 1][1].split(":")[0]) < 22 && (
                 <button
@@ -274,10 +325,10 @@ export const DayTimesSelector = ({
                   type="button"
                   onClick={addRange}
                   className={twMerge(
-                    // "col-start-2 row-start-1",
-                    "w-24",
+                    "text-sm",
+                    "w-auto",
                     "disabled:cursor-not-allowed",
-                    "not:disabled:active:text-brand_gray text-brand_gray/70 hover:text-brand_gray/90 lg:text-left"
+                    "text-neutral-400 hover:text-neutral-600"
                   )}
                 >
                   + Agregar
@@ -286,7 +337,7 @@ export const DayTimesSelector = ({
           </div>
         ))}
       </motion.div>
-    </>
+    </div>
   );
 };
 
@@ -315,39 +366,67 @@ export const RangeTimePicker = ({
 
   const getTime = (startTime: string) => {
     const mins = getMinutesFromString(startTime);
-    // console.log("Mins: ", mins, getStringFromMinutes(mins));
     return getStringFromMinutes(mins);
   };
 
   return (
-    <div>
-      <div className="relative flex items-center gap-3">
-        <span>De</span>
-        <TimePicker
-          isDisabled={isDisabled}
-          defaultSelected={startTime}
-          // initialTime={startTime}
-          onChange={changeStartTime}
-          all
-        />
-        <span>a</span>
-        <TimePicker
-          isDisabled={isDisabled}
-          defaultSelected={endTime}
-          // initialTime={getTime(endTime)}
-          onChange={changeEndTime}
-        />
-        {index !== 0 && (
-          <button
-            disabled={isDisabled}
-            onClick={onDelete}
-            type="button"
-            className=" disabled:hidden active:text-red-500 right-0 top-[28%] text-red-400 hover:text-red-500 transition-all"
-          >
-            <FaRegTrashCan />
-          </button>
-        )}
-      </div>
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-neutral-500">De</span>
+      <TimePicker
+        isDisabled={isDisabled}
+        defaultSelected={startTime}
+        onChange={changeStartTime}
+        all
+      />
+
+      <span className="text-sm text-neutral-500">a</span>
+      <TimePicker
+        isDisabled={isDisabled}
+        defaultSelected={endTime}
+        onChange={changeEndTime}
+      />
+
+      {index !== 0 && (
+        <button
+          disabled={isDisabled}
+          onClick={onDelete}
+          type="button"
+          className="disabled:hidden text-red-400 hover:text-red-500 transition-all"
+        >
+          <FaRegTrashCan />
+        </button>
+      )}
     </div>
   );
 };
+
+/* ========= Preview (solo UI) ========= */
+function SchedulePreview() {
+  return (
+    <div className="w-full max-w-[360px] rounded-2xl bg-white shadow-sm ring-1 ring-neutral-200 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="h-6 w-28 rounded bg-neutral-100" />
+        <div className="h-6 w-10 rounded bg-neutral-100" />
+      </div>
+
+      {/* grid tipo calendario */}
+      <div className="grid grid-cols-7 gap-1">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="h-5 rounded bg-neutral-100" />
+        ))}
+        {Array.from({ length: 35 }).map((_, i) => (
+          <div
+            key={i}
+            className="h-7 rounded bg-neutral-50 ring-1 ring-neutral-100"
+          />
+        ))}
+      </div>
+
+      {/* tooltip fake */}
+      <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-3 text-xs text-neutral-600 shadow-sm">
+        <div className="font-semibold text-neutral-800">Cita</div>
+        <div className="mt-1">10:00 am · 45 min</div>
+      </div>
+    </div>
+  );
+}

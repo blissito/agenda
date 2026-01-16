@@ -39,6 +39,8 @@ export const ServiceCard = ({
   // lets try with an api endpoint...
   const fetcher = useFetcher<typeof action>();
   const [show, setShow] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: () => {
       setShow(false);
@@ -46,6 +48,14 @@ export const ServiceCard = ({
     isActive: show,
     includeEscape: true, // captures [Esc] key press
   });
+  const refDelete = useClickOutside<HTMLDivElement>({
+    onOutsideClick: () => {
+      setShowDelete(false);
+    },
+    isActive: showDelete,
+    includeEscape: true,
+  });
+
   const { ref: copiadoRef, setLink } = useCopyLink(link);
 
   const handleToggleDeactivation = () => {
@@ -59,14 +69,12 @@ export const ServiceCard = ({
   };
 
   const handleDelete = () => {
-    if (
-      !confirm(
-        "¿Estás segura de eliminar este servicio? Esta acción es irreversible. ⚠️"
-      )
-    ) {
-      setShow(false);
-      return;
-    }
+    setShow(false);
+    setShowDelete(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    setShowDelete(false);
     fetcher.submit(
       {
         intent: "update_service",
@@ -101,6 +109,7 @@ export const ServiceCard = ({
       >
         <TbDots />
       </button>
+
       <AnimatePresence>
         {show && (
           <motion.div
@@ -120,6 +129,7 @@ export const ServiceCard = ({
               </span>
               <span className="capitalize">copiar link</span>
             </button>
+
             <button
               onClick={handleDelete}
               className="transition-all gap-3 items-center flex text-red-700 hover:text-red-600 active:scale-95"
@@ -129,6 +139,7 @@ export const ServiceCard = ({
               </span>
               <span className="capitalize">eliminar</span>
             </button>
+
             <button
               onClick={handleToggleDeactivation}
               className="transition-all flex gap-3 items-center hover:text-brand_gray/80 active:scale-95"
@@ -151,6 +162,77 @@ export const ServiceCard = ({
           </motion.div>
         )}
       </AnimatePresence>
+      <AnimatePresence>
+        {showDelete && (
+          <motion.div
+            className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            aria-modal="true"
+            role="dialog"
+          >
+            {/* overlay blur */}
+            <motion.button
+              type="button"
+              onClick={() => setShowDelete(false)}
+              className="absolute inset-0 bg-black/25 backdrop-blur-[3px]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              aria-label="Cerrar"
+            />
+
+            {/* caja */}
+            <motion.div
+              ref={refDelete}
+              initial={{ opacity: 0, scale: 0.98, y: 6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 6 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+              className="relative w-full max-w-[520px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] px-6 py-5 font-satoshi"
+            >
+              {/* close */}
+              <button
+                type="button"
+                onClick={() => setShowDelete(false)}
+                className="absolute right-3 top-3 h-9 w-9 rounded-full grid place-items-center text-brand_gray/70 hover:text-brand_gray hover:bg-brand_light_gray/60 transition-all active:scale-95"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+
+              <h3 className="text-brand_dark text-lg sm:text-xl font-satoshi font-bold text-center">
+                ¿Seguro que quieres eliminar este servicio? 🫣
+              </h3>
+
+              <p className="mt-2 text-sm sm:text-[15px] text-brand_gray/80 font-satoshi leading-relaxed text-center max-w-[420px] mx-auto">
+                Al eliminarlo también eliminaremos todas las citas agendadas del
+                servicio. Enviaremos una notificación a cada client@.
+              </p>
+
+              <div className="mt-5 flex items-center justify-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowDelete(false)}
+                  className="h-10 px-6 rounded-full bg-brand_light_gray/60 text-brand_gray font-satoshi hover:bg-brand_light_gray transition-all active:scale-95"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleDeleteConfirm}
+                  className="h-10 px-7 rounded-full bg-[#CA5757] text-white font-satoshi hover:bg-[#b44e4e] transition-all active:scale-95"
+                >
+                  Sí, eliminar
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer flex flex-col">
           <Image alt="service" src={image} />

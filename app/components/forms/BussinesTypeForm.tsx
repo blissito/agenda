@@ -1,60 +1,142 @@
 import { useEffect, useState } from "react";
-import { Barbershop } from "../icons/business/barbershop";
 import { MultipleOptions, Option, Otro } from "./MultipleOptions";
-import { Sports } from "../icons/business/sports";
-import { FaBusinessTime } from "react-icons/fa";
 import { PrimaryButton } from "../common/primaryButton";
 import { type FieldValues, useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
 import { type Org } from "@prisma/client";
 
+
+import { Barbershop } from "../icons/business/barbershop";
+import { Beauty } from "../icons/business/beauty";
+import { Sports } from "../icons/business/sports";
+import { Clinic } from "../icons/business/clinic";
+import { Class as ClassIcon } from "../icons/business/class";
+import { Crossfit } from "../icons/business/corssfit";
+import { Dance } from "../icons/business/dance";
+import { Gym } from "../icons/business/gym";
+import { Hair } from "../icons/business/hair";
+import { Pet } from "../icons/business/pet";
+import { Spa } from "../icons/business/spa";
+import { Tourism } from "../icons/business/tourism";
+import { Courses } from "../icons/business/courses";
+import { Equipment } from "../icons/business/equipment";
+import { Brain } from "../icons/business/brain";
+import { Mat } from "../icons/business/mat";
+import { Reformer } from "../icons/business/reformer";
+import { Couch } from "../icons/business/couch";
+import { Apple } from "../icons/business/apple";
 export const OPTIONS = [
   "barbería",
   "estética",
   "centro deportivo",
   "consultorio médico",
   "estudios clínicos",
-  "tutorias",
-  "podólogo",
-  "nutriologo",
   "crossfit",
-  "danza / baile",
-  "gimnasio",
-  "psicologo",
-  "salon de belleza",
-  "veterinaria",
-  "spa",
-  "experiencias turisticas",
-  "yoga / meditación",
   "coaching",
+  "tutorias",
+  "gimnasio",
+  "yoga / meditación",
+  "spa",
+  "centro de idiomas",
+  "nutriologo",
+  "veterinaria",
+  "danza / baile",
   "terapia física",
+  "psicologo",
+  "experiencias turisticas",
+  "salon de belleza",
   "reparaciones",
   "hojalatería",
   "code review",
   "uñas",
   "otro",
 ];
-
 const getIconByOption = (string?: string) => {
   switch (string) {
+    case "barbería":
+      return <Barbershop fill={"#8391A1"} />;
+
     case "estética":
-      return (
-        <span className="text-neutral-500">
-          <FaBusinessTime />
-        </span>
-      );
+      return <Beauty fill={"#8391A1"} />;
+
     case "centro deportivo":
       return <Sports />;
+
+    case "consultorio médico":
+      return <Clinic />;
+
+    case "estudios clínicos":
+      return <Clinic />;
+
+    case "crossfit":
+      return <Crossfit  />;
+
+    case "coaching":
+      return <Couch />;
+
+    case "tutorias":
+      return <ClassIcon />;
+
+    case "gimnasio":
+      return <Gym />;
+
+    case "yoga / meditación":
+      return <Mat />;
+
+    case "spa":
+      return <Spa />;
+
+    case "centro de idiomas":
+      return <Courses />;
+
+    case "nutriologo":
+      return <Apple />;
+
+    case "veterinaria":
+      return <Pet />;
+
+    case "danza / baile":
+      return <Dance />;
+
+    case "terapia física":
+      return <Reformer />;
+
+    case "psicologo":
+      return <Brain />;
+
+    case "experiencias turisticas":
+      return <Tourism />;
+
+    case "salon de belleza":
+      return <Hair />;
+
+    case "reparaciones":
+      return <Equipment />;
+
+    case "hojalatería":
+      return <Equipment />;
+
+    case "code review":
+      return <Courses />;
+
+    case "uñas":
+      return <Beauty fill={"#8391A1"} />;
+
     default:
       return <Barbershop fill={"#8391A1"} />;
   }
 };
-
 export const BussinesTypeForm = ({ org }: { org: Org }) => {
   const fetcher = useFetcher();
-  const [current, setCurrent] = useState<string>(org.businessType || "");
-  const isOther = current !== "" && !OPTIONS.includes(current);
-  const [isOtro, setIsOtro] = useState(isOther);
+  // UI FIX: normalizamos SOLO para comparar (no cambiamos submit)
+  const initialCurrent = org.businessType || "";
+  const initialCurrentNormalized = initialCurrent.trim().toLowerCase();
+  const isOtherInitial =
+    initialCurrent !== "" && !OPTIONS.includes(initialCurrentNormalized);
+
+  const [current, setCurrent] = useState<string>(initialCurrent);
+  const [isOtro, setIsOtro] = useState(isOtherInitial);
+
   const {
     formState: { isValid },
     register,
@@ -101,55 +183,79 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
     setCurrent(option);
   };
 
+  const currentNormalized = (current || "").trim().toLowerCase();
+
   return (
-    <>
-      <Form
-        method="post"
-        onSubmit={handleSubmit(onSubmit)}
-        className="gap-4 px-4 h-full flex flex-col place-content-between	pt-0 lg:pt-20  max-w-xl mx-auto"
-      >
-        <MultipleOptions
-          className="grid grid-cols-2 gap-4 md:pt-8"
-          name="businessType"
-          options={OPTIONS}
-          renderFunction={(option: string, index: number) => {
-            if (index === OPTIONS.length - 1) {
+    <Form
+      method="post"
+      onSubmit={handleSubmit(onSubmit)}
+      className={[
+        "w-full",
+        "min-h-[calc(100vh-190px)]",
+        "flex flex-col",
+        "justify-center",
+        "px-10",
+        "pt-10 lg:pt-0",
+      ].join(" ")}
+    >
+      <div className="w-full max-w-6xl">
+        <a className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800">
+          <a href="/signup/1?screen=2">"Volver</a>
+        </a>
+
+        <h1 className="text-xl md:text-2xl font-semibold text-neutral-900">
+          ¿Qué tipo de negocio tienes?
+        </h1>
+
+        <div className="mt-6">
+          <MultipleOptions
+            name="businessType"
+            className="flex flex-wrap gap-3"
+            options={OPTIONS}
+            renderFunction={(option: string, index: number) => {
+              if (index === OPTIONS.length - 1) {
+                return (
+                  <Otro
+                    onCancel={onCancel}
+                    label="Describe tu negocio"
+                    name="businessType"
+                    isActive={isOtro}
+                    key={option}
+                    onClick={handleOtroClick}
+                    register={register}
+                  />
+                );
+              }
+
+              if (isOtro) return null;
+
               return (
-                <Otro
-                  onCancel={onCancel}
-                  label="Describe tu negocio"
-                  name="businessType"
-                  isActive={isOtro}
+                <Option
                   key={option}
-                  onClick={handleOtroClick}
+                  label={option}
+                  onClick={() => handleSelection(option)}
+                  name="businessType"
+                  icon={getIconByOption(option)}
+                  capitalize
+                  isCurrent={currentNormalized === option}
                   register={register}
+                  transition={{ type: "spring", bounce: 0.3 }}
                 />
               );
-            }
-            if (isOtro) return null; // @todo remove?
-            return (
-              <Option
-                key={option}
-                label={option}
-                onClick={() => handleSelection(option)}
-                name="businessType"
-                icon={getIconByOption(option)}
-                capitalize
-                isCurrent={current === option}
-                register={register}
-                transition={{ type: "spring", bounce: 0.3 }}
-              />
-            );
-          }}
-        />
-        <PrimaryButton
-          isLoading={fetcher.state !== "idle"}
-          isDisabled={!isValid}
-          className="mt-8 md:mt-auto mb-8"
-        >
-          Continuar
-        </PrimaryButton>
-      </Form>
-    </>
+            }}
+          />
+        </div>
+
+        <div className="mt-10">
+          <PrimaryButton
+            isLoading={fetcher.state !== "idle"}
+            isDisabled={!isValid}
+            className="w-[190px]"
+          >
+            Continuar
+          </PrimaryButton>
+        </div>
+      </div>
+    </Form>
   );
 };
