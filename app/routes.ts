@@ -11,6 +11,7 @@ export default [
   route("planes", "routes/planes.tsx"),
   //login
   route("signin", "routes/login/signin.tsx"),
+  route("signup", "routes/login/signup._index.tsx"),
   route("signup/:stepSlug", "routes/login/signup.$stepSlug.tsx"),
   // OAuth
   route("auth/:provider", "routes/auth.$provider.tsx"),

@@ -83,6 +83,7 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
         name: "New Denik Org",
         slug: "new-denik-org-" + nanoid(4),
         email: user.email,
+        isActive: false,
       },
     });
   }
