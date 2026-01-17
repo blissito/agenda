@@ -17,6 +17,7 @@ import {
   sendAppointmentToCustomer,
   sendAppointmentToOwner,
 } from "~/utils/emails/sendAppointment";
+import { resolveOrgFromRequest } from "~/utils/host.server";
 
 type WeekDaysType = Record<string, string[][]>;
 
@@ -55,10 +56,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   if (intent === "create_event") {
     const data = JSON.parse(formData.get("data") as string);
 
-    // 1. Obtener org
-    const org = await db.org.findUnique({
-      where: { slug: params.orgSlug },
-    });
+    // 1. Obtener org (resolviendo por hostname o slug)
+    const org = await resolveOrgFromRequest(request, params.orgSlug);
     if (!org) throw new Response("Org not found", { status: 404 });
 
     // 2. Crear Customer
@@ -115,8 +114,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   return null;
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
-  const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
+
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  const org = await resolveOrgFromRequest(request, params.orgSlug);
   const service = await db.service.findUnique({
     where: {
       slug: params.serviceSlug,
@@ -130,6 +130,8 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     },
   });
   if (!service || !org) throw new Response(null, { status: 404 });
+  // Verify service belongs to org
+  if (service.orgId !== org.id) throw new Response(null, { status: 404 });
   return { org, service };
 };
 

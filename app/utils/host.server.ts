@@ -1,0 +1,118 @@
+import { db } from "~/utils/db.server";
+import type { Org, Service } from "@prisma/client";
+
+const PLATFORM_DOMAINS = ["denik.me", "localhost", "127.0.0.1"];
+
+/**
+ * Normalizes a hostname by removing port, www prefix, and converting to lowercase
+ */
+export function normalizeHost(host: string): string {
+  return host
+    .split(":")[0] // Remove port if present (e.g., domain.com:3000 -> domain.com)
+    .toLowerCase() // Normalize case
+    .replace(/^www\./, ""); // Remove www prefix (e.g., www.domain.com -> domain.com)
+}
+
+/**
+ * Extracts subdomain from a denik.me host
+ */
+function getSubdomain(host: string): string | null {
+  const normalized = normalizeHost(host);
+  if (normalized.endsWith(".denik.me")) {
+    const slug = normalized.split(".")[0];
+    return slug && slug !== "www" ? slug : null;
+  }
+  return null;
+}
+
+/**
+ * Checks if the host is a platform domain (denik.me, localhost, etc.)
+ */
+function isPlatformDomain(host: string): boolean {
+  const normalized = normalizeHost(host);
+  return PLATFORM_DOMAINS.some(
+    (domain) => normalized === domain || normalized.endsWith(`.${domain}`)
+  );
+}
+
+export type OrgWithServices = Org & { services: Service[] };
+
+export type HostResolution =
+  | { type: "landing" }
+  | { type: "org"; org: OrgWithServices }
+  | { type: "not_found" };
+
+/**
+ * Resolves the host for the index page
+ *
+ * Priority:
+ * 1. Custom domain (if not a known platform domain) -> show org page
+ * 2. Subdomain (orgslug.denik.me) -> show org page
+ * 3. Platform domain (denik.me, www.denik.me) -> show landing page
+ */
+export async function resolveHostForIndex(
+  request: Request
+): Promise<HostResolution> {
+  const host = normalizeHost(request.headers.get("host") || "");
+
+  const isPlatform = isPlatformDomain(host);
+
+  // Custom domain: any domain that's not a platform domain
+  if (!isPlatform && host.length > 0) {
+    const org = await db.org.findUnique({
+      where: { customDomain: host, customDomainStatus: "active" },
+      include: { services: { where: { isActive: true, archived: false } } },
+    });
+    return org ? { type: "org", org } : { type: "not_found" };
+  }
+
+  // Subdomain: orgslug.denik.me
+  const subdomain = getSubdomain(host);
+  if (subdomain) {
+    const org = await db.org.findUnique({
+      where: { slug: subdomain },
+      include: { services: { where: { isActive: true, archived: false } } },
+    });
+    return org ? { type: "org", org } : { type: "not_found" };
+  }
+
+  // Platform domain without subdomain -> landing page
+  return { type: "landing" };
+}
+
+/**
+ * Resolves an Org based on the request hostname or URL slug
+ *
+ * Priority:
+ * 1. Custom domain (if not a known platform domain)
+ * 2. Subdomain (orgslug.denik.me)
+ * 3. URL path parameter (fallback)
+ */
+export async function resolveOrgFromRequest(
+  request: Request,
+  orgSlugParam: string | undefined
+): Promise<Org | null> {
+  const host = normalizeHost(request.headers.get("host") || "");
+
+  const isPlatform = isPlatformDomain(host);
+
+  // 1. Custom domain: any domain that's not a platform domain
+  if (!isPlatform && host.length > 0) {
+    return db.org.findUnique({
+      where: { customDomain: host, customDomainStatus: "active" },
+    });
+  }
+
+  // 2. Subdomain: orgslug.denik.me
+  const subdomain = getSubdomain(host);
+  if (subdomain) {
+    return db.org.findUnique({ where: { slug: subdomain } });
+  }
+
+  // 3. Fallback: use orgSlug from URL path
+  if (orgSlugParam) {
+    return db.org.findUnique({ where: { slug: orgSlugParam } });
+  }
+
+  return null;
+}
