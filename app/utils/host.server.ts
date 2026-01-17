@@ -14,6 +14,19 @@ export function normalizeHost(host: string): string {
 }
 
 /**
+ * Gets the real host from request headers, checking X-Forwarded-Host first (for proxies like Fly.io)
+ */
+export function getHostFromRequest(request: Request): string {
+  // X-Forwarded-Host is set by reverse proxies (Fly.io, Cloudflare, etc.)
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  if (forwardedHost) {
+    // Can be comma-separated list, take the first one
+    return forwardedHost.split(",")[0].trim();
+  }
+  return request.headers.get("host") || "";
+}
+
+/**
  * Extracts subdomain from a denik.me host
  */
 function getSubdomain(host: string): string | null {
@@ -53,7 +66,10 @@ export type HostResolution =
 export async function resolveHostForIndex(
   request: Request
 ): Promise<HostResolution> {
-  const host = normalizeHost(request.headers.get("host") || "");
+  const rawHost = getHostFromRequest(request);
+  const host = normalizeHost(rawHost);
+
+  console.log("[resolveHostForIndex] rawHost:", rawHost, "normalized:", host);
 
   const isPlatform = isPlatformDomain(host);
 
@@ -92,7 +108,8 @@ export async function resolveOrgFromRequest(
   request: Request,
   orgSlugParam: string | undefined
 ): Promise<Org | null> {
-  const host = normalizeHost(request.headers.get("host") || "");
+  const rawHost = getHostFromRequest(request);
+  const host = normalizeHost(rawHost);
 
   const isPlatform = isPlatformDomain(host);
 
