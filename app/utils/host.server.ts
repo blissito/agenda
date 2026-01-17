@@ -66,6 +66,15 @@ export type HostResolution =
 export async function resolveHostForIndex(
   request: Request
 ): Promise<HostResolution> {
+  // Debug: log all relevant headers
+  console.log("[resolveHostForIndex] Headers:", {
+    host: request.headers.get("host"),
+    xForwardedHost: request.headers.get("x-forwarded-host"),
+    xForwardedFor: request.headers.get("x-forwarded-for"),
+    flyClientIp: request.headers.get("fly-client-ip"),
+    flyRequestId: request.headers.get("fly-request-id"),
+  });
+
   const rawHost = getHostFromRequest(request);
   const host = normalizeHost(rawHost);
 
