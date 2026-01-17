@@ -125,15 +125,27 @@ export function isOrgDomain(request: Request): boolean {
 }
 
 /**
- * Routes allowed on org subdomains/custom domains
+ * App routes that should be BLOCKED on org subdomains/custom domains
+ * These are platform routes, not org-specific content
  */
-const ALLOWED_ORG_ROUTES = [
-  /^\/$/, // Home (org page)
-  /^\/[^/]+$/, // /:serviceSlug (service on subdomain/custom domain)
+const BLOCKED_APP_ROUTES = [
+  /^\/signin/,
+  /^\/signup/,
+  /^\/dash/,
+  /^\/api/,
+  /^\/stripe/,
+  /^\/auth/,
+  /^\/planes/,
+  /^\/demo/,
 ];
 
 export function isRouteAllowedOnOrgDomain(pathname: string): boolean {
-  return ALLOWED_ORG_ROUTES.some((pattern) => pattern.test(pathname));
+  // Block known app routes
+  if (BLOCKED_APP_ROUTES.some((pattern) => pattern.test(pathname))) {
+    return false;
+  }
+  // Allow: / (home) and /:serviceSlug (any other single-segment path)
+  return true;
 }
 
 /**
