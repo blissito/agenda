@@ -47,7 +47,6 @@ export const UsernameInput = ({ org }: { org: Org }) => {
   return (
     <section>
       <div className="border-brand_ash h-12 w-full px-2 border-[1px] rounded-full flex items-center pl-3 gap-3">
-        <span>denik.me/</span>
         <input
           ref={inputRef}
           onChange={handleSlugChange}
@@ -59,6 +58,7 @@ export const UsernameInput = ({ org }: { org: Org }) => {
           )}
           defaultValue={org.slug}
         />
+        <span>.denik.me</span>
         <PrimaryButton
           type="button"
           isDisabled={fetcher.data?.errors?.slug || fetcher.state !== "idle"}
@@ -68,7 +68,13 @@ export const UsernameInput = ({ org }: { org: Org }) => {
           Actualizar
         </PrimaryButton>
       </div>
-      <p className="text-red-500 px-4 text-xs">{fetcher.data?.errors.slug}</p>
+      {fetcher.data?.errors?.slug ? (
+        <p className="text-red-500 px-4 text-xs">{fetcher.data.errors.slug}</p>
+      ) : (
+        <p className="text-amber-600 px-4 text-xs mt-1">
+          Cambiar tu subdominio hará que los links anteriores dejen de funcionar.
+        </p>
+      )}
     </section>
   );
 };

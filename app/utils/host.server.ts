@@ -129,8 +129,7 @@ export function isOrgDomain(request: Request): boolean {
  */
 const ALLOWED_ORG_ROUTES = [
   /^\/$/, // Home (org page)
-  /^\/a\/[^/]+\/s\/[^/]+/, // Agenda booking
-  /^\/a\/[^/]+$/, // Org public page
+  /^\/[^/]+$/, // /:serviceSlug (service on subdomain/custom domain)
 ];
 
 export function isRouteAllowedOnOrgDomain(pathname: string): boolean {

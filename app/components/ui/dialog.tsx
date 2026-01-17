@@ -6,13 +6,18 @@ import { AnimatePresence, motion } from "motion/react";
 import { cn } from "~/utils/cn";
 import { useDisclosure } from "~/utils/hooks/useDisclosure";
 
-// left here to demo
+type OrgWithDomain = Org & {
+  customDomain?: string | null;
+  customDomainStatus?: string | null;
+  customDomainDns?: unknown;
+};
+
 export function TemplateFormModal({
   org,
   trigger,
 }: {
   trigger: ReactNode;
-  org: Org;
+  org: OrgWithDomain;
 }) {
   const { isOpen, close, open } = useDisclosure(false);
   return (

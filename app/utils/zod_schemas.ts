@@ -107,5 +107,12 @@ export const orgUpdateSchema = z.object({
   email: z.string().email().optional().nullable(),
   tel: z.string().optional().nullable(),
   logo: z.string().optional().nullable(),
+  websiteConfig: z
+    .object({
+      color: z.string().optional().nullable(),
+      template: z.string().optional().nullable(),
+    })
+    .optional()
+    .nullable(),
 });
 export type OrgUpdateSchema = z.infer<typeof orgUpdateSchema>;

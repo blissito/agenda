@@ -42,12 +42,11 @@ export const links = () => [
 
 export const loader = ({ request }: Route.LoaderArgs) => {
   const isOrg = isOrgDomain(request);
+  const url = new URL(request.url);
 
-  if (isOrg) {
-    const url = new URL(request.url);
-    if (!isRouteAllowedOnOrgDomain(url.pathname)) {
-      throw redirect("/");
-    }
+  // Block app routes on subdomains/custom domains
+  if (isOrg && !isRouteAllowedOnOrgDomain(url.pathname)) {
+    throw redirect("/");
   }
 
   return null;

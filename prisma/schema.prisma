@@ -307,27 +307,30 @@ model Job {
 }
 
 model Org {
-  id                String            @id @default(auto()) @map("_id") @db.ObjectId
-  address           String?
-  businessType      String?
-  description       String?
-  email             String?
-  isActive          Boolean
+  id                 String            @id @default(auto()) @map("_id") @db.ObjectId
+  address            String?
+  businessType       String?
+  customDomain       String?
+  customDomainStatus String?
+  customDomainDns    Json?
+  description        String?
+  email              String?
+  isActive           Boolean
   /// Could not determine type: the field only had null or empty values in the sample set.
-  location          Json?
-  name              String
-  numberOfEmployees String?
-  ownerId           String            @db.ObjectId
-  shopKeeper        String?
-  slug              String            @unique
-  social            OrgSocial?
-  websiteConfig     OrgWebsiteConfig?
+  location           Json?
+  name               String
+  numberOfEmployees  String?
+  ownerId            String            @db.ObjectId
+  shopKeeper         String?
+  slug               String            @unique
+  social             OrgSocial?
+  websiteConfig      OrgWebsiteConfig?
   /// Could not determine type: the field only had null or empty values in the sample set.
-  week              Json?
-  weekDays          OrgWeekDays?
-  customers         Customer[]
-  events            Event[]
-  services          Service[]
+  week               Json?
+  weekDays           OrgWeekDays?
+  customers          Customer[]
+  events             Event[]
+  services           Service[]
 }
 
 model Service {

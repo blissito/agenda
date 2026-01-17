@@ -14,7 +14,7 @@ import { Clook } from "~/components/icons/appointment/clook";
 import { Money } from "~/components/icons/appointment/money";
 import { Id } from "~/components/icons/appointment/id";
 import { Location } from "~/components/icons/appointment/location";
-import { weekDictionary } from "~/routes/agenda.$orgSlug.$serviceSlug/utils";
+import { weekDictionary } from "~/components/agenda/utils";
 import { MonthView } from "./MonthView";
 
 type WeekDaysType = Record<string, string[][]>;

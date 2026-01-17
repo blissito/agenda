@@ -1,15 +1,18 @@
 import type { Org } from "@prisma/client";
-import { useState } from "react";
-import { useFetcher } from "react-router";
 import { twMerge } from "tailwind-merge";
-import { ImageCube } from "~/components/animated/MosaicHero";
 import { Palomita } from "~/components/common/Palomita";
 
-export const Plantilla = ({ org }: { org: Org }) => {
+export const Plantilla = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) => {
   return (
     <section>
       <h3 className="text-brand_dark mb-4">Plantilla</h3>
-      <PlantillaSelect org={org} />
+      <PlantillaSelect value={value} onChange={onChange} />
     </section>
   );
 };
@@ -17,34 +20,23 @@ export const Plantilla = ({ org }: { org: Org }) => {
 export const PlantillaSelect = ({
   readOnly,
   org,
+  value,
+  onChange,
 }: {
   readOnly?: boolean;
-  org: Org;
+  org?: Org;
+  value?: string;
+  onChange?: (value: string) => void;
 }) => {
-  const [selected, set] = useState<string>(org.websiteConfig?.template ?? "");
-  const fetcher = useFetcher();
+  const selected = value ?? org?.websiteConfig?.template ?? "";
 
-  const update = (data: string, intent: string = "org_update") => {
-    fetcher.submit(
-      {
-        data,
-        intent,
-      },
-      { method: "POST", action: "/api/org" }
-    );
-  };
   const handleTemplateSelection = (templateName: string) => () => {
-    set(templateName);
-    update(
-      JSON.stringify({
-        id: org.id,
-        websiteConfig: { ...org.websiteConfig, template: templateName },
-      })
-    );
+    onChange?.(templateName);
   };
 
   if (readOnly) {
-    return org.websiteConfig?.template === "defaultTemplate" ? (
+    const template = org?.websiteConfig?.template;
+    return template === "defaultTemplate" ? (
       <CubeImage src="/images/template1.svg" />
     ) : (
       <CubeImage src="/images/template2.svg" />

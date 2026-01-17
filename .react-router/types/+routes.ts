@@ -20,6 +20,9 @@ type Pages = {
   "/signin": {
     params: {};
   };
+  "/signup": {
+    params: {};
+  };
   "/signup/:stepSlug": {
     params: {
       "stepSlug": string;
@@ -116,29 +119,26 @@ type Pages = {
   "/api/org": {
     params: {};
   };
+  "/api/domain": {
+    params: {};
+  };
   "/stripe": {
     params: {};
   };
-  "/a/:orgSlug/s/:serviceSlug": {
-    params: {
-      "orgSlug": string;
-      "serviceSlug": string;
-    };
-  };
-  "/a/:orgSlug": {
-    params: {
-      "orgSlug": string;
-    };
-  };
   "/demo/smatch": {
     params: {};
+  };
+  "/:serviceSlug": {
+    params: {
+      "serviceSlug": string;
+    };
   };
 };
 
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/stripe" | "/a/:orgSlug/s/:serviceSlug" | "/a/:orgSlug" | "/demo/smatch";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -151,6 +151,10 @@ type RouteFiles = {
   "routes/login/signin.tsx": {
     id: "routes/login/signin";
     page: "/signin";
+  };
+  "routes/login/signup._index.tsx": {
+    id: "routes/login/signup._index";
+    page: "/signup";
   };
   "routes/login/signup.$stepSlug.tsx": {
     id: "routes/login/signup.$stepSlug";
@@ -260,21 +264,21 @@ type RouteFiles = {
     id: "routes/api/api.org";
     page: "/api/org";
   };
+  "routes/api/api.domain.ts": {
+    id: "routes/api/api.domain";
+    page: "/api/domain";
+  };
   "routes/stripe/api.ts": {
     id: "routes/stripe/api";
     page: "/stripe";
   };
-  "routes/agenda.$orgSlug.$serviceSlug/route.tsx": {
-    id: "routes/agenda.$orgSlug.$serviceSlug/route";
-    page: "/a/:orgSlug/s/:serviceSlug";
-  };
-  "routes/clientwebsite.tsx": {
-    id: "routes/clientwebsite";
-    page: "/a/:orgSlug";
-  };
   "routes/demo.smatch.tsx": {
     id: "routes/demo.smatch";
     page: "/demo/smatch";
+  };
+  "routes/service.$serviceSlug.tsx": {
+    id: "routes/service.$serviceSlug";
+    page: "/:serviceSlug";
   };
 };
 
@@ -283,6 +287,7 @@ type RouteModules = {
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/planes": typeof import("./app/routes/planes.tsx");
   "routes/login/signin": typeof import("./app/routes/login/signin.tsx");
+  "routes/login/signup._index": typeof import("./app/routes/login/signup._index.tsx");
   "routes/login/signup.$stepSlug": typeof import("./app/routes/login/signup.$stepSlug.tsx");
   "routes/auth.$provider": typeof import("./app/routes/auth.$provider.tsx");
   "routes/auth.callback.$provider": typeof import("./app/routes/auth.callback.$provider.tsx");
@@ -310,8 +315,8 @@ type RouteModules = {
   "routes/api/employees": typeof import("./app/routes/api/employees.ts");
   "routes/api/events": typeof import("./app/routes/api/events.ts");
   "routes/api/api.org": typeof import("./app/routes/api/api.org.ts");
+  "routes/api/api.domain": typeof import("./app/routes/api/api.domain.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
-  "routes/agenda.$orgSlug.$serviceSlug/route": typeof import("./app/routes/agenda.$orgSlug.$serviceSlug/route.tsx");
-  "routes/clientwebsite": typeof import("./app/routes/clientwebsite.tsx");
   "routes/demo.smatch": typeof import("./app/routes/demo.smatch.tsx");
+  "routes/service.$serviceSlug": typeof import("./app/routes/service.$serviceSlug.tsx");
 };
