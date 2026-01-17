@@ -106,6 +106,38 @@ export async function resolveHostForIndex(
 }
 
 /**
+ * Checks if request is from a subdomain or custom domain (not main platform)
+ */
+export function isOrgDomain(request: Request): boolean {
+  const rawHost = getHostFromRequest(request);
+  const host = normalizeHost(rawHost);
+
+  // Check if it's a platform domain without subdomain
+  const isPlatform = PLATFORM_DOMAINS.some((d) => host === d);
+  if (isPlatform) return false;
+
+  // Check for subdomain
+  const subdomain = getSubdomain(host);
+  if (subdomain) return true;
+
+  // Check for custom domain (not a platform domain at all)
+  return !isPlatformDomain(host);
+}
+
+/**
+ * Routes allowed on org subdomains/custom domains
+ */
+const ALLOWED_ORG_ROUTES = [
+  /^\/$/, // Home (org page)
+  /^\/a\/[^/]+\/s\/[^/]+/, // Agenda booking
+  /^\/a\/[^/]+$/, // Org public page
+];
+
+export function isRouteAllowedOnOrgDomain(pathname: string): boolean {
+  return ALLOWED_ORG_ROUTES.some((pattern) => pattern.test(pathname));
+}
+
+/**
  * Resolves an Org based on the request hostname or URL slug
  *
  * Priority:
