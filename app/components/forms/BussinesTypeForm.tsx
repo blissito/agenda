@@ -5,7 +5,6 @@ import { type FieldValues, useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
 import { type Org } from "@prisma/client";
 
-
 import { Barbershop } from "../icons/business/barbershop";
 import { Beauty } from "../icons/business/beauty";
 import { Sports } from "../icons/business/sports";
@@ -25,6 +24,8 @@ import { Mat } from "../icons/business/mat";
 import { Reformer } from "../icons/business/reformer";
 import { Couch } from "../icons/business/couch";
 import { Apple } from "../icons/business/apple";
+import { ArrowRight } from "~/components/icons/arrowRight";
+
 export const OPTIONS = [
   "barbería",
   "estética",
@@ -51,84 +52,63 @@ export const OPTIONS = [
   "uñas",
   "otro",
 ];
+
 const getIconByOption = (string?: string) => {
   switch (string) {
     case "barbería":
       return <Barbershop fill={"#8391A1"} />;
-
     case "estética":
       return <Beauty fill={"#8391A1"} />;
-
     case "centro deportivo":
       return <Sports />;
-
     case "consultorio médico":
       return <Clinic />;
-
     case "estudios clínicos":
       return <Clinic />;
-
     case "crossfit":
-      return <Crossfit  />;
-
+      return <Crossfit />;
     case "coaching":
       return <Couch />;
-
     case "tutorias":
       return <ClassIcon />;
-
     case "gimnasio":
       return <Gym />;
-
     case "yoga / meditación":
       return <Mat />;
-
     case "spa":
       return <Spa />;
-
     case "centro de idiomas":
       return <Courses />;
-
     case "nutriologo":
       return <Apple />;
-
     case "veterinaria":
       return <Pet />;
-
     case "danza / baile":
       return <Dance />;
-
     case "terapia física":
       return <Reformer />;
-
     case "psicologo":
       return <Brain />;
-
     case "experiencias turisticas":
       return <Tourism />;
-
     case "salon de belleza":
       return <Hair />;
-
     case "reparaciones":
       return <Equipment />;
-
     case "hojalatería":
       return <Equipment />;
-
     case "code review":
       return <Courses />;
-
     case "uñas":
       return <Beauty fill={"#8391A1"} />;
-
     default:
       return <Barbershop fill={"#8391A1"} />;
   }
 };
+
 export const BussinesTypeForm = ({ org }: { org: Org }) => {
   const fetcher = useFetcher();
-  // UI FIX: normalizamos SOLO para comparar (no cambiamos submit)
+
   const initialCurrent = org.businessType || "";
   const initialCurrentNormalized = initialCurrent.trim().toLowerCase();
   const isOtherInitial =
@@ -160,11 +140,12 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
   };
 
   const onSubmit = (values: FieldValues) => {
+    // ✅ Business (screen 4) -> Times (screen 5)
     fetcher.submit(
       {
         intent: "update_org",
         data: JSON.stringify(values),
-        next: "/signup/3",
+        next: "/signup/5",
       },
       { method: "post" }
     );
@@ -199,8 +180,12 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
       ].join(" ")}
     >
       <div className="w-full max-w-6xl">
-        <a className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800">
-          <a href="/signup/1?screen=2">"Volver</a>
+        {/* ✅ botón volver con flecha */}
+        <a
+          href="/signup/3?screen=2"
+          className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
+        >
+          <span className="text-lg leading-none">‹</span> Volver
         </a>
 
         <h1 className="text-xl md:text-2xl font-semibold text-neutral-900">
@@ -237,7 +222,8 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
                   name="businessType"
                   icon={getIconByOption(option)}
                   capitalize
-                  isCurrent={currentNormalized === option}
+                  // ✅ FIX: comparar normalizado (sin cambiar variables)
+                  isCurrent={currentNormalized === option.trim().toLowerCase()}
                   register={register}
                   transition={{ type: "spring", bounce: 0.3 }}
                 />
@@ -252,7 +238,7 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
             isDisabled={!isValid}
             className="w-[190px]"
           >
-            Continuar
+            Continuar <ArrowRight />
           </PrimaryButton>
         </div>
       </div>

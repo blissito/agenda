@@ -16,6 +16,7 @@ import { nanoid } from "nanoid";
 import { type Org } from "@prisma/client";
 import type { WeekSchema } from "~/utils/zod_schemas";
 import invariant from "tiny-invariant";
+import { ArrowRight } from "~/components/icons/arrowRight";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
@@ -94,7 +95,8 @@ export const TimesForm = ({
       {
         intent: "org_update_and_redirect",
         data: JSON.stringify({ weekDays: data, id: org.id }),
-        next: "/signup/4", // this is used in /signup/3
+
+        next: "/signup/6",
       },
       { method: "post", action: "/api/org" }
     );
@@ -105,6 +107,7 @@ export const TimesForm = ({
     let action: "adding" | "removing";
     clearErrors();
     const values = getValues()[node.name];
+
     if (node.checked) {
       action = "adding";
       values.push(node.value);
@@ -117,9 +120,11 @@ export const TimesForm = ({
     }
 
     setValue(node.name, [...new Set(values)], { shouldValidate: true });
+
     if (!values.length) {
       setError(node.name, { message: ERROR_MESSAGE });
     }
+
     // copy ranges for new active day
     toggleRange(action, node.id);
   };
@@ -180,20 +185,11 @@ export const TimesForm = ({
   return (
     <Form onSubmit={handleSubmit(submit)} className="w-full">
       {/* Layout tipo Figma: izquierda controles / derecha preview */}
-      <div
-        className={twMerge(
-          "grid gap-10",
-          "lg:grid-cols-[1fr_420px]",
-          "items-center",
-          "min-h-[calc(100vh-190px)]",
-          "pt-10"
-        )}
-      >
+      <div className="grid gap-10 lg:grid-cols-[1fr_420px] items-start min-h-[calc(100vh-190px)] pt-14">
         {/* ==================== IZQUIERDA ==================== */}
         <div className="w-full max-w-3xl">
-          {/* Back (solo UI) */}
           <a
-            href="/signup/2"
+            href="/signup/4"
             className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
           >
             <span className="text-lg leading-none">‹</span> Volver
@@ -207,26 +203,29 @@ export const TimesForm = ({
           <div className="mt-6 space-y-4">
             {ENTIRE_WEEK.map((dayString: string) => {
               const active = getValues().weekDays.includes(dayString);
+
               return (
                 <DayTimesSelector
                   key={dayString}
-                  ranges={data[dayString]}
-                   /*ranges={data[dayString] ?? []}*/
+                  ranges={data[dayString] ?? []}
                   addRange={() => addRange(dayString)}
                   onRemoveRange={(index) => removeRange(dayString, index)}
                   onUpdate={(ranges) => handleUpdate(dayString, ranges)}
                   isActive={active}
                   id={dayString}
                 >
-                  <div className="grid grid-cols-[1fr_auto] items-center gap-6">
+
+                  <div className="flex items-center justify-between">
                     <span className="text-sm text-neutral-700">
                       {cap(dayString)}
                     </span>
+
                     <Switch
                       defaultChecked={active}
                       name="weekDays"
                       value={dayString}
                       onChange={handleSwitchChange}
+                      label={<span className="sr-only">{cap(dayString)}</span>}
                     />
                   </div>
                 </DayTimesSelector>
@@ -241,11 +240,11 @@ export const TimesForm = ({
             ) : noSubmit ? null : (
               <PrimaryButton
                 isLoading={fetcher.state !== "idle"}
-                className="w-full"
+                className="w-[190px]"
                 isDisabled={isDisabled}
                 type="submit"
               >
-                {cta || "Continuar"}
+                {cta || "Continuar"}{" "} <ArrowRight />
               </PrimaryButton>
             )}
 
@@ -256,7 +255,7 @@ export const TimesForm = ({
         </div>
 
         {/* ==================== DERECHA (preview) ==================== */}
-        <div className="hidden lg:flex w-full justify-center items-center">
+        <div className="hidden lg:flex w-full justify-center pt-16">
           <img
             src="/images/agenda.png"
             alt="preview"
@@ -399,34 +398,3 @@ export const RangeTimePicker = ({
     </div>
   );
 };
-
-/* ========= Preview (solo UI) ========= */
-function SchedulePreview() {
-  return (
-    <div className="w-full max-w-[360px] rounded-2xl bg-white shadow-sm ring-1 ring-neutral-200 p-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="h-6 w-28 rounded bg-neutral-100" />
-        <div className="h-6 w-10 rounded bg-neutral-100" />
-      </div>
-
-      {/* grid tipo calendario */}
-      <div className="grid grid-cols-7 gap-1">
-        {Array.from({ length: 7 }).map((_, i) => (
-          <div key={i} className="h-5 rounded bg-neutral-100" />
-        ))}
-        {Array.from({ length: 35 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-7 rounded bg-neutral-50 ring-1 ring-neutral-100"
-          />
-        ))}
-      </div>
-
-      {/* tooltip fake */}
-      <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-3 text-xs text-neutral-600 shadow-sm">
-        <div className="font-semibold text-neutral-800">Cita</div>
-        <div className="mt-1">10:00 am · 45 min</div>
-      </div>
-    </div>
-  );
-}

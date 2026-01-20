@@ -27,11 +27,8 @@ export const loader = async ({
   request,
   params: { stepSlug },
 }: Route.LoaderArgs) => {
-  const org = await getOrCreateOrgOrRedirect(request); // redirect if isActive
-  return {
-    org, // @todo send only needed by each step
-    stepSlug,
-  };
+  const org = await getOrCreateOrgOrRedirect(request);
+  return { org, stepSlug };
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -39,37 +36,46 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   const FormComponent = useMemo(() => {
     switch (stepSlug) {
-      case "4":
+      case "6":
         return LoaderScreen;
-      case "3":
+      case "5":
         return TimesForm;
-      case "2":
+      case "4":
         return BussinesTypeForm;
+      case "3":
+      case "2":
+      case "1":
       default:
         return AboutYourCompanyForm;
     }
   }, [stepSlug]);
 
-  const progressPercent =
-    stepSlug === "1" ? 25 : stepSlug === "2" ? 50 : stepSlug === "3" ? 75 : 100;
+  // ✅ progreso 1..6
+  const stepNumber =
+    stepSlug === "1"
+      ? 1
+      : stepSlug === "2"
+      ? 2
+      : stepSlug === "3"
+      ? 3
+      : stepSlug === "4"
+      ? 4
+      : stepSlug === "5"
+      ? 5
+      : 6;
+
+  const progressPercent = (stepNumber / 6) * 100;
 
   return (
     <article className="relative min-h-screen w-full bg-white overflow-hidden">
-      {/* =========================
-          BARRA DE PROGRESO (UI)
-          ========================= */}
-      <div className="absolute left-0 top-0 h-[3px] w-full bg-neutral-100">
+      <div className="absolute left-0 top-0 h-[10px] w-full bg-neutral-100">
         <div
           className="h-full bg-brand_blue transition-all"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
-      {/* =========================
-          HEADER (logo + ayuda)
-          ========================= */}
       <header className="relative z-10 flex items-center justify-between px-10 pt-8">
-        {/* Logo como SVG (componente) */}
         <div className="flex items-center gap-2">
           <Denik fill="#4F63FF" className="h-8 w-auto" />
         </div>
@@ -82,23 +88,22 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </button>
       </header>
 
-      {/* Fondo suave (solo UI) */}
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
-        <div className="absolute -left-40 top-16 h-[520px] w-[520px] rounded-full bg-brand_blue/10 blur-3xl" />
-        <div className="absolute -right-44 bottom-10 h-[520px] w-[520px] rounded-full bg-brand_blue/10 blur-3xl" />
+        
       </div>
 
-      {/* =========================
-          CONTENIDO
-          ========================= */}
       <main className="relative z-10 mx-auto w-full max-w-6xl px-10">
-        {/* NOTA: no cambiamos props ni lógica, solo el contenedor */}
-        <FormComponent title={org.name} org={org} />
+        {stepSlug === "1" || stepSlug === "2" || stepSlug === "3" ? (
+          <AboutYourCompanyForm org={org} stepSlug={stepSlug} />
+        ) : stepSlug === "4" ? (
+          <BussinesTypeForm org={org} />
+        ) : stepSlug === "5" ? (
+          <TimesForm org={org} />
+        ) : (
+          <LoaderScreen title={org.name} />
+        )}
       </main>
 
-      {/* =========================
-          FOOTER
-          ========================= */}
       <footer className="absolute bottom-6 left-0 right-0 px-10 text-xs text-neutral-400">
         <div className="flex items-center justify-between">
           <span>Todos los derechos reservados Denik® 2024</span>
@@ -123,27 +128,24 @@ export const LoaderScreen = ({ title }: { title: string }) => {
   }, []);
 
   return (
-   
     <section className="absolute inset-0 z-10 bg-white">
       <div className="mx-auto flex min-h-[calc(100vh-170px)] w-full max-w-6xl flex-col items-center justify-center px-6 text-center">
         <img
           className="h-[180px] w-auto select-none pointer-events-none"
-          src="/images/denik.svg"
+          src="/images/denik.png"
           alt="figura"
           draggable={false}
         />
 
-        
         <h1 className="text-2xl font-semibold text-neutral-900 md:text-3xl">
           {text}
         </h1>
 
         <p className="mt-2 max-w-lg text-sm text-neutral-500">
-          Configura tus servicios, comparte tu agenda y empieza a recibir reservas desde tu
-          página web en Denik.
+          Configura tus servicios, comparte tu agenda y empieza a recibir reservas
+          desde tu página web en Denik.
         </p>
 
-        
         <div className="mt-7">
           {show ? (
             <>
@@ -158,11 +160,9 @@ export const LoaderScreen = ({ title }: { title: string }) => {
                 Continuar
               </PrimaryButton>
 
-           
               <EmojiConfetti repeat={1} />
             </>
           ) : (
-            // Mientras carga (2s), deja el botón “apagado” para que no brinque el layout
             <PrimaryButton
               type="button"
               className="px-8 opacity-60 pointer-events-none"

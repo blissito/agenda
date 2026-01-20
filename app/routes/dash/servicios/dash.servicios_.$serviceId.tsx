@@ -72,25 +72,18 @@ export const convertToMeridian = (hourString: string) => {
 function LocalFloatingGallery() {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
 
-  // contenedor de la “banda” de abajo (miniaturas + botón)
-  const thumbsBarRef = React.useRef<HTMLDivElement | null>(null);
-
   const [images, setImages] = React.useState<
     { id: string; url: string; file: File; key: string }[]
   >([]);
   const [activeId, setActiveId] = React.useState<string | null>(null);
-
-  // ✅ ids recién agregados (para animar TODAS las nuevas)
   const [newIds, setNewIds] = React.useState<string[]>([]);
 
-  // ✅ imagen principal predeterminada
   const DEFAULT_MAIN_SRC = "/images/signin/Serve.png";
 
-  // ✅ “2 imágenes de abajo” predeterminadas (se ven SOLO antes de subir)
-  // cámbialas por las tuyas si quieres
+  // 2 predeterminadas abajo (solo antes de subir)
   const DEFAULT_THUMBS = [
-    "/images/signin/Serve2.png",
-    "/images/signin/Serve3.png",
+    "/images/signin/Serve.png",
+    "/images/signin/Serve.png",
   ];
 
   const getFileKey = (file: File) =>
@@ -115,7 +108,7 @@ function LocalFloatingGallery() {
 
       for (const file of files) {
         const key = getFileKey(file);
-        if (usedKeys.has(key)) continue; // ✅ no repetir
+        if (usedKeys.has(key)) continue;
         usedKeys.add(key);
 
         mapped.push({
@@ -132,18 +125,18 @@ function LocalFloatingGallery() {
 
       if (!activeId && next.length > 0) setActiveId(next[0].id);
 
-      // ✅ animación cada vez que subes (todas las nuevas)
       const ids = mapped.map((m) => m.id);
       setNewIds(ids);
       window.setTimeout(() => setNewIds([]), 900);
 
-      // ✅ scroll SOLO cuando ya existan 3 o más (se mueve a la última nueva)
+
       if (next.length >= 3) {
         const lastNewId = mapped[mapped.length - 1].id;
         window.requestAnimationFrame(() => {
           const el = document.querySelector(
             `[data-thumb-id="${lastNewId}"]`
           ) as HTMLElement | null;
+
           if (el) {
             el.scrollIntoView({
               behavior: "smooth",
@@ -168,124 +161,125 @@ function LocalFloatingGallery() {
 
   const mainUrl = hasUploads ? main?.url : DEFAULT_MAIN_SRC;
 
-  // ✅ IMPORTANTE: esta banda inferior SIEMPRE existe (altura fija)
-  // para que NO “brinque” la sección de abajo.
-  const BAR_HEIGHT = "h-28"; // altura constante (igual con o sin thumbs)
-
   return (
     <div className="h-full flex flex-col">
+      {/* solo para ocultar scrollbar (solo aquí) */}
+      <style>{`
+        .lg-scrollbar-hide { -ms-overflow-style:none; scrollbar-width:none; }
+        .lg-scrollbar-hide::-webkit-scrollbar{ display:none; }
+
+        @keyframes lg-thumb-pop {
+          0%   { opacity: 0; transform: translateY(16px) scale(0.85); filter: blur(10px); }
+          55%  { opacity: 1; transform: translateY(-8px) scale(1.08); filter: blur(0); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .lg-thumb-pop { animation: lg-thumb-pop 700ms cubic-bezier(.2,.9,.2,1) both; }
+      `}</style>
+
       {/* Principal */}
       <div className="overflow-hidden rounded-2xl bg-neutral-100 border border-brand_stroke/50">
         <div className="relative w-full h-[280px] sm:h-[320px] lg:h-[340px]">
-          {mainUrl ? (
-            <img
-              src={mainUrl}
-              alt="Imagen principal del servicio"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 grid place-items-center">
-              <div className="h-[72%] w-[72%] rounded-2xl bg-neutral-50 border border-brand_stroke/40" />
-            </div>
-          )}
+          <img
+            src={mainUrl}
+            alt="Imagen principal del servicio"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
         </div>
       </div>
 
-      {/* Banda inferior (NO colapsa, NO desaparece) */}
-      <div
-        ref={thumbsBarRef}
-        className={[
-          "mt-4 flex items-center gap-4",
-          BAR_HEIGHT,
-        ].join(" ")}
-      >
-        {/* Miniaturas (o predeterminadas) */}
-        <div className="flex-1 overflow-hidden">
-          <div className="flex gap-3 pr-2 overflow-x-auto lg-scrollbar-hide">
-            {!hasUploads ? (
-              // ✅ 2 “predeterminadas” abajo (solo antes de subir)
-              DEFAULT_THUMBS.map((src, idx) => (
-                <div
-                  key={`default-${idx}`}
-                  className="h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border border-brand_stroke/40 shrink-0 bg-neutral-50"
-                >
-                  <img
-                    src={src}
-                    alt="Imagen predeterminada"
-                    className="h-full w-full object-cover opacity-90"
-                  />
-                </div>
-              ))
-            ) : (
-              images.map((img) => {
-                const isActive = img.id === (main?.id ?? "");
-                const isNew = newIds.includes(img.id);
-
-                return (
-                  <button
-                    key={img.id}
-                    data-thumb-id={img.id}
-                    type="button"
-                    onClick={() => setActiveId(img.id)}
-                    className={[
-                      "h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border shrink-0",
-                      isActive ? "border-neutral-900/40" : "border-brand_stroke/50",
-                      isNew ? "lg-thumb-pop" : "",
-                    ].join(" ")}
-                    aria-label="Seleccionar imagen"
+      <div className="mt-3">
+        <div className="relative overflow-x-auto lg-scrollbar-hide">
+          <div className="flex items-stretch gap-3 pr-2">
+            {/* Miniaturas */}
+            {!hasUploads
+              ? DEFAULT_THUMBS.map((src, idx) => (
+                  <div
+                    key={`default-${idx}`}
+                    className="h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border border-brand_stroke/40 shrink-0 bg-neutral-50"
                   >
                     <img
-                      src={img.url}
-                      alt="Miniatura"
-                      className="h-full w-full object-cover"
+                      src={src}
+                      alt="Imagen predeterminada"
+                      className="h-full w-full object-cover opacity-90"
                     />
-                  </button>
-                );
-              })
-            )}
+                  </div>
+                ))
+              : images.map((img) => {
+                  const isActive = img.id === (main?.id ?? "");
+                  const isNew = newIds.includes(img.id);
+
+                  return (
+                    <button
+                      key={img.id}
+                      data-thumb-id={img.id}
+                      type="button"
+                      onClick={() => setActiveId(img.id)}
+                      className={[
+                        "h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border shrink-0",
+                        isActive
+                          ? "border-neutral-900/40"
+                          : "border-brand_stroke/50",
+                        isNew ? "lg-thumb-pop" : "",
+                      ].join(" ")}
+                      aria-label="Seleccionar imagen"
+                    >
+                      <img
+                        src={img.url}
+                        alt="Miniatura"
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  );
+                })}
+
+            <div className="sticky right-0 shrink-0 flex items-stretch">
+             
+              <div className="pl-3 bg-white flex items-stretch">
+                <button
+                  type="button"
+                  onClick={openPicker}
+                  className="h-24 sm:h-28 w-56 rounded-2xl bg-neutral-50 border border-brand_stroke/60 flex items-center justify-center px-4 text-center hover:bg-neutral-100 transition"
+                >
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white border border-brand_stroke/60">
+                      <svg
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M4 4C2.90694 4 2 4.90694 2 6V18C2 19.0931 2.90694 20 4 20H12V18H4V6H20V12H22V6C22 4.90694 21.0931 4 20 4H4ZM14.5 11L11 15L8.5 12.5L5.77734 16H16V13L14.5 11ZM18 14V18H14V20H18V24H20V20H24V18H20V14H18Z"
+                          fill="#4B5563"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-sm font-medium text-neutral-900 leading-tight">
+                      Agregar o editar fotos
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={onPick}
+            />
           </div>
         </div>
-
-        {/* ✅ Botón más angosto (antes w-64) */}
-        <button
-          type="button"
-          onClick={openPicker}
-          className="h-24 sm:h-28 w-52 rounded-2xl bg-neutral-50 border border-brand_stroke/60 flex items-center justify-center px-3 text-center hover:bg-neutral-100 transition shrink-0"
-        >
-          <div className="flex flex-col items-center justify-center gap-2">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white border border-brand_stroke/60">
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M4 4C2.90694 4 2 4.90694 2 6V18C2 19.0931 2.90694 20 4 20H12V18H4V6H20V12H22V6C22 4.90694 21.0931 4 20 4H4ZM14.5 11L11 15L8.5 12.5L5.77734 16H16V13L14.5 11ZM18 14V18H14V20H18V24H20V20H24V18H20V14H18Z"
-                  fill="#4B5563"
-                />
-              </svg>
-            </div>
-            <p className="text-sm font-medium text-neutral-900 leading-tight">
-              Agregar o editar fotos
-            </p>
-          </div>
-        </button>
-
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          multiple
-          className="hidden"
-          onChange={onPick}
-        />
       </div>
     </div>
   );
 }
+
+
 
 
 export const ServiceDetail = ({

@@ -163,75 +163,79 @@ export const ServiceCard = ({
         )}
       </AnimatePresence>
       <AnimatePresence>
-        {showDelete && (
-          <motion.div
-            className="fixed inset-0 z-[999] flex items-center justify-center px-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            aria-modal="true"
-            role="dialog"
-          >
-            {/* overlay blur */}
-            <motion.button
+  {showDelete && (
+    <motion.div
+      className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      aria-modal="true"
+      role="dialog"
+    >
+      {/* overlay blur (más borroso como tu imagen) */}
+      <motion.button
+        type="button"
+        onClick={() => setShowDelete(false)}
+        className="absolute inset-0 bg-black/30 backdrop-blur-[8px]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        aria-label="Cerrar"
+      />
+
+      {/* caja */}
+      <motion.div
+        ref={refDelete}
+        initial={{ opacity: 0, scale: 0.98, y: 6 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.98, y: 6 }}
+        transition={{ type: "spring", stiffness: 260, damping: 22 }}
+        className="relative w-[600px] h-[244px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] px-8 py-6 font-satoshi"
+      >
+        {/* close */}
+        <button
+          type="button"
+          onClick={() => setShowDelete(false)}
+          className="absolute right-3 top-3 h-9 w-9 rounded-full grid place-items-center text-brand_gray/70 hover:text-brand_gray hover:bg-brand_light_gray/60 transition-all active:scale-95"
+          aria-label="Cerrar"
+        >
+          ✕
+        </button>
+
+        {/* layout interno como imagen */}
+        <div className="h-full w-full flex flex-col items-center justify-center gap-4">
+          <h3 className="w-[521px] h-[32px] text-center font-satoshi font-semibold text-[20px] leading-[32px] text-brand_dark">
+            ¿Seguro que quieres eliminar este servicio? 🫣
+          </h3>
+
+          <p className="w-[504px] h-[44px] text-center font-satoshi text-sm leading-[22px] text-brand_gray/80">
+            Al eliminarlo también eliminaremos todas las citas agendadas del
+            servicio. Enviaremos una notificación a cada client@.
+          </p>
+
+          <div className="pt-2 flex items-center justify-center gap-4">
+            <button
               type="button"
               onClick={() => setShowDelete(false)}
-              className="absolute inset-0 bg-black/25 backdrop-blur-[3px]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              aria-label="Cerrar"
-            />
-
-            {/* caja */}
-            <motion.div
-              ref={refDelete}
-              initial={{ opacity: 0, scale: 0.98, y: 6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 6 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="relative w-full max-w-[520px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] px-6 py-5 font-satoshi"
+              className="w-[160px] h-[40px] rounded-full bg-[#F3F3F3] text-brand_gray font-satoshi text-sm hover:bg-[#EDEDED] transition-all active:scale-95"
             >
-              {/* close */}
-              <button
-                type="button"
-                onClick={() => setShowDelete(false)}
-                className="absolute right-3 top-3 h-9 w-9 rounded-full grid place-items-center text-brand_gray/70 hover:text-brand_gray hover:bg-brand_light_gray/60 transition-all active:scale-95"
-                aria-label="Cerrar"
-              >
-                ✕
-              </button>
+              Cancelar
+            </button>
 
-              <h3 className="text-brand_dark text-lg sm:text-xl font-satoshi font-bold text-center">
-                ¿Seguro que quieres eliminar este servicio? 🫣
-              </h3>
+            <button
+              type="button"
+              onClick={handleDeleteConfirm}
+              className="w-[160px] h-[40px] rounded-full bg-[#CA5757] text-white font-satoshi text-sm hover:bg-[#B84E4E] transition-all active:scale-95"
+            >
+              Sí, eliminar
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
-              <p className="mt-2 text-sm sm:text-[15px] text-brand_gray/80 font-satoshi leading-relaxed text-center max-w-[420px] mx-auto">
-                Al eliminarlo también eliminaremos todas las citas agendadas del
-                servicio. Enviaremos una notificación a cada client@.
-              </p>
-
-              <div className="mt-5 flex items-center justify-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setShowDelete(false)}
-                  className="h-10 px-6 rounded-full bg-brand_light_gray/60 text-brand_gray font-satoshi hover:bg-brand_light_gray transition-all active:scale-95"
-                >
-                  Cancelar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleDeleteConfirm}
-                  className="h-10 px-7 rounded-full bg-[#CA5757] text-white font-satoshi hover:bg-[#b44e4e] transition-all active:scale-95"
-                >
-                  Sí, eliminar
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer flex flex-col">
