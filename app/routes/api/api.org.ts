@@ -68,11 +68,11 @@ export const action = async ({ request }: Route.ActionArgs) => {
         { status: 400 }
       );
     }
-    const { id, ...data } = result.data;
+    const { id, weekDays, ...restData } = result.data;
 
     // Validate slug if being updated
-    if (data.slug) {
-      const normalized = data.slug.toLowerCase().trim();
+    if (restData.slug) {
+      const normalized = restData.slug.toLowerCase().trim();
       const slugValidation = slugSchema.safeParse(normalized);
       if (!slugValidation.success) {
         return Response.json(
@@ -87,10 +87,16 @@ export const action = async ({ request }: Route.ActionArgs) => {
           { status: 400 }
         );
       }
-      data.slug = normalized;
+      restData.slug = normalized;
     }
 
-    await db.org.update({ where: { id }, data });
+    // Build Prisma update data, wrapping weekDays in `set` for embedded types
+    const prismaData = {
+      ...restData,
+      ...(weekDays && { weekDays: { set: weekDays } }),
+    };
+
+    await db.org.update({ where: { id }, data: prismaData });
 
     if (intent === "org_update_and_redirect") {
       const next = formData.get("next") as string;

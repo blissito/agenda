@@ -7,13 +7,13 @@ type WeekDaysType = Record<string, string[][]>;
 type EventWithDateString = Event & { dateString: string };
 
 export const weekDictionary: Record<number, string> = {
-  1: "lunes",
-  2: "martes",
-  3: "miércoles",
-  4: "jueves",
-  5: "viernes",
-  6: "sábado",
-  0: "domingo",
+  1: "monday",
+  2: "tuesday",
+  3: "wednesday",
+  4: "thursday",
+  5: "friday",
+  6: "saturday",
+  0: "sunday",
 };
 
 export const getMaxDate = (initialDate: Date) => {

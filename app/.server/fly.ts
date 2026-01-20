@@ -279,10 +279,14 @@ export async function deleteCertificate(
     }
   `;
 
+  console.log("[deleteCertificate] Attempting to delete:", hostname, "from app:", FLY_APP_NAME);
+
   try {
-    await flyGraphQL(query, { appId: FLY_APP_NAME, hostname });
+    const result = await flyGraphQL(query, { appId: FLY_APP_NAME, hostname });
+    console.log("[deleteCertificate] Success:", result);
     return { success: true };
   } catch (error) {
+    console.error("[deleteCertificate] Error:", error);
     return {
       success: false,
       error:

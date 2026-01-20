@@ -19,27 +19,37 @@ import invariant from "tiny-invariant";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
-  lunes?: DayTuple;
-  martes?: DayTuple;
-  miércoles?: DayTuple;
-  jueves?: DayTuple;
-  viernes?: DayTuple;
-  sábado?: DayTuple;
-  domingo?: DayTuple;
+  monday?: DayTuple;
+  tuesday?: DayTuple;
+  wednesday?: DayTuple;
+  thursday?: DayTuple;
+  friday?: DayTuple;
+  saturday?: DayTuple;
+  sunday?: DayTuple;
 };
 
 const ENTIRE_WEEK = [
-  "lunes",
-  "martes",
-  "miércoles",
-  "jueves",
-  "viernes",
-  "sábado",
-  "domingo",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
 ];
 
+const DAY_LABELS: Record<string, string> = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miércoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sábado",
+  sunday: "Domingo",
+};
+
 const initialValues: WeekSchema = {
-  lunes: [["09:00", "16:00"]],
+  monday: [["09:00", "16:00"]],
 };
 
 const RANGE_TEMPLATE = ["09:00", "14:00"];
@@ -197,6 +207,7 @@ export const TimesForm = ({
             defaultChecked={getValues().weekDays.includes(dayString)}
             name="weekDays"
             value={dayString}
+            label={DAY_LABELS[dayString]}
             onChange={handleSwitchChange}
           />
         </DayTimesSelector>

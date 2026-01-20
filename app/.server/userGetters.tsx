@@ -18,15 +18,43 @@ import slugify from "slugify";
 
 export const redirectIfUser = async (request: Request) => {
   const session = await getSession(request.headers.get("Cookie"));
-  if (session.has("userId")) throw redirect("/dash");
+  if (session.has("userId")) {
+    // Verify user actually exists in DB
+    const user = await db.user.findUnique({
+      where: { id: session.get("userId") },
+    });
+    if (user) {
+      throw redirect("/dash");
+    }
+    // User doesn't exist, clear invalid session
+    session.unset("userId");
+    throw redirect("/signin", {
+      headers: { "Set-Cookie": await commitSession(session) },
+    });
+  }
 };
 
 export const getUserOrRedirect = async (
   request: Request,
   options: { redirectURL?: string } = { redirectURL: "/signin" }
 ) => {
-  const user = await getUserOrNull(request);
-  if (!user) throw redirect(options.redirectURL || "/signin");
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+
+  if (!userId) {
+    throw redirect(options.redirectURL || "/signin");
+  }
+
+  const user = await db.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    // Clear invalid session
+    session.unset("userId");
+    throw redirect(options.redirectURL || "/signin", {
+      headers: { "Set-Cookie": await commitSession(session) },
+    });
+  }
+
   return user;
 };
 

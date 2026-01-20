@@ -18,9 +18,9 @@ export const GeneralForm = ({
   const fetcher = useFetcher();
   const {
     register,
-    formState: { isDirty },
+    formState: { isDirty, isValid },
     handleSubmit,
-  } = useForm({ defaultValues });
+  } = useForm({ defaultValues, mode: "onChange" });
 
   const isDisabled = !isDirty || !isValid;
   const isLoading = fetcher.state !== "idle";

@@ -29,7 +29,7 @@ export const loader = async ({
 }: Route.LoaderArgs) => {
   const org = await getOrCreateOrgOrRedirect(request); // redirect if isActive
   return {
-    org, // @todo send only needed by each step
+    org,
     stepSlug,
   };
 };

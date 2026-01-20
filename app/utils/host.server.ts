@@ -114,6 +114,7 @@ export function isOrgDomain(request: Request): boolean {
 
   // Check if it's a platform domain without subdomain
   const isPlatform = PLATFORM_DOMAINS.some((d) => host === d);
+  console.log("[isOrgDomain] host:", host, "isPlatform:", isPlatform);
   if (isPlatform) return false;
 
   // Check for subdomain
