@@ -76,7 +76,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       url.searchParams.get("token") as string,
       request
     );
-    // Si retorna (error), agregar next vacío para tipos consistentes
+    // Si es redirect (éxito), lanzarlo para que React Router lo procese
+    if (result instanceof Response) {
+      throw result;
+    }
+    // Si es error, mantener next vacío para tipos
     return { ...result, next: "" };
   }
 

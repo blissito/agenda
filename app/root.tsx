@@ -3,6 +3,7 @@ import {
   Links,
   Meta,
   Outlet,
+  redirect,
   Scripts,
   useRouteError,
 } from "react-router";
@@ -10,6 +11,8 @@ import stylesheet from "./app.css?url";
 import { getMetaTags } from "./utils/getMetaTags";
 import type { ReactNode } from "react";
 import { ParallaxProvider } from "react-scroll-parallax";
+import { isOrgDomain, isRouteAllowedOnOrgDomain } from "~/utils/host.server";
+import type { Route } from "./+types/root";
 
 export const meta = () =>
   getMetaTags({
@@ -36,6 +39,18 @@ export const links = () => [
     type: "image/svg+xml",
   },
 ];
+
+export const loader = ({ request }: Route.LoaderArgs) => {
+  const isOrg = isOrgDomain(request);
+  const url = new URL(request.url);
+
+  // Block app routes on subdomains/custom domains
+  if (isOrg && !isRouteAllowedOnOrgDomain(url.pathname)) {
+    throw redirect("/");
+  }
+
+  return null;
+};
 
 export function Layout({ children }: { children: ReactNode }) {
   // useGoogleTM();

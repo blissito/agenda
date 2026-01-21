@@ -20,27 +20,37 @@ import { ArrowRight } from "~/components/icons/arrowRight";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
-  lunes?: DayTuple;
-  martes?: DayTuple;
-  miércoles?: DayTuple;
-  jueves?: DayTuple;
-  viernes?: DayTuple;
-  sábado?: DayTuple;
-  domingo?: DayTuple;
+  monday?: DayTuple;
+  tuesday?: DayTuple;
+  wednesday?: DayTuple;
+  thursday?: DayTuple;
+  friday?: DayTuple;
+  saturday?: DayTuple;
+  sunday?: DayTuple;
 };
 
 const ENTIRE_WEEK = [
-  "lunes",
-  "martes",
-  "miércoles",
-  "jueves",
-  "viernes",
-  "sábado",
-  "domingo",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
 ];
 
+const DAY_LABELS: Record<string, string> = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miércoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sábado",
+  sunday: "Domingo",
+};
+
 const initialValues: WeekSchema = {
-  lunes: [["09:00", "16:00"]],
+  monday: [["09:00", "16:00"]],
 };
 
 const RANGE_TEMPLATE = ["09:00", "14:00"];
@@ -183,14 +193,45 @@ export const TimesForm = ({
   const isDisabled = !isValid || (errors.weekDays ? true : false);
 
   return (
-    <Form onSubmit={handleSubmit(submit)} className="w-full">
-      {/* Layout tipo Figma: izquierda controles / derecha preview */}
-      <div className="grid gap-10 lg:grid-cols-[1fr_420px] items-start min-h-[calc(100vh-190px)] pt-14">
-        {/* ==================== IZQUIERDA ==================== */}
-        <div className="w-full max-w-3xl">
-          <a
-            href="/signup/4"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
+    <Form
+      onSubmit={handleSubmit(submit)}
+      className={twMerge(
+        "h-full pt-6 md:pt-20 px-[5%] md:px-2  max-w-xl mx-auto",
+        "flex flex-col justify-evenly h-full gap-5 text-brand_dark"
+      )}
+    >
+      {/* Switches */}
+      {ENTIRE_WEEK.map((dayString: string) => (
+        <DayTimesSelector
+          key={dayString}
+          ranges={data[dayString]}
+          addRange={() => addRange(dayString)}
+          onRemoveRange={(index) => removeRange(dayString, index)}
+          onUpdate={(ranges) => handleUpdate(dayString, ranges)}
+          // onRange={(range) => handleRange(dayString, range)}
+          isActive={getValues().weekDays.includes(dayString)}
+          id={dayString}
+        >
+          <Switch
+            defaultChecked={getValues().weekDays.includes(dayString)}
+            name="weekDays"
+            value={dayString}
+            label={DAY_LABELS[dayString]}
+            onChange={handleSwitchChange}
+          />
+        </DayTimesSelector>
+      ))}
+
+      <div className="mt-auto">
+        {" "}
+        {children ? (
+          children
+        ) : noSubmit ? null : (
+          <PrimaryButton
+            isLoading={fetcher.state !== "idle"}
+            className="w-full mt-auto"
+            isDisabled={isDisabled}
+            type="submit"
           >
             <span className="text-lg leading-none">‹</span> Volver
           </a>

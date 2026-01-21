@@ -90,7 +90,7 @@ export default function TemplateTwo({
             <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-1 mt-6 gap-4 gap-y-6">
               {services.map((service) => (
                 <ServiceListCard
-                  link={`/a/${org.slug}/s/${service.slug}`}
+                  link={`/${service.slug}`}
                   slug={org.slug}
                   serviceSlug={service.slug}
                   key={service.id}

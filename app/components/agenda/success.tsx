@@ -24,8 +24,10 @@ export const Success = ({
   useEffect(() => {
     setTimeout(() => set(false), 4000);
   }, []);
+
+  // Clean URL - just the service slug on subdomains/custom domains
   const getCTALink = () => {
-    return `/agenda/${org.slug}/${service.slug}`;
+    return `/${service.slug}`;
   };
 
   return (

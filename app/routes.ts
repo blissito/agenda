@@ -11,6 +11,7 @@ export default [
   route("planes", "routes/planes.tsx"),
   //login
   route("signin", "routes/login/signin.tsx"),
+  route("signup", "routes/login/signup._index.tsx"),
   route("signup/:stepSlug", "routes/login/signup.$stepSlug.tsx"),
   // OAuth
   route("auth/:provider", "routes/auth.$provider.tsx"),
@@ -62,17 +63,12 @@ export default [
     route("employees", "routes/api/employees.ts"),
     route("events", "routes/api/events.ts"),
     route("org", "routes/api/api.org.ts"),
+    route("domain", "routes/api/api.domain.ts"),
   ]),
   // Stripe
   ...prefix("stripe", [index("routes/stripe/api.ts")]),
-  // Public
-  //scheduler:
-  route(
-    "a/:orgSlug/s/:serviceSlug",
-    "routes/agenda.$orgSlug.$serviceSlug/route.tsx"
-  ),
-  // website:
-  route("a/:orgSlug", "routes/clientwebsite.tsx"),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
+  // Clean URL for subdomains/custom domains: /:serviceSlug
+  route(":serviceSlug", "routes/service.$serviceSlug.tsx"),
 ] satisfies RouteConfig;

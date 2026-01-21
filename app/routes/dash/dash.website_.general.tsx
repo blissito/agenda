@@ -18,6 +18,7 @@ import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { InputFile } from "~/components/forms/InputFile";
 import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server";
+import type { Route } from "./+types/dash.website_.general";
 
 const generalFormSchema = z.object({
   name: z.string().min(1),
@@ -29,7 +30,7 @@ const generalFormSchema = z.object({
 
 export type GeneralFormSchemaType = z.infer<typeof generalFormSchema>;
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const { user } = await getUserAndOrgOrRedirect(request);
   if (!user.orgId) throw json(null, { status: 404 });
   const org = await db.org.findUnique({

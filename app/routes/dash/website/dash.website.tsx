@@ -8,10 +8,24 @@ import { CompanyInfo } from "./CompanyInfo";
 import { getQRImageURL } from "~/utils/getQR";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const url = new URL(request.url);
-  const { org } = await getUserAndOrgOrRedirect(request);
-  url.pathname = `/a/${org.slug}`;
-  const qr = await getQRImageURL(url.toString());
+  const { org } = await getUserAndOrgOrRedirect(request, {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      email: true,
+      description: true,
+      address: true,
+      social: true,
+      websiteConfig: true,
+      weekDays: true,
+      customDomain: true,
+      customDomainStatus: true,
+      customDomainDns: true,
+    },
+  });
+  const agendaUrl = `https://${org.slug}.denik.me`;
+  const qr = await getQRImageURL(agendaUrl);
   const services = await db.service.findMany({
     where: { orgId: org.id, archived: false },
     select: {
@@ -22,7 +36,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       isActive: true,
     },
   });
-  return { url: url.toString(), qr, org, services };
+  return { url: agendaUrl, qr, org, services };
 };
 
 export default function Website({ loaderData }: Route.ComponentProps) {
