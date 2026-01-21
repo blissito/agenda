@@ -20,37 +20,37 @@ import { ArrowRight } from "~/components/icons/arrowRight";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
-  monday?: DayTuple;
-  tuesday?: DayTuple;
-  wednesday?: DayTuple;
-  thursday?: DayTuple;
-  friday?: DayTuple;
-  saturday?: DayTuple;
-  sunday?: DayTuple;
+  lunes?: DayTuple;
+  martes?: DayTuple;
+  miércoles?: DayTuple;
+  jueves?: DayTuple;
+  viernes?: DayTuple;
+  sábado?: DayTuple;
+  domingo?: DayTuple;
 };
 
 const ENTIRE_WEEK = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
+  "lunes",
+  "martes",
+  "miércoles",
+  "jueves",
+  "viernes",
+  "sábado",
+  "domingo",
 ];
 
 const DAY_LABELS: Record<string, string> = {
-  monday: "Lunes",
-  tuesday: "Martes",
-  wednesday: "Miércoles",
-  thursday: "Jueves",
-  friday: "Viernes",
-  saturday: "Sábado",
-  sunday: "Domingo",
+  lunes: "Lunes",
+  martes: "Martes",
+  miércoles: "Miércoles",
+  jueves: "Jueves",
+  viernes: "Viernes",
+  sábado: "Sábado",
+  domingo: "Domingo",
 };
 
 const initialValues: WeekSchema = {
-  monday: [["09:00", "16:00"]],
+  lunes: [["09:00", "16:00"]],
 };
 
 const RANGE_TEMPLATE = ["09:00", "14:00"];
@@ -103,12 +103,11 @@ export const TimesForm = ({
     onSubmit?.(data);
     fetcher.submit(
       {
-        intent: "org_update_and_redirect",
+        intent: "update_org",
         data: JSON.stringify({ weekDays: data, id: org.id }),
-
         next: "/signup/6",
       },
-      { method: "post", action: "/api/org" }
+      { method: "post" }
     );
     onClose?.();
   };
@@ -223,7 +222,6 @@ export const TimesForm = ({
       ))}
 
       <div className="mt-auto">
-        {" "}
         {children ? (
           children
         ) : noSubmit ? null : (
@@ -233,77 +231,9 @@ export const TimesForm = ({
             isDisabled={isDisabled}
             type="submit"
           >
-            <span className="text-lg leading-none">‹</span> Volver
-          </a>
-
-          <h1 className="text-xl md:text-2xl font-semibold text-neutral-900">
-            Y por último, ¿Cuál es el horario de tu negocio?
-          </h1>
-
-          {/* Lista de días */}
-          <div className="mt-6 space-y-4">
-            {ENTIRE_WEEK.map((dayString: string) => {
-              const active = getValues().weekDays.includes(dayString);
-
-              return (
-                <DayTimesSelector
-                  key={dayString}
-                  ranges={data[dayString] ?? []}
-                  addRange={() => addRange(dayString)}
-                  onRemoveRange={(index) => removeRange(dayString, index)}
-                  onUpdate={(ranges) => handleUpdate(dayString, ranges)}
-                  isActive={active}
-                  id={dayString}
-                >
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-neutral-700">
-                      {cap(dayString)}
-                    </span>
-
-                    <Switch
-                      defaultChecked={active}
-                      name="weekDays"
-                      value={dayString}
-                      onChange={handleSwitchChange}
-                      label={<span className="sr-only">{cap(dayString)}</span>}
-                    />
-                  </div>
-                </DayTimesSelector>
-              );
-            })}
-          </div>
-
-          {/* Botón + error */}
-          <div className="mt-10 max-w-sm">
-            {children ? (
-              children
-            ) : noSubmit ? null : (
-              <PrimaryButton
-                isLoading={fetcher.state !== "idle"}
-                className="w-[190px]"
-                isDisabled={isDisabled}
-                type="submit"
-              >
-                {cta || "Continuar"}{" "} <ArrowRight />
-              </PrimaryButton>
-            )}
-
-            <p className="mt-3 ml-1 h-auto text-red-500 text-xs">
-              {errors.weekDays?.message}
-            </p>
-          </div>
-        </div>
-
-        {/* ==================== DERECHA (preview) ==================== */}
-        <div className="hidden lg:flex w-full justify-center pt-16">
-          <img
-            src="/images/agenda.png"
-            alt="preview"
-            className="w-full max-w-[360px] select-none pointer-events-none"
-            draggable={false}
-          />
-        </div>
+            {cta || "Continuar"} <ArrowRight />
+          </PrimaryButton>
+        )}
       </div>
     </Form>
   );

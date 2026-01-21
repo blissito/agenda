@@ -15,13 +15,13 @@ const rangesSchema = z
   .array(z.tuple([z.string(), z.string()]))
   .optional();
 export const weekSchema = z.object({
-  monday: rangesSchema,
-  tuesday: rangesSchema,
-  wednesday: rangesSchema,
-  thursday: rangesSchema,
-  friday: rangesSchema,
-  saturday: rangesSchema,
-  sunday: rangesSchema,
+  lunes: rangesSchema,
+  martes: rangesSchema,
+  miércoles: rangesSchema,
+  jueves: rangesSchema,
+  viernes: rangesSchema,
+  sábado: rangesSchema,
+  domingo: rangesSchema,
 });
 export type WeekSchema = z.infer<typeof weekSchema>;
 
@@ -50,13 +50,13 @@ export const dayTupleSchema = z
   .array(z.tuple([z.string().min(5), z.string().min(5)]))
   .optional();
 export const weekTuples = z.object({
-  monday: dayTupleSchema,
-  tuesday: dayTupleSchema,
-  wednesday: dayTupleSchema,
-  thursday: dayTupleSchema,
-  friday: dayTupleSchema,
-  saturday: dayTupleSchema,
-  sunday: dayTupleSchema,
+  lunes: dayTupleSchema,
+  martes: dayTupleSchema,
+  miércoles: dayTupleSchema,
+  jueves: dayTupleSchema,
+  viernes: dayTupleSchema,
+  sábado: dayTupleSchema,
+  domingo: dayTupleSchema,
 });
 
 export const weekDaysOrgSchema = z.object({
