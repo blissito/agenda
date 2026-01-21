@@ -16,44 +16,50 @@ import { nanoid } from "nanoid";
 import { type Org } from "@prisma/client";
 import type { WeekSchema } from "~/utils/zod_schemas";
 import invariant from "tiny-invariant";
+import { ArrowRight } from "~/components/icons/arrowRight";
 
 export type DayTuple = [string, string][];
 export type WeekTuples = {
-  monday?: DayTuple;
-  tuesday?: DayTuple;
-  wednesday?: DayTuple;
-  thursday?: DayTuple;
-  friday?: DayTuple;
-  saturday?: DayTuple;
-  sunday?: DayTuple;
+  lunes?: DayTuple;
+  martes?: DayTuple;
+  miércoles?: DayTuple;
+  jueves?: DayTuple;
+  viernes?: DayTuple;
+  sábado?: DayTuple;
+  domingo?: DayTuple;
 };
 
 const ENTIRE_WEEK = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
+  "lunes",
+  "martes",
+  "miércoles",
+  "jueves",
+  "viernes",
+  "sábado",
+  "domingo",
 ];
 
 const DAY_LABELS: Record<string, string> = {
-  monday: "Lunes",
-  tuesday: "Martes",
-  wednesday: "Miércoles",
-  thursday: "Jueves",
-  friday: "Viernes",
-  saturday: "Sábado",
-  sunday: "Domingo",
+  lunes: "Lunes",
+  martes: "Martes",
+  miércoles: "Miércoles",
+  jueves: "Jueves",
+  viernes: "Viernes",
+  sábado: "Sábado",
+  domingo: "Domingo",
 };
 
 const initialValues: WeekSchema = {
-  monday: [["09:00", "16:00"]],
+  lunes: [["09:00", "16:00"]],
 };
 
 const RANGE_TEMPLATE = ["09:00", "14:00"];
 export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
+
+function cap(s: string) {
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 export const TimesForm = ({
   org,
@@ -77,6 +83,7 @@ export const TimesForm = ({
   const initialData = org.weekDays
     ? Object.keys(org.weekDays)
     : Object.keys(initialValues);
+
   const {
     clearErrors,
     setValue,
@@ -96,11 +103,11 @@ export const TimesForm = ({
     onSubmit?.(data);
     fetcher.submit(
       {
-        intent: "org_update_and_redirect",
+        intent: "update_org",
         data: JSON.stringify({ weekDays: data, id: org.id }),
-        next: "/signup/4", // this is used in /signup/3
+        next: "/signup/6",
       },
-      { method: "post", action: "/api/org" }
+      { method: "post" }
     );
     onClose?.();
   };
@@ -109,6 +116,7 @@ export const TimesForm = ({
     let action: "adding" | "removing";
     clearErrors();
     const values = getValues()[node.name];
+
     if (node.checked) {
       action = "adding";
       values.push(node.value);
@@ -121,9 +129,11 @@ export const TimesForm = ({
     }
 
     setValue(node.name, [...new Set(values)], { shouldValidate: true });
+
     if (!values.length) {
       setError(node.name, { message: ERROR_MESSAGE });
     }
+
     // copy ranges for new active day
     toggleRange(action, node.id);
   };
@@ -144,7 +154,6 @@ export const TimesForm = ({
 
   const addRange = (dayString: string) => {
     if (data[dayString]?.length) {
-      // if (data[dayString].length > 5) return console.error("ONLY 6 PERMITED");
       setData((d) => {
         const dd = JSON.parse(JSON.stringify(d));
         const lastRange = dd[dayString].pop();
@@ -155,7 +164,6 @@ export const TimesForm = ({
         if (!Array.isArray(lastRange)) return d;
         const nextRange = [
           nextH,
-          // getStringFromMinutes(getMinutesFromString(lastRange[1])),
           getStringFromMinutes(getMinutesFromString(lastRange[1]) + 60),
         ];
         return {
@@ -214,7 +222,6 @@ export const TimesForm = ({
       ))}
 
       <div className="mt-auto">
-        {" "}
         {children ? (
           children
         ) : noSubmit ? null : (
@@ -224,12 +231,9 @@ export const TimesForm = ({
             isDisabled={isDisabled}
             type="submit"
           >
-            {cta || " Continuar"}
+            {cta || "Continuar"} <ArrowRight />
           </PrimaryButton>
         )}
-        <p className="mb-8 ml-2 h-auto text-red-500 text-xs">
-          {errors.weekDays?.message}
-        </p>
       </div>
     </Form>
   );
@@ -260,16 +264,21 @@ export const DayTimesSelector = ({
   type Range = [string, string]; // ['09:00','16:00']
 
   return (
-    <>
+    <div className="rounded-xl">
       {children}
+
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ y: -10, opacity: 0 }}
-        className={twMerge("gap-2", isActive && "grid", "text-brand_gray mt-2")}
+        exit={{ y: -8, opacity: 0 }}
+        className={twMerge(
+          "mt-3 pl-1",
+          isActive ? "grid gap-3" : "hidden",
+          "text-neutral-600"
+        )}
       >
         {ranges.map((range: Range, index) => (
-          <div className="flex gap-4" key={nanoid()}>
+          <div className="flex items-center gap-4" key={nanoid()}>
             <RangeTimePicker
               isDisabled={!isActive}
               index={index}
@@ -278,6 +287,7 @@ export const DayTimesSelector = ({
               endTime={range[1]}
               onDelete={() => onRemoveRange?.(index)}
             />
+
             {index === 0 &&
               Number(ranges[ranges.length - 1][1].split(":")[0]) < 22 && (
                 <button
@@ -285,10 +295,10 @@ export const DayTimesSelector = ({
                   type="button"
                   onClick={addRange}
                   className={twMerge(
-                    // "col-start-2 row-start-1",
-                    "w-24",
+                    "text-sm",
+                    "w-auto",
                     "disabled:cursor-not-allowed",
-                    "not:disabled:active:text-brand_gray text-brand_gray/70 hover:text-brand_gray/90 lg:text-left"
+                    "text-neutral-400 hover:text-neutral-600"
                   )}
                 >
                   + Agregar
@@ -297,7 +307,7 @@ export const DayTimesSelector = ({
           </div>
         ))}
       </motion.div>
-    </>
+    </div>
   );
 };
 
@@ -326,39 +336,36 @@ export const RangeTimePicker = ({
 
   const getTime = (startTime: string) => {
     const mins = getMinutesFromString(startTime);
-    // console.log("Mins: ", mins, getStringFromMinutes(mins));
     return getStringFromMinutes(mins);
   };
 
   return (
-    <div>
-      <div className="relative flex items-center gap-3">
-        <span>De</span>
-        <TimePicker
-          isDisabled={isDisabled}
-          defaultSelected={startTime}
-          // initialTime={startTime}
-          onChange={changeStartTime}
-          all
-        />
-        <span>a</span>
-        <TimePicker
-          isDisabled={isDisabled}
-          defaultSelected={endTime}
-          // initialTime={getTime(endTime)}
-          onChange={changeEndTime}
-        />
-        {index !== 0 && (
-          <button
-            disabled={isDisabled}
-            onClick={onDelete}
-            type="button"
-            className=" disabled:hidden active:text-red-500 right-0 top-[28%] text-red-400 hover:text-red-500 transition-all"
-          >
-            <FaRegTrashCan />
-          </button>
-        )}
-      </div>
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-neutral-500">De</span>
+      <TimePicker
+        isDisabled={isDisabled}
+        defaultSelected={startTime}
+        onChange={changeStartTime}
+        all
+      />
+
+      <span className="text-sm text-neutral-500">a</span>
+      <TimePicker
+        isDisabled={isDisabled}
+        defaultSelected={endTime}
+        onChange={changeEndTime}
+      />
+
+      {index !== 0 && (
+        <button
+          disabled={isDisabled}
+          onClick={onDelete}
+          type="button"
+          className="disabled:hidden text-red-400 hover:text-red-500 transition-all"
+        >
+          <FaRegTrashCan />
+        </button>
+      )}
     </div>
   );
 };

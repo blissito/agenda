@@ -39,30 +39,82 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   const FormComponent = useMemo(() => {
     switch (stepSlug) {
-      case "4":
+      case "6":
         return LoaderScreen;
-      case "3":
+      case "5":
         return TimesForm;
-      case "2":
+      case "4":
         return BussinesTypeForm;
+      case "3":
+      case "2":
+      case "1":
       default:
         return AboutYourCompanyForm;
     }
   }, [stepSlug]);
 
+  // ✅ progreso 1..6
+  const stepNumber =
+    stepSlug === "1"
+      ? 1
+      : stepSlug === "2"
+      ? 2
+      : stepSlug === "3"
+      ? 3
+      : stepSlug === "4"
+      ? 4
+      : stepSlug === "5"
+      ? 5
+      : 6;
+
+  const progressPercent = (stepNumber / 6) * 100;
+
   return (
-    <article className={cn("h-screen", "grid grid-cols-6")}>
-      <section
-        className={twMerge("px-2 grid py-8", "bg-brand_blue", "col-span-2")}
-      >
-        <nav className="flex justify-center ">
-          {+stepSlug > 1 ? <BackButton /> : <DenikWatermark />}
-        </nav>
-        <LeftHero title={org.name} />
-      </section>
-      <section className="col-span-4 overflow-scroll bg-white">
-        <FormComponent title={org.name} org={org} />
-      </section>
+    <article className="relative min-h-screen w-full bg-white overflow-hidden">
+      <div className="absolute left-0 top-0 h-[10px] w-full bg-neutral-100">
+        <div
+          className="h-full bg-brand_blue transition-all"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
+
+      <header className="relative z-10 flex items-center justify-between px-10 pt-8">
+        <div className="flex items-center gap-2">
+          <Denik fill="#4F63FF" className="h-8 w-auto" />
+        </div>
+
+        <button
+          type="button"
+          className="rounded-full bg-neutral-50 px-5 py-2 text-sm text-neutral-700 ring-1 ring-neutral-200 hover:bg-neutral-100"
+        >
+          Ayuda
+        </button>
+      </header>
+
+      <div className="absolute inset-0 z-0 pointer-events-none select-none">
+        
+      </div>
+
+      <main className="relative z-10 mx-auto w-full max-w-6xl px-10">
+        {stepSlug === "1" || stepSlug === "2" || stepSlug === "3" ? (
+          <AboutYourCompanyForm org={org} stepSlug={stepSlug} />
+        ) : stepSlug === "4" ? (
+          <BussinesTypeForm org={org} />
+        ) : stepSlug === "5" ? (
+          <TimesForm org={org} />
+        ) : (
+          <LoaderScreen title={org.name} />
+        )}
+      </main>
+
+      <footer className="absolute bottom-6 left-0 right-0 px-10 text-xs text-neutral-400">
+        <div className="flex items-center justify-between">
+          <span>Todos los derechos reservados Denik® 2024</span>
+          <a className="hover:text-neutral-600" href="#">
+            Política de privacidad
+          </a>
+        </div>
+      </footer>
     </article>
   );
 }
@@ -70,41 +122,61 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 export const LoaderScreen = ({ title }: { title: string }) => {
   const [text, setText] = useState(title);
   const [show, set] = useState(false);
+
   useEffect(() => {
     setTimeout(() => {
       set(true);
-      setText("¡Todo esta listo! \n Es hora de agendar ");
+      setText("¡Tu agenda en línea está lista!");
     }, 2000);
   }, []);
+
   return (
-    <section className="font-bold absolute z-10 inset-0 bg-brand_blue  text-white flex justify-center items-center flex-col">
-      <h1 className="px-[5%] md:px-10 min-w-7xl  mx-auto flex flex-col items-center md:flex-row gap-6 md:gap-12 text-3xl text-center md:text-left md:text-5xl ">
+    <section className="absolute inset-0 z-10 bg-white">
+      <div className="mx-auto flex min-h-[calc(100vh-170px)] w-full max-w-6xl flex-col items-center justify-center px-6 text-center">
         <img
-          className="w-[120px] h-[120px]"
-          src="/images/calendar.gif"
-          alt="calendario"
+          className="h-[180px] w-auto select-none pointer-events-none"
+          src="/images/denik.png"
+          alt="figura"
+          draggable={false}
         />
-        <span className="leading-tight" style={{ whiteSpace: "pre-wrap" }}>
+
+        <h1 className="text-2xl font-semibold text-neutral-900 md:text-3xl">
           {text}
-        </span>
-      </h1>
-      {show && (
-        <>
-          <PrimaryButton
-            to="/dash"
-            as="Link"
-            className="border mt-12 text-brand_dark bg-white font-satoMiddle "
-            // isDisabled={isDisabled}
-            type="submit"
-          >
-            ¡Ver mi agenda!
-          </PrimaryButton>
-          <EmojiConfetti
-            mode="emojis"
-            emojis={["📆", "💇🏻‍♀️", "👩🏻‍💻", "📍", "🎀", "🥳", "💅🏼"]}
-          />
-        </>
-      )}
+        </h1>
+
+        <p className="mt-2 max-w-lg text-sm text-neutral-500">
+          Configura tus servicios, comparte tu agenda y empieza a recibir reservas
+          desde tu página web en Denik.
+        </p>
+
+        <div className="mt-7">
+          {show ? (
+            <>
+              <PrimaryButton
+                to="/dash"
+                as="Link"
+                className="px-8"
+                type="button"
+                isDisabled={false}
+                isLoading={false}
+              >
+                Continuar
+              </PrimaryButton>
+
+              <EmojiConfetti repeat={1} />
+            </>
+          ) : (
+            <PrimaryButton
+              type="button"
+              className="px-8 opacity-60 pointer-events-none"
+              isDisabled
+              isLoading={false}
+            >
+              Continuar
+            </PrimaryButton>
+          )}
+        </div>
+      </div>
     </section>
   );
 };
@@ -128,7 +200,7 @@ export const BackButton = () => {
         "mb-12 h-4 w-full",
         "transition-all rounded-full top-0 left-0 text-white text-3xl justify-between items-center flex",
         "max-w-xl mx-auto",
-        "active:opacity-50" // Improve please! 🥶
+        "active:opacity-50"
       )}
     >
       <HiOutlineArrowNarrowLeft />
@@ -138,13 +210,12 @@ export const BackButton = () => {
 };
 
 export const DenikWatermark = () => {
-  // const navigate = useNavigate();
   return (
     <div
       className={twMerge(
         "transition-all top-0 left-0 text-white text-3xl justify-center items-center block",
         "max-w-xl mx-auto",
-        "active:opacity-50" // Improve please! 🥶
+        "active:opacity-50"
       )}
     >
       <Denik fill="#ffffff" />

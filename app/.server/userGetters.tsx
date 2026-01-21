@@ -303,13 +303,12 @@ const validateWith = <T,>(data: T, schema: ZodSchema) => {
 };
 
 const getCurrentSchema = (stepSlug: string) => {
-  return stepSlug === "1"
-    ? signup1Schema
-    : stepSlug === "2"
-    ? signup2Schema
-    : stepSlug === "3"
-    ? signup3Schema
-    : signup1Schema;
+  // Step 5: TimesForm -> weekDays
+  if (stepSlug === "5") return signup3Schema;
+  // Step 4: BussinesTypeForm -> businessType
+  if (stepSlug === "4") return signup2Schema;
+  // Steps 1, 2, 3: AboutYourCompanyForm -> name, shopKeeper, numberOfEmployees, address
+  return signup1Schema;
 };
 
 export const updateOrg = async (formData: FormData, stepSlug: string) => {

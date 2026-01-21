@@ -175,3 +175,50 @@ input[type="color"].custom {
     font-family: "Outfit Medium";
   }
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Oculta scrollbar pero mantiene scroll */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Animacion notoria para la miniatura nueva */
+@keyframes lg-thumb-pop {
+  0%   { opacity: 0; transform: translateY(18px) scale(0.78); filter: blur(10px); }
+  45%  { opacity: 1; transform: translateY(-10px) scale(1.14); filter: blur(0); }
+  70%  { opacity: 1; transform: translateY(2px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes lg-glow {
+  0%   { box-shadow: 0 0 0 rgba(0,0,0,0); }
+  35%  { box-shadow: 0 18px 48px rgba(0,0,0,0.18); }
+  100% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+}
+
+.lg-thumb-pop {
+  animation: lg-thumb-pop 850ms cubic-bezier(0.2, 0.9, 0.2, 1) both,
+             lg-glow 850ms ease-out both;
+  will-change: transform, opacity, filter;
+}
+
+/* Ocultar scrollbar SOLO donde lo uses */
+.lg-scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.lg-scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
