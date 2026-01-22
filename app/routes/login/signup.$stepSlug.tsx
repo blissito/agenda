@@ -32,8 +32,11 @@ export const loader = async ({
   request,
   params: { stepSlug },
 }: Route.LoaderArgs) => {
-  const org = await getOrCreateOrgOrRedirect(request);
-  return { org, stepSlug };
+  const org = await getOrCreateOrgOrRedirect(request); // redirect if isActive
+  return {
+    org,
+    stepSlug,
+  };
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {

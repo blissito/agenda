@@ -25,9 +25,10 @@ export const SocialDataForm = ({
   const {
     handleSubmit,
     register,
-    formState: { isDirty },
+    formState: { isDirty, isValid },
   } = useForm({
     defaultValues: defaultValues?.social || {},
+    mode: "onChange",
   });
 
   const onSubmit = (values: unknown) => {

@@ -18,15 +18,43 @@ import slugify from "slugify";
 
 export const redirectIfUser = async (request: Request) => {
   const session = await getSession(request.headers.get("Cookie"));
-  if (session.has("userId")) throw redirect("/dash");
+  if (session.has("userId")) {
+    // Verify user actually exists in DB
+    const user = await db.user.findUnique({
+      where: { id: session.get("userId") },
+    });
+    if (user) {
+      throw redirect("/dash");
+    }
+    // User doesn't exist, clear invalid session
+    session.unset("userId");
+    throw redirect("/signin", {
+      headers: { "Set-Cookie": await commitSession(session) },
+    });
+  }
 };
 
 export const getUserOrRedirect = async (
   request: Request,
   options: { redirectURL?: string } = { redirectURL: "/signin" }
 ) => {
-  const user = await getUserOrNull(request);
-  if (!user) throw redirect(options.redirectURL || "/signin");
+  const session = await getSession(request.headers.get("Cookie"));
+  const userId = session.get("userId");
+
+  if (!userId) {
+    throw redirect(options.redirectURL || "/signin");
+  }
+
+  const user = await db.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    // Clear invalid session
+    session.unset("userId");
+    throw redirect(options.redirectURL || "/signin", {
+      headers: { "Set-Cookie": await commitSession(session) },
+    });
+  }
+
   return user;
 };
 
@@ -66,7 +94,7 @@ export const getAdminUserOrRedirect = async (
  */
 export const getOrCreateOrgOrRedirect = async (request: Request) => {
   const user = await getUserOrNull(request);
-  if (!user) throw new Error("No user present");
+  if (!user) throw redirect("/signin");
   // if working fine
   if (user.orgId) {
     let found = await db.org.findUnique({ where: { id: user.orgId } });
@@ -83,6 +111,7 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
         name: "New Denik Org",
         slug: "new-denik-org-" + nanoid(4),
         email: user.email,
+        isActive: false,
       },
     });
   }
@@ -274,13 +303,12 @@ const validateWith = <T,>(data: T, schema: ZodSchema) => {
 };
 
 const getCurrentSchema = (stepSlug: string) => {
-  return stepSlug === "1"
-    ? signup1Schema
-    : stepSlug === "2"
-    ? signup2Schema
-    : stepSlug === "3"
-    ? signup3Schema
-    : signup1Schema;
+  // Step 5: TimesForm -> weekDays
+  if (stepSlug === "5") return signup3Schema;
+  // Step 4: BussinesTypeForm -> businessType
+  if (stepSlug === "4") return signup2Schema;
+  // Steps 1, 2, 3: AboutYourCompanyForm -> name, shopKeeper, numberOfEmployees, address
+  return signup1Schema;
 };
 
 export const updateOrg = async (formData: FormData, stepSlug: string) => {

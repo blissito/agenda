@@ -11,13 +11,13 @@ import type { WeekSchema } from "~/utils/zod_schemas";
 
 const tuple = z.array(z.array(z.string(), z.string())).optional();
 const weekDaysSchema = z.object({
-  lunes: tuple,
-  martes: tuple,
-  miércoles: tuple,
-  jueves: tuple,
-  sábado: tuple,
-  domingo: tuple,
-  viernes: tuple,
+  monday: tuple,
+  tuesday: tuple,
+  wednesday: tuple,
+  thursday: tuple,
+  friday: tuple,
+  saturday: tuple,
+  sunday: tuple,
 });
 export const serviceTimesSchema = z.object({
   duration: z.coerce.number(),
@@ -140,7 +140,7 @@ export const ServiceTimesForm = ({
             onChange={(data: WeekDaysType) => {
               onTimesChange?.(data);
               const initialValues = {
-                lunes: [
+                monday: [
                   ["09:00", "16:00"],
                   ["17:00", "18:00"],
                 ],

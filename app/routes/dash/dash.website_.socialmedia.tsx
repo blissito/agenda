@@ -15,20 +15,19 @@ import { Instagram } from "~/components/icons/insta";
 import { Tiktok } from "~/components/icons/tiktok";
 import { Linkedin } from "~/components/icons/linkedin";
 import { Anchor } from "~/components/icons/link";
-import { Form, useFetcher, useLoaderData } from "@remix-run/react";
+import { Form, useFetcher, useLoaderData, redirect } from "react-router";
 import { useForm } from "react-hook-form";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { Org } from "@prisma/client";
+import type { Route } from "./+types/dash.website_.socialmedia";
 import { handleOrgUpdate } from "~/.server/form_handlers/serviceTimesFormHandler";
 import { Youtube } from "~/components/icons/youtube";
 
-export const action = async ({ request }: LoaderFunctionArgs) => {
+export const action = async ({ request }: Route.ActionArgs) => {
   await handleOrgUpdate(request, () => redirect("/dash/website"));
   return null;
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
     redirectURL: "/dash/website/",
   });

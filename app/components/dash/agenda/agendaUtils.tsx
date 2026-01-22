@@ -18,31 +18,31 @@ export type BasicBoxType = {
 
 export const defaultDays: Day[] = [
   {
-    day: "lunes",
+    day: "monday",
     date: new Date(),
   },
   {
-    day: "martes",
+    day: "tuesday",
     date: new Date(),
   },
   {
-    day: "miércoles",
+    day: "wednesday",
     date: new Date(),
   },
   {
-    day: "jueves",
+    day: "thursday",
     date: new Date(),
   },
   {
-    day: "viernes",
+    day: "friday",
     date: new Date(),
   },
   {
-    day: "sábado",
+    day: "saturday",
     date: new Date(),
   },
   {
-    day: "domingo",
+    day: "sunday",
     date: new Date(),
   },
 ];
@@ -269,13 +269,13 @@ export const from12To24 = (string: string) => {
 };
 
 const days = [
-  "domingo",
-  "lunes",
-  "martes",
-  "miércoles",
-  "jueves",
-  "viernes",
-  "sábado",
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
 ];
 
 export const convertDayToString = (number: number) => {

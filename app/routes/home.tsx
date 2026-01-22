@@ -9,15 +9,42 @@ import { Features, Hero, ScrollReviews } from "~/components/home/home";
 import { People } from "~/components/icons/people";
 import { getMetaTags } from "~/utils/getMetaTags";
 import { TopBar } from "~/components/common/topBar";
+import { resolveHostForIndex } from "~/utils/host.server";
+import TemplateOne from "~/components/templates/TemplateOne";
+import TemplateTwo from "~/components/templates/TemplateTwo";
+import type { Route } from "./+types/home";
 
-export const meta = () =>
-  getMetaTags({
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const resolution = await resolveHostForIndex(request);
+  if (resolution.type === "not_found") {
+    throw new Response("Empresa no encontrada", { status: 404 });
+  }
+  return resolution;
+};
+
+export const meta = ({ data }: Route.MetaArgs) => {
+  if (data?.type === "org") {
+    return getMetaTags({
+      title: `${data.org.name} | Agenda tu cita`,
+      description: data.org.description || `Reserva con ${data.org.name}`,
+    });
+  }
+  return getMetaTags({
     title: "Deník | Tu agenda en un solo lugar",
     description: "Administra la agenda de tu negocio en un solo lugar",
     image: "https://i.imgur.com/zlnq8Jd.png",
   });
+};
 
-export default function Index() {
+export default function Index({ loaderData }: Route.ComponentProps) {
+  if (loaderData.type === "org") {
+    const { org } = loaderData;
+    return org.websiteConfig?.template === "defaultTemplate" ? (
+      <TemplateOne org={org} services={org.services} link="" />
+    ) : (
+      <TemplateTwo org={org} services={org.services} />
+    );
+  }
   return (
     <main className="bg-brand_dark">
       <div className="bg-white rounded-b-[40px]">

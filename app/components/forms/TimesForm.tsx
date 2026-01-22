@@ -39,6 +39,16 @@ const ENTIRE_WEEK = [
   "domingo",
 ];
 
+const DAY_LABELS: Record<string, string> = {
+  lunes: "Lunes",
+  martes: "Martes",
+  miércoles: "Miércoles",
+  jueves: "Jueves",
+  viernes: "Viernes",
+  sábado: "Sábado",
+  domingo: "Domingo",
+};
+
 const initialValues: WeekSchema = {
   lunes: [["09:00", "16:00"]],
 };
@@ -93,12 +103,11 @@ export const TimesForm = ({
     onSubmit?.(data);
     fetcher.submit(
       {
-        intent: "org_update_and_redirect",
+        intent: "update_org",
         data: JSON.stringify({ weekDays: data, id: org.id }),
-
         next: "/signup/6",
       },
-      { method: "post", action: "/api/org" }
+      { method: "post" }
     );
     onClose?.();
   };
@@ -183,6 +192,7 @@ export const TimesForm = ({
   const isDisabled = !isValid || (errors.weekDays ? true : false);
 
   return (
+<<<<<<< HEAD
     <Form onSubmit={handleSubmit(submit)} className="w-full">
       {/* Layout tipo Figma: izquierda controles / derecha preview */}
       <div className="grid gap-10 lg:grid-cols-[1fr_420px] items-center min-h-[calc(100vh-190px)]">
@@ -262,8 +272,50 @@ export const TimesForm = ({
             alt="preview"
             className="w-full max-w-[500px] select-none pointer-events-none"
             draggable={false}
+=======
+    <Form
+      onSubmit={handleSubmit(submit)}
+      className={twMerge(
+        "h-full pt-6 md:pt-20 px-[5%] md:px-2  max-w-xl mx-auto",
+        "flex flex-col justify-evenly h-full gap-5 text-brand_dark"
+      )}
+    >
+      {/* Switches */}
+      {ENTIRE_WEEK.map((dayString: string) => (
+        <DayTimesSelector
+          key={dayString}
+          ranges={data[dayString]}
+          addRange={() => addRange(dayString)}
+          onRemoveRange={(index) => removeRange(dayString, index)}
+          onUpdate={(ranges) => handleUpdate(dayString, ranges)}
+          // onRange={(range) => handleRange(dayString, range)}
+          isActive={getValues().weekDays.includes(dayString)}
+          id={dayString}
+        >
+          <Switch
+            defaultChecked={getValues().weekDays.includes(dayString)}
+            name="weekDays"
+            value={dayString}
+            label={DAY_LABELS[dayString]}
+            onChange={handleSwitchChange}
+>>>>>>> e0cc7b30809e14e4b18b69e8a48b1bbb30b66f0a
           />
-        </div>
+        </DayTimesSelector>
+      ))}
+
+      <div className="mt-auto">
+        {children ? (
+          children
+        ) : noSubmit ? null : (
+          <PrimaryButton
+            isLoading={fetcher.state !== "idle"}
+            className="w-full mt-auto"
+            isDisabled={isDisabled}
+            type="submit"
+          >
+            {cta || "Continuar"} <ArrowRight />
+          </PrimaryButton>
+        )}
       </div>
     </Form>
   );

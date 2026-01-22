@@ -4,20 +4,58 @@ import type { Route } from "./+types/api.org";
 import { orgUpdateSchema } from "~/utils/zod_schemas";
 import { z } from "zod";
 
+// Reserved slugs that cannot be used
+const RESERVED_SLUGS = [
+  "www",
+  "api",
+  "app",
+  "admin",
+  "dashboard",
+  "dash",
+  "login",
+  "signin",
+  "signup",
+  "auth",
+  "help",
+  "support",
+  "billing",
+  "settings",
+  "account",
+  "denik",
+];
+
+const slugSchema = z
+  .string()
+  .min(3, "Mínimo 3 caracteres")
+  .max(30, "Máximo 30 caracteres")
+  .regex(/^[a-z0-9-]+$/, "Solo letras minúsculas, números y guiones")
+  .refine((s) => !s.startsWith("-") && !s.endsWith("-"), {
+    message: "No puede empezar ni terminar con guión",
+  })
+  .refine((s) => !RESERVED_SLUGS.includes(s), {
+    message: "Este nombre está reservado",
+  });
+
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
+
   const rawData = JSON.parse(formData.get("data") as string);
 
   if (intent === "org_check_slug") {
-    const slugSchema = z.object({ slug: z.string().min(1) });
-    const result = slugSchema.safeParse(rawData);
+    const checkSchema = z.object({
+      slug: slugSchema,
+      id: z.string().optional(),
+    });
+    const result = checkSchema.safeParse(rawData);
     if (!result.success) {
-      return { errors: { slug: "slug inválido" } };
+      return { errors: { slug: result.error.issues[0].message } };
     }
-    const exist = await db.org.findUnique({ where: { slug: result.data.slug } });
-    if (exist) {
-      return { errors: { slug: "este username ya ha sido tomado" } };
+    const existing = await db.org.findUnique({
+      where: { slug: result.data.slug },
+    });
+    if (existing && existing.id !== result.data.id) {
+      return { errors: { slug: "Este nombre ya está en uso" } };
     }
     return null;
   }
@@ -30,8 +68,35 @@ export const action = async ({ request }: Route.ActionArgs) => {
         { status: 400 }
       );
     }
-    const { id, ...data } = result.data;
-    await db.org.update({ where: { id }, data });
+    const { id, weekDays, ...restData } = result.data;
+
+    // Validate slug if being updated
+    if (restData.slug) {
+      const normalized = restData.slug.toLowerCase().trim();
+      const slugValidation = slugSchema.safeParse(normalized);
+      if (!slugValidation.success) {
+        return Response.json(
+          { error: slugValidation.error.issues[0].message },
+          { status: 400 }
+        );
+      }
+      const existing = await db.org.findUnique({ where: { slug: normalized } });
+      if (existing && existing.id !== id) {
+        return Response.json(
+          { error: "Este nombre ya está en uso" },
+          { status: 400 }
+        );
+      }
+      restData.slug = normalized;
+    }
+
+    // Build Prisma update data, wrapping weekDays in `set` for embedded types
+    const prismaData = {
+      ...restData,
+      ...(weekDays && { weekDays: { set: weekDays } }),
+    };
+
+    await db.org.update({ where: { id }, data: prismaData });
 
     if (intent === "org_update_and_redirect") {
       const next = formData.get("next") as string;

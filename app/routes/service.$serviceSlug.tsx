@@ -1,8 +1,12 @@
+/**
+ * Clean URL route for subdomains/custom domains: /:serviceSlug
+ * Org is resolved from the hostname, not from URL params.
+ */
 import { useState } from "react";
 import { Form, useFetcher } from "react-router";
-import { Footer, Header, InfoShower } from "./components";
+import { Footer, Header, InfoShower } from "~/components/agenda/components";
 import { twMerge } from "tailwind-merge";
-import { getMaxDate } from "./utils";
+import { getMaxDate } from "~/components/agenda/utils";
 import { MonthView } from "~/components/forms/agenda/MonthView";
 import TimeView from "~/components/forms/agenda/TimeView";
 import { BasicInput } from "~/components/forms/BasicInput";
@@ -10,13 +14,14 @@ import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { z } from "zod";
 import { getService } from "~/.server/userGetters";
-import { Success } from "./success";
+import { Success } from "~/components/agenda/success";
 import { db } from "~/utils/db.server";
-import type { Route } from "./+types/route";
+import type { Route } from "./+types/service.$serviceSlug";
 import {
   sendAppointmentToCustomer,
   sendAppointmentToOwner,
 } from "~/utils/emails/sendAppointment";
+import { resolveOrgFromRequest } from "~/utils/host.server";
 
 type WeekDaysType = Record<string, string[][]>;
 
@@ -45,8 +50,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const events = await db.event.findMany({
       where: {
         start: {
-          gte: new Date(selectedDate), // this is
-          lte: new Date(tommorrow), // the one day only
+          gte: new Date(selectedDate),
+          lte: new Date(tommorrow),
         },
       },
     });
@@ -55,13 +60,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   if (intent === "create_event") {
     const data = JSON.parse(formData.get("data") as string);
 
-    // 1. Obtener org
-    const org = await db.org.findUnique({
-      where: { slug: params.orgSlug },
-    });
+    // Org is resolved from hostname (subdomain or custom domain)
+    const org = await resolveOrgFromRequest(request, undefined);
     if (!org) throw new Response("Org not found", { status: 404 });
 
-    // 2. Crear Customer
     const customer = await db.customer.create({
       data: {
         displayName: data.customer.displayName,
@@ -72,11 +74,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       },
     });
 
-    // 3. Calcular end time
     const startDate = new Date(data.start);
     const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000);
 
-    // 4. Crear Event con orgId y customerId
     const event = await db.event.create({
       data: {
         start: startDate,
@@ -94,7 +94,6 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       },
     });
 
-    // 5. Enviar emails de confirmación
     try {
       await sendAppointmentToCustomer({
         email: customer.email,
@@ -115,8 +114,11 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   return null;
 };
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
-  const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
+export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  // Org is resolved from hostname (subdomain or custom domain)
+  const org = await resolveOrgFromRequest(request, undefined);
+  if (!org) throw new Response("Org not found", { status: 404 });
+
   const service = await db.service.findUnique({
     where: {
       slug: params.serviceSlug,
@@ -124,12 +126,16 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     include: {
       events: {
         where: {
-          status: "ACTIVE", // chulada 🤤
+          status: "ACTIVE",
         },
       },
     },
   });
-  if (!service || !org) throw new Response(null, { status: 404 });
+  if (!service) throw new Response(null, { status: 404 });
+
+  // Verify service belongs to org
+  if (service.orgId !== org.id) throw new Response(null, { status: 404 });
+
   return { org, service };
 };
 
@@ -156,13 +162,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         data: JSON.stringify({
           start: date.toISOString(),
           dateString: date.toISOString(),
-          customer, // @todo: add logged user id
+          customer,
           duration: service.duration,
           serviceId: service.id,
           title: service.name,
           status: "ACTIVE",
-          // @todo: end
-        }), // iso for mongodb? No. But, we need timezoned dates @todo
+        }),
       },
       { method: "post" }
     );
@@ -235,7 +240,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   onSelect={handleTimeSelection}
                   weekDays={(service.weekDays || org.weekDays) as WeekDaysType}
                   selected={date}
-                  action={`/agenda/${org.slug}/${service.slug}`}
+                  action={`/${service.slug}`}
                 />
               )}
             </>
