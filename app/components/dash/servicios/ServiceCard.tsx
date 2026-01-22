@@ -162,80 +162,83 @@ export const ServiceCard = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* MODAL ELIMINAR */}
       <AnimatePresence>
-  {showDelete && (
-    <motion.div
-      className="fixed inset-0 z-[999] flex items-center justify-center px-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      aria-modal="true"
-      role="dialog"
-    >
-      {/* overlay blur (más borroso como tu imagen) */}
-      <motion.button
-        type="button"
-        onClick={() => setShowDelete(false)}
-        className="absolute inset-0 bg-black/30 backdrop-blur-[8px]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        aria-label="Cerrar"
-      />
-
-      {/* caja */}
-      <motion.div
-        ref={refDelete}
-        initial={{ opacity: 0, scale: 0.98, y: 6 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.98, y: 6 }}
-        transition={{ type: "spring", stiffness: 260, damping: 22 }}
-        className="relative w-[600px] h-[244px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] px-8 py-6 font-satoshi"
-      >
-        {/* close */}
-        <button
-          type="button"
-          onClick={() => setShowDelete(false)}
-          className="absolute right-3 top-3 h-9 w-9 rounded-full grid place-items-center text-brand_gray/70 hover:text-brand_gray hover:bg-brand_light_gray/60 transition-all active:scale-95"
-          aria-label="Cerrar"
-        >
-          ✕
-        </button>
-
-        {/* layout interno como imagen */}
-        <div className="h-full w-full flex flex-col items-center justify-center gap-4">
-          <h3 className="w-[521px] h-[32px] text-center font-satoshi font-semibold text-[20px] leading-[32px] text-brand_dark">
-            ¿Seguro que quieres eliminar este servicio? 🫣
-          </h3>
-
-          <p className="w-[504px] h-[44px] text-center font-satoshi text-sm leading-[22px] text-brand_gray/80">
-            Al eliminarlo también eliminaremos todas las citas agendadas del
-            servicio. Enviaremos una notificación a cada client@.
-          </p>
-
-          <div className="pt-2 flex items-center justify-center gap-4">
-            <button
+        {showDelete && (
+          <motion.div
+            className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            aria-modal="true"
+            role="dialog"
+          >
+            {/* overlay más borroso */}
+            <motion.button
               type="button"
               onClick={() => setShowDelete(false)}
-              className="w-[160px] h-[40px] rounded-full bg-[#F3F3F3] text-brand_gray font-satoshi text-sm hover:bg-[#EDEDED] transition-all active:scale-95"
-            >
-              Cancelar
-            </button>
+              className="absolute inset-0 bg-black/30 backdrop-blur-[8px]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              aria-label="Cerrar"
+            />
 
-            <button
-              type="button"
-              onClick={handleDeleteConfirm}
-              className="w-[160px] h-[40px] rounded-full bg-[#CA5757] text-white font-satoshi text-sm hover:bg-[#B84E4E] transition-all active:scale-95"
+            {/* caja */}
+            <motion.div
+              ref={refDelete}
+              initial={{ opacity: 0, scale: 0.98, y: 6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 6 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+              className="relative w-[600px] h-[244px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] px-[124px] py-6 font-satoshi"
             >
-              Sí, eliminar
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+              {/* close */}
+              <button
+                type="button"
+                onClick={() => setShowDelete(false)}
+                className="absolute right-3 top-3 h-9 w-9 rounded-full grid place-items-center text-brand_gray/70 hover:text-brand_gray hover:bg-brand_light_gray/60 transition-all active:scale-95"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
 
+              {/* contenido */}
+              <div className="w-full h-full flex flex-col items-center">
+                <h3 className="w-[521px] h-[32px] text-center font-satoshi font-bold text-[24px] leading-[32px] text-brand_dark">
+                  ¿Seguro que quieres eliminar este servicio? 🫣
+                </h3>
+                <div className="h-[16px]" />
+                <p className="mt-3 w-[504px] h-[44px] text-center font-satoshi text-sm leading-[22px] text-brand_gray">
+                  Al eliminarlo también eliminaremos todas las citas agendadas del
+                  servicio. Enviaremos una notificación a cada client@.
+                </p>
+                {/* espacio vertical exacto entre texto y botones */}
+                  <div className="h-[48px]" />
+                {/* Espacio en tre botones */}
+                <div className="flex items-center justify-center gap-[32px] pb-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDelete(false)}
+                    className="w-[160px] h-[32px] rounded-full bg-[#F3F3F3] text-brand_gray font-satoshi text-sm hover:bg-[#EDEDED] transition-all active:scale-95"
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDeleteConfirm}
+                    className="w-[160px] h-[32px] rounded-full bg-[#CA5757] text-white font-satoshi text-sm hover:bg-[#B84E4E] transition-all active:scale-95"
+                  >
+                    Sí, eliminar
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer flex flex-col">
@@ -270,9 +273,6 @@ export const AddService = () => {
   return (
     <Link to="/dash/servicios/nuevo">
       <button
-        // onClick={() => {
-        //   fetcher.submit({ intent: "create_dummy_service" }, { method: "post" });
-        // }}
         className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center"
       >
         <div>

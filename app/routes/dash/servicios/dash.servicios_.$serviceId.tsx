@@ -13,6 +13,7 @@ import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { formatRange } from "~/components/common/FormatRange";
 import type { Route } from "./+types/dash.servicios_.$serviceId";
 import { InfoBox } from "../website/InfoBox";
+import { BiCategoryAlt } from "react-icons/bi";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   // @TODO ensure is the owner
@@ -162,7 +163,7 @@ function LocalFloatingGallery() {
   const mainUrl = hasUploads ? main?.url : DEFAULT_MAIN_SRC;
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col">
       {/* solo para ocultar scrollbar (solo aquí) */}
       <style>{`
         .lg-scrollbar-hide { -ms-overflow-style:none; scrollbar-width:none; }
@@ -241,7 +242,7 @@ function LocalFloatingGallery() {
                   className="h-24 sm:h-28 w-56 rounded-2xl bg-neutral-50 border border-brand_stroke/60 flex items-center justify-center px-4 text-center hover:bg-neutral-100 transition"
                 >
                   <div className="flex flex-col items-center justify-center gap-2">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-white border border-brand_stroke/60">
+                  <div className="grid h-10 w-10 place-items-center rounded-2xl">
                       <svg
                         width="24"
                         height="24"
@@ -256,7 +257,8 @@ function LocalFloatingGallery() {
                         />
                       </svg>
                     </div>
-                    <p className="text-sm font-medium text-neutral-900 leading-tight">
+                    <p className="font-satoshi text-sm font-medium text-brand_gray leading-tight">
+                    
                       Agregar o editar fotos
                     </p>
                   </div>
@@ -295,21 +297,24 @@ export const ServiceDetail = ({
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-5 border border-brand_stroke/60 h-full">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <span className="inline-flex items-center rounded-full border border-brand_stroke/70 bg-neutral-50 px-3 py-1 text-xs text-brand_gray">
-                {service.name}
+            {/*{service.category ?(<-- Nombre de la categoria   
+            <span className="inline-flex items-center gap-2 rounded-[4px] bg-[#D5FAF1] px-3 py-1 text-[14px] font-satoMedium text-[#2A645F]">
+             
               </span>
+               ):null */}
 
-              <h2 className="mt-3 text-2xl font-bold font-jakarta text-neutral-900">
+              <h2 className="font-satoshi font-bold text-[24px] leading-[24px] text-brand_dark ">
                 {service.name}
               </h2>
 
-              <p className="mt-3 text-sm leading-6 text-brand_gray">
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray"
+              >
                 {service.description}
               </p>
             </div>
 
             <SecondaryButton
-              className=" !h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-neutral-100"
+               className="!h-10 !w-10 !min-w-10 !max-w-10 !p-0 !rounded-full flex-none shrink-0 overflow-hidden flex items-center justify-center bg-neutral-100"
               as="Link"
               to={`/dash/servicios/${service.id}/general`}
               aria-label="Editar"
@@ -335,21 +340,24 @@ export const ServiceDetail = ({
           <div className="mt-6 grid grid-cols-1 gap-4">
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <p className="text-xs text-brand_gray">Servicio</p>
-                <p className="mt-1 text-sm text-neutral-900">{service.place}</p>
+              <p className="font-satoshi text-[14px] font-satoMedium text-brand_dark">Servicio</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray" >{service.place}</p>
+              
               </div>
 
               <div>
-                <p className="text-xs text-brand_gray">Agendamiento en línea</p>
-                <p className="mt-1 text-sm text-neutral-900">
+              <p className="font-satoshi text-[14px] font-satoMedium text-brand_dark">Agendamiento en línea</p>
+                <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray"
+                >
+
                   {service.isActive ? "Activo" : "Desactivado"}
                 </p>
               </div>
             </div>
 
             <div>
-              <p className="text-xs text-brand_gray">Agendamiento simultáneo</p>
-              <p className="mt-1 text-sm text-neutral-900">
+           <p className="font-satoshi text-[14px] font-satoMedium text-brand_dark">Agendamiento simultáneo</p>
+           <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray">
                 {service.allowMultiple
                   ? `hasta ${service.limit?.bookings || 6} citas`
                   : "Desactivado"}
@@ -359,22 +367,24 @@ export const ServiceDetail = ({
 
           <div className="mt-8 grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-brand_gray">Precio</p>
-              <div className="mt-2 inline-flex items-center rounded-full border border-brand_stroke/70 bg-white px-4 py-2 text-sm text-neutral-900">
+            <p className="font-satoshi text-[14px] font-satoMedium text-brand_dark">Precio</p>
+              <div className="mt-2 inline-flex items-center rounded-full border border-brand_stroke bg-white px-4 py-2 text-[16px] text-brand_gray">
+                
                 ${service.price} MXN
               </div>
+
             </div>
 
             <div>
-              <p className="text-xs text-brand_gray">Puntos</p>
-              <div className="mt-2 inline-flex items-center rounded-full border border-brand_stroke/70 bg-white px-4 py-2 text-sm text-neutral-900">
+            <p className="font-satoshi text-[14px] font-satoMedium text-brand_dark">Puntos</p>
+              <div className="mt-2 inline-flex items-center rounded-full border border-brand_stroke bg-white px-4 py-2 text-[16px] text-brand_gray">
                 {service.points} puntos
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-7 border border-brand_stroke/60 h-full">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-7 border border-brand_stroke/60">
           <LocalFloatingGallery />
         </div>
       </div>
@@ -382,7 +392,7 @@ export const ServiceDetail = ({
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-neutral-900">Horario</h3>
+            <h3 className="font-satoshi font-bold text-[18px] leading-[24px] text-brand_dark">Horario</h3>
 
             <SecondaryButton
               className=" !h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-neutral-100"
@@ -405,11 +415,11 @@ export const ServiceDetail = ({
 
           <p className="mt-3 text-sm text-brand_gray">
             Sesiones de{" "}
-            <span className="font-bold font-satoMedium text-neutral-900">
+            <span className="font-bold font-satoMedium text-brand_dark">
               {service.duration} minutos
             </span>{" "}
             con{" "}
-            <span className="font-bold font-satoMedium text-neutral-900">
+            <span className="font-bold font-satoMedium text-brand_dark">
               0 minutos
             </span>{" "}
             de descanso.
@@ -417,39 +427,39 @@ export const ServiceDetail = ({
 
           <div className="mt-5 space-y-3">
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="text-sm text-neutral-900">Lunes</p>
-              <p className="text-sm text-brand_gray">{formatRange(orgWeekDays["lunes"])}</p>
+            <p className="font-satoshi text-[16px] font-satoMedium text-brand_dark">Lunes</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["lunes"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="text-sm text-neutral-900">Martes</p>
-              <p className="text-sm text-brand_gray">{formatRange(orgWeekDays["martes"])}</p>
+            <p className="font-satoshi text-[16px] font-satoMedium text-brand_dark">Martes</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray" >{formatRange(orgWeekDays["martes"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="text-sm text-neutral-900">Miércoles</p>
-              <p className="text-sm text-brand_gray">{formatRange(orgWeekDays["miércoles"])}</p>
+            <p className=" font-satoshi text-[16px] font-satoMedium text-brand_dark">Miércoles</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["miércoles"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="text-sm text-neutral-900">Jueves</p>
-              <p className="text-sm text-brand_gray">{formatRange(orgWeekDays["jueves"])}</p>
+            <p className="font-satoshi text-[16px] font-satoMedium text-brand_dark">Jueves</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["jueves"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="text-sm text-neutral-900">Viernes</p>
-              <p className="text-sm text-brand_gray">{formatRange(orgWeekDays["viernes"])}</p>
+              <p className="font-satoshi text-[16px] font-satoMedium text-brand_dark">Viernes</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["viernes"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="text-sm text-neutral-900">Sábado</p>
-              <p className="text-sm text-brand_gray">{formatRange(orgWeekDays["sábado"])}</p>
+            <p className="font-satoshi text-[16px] font-satoMedium text-brand_dark">Sábado</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["sábado"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="text-sm text-neutral-900">Domingo</p>
-              <p className="text-sm text-brand_gray">{formatRange(orgWeekDays["domingo"])}</p>
+            <p className="font-satoshi text-[16px] font-satoMedium text-brand_dark">Domingo</p>
+              <p className="font-satoshi font-medium text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["domingo"])}</p>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-neutral-900">Recordatorios y pago</h3>
+            <h3 className="font-satoshi font-bold text-[18px] leading-[24px] text-brand_dark">Recordatorios y pago</h3>
 
             <SecondaryButton
               className=" !h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-neutral-100"
@@ -473,11 +483,11 @@ export const ServiceDetail = ({
           <div className="mt-5 space-y-4">
             <div className="grid grid-cols-[160px_1fr] items-start gap-4">
               <p className="text-xs text-brand_gray">Pago</p>
-              <p className="text-sm text-neutral-900">Al agendar</p>
+              <p className="text-sm text-brand_dark">Al agendar</p>
             </div>
             <div className="grid grid-cols-[160px_1fr] items-start gap-4">
               <p className="text-xs text-brand_gray">Mail de confirmación</p>
-              <p className="text-sm text-neutral-900">
+              <p className="text-sm text-brand_dark">
                 {service.config?.confirmation
                   ? "Lo enviamos en cuanto se completa la reservación"
                   : "Desactivado"}
@@ -485,7 +495,7 @@ export const ServiceDetail = ({
             </div>
             <div className="grid grid-cols-[160px_1fr] items-start gap-4">
               <p className="text-xs text-brand_gray">Mail de recordatorio</p>
-              <p className="text-sm text-neutral-900">
+              <p className="text-sm text-brand_dark">
                 {service.config?.confirmation
                   ? "Lo enviaremos 24 hrs antes de la sesión"
                   : "Desactivado"}
@@ -493,7 +503,7 @@ export const ServiceDetail = ({
             </div>
             <div className="grid grid-cols-[160px_1fr] items-start gap-4">
               <p className="text-xs text-brand_gray">Whats app de recordatorio</p>
-              <p className="text-sm text-neutral-900">
+              <p className="text-sm text-brand_dark">
                 {service.config?.survey
                   ? "Lo enviamos 4hrs antes de la sesión"
                   : "Desactivado"}
@@ -501,7 +511,7 @@ export const ServiceDetail = ({
             </div>
             <div className="grid grid-cols-[160px_1fr] items-start gap-4">
               <p className="text-xs text-brand_gray">Mail de evaluación</p>
-              <p className="text-sm text-neutral-900">
+              <p className="text-sm text-brand_dark">
                 {service.config?.confirmation
                   ? "Lo enviamos 10 min después de terminar la sesión"
                   : "Desactivado"}

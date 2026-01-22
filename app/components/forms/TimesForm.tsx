@@ -185,7 +185,8 @@ export const TimesForm = ({
   return (
     <Form onSubmit={handleSubmit(submit)} className="w-full">
       {/* Layout tipo Figma: izquierda controles / derecha preview */}
-      <div className="grid gap-10 lg:grid-cols-[1fr_420px] items-start min-h-[calc(100vh-190px)] pt-14">
+      <div className="grid gap-10 lg:grid-cols-[1fr_420px] items-center min-h-[calc(100vh-190px)]">
+
         {/* ==================== IZQUIERDA ==================== */}
         <div className="w-full max-w-3xl">
           <a
@@ -195,7 +196,7 @@ export const TimesForm = ({
             <span className="text-lg leading-none">‹</span> Volver
           </a>
 
-          <h1 className="text-xl md:text-2xl font-semibold text-neutral-900">
+          <h1 className="text-xl md:text-2xl font-jakarta font-semibold text-brand_dark">
             Y por último, ¿Cuál es el horario de tu negocio?
           </h1>
 
@@ -259,7 +260,7 @@ export const TimesForm = ({
           <img
             src="/images/agenda.png"
             alt="preview"
-            className="w-full max-w-[360px] select-none pointer-events-none"
+            className="w-full max-w-[500px] select-none pointer-events-none"
             draggable={false}
           />
         </div>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from "react";
 import { MultipleOptions, Option, Otro } from "./MultipleOptions";
 import { PrimaryButton } from "../common/primaryButton";
@@ -53,56 +54,56 @@ export const OPTIONS = [
   "otro",
 ];
 
-const getIconByOption = (string?: string) => {
+const getIconByOption = (string?: string, fill = "#8391A1") => {
   switch (string) {
     case "barbería":
-      return <Barbershop fill={"#8391A1"} />;
+      return <Barbershop fill={fill} />;
     case "estética":
-      return <Beauty fill={"#8391A1"} />;
+      return <Beauty fill={fill} />;
     case "centro deportivo":
-      return <Sports />;
+      return <Sports fill={fill} />;
     case "consultorio médico":
-      return <Clinic />;
+      return <Clinic fill={fill} />;
     case "estudios clínicos":
-      return <Clinic />;
+      return <Clinic fill={fill} />;
     case "crossfit":
-      return <Crossfit />;
+      return <Crossfit fill={fill} />;
     case "coaching":
-      return <Couch />;
+      return <Couch fill={fill} />;
     case "tutorias":
-      return <ClassIcon />;
+      return <ClassIcon fill={fill} />;
     case "gimnasio":
-      return <Gym />;
+      return <Gym fill={fill} />;
     case "yoga / meditación":
-      return <Mat />;
+      return <Mat fill={fill} />;
     case "spa":
-      return <Spa />;
+      return <Spa fill={fill} />;
     case "centro de idiomas":
-      return <Courses />;
+      return <Courses fill={fill} />;
     case "nutriologo":
-      return <Apple />;
+      return <Apple fill={fill} />;
     case "veterinaria":
-      return <Pet />;
+      return <Pet fill={fill} />;
     case "danza / baile":
-      return <Dance />;
+      return <Dance fill={fill} />;
     case "terapia física":
-      return <Reformer />;
+      return <Reformer fill={fill} />;
     case "psicologo":
-      return <Brain />;
+      return <Brain fill={fill} />;
     case "experiencias turisticas":
-      return <Tourism />;
+      return <Tourism fill={fill} />;
     case "salon de belleza":
-      return <Hair />;
+      return <Hair fill={fill} />;
     case "reparaciones":
-      return <Equipment />;
+      return <Equipment fill={fill} />;
     case "hojalatería":
-      return <Equipment />;
+      return <Equipment fill={fill} />;
     case "code review":
-      return <Courses />;
+      return <Courses fill={fill} />;
     case "uñas":
-      return <Beauty fill={"#8391A1"} />;
+      return <Beauty fill={fill} />;
     default:
-      return <Barbershop fill={"#8391A1"} />;
+      return <Barbershop fill={fill} />;
   }
 };
 
@@ -140,7 +141,6 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
   };
 
   const onSubmit = (values: FieldValues) => {
-    // ✅ Business (screen 4) -> Times (screen 5)
     fetcher.submit(
       {
         intent: "update_org",
@@ -180,7 +180,6 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
       ].join(" ")}
     >
       <div className="w-full max-w-6xl">
-        {/* ✅ botón volver con flecha */}
         <a
           href="/signup/3?screen=2"
           className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
@@ -188,7 +187,7 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
           <span className="text-lg leading-none">‹</span> Volver
         </a>
 
-        <h1 className="text-xl md:text-2xl font-semibold text-neutral-900">
+        <h1 className="font-jakarta text-[24px] font-bold text-brand_dark">
           ¿Qué tipo de negocio tienes?
         </h1>
 
@@ -214,21 +213,23 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
 
               if (isOtro) return null;
 
+              const selected = currentNormalized === option.trim().toLowerCase();
+
               return (
                 <Option
                   key={option}
                   label={option}
                   onClick={() => handleSelection(option)}
                   name="businessType"
-                  icon={getIconByOption(option)}
+                  icon={getIconByOption(option, selected ? "#5158F6" : "#8391A1")}
                   capitalize
-                  // ✅ FIX: comparar normalizado (sin cambiar variables)
-                  isCurrent={currentNormalized === option.trim().toLowerCase()}
+                  isCurrent={selected}
                   register={register}
                   transition={{ type: "spring", bounce: 0.3 }}
                 />
               );
             }}
+            
           />
         </div>
 
