@@ -12,6 +12,7 @@ import { twMerge } from "tailwind-merge";
 import { Dashboard } from "~/components/icons/dashboard";
 import { Agenda } from "../icons/menu/agenda";
 import { Services } from "../icons/menu/services";
+import { Chatbot } from "../icons/menu/chatbot";
 import { Website } from "../icons/menu/webiste";
 import { Financial } from "../icons/menu/financial";
 import { Clients } from "../icons/menu/clients";
@@ -273,6 +274,18 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("website")}>
             Sitio web
+          </MenuButton.Title>
+        </MenuButton>
+        <MenuButton
+          to="/dash/chatbot"
+          isActive={match("chatbot")}
+          prefetch="render"
+        >
+          <MenuButton.Icon isActive={match("chatbot")}>
+            <Chatbot />
+          </MenuButton.Icon>
+          <MenuButton.Title isActive={match("chatbot")}>
+            Chatbot IA
           </MenuButton.Title>
         </MenuButton>
         <MenuButton to="/dash/servicios" isActive={match("servicios")}>

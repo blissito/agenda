@@ -51,6 +51,7 @@ export default [
       route("clientes/:email", "routes/dash/dash_.clientes_.$email.tsx"),
       route("clientes", "routes/dash/dash.clientes.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),
+      route("chatbot", "routes/dash/dash.chatbot.tsx"),
       route("evaluaciones", "routes/dash/dash.reviews.tsx"),
       route("ajustes", "routes/dash/dash.ajustes.tsx"),
       route("pagos", "routes/dash/pagos.tsx"),
