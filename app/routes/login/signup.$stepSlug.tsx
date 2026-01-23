@@ -166,12 +166,12 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           {text}
         </h1>
 
-        <p className="font-jakarta font-medium text-lg leading-[24px] text-brand_gray">{/*lg= 18px */}
+        <p className="font-jakarta font-medium text-lg leading-[24px] text-brand_gray mt-4">{/*lg= 18px */}
           Configura tus servicios, comparte tu agenda y empieza a recibir reservas
           desde tu página web en Denik.
         </p>
 
-        <div className="mt-7">
+        <div className="mt-10">
           {show ? (
             <>
               <PrimaryButton
@@ -190,9 +190,9 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           ) : (
             <PrimaryButton
               type="button"
-              className="px-8 opacity-60 pointer-events-none font-satoshi font-medium text-[16px] leading-[24px]"
-              isDisabled
-              isLoading={false}
+              className="px-8 font-satoshi font-medium text-[16px] leading-[24px]"
+              isDisabled={false}
+              isLoading={true}
             >
               Continuar <ArrowRight />
             </PrimaryButton>

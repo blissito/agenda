@@ -39,16 +39,16 @@ export const PrimaryButton = ({
       "bg-brand_blue font-satoMiddle text-white min-w-[120px] gap-2 px-4 rounded-full text-center transition duration-400 block py-2 active:translate-y-[0.1px] flex justify-center items-center";
 
     const getLoadingStyles = () =>
-      "bg-brand_blue/50 text-gray-600 pointer-events-none flex items-center gap-2";
+      "bg-brand_blue/50 pointer-events-none flex items-center gap-2";
 
     const getDisabledStyles = () =>
-      "disabled:bg-gray-300 disabled:cursor-not-allowed";
+      "disabled:bg-brand_blue/30 disabled:text-white/50 disabled:cursor-not-allowed disabled:hover:translate-y-0";
 
     return twMerge(
       getGeneral(),
       isLoading && getLoadingStyles(),
       isDisabled && getDisabledStyles(),
-      !isDisabled && "hover:-translate-y-1", // hack para no repetir
+      !isDisabled && !isLoading && "hover:-translate-y-1", // hack para no repetir
       mode === "cancel" && "bg-gray-300 text-gray-800",
       className
     );
@@ -62,8 +62,11 @@ export const PrimaryButton = ({
       {...props}
       className={getClassName()}
     >
-      {!isDisabled && isLoading && <FaSpinner className="animate-spin" />}
-      {children}
+      {!isDisabled && isLoading ? (
+        <FaSpinner className="animate-spin" />
+      ) : (
+        children
+      )}
     </Element>
   );
 };
