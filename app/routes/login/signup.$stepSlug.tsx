@@ -143,13 +143,12 @@ const aboutScreen = useMemo(() => {
 }
 
 export const LoaderScreen = ({ title }: { title: string }) => {
-  const [text, setText] = useState(title);
+  const [text, setText] = useState("¡Tu agenda en línea está lista!");
   const [show, set] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
       set(true);
-      setText("¡Tu agenda en línea está lista!");
     }, 2000);
   }, []);
 

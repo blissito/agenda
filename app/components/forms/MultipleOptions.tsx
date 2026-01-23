@@ -65,7 +65,7 @@ export const MultipleOptions = ({
           staggerChildren: 0.05,
         }}
         className={twMerge(
-          "grid grid-cols-3 gap-1",
+          "grid grid-cols-3 gap-1 bg-pink-500",
           !!error && "border-red-500 border rounded-2xl p-1 transition-all",
           className
         )}
