@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+
 import { twMerge } from "tailwind-merge";
 import { motion } from "motion/react";
 import {
@@ -7,6 +7,8 @@ import {
   type UseFormRegister,
 } from "react-hook-form";
 import { BasicInput } from "./BasicInput";
+import { type ReactNode, useState, cloneElement, isValidElement } from "react";
+
 
 const REQUIRED_MESSAGE = "Este campos es requerido";
 
@@ -33,19 +35,17 @@ export const MultipleOptions = ({
 }) => {
   const [current, set] = useState<null | string>(defaultValue);
 
-  // ✅ Cuando usas renderFunction (como en BussinesTypeForm)
   if (renderFunction) {
     return (
       <>
         <p className="mb-1">{label}</p>
         <div
           className={twMerge(
-            // ✅ Solo UI: que no recorte
+          
             "w-full overflow-visible",
             !!error && "border-red-500 border rounded-2xl p-1 transition-all",
             className
           )}
-          // (esto no estorba si el contenedor es flex; se ignora)
           style={{ gridTemplateColumns: "1fr 1fr" }}
         >
           {options.map(renderFunction)}
@@ -53,8 +53,6 @@ export const MultipleOptions = ({
       </>
     );
   }
-
-  // ✅ Caso "normal" (grid 3 columnas)
   return (
     <>
       <p className="mb-1">{label}</p>{" "}
@@ -119,6 +117,24 @@ export const Option = ({
   registerOptions?: { required: string | boolean };
   [x: string]: unknown;
 }) => {
+  const ACTIVE = "#5158F6";
+
+  const paintedIcon = (() => {
+    if (!icon) return null;
+
+    // Si es un componente React (SVG), lo clonamos para forzar fill/stroke
+    if (isValidElement(icon)) {
+      return cloneElement(icon as any, {
+        fill: ACTIVE,
+        stroke: ACTIVE,
+        color: ACTIVE,
+      });
+    }
+
+    // Si NO es elemento válido (string, etc), lo dejamos igual
+    return icon;
+  })();
+
   return (
     <button
       type="button"
@@ -126,14 +142,12 @@ export const Option = ({
       className={twMerge(
         "active:scale-95 active:shadow-inner",
         "relative",
-        // ✅ SOLO UI: pill + spacing como tu imagen 2
         "inline-flex items-center gap-3",
-        "rounded-full border border-gray-200 bg-white",
+        "rounded-full border bg-white",
         "px-4 py-2.5 min-h-[44px]",
-        // ✅ evitar recortes
         "w-auto max-w-none overflow-visible",
-        // ✅ hover sutil
-        "hover:bg-neutral-50"
+        "hover:bg-neutral-50",
+        isCurrent ? "border-transparent" : "border-gray-200"
       )}
     >
       {isCurrent ? (
@@ -141,20 +155,20 @@ export const Option = ({
           transition={transition ? transition : { type: "spring" }}
           layoutId="highlighter"
           className={twMerge(
-            // ✅ SOLO UI: highlighter tipo pill
-            "rounded-full absolute inset-0 bg-brand_blue/10 border border-brand_blue z-10"
+            "rounded-full absolute inset-0 z-10",
+            "bg-[#5158F6]/10 border border-[#5158F6]"
           )}
         />
       ) : null}
-
-      {/* ✅ icono: que no se corte */}
-      {icon ? <span className="relative z-10 shrink-0">{icon}</span> : null}
-
-      {/* ✅ texto: no truncate */}
+      {icon ? (
+        <span className="relative z-10 shrink-0">
+          {isCurrent ? paintedIcon : icon}
+        </span>
+      ) : null}
       <span
         className={twMerge(
-          "relative z-10 text-brand_gray",
-          "whitespace-nowrap leading-tight",
+          "relative z-10 whitespace-nowrap leading-tight",
+          isCurrent ? "text-[#5158F6]" : "text-brand_gray",
           capitalize ? "capitalize" : null
         )}
       >
@@ -163,6 +177,7 @@ export const Option = ({
     </button>
   );
 };
+
 
 export const Otro = ({
   className,

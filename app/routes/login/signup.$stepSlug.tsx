@@ -11,6 +11,11 @@ import { getOrCreateOrgOrRedirect, updateOrg } from "~/.server/userGetters";
 import { Denik } from "~/components/icons/denik";
 import type { Route } from "./+types/signup.$stepSlug";
 import { cn } from "~/utils/cn";
+import { ArrowRight } from "~/components/icons/arrowRight";
+import { AnimatePresence, motion } from "motion/react";
+import { useSearchParams } from "react-router";
+
+
 
 export const REQUIRED_MESSAGE = "Este campo es requerido";
 
@@ -35,7 +40,17 @@ export const loader = async ({
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
+  const [searchParams] = useSearchParams();
+
+const aboutScreen = useMemo(() => {
+  const s = searchParams.get("screen");
+  const n = s ? Number(s) : 0;
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(2, n));
+}, [searchParams]);
+
   const { org, stepSlug } = loaderData;
+
 
   const FormComponent = useMemo(() => {
     switch (stepSlug) {
@@ -53,19 +68,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     }
   }, [stepSlug]);
 
-  // ✅ progreso 1..6
+
   const stepNumber =
-    stepSlug === "1"
-      ? 1
-      : stepSlug === "2"
-      ? 2
-      : stepSlug === "3"
-      ? 3
-      : stepSlug === "4"
-      ? 4
-      : stepSlug === "5"
-      ? 5
-      : 6;
+  stepSlug === "1" || stepSlug === "2" || stepSlug === "3"
+    ? aboutScreen + 1 
+    : stepSlug === "4"
+    ? 4
+    : stepSlug === "5"
+    ? 5
+    : 6;
+
 
   const progressPercent = (stepNumber / 6) * 100;
 
@@ -94,18 +106,29 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <div className="absolute inset-0 z-0 pointer-events-none select-none">
         
       </div>
-
       <main className="relative z-10 mx-auto w-full max-w-6xl px-10">
-        {stepSlug === "1" || stepSlug === "2" || stepSlug === "3" ? (
-          <AboutYourCompanyForm org={org} stepSlug={stepSlug} />
-        ) : stepSlug === "4" ? (
-          <BussinesTypeForm org={org} />
-        ) : stepSlug === "5" ? (
-          <TimesForm org={org} />
-        ) : (
-          <LoaderScreen title={org.name} />
-        )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={stepSlug}
+            initial={{ opacity: 0, y: 18, scale: 0.98, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -12, scale: 0.985, filter: "blur(6px)" }}
+            transition={{ type: "spring", bounce: 0.25, duration: 0.55 }}
+          >
+            {stepSlug === "1" || stepSlug === "2" || stepSlug === "3" ? (
+              <AboutYourCompanyForm org={org} stepSlug={stepSlug} />
+            ) : stepSlug === "4" ? (
+              <BussinesTypeForm org={org} />
+            ) : stepSlug === "5" ? (
+              <TimesForm org={org} />
+            ) : (
+              <LoaderScreen title={org.name} />
+            )}
+          </motion.div>
+        </AnimatePresence>
       </main>
+
+
 
       <footer className="absolute bottom-6 left-0 right-0 px-10 text-xs text-neutral-400">
         <div className="flex items-center justify-between">
@@ -134,17 +157,17 @@ export const LoaderScreen = ({ title }: { title: string }) => {
     <section className="absolute inset-0 z-10 bg-white">
       <div className="mx-auto flex min-h-[calc(100vh-170px)] w-full max-w-6xl flex-col items-center justify-center px-6 text-center">
         <img
-          className="h-[180px] w-auto select-none pointer-events-none"
+          className="h-[312px] w-auto select-none pointer-events-none"
           src="/images/denik.png"
           alt="figura"
           draggable={false}
         />
 
-        <h1 className="text-2xl font-semibold text-neutral-900 md:text-3xl">
+        <h1 className="font-jakarta font-bold text-4xl leading-[44px] text-brand_dark">{/*4xl= 36 */}
           {text}
         </h1>
 
-        <p className="mt-2 max-w-lg text-sm text-neutral-500">
+        <p className="font-jakarta font-medium text-lg leading-[24px] text-brand_gray">{/*lg= 18px */}
           Configura tus servicios, comparte tu agenda y empieza a recibir reservas
           desde tu página web en Denik.
         </p>
@@ -160,7 +183,7 @@ export const LoaderScreen = ({ title }: { title: string }) => {
                 isDisabled={false}
                 isLoading={false}
               >
-                Continuar
+                Continuar <ArrowRight />
               </PrimaryButton>
 
               <EmojiConfetti repeat={1} />
@@ -168,11 +191,11 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           ) : (
             <PrimaryButton
               type="button"
-              className="px-8 opacity-60 pointer-events-none"
+              className="px-8 opacity-60 pointer-events-none font-satoshi font-medium text-[16px] leading-[24px]"
               isDisabled
               isLoading={false}
             >
-              Continuar
+              Continuar <ArrowRight />
             </PrimaryButton>
           )}
         </div>
