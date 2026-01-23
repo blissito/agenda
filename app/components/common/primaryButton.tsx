@@ -36,7 +36,7 @@ export const PrimaryButton = ({
 
   const getClassName = () => {
     const getGeneral = () =>
-      "bg-brand_blue font-satoMiddle text-white min-w-[120px] gap-2 px-4 rounded-full text-center transition duration-400 block py-2 active:translate-y-[0.1px] flex justify-center items-center";
+      "bg-brand_blue font-satoMiddle text-white min-w-[120px] min-h-[44px] gap-2 px-4 rounded-full text-center transition duration-400 block py-2 active:translate-y-[0.1px] flex justify-center items-center";
 
     const getLoadingStyles = () =>
       "bg-brand_blue/50 pointer-events-none flex items-center gap-2";
@@ -63,7 +63,7 @@ export const PrimaryButton = ({
       className={getClassName()}
     >
       {!isDisabled && isLoading ? (
-        <FaSpinner className="animate-spin" />
+        <FaSpinner className="animate-spin text-xl" />
       ) : (
         children
       )}

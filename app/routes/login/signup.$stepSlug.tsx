@@ -162,11 +162,11 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           draggable={false}
         />
 
-        <h1 className="font-jakarta font-bold text-4xl leading-[44px] text-brand_dark">{/*4xl= 36 */}
+        <h1 className="font-jakarta-bold font-bold text-4xl leading-[44px] text-brand_dark">{/*4xl= 36 */}
           {text}
         </h1>
 
-        <p className="font-jakarta font-medium text-lg leading-[24px] text-brand_gray mt-4">{/*lg= 18px */}
+        <p className="font-jakarta  text-lg leading-[24px] text-brand_gray mt-4">{/*lg= 18px */}
           Configura tus servicios, comparte tu agenda y empieza a recibir reservas
           desde tu página web en Denik.
         </p>
