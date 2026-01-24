@@ -178,7 +178,7 @@ export const ServiceCard = ({
             <motion.button
               type="button"
               onClick={() => setShowDelete(false)}
-              className="absolute inset-0 bg-black/30 backdrop-blur-[8px]"
+              className="absolute inset-0 bg-black/35 backdrop-blur-[16px]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -187,55 +187,55 @@ export const ServiceCard = ({
 
             {/* caja */}
             <motion.div
-              ref={refDelete}
-              initial={{ opacity: 0, scale: 0.98, y: 6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 6 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="relative w-[600px] h-[244px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] px-[124px] py-6 font-satoshi"
-            >
-              {/* close */}
-              <button
-                type="button"
-                onClick={() => setShowDelete(false)}
-                className="absolute right-3 top-3 h-9 w-9 rounded-full grid place-items-center text-brand_gray/70 hover:text-brand_gray hover:bg-brand_light_gray/60 transition-all active:scale-95"
-                aria-label="Cerrar"
-              >
-                ✕
-              </button>
+  ref={refDelete}
+  initial={{ opacity: 0, scale: 0.98, y: 6 }}
+  animate={{ opacity: 1, scale: 1, y: 0 }}
+  exit={{ opacity: 0, scale: 0.98, y: 6 }}
+  transition={{ type: "spring", stiffness: 260, damping: 22 }}
+  className="relative w-[600px] h-[244px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi"
+>
+  {/* close */}
+  <button
+    type="button"
+    onClick={() => setShowDelete(false)}
+    className="absolute right-4 top-4 h-8 w-8 grid place-items-center text-brand_dark hover:text-brand_gray transition-all active:scale-95"
+    aria-label="Cerrar"
+  >
+    ✕
+  </button>
 
-              {/* contenido */}
-              <div className="w-full h-full flex flex-col items-center">
-                <h3 className="w-[521px] h-[32px] text-center font-satoshi font-bold text-[24px] leading-[32px] text-brand_dark">
-                  ¿Seguro que quieres eliminar este servicio? 🫣
-                </h3>
-                <div className="h-[16px]" />
-                <p className="mt-3 w-[504px] h-[44px] text-center font-satoshi text-sm leading-[22px] text-brand_gray">
-                  Al eliminarlo también eliminaremos todas las citas agendadas del
-                  servicio. Enviaremos una notificación a cada client@.
-                </p>
-                {/* espacio vertical exacto entre texto y botones */}
-                  <div className="h-[48px]" />
-                {/* Espacio en tre botones */}
-                <div className="flex items-center justify-center gap-[32px] pb-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowDelete(false)}
-                    className="w-[160px] h-[32px] rounded-full bg-[#F3F3F3] text-brand_gray font-satoshi text-sm hover:bg-[#EDEDED] transition-all active:scale-95"
-                  >
-                    Cancelar
-                  </button>
+  {/* layout interno exacto (todo dentro del card) */}
+  <div className="h-full w-full px-[48px] pt-[28px] pb-[24px] flex flex-col items-center">
+    <h3 className="text-center font-satoshi font-bold text-[24px] leading-[32px] text-brand_dark">
+      ¿Seguro que quieres eliminar este servicio? 🫣
+    </h3>
 
-                  <button
-                    type="button"
-                    onClick={handleDeleteConfirm}
-                    className="w-[160px] h-[32px] rounded-full bg-[#CA5757] text-white font-satoshi text-sm hover:bg-[#B84E4E] transition-all active:scale-95"
-                  >
-                    Sí, eliminar
-                  </button>
-                </div>
-              </div>
-            </motion.div>
+    <p className="mt-[16px] text-center font-medium font-satoshi text-[16px] leading-[16px] text-brand_gray">
+      Al eliminarlo también eliminaremos todas las citas agendadas del servicio.
+      Enviaremos una notificación a cada client@.
+    </p>
+
+    {/* margen real (no div) */}
+    <div className="mt-[48px] flex items-center justify-center gap-[32px]">
+      <button
+        type="button"
+        onClick={() => setShowDelete(false)}
+        className="w-[160px] h-[40px] rounded-full bg-[#F3F3F3] text-brand_dark font-medium font-satoshi text-[16px] hover:bg-[#EDEDED] transition-all active:scale-95"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        onClick={handleDeleteConfirm}
+        className="w-[160px] h-[40px] rounded-full bg-[#CA5757] text-white font-satoshi font-medium text-[16px] hover:bg-[#B84E4E] transition-all active:scale-95"
+      >
+        Sí, eliminar
+      </button>
+    </div>
+  </div>
+</motion.div>
+
           </motion.div>
         )}
       </AnimatePresence>

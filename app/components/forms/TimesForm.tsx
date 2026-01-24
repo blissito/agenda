@@ -192,87 +192,6 @@ export const TimesForm = ({
   const isDisabled = !isValid || (errors.weekDays ? true : false);
 
   return (
-<<<<<<< HEAD
-    <Form onSubmit={handleSubmit(submit)} className="w-full">
-      {/* Layout tipo Figma: izquierda controles / derecha preview */}
-      <div className="grid gap-10 lg:grid-cols-[1fr_420px] items-center min-h-[calc(100vh-190px)]">
-
-        {/* ==================== IZQUIERDA ==================== */}
-        <div className="w-full max-w-3xl">
-          <a
-            href="/signup/4"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
-          >
-            <span className="text-lg leading-none">‹</span> Volver
-          </a>
-
-          <h1 className="text-xl md:text-2xl font-jakarta font-semibold text-brand_dark">
-            Y por último, ¿Cuál es el horario de tu negocio?
-          </h1>
-
-          {/* Lista de días */}
-          <div className="mt-6 space-y-4">
-            {ENTIRE_WEEK.map((dayString: string) => {
-              const active = getValues().weekDays.includes(dayString);
-
-              return (
-                <DayTimesSelector
-                  key={dayString}
-                  ranges={data[dayString] ?? []}
-                  addRange={() => addRange(dayString)}
-                  onRemoveRange={(index) => removeRange(dayString, index)}
-                  onUpdate={(ranges) => handleUpdate(dayString, ranges)}
-                  isActive={active}
-                  id={dayString}
-                >
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-neutral-700">
-                      {cap(dayString)}
-                    </span>
-
-                    <Switch
-                      defaultChecked={active}
-                      name="weekDays"
-                      value={dayString}
-                      onChange={handleSwitchChange}
-                      label={<span className="sr-only">{cap(dayString)}</span>}
-                    />
-                  </div>
-                </DayTimesSelector>
-              );
-            })}
-          </div>
-
-          {/* Botón + error */}
-          <div className="mt-10 max-w-sm">
-            {children ? (
-              children
-            ) : noSubmit ? null : (
-              <PrimaryButton
-                isLoading={fetcher.state !== "idle"}
-                className="w-[190px]"
-                isDisabled={isDisabled}
-                type="submit"
-              >
-                {cta || "Continuar"}{" "} <ArrowRight />
-              </PrimaryButton>
-            )}
-
-            <p className="mt-3 ml-1 h-auto text-red-500 text-xs">
-              {errors.weekDays?.message}
-            </p>
-          </div>
-        </div>
-
-        {/* ==================== DERECHA (preview) ==================== */}
-        <div className="hidden lg:flex w-full justify-center pt-16">
-          <img
-            src="/images/agenda.png"
-            alt="preview"
-            className="w-full max-w-[500px] select-none pointer-events-none"
-            draggable={false}
-=======
     <Form
       onSubmit={handleSubmit(submit)}
       className={twMerge(
@@ -298,7 +217,6 @@ export const TimesForm = ({
             value={dayString}
             label={DAY_LABELS[dayString]}
             onChange={handleSwitchChange}
->>>>>>> e0cc7b30809e14e4b18b69e8a48b1bbb30b66f0a
           />
         </DayTimesSelector>
       ))}
