@@ -82,7 +82,106 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       };
     }
   });
-  const clients = Object.values(clientsObject) as Client[];
+  let clients = Object.values(clientsObject) as Client[];
+
+  // Mock data si no hay clientes reales
+  if (clients.length === 0) {
+    const mockClients: Client[] = [
+      {
+        id: "mock-1",
+        displayName: "Isabela Lozano",
+        email: "isabela_lozano@gmail.com",
+        tel: "+52 55 1234 5678",
+        points: 150,
+        eventCount: 8,
+        nextEventDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 días
+        createdAt: new Date("2024-10-15"),
+        updatedAt: new Date(),
+        comments: null,
+        loggedUserId: null,
+      },
+      {
+        id: "mock-2",
+        displayName: "Carlos Méndez",
+        email: "carlos.mendez@hotmail.com",
+        tel: "+52 55 9876 5432",
+        points: 280,
+        eventCount: 12,
+        nextEventDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 días
+        createdAt: new Date("2024-09-20"),
+        updatedAt: new Date(),
+        comments: null,
+        loggedUserId: null,
+      },
+      {
+        id: "mock-3",
+        displayName: "María García",
+        email: "maria.garcia@outlook.com",
+        tel: "+52 33 5555 1234",
+        points: 95,
+        eventCount: 4,
+        nextEventDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // mañana
+        createdAt: new Date("2024-11-01"),
+        updatedAt: new Date(),
+        comments: null,
+        loggedUserId: null,
+      },
+      {
+        id: "mock-4",
+        displayName: "Roberto Hernández",
+        email: "roberto.hdz@gmail.com",
+        tel: "+52 81 4444 9999",
+        points: 320,
+        eventCount: 15,
+        nextEventDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 semana
+        createdAt: new Date("2024-08-10"),
+        updatedAt: new Date(),
+        comments: null,
+        loggedUserId: null,
+      },
+      {
+        id: "mock-5",
+        displayName: "Ana Sofía Ramírez",
+        email: "ana.ramirez@yahoo.com",
+        tel: "+52 55 7777 8888",
+        points: 180,
+        eventCount: 6,
+        nextEventDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 días
+        createdAt: new Date("2024-10-28"),
+        updatedAt: new Date(),
+        comments: null,
+        loggedUserId: null,
+      },
+      {
+        id: "mock-6",
+        displayName: "Fernando Torres",
+        email: "fernando.torres@gmail.com",
+        tel: "+52 55 2222 3333",
+        points: 450,
+        eventCount: 22,
+        nextEventDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 días
+        createdAt: new Date("2024-06-15"),
+        updatedAt: new Date(),
+        comments: null,
+        loggedUserId: null,
+      },
+      {
+        id: "mock-7",
+        displayName: "Lucía Martínez",
+        email: "lucia.mtz@hotmail.com",
+        tel: "+52 33 1111 2222",
+        points: 75,
+        eventCount: 3,
+        nextEventDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 días
+        createdAt: new Date("2024-11-10"),
+        updatedAt: new Date(),
+        comments: null,
+        loggedUserId: null,
+      },
+    ];
+    clients = mockClients;
+  }
+
   return {
     orgId: org.id,
     clients,
@@ -178,7 +277,7 @@ export const TableHeader = ({
   titles: (string | [string, string])[];
 }) => {
   return (
-    <div className="grid grid-cols-12 text-xs font-thin rounded-t-2xl border-t text-brand_gray py-2 px-8 bg-white border-slate-100 border mt-4">
+    <div className="grid grid-cols-12 text-[12px] font-satoMedium rounded-t-2xl border-t text-[#4b5563] py-3 px-6 bg-white border-slate-100 border mt-4">
       {titles.map((tuple: string | [string, string]) => {
         const title = Array.isArray(tuple) ? tuple[0] : tuple;
         const span = Array.isArray(tuple) ? tuple[1] : "col-span-2";

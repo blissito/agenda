@@ -90,8 +90,12 @@ p {
 }
 
 .font-satoMedium {
+  font-family: "Satoshi ";
+}
+.font-satoBold {
   font-family: "Denik bold ";
 }
+
 
 .overlay {
   background-color: white;

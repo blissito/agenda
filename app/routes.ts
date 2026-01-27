@@ -52,6 +52,10 @@ export default [
       route("clientes", "routes/dash/dash.clientes.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),
       route("evaluaciones", "routes/dash/dash.reviews.tsx"),
+      route(
+        "evaluaciones/:serviceId",
+        "routes/dash/dash.reviews_.$serviceId.tsx"
+      ),
       route("ajustes", "routes/dash/dash.ajustes.tsx"),
       route("pagos", "routes/dash/pagos.tsx"),
     ]),

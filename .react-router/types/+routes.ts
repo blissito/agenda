@@ -98,6 +98,11 @@ type Pages = {
   "/dash/evaluaciones": {
     params: {};
   };
+  "/dash/evaluaciones/:serviceId": {
+    params: {
+      "serviceId": string;
+    };
+  };
   "/dash/ajustes": {
     params: {};
   };
@@ -138,7 +143,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -170,7 +175,7 @@ type RouteFiles = {
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
-    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos";
+    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos";
   };
   "routes/dash/dash._index.tsx": {
     id: "routes/dash/dash._index";
@@ -235,6 +240,10 @@ type RouteFiles = {
   "routes/dash/dash.reviews.tsx": {
     id: "routes/dash/dash.reviews";
     page: "/dash/evaluaciones";
+  };
+  "routes/dash/dash.reviews_.$serviceId.tsx": {
+    id: "routes/dash/dash.reviews_.$serviceId";
+    page: "/dash/evaluaciones/:serviceId";
   };
   "routes/dash/dash.ajustes.tsx": {
     id: "routes/dash/dash.ajustes";
@@ -308,6 +317,7 @@ type RouteModules = {
   "routes/dash/dash.clientes": typeof import("./app/routes/dash/dash.clientes.tsx");
   "routes/dash/dash.lealtad": typeof import("./app/routes/dash/dash.lealtad.tsx");
   "routes/dash/dash.reviews": typeof import("./app/routes/dash/dash.reviews.tsx");
+  "routes/dash/dash.reviews_.$serviceId": typeof import("./app/routes/dash/dash.reviews_.$serviceId.tsx");
   "routes/dash/dash.ajustes": typeof import("./app/routes/dash/dash.ajustes.tsx");
   "routes/dash/pagos": typeof import("./app/routes/dash/pagos.tsx");
   "routes/api/customers": typeof import("./app/routes/api/customers.ts");
