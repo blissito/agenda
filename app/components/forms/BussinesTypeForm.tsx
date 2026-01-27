@@ -175,7 +175,7 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
         "min-h-[calc(100vh-190px)]",
         "flex flex-col",
         "justify-center",
-        "px-10",
+        "px-4 lg:px-0",
         "pt-10 lg:pt-0",
       ].join(" ")}
     >

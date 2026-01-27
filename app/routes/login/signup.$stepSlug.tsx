@@ -143,13 +143,12 @@ const aboutScreen = useMemo(() => {
 }
 
 export const LoaderScreen = ({ title }: { title: string }) => {
-  const [text, setText] = useState(title);
+  const [text, setText] = useState("¡Tu agenda en línea está lista!");
   const [show, set] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
       set(true);
-      setText("¡Tu agenda en línea está lista!");
     }, 2000);
   }, []);
 
@@ -163,16 +162,16 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           draggable={false}
         />
 
-        <h1 className="font-jakarta font-bold text-4xl leading-[44px] text-brand_dark">{/*4xl= 36 */}
+        <h1 className="font-jakarta-bold font-bold text-4xl leading-[44px] text-brand_dark">{/*4xl= 36 */}
           {text}
         </h1>
 
-        <p className="font-jakarta font-medium text-lg leading-[24px] text-brand_gray">{/*lg= 18px */}
+        <p className="font-jakarta  text-lg leading-[24px] text-brand_gray mt-4">{/*lg= 18px */}
           Configura tus servicios, comparte tu agenda y empieza a recibir reservas
           desde tu página web en Denik.
         </p>
 
-        <div className="mt-7">
+        <div className="mt-10">
           {show ? (
             <>
               <PrimaryButton
@@ -191,9 +190,9 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           ) : (
             <PrimaryButton
               type="button"
-              className="px-8 opacity-60 pointer-events-none font-satoshi font-medium text-[16px] leading-[24px]"
-              isDisabled
-              isLoading={false}
+              className="px-8 font-satoshi font-medium text-[16px] leading-[24px]"
+              isDisabled={false}
+              isLoading={true}
             >
               Continuar <ArrowRight />
             </PrimaryButton>

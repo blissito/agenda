@@ -15,6 +15,7 @@ import {
 } from "~/utils/zod_schemas";
 import { nanoid } from "nanoid";
 import slugify from "slugify";
+import { englishToSpanish } from "~/utils/weekDaysTransform";
 
 export const redirectIfUser = async (request: Request) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -99,6 +100,10 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
   if (user.orgId) {
     let found = await db.org.findUnique({ where: { id: user.orgId } });
     if (found) {
+      // Transform weekDays from English to Spanish
+      if (found.weekDays) {
+        found.weekDays = englishToSpanish(found.weekDays as any) as any;
+      }
       return found;
     }
   }
@@ -122,6 +127,10 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
   if (exists.isActive) {
     throw redirect("/dash");
   }
+  // Transform weekDays from English to Spanish
+  if (exists.weekDays) {
+    exists.weekDays = englishToSpanish(exists.weekDays as any) as any;
+  }
   return exists;
 };
 
@@ -140,6 +149,11 @@ export const getUserAndOrgOrRedirect = async (
     select: options && options.select ? options.select : undefined,
   });
   if (!org || !org.weekDays) throw redirect(rurl); // @TODO: why week days?
+
+  // Transform weekDays from English to Spanish
+  if (org.weekDays) {
+    org.weekDays = englishToSpanish(org.weekDays as any) as any;
+  }
 
   return { user, org };
 };

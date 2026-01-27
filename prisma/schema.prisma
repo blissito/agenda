@@ -24,13 +24,13 @@ type OrgWebsiteConfig {
 }
 
 type OrgWeekDays {
-  monday    Json?
-  tuesday   Json?
-  wednesday Json?
-  thursday  Json?
-  friday    Json?
-  saturday  Json?
-  sunday    Json?
+  lunes      Json?
+  martes     Json?
+  mi_rcoles  Json?
+  jueves     Json?
+  viernes    Json?
+  s_bado     Json?
+  domingo    Json?
 }
 
 type ServiceConfig {
@@ -47,13 +47,13 @@ type ServiceLimit {
 }
 
 type ServiceWeekDays {
-  monday    Json?
-  tuesday   Json?
-  wednesday Json?
-  thursday  Json?
-  friday    Json?
-  saturday  Json?
-  sunday    Json?
+  lunes      Json?
+  martes     Json?
+  mi_rcoles  Json?
+  jueves     Json?
+  viernes    Json?
+  s_bado     Json?
+  domingo    Json?
 }
 
 type UserStripe {

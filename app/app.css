@@ -56,7 +56,14 @@ html {
 .font-grotesk {
   font-family: "Space Grotesk";
 }
-
+.font-jakarta-bold{
+    font-family: "JakarBold";
+    font-weight: 800;
+}
+.font-jakarta{
+  font-family: "Jakarta";
+    font-weight: 500;
+}
 html {
   --bg-mask-color: red;
 }

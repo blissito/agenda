@@ -114,7 +114,7 @@ export const AboutYourCompanyForm = ({
           >
             {/* ===== Screen 1: Nombre negocio ===== */}
             {screen === 0 && (
-              <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
+              <div className="relative z-10 mx-auto w-full max-w-6xl text-center">
                 <div className="mx-auto mb-8 flex w-full justify-center">
                   <img
                     src="/images/signin/Screen.svg"
@@ -257,7 +257,7 @@ export const AboutYourCompanyForm = ({
                 <div className="w-full flex justify-center">
                   <div
                     className={twMerge(
-                      "grid w-full max-w-5xl gap-16 lg:gap-24",
+                      "grid w-full max-w-6xl gap-16 lg:gap-24",
                       "lg:grid-cols-[420px_420px]",
                       "items-center"
                     )}

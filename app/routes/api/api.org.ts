@@ -3,6 +3,7 @@ import { db } from "~/utils/db.server";
 import type { Route } from "./+types/api.org";
 import { orgUpdateSchema } from "~/utils/zod_schemas";
 import { z } from "zod";
+import { spanishToEnglish } from "~/utils/weekDaysTransform";
 
 // Reserved slugs that cannot be used
 const RESERVED_SLUGS = [
@@ -90,10 +91,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
       restData.slug = normalized;
     }
 
+    // Transform Spanish day names to English for Prisma
+    const transformedWeekDays = weekDays ? spanishToEnglish(weekDays) : undefined;
+
     // Build Prisma update data, wrapping weekDays in `set` for embedded types
     const prismaData = {
       ...restData,
-      ...(weekDays && { weekDays: { set: weekDays } }),
+      ...(transformedWeekDays && { weekDays: { set: transformedWeekDays } }),
     };
 
     await db.org.update({ where: { id }, data: prismaData });
