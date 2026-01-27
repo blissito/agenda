@@ -206,7 +206,7 @@ export const ServiceCard = ({
 
   {/* layout interno exacto (todo dentro del card) */}
   <div className="h-full w-full px-[48px] pt-[28px] pb-[24px] flex flex-col items-center">
-    <h3 className="text-center font-satoshi font-bold text-[24px] leading-[32px] text-brand_dark">
+    <h3 className="text-center font-satoMedium text-[23px] leading-[32px] text-brand_dark">
       ¿Seguro que quieres eliminar este servicio? 🫣
     </h3>
 
@@ -220,7 +220,7 @@ export const ServiceCard = ({
       <button
         type="button"
         onClick={() => setShowDelete(false)}
-        className="w-[160px] h-[40px] rounded-full bg-[#F3F3F3] text-brand_dark font-medium font-satoshi text-[16px] hover:bg-[#EDEDED] transition-all active:scale-95"
+        className="w-[160px] h-[40px] rounded-full bg-[#F3F3F3] text-brand_dark font-satoMiddle text-[16px] hover:bg-[#EDEDED] transition-all active:scale-95"
       >
         Cancelar
       </button>
@@ -228,7 +228,7 @@ export const ServiceCard = ({
       <button
         type="button"
         onClick={handleDeleteConfirm}
-        className="w-[160px] h-[40px] rounded-full bg-[#CA5757] text-white font-satoshi font-medium text-[16px] hover:bg-[#B84E4E] transition-all active:scale-95"
+        className="w-[160px] h-[40px] rounded-full bg-[#CA5757] text-white font-satoMiddle text-[16px] hover:bg-[#B84E4E] transition-all active:scale-95"
       >
         Sí, eliminar
       </button>
