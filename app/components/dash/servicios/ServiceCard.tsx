@@ -187,54 +187,56 @@ export const ServiceCard = ({
 
             {/* caja */}
             <motion.div
-  ref={refDelete}
-  initial={{ opacity: 0, scale: 0.98, y: 6 }}
-  animate={{ opacity: 1, scale: 1, y: 0 }}
-  exit={{ opacity: 0, scale: 0.98, y: 6 }}
-  transition={{ type: "spring", stiffness: 260, damping: 22 }}
-  className="relative w-[600px] h-[244px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi"
->
-  {/* close */}
-  <button
-    type="button"
-    onClick={() => setShowDelete(false)}
-    className="absolute right-4 top-4 h-8 w-8 grid place-items-center text-brand_dark hover:text-brand_gray transition-all active:scale-95"
-    aria-label="Cerrar"
-  >
-    ✕
-  </button>
+              ref={refDelete}
+              initial={{ opacity: 0, scale: 0.98, y: 6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 6 }}
+              transition={{ type: "spring", stiffness: 260, damping: 22 }}
+              className="relative w-[600px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoMedium"
+            >
+              <button
+                type="button"
+                onClick={() => setShowDelete(false)}
+                className="absolute right-4 top-4 h-8 w-8 grid place-items-center text-brand_gray/70 hover:text-brand_gray transition-all active:scale-95"
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
 
-  {/* layout interno exacto (todo dentro del card) */}
-  <div className="h-full w-full px-[48px] pt-[28px] pb-[24px] flex flex-col items-center">
-    <h3 className="text-center font-satoMedium text-[23px] leading-[32px] text-brand_dark">
-      ¿Seguro que quieres eliminar este servicio? 🫣
-    </h3>
+              <div className="w-full px-12 pt-7 pb-6 flex flex-col items-center font-satoshi">
+                <div
+                  role="heading"
+                  aria-level={3}
+                  className="text-center font-bold text-2xl leading-8 text-brand_dark"
+                >
+                  ¿Seguro que quieres eliminar este servicio? 🫣
+                </div>
 
-    <p className="mt-[16px] text-center font-medium font-satoshi text-[16px] leading-[16px] text-brand_gray">
-      Al eliminarlo también eliminaremos todas las citas agendadas del servicio.
-      Enviaremos una notificación a cada client@.
-    </p>
+                <p className="mt-4 text-center text-brand_gray leading-normal">
+                  Al eliminarlo también eliminaremos todas las citas agendadas del servicio.
+                  Enviaremos una notificación a cada client@.
+                </p>
 
-    {/* margen real (no div) */}
-    <div className="mt-[48px] flex items-center justify-center gap-[32px]">
-      <button
-        type="button"
-        onClick={() => setShowDelete(false)}
-        className="w-[160px] h-[40px] rounded-full bg-[#F3F3F3] text-brand_dark font-satoMiddle text-[16px] hover:bg-[#EDEDED] transition-all active:scale-95"
-      >
-        Cancelar
-      </button>
+                <div className="mt-12 flex items-center justify-center gap-8">
+                  <button
+                    type="button"
+                    onClick={() => setShowDelete(false)}
+                    className="w-[160px] h-[40px] rounded-full bg-brand_light_gray  font-medium transition-all active:scale-95"
+                  >
+                    Cancelar
+                  </button>
 
-      <button
-        type="button"
-        onClick={handleDeleteConfirm}
-        className="w-[160px] h-[40px] rounded-full bg-[#CA5757] text-white font-satoMiddle text-[16px] hover:bg-[#B84E4E] transition-all active:scale-95"
-      >
-        Sí, eliminar
-      </button>
-    </div>
-  </div>
-</motion.div>
+                  <button
+                    type="button"
+                    onClick={handleDeleteConfirm}
+                    className="w-[160px] h-[40px] rounded-full bg-brand_red text-white font-medium transition-all active:scale-95"
+                  >
+                    Sí, eliminar
+                  </button>
+                </div>
+              </div>
+
+            </motion.div>
 
           </motion.div>
         )}

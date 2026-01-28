@@ -327,7 +327,7 @@ export const ServiceDetail = ({
     </SecondaryButton>
   </div>
 
-  <p className="mt-4 max-w-[46ch] font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">
+  <p className="mt-4 max-w-[46ch] font-satoMiddle text-base  tracking-normal text-brand_gray">
     {service.description}
   </p>
 
@@ -338,7 +338,7 @@ export const ServiceDetail = ({
         <p className=" text-[14px] font-satoMiddle text-brand_dark">
           Servicio
         </p>
-        <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">
+        <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">
           {service.place}
         </p>
       </div>
@@ -347,7 +347,7 @@ export const ServiceDetail = ({
         <p className=" text-[14px] font-satoMiddle text-brand_dark">
           Agendamiento en línea
         </p>
-        <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">
+        <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">
           {service.isActive ? "Activo" : "Desactivado"}
         </p>
       </div>
@@ -357,7 +357,7 @@ export const ServiceDetail = ({
       <p className=" text-[14px] font-satoMiddle text-brand_dark">
         Agendamiento simultáneo
       </p>
-      <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">
+      <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">
         {service.allowMultiple ? `hasta ${service.limit?.bookings || 6} citas` : "Desactivado"}
       </p>
     </div>
@@ -370,7 +370,7 @@ export const ServiceDetail = ({
         <p className=" text-[14px] font-satoMiddle text-brand_dark">
           Precio
         </p>
-        <div className="inline-flex items-center  rounded-full border border-brand_stroke bg-white px-4 py-2 text-[16px] text-brand_gray">
+        <div className="inline-flex items-center  rounded-full border border-brand_stroke bg-white px-4 py-2 text-base text-brand_gray">
           ${service.price} MXN
         </div>
       </div>
@@ -379,7 +379,7 @@ export const ServiceDetail = ({
         <p className=" text-[14px] font-satoMiddle text-brand_dark">
           Puntos
         </p>
-        <div className="inline-flex items-center rounded-full border border-brand_stroke bg-white px-4 py-2 text-[16px] text-brand_gray">
+        <div className="inline-flex items-center rounded-full border border-brand_stroke bg-white px-4 py-2 text-base text-brand_gray">
           {service.points} puntos
         </div>
       </div>
@@ -417,51 +417,51 @@ export const ServiceDetail = ({
             </SecondaryButton>
           </div>
 
-          <p className="mt-3 font-satoMiddle text-[16px] leading-[24px]">
+          <p className="mt-3 font-satoMiddle text-base leading-[24px]">
               <span className="text-brand_gray">Sesiones de </span>
 
-              <span className="font-satoMiddle text-[16px]  text-brand_dark">
+              <span className="font-satoMiddle text-base  text-brand_dark">
                 {service.duration} minutos
               </span>
 
-              <span className="font-satoMiddle text-[16px] text-brand_gray"> con </span>
+              <span className="font-satoMiddle text-base text-brand_gray"> con </span>
 
-              <span className="font-satoMiddle text-[16px]  text-brand_dark">
+              <span className="font-satoMiddle ttext-base  text-brand_dark">
                 0 minutos
               </span>
 
-              <span className="font-satoMiddle text-[16px] text-brand_gray"> de descanso.</span>
+              <span className="font-satoMiddle text-base text-brand_gray"> de descanso.</span>
             </p>
 
 
           <div className="mt-5 space-y-4">
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-[16px]  text-brand_dark">Lunes</p>
-              <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["lunes"])}</p>
+            <p className="font-satoMiddle text-base  text-brand_dark">Lunes</p>
+              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["lunes"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-[16px]  text-brand_dark">Martes</p>
-              <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray" >{formatRange(orgWeekDays["martes"])}</p>
+            <p className="font-satoMiddle text-base  text-brand_dark">Martes</p>
+              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray" >{formatRange(orgWeekDays["martes"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-[16px]  text-brand_dark">Miércoles</p>
-              <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["miércoles"])}</p>
+            <p className="font-satoMiddle text-base  text-brand_dark">Miércoles</p>
+              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["miércoles"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-[16px]  text-brand_dark">Jueves</p>
-              <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["jueves"])}</p>
+            <p className="font-satoMiddle text-base  text-brand_dark">Jueves</p>
+              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["jueves"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="font-satoMiddle text-[16px]  text-brand_dark">Viernes</p>
-              <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["viernes"])}</p>
+              <p className="font-satoMiddle text-base  text-brand_dark">Viernes</p>
+              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["viernes"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-[16px]  text-brand_dark">Sábado</p>
-              <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["sábado"])}</p>
+            <p className="font-satoMiddle text-base  text-brand_dark">Sábado</p>
+              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["sábado"])}</p>
             </div>
             <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-[16px] text-brand_dark">Domingo</p>
-              <p className="font-satoMiddle text-[16px] leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["domingo"])}</p>
+            <p className="font-satoMiddle text-base text-brand_dark">Domingo</p>
+              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["domingo"])}</p>
             </div>
           </div>
         </div>
@@ -489,12 +489,12 @@ export const ServiceDetail = ({
             </SecondaryButton>
           </div>
 
-          <div className="mt-5 space-y-4">
+          <div className="mt-4 space-y-4">
   <div className="space-y-1">
     <p className="font-satoMiddle text-[14px] text-brand_gray">
       Pago
     </p>
-    <p className="font-satoMiddle text-[16px] text-brand_dark">
+    <p className="font-satoMiddle text-base text-brand_dark">
       Al agendar
     </p>
   </div>
@@ -503,7 +503,7 @@ export const ServiceDetail = ({
     <p className="font-satoMiddle text-[14px] text-brand_gray">
       Mail de confirmación
     </p>
-    <p className="font-satoMiddle text-[16px] text-brand_dark">
+    <p className="font-satoMiddle text-base text-brand_dark">
       {service.config?.confirmation
         ? "Lo enviamos en cuanto se completa la reservación"
         : "Desactivado"}
@@ -514,7 +514,7 @@ export const ServiceDetail = ({
     <p className="font-satoMiddle text-[14px] text-brand_gray">
       Mail de recordatorio
     </p>
-    <p className="font-satoMiddle text-[16px] text-brand_dark">
+    <p className="font-satoMiddle text-base text-brand_dark">
       {service.config?.confirmation
         ? "Lo enviaremos 24 hrs antes de la sesión"
         : "Desactivado"}
@@ -525,7 +525,7 @@ export const ServiceDetail = ({
     <p className="font-satoMiddle text-[14px] text-brand_gray">
       Whats app de recordatorio
     </p>
-    <p className="font-satoMiddle text-[16px] text-brand_dark">
+    <p className="font-satoMiddle text-base text-brand_dark">
       {service.config?.survey ? "Lo enviamos 4hrs antes de la sesión" : "Desactivado"}
     </p>
   </div>
@@ -534,7 +534,7 @@ export const ServiceDetail = ({
     <p className="font-satoMiddle text-[14px] text-brand_gray">
       Mail de evaluación
     </p>
-    <p className="font-satoMiddle text-[16px] text-brand_dark">
+    <p className="font-satoMiddle text-base text-brand_dark">
       {service.config?.confirmation
         ? "Lo enviamos 10 min después de terminar la sesión"
         : "Desactivado"}
