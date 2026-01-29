@@ -9,6 +9,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Spinner } from "~/components/common/Spinner";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
+import { ConfirmModal } from "~/components/common/ConfirmModal";
 import { twMerge } from "tailwind-merge";
 import { useCopyLink } from "~/components/hooks/useCopyLink";
 import { Image } from "~/components/common/Image";
@@ -47,13 +48,6 @@ export const ServiceCard = ({
     },
     isActive: show,
     includeEscape: true, // captures [Esc] key press
-  });
-  const refDelete = useClickOutside<HTMLDivElement>({
-    onOutsideClick: () => {
-      setShowDelete(false);
-    },
-    isActive: showDelete,
-    includeEscape: true,
   });
 
   const { ref: copiadoRef, setLink } = useCopyLink(link);
@@ -163,81 +157,16 @@ export const ServiceCard = ({
         )}
       </AnimatePresence>
 
-      {/* MODAL ELIMINAR */}
-      <AnimatePresence>
-        {showDelete && (
-          <motion.div
-            className="fixed inset-0 z-[999] flex items-center justify-center px-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            aria-modal="true"
-            role="dialog"
-          >
-            {/* overlay más borroso */}
-            <motion.button
-              type="button"
-              onClick={() => setShowDelete(false)}
-              className="absolute inset-0 bg-black/35 backdrop-blur-[16px]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              aria-label="Cerrar"
-            />
-
-            {/* caja */}
-            <motion.div
-              ref={refDelete}
-              initial={{ opacity: 0, scale: 0.98, y: 6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 6 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="relative w-[600px] h-[244px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi"
-            >
-              {/* close */}
-              <button
-                type="button"
-                onClick={() => setShowDelete(false)}
-                className="absolute right-4 top-4 h-8 w-8 grid place-items-center text-brand_dark hover:text-brand_gray transition-all active:scale-95"
-                aria-label="Cerrar"
-              >
-                ✕
-              </button>
-
-              {/* layout interno exacto (todo dentro del card) */}
-              <div className="h-full w-full px-[48px] pt-[28px] pb-[24px] flex flex-col items-center">
-                <h3 className="text-center font-satoshi font-bold text-[24px] leading-[32px] text-brand_dark">
-                  ¿Seguro que quieres eliminar este servicio? 🫣
-                </h3>
-
-                <p className="mt-[16px] text-center font-medium font-satoshi text-[16px] leading-[16px] text-brand_gray">
-                  Al eliminarlo también eliminaremos todas las citas agendadas del servicio.
-                  Enviaremos una notificación a cada client@.
-                </p>
-
-                {/* margen real (no div) */}
-                <div className="mt-[48px] flex items-center justify-center gap-[32px]">
-                  <button
-                    type="button"
-                    onClick={() => setShowDelete(false)}
-                    className="w-[160px] h-[40px] rounded-full bg-[#F3F3F3] text-brand_dark font-medium font-satoshi text-[16px] hover:bg-[#EDEDED] transition-all active:scale-95"
-                  >
-                    Cancelar
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDeleteConfirm}
-                    className="w-[160px] h-[40px] rounded-full bg-[#CA5757] text-white font-satoshi font-medium text-[16px] hover:bg-[#B84E4E] transition-all active:scale-95"
-                  >
-                    Sí, eliminar
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ConfirmModal
+        isOpen={showDelete}
+        onClose={() => setShowDelete(false)}
+        onConfirm={handleDeleteConfirm}
+        title="¿Seguro que quieres eliminar este servicio? 🫣"
+        description="Al eliminarlo también eliminaremos todas las citas agendadas del servicio. Enviaremos una notificación a cada client@."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+      />
 
       <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer flex flex-col">
