@@ -46,7 +46,7 @@ const StatusTag = ({
 
 export const EventTable = ({ events }: { events: Event[] }) => {
   return (
-    <section className="max-w-4xl mx-auto">
+    <section className="w-full">
       <TableHeader
         titles={[
           "fecha",
@@ -93,8 +93,8 @@ export const EventRow = ({
   };
 
   return (
-    <div className="grid grid-cols-12 px-6 py-4 bg-white border-b">
-      <div className="flex items-center gap-2 col-span-2">
+    <div className="grid grid-cols-12 px-6 py-4 bg-white border-b border-[#f2f2f2]">
+      <div className="flex items-center gap-2 col-span-2 pl-0">
         <span className="text-[#8391a1]">
           <FaRegClock />
         </span>
@@ -106,7 +106,7 @@ export const EventRow = ({
       <p className="col-span-2 font-satoBold text-[12px] text-[#11151a] flex items-center">{event.service.name}</p>
       <p className="col-span-2 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{event.service.employeeName || "s/n"}</p>
       <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{event.service.points}</p>
-      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center justify-end">{formatPrice(event.service.price)}</p>
+      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{formatPrice(event.service.price)}</p>
       <div className="col-span-3 flex gap-2 items-center pl-4">
         <StatusTag
           variant={event.status === "ACTIVE" ? "confirmed" : "canceled"}

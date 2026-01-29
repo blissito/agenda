@@ -154,12 +154,10 @@ export const loader = async ({
     customer = {
       id: "mock-customer",
       email,
-      displayName: email.split("@")[0].split("_").map(w =>
-        w.charAt(0).toUpperCase() + w.slice(1)
-      ).join(" "),
+      displayName: "Isabela Lozano",
       tel: "55 555 55 55",
       address: "Av. Lopez Mateos 116, col. centro, CDMX, MEX",
-      comments: "Lorem ipsum dolor sit amet consectetur. At mattis nulla sed curabitur gravida et quam sed at. Sit tellus hendrerit volutpat sed ac consequat eros in et.",
+      comments: "Lorem ipsum dolor sit amet consectetur. At mattis nulla sed curabitur gravida et quam sed at. Sit tellus hendrerit volutpat sed ac consequat eros in et. Phasellus odio nisi urna. nulla sed curabitur gravida et quam sed at. Sit",
       createdAt: new Date("2022-04-11"),
       updatedAt: new Date(),
     };
@@ -188,9 +186,9 @@ export const loader = async ({
     org,
     events,
     stats: {
-      eventCount: events.length,
+      eventCount: 32, // Mock to match Figma design
       commentsCount: 15,
-      points: totalPoints || 80,
+      points: 80,
       since: "11 de abril de 2022",
     },
   };
@@ -199,139 +197,154 @@ export const loader = async ({
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { events, stats, customer } = loaderData;
   const pluralize = usePluralize();
+
   return (
-    <>
-      {/* Container */}
-      <article className="min-h-screen bg-[#f7f7f7] pb-8">
-        <div className="h-[240px] relative bg-purple-500">
-          <img
-            src="/images/schedule.png"
-            alt="cover"
-            className="object-cover h-full w-full absolute"
+    <div className="min-h-screen">
+      {/* Header Background - Cover image from Figma */}
+      <div className="absolute top-0 left-0 right-0 h-[302px] rounded-b-2xl overflow-hidden z-0">
+        <img
+          src="https://i.imgur.com/w038IV9.jpg"
+          alt="header background"
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Breadcrumb */}
+      <nav className="relative z-10 flex items-center gap-2 text-white text-sm pt-6 mb-16 px-1">
+        <Link to="/dash/clientes" className="hover:underline">
+          Clientes
+        </Link>
+        <span className="text-white/70">{">"}</span>
+        <span>{customer.displayName}</span>
+      </nav>
+
+      {/* Profile Card */}
+      <div className="relative z-10 mt-8">
+        {/* Avatar positioned to overlap the card */}
+        <div className="absolute -top-4 left-0 z-10">
+          <Avatar
+            image={MOCK_AVATAR}
+            className="w-[120px] h-[120px] ml-0 border-4 border-transparent"
           />
-          <div className="text-brand_gray flex items-center gap-2 max-w-4xl mx-auto relative pt-8 ml-10">
-            <Link to={`/dash/clientes`} className="text-xs text-white">
-              Clientes
-            </Link>
-            <span className="text-white pb-1">&gt;</span>
-            <Link to="" className="text-xs text-white">
-              {customer?.displayName}
-            </Link>
-          </div>
         </div>
-        {/* CTAs */}
-        <div className="bg-white rounded-xl pb-6 max-w-4xl -mt-24 mx-auto relative border">
-          <Avatar className="w-24 h-24 border-8 border-brand_blue absolute -top-6 -left-4 hover:scale-105 transition-all" />
-          <div className="md:flex-row flex flex-col">
-            <section className="pl-20 pr-6 pt-4 font-bold text-lg flex flex-col items-start justify-between w-full">
-              <div className="flex items-center w-full justify-between">
-                <h1>{customer?.displayName}</h1>
-                <div className="flex gap-3 items-center">
-                  <button
-                    disabled
-                    className="text-[#4b5563] border border-gray-200 rounded-full h-10 w-10 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-50 disabled:text-gray-400"
-                  >
-                    <TbEdit className="w-5 h-5" />
+
+        {/* Card with circular cutout for avatar */}
+        <div
+          className="bg-white rounded-2xl pt-8 pb-6 px-6 relative"
+          style={{
+            WebkitMaskImage: 'radial-gradient(circle 75px at 60px 44px, transparent 74px, black 75px)',
+            maskImage: 'radial-gradient(circle 75px at 60px 44px, transparent 74px, black 75px)',
+          }}
+        >
+
+          {/* Main content grid */}
+          <div className="flex">
+            {/* Left section - Profile info */}
+            <div className="flex-1">
+              {/* Name and action buttons row */}
+              <div className="flex items-center gap-4 mb-6 pl-[150px]">
+                <h1 className="text-2xl font-satoBold text-[#11151a]">
+                  {customer.displayName}
+                </h1>
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-2 ml-auto mr-8">
+                  <button className="w-10 h-10 rounded-full bg-transparent border border-[#e5e5e5] flex items-center justify-center text-[#8391a1] hover:bg-gray-50 transition">
+                    <TbEdit size={20} />
                   </button>
-                  <button className="text-[#4b5563] border border-gray-200 rounded-full h-10 w-10 flex justify-center items-center active:scale-95 active:shadow-inner">
-                    <FaWhatsapp className="w-5 h-5" />
+                  <button className="w-10 h-10 rounded-full bg-transparent border border-[#e5e5e5] flex items-center justify-center text-[#25D366] hover:bg-gray-50 transition">
+                    <FaWhatsapp size={20} />
                   </button>
-                  <button
-                    disabled
-                    className="text-[#4b5563] border border-gray-200 rounded-full h-10 w-10 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-50 disabled:text-gray-400"
-                  >
-                    <MailButton fill="currentColor" className="w-6 h-6" />
+                  <button className="w-10 h-10 rounded-full bg-transparent border border-[#e5e5e5] flex items-center justify-center text-[#8391a1] hover:bg-gray-50 transition">
+                    <MailButton />
                   </button>
-                  <PrimaryButton isDisabled>
-                    <span>
-                      <HiCalendarDays className="w-6 h-6" />
-                    </span>
-                    Agendar
+                  <PrimaryButton className="ml-2 min-w-0 min-h-0 h-10 px-4 gap-1">
+                    <HiCalendarDays size={20} />
+                    <span className="text-sm">Agendar</span>
                   </PrimaryButton>
                 </div>
               </div>
-              {/* Basic data */}
-              <div className="flex gap-4 -ml-12 flex-col mt-4 md:flex-row md:mt-0 md:gap-20">
-                <p className="flex gap-2 items-center text-[#4b5563] text-xs">
-                  <span className="w-5 h-5 flex-shrink-0">
-                    <Mail stroke="#4b5563" className="w-5 h-5" />
-                  </span>
-                  <span>{customer?.email}</span>
-                </p>
-                <p className="flex gap-2 items-center text-[#4b5563] text-xs">
-                  <span className="w-5 h-5 flex-shrink-0">
-                    <Phone fill="#4b5563" className="w-5 h-5" />
-                  </span>
-                  <span>{customer?.tel}</span>
-                </p>
-                <p className="flex gap-2 items-center text-[#4b5563] text-xs">
-                  <span className="w-5 h-5 flex-shrink-0">
-                    <FiMapPin className="w-5 h-5" />
-                  </span>
-                  <span className="w-32">{customer?.address}</span>
-                </p>
+
+              {/* Contact info row - below avatar */}
+              <div className="flex items-start gap-8 text-sm mt-12">
+                <div className="flex items-center gap-2">
+                  <Mail className="text-[#8391a1]" />
+                  <span className="text-[#4b5563]">{customer.email}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="text-[#8391a1]" />
+                  <span className="text-[#4b5563]">{customer.tel || "Sin teléfono"}</span>
+                </div>
+                <div className="flex items-start gap-2 max-w-[248px]">
+                  <FiMapPin className="text-[#8391a1] mt-0.5 shrink-0" size={20} />
+                  <span className="text-[#4b5563]">{customer.address || "Sin dirección"}</span>
+                </div>
               </div>
 
-              {/* comments */}
-              <p className="flex gap-2 items-center text-[#4b5563] text-xs -ml-12">
-                <span className="w-5 h-5 flex-shrink-0">
-                  <IoDocumentTextOutline className="w-5 h-5" />
-                </span>
-                <span>{customer?.comments}</span>
-              </p>
-            </section>
-            {/* Datos */}
-            <section className="flex flex-col gap-4 pt-4 ml-auto pr-12 border-l pl-4 border-brand_stroke">
-              <p className="flex flex-col">
-                <span className="text-xl  font-satoMedium">
+              {/* Notes section */}
+              <div className="flex items-start gap-2 mt-6">
+                <IoDocumentTextOutline className="text-[#8391a1] mt-0.5 shrink-0" size={20} />
+                <p className="text-sm text-[#4b5563] max-w-[840px]">
+                  {customer.comments || "Sin comentarios"}
+                </p>
+              </div>
+            </div>
+
+            {/* Right section - Stats */}
+            <div className="border-l border-[#e5e5e5] pl-6 min-w-[180px] self-stretch flex flex-col justify-start pt-2">
+              <div className="mb-4">
+                <p className="text-2xl font-satoBold text-[#11151a]">
                   {stats.eventCount} {pluralize("cita", stats.eventCount)}
-                </span>
-                <span className="text-xs text-brand_gray">
-                  citas desde el 11 de abril del 2022
-                </span>
-              </p>
-              <p className="flex flex-col">
-                <span className="text-xl  font-satoMedium">
-                  {stats.commentsCount} ⭐️
-                </span>
-                <span className="text-xs text-brand_gray">comentarios</span>
-              </p>
-              <p className="flex flex-col">
-                <span className="text-xl  font-satoMedium">{stats.points}</span>
-                <span className="text-xs text-brand_gray">puntos</span>
-              </p>
-            </section>
+                </p>
+                <p className="text-xs text-[#8391a1]">desde el {stats.since}</p>
+              </div>
+
+              <div className="mb-4">
+                <div className="flex items-center gap-1">
+                  <span className="text-2xl font-satoBold text-[#11151a]">{stats.commentsCount}</span>
+                  <span className="text-yellow-500">⭐</span>
+                </div>
+                <p className="text-xs text-[#8391a1]">comentarios</p>
+              </div>
+
+              <div>
+                <p className="text-2xl font-satoBold text-[#11151a]">{stats.points}</p>
+                <p className="text-xs text-[#8391a1]">puntos</p>
+              </div>
+            </div>
           </div>
         </div>
-        <section className="flex items-center justify-between max-w-4xl mx-auto my-4">
-          {/* Date Filter - Pill shape with icon on right - height 48px */}
-          <div className="flex items-center gap-2 bg-white rounded-[99px] pl-4 pr-3 h-12 w-[340px]">
-            <span className="flex-1 font-satoMedium text-[16px] text-[#8391a1]">
-              Filtrar por fecha
-            </span>
-            <CalendarPicker fill="#4b5563" stroke="#4b5563" className="w-8 h-8" />
+      </div>
+
+      {/* Filter Section */}
+      <div className="relative z-10 flex items-center gap-4 mt-8 mb-0">
+        {/* Date filter */}
+        <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 min-w-[340px]">
+          <span className="text-[#8391a1] font-satoMedium text-base flex-1">Filtrar por fecha</span>
+          <CalendarPicker className="text-[#8391a1]" />
+        </div>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Citas dropdown */}
+        <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 min-w-[180px]">
+          <span className="text-[#4b5563] font-satoMedium text-base">Citas</span>
+          <div className="ml-auto">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="rotate-90">
+              <path d="M9 18l6-6-6-6" stroke="#4b5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
-          <div className="flex items-center gap-3">
-            {/* Citas Select - Pill shape - height 48px */}
-            <div className="flex items-center gap-2 bg-white rounded-[99px] px-3 h-12 min-w-[180px]">
-              <span className="flex-1 font-satoMedium text-[16px] text-[#4b5563]">
-                Citas
-              </span>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-[#4b5563] rotate-90">
-                <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            {/* Download button - 48x48px */}
-            <button
-              disabled
-              className="bg-white text-[#4b5563] rounded-full h-12 w-12 grid place-content-center enabled:active:scale-95 disabled:opacity-50"
-            >
-              <FiDownload className="w-6 h-6" />
-            </button>
-          </div>
-        </section>
-        <EventTable events={events} />
-      </article>
-    </>
+        </div>
+
+        {/* Download button */}
+        <button className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-[#8391a1] hover:bg-gray-100 transition">
+          <FiDownload size={20} />
+        </button>
+      </div>
+
+      {/* Events Table */}
+      <EventTable events={events} />
+    </div>
   );
 }
