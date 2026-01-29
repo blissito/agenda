@@ -12,6 +12,7 @@ import { Switch } from "~/components/common/Switch";
 import { useState } from "react";
 import { FaWhatsapp } from "react-icons/fa6";
 import { PrimaryButton } from "~/components/common/primaryButton";
+import { SecondaryButton } from "~/components/common/secondaryButton";
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
@@ -25,13 +26,36 @@ export const action = async ({ request }: Route.ActionArgs) => {
   const intent = formData.get("intent");
   if (intent === "update_service") {
     const data = JSON.parse(formData.get("data") as string);
-    await db.service.update({
-      where: { id: data.id },
-      data: {
-        ...data,
-        id: undefined,
-      },
-    });
+    const { id, config: newConfig, ...rest } = data;
+
+    if (newConfig) {
+      const currentService = await db.service.findUnique({ where: { id } });
+      const currentConfig = currentService?.config || {
+        confirmation: false,
+        reminder: false,
+        survey: false,
+        whatsapp_confirmation: null,
+        whatsapp_reminder: null,
+      };
+
+      await db.service.update({
+        where: { id },
+        data: {
+          ...rest,
+          config: {
+            set: {
+              ...currentConfig,
+              ...newConfig,
+            },
+          },
+        },
+      });
+    } else {
+      await db.service.update({
+        where: { id },
+        data: rest,
+      });
+    }
   }
   return null;
 };
@@ -87,7 +111,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <h2 className="font-satoMiddle mb-8 text-xl">
           Actualiza tus cobros y recordatorios
         </h2>
-        <section>
+        <div className="flex flex-col gap-6">
           <Switch
             defaultChecked={service.payment}
             onChange={(checked: boolean) =>
@@ -135,10 +159,20 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Lo enviaremos 24 hrs antes de la sesión"
             icon={<FaWhatsapp />}
           />
-          <PrimaryButton as="Link" to={"/dash/servicios/" + service.id}>
-            Volver
+        </div>
+
+        <div className="flex mt-16 justify-end gap-6">
+          <SecondaryButton
+            as="Link"
+            to={`/dash/servicios/${service.id}`}
+            className="w-[120px]"
+          >
+            Cancelar
+          </SecondaryButton>
+          <PrimaryButton as="Link" to={`/dash/servicios/${service.id}`}>
+            Guardar
           </PrimaryButton>
-        </section>
+        </div>
       </div>
     </section>
   );

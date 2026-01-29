@@ -47,7 +47,7 @@ export const BasicInput = ({
           {icon}
         </span>
         <label
-          className={twMerge(" text-brand_dark font-satoMiddle", className)}
+          className={twMerge(" text-brand_gray font-satoMedium", className)}
           htmlFor={name}
         >
           {label}
@@ -64,8 +64,8 @@ export const BasicInput = ({
             disabled={isDisabled}
             placeholder={placeholder}
             className={twMerge(
-              "min-h-20 text-brand_gray",
-              "placeholder:text-brand_iron font-satoshi placeholder:font-satoshi",
+              "min-h-20 text-dark",
+              "placeholder:text-brand_iron font-satoMedium placeholder:font-satoshi",
               "focus:border-brand_blue",
               "rounded-xl border-gray-200 h-12 w-full mt-1",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
@@ -85,7 +85,7 @@ export const BasicInput = ({
             type={type}
             placeholder={placeholder}
             className={twMerge(
-              "placeholder:text-brand_iron text-brand_gray font-satoshi",
+              "placeholder:text-brand_iron text-brand_dark font-satoMedium",
               "focus:border-brand_blue",
               "rounded-xl border-gray-200 h-12 w-full mt-1 ",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",

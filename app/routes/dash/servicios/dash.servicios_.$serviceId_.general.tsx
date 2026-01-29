@@ -75,39 +75,39 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <input type="hidden" name="orgId" value={service.orgId} />
 
         <h2
-          className="font-satoMiddle mb-8 text-xl
+          className="font-satoBold mb-8 text-xl
         "
         >
           Información General
         </h2>
-        {/* Revisar props */}
-        <div className="flex gap-6"></div>
-        <BasicInput
-          placeholder="Clase de piano"
-          label="Nombre del servicio"
-          name="name"
-          defaultValue={service.name}
-        />
-        <BasicInput
-          placeholder="$0.00"
-          label="Precio"
-          name="price"
-          type="number"
-          defaultValue={service.price}
-        />
-        <BasicInput
-          name="points"
-          placeholder="100"
-          label="¿A cuántos puntos de recompensas equivale el servicio?"
-          defaultValue={service.points}
-        />
-        <BasicInput
-          as="textarea"
-          name="description"
-          placeholder="Cuéntale a tus clientes sobre tu servicio"
-          label="Descripción"
-          defaultValue={service.description}
-        />
+        <div className="flex flex-col gap-6">
+          <BasicInput
+            placeholder="Clase de piano"
+            label="Nombre del servicio"
+            name="name"
+            defaultValue={service.name}
+          />
+          <BasicInput
+            placeholder="$0.00"
+            label="Precio"
+            name="price"
+            type="number"
+            defaultValue={service.price}
+          />
+          <BasicInput
+            name="points"
+            placeholder="100"
+            label="¿A cuántos puntos de recompensas equivale el servicio?"
+            defaultValue={service.points}
+          />
+          <BasicInput
+            as="textarea"
+            name="description"
+            placeholder="Cuéntale a tus clientes sobre tu servicio"
+            label="Descripción"
+            defaultValue={service.description}
+          />
+        </div>
 
         <div className="flex mt-16 justify-end gap-6">
           <SecondaryButton

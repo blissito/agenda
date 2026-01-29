@@ -12,8 +12,7 @@ import type { Service } from "@prisma/client";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { formatRange } from "~/components/common/FormatRange";
 import type { Route } from "./+types/dash.servicios_.$serviceId";
-import { InfoBox } from "../website/InfoBox";
-import { BiCategoryAlt } from "react-icons/bi";
+import { Edit } from "~/components/icons/edit";
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   // @TODO ensure is the owner
@@ -257,7 +256,7 @@ function LocalFloatingGallery() {
                         />
                       </svg>
                     </div>
-                    <p className="font-satoMiddle text-sm  text-brand_gray leading-tight">
+                    <p className="font-satoMedium text-sm  text-brand_gray leading-tight">
                     
                       Agregar o editar fotos
                     </p>
@@ -284,6 +283,41 @@ function LocalFloatingGallery() {
 
 
 
+const DetailItem = ({ label, value }: { label: string; value: string }) => (
+  <div className="space-y-1">
+    <p className="font-satoMedium text-[14px] text-brand_gray">{label}</p>
+    <p className="font-satoMedium  text-brand_dark">{value}</p>
+  </div>
+);
+
+const WeekDayRow = ({ day, schedule }: { day: string; schedule: React.ReactNode }) => (
+  <div className="grid grid-cols-[110px_1fr] items-center gap-4">
+    <p className="font-satoMedium text-brand_gray">{day}</p>
+    <p className="font-satoMedium text-brand_dark">{schedule}</p>
+  </div>
+);
+
+const EditButton = ({ to, label }: { to: string; label: string }) => (
+  <SecondaryButton
+    className="!h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-neutral-100"
+    as="Link"
+    to={to}
+    aria-label={label}
+  >
+    <Edit fill="currentColor" className="h-5 w-5" />
+  </SecondaryButton>
+);
+
+const WEEK_DAYS = [
+  { key: "lunes", label: "Lunes" },
+  { key: "martes", label: "Martes" },
+  { key: "miércoles", label: "Miércoles" },
+  { key: "jueves", label: "Jueves" },
+  { key: "viernes", label: "Viernes" },
+  { key: "sábado", label: "Sábado" },
+  { key: "domingo", label: "Domingo" },
+] as const;
+
 export const ServiceDetail = ({
   service,
   orgWeekDays,
@@ -296,98 +330,57 @@ export const ServiceDetail = ({
     <div className="w-full">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-5 border border-brand_stroke/60 h-full flex flex-col">
-  <div className="flex items-start justify-between gap-4">
+  <div className="flex items-center justify-between gap-4">
     <div className="min-w-0">
       {/*{service.category ?(<-- Nombre de la categoria   
             <span className="inline-flex items-center gap-2 rounded-[4px] bg-[#D5FAF1] px-3 py-1 text-[14px] font-satoMedium text-[#2A645F]">
              
               </span>
                ):null */}
-      <h2 className="font-satoMedium text-[24px] leading-[24px] text-brand_dark">
+      <h2 className="font-satoBold text-[24px]  text-brand_dark">
         {service.name}
       </h2>
     </div>
 
-    <SecondaryButton
-      className="!h-10 !w-10 !min-w-10 !max-w-10 !p-0 !rounded-full flex-none shrink-0 overflow-hidden flex items-center justify-center bg-neutral-100"
-      as="Link"
-      to={`/dash/servicios/${service.id}/general`}
-      aria-label="Editar"
-    >
-      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-5 w-5">
-        <path
-          d="M16.8691 10.6187C16.5254 10.6187 16.2441 10.9 16.2441 11.2437V14.375C16.2441 15.4062 15.4004 16.25 14.3691 16.25H5.61914C4.58789 16.25 3.74414 15.4062 3.74414 14.375V5.625C3.74414 4.59375 4.58789 3.75 5.61914 3.75H9.99414C10.3379 3.75 10.6191 3.46875 10.6191 3.125C10.6191 2.78125 10.3379 2.5 9.99414 2.5H5.61914C3.89414 2.5 2.49414 3.9 2.49414 5.625V14.375C2.49414 16.1 3.89414 17.5 5.61914 17.5H14.3691C16.0941 17.5 17.4941 16.1 17.4941 14.375V11.2437C17.4941 10.9 17.2129 10.6187 16.8691 10.6187Z"
-          fill="currentColor"
-        />
-        <path
-          d="M7.8125 9.375V10.8187C7.8125 11.575 8.425 12.1875 9.18125 12.1875H10.625C10.9938 12.1875 11.3375 12.0438 11.5937 11.7875L17.0938 6.2875C17.625 5.75 17.625 4.88125 17.0938 4.35L15.65 2.90625C15.1125 2.375 14.2438 2.375 13.7125 2.90625L8.2125 8.40625C7.95625 8.6625 7.8125 9.0125 7.8125 9.375ZM9.0625 9.375C9.0625 9.34375 9.075 9.3125 9.1 9.2875L14.6 3.7875C14.6 3.7875 14.6562 3.75 14.6875 3.75C14.7188 3.75 14.75 3.7625 14.775 3.7875L16.2188 5.23125C16.2688 5.28125 16.2688 5.35625 16.2188 5.40625L10.7187 10.9063C10.7187 10.9063 10.6625 10.9438 10.6313 10.9438H9.1875C9.11875 10.9438 9.06875 10.8875 9.06875 10.825V9.38125L9.0625 9.375Z"
-          fill="currentColor"
-        />
-      </svg>
-    </SecondaryButton>
+    <EditButton to={`/dash/servicios/${service.id}/general`} label="Editar" />
   </div>
-
-  <p className="mt-4 max-w-[46ch] font-satoMiddle text-base  tracking-normal text-brand_gray">
+  <p className="mt-4 max-w-[46ch] font-satoMedium text-brand_gray">
     {service.description}
   </p>
-
-
   <div className="mt-8 space-y-6">
     <div className="grid grid-cols-2 gap-10">
-      <div className="space-y-1">
-        <p className=" text-[14px] font-satoMiddle text-brand_dark">
-          Servicio
-        </p>
-        <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">
-          {service.place}
-        </p>
-      </div>
-
-      <div className="space-y-1">
-        <p className=" text-[14px] font-satoMiddle text-brand_dark">
-          Agendamiento en línea
-        </p>
-        <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">
-          {service.isActive ? "Activo" : "Desactivado"}
-        </p>
-      </div>
+      <DetailItem label="Servicio" value={service.place || ""} />
+      <DetailItem label="Agendamiento en línea" value={service.isActive ? "Activo" : "Desactivado"} />
     </div>
-
-    <div className="space-y-1">
-      <p className=" text-[14px] font-satoMiddle text-brand_dark">
-        Agendamiento simultáneo
-      </p>
-      <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">
-        {service.allowMultiple ? `hasta ${service.limit?.bookings || 6} citas` : "Desactivado"}
-      </p>
-    </div>
+    <DetailItem
+      label="Agendamiento simultáneo"
+      value={service.allowMultiple ? `hasta ${service.limit?.bookings || 6} citas` : "Desactivado"}
+    />
   </div>
 
  
   <div className="mt-auto pt-10">
     <div className="grid grid-cols-2 gap-10 items-end">
       <div className="space-y-2">
-        <p className=" text-[14px] font-satoMiddle text-brand_dark">
+        <p className=" text-[14px] font-satoMedium text-brand_dark">
           Precio
         </p>
-        <div className="inline-flex items-center  rounded-full border border-brand_stroke bg-white px-4 py-2 text-base text-brand_gray">
+        <div className="inline-flex items-center  rounded-full border border-brand_stroke bg-white px-4 py-2  text-brand_gray">
           ${service.price} MXN
         </div>
       </div>
 
       <div className="space-y-2">
-        <p className=" text-[14px] font-satoMiddle text-brand_dark">
+        <p className=" text-[14px] font-satoMedium text-brand_dark">
           Puntos
         </p>
-        <div className="inline-flex items-center rounded-full border border-brand_stroke bg-white px-4 py-2 text-base text-brand_gray">
+        <div className="inline-flex items-center rounded-full border border-brand_stroke bg-white px-4 py-2  text-brand_gray">
           {service.points} puntos
         </div>
       </div>
     </div>
   </div>
 </div>
-
-
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-7 border border-brand_stroke/60">
           <LocalFloatingGallery />
         </div>
@@ -396,161 +389,58 @@ export const ServiceDetail = ({
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
-            <h3 className="font-satoMedium text-lg leading-[24px] text-brand_dark">Horario</h3>
-
-            <SecondaryButton
-              className=" !h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-neutral-100"
-              as="Link"
-              to={`/dash/servicios/${service.id}/horario`}
-              aria-label="Editar horario"
-            >
-              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-5 w-5">
-                <path
-                  d="M16.8691 10.6187C16.5254 10.6187 16.2441 10.9 16.2441 11.2437V14.375C16.2441 15.4062 15.4004 16.25 14.3691 16.25H5.61914C4.58789 16.25 3.74414 15.4062 3.74414 14.375V5.625C3.74414 4.59375 4.58789 3.75 5.61914 3.75H9.99414C10.3379 3.75 10.6191 3.46875 10.6191 3.125C10.6191 2.78125 10.3379 2.5 9.99414 2.5H5.61914C3.89414 2.5 2.49414 3.9 2.49414 5.625V14.375C2.49414 16.1 3.89414 17.5 5.61914 17.5H14.3691C16.0941 17.5 17.4941 16.1 17.4941 14.375V11.2437C17.4941 10.9 17.2129 10.6187 16.8691 10.6187Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M7.8125 9.375V10.8187C7.8125 11.575 8.425 12.1875 9.18125 12.1875H10.625C10.9938 12.1875 11.3375 12.0438 11.5937 11.7875L17.0938 6.2875C17.625 5.75 17.625 4.88125 17.0938 4.35L15.65 2.90625C15.1125 2.375 14.2438 2.375 13.7125 2.90625L8.2125 8.40625C7.95625 8.6625 7.8125 9.0125 7.8125 9.375ZM9.0625 9.375C9.0625 9.34375 9.075 9.3125 9.1 9.2875L14.6 3.7875C14.6 3.7875 14.6562 3.75 14.6875 3.75C14.7188 3.75 14.75 3.7625 14.775 3.7875L16.2188 5.23125C16.2688 5.28125 16.2688 5.35625 16.2188 5.40625L10.7187 10.9063C10.7187 10.9063 10.6625 10.9438 10.6313 10.9438H9.1875C9.11875 10.9438 9.06875 10.8875 9.06875 10.825V9.38125L9.0625 9.375Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </SecondaryButton>
+            <h3 className="font-satoBold text-lg text-brand_dark">Horario</h3>
+            <EditButton to={`/dash/servicios/${service.id}/horario`} label="Editar horario" />
           </div>
 
-          <p className="mt-3 font-satoMiddle text-base leading-[24px]">
-              <span className="text-brand_gray">Sesiones de </span>
-
-              <span className="font-satoMiddle text-base  text-brand_dark">
-                {service.duration} minutos
-              </span>
-
-              <span className="font-satoMiddle text-base text-brand_gray"> con </span>
-
-              <span className="font-satoMiddle ttext-base  text-brand_dark">
-                0 minutos
-              </span>
-
-              <span className="font-satoMiddle text-base text-brand_gray"> de descanso.</span>
-            </p>
-
+          <p className="mt-3 font-satoMedium">
+            Sesiones de <span className="text-brand_dark">{service.duration} minutos</span> con <span className="text-brand_dark">0 minutos</span> de descanso.
+          </p>
 
           <div className="mt-5 space-y-4">
-            <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-base  text-brand_dark">Lunes</p>
-              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["lunes"])}</p>
-            </div>
-            <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-base  text-brand_dark">Martes</p>
-              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray" >{formatRange(orgWeekDays["martes"])}</p>
-            </div>
-            <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-base  text-brand_dark">Miércoles</p>
-              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["miércoles"])}</p>
-            </div>
-            <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-base  text-brand_dark">Jueves</p>
-              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["jueves"])}</p>
-            </div>
-            <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-              <p className="font-satoMiddle text-base  text-brand_dark">Viernes</p>
-              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["viernes"])}</p>
-            </div>
-            <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-base  text-brand_dark">Sábado</p>
-              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["sábado"])}</p>
-            </div>
-            <div className="grid grid-cols-[110px_1fr] items-center gap-4">
-            <p className="font-satoMiddle text-base text-brand_dark">Domingo</p>
-              <p className="font-satoMiddle text-base leading-[24px] tracking-normal text-brand_gray">{formatRange(orgWeekDays["domingo"])}</p>
-            </div>
+            {WEEK_DAYS.map(({ key, label }) => (
+              <WeekDayRow key={key} day={label} schedule={formatRange(orgWeekDays[key])} />
+            ))}
           </div>
         </div>
 
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
-            <h3 className="font-satoMedium text-lg leading-[24px] text-brand_dark">Recordatorios y pago</h3>
-
-            <SecondaryButton
-              className=" !h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-neutral-100"
-              as="Link"
-              to={`/dash/servicios/${service.id}/cobros`}
-              aria-label="Editar cobros"
-            >
-              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true" className="h-5 w-5">
-                <path
-                  d="M16.8691 10.6187C16.5254 10.6187 16.2441 10.9 16.2441 11.2437V14.375C16.2441 15.4062 15.4004 16.25 14.3691 16.25H5.61914C4.58789 16.25 3.74414 15.4062 3.74414 14.375V5.625C3.74414 4.59375 4.58789 3.75 5.61914 3.75H9.99414C10.3379 3.75 10.6191 3.46875 10.6191 3.125C10.6191 2.78125 10.3379 2.5 9.99414 2.5H5.61914C3.89414 2.5 2.49414 3.9 2.49414 5.625V14.375C2.49414 16.1 3.89414 17.5 5.61914 17.5H14.3691C16.0941 17.5 17.4941 16.1 17.4941 14.375V11.2437C17.4941 10.9 17.2129 10.6187 16.8691 10.6187Z"
-                  fill="currentColor"
-                />
-                <path
-                  d="M7.8125 9.375V10.8187C7.8125 11.575 8.425 12.1875 9.18125 12.1875H10.625C10.9938 12.1875 11.3375 12.0438 11.5937 11.7875L17.0938 6.2875C17.625 5.75 17.625 4.88125 17.0938 4.35L15.65 2.90625C15.1125 2.375 14.2438 2.375 13.7125 2.90625L8.2125 8.40625C7.95625 8.6625 7.8125 9.0125 7.8125 9.375ZM9.0625 9.375C9.0625 9.34375 9.075 9.3125 9.1 9.2875L14.6 3.7875C14.6 3.7875 14.6562 3.75 14.6875 3.75C14.7188 3.75 14.75 3.7625 14.775 3.7875L16.2188 5.23125C16.2688 5.28125 16.2688 5.35625 16.2188 5.40625L10.7187 10.9063C10.7187 10.9063 10.6625 10.9438 10.6313 10.9438H9.1875C9.11875 10.9438 9.06875 10.8875 9.06875 10.825V9.38125L9.0625 9.375Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </SecondaryButton>
+            <h3 className="font-satoBold text-lg text-brand_dark">Recordatorios y pago</h3>
+            <EditButton to={`/dash/servicios/${service.id}/cobros`} label="Editar cobros" />
           </div>
 
           <div className="mt-4 space-y-4">
-  <div className="space-y-1">
-    <p className="font-satoMiddle text-[14px] text-brand_gray">
-      Pago
-    </p>
-    <p className="font-satoMiddle text-base text-brand_dark">
-      Al agendar
-    </p>
-  </div>
-
-  <div className="space-y-1">
-    <p className="font-satoMiddle text-[14px] text-brand_gray">
-      Mail de confirmación
-    </p>
-    <p className="font-satoMiddle text-base text-brand_dark">
-      {service.config?.confirmation
-        ? "Lo enviamos en cuanto se completa la reservación"
-        : "Desactivado"}
-    </p>
-  </div>
-
-  <div className="space-y-1">
-    <p className="font-satoMiddle text-[14px] text-brand_gray">
-      Mail de recordatorio
-    </p>
-    <p className="font-satoMiddle text-base text-brand_dark">
-      {service.config?.confirmation
-        ? "Lo enviaremos 24 hrs antes de la sesión"
-        : "Desactivado"}
-    </p>
-  </div>
-
-  <div className="space-y-1">
-    <p className="font-satoMiddle text-[14px] text-brand_gray">
-      Whats app de recordatorio
-    </p>
-    <p className="font-satoMiddle text-base text-brand_dark">
-      {service.config?.survey ? "Lo enviamos 4hrs antes de la sesión" : "Desactivado"}
-    </p>
-  </div>
-
-  <div className="space-y-1">
-    <p className="font-satoMiddle text-[14px] text-brand_gray">
-      Mail de evaluación
-    </p>
-    <p className="font-satoMiddle text-base text-brand_dark">
-      {service.config?.confirmation
-        ? "Lo enviamos 10 min después de terminar la sesión"
-        : "Desactivado"}
-    </p>
-  </div>
-</div>
+            <DetailItem label="Pago" value="Al agendar" />
+            <DetailItem
+              label="Mail de confirmación"
+              value={service.config?.confirmation
+                ? "Lo enviamos en cuanto se completa la reservación"
+                : "Desactivado"}
+            />
+            <DetailItem
+              label="Mail de recordatorio"
+              value={service.config?.confirmation
+                ? "Lo enviaremos 24 hrs antes de la sesión"
+                : "Desactivado"}
+            />
+            <DetailItem
+              label="Whats app de recordatorio"
+              value={service.config?.survey
+                ? "Lo enviamos 4hrs antes de la sesión"
+                : "Desactivado"}
+            />
+            <DetailItem
+              label="Mail de evaluación"
+              value={service.config?.confirmation
+                ? "Lo enviamos 10 min después de terminar la sesión"
+                : "Desactivado"}
+            />
+          </div>
 
         </div>
       </div>
 
-      {/* compatibilidad */}
-      <div className="hidden">
-        <InfoBox title="Precio" value={<span>${service.price} mxn</span>} />
-        <InfoBox title="Puntos" value={service.points} />
-        <InfoBox title="Descripción" value={service.description} />
-      </div>
     </div>
   );
 };

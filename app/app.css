@@ -82,7 +82,8 @@ p {
   font-weight: 800;
 }
 .font-satoMiddle {
-  font-family: "Medium Font ", sans-serif; /* Satoshi-Medium.ttf */
+    font-family: "Medium Font ", sans-serif; /* Satoshi-Medium.ttf */
+
 }
 
 .font-satoshi {
@@ -90,14 +91,11 @@ p {
 }
 
 .font-satoMedium {
-<<<<<<< HEAD
-  font-family: "Satoshi ";
+  font-family: "Medium Font ", sans-serif; /* Satoshi-Medium.ttf */
+
 }
 .font-satoBold {
   font-family: "Denik bold ";
-=======
-  font-family: "Denik bold "; /* Satoshi-Bold.ttf */
->>>>>>> a64ad4fa77cca59504daa3538f23e99cf9960be0
 }
 
 
