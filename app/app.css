@@ -82,7 +82,7 @@ p {
   font-weight: 800;
 }
 .font-satoMiddle {
-  font-family: "Medium Font ", sans-serif;
+  font-family: "Medium Font ", sans-serif; /* Satoshi-Medium.ttf */
 }
 
 .font-satoshi {
@@ -90,7 +90,7 @@ p {
 }
 
 .font-satoMedium {
-  font-family: "Denik bold ";
+  font-family: "Denik bold "; /* Satoshi-Bold.ttf */
 }
 
 .overlay {
