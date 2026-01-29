@@ -15,6 +15,7 @@ export default {
         brand_iron: "#8391A1",
         brand_stroke: "#F2F2F2",
         brand_switch_inactive: "#EFEFF0",
+        brand_red: "#CA5757",
       },
       backgroundImage: {
         calendar: "url(/images/calendarPattern.svg)",
