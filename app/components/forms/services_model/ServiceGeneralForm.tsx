@@ -8,7 +8,7 @@ import type { RefObject } from "react";
 // Type stuff
 export const generalFormSchema = z.object({
   name: z.string().min(1),
-  price: z.coerce.number().min(1), // @TODO: min and implications 🙂
+  price: z.coerce.number().min(0),
   points: z.coerce.number().optional(),
   description: z.string().min(5),
 });
