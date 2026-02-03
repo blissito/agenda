@@ -41,12 +41,37 @@ export const action = async ({ request }: Route.ActionArgs) => {
       success,
       data: parsedData,
       error,
-    } = serviceTimesSchema.safeParse(data); // change
+    } = serviceTimesSchema.safeParse(data);
     if (!success) throw new Response("Error in form fields", { status: 400 });
+
+    // Convertir días de inglés a español para el schema de Prisma
+    const dayMapping: Record<string, string> = {
+      monday: "lunes",
+      tuesday: "martes",
+      wednesday: "mi_rcoles",
+      thursday: "jueves",
+      friday: "viernes",
+      saturday: "s_bado",
+      sunday: "domingo",
+    };
+
+    let weekDaysSpanish: Record<string, any> | null = null;
+    if (parsedData.weekDays && typeof parsedData.weekDays === "object") {
+      weekDaysSpanish = {};
+      for (const [engDay, value] of Object.entries(parsedData.weekDays)) {
+        const spanishDay = dayMapping[engDay];
+        if (spanishDay && value) {
+          weekDaysSpanish[spanishDay] = value;
+        }
+      }
+    }
 
     await db.service.update({
       where: { id: data.id },
-      data: parsedData as Prisma.ServiceUpdateInput,
+      data: {
+        duration: parsedData.duration,
+        weekDays: weekDaysSpanish ? { set: weekDaysSpanish } : undefined,
+      },
     });
     return { id: data.id, nextIndex: 3 };
   }
@@ -80,10 +105,21 @@ export const action = async ({ request }: Route.ActionArgs) => {
         ...parsedData,
         orgId: org.id,
         slug: slugify(parsedData.name + "_" + nanoid(4)),
+        // Valores por defecto para campos requeridos
+        allowMultiple: false,
+        archived: false,
+        currency: "MXN",
+        duration: 30,
+        isActive: false,
+        paid: false,
+        payment: false,
+        place: "presencial",
+        points: parsedData.points ?? 0,
+        price: parsedData.price ?? 0,
+        seats: 1,
       },
     });
-    // throw redirect("/dash/servicios/nuevo?id=" + newService.id);
-    return new Response(JSON.stringify({ id: newService.id, nextIndex: 1 }));
+    return { id: newService.id, nextIndex: 1 };
   }
 
   return null;

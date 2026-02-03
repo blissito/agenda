@@ -2,8 +2,9 @@
 import { motion } from "motion/react";
 import { Link, useFetcher } from "react-router";
 import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { Tag } from "~/components/common/Tag";
+import { getServicePublicUrl } from "~/utils/urls";
 
 export const ServiceListCard = ({
   title,
@@ -32,15 +33,10 @@ export const ServiceListCard = ({
     isActive: show,
     includeEscape: true, // captures [Esc] key press
   });
-  const origin = useRef<string>("");
 
-  useEffect(() => {
-    origin.current = window.location.origin;
-  }, []);
   const getLink = useCallback(
-    (serviceSlug: string) => `${origin.current}/agenda/${slug}/${serviceSlug}`,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [origin]
+    (serviceSlug: string) => getServicePublicUrl(slug, serviceSlug),
+    [slug]
   );
 
   return (

@@ -6,11 +6,27 @@
 
 Sistema de agendamiento/citas multi-tenant donde:
 - Negocios crean cuenta y servicios
-- Clientes reservan citas en `/agenda/:orgSlug/:serviceSlug`
+- Clientes reservan citas via subdominios (ver sección URLs Públicas)
 - Dashboard para gestionar agenda, clientes, servicios
 - Magic link auth (sin password)
 - Pagos con Stripe
 - Notificaciones por email (SES)
+
+## URLs Públicas (Subdominios)
+
+El sistema usa **subdominios** para identificar organizaciones:
+
+| Tipo | Formato | Ejemplo |
+|------|---------|---------|
+| Landing del negocio | `{orgSlug}.denik.me` | `mi-salon.denik.me` |
+| Booking de servicio | `{orgSlug}.denik.me/{serviceSlug}` | `mi-salon.denik.me/corte-cabello` |
+
+**Archivos clave:**
+- `app/routes/service.$serviceSlug.tsx` - Página pública de agendamiento
+- `app/utils/host.server.ts` - Resuelve org desde hostname/subdominio
+- `app/utils/urls.ts` - Helper `getServicePublicUrl()` para generar URLs
+
+**NO usar** el formato viejo `/agenda/:orgSlug/:serviceSlug` (deprecado).
 
 ## Estructura
 
@@ -20,10 +36,10 @@ app/
 ├── routes/
 │   ├── api/          # API endpoints (customers, services, events, org)
 │   ├── dash/         # Dashboard
-│   ├── agenda.$orgSlug.$serviceSlug/  # Booking público
+│   ├── service.$serviceSlug.tsx  # Booking público (usa subdominio)
 │   └── stripe/       # Stripe endpoints + webhook
 ├── components/       # UI components
-├── utils/            # Helpers, emails, tokens
+├── utils/            # Helpers, emails, tokens, urls
 └── sessions.ts       # Session management
 
 prisma/

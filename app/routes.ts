@@ -73,6 +73,8 @@ export default [
   ...prefix("stripe", [index("routes/stripe/api.ts")]),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
+  // Public booking route (works on localhost): /agenda/:orgSlug/:serviceSlug
+  route("agenda/:orgSlug/:serviceSlug", "routes/agenda.$orgSlug.$serviceSlug.tsx"),
   // Clean URL for subdomains/custom domains: /:serviceSlug
   route(":serviceSlug", "routes/service.$serviceSlug.tsx"),
 ] satisfies RouteConfig;

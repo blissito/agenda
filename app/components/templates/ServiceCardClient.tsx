@@ -1,9 +1,9 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { motion } from "motion/react";
-import { Link, useFetcher } from "react-router";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
+import { useCallback } from "react";
 import { Tag } from "~/components/common/Tag";
+import { getServicePublicUrl } from "~/utils/urls";
 
 export const ServiceCardClient = ({
   title,
@@ -22,15 +22,9 @@ export const ServiceCardClient = ({
   link?: string;
   serviceSlug?: string;
 }) => {
-  const origin = useRef<string>("");
-
-  useEffect(() => {
-    origin.current = window.location.origin;
-  }, []);
   const getLink = useCallback(
-    (serviceSlug: string) => `${origin.current}/agenda/${slug}/${serviceSlug}`,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [origin]
+    (serviceSlug: string) => getServicePublicUrl(slug, serviceSlug),
+    [slug]
   );
 
   return (

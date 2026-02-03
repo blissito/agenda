@@ -56,6 +56,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [index, setIndex] = useState(id ? 1 : 0);
   const [times, setTimes] = useState<WeekSchema>({});
+  const [serviceId, setServiceId] = useState<string | null>(id);
   const fetcher = useFetcher();
   const intent = useMemo(() => {
     switch (index) {
@@ -98,7 +99,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     const { success, error, data } = parse(form);
     if (success) {
       fetcher.submit(
-        { data: JSON.stringify({ ...data, id }), intent },
+        { data: JSON.stringify({ ...data, id: serviceId }), intent },
         { method: "post", action: "/api/services" }
       );
       setErrors(err);
@@ -108,15 +109,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setErrors(err);
   };
 
-  const serviceId = fetcher.data?.id || id;
-
   useEffect(() => {
-    const i = fetcher.data?.nextIndex;
-    if (i) {
-      setIndex(i);
-      fetcher.data = null;
+    if (fetcher.data?.id) {
+      setServiceId(fetcher.data.id);
     }
-  }, [fetcher]);
+    if (fetcher.data?.nextIndex) {
+      setIndex(fetcher.data.nextIndex);
+    }
+  }, [fetcher.data]);
 
   return (
     <article className="h-screen bg-white fixed inset-0 pt-10 overflow-y-auto">

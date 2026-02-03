@@ -347,18 +347,14 @@ export const ServiceDetail = ({
   <p className="mt-4 max-w-[46ch] font-satoMedium text-brand_gray">
     {service.description}
   </p>
-  <div className="mt-8 space-y-6">
-    <div className="grid grid-cols-2 gap-10">
+  <div className="mt-8 space-y-6grid grid-cols-2 gap-10">
       <DetailItem label="Servicio" value={service.place || ""} />
       <DetailItem label="Agendamiento en línea" value={service.isActive ? "Activo" : "Desactivado"} />
-    </div>
     <DetailItem
       label="Agendamiento simultáneo"
       value={service.allowMultiple ? `hasta ${service.limit?.bookings || 6} citas` : "Desactivado"}
     />
   </div>
-
- 
   <div className="mt-auto pt-10">
     <div className="grid grid-cols-2 gap-10 items-end">
       <div className="space-y-2">
@@ -369,7 +365,6 @@ export const ServiceDetail = ({
           ${service.price} MXN
         </div>
       </div>
-
       <div className="space-y-2">
         <p className=" text-[14px] font-satoMedium text-brand_dark">
           Puntos
@@ -437,10 +432,8 @@ export const ServiceDetail = ({
                 : "Desactivado"}
             />
           </div>
-
         </div>
       </div>
-
     </div>
   );
 };

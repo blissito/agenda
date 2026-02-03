@@ -133,6 +133,12 @@ type Pages = {
   "/demo/smatch": {
     params: {};
   };
+  "/agenda/:orgSlug/:serviceSlug": {
+    params: {
+      "orgSlug": string;
+      "serviceSlug": string;
+    };
+  };
   "/:serviceSlug": {
     params: {
       "serviceSlug": string;
@@ -143,7 +149,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/agenda/:orgSlug/:serviceSlug" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -285,6 +291,10 @@ type RouteFiles = {
     id: "routes/demo.smatch";
     page: "/demo/smatch";
   };
+  "routes/agenda.$orgSlug.$serviceSlug.tsx": {
+    id: "routes/agenda.$orgSlug.$serviceSlug";
+    page: "/agenda/:orgSlug/:serviceSlug";
+  };
   "routes/service.$serviceSlug.tsx": {
     id: "routes/service.$serviceSlug";
     page: "/:serviceSlug";
@@ -328,5 +338,6 @@ type RouteModules = {
   "routes/api/api.domain": typeof import("./app/routes/api/api.domain.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
   "routes/demo.smatch": typeof import("./app/routes/demo.smatch.tsx");
+  "routes/agenda.$orgSlug.$serviceSlug": typeof import("./app/routes/agenda.$orgSlug.$serviceSlug.tsx");
   "routes/service.$serviceSlug": typeof import("./app/routes/service.$serviceSlug.tsx");
 };

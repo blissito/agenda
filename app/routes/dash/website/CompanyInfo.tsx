@@ -17,6 +17,7 @@ import { SocialDataFormModal } from "~/components/ui/modals/SocialDataFormModal"
 import { GeneralFormModal } from "~/components/ui/modals/GeneralFormModal";
 import { ServicesFormModal } from "~/components/ui/modals/ServicesFormModal";
 import { TimesFormModal } from "~/components/ui/modals/TimesFormModal";
+import { getServicePublicUrl } from "~/utils/urls";
 
 export const CompanyInfo = ({
   services = [],
@@ -85,7 +86,7 @@ export const CompanyInfo = ({
         {services.map((s) => (
           <InfoService
             title={s.name ?? "untitled"}
-            link={s.isActive ? `/agenda/${org.slug}/${s.slug}` : undefined}
+            link={s.isActive ? getServicePublicUrl(org.slug, s.slug) : undefined}
             image={s.photoURL ?? undefined}
             key={s.id}
             isActive={s.isActive}

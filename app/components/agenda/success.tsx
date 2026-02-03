@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { EmojiConfetti } from "~/components/common/EmojiConfetti";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
+import { getOrgPublicUrl } from "~/utils/urls";
 
 type EventWithRelations = PrismaEvent & {
   customer?: Customer | null;
@@ -25,9 +26,9 @@ export const Success = ({
     setTimeout(() => set(false), 4000);
   }, []);
 
-  // Clean URL - just the service slug on subdomains/custom domains
+  // Link to org's landing page
   const getCTALink = () => {
-    return `/${service.slug}`;
+    return getOrgPublicUrl(org.slug);
   };
 
   return (

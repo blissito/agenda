@@ -1,6 +1,7 @@
 /**
- * Clean URL route for subdomains/custom domains: /:serviceSlug
- * Org is resolved from the hostname, not from URL params.
+ * Development/fallback route: /agenda/:orgSlug/:serviceSlug
+ * This route works on localhost where subdomains don't work.
+ * In production, the subdomain route (service.$serviceSlug.tsx) is preferred.
  */
 import { useState } from "react";
 import { Form, useFetcher } from "react-router";
@@ -13,15 +14,13 @@ import { BasicInput } from "~/components/forms/BasicInput";
 import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { z } from "zod";
-import { getService } from "~/.server/userGetters";
 import { Success } from "~/components/agenda/success";
 import { db } from "~/utils/db.server";
-import type { Route } from "./+types/service.$serviceSlug";
+import type { Route } from "./+types/agenda.$orgSlug.$serviceSlug";
 import {
   sendAppointmentToCustomer,
   sendAppointmentToOwner,
 } from "~/utils/emails/sendAppointment";
-import { resolveOrgFromRequest } from "~/utils/host.server";
 import { convertWeekDaysToEnglish } from "~/utils/urls";
 
 type WeekDaysType = Record<string, string[][]>;
@@ -41,29 +40,36 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
+  // Get org from URL param
+  const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
+  if (!org) throw new Response("Org not found", { status: 404 });
+
   if (intent === "get_times_for_selected_date") {
-    const service = await getService(params.serviceSlug);
-    if (!service) throw new Response(null, { status: 404 });
+    const service = await db.service.findUnique({
+      where: { slug: params.serviceSlug },
+    });
+    if (!service || service.orgId !== org.id) {
+      throw new Response(null, { status: 404 });
+    }
+
     const dateStr = formData.get("date") as string;
     const selectedDate = new Date(dateStr);
-    const tommorrow = new Date(selectedDate);
-    tommorrow.setDate(selectedDate.getDate() + 1);
+    const tomorrow = new Date(selectedDate);
+    tomorrow.setDate(selectedDate.getDate() + 1);
     const events = await db.event.findMany({
       where: {
         start: {
           gte: new Date(selectedDate),
-          lte: new Date(tommorrow),
+          lte: new Date(tomorrow),
         },
+        orgId: org.id,
       },
     });
     return { events };
   }
+
   if (intent === "create_event") {
     const data = JSON.parse(formData.get("data") as string);
-
-    // Org is resolved from hostname (subdomain or custom domain)
-    const org = await resolveOrgFromRequest(request, undefined);
-    if (!org) throw new Response("Org not found", { status: 404 });
 
     const customer = await db.customer.create({
       data: {
@@ -121,12 +127,13 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
     return { event, org };
   }
+
   return null;
 };
 
-export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  // Org is resolved from hostname (subdomain or custom domain)
-  const org = await resolveOrgFromRequest(request, undefined);
+export const loader = async ({ params }: Route.LoaderArgs) => {
+  // Get org from URL param
+  const org = await db.org.findUnique({ where: { slug: params.orgSlug } });
   if (!org) throw new Response("Org not found", { status: 404 });
 
   const service = await db.service.findUnique({
@@ -141,25 +148,26 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       },
     },
   });
-  if (!service) throw new Response(null, { status: 404 });
+
+  if (!service) throw new Response("Service not found", { status: 404 });
 
   // Verify service belongs to org
-  if (service.orgId !== org.id) throw new Response(null, { status: 404 });
+  if (service.orgId !== org.id) {
+    throw new Response("Service not found", { status: 404 });
+  }
 
   // Debug: log weekDays data
   console.log("[DEBUG] service.weekDays:", JSON.stringify(service.weekDays));
   console.log("[DEBUG] org.weekDays:", JSON.stringify(org.weekDays));
 
   // Convert weekDays from Spanish (DB) to English (UI)
-  // Service weekDays: don't use default, fallback to org's schedule
   const serviceWeekDays = convertWeekDaysToEnglish(
     service.weekDays as Record<string, any>,
-    false // Don't use default, let component fallback to org.weekDays
+    false
   );
-  // Org weekDays: use default if none configured
   const orgWeekDays = convertWeekDaysToEnglish(
     org.weekDays as Record<string, any>,
-    true // Use default schedule if org has none
+    true
   );
 
   console.log("[DEBUG] converted serviceWeekDays:", JSON.stringify(serviceWeekDays));
@@ -283,7 +291,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   onSelect={handleTimeSelection}
                   weekDays={(service.weekDays || org.weekDays) as WeekDaysType}
                   selected={date}
-                  action={`/${service.slug}`}
+                  action={`/agenda/${org.slug}/${service.slug}`}
                 />
               )}
             </>

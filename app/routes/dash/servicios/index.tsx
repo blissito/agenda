@@ -1,6 +1,6 @@
 import { Outlet, redirect, useFetcher, useLoaderData } from "react-router";
 import { AnimatePresence } from "motion/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import {
   AddService,
@@ -13,6 +13,7 @@ import { db } from "~/utils/db.server";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 import type { Service } from "@prisma/client";
+import { getServicePublicUrl } from "~/utils/urls";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
@@ -37,8 +38,20 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const dummy = await db.service.create({
       data: {
         name: "Fancy Service",
-        slug: slugify("Fance Service") + nanoid(4),
+        slug: slugify("Fancy Service") + nanoid(4),
         orgId: org.id,
+        // Valores por defecto para campos requeridos
+        allowMultiple: false,
+        archived: false,
+        currency: "MXN",
+        duration: 30,
+        isActive: false,
+        paid: false,
+        payment: false,
+        place: "presencial",
+        points: 0,
+        price: 0,
+        seats: 1,
       },
     });
     return redirect(`/dash/servicios/${dummy.id}`);
@@ -53,17 +66,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
 export default function Services({ loaderData }: Route.ComponentProps) {
   const { services, org } = loaderData;
-  const origin = useRef<string>("");
-
-  useEffect(() => {
-    origin.current = window.location.origin;
-  }, []);
 
   const getLink = useCallback(
-    (service: Service) =>
-      `${origin.current}/agenda/${org.slug}/${service.slug}`,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [origin]
+    (service: Service) => getServicePublicUrl(org.slug, service.slug),
+    [org.slug]
   );
 
   return (
