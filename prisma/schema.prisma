@@ -270,6 +270,14 @@ type UserStripeTosAcceptance {
   user_agent Json?
 }
 
+type UserMercadoPago {
+  user_id       String
+  access_token  String
+  refresh_token String
+  public_key    String
+  expires_at    DateTime
+}
+
 model Customer {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   comments    String
@@ -284,28 +292,30 @@ model Customer {
 }
 
 model Event {
-  id             String    @id @default(auto()) @map("_id") @db.ObjectId
-  allDay         Boolean
-  archived       Boolean
-  createdAt      DateTime  @db.Date
-  customerId     String?   @db.ObjectId
-  duration       BigInt
-  employeeId     String?   @db.ObjectId
-  end            DateTime? @db.Date
-  notes          String?
-  orgId          String    @db.ObjectId
-  paid           Boolean
-  payment_method String?
-  serviceId      String?   @db.ObjectId
-  start          DateTime  @db.Date
-  status         String
-  title          String
-  type           String
-  updatedAt      DateTime  @db.Date
-  userId         String    @db.ObjectId
-  customer       Customer? @relation(fields: [customerId], references: [id])
-  org            Org       @relation(fields: [orgId], references: [id])
-  service        Service?  @relation(fields: [serviceId], references: [id])
+  id               String    @id @default(auto()) @map("_id") @db.ObjectId
+  allDay           Boolean
+  archived         Boolean
+  createdAt        DateTime  @db.Date
+  customerId       String?   @db.ObjectId
+  duration         BigInt
+  employeeId       String?   @db.ObjectId
+  end              DateTime? @db.Date
+  notes            String?
+  orgId            String    @db.ObjectId
+  paid             Boolean
+  payment_method   String?
+  serviceId        String?   @db.ObjectId
+  start            DateTime  @db.Date
+  status           String
+  title            String
+  type             String
+  updatedAt        DateTime  @db.Date
+  userId           String    @db.ObjectId
+  mp_preference_id String?
+  mp_payment_id    String?
+  customer         Customer? @relation(fields: [customerId], references: [id])
+  org              Org       @relation(fields: [orgId], references: [id])
+  service          Service?  @relation(fields: [serviceId], references: [id])
 }
 
 model Job {
@@ -367,18 +377,19 @@ model Service {
 }
 
 model User {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  id            String           @id @default(auto()) @map("_id") @db.ObjectId
   accessToken   String?
   displayName   String?
-  email         String      @unique
+  email         String           @unique
   emailVerified Boolean
-  orgId         String?     @db.ObjectId
+  orgId         String?          @db.ObjectId
   orgIds        String[]
   /// Could not determine type: the field only had null or empty values in the sample set.
   phoneNumber   Json?
   photoURL      String?
   providerId    String?
-  role          String      @default("user")
+  role          String           @default("user")
   stripe        UserStripe?
+  mercadopago   UserMercadoPago?
   uid           String?
 }

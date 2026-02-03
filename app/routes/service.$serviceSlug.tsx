@@ -3,7 +3,7 @@
  * Org is resolved from the hostname, not from URL params.
  */
 import { useState } from "react";
-import { Form, useFetcher } from "react-router";
+import { Form, redirect, useFetcher } from "react-router";
 import { Footer, Header, InfoShower } from "~/components/agenda/components";
 import { twMerge } from "tailwind-merge";
 import { getMaxDate } from "~/components/agenda/utils";
@@ -23,6 +23,7 @@ import {
 } from "~/utils/emails/sendAppointment";
 import { resolveOrgFromRequest } from "~/utils/host.server";
 import { convertWeekDaysToEnglish } from "~/utils/urls";
+import { createPreference, getValidAccessToken } from "~/.server/mercadopago";
 
 type WeekDaysType = Record<string, string[][]>;
 
@@ -65,6 +66,12 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const org = await resolveOrgFromRequest(request, undefined);
     if (!org) throw new Response("Org not found", { status: 404 });
 
+    // Buscar servicio para verificar si requiere pago
+    const service = await db.service.findUnique({
+      where: { id: data.serviceId },
+    });
+    if (!service) throw new Response("Service not found", { status: 404 });
+
     const customer = await db.customer.create({
       data: {
         displayName: data.customer.displayName,
@@ -80,6 +87,39 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const startDate = new Date(data.start);
     const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000);
 
+    // Si el servicio requiere pago, redirigir a MP
+    if (service.payment && Number(service.price) > 0) {
+      // Obtener owner para tokens de MP
+      const owner = await db.user.findUnique({
+        where: { id: org.ownerId },
+      });
+
+      const accessToken = await getValidAccessToken(owner);
+      if (!accessToken) {
+        return {
+          error: "Este servicio requiere pago pero el negocio no tiene configurado su método de pago. Por favor contacta directamente al negocio.",
+        };
+      }
+
+      const url = new URL(request.url);
+      const preference = await createPreference(accessToken, {
+        serviceId: service.id,
+        serviceName: service.name,
+        price: Number(service.price),
+        customerId: customer.id,
+        start: startDate.toISOString(),
+        end: endDate.toISOString(),
+        backUrl: url.origin,
+        webhookUrl: `${url.origin}/mercadopago/webhook`,
+      });
+
+      if (preference.init_point) {
+        // Redirigir a MP, el evento se crea en el webhook
+        throw redirect(preference.init_point);
+      }
+    }
+
+    // Servicio gratuito o sin MP configurado: crear evento directamente
     const event = await db.event.create({
       data: {
         start: startDate,
@@ -93,7 +133,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         allDay: false,
         archived: false,
         createdAt: new Date(),
-        paid: false,
+        paid: !service.payment, // true si es gratuito
         type: "appointment",
         userId: org.ownerId,
         updatedAt: new Date(),
@@ -244,11 +284,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setTime(undefined);
   };
 
-  if (show === "success") {
+  // Mostrar error si el action retornó error
+  const actionError = fetcher.data && "error" in fetcher.data ? fetcher.data.error : null;
+
+  // Mostrar success solo si hay evento creado
+  if (show === "success" && fetcher.data?.event) {
     return (
       <Success
         org={org}
-        event={fetcher.data?.event}
+        event={fetcher.data.event}
         service={service}
         onFinish={reset}
       />
@@ -283,6 +327,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           )}
           {show === "user_info" && (
             <Form onSubmit={handleSubmit(onSubmit)} className="">
+              {actionError && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
+                  {actionError}
+                </div>
+              )}
               <BasicInput
                 register={register}
                 name="displayName"
@@ -312,11 +361,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 registerOptions={{ required: false }}
               />
               <PrimaryButton
-                isDisabled={!isValid}
+                isDisabled={!isValid || fetcher.state !== "idle"}
                 className="ml-auto"
                 type="submit"
               >
-                Agendar
+                {fetcher.state !== "idle" ? "Agendando..." : "Agendar"}
               </PrimaryButton>
             </Form>
           )}
