@@ -156,10 +156,6 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     throw new Response("Service not found", { status: 404 });
   }
 
-  // Debug: log weekDays data
-  console.log("[DEBUG] service.weekDays:", JSON.stringify(service.weekDays));
-  console.log("[DEBUG] org.weekDays:", JSON.stringify(org.weekDays));
-
   // Convert weekDays from Spanish (DB) to English (UI)
   const serviceWeekDays = convertWeekDaysToEnglish(
     service.weekDays as Record<string, any>,
@@ -169,9 +165,6 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     org.weekDays as Record<string, any>,
     true
   );
-
-  console.log("[DEBUG] converted serviceWeekDays:", JSON.stringify(serviceWeekDays));
-  console.log("[DEBUG] converted orgWeekDays:", JSON.stringify(orgWeekDays));
 
   const serviceWithEnglishDays = {
     ...service,

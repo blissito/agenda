@@ -16,17 +16,24 @@ Sistema de agendamiento/citas multi-tenant donde:
 
 El sistema usa **subdominios** para identificar organizaciones:
 
-| Tipo | Formato | Ejemplo |
-|------|---------|---------|
-| Landing del negocio | `{orgSlug}.denik.me` | `mi-salon.denik.me` |
-| Booking de servicio | `{orgSlug}.denik.me/{serviceSlug}` | `mi-salon.denik.me/corte-cabello` |
+| Tipo | Formato (Producción) | Formato (Localhost) |
+|------|---------------------|---------------------|
+| Landing del negocio | `{orgSlug}.denik.me` | N/A (usar producción) |
+| Booking de servicio | `{orgSlug}.denik.me/{serviceSlug}` | `localhost:3000/agenda/{orgSlug}/{serviceSlug}` |
 
 **Archivos clave:**
-- `app/routes/service.$serviceSlug.tsx` - Página pública de agendamiento
+- `app/routes/service.$serviceSlug.tsx` - Booking público (producción, usa subdominio)
+- `app/routes/agenda.$orgSlug.$serviceSlug.tsx` - Booking público (localhost, ruta path-based)
 - `app/utils/host.server.ts` - Resuelve org desde hostname/subdominio
-- `app/utils/urls.ts` - Helper `getServicePublicUrl()` para generar URLs
+- `app/utils/urls.ts` - Helpers para generar URLs:
+  - `getServicePublicUrl(orgSlug, serviceSlug)` - URL del servicio (detecta localhost vs prod)
+  - `getOrgPublicUrl(orgSlug)` - URL de la landing de la org (siempre producción)
+  - `convertWeekDaysToEnglish(weekDays)` - Convierte días de español (DB) a inglés (UI)
 
-**NO usar** el formato viejo `/agenda/:orgSlug/:serviceSlug` (deprecado).
+**Notas importantes:**
+- En producción, los links de servicios usan rutas relativas (`/{serviceSlug}`) dentro del subdominio
+- En localhost, el helper `getServicePublicUrl()` genera URLs con path `/agenda/:orgSlug/:serviceSlug`
+- Los `weekDays` se guardan en español en la DB pero el UI espera inglés (usa `convertWeekDaysToEnglish`)
 
 ## Estructura
 
@@ -36,7 +43,8 @@ app/
 ├── routes/
 │   ├── api/          # API endpoints (customers, services, events, org)
 │   ├── dash/         # Dashboard
-│   ├── service.$serviceSlug.tsx  # Booking público (usa subdominio)
+│   ├── service.$serviceSlug.tsx           # Booking público (producción, subdominio)
+│   ├── agenda.$orgSlug.$serviceSlug.tsx   # Booking público (localhost, path-based)
 │   └── stripe/       # Stripe endpoints + webhook
 ├── components/       # UI components
 ├── utils/            # Helpers, emails, tokens, urls

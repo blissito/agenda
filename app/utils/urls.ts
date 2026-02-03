@@ -67,25 +67,28 @@ export function convertWeekDaysToEnglish(
 
 /**
  * Generates the public URL for a service booking page
- * Format: https://{orgSlug}.denik.me/{serviceSlug}
+ * - Localhost: http://localhost:PORT/agenda/{orgSlug}/{serviceSlug}
+ * - Production: https://{orgSlug}.denik.me/{serviceSlug}
  */
 export function getServicePublicUrl(orgSlug: string, serviceSlug: string): string {
-  // In production, use subdomains
   if (typeof window !== "undefined") {
-    // Client-side: check if we're on localhost for development
-    const isLocalhost = window.location.hostname === "localhost" ||
-                        window.location.hostname === "127.0.0.1";
+    const { hostname, port, protocol } = window.location;
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+
     if (isLocalhost) {
-      // In dev, subdomain routing may not work, so just show the prod URL
-      return `https://${orgSlug}.${PLATFORM_DOMAIN}/${serviceSlug}`;
+      // In dev, use path-based route since subdomains don't work on localhost
+      const portPart = port ? `:${port}` : "";
+      return `${protocol}//${hostname}${portPart}/agenda/${orgSlug}/${serviceSlug}`;
     }
   }
 
+  // Production: use subdomain-based URL
   return `https://${orgSlug}.${PLATFORM_DOMAIN}/${serviceSlug}`;
 }
 
 /**
  * Generates the public URL for an org's landing page
+ * Always returns production URL since there's no localhost equivalent
  * Format: https://{orgSlug}.denik.me
  */
 export function getOrgPublicUrl(orgSlug: string): string {

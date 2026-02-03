@@ -1,10 +1,7 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { motion } from "motion/react";
-import { Link, useFetcher } from "react-router";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { useCallback, useState } from "react";
+import { Link } from "react-router";
 import { Tag } from "~/components/common/Tag";
-import { getServicePublicUrl } from "~/utils/urls";
 
 export const ServiceListCard = ({
   title,
@@ -12,33 +9,13 @@ export const ServiceListCard = ({
   duration,
   price,
   link,
-  serviceSlug,
-  slug,
 }: {
-  slug: string;
   title: string;
   image?: string;
   duration: number;
   price: string;
   link?: string;
-  serviceSlug?: string;
 }) => {
-  // lets try with an api endpoint...
-  const fetcher = useFetcher();
-  const [show, setShow] = useState(false);
-  const ref = useClickOutside<HTMLDivElement>({
-    onOutsideClick: () => {
-      setShow(false);
-    },
-    isActive: show,
-    includeEscape: true, // captures [Esc] key press
-  });
-
-  const getLink = useCallback(
-    (serviceSlug: string) => getServicePublicUrl(slug, serviceSlug),
-    [slug]
-  );
-
   return (
     <motion.section
       initial={{ opacity: 0, y: -5 }}

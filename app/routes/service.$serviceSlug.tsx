@@ -146,10 +146,6 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   // Verify service belongs to org
   if (service.orgId !== org.id) throw new Response(null, { status: 404 });
 
-  // Debug: log weekDays data
-  console.log("[DEBUG] service.weekDays:", JSON.stringify(service.weekDays));
-  console.log("[DEBUG] org.weekDays:", JSON.stringify(org.weekDays));
-
   // Convert weekDays from Spanish (DB) to English (UI)
   // Service weekDays: don't use default, fallback to org's schedule
   const serviceWeekDays = convertWeekDaysToEnglish(
@@ -161,9 +157,6 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     org.weekDays as Record<string, any>,
     true // Use default schedule if org has none
   );
-
-  console.log("[DEBUG] converted serviceWeekDays:", JSON.stringify(serviceWeekDays));
-  console.log("[DEBUG] converted orgWeekDays:", JSON.stringify(orgWeekDays));
 
   const serviceWithEnglishDays = {
     ...service,

@@ -91,8 +91,6 @@ export default function TemplateTwo({
               {services.map((service) => (
                 <ServiceListCard
                   link={`/${service.slug}`}
-                  slug={org.slug}
-                  serviceSlug={service.slug}
                   key={service.id}
                   title={service.name}
                   duration={service.duration}
