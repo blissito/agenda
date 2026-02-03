@@ -64,6 +64,7 @@ prisma/
 | Email notifications | ✅ |
 | Stripe Connect | ✅ |
 | Webhooks Stripe | ⚠️ Handler básico creado |
+| MercadoPago | ✅ OAuth, webhooks, token refresh |
 | Tests | ❌ 0% |
 
 ## TODO
@@ -72,6 +73,7 @@ prisma/
   - Actualizar estado de pagos en DB cuando `checkout.session.completed`
   - Manejar `payment_intent.failed` para notificar al usuario
   - Agregar `STRIPE_WEBHOOK_SECRET` a producción
+- [ ] Configurar `MP_WEBHOOK_SECRET` en producción
 
 ## Variables de Entorno
 
@@ -86,6 +88,12 @@ STRIPE_SECRET_TEST=
 STRIPE_WEBHOOK_SECRET=
 APP_URL=
 
+# MercadoPago
+MP_CLIENT_ID=
+MP_CLIENT_SECRET=
+MP_ACCESS_TOKEN=
+MP_WEBHOOK_SECRET=   # Panel MP > Webhooks > Secret key
+
 # Opcionales
 ADMIN_EMAILS=email1@x.com,email2@x.com
 ```
@@ -95,4 +103,72 @@ ADMIN_EMAILS=email1@x.com,email2@x.com
 - **Auth**: `app/.server/userGetters.tsx`, `app/utils/tokens.ts`
 - **Email**: `app/utils/emails/`
 - **Stripe**: `app/.server/stripe.ts`, `app/routes/stripe/`
+- **MercadoPago**: `app/.server/mercadopago.ts`, `app/routes/mercadopago.*`
 - **Validación**: `app/utils/zod_schemas.ts`
+
+## Herramientas de Desarrollo (DB)
+
+Scripts CLI para manipular la base de datos durante desarrollo. Ubicados en `scripts/dev/`.
+
+### Leer datos
+
+```bash
+# Listar modelos disponibles
+npx tsx scripts/dev/db-read.ts --list-models
+
+# Ver registros de un modelo
+npx tsx scripts/dev/db-read.ts User
+npx tsx scripts/dev/db-read.ts Org --limit 5
+
+# Filtrar por campo
+npx tsx scripts/dev/db-read.ts Service --where "orgId=abc123"
+
+# Ver un registro específico
+npx tsx scripts/dev/db-read.ts Customer --id "abc123"
+
+# Contar registros
+npx tsx scripts/dev/db-read.ts Event --count
+```
+
+### Crear datos de prueba
+
+```bash
+# Crear un usuario
+npx tsx scripts/dev/db-create.ts User
+
+# Crear org completa (user + org + 2 services + 3 customers + 2 events)
+npx tsx scripts/dev/db-create.ts Org --full
+
+# Crear múltiples registros
+npx tsx scripts/dev/db-create.ts Customer --count 5 --orgId "ID"
+
+# Crear evento
+npx tsx scripts/dev/db-create.ts Event --orgId "ID" --serviceId "ID" --customerId "ID"
+```
+
+### Eliminar datos
+
+```bash
+# Eliminar registro específico
+npx tsx scripts/dev/db-delete.ts User --id "ID"
+
+# Eliminar org con todos sus datos relacionados
+npx tsx scripts/dev/db-delete.ts Org --id "ID" --cascade
+```
+
+### Prisma Studio
+
+Para una UI visual de la base de datos:
+
+```bash
+npx prisma studio
+```
+
+### Factories
+
+Los generadores de datos fake están en `scripts/dev/factories.ts`:
+- `generateUser(overrides?)` - Usuario con email/displayName fake
+- `generateOrg(ownerId, overrides?)` - Org con slug único
+- `generateService(orgId, overrides?)` - Servicio con price/duration
+- `generateCustomer(orgId, overrides?)` - Cliente con tel/email
+- `generateEvent(data, overrides?)` - Evento con fechas próximas
