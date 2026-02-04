@@ -1,15 +1,36 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
-  type ChangeEvent,
   forwardRef,
   type ReactNode,
   useEffect,
   useState,
+  type InputHTMLAttributes,
 } from "react";
 import { cn } from "~/utils/cn";
 import { motion } from "motion/react";
 
-export const Switch = forwardRef(
+type RegisterResult = {
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  ref?: React.Ref<HTMLInputElement>;
+  name?: string;
+};
+
+type SwitchProps = {
+  icon?: ReactNode;
+  subtitle?: string;
+  onChange?: (checked: boolean) => void;
+  registerOptions?: { required: boolean };
+  register?: (name: string, options: Record<string, string | boolean>) => RegisterResult;
+  setValue?: (name: string, value: boolean) => void;
+  className?: string;
+  containerClassName?: string;
+  backgroundColor?: string;
+  label?: string;
+  defaultChecked?: boolean;
+  name: string;
+} & Omit<InputHTMLAttributes<HTMLInputElement>, "onChange">;
+
+export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
   (
     {
       label,
@@ -25,24 +46,8 @@ export const Switch = forwardRef(
       subtitle,
       icon,
       ...props
-    }: {
-      icon?: ReactNode;
-      subtitle?: string;
-      onChange?: (arg0: boolean) => void;
-      registerOptions?: { required: boolean };
-      register?: (
-        arg0: string,
-        arg1: Record<string, string | boolean>
-      ) => Record<string, string>;
-      setValue?: (arg0: string, arg1: boolean) => void; // @TODO: fix
-      className?: string;
-      containerClassName?: string;
-      backgroundColor?: string;
-      label?: string;
-      defaultChecked?: boolean;
-      name: string;
     },
-    ref // coming from register
+    ref
   ) => {
     // const ref = useRef<HTMLInputElement>(null);
     const [checked, set] = useState(defaultChecked);
@@ -52,7 +57,6 @@ export const Switch = forwardRef(
     return (
       <>
         <label
-          type="button"
           className={cn(
             "flex items-center gap-4 justify-between",
             "cursor-pointer",

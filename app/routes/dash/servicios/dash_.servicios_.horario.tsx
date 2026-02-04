@@ -1,27 +1,23 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { useLoaderData } from "react-router";
-import { serviceTimesFormHandler } from "~/.server/form_handlers/serviceTimesFormHandler";
+import { useLoaderData, Link } from "react-router";
 import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm";
 import { getServicefromSearchParams } from "~/.server/userGetters";
 
-export const action = async ({ request }) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-  if (intent === "update_service") {
-    await serviceTimesFormHandler(request, formData); // not return if want to do stuff at the end
-  }
-  return null;
+type ServiceTimesData = {
+  id: string;
+  duration: number | bigint;
+  weekDays: unknown;
 };
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request }: { request: Request }) => {
   // will redirect when 404
-  const service = await getServicefromSearchParams(request, {
+  const serviceData = await getServicefromSearchParams(request, {
     select: {
       id: true,
       duration: true,
       weekDays: true,
     },
   });
+  const service = serviceData as unknown as ServiceTimesData;
   return {
     service,
   };
@@ -31,14 +27,24 @@ export default function NewServiceTimetable() {
   const { service } = useLoaderData<typeof loader>();
 
   return (
-    <main className="max-w-xl mx-auto py-20  min-h-screen relative ">
+    <main className="max-w-xl mx-auto py-20 min-h-screen relative">
       <h2 className="text-4xl font-bold font-title text-center leading-tight">
         Define tu horario
       </h2>
       <ServiceTimesForm
-        backButtonLink={`/dash/servicios/fotos?serviceId=${service.id}`}
-        defaultValues={service}
+        defaultValues={{
+          duration: Number(service.duration),
+          weekDays: (service.weekDays as unknown as { monday?: [string, string][] }) ?? null,
+        }}
       />
+      <div className="mt-4 text-center">
+        <Link
+          to={`/dash/servicios/fotos?serviceId=${service.id}`}
+          className="text-brand_blue hover:underline"
+        >
+          Volver a fotos
+        </Link>
+      </div>
     </main>
   );
 }

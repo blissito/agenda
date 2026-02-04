@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,22 +14,19 @@ import { Instagram } from "~/components/icons/insta";
 import { Tiktok } from "~/components/icons/tiktok";
 import { Linkedin } from "~/components/icons/linkedin";
 import { Anchor } from "~/components/icons/link";
-import { Form, useFetcher, useLoaderData, redirect } from "react-router";
+import { Form, useFetcher, useLoaderData } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { useForm } from "react-hook-form";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import type { Route } from "./+types/dash.website_.socialmedia";
-import { handleOrgUpdate } from "~/.server/form_handlers/serviceTimesFormHandler";
 import { Youtube } from "~/components/icons/youtube";
 
-export const action = async ({ request }: Route.ActionArgs) => {
-  await handleOrgUpdate(request, () => redirect("/dash/website"));
-  return null;
-};
-
-export const loader = async ({ request }: Route.LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
     redirectURL: "/dash/website/",
   });
+  if (!org) {
+    throw new Response("Org not found", { status: 404 });
+  }
   return { org: { social: org.social, id: org.id } };
 };
 
@@ -45,10 +41,10 @@ export default function Index() {
   const onSubmit = (values: unknown) => {
     fetcher.submit(
       {
-        data: JSON.stringify({ social: values }),
-        intent: "update_org_social",
+        data: JSON.stringify({ id: org.id, social: values }),
+        intent: "org_update",
       },
-      { method: "POST" }
+      { method: "POST", action: "/api/org" }
     );
   };
 

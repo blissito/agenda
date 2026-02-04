@@ -1,8 +1,7 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Footer } from "~/components/common/Footer";
 import { TopBar } from "~/components/common/topBar";
 import { Rocket } from "~/components/icons/rocket";
-import React, { useRef } from "react";
+import { useRef, type MouseEvent } from "react";
 import {
   motion,
   useMotionTemplate,
@@ -70,7 +69,7 @@ const TiltCard = ({
   link: string;
   description: string;
 }) => {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -80,7 +79,7 @@ const TiltCard = ({
 
   const transform = useMotionTemplate`rotateX(${xSpring}deg) rotateY(${ySpring}deg)`;
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return [0, 0];
 
     const rect = ref.current.getBoundingClientRect();

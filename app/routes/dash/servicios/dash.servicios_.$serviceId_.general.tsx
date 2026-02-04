@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { BasicInput } from "~/components/forms/BasicInput";
 import {
   Breadcrumb,
@@ -21,13 +20,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "update_service") {
     const form = Object.fromEntries(formData);
     const validData = serviceUpdateSchema.parse(form);
+    const { id, slug, orgId, ...updateData } = validData;
     await db.service.update({
-      where: {
-        id: validData.id,
-      },
-      data: { ...validData, id: undefined, slug: undefined },
+      where: { id },
+      data: updateData,
     });
-    return redirect("/dash/servicios/" + validData.id);
+    return redirect("/dash/servicios/" + id);
   }
   return null;
 };
@@ -92,20 +90,20 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             label="Precio"
             name="price"
             type="number"
-            defaultValue={service.price}
+            defaultValue={Number(service.price)}
           />
           <BasicInput
             name="points"
             placeholder="100"
             label="¿A cuántos puntos de recompensas equivale el servicio?"
-            defaultValue={service.points}
+            defaultValue={Number(service.points)}
           />
           <BasicInput
             as="textarea"
             name="description"
             placeholder="Cuéntale a tus clientes sobre tu servicio"
             label="Descripción"
-            defaultValue={service.description}
+            defaultValue={service.description ?? undefined}
           />
         </div>
 

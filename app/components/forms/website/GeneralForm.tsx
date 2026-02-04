@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Org } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
@@ -25,7 +24,7 @@ export const GeneralForm = ({
   const isDisabled = !isDirty || !isValid;
   const isLoading = fetcher.state !== "idle";
 
-  const submit = (values) => {
+  const submit = (values: Record<string, unknown>) => {
     fetcher.submit(
       {
         intent: "org_update",
@@ -49,8 +48,8 @@ export const GeneralForm = ({
       </h2>
       <input type="hidden" name="id" value={defaultValues?.id} />
       <input type="hidden" name="redirectURL" value={`/dash/website`} />
-      <InputFile className="w-[220px]">
-        <p className="hover:scale-105 transition-all"> 🛸 Arrastra tu logo</p>
+      <InputFile name="logo" className="w-[220px]">
+        <p className="hover:scale-105 transition-all"> Arrastra tu logo</p>
       </InputFile>
       <BasicInput
         placeholder="Estudio Westeros"

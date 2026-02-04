@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
   type FieldValues,
   useForm,
@@ -64,11 +63,11 @@ export const ServicePhotoForm = ({
   action,
   formRef,
   defaultValues = initialPhotoValues,
-  errors = {},
+  errors = {} as Record<string, { message?: string }>,
 }: {
   formRef?: RefObject<HTMLFormElement | null>;
   action?: string;
-  errors?: ZodError[];
+  errors?: Record<string, { message?: string }>;
   defaultValues?: ServicePhotoFormFields;
 }) => {
   const fetcher = useFetcher();
@@ -78,7 +77,7 @@ export const ServicePhotoForm = ({
     // formState: { errors },
     setValue,
   } = useForm({
-    defaultValues: { ...defaultValues, photoURL: action?.readUrl },
+    defaultValues: { ...defaultValues, photoURL: defaultValues?.photoURL },
   });
 
   const onSubmit = (values: ServicePhotoFormFields) => {
@@ -98,9 +97,8 @@ export const ServicePhotoForm = ({
         name="photoURL"
         title="Foto de portada"
         description="  Carga 1 imagen de tu servicio. Te recomendamos que tenga un aspect ratio 16:9 y un peso máximo de 1MB."
-        register={register}
+        register={register as unknown as UseFormRegister<FieldValues>}
         registerOptions={{ required: false }}
-        accept="image/*"
       >
         <AddImage className="mx-auto mb-3" />
         <span className="font-satoshi">
@@ -109,7 +107,7 @@ export const ServicePhotoForm = ({
       </InputFile>
 
       <SelectInput
-        error={errors.place}
+        error={errors.place as import("react-hook-form").FieldError | undefined}
         register={register}
         className="mt-8"
         options={OPTIONS}

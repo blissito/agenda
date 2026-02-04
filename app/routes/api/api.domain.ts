@@ -52,6 +52,9 @@ export type DomainDns = z.infer<typeof domainDnsSchema>;
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   const formData = await request.formData();
   const intent = formData.get("intent");
 

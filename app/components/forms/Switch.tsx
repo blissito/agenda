@@ -1,6 +1,4 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
-  type ChangeEvent,
   type ReactNode,
   useEffect,
   useRef,
@@ -10,6 +8,16 @@ import { twMerge } from "tailwind-merge";
 import { motion } from "motion/react";
 import { type FieldValues, type UseFormRegister } from "react-hook-form";
 
+type SwitchProps = {
+  name: string;
+  value?: string;
+  register?: UseFormRegister<FieldValues>;
+  registerOptions?: { required?: string | boolean };
+  defaultChecked?: boolean;
+  onChange?: (element: HTMLInputElement) => void;
+  label?: ReactNode;
+};
+
 export const Switch = ({
   value,
   label,
@@ -18,21 +26,14 @@ export const Switch = ({
   defaultChecked,
   register,
   registerOptions,
-}: {
-  name: string;
-  value?: string;
-  register?: UseFormRegister<FieldValues>;
-  registerOptions?: { required?: string | boolean };
-  defaultChecked?: boolean;
-  onChange?: (arg0: HTMLInputElement) => void;
-  label?: ReactNode;
-}) => {
+}: SwitchProps) => {
   const [isActive, set] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
-    const cb = (e: ChangeEvent<HTMLInputElement>) => {
-      set(e.target?.checked);
+    const cb = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      set(target?.checked);
     };
     inputRef.current?.addEventListener("change", cb);
     const forListener = inputRef.current;
@@ -40,7 +41,7 @@ export const Switch = ({
   }, []);
 
   useEffect(() => {
-    set(defaultChecked);
+    set(defaultChecked ?? false);
   }, [defaultChecked]);
 
   return (

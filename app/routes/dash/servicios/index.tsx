@@ -34,6 +34,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "create_dummy_service") {
     const { org } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     const dummy = await db.service.create({
       data: {
         name: "Fancy Service",
@@ -60,6 +63,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const services = await getServices(request);
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   return { services, org };
 };
 

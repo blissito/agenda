@@ -1,10 +1,9 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { HourOrDay } from "~/components/hooks/useCoordinates";
 
 export interface Day {
   day: string;
   date: Date;
-  meta?: any;
+  meta?: Record<string, unknown>;
 }
 
 export type BasicBoxType = {
@@ -74,10 +73,10 @@ export const generateHours = ({
   toHour: number | string;
   justNumbers?: boolean;
 }) => {
-  // fh = Number(fromHour);
-  // th = Number(toHour)
-  return Array.from({ length: toHour - fromHour }).map((_, index) =>
-    fromHour + index < 10 ? `0${fromHour + index}:00` : `${fromHour + index}:00`
+  const fh = Number(fromHour);
+  const th = Number(toHour);
+  return Array.from({ length: th - fh }).map((_, index) =>
+    fh + index < 10 ? `0${fh + index}:00` : `${fh + index}:00`
   );
 };
 
@@ -192,7 +191,7 @@ export const generateWeekGrid = ({
         new Date(week[x].date).getHours(),
         mins
       ),
-      hour: Number(hours[hoursY]?.replace(":00", "")), // improve
+      hour: hours[hoursY]?.number ?? 0,
       mins: mins === 0 ? "00" : mins,
       month: new Date(week[x].date).getMonth(),
       year: new Date(week[x].date).getFullYear(),
@@ -250,14 +249,14 @@ export const isToday = (_date: Date) => {
 };
 
 export const areSameDates = (d1: Date, d2: Date | null) => {
-  if (!d1 || !d2 || d1 instanceof Date || d2 instanceof Date) return false;
+  if (!d1 || !d2 || !(d1 instanceof Date) || !(d2 instanceof Date)) return false;
   const date1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
   const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
   return date1.getTime() === date2.getTime();
 };
 
-export const fromDateToTimeString = (date: Date, locale: "es-MX" = "es-MX") => {
-  return new Date(date).toLocaleTimeString();
+export const fromDateToTimeString = (_date: Date, _locale: "es-MX" = "es-MX") => {
+  return new Date(_date).toLocaleTimeString();
 };
 
 export const from12To24 = (string: string) => {

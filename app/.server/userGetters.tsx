@@ -145,10 +145,17 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
 export const getUserAndOrgOrRedirect = async (
   request: Request,
   options: { redirectURL?: string; select?: Prisma.OrgSelect } = {}
-): Promise<{ user: User; org: Org }> => {
+): Promise<{ user: User; org: Org | null }> => {
   const rurl = options?.redirectURL || "/signup/1";
   const user = await getUserOrNull(request);
-  if (!user?.orgId) throw redirect(rurl);
+  if (!user) throw redirect(rurl);
+
+  // Allow customers without Org to access dashboard
+  if (user.role === "customer" && !user.orgId) {
+    return { user, org: null };
+  }
+
+  if (!user.orgId) throw redirect(rurl);
 
   const org = await db.org.findUnique({
     where: { id: user.orgId },

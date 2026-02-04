@@ -17,6 +17,9 @@ import { Edit } from "~/components/icons/edit";
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   // @TODO ensure is the owner
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   const service = await db.service.findUnique({
     where: { id: params.serviceId, orgId: org.id }, // @TODO: this can vary if multiple orgs
   });

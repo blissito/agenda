@@ -1,54 +1,42 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { Children, type ReactNode, useEffect, useState } from "react";
+import { Children, type ReactNode, useState } from "react";
 import { stagger, useAnimate, useSpring } from "motion/react";
 import { nanoid } from "nanoid";
 
 //@TODO: STILL A WIP, HOW TO STAGGER PAIR LETTERS ??
 
+interface WordNodeElement {
+  props?: {
+    children?: string;
+  };
+}
+
 export const FlipWordsThree = ({
-  delay = 0.03,
+  delay: _delay = 0.03,
   children,
 }: {
   delay?: number;
   children: ReactNode;
 }) => {
-  const wordNode = Children.toArray(children)[0] as ReactNode;
-  const [letters, setLetters] = useState<string[]>(
-    wordNode.props?.children.split("")
+  const wordNode = Children.toArray(children)[0] as WordNodeElement;
+  const [letters] = useState<string[]>(
+    (wordNode?.props?.children ?? "").split("")
   );
 
-  const rotateX = useSpring(0, { bounce: 0 });
-  const y = useSpring(0, { bounce: 0 });
-
-  const handleEnter = () => {
-    rotateX.set(-90);
-    y.set(24);
-  };
-  const handleLeave = () => {
-    rotateX.set(0);
-    y.set(0);
-  };
-
-  //   useEffect(() => {
-  //     replaceNodes();
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, []);
+  // Unused springs for future implementation
+  const _rotateX = useSpring(0, { bounce: 0 });
+  const _y = useSpring(0, { bounce: 0 });
 
   return <BoxLetters letters={letters} />;
 };
 
 export const BoxLetters = ({
-  children,
+  children: _children,
   letters,
 }: {
   children?: ReactNode;
   letters: string[];
 }) => {
-  const [scope, animate] = useAnimate();
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [scope, animate] = useAnimate<HTMLUListElement>();
 
   const handleEnter = () => {
     animate("li", { y: "50%" }, { delay: stagger(0.1) });

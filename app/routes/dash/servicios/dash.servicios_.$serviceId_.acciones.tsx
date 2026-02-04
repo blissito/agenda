@@ -8,7 +8,6 @@ import {
 } from "~/components/ui/breadcrump";
 import { db } from "~/utils/db.server";
 import { useFetcher } from "react-router";
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Route } from "./+types/dash.servicios_.$serviceId_.acciones";
 import { Switch } from "~/components/common/Switch";
 import { BasicInput } from "~/components/forms/BasicInput";
@@ -72,6 +71,7 @@ const ACTION_TYPES: {
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) throw new Response(null, { status: 401 });
   const serviceId = params.serviceId;
 
   const service = await db.service.findUnique({

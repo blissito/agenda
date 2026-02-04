@@ -1,7 +1,6 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Customer, Event, Service, User } from "@prisma/client";
 import { Form, useFetcher } from "react-router";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { BasicInput } from "../BasicInput";
 import { SelectInput } from "../SelectInput";
 import { Switch } from "~/components/common/Switch";
@@ -13,10 +12,10 @@ import { CustomersComboBox } from "../CustomersComboBox";
 import { ServiceSelect } from "../ServiceSelect";
 import { EmployeeSelect } from "../EmployeeSelect";
 
-const formatDate = (d: Date | string) =>
+const formatDate = (d: Date | string): string =>
   new Date(d).toISOString().substring(0, 10);
 
-const formatHour = (d: Date | string, reset?: boolean) => {
+const formatHour = (d: Date | string, reset?: boolean): string => {
   const time = new Date(d)
     .toLocaleDateString("es-MX", {
       hour: "numeric",
@@ -32,6 +31,32 @@ const formatHour = (d: Date | string, reset?: boolean) => {
   }
 };
 
+// Form values type - using Record for flexibility with react-hook-form
+type EventFormValues = Record<string, unknown> & {
+  id?: string;
+  customerId?: string | null;
+  employeeId?: string | null;
+  serviceId?: string | null;
+  startHour?: string;
+  endHour?: string;
+  start?: string;
+  end?: string;
+  notes?: string | null;
+  paid?: boolean;
+  payment_method?: string | null;
+};
+
+type EventFormProps = {
+  services: Service[];
+  employees: User[];
+  customers: Customer[];
+  onNewClientClick: () => void;
+  onCancel?: () => void;
+  onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void;
+  defaultValues: Partial<Event>;
+  ownerName?: string;
+};
+
 export const EventForm = ({
   defaultValues,
   onCancel,
@@ -39,22 +64,14 @@ export const EventForm = ({
   customers,
   services,
   employees,
-}: {
-  services: Service[];
-  employees: User[];
-  customers: Customer[];
-  onNewClientClick: () => void;
-  onCancel?: () => void;
-  onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void;
-  defaultValues: Event;
-  ownerName?: string;
-}) => {
+}: EventFormProps) => {
   const fetcher = useFetcher();
-  const oneMoreHour = new Date(defaultValues.start as Date);
+  const startDateValue = defaultValues.start ? new Date(defaultValues.start) : new Date();
+  const oneMoreHour = new Date(startDateValue);
   oneMoreHour.setHours(oneMoreHour.getHours() + 1);
 
   // Pre-populate start and end hours from the clicked date/time
-  const startDate = new Date(defaultValues.start as Date);
+  const startDate = new Date(startDateValue);
   const endDate = new Date(startDate);
   endDate.setHours(startDate.getHours() + 1); // Default to 1 hour duration
 
@@ -69,21 +86,23 @@ export const EventForm = ({
   } = useForm({
     defaultValues: {
       ...defaultValues,
-      start: formatDate(defaultValues.start as Date),
+      start: formatDate(startDateValue),
       end: defaultValues.end ? formatDate(defaultValues.end as Date) : "",
       startHour: formatHour(startDate),
       endHour: formatHour(endDate),
-    },
+    } as EventFormValues,
   });
 
   // duration calculation 🧠
   const [duration, setDuration] = useState(60);
   const handleHoursChange = () => {
     const v = getValues();
-    const sh = Number(v.startHour.split(":")[0]),
-      sm = Number(v.startHour.split(":")[1]),
-      eh = Number(v.endHour.split(":")[0]),
-      em = Number(v.endHour.split(":")[1]);
+    const startHourStr = v.startHour || "00:00";
+    const endHourStr = v.endHour || "01:00";
+    const sh = Number(startHourStr.split(":")[0]),
+      sm = Number(startHourStr.split(":")[1]),
+      eh = Number(endHourStr.split(":")[0]),
+      em = Number(endHourStr.split(":")[1]);
     const one = new Date(),
       dos = new Date();
     one.setHours(sh);
@@ -95,15 +114,19 @@ export const EventForm = ({
     setValue("startHour", v.startHour);
   };
 
-  const parseData = (values: Partial<Event>) => {
-    const start = new Date(values.start + "T00:00:00");
-    start.setDate(start.getDate()); // why?
-    start.setHours(values.startHour.split(":")[0]);
-    start.setMinutes(values.startHour.split(":")[1]);
+  const parseData = (values: FieldValues) => {
+    const startHour = values.startHour || "00:00";
+    const endHour = values.endHour || "01:00";
+    const startStr = typeof values.start === "string" ? values.start : formatDate(values.start || new Date());
 
-    const end = new Date(values.start + "T00:00:00");
-    end.setHours(values.endHour.split(":")[0]);
-    end.setMinutes(values.endHour.split(":")[1]);
+    const start = new Date(startStr + "T00:00:00");
+    start.setDate(start.getDate());
+    start.setHours(Number(startHour.split(":")[0]));
+    start.setMinutes(Number(startHour.split(":")[1]));
+
+    const end = new Date(startStr + "T00:00:00");
+    end.setHours(Number(endHour.split(":")[0]));
+    end.setMinutes(Number(endHour.split(":")[1]));
 
     if (start > end) {
       setError("startHour", {
@@ -122,14 +145,14 @@ export const EventForm = ({
     if (!r.success) {
       console.error("PARSE_ERROR: ", r.error);
       r.error.issues.forEach((issue) => {
-        setError(issue.path[0], { message: issue.message });
+        setError(String(issue.path[0]), { message: issue.message });
       });
       return;
     }
     return r.data;
   };
 
-  const onSubmit = async (v: Partial<Event>) => {
+  const onSubmit = async (v: FieldValues) => {
     const validData = parseData(v);
 
     if (!validData) return console.error("::ERROR_ON_VALIDATION::", validData);

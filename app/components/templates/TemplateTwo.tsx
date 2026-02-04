@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
   Listbox,
   ListboxButton,
@@ -22,7 +21,27 @@ import { ServiceListCard } from "./ServiceListCard";
 import { SocialMedia } from "./SocialMedia";
 import { ItemClient } from "./ItemClient";
 import { formatRange } from "../common/FormatRange";
-import type { Org, Service } from "@prisma/client";
+import type { Service } from "@prisma/client";
+
+// Extended org type for templates (includes legacy props used by templates)
+export type TemplateOrg = {
+  name?: string;
+  description?: string | null;
+  address?: string | null;
+  email?: string | null;
+  phone?: string;
+  mail?: string;
+  photoURL?: string;
+  weekDays?: {
+    lunes?: unknown;
+    martes?: unknown;
+    mi_rcoles?: unknown;
+    jueves?: unknown;
+    viernes?: unknown;
+    s_bado?: unknown;
+    domingo?: unknown;
+  } | null;
+};
 
 const week = [
   { id: 1, name: "Lun 9:00 a 5:00pm" },
@@ -35,11 +54,11 @@ const week = [
 export default function TemplateTwo({
   services = [],
   isPublic,
-  org = {},
+  org,
 }: {
   isPublic?: boolean;
   services?: Service[];
-  org?: Org;
+  org?: TemplateOrg;
 }) {
   return (
     <section className="w-full min-h-screen h-auto bg-white pb-10  ">
@@ -54,24 +73,24 @@ export default function TemplateTwo({
         alt="company logo"
         className="w-[160px] h-[160px] rounded-full border-[8px] border-white ml-[5%] -mt-[60px]"
         src={
-          org.photoURL
+          org?.photoURL
             ? org.photoURL
             : "https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=800"
         }
       />
       <section className="grid grid-cols-6 px-[5%] mt-6 gap-10 pb-12 md:pb-20   ">
         <div className="col-span-6 lg:col-span-2">
-          <h1 className="text-2xl font-title font-bold">{org.name}</h1>
+          <h1 className="text-2xl font-title font-bold">{org?.name}</h1>
           <p className="mt-4 text-brand_gray">
-            {org.description ? org.description : null}
+            {org?.description ? org.description : null}
           </p>
           <div className="mt-6 ">
-            {org.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
-            {org.mail && (
+            {org?.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
+            {org?.mail && (
               <ItemClient icon={<IoMailOutline />} text={org.mail} />
             )}
             <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
-            {org.address && (
+            {org?.address && (
               <ItemClient icon={<IoLocationOutline />} text={org.address} />
             )}
           </div>
@@ -117,7 +136,7 @@ export const WorkHour = ({
   icon: ReactNode;
   text?: string;
   status?: string;
-  org?: Org;
+  org?: TemplateOrg;
 }) => {
   const [selected] = useState(week[1]);
 
@@ -155,7 +174,7 @@ export const WorkHour = ({
               Lun -{" "}
               <span className="ml-1">
                 {" "}
-                {formatRange(org.weekDays?.["lunes"])}
+                {formatRange(org?.weekDays?.lunes as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -167,7 +186,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Mar -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["martes"])}
+                {formatRange(org?.weekDays?.martes as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -179,7 +198,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Mié -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["miércoles"])}
+                {formatRange(org?.weekDays?.mi_rcoles as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -191,7 +210,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Jue -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["jueves"])}
+                {formatRange(org?.weekDays?.jueves as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -203,7 +222,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Vie -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["viernes"])}
+                {formatRange(org?.weekDays?.viernes as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -215,7 +234,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Sáb -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["sábado"])}
+                {formatRange(org?.weekDays?.s_bado as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -227,7 +246,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Dom -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["domingo"])}
+                {formatRange(org?.weekDays?.domingo as [string, string][])}
               </span>
             </div>
           </ListboxOption>

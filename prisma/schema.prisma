@@ -306,7 +306,9 @@ model Customer {
   orgId           String           @db.ObjectId
   tel             String
   updatedAt       DateTime         @db.Date
+  userId          String?          @db.ObjectId
   org             Org              @relation(fields: [orgId], references: [id])
+  user            User?            @relation(fields: [userId], references: [id])
   events          Event[]
   surveyResponses SurveyResponse[]
 }
@@ -455,4 +457,5 @@ model User {
   stripe        UserStripe?
   mercadopago   UserMercadoPago?
   uid           String?
+  customers     Customer[]
 }

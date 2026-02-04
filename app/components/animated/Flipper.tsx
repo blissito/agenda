@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { motion, useAnimationControls, useSpring } from "motion/react";
 import {
   Children,
@@ -21,7 +20,7 @@ export const Flipper = ({
   const bgColor = `bg-${twColor}`;
   const borderColor = `border-${twColor}`;
   const nodes = Children.toArray(children);
-  const timeout = useRef<ReturnType<typeof setTimeout>>();
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLElement>(null);
   const prevIndex = useSignal(0);
   const nextIndex = useSignal(1);
@@ -43,14 +42,14 @@ export const Flipper = ({
   };
 
   const stop = () => {
-    timeout.current && clearTimeout(timeout.current);
+    if (timeout.current) clearTimeout(timeout.current);
   };
 
   const sleep = (n = 1) => new Promise((r) => setTimeout(r, n * 1000));
 
   const start = async () => {
     // loop
-    timeout.current && clearTimeout(timeout.current);
+    if (timeout.current) clearTimeout(timeout.current);
     timeout.current = setTimeout(start, 3000);
     // top  flip animation
     await flipper.start({ rotateX: -90 }, { duration: 0.5, ease: "easeIn" });

@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { Facebook } from "~/components/icons/facebook";
 import { Instagram } from "~/components/icons/insta";
@@ -7,9 +6,8 @@ import { Linkedin } from "~/components/icons/linkedin";
 import { Tiktok } from "~/components/icons/tiktok";
 import { Twitter } from "~/components/icons/twitter";
 import { Youtube } from "~/components/icons/youtube";
-import { type Org, type Service } from "@prisma/client";
+import type { Org, Service, OrgWeekDays } from "@prisma/client";
 import { formatRange } from "~/components/common/FormatRange";
-import qrcode from "qrcode";
 import { InfoBox } from "./InfoBox";
 import { InfoService } from "./InfoService";
 import { MediaBox } from "./MediaBox";
@@ -19,15 +17,30 @@ import { ServicesFormModal } from "~/components/ui/modals/ServicesFormModal";
 import { TimesFormModal } from "~/components/ui/modals/TimesFormModal";
 import { getServicePublicUrl } from "~/utils/urls";
 
+// Extended weekDays type with Spanish keys (as used in UI)
+// The DB uses mi_rcoles and s_bado but UI uses miércoles and sábado
+type WeekDaysWithSpanishKeys = OrgWeekDays & {
+  "miércoles"?: unknown;
+  "sábado"?: unknown;
+};
+
+type PartialService = Pick<Service, "id" | "name" | "photoURL" | "slug" | "isActive">;
+
+// Helper to get weekDays with Spanish keys support
+const getWeekDays = (org: Org): WeekDaysWithSpanishKeys | null | undefined => {
+  return org.weekDays as WeekDaysWithSpanishKeys | null | undefined;
+};
+
 export const CompanyInfo = ({
   services = [],
   isPublic,
   org,
 }: {
   isPublic?: boolean;
-  services?: Service[];
+  services?: PartialService[];
   org: Org;
 }) => {
+  const weekDays = getWeekDays(org);
   return (
     <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
       <div className="flex justify-between items-center">
@@ -60,22 +73,22 @@ export const CompanyInfo = ({
         )}
       </div>
       {/* times */}
-      <InfoBox title="Lunes" value={formatRange(org?.weekDays?.lunes)} />
-      <InfoBox title="Martes" value={formatRange(org?.weekDays?.martes)} />
+      <InfoBox title="Lunes" value={formatRange(weekDays?.lunes as [string, string][])} />
+      <InfoBox title="Martes" value={formatRange(weekDays?.martes as [string, string][])} />
       <InfoBox
         title="Miércoles"
-        value={formatRange(org.weekDays?.["miércoles"])}
+        value={formatRange(weekDays?.["miércoles"] as [string, string][])}
       />
-      <InfoBox title="Jueves" value={formatRange(org.weekDays?.jueves)} />
-      <InfoBox title="Viernes" value={formatRange(org.weekDays?.viernes)} />
-      <InfoBox title="Sábado" value={formatRange(org.weekDays?.["sábado"])} />
-      <InfoBox title="Domingo" value={formatRange(org.weekDays?.domingo)} />
+      <InfoBox title="Jueves" value={formatRange(weekDays?.jueves as [string, string][])} />
+      <InfoBox title="Viernes" value={formatRange(weekDays?.viernes as [string, string][])} />
+      <InfoBox title="Sábado" value={formatRange(weekDays?.["sábado"] as [string, string][])} />
+      <InfoBox title="Domingo" value={formatRange(weekDays?.domingo as [string, string][])} />
       <hr className="bg-brand_stroke my-6" />
 
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-bold">Servicios</h3>
         {!isPublic && (
-          <ServicesFormModal services={services}>
+          <ServicesFormModal services={services as Service[]}>
             <SecondaryButton as="span" className="h-10">
               Editar
             </SecondaryButton>

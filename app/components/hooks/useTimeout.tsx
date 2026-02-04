@@ -1,8 +1,9 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useEffect, useRef } from "react";
 
-export const useTimeout = (secs: number) => {
-  const timeout = useRef<ReturnType<typeof setTimeout>>();
+export const useTimeout = (
+  secs: number
+): { placeTimeout: (cb: () => void) => void; removeTimeout: () => void } => {
+  const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const placeTimeout = (cb: () => void) => {
     timeout.current && clearTimeout(timeout.current);
     timeout.current = setTimeout(cb, secs);

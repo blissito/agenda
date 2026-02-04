@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Form, useFetcher } from "react-router";
 import { SwitchOption } from "./ServicePhotoForm";
 import { RadioButton } from "./ServiceTimesForm";
@@ -33,9 +32,9 @@ type ServiceConfigFormFields = z.infer<typeof serviceConfigFormSchema>;
 export const ServiceConfigForm = ({
   formRef,
   errors,
-  defaultValues = { payment: true, config: {} },
+  defaultValues = { payment: true, config: { confirmation: false, reminder: false, survey: false } },
 }: {
-  errors?: Record<string, ZodError>;
+  errors?: Record<string, { message?: string }>;
   formRef?: RefObject<HTMLFormElement>;
   defaultValues?: ServiceConfigFormFields;
 }) => {

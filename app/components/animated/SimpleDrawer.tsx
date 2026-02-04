@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useEffect, useRef } from "react";
 // import { createPortal } from "react-dom";
@@ -28,10 +27,10 @@ export const Drawer = ({
   isOpen?: boolean;
   children: ReactNode;
 }) => {
-  const body = useRef<HTMLElement>();
+  const body = useRef<HTMLElement | null>(null);
 
   // listeners
-  const handleKeys = (event: unknown) => {
+  const handleKeys = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
       onClose?.();
     }

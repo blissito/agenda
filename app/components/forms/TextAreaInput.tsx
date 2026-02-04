@@ -1,17 +1,15 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import type { FieldValues, UseFormRegister } from "react-hook-form";
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { twMerge } from "tailwind-merge";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 
 type Props = {
   name: string;
-  register?: UseFormRegister<FieldValues> | any;
+  register?: UseFormRegister<FieldValues>;
   error?: FieldError;
   label?: string;
   className?: string;
   registerOptions?: { required: string | boolean };
   placeholder?: string;
-  // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
 };
 export const TextAreaInput = ({
   placeholder,

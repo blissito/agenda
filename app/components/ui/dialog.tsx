@@ -1,5 +1,4 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, type MouseEvent as ReactMouseEvent } from "react";
 import type { Org } from "@prisma/client";
 import { TemplateForm } from "../forms/website/TemplateForm";
 import { AnimatePresence, motion } from "motion/react";
@@ -79,7 +78,7 @@ const OpenedModal = ({
       removeEventListener("keydown", escListener);
       document.body.style.overflowY = "auto";
     };
-  }, []);
+  }, [onClose]);
 
   return (
     <>
@@ -99,7 +98,7 @@ const OpenedModal = ({
         )}
       >
         <motion.section
-          onClick={(event: MouseEvent) => event.stopPropagation()} // to avoid closing by upper onClick
+          onClick={(event: ReactMouseEvent) => event.stopPropagation()} // to avoid closing by upper onClick
           initial={{ y: 10, opacity: 0, filter: "blur(4px)" }}
           animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
           exit={{ y: -10, opacity: 0, filter: "blur(4px)" }}

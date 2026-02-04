@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { RiUserSearchLine } from "react-icons/ri";
 import { BasicInput } from "./BasicInput";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
@@ -8,20 +7,22 @@ import type { Customer } from "@prisma/client";
 import { useFetcher } from "react-router";
 import { CgRemove } from "react-icons/cg";
 
+type CustomersComboBoxProps = {
+  defaultValue?: string | null;
+  onSelect?: (customer: Customer | null) => void;
+  customers: Customer[];
+  onNewClientClick?: () => void;
+};
+
 export const CustomersComboBox = ({
   onNewClientClick,
   customers,
   onSelect,
   defaultValue,
-}: {
-  defaultValue?: string;
-  onSelect?: (arg0: Customer | null) => void;
-  customers: Customer[];
-  onNewClientClick?: () => void;
-}) => {
-  const fetcher = useFetcher();
+}: CustomersComboBoxProps) => {
+  const fetcher = useFetcher<{ customers?: Customer[] }>();
   const [showClientList, setShowClientList] = useState(false);
-  const timeout = useRef<ReturnType<typeof setTimeout>>(null);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleClick = () => {
     onNewClientClick?.();
@@ -36,18 +37,18 @@ export const CustomersComboBox = ({
 
   const renders = useRef(0);
   useEffect(() => {
-    if (fetcher.data && "customers" in fetcher.data) {
+    if (fetcher.data && "customers" in fetcher.data && fetcher.data.customers) {
       setSearchableElements(fetcher.data.customers);
       if (renders.current < 1) {
         // default value
-        const found = fetcher.data.customers?.find(
+        const found = fetcher.data.customers.find(
           (c) => c.id === defaultValue
         );
-        setSelected(found);
+        setSelected(found ?? null);
         renders.current = renders.current + 1;
       }
     }
-  }, [fetcher]);
+  }, [fetcher, defaultValue]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     timeout.current && clearTimeout(timeout.current);

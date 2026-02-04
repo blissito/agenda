@@ -1,17 +1,54 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { User } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
+import { db } from "~/utils/db.server";
 import type { Route } from "./+types/dash._index";
+import { CustomerDashboard } from "~/components/dash/CustomerDashboard";
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { user } = await getUserAndOrgOrRedirect(request);
+  const { user, org } = await getUserAndOrgOrRedirect(request);
+
+  // Customer without org - load their events
+  if (user.role === "customer" && !org) {
+    const myEvents = await db.event.findMany({
+      where: {
+        customer: { userId: user.id },
+        start: { gte: new Date() },
+        status: { not: "CANCELLED" },
+      },
+      include: {
+        service: { include: { org: true } },
+      },
+      orderBy: { start: "asc" },
+    });
+
+    return {
+      user,
+      isCustomerView: true,
+      myEvents: myEvents.map((e) => ({
+        id: e.id,
+        start: e.start.toISOString(),
+        status: e.status,
+        serviceName: e.service?.name,
+        orgName: e.service?.org.name,
+      })),
+    };
+  }
+
   return {
     user,
+    isCustomerView: false,
+    myEvents: [],
   };
 };
 
-export default function Page({ loaderData: { user } }) {
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { user, isCustomerView, myEvents } = loaderData;
+
+  if (isCustomerView) {
+    return <CustomerDashboard events={myEvents} user={user} />;
+  }
+
   return (
     <section className=" w-full h-full 	">
       <div className="h-auto lg:h-screen  flex flex-col  box-border ">

@@ -54,7 +54,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   // Redirect to the appropriate action page
   switch (payload.action) {
-    case "confirm":
+    case "confirm": {
       // Confirm the event automatically when clicking the email link
       await db.event.update({
         where: { id: payload.eventId },
@@ -63,7 +63,41 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
           updatedAt: new Date(),
         },
       });
+
+      // Get the customer to create/link User account
+      const customer = await db.customer.findUnique({
+        where: { id: payload.customerId },
+      });
+
+      if (customer && !customer.userId) {
+        // Create or find User by email
+        const user = await db.user.upsert({
+          where: { email: customer.email },
+          create: {
+            email: customer.email,
+            displayName: customer.displayName,
+            emailVerified: true,
+            role: "customer", // Allows access without Org
+          },
+          update: {
+            emailVerified: true,
+            // Don't change role if user already exists (could be "user" with Org)
+          },
+        });
+
+        // Link Customer → User
+        await db.customer.update({
+          where: { id: customer.id },
+          data: { userId: user.id },
+        });
+
+        // Set flag to show "account created" message
+        session.set("newUserCreated", true);
+        headers.set("Set-Cookie", await commitSession(session));
+      }
+
       throw redirect(`/event/${payload.eventId}/confirm`, { headers });
+    }
     case "modify":
       throw redirect(`/event/${payload.eventId}/modify`, { headers });
     case "cancel":

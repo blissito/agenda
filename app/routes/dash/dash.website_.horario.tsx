@@ -1,4 +1,5 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type { WeekSchema } from "~/utils/zod_schemas";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,20 +11,48 @@ import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { TimesForm } from "~/components/forms/TimesForm";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { useFetcher, useLoaderData } from "react-router";
-import { handleOrgUpdate } from "~/.server/form_handlers/serviceTimesFormHandler";
+import { useFetcher, useLoaderData, redirect } from "react-router";
 import { weekDaysOrgSchema } from "~/utils/zod_schemas";
+import { db } from "~/utils/db.server";
+import { spanishToEnglish } from "~/utils/weekDaysTransform";
 
-export const loader = async ({ request }) => {
-  return await getUserAndOrgOrRedirect(request, {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { org, user } = await getUserAndOrgOrRedirect(request, {
     select: {
       weekDays: true,
     },
   });
+  if (!org) throw new Error("Org not found");
+  return { org, user };
 };
 
-export const action = async ({ request }) => {
-  await handleOrgUpdate(request, () => Response.redirect("/dash/website"));
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) throw new Error("Org not found");
+
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "update_org") {
+    const rawData = JSON.parse(formData.get("data") as string);
+    const result = weekDaysOrgSchema.safeParse(rawData);
+    if (!result.success) {
+      return Response.json(
+        { error: "Datos inválidos", details: result.error.flatten() },
+        { status: 400 }
+      );
+    }
+
+    const transformedWeekDays = spanishToEnglish(result.data.weekDays);
+
+    await db.org.update({
+      where: { id: org.id },
+      data: { weekDays: { set: transformedWeekDays } },
+    });
+
+    return redirect("/dash/website");
+  }
+
   return null;
 };
 
@@ -31,7 +60,7 @@ export default function Index() {
   const { org } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
 
-  const handleSubmit = (weekDays) => {
+  const handleSubmit = (weekDays: WeekSchema) => {
     weekDaysOrgSchema.parse({ weekDays });
     fetcher.submit(
       {

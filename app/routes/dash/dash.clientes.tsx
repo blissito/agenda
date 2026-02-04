@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link, useLoaderData } from "react-router";
 import { Avatar } from "~/components/common/Avatar";
 import { SecondaryButton } from "~/components/common/secondaryButton";
@@ -23,15 +22,16 @@ import type { Route } from "./+types/dash.clientes";
 export type Client = {
   points: number;
   updatedAt: Date | string;
-  createdAt: Date | string;
+  createdAt?: Date | string;
   eventCount: number;
   nextEventDate: Date | string;
   loggedUserId?: string | null;
-  displayName: string | null;
+  displayName?: string | null;
   email: string;
-  tel: string | null;
-  comments: string | null;
+  tel?: string | null;
+  comments?: string | null;
   id: string;
+  orgId?: string;
 };
 
 type Stats = {
@@ -44,6 +44,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   // @TODO: consider the search input working via searchParams
   // @TODO: upload / download
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   const link = generateLink(request.url, org.slug);
   const services = await getServices(request);
   const events = await db.event.findMany({
@@ -74,7 +77,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       clientsObject[email] = {
         ...e.customer,
         email,
-        points: e.service.points, // @Real sum of points
+        points: e.service ? Number(e.service.points) : 0, // @Real sum of points
         updatedAt: e.updatedAt,
         eventCount: counter[email], // @TODO: count while filter
         nextEventDate: tomorrow,
@@ -223,6 +226,7 @@ const SearchNav = () => {
   return (
     <div className="flex justify-between items-center my-4">
       <BasicInput
+        name="search"
         isDisabled // @TODO: make it work
         icon={<span>🔍</span>}
         type="search"
@@ -291,7 +295,7 @@ export const TableHeader = ({
   );
 };
 
-export const Client = ({ client }: { client: Client }) => {
+export const Client = ({ client }: { client: Client; orgId?: string }) => {
   const letters =
     client.displayName && client.displayName.length > 1
       ? (
@@ -337,7 +341,7 @@ export const Client = ({ client }: { client: Client }) => {
       <DropdownMenu>
         <MenuButton
           to={`${client.email}`}
-          state={{ client }}
+          state={{ client: JSON.stringify(client) }}
           className="text-brand-gray"
           icon={
             <span>

@@ -1,11 +1,10 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { getRemitent, getSesTransport } from "./ses";
 
 export const sendExperiment = async (
   emails: string[],
   { when, subject }: { when?: string | Date; subject?: string }
 ) => {
-  const formatedDate = new Date(when).toLocaleDateString("es-MX", {
+  const formatedDate = new Date(when ?? Date.now()).toLocaleDateString("es-MX", {
     timeZone: "America/Mexico_City",
     year: "numeric",
     month: "short",

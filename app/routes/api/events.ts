@@ -13,6 +13,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "delete") {
     const eventId = url.searchParams.get("eventId") as string;
     const { org } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     return await db.event.update({
       where: { id: eventId, orgId: org.id },
       data: { archived: true },
@@ -21,6 +24,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "update") {
     const { org } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     const eventId = url.searchParams.get("eventId") as string;
     const data: Event = JSON.parse(formData.get("data") as string);
 
@@ -71,6 +77,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "new") {
     const { org, user } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     const data: Event = JSON.parse(formData.get("data") as string);
     const validData = newEventSchema.parse(data);
 

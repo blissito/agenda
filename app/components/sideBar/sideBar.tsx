@@ -1,12 +1,14 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type User } from "@prisma/client";
 import { Form, Link, useLocation } from "react-router";
 import {
   Children,
   cloneElement,
+  isValidElement,
   useEffect,
   useRef,
+  useState,
   type ReactNode,
+  type ReactElement,
 } from "react";
 import { twMerge } from "tailwind-merge";
 import { Dashboard } from "~/components/icons/dashboard";
@@ -30,6 +32,9 @@ import {
   useTransform,
 } from "motion/react";
 
+const STORAGE_KEY_FIRST_VISIT = "denik_sidebar_first_visit";
+const STORAGE_KEY_OPEN = "denik_sidebar_open";
+
 export function SideBar({
   user,
   children,
@@ -39,34 +44,62 @@ export function SideBar({
   user: User;
   props?: unknown;
 }) {
-  // default closed:
   const isClosed = useMotionValue(true);
   const x = useMotionValue(-290);
-  //
   const [scope, animate] = useAnimate();
   const t = useTransform(x, [-300, 0, 300], [60, 360, 660]);
+  // Track closed state for chevron icon rotation
+  const [isClosedState, setIsClosedState] = useState(true);
+
+  // Hydrate sidebar state from localStorage on mount
+  useEffect(() => {
+    const firstVisit = localStorage.getItem(STORAGE_KEY_FIRST_VISIT);
+    let shouldBeClosed: boolean;
+
+    if (!firstVisit) {
+      // First visit: open the sidebar
+      localStorage.setItem(STORAGE_KEY_FIRST_VISIT, "false");
+      shouldBeClosed = false;
+    } else {
+      // Subsequent visits: use saved preference (default to closed)
+      const savedState = localStorage.getItem(STORAGE_KEY_OPEN);
+      shouldBeClosed = savedState === null ? true : savedState !== "true";
+    }
+
+    isClosed.set(shouldBeClosed);
+    setIsClosedState(shouldBeClosed);
+    x.set(shouldBeClosed ? -290 : 0);
+  }, []);
 
   const handleClick = () => {
     if (!isClosed.get()) {
       isClosed.set(true);
+      setIsClosedState(true);
+      localStorage.setItem(STORAGE_KEY_OPEN, "false");
       animate(scope.current, { x: -290 }, { type: "spring", bounce: 0.5 });
     } else {
       isClosed.set(false);
-      animate(scope.current, { x: 0 }, { type: "spring", bounce: 0.2 }); // open
+      setIsClosedState(false);
+      localStorage.setItem(STORAGE_KEY_OPEN, "true");
+      animate(scope.current, { x: 0 }, { type: "spring", bounce: 0.2 });
     }
   };
 
   const handleDragEnd = () => {
     if (x.get() < -180) {
-      animate(scope.current, { x: -290 }, { type: "spring", bounce: 0.5 }); // close
+      animate(scope.current, { x: -290 }, { type: "spring", bounce: 0.5 });
       isClosed.set(true);
+      setIsClosedState(true);
+      localStorage.setItem(STORAGE_KEY_OPEN, "false");
     } else {
       animate(
         scope.current,
         { x: 0 },
         { type: "spring", bounce: 0.5, duration: 0.5 }
-      ); // open
+      );
       isClosed.set(false);
+      setIsClosedState(false);
+      localStorage.setItem(STORAGE_KEY_OPEN, "true");
     }
   };
 
@@ -92,8 +125,28 @@ export function SideBar({
           dragElement={
             <button
               onClick={handleClick}
-              className="h-8 rounded-full w-5 bg-brand_gray/30 absolute bottom-0 right-1 cursor-grab active:cursor-grabbing hover:bg-brand_gray/40 hover:scale-110 transition-all"
-            />
+              aria-label={isClosedState ? "Abrir menú" : "Cerrar menú"}
+              className="h-10 w-10 rounded-full bg-white flex items-center justify-center
+                hover:bg-gray-50 transition-all absolute -right-5 top-1/2 -translate-y-1/2
+                shadow-md border border-gray-200 cursor-pointer group"
+            >
+              <svg
+                className={twMerge(
+                  "w-5 h-5 text-gray-500 transition-transform duration-200 group-hover:text-brand_blue",
+                  isClosedState ? "rotate-0" : "rotate-180"
+                )}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
           }
           user={user}
           className="pl-6"
@@ -172,26 +225,21 @@ const MenuButton = ({
   className,
   children,
   to = "",
-  ...props
+  prefetch,
 }: {
   to?: string;
   className?: string;
-  props?: unknown;
   isActive?: boolean;
   children?: ReactNode;
+  prefetch?: "intent" | "render" | "none" | "viewport";
 }) => {
-  const Element = to ? Link : "button";
-  return (
-    <Element
-      prefetch="intent"
-      to={to}
-      className={twMerge(
-        isActive && "text-brand_blue",
-        className,
-        "relative h-12 flex items-center gap-3 cursor-pointer"
-      )}
-      {...props}
-    >
+  const sharedClassName = twMerge(
+    isActive && "text-brand_blue",
+    className,
+    "relative h-12 flex items-center gap-3 cursor-pointer"
+  );
+  const content = (
+    <>
       <span
         className={twMerge(
           "mr-2 w-1 h-11",
@@ -199,8 +247,18 @@ const MenuButton = ({
         )}
       />
       {children}
-    </Element>
+    </>
   );
+
+  if (to) {
+    return (
+      <Link prefetch={prefetch ?? "intent"} to={to} className={sharedClassName}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <button className={sharedClassName}>{content}</button>;
 };
 
 const Icon = ({
@@ -210,11 +268,16 @@ const Icon = ({
 }: {
   isActive?: boolean;
   children?: ReactNode;
-  props?: unknown;
 }) => (
   <i {...props}>
     {isActive
-      ? Children.map(children, (c) => cloneElement(c, { fill: "#5158F6" }))
+      ? Children.map(children, (c) =>
+          isValidElement(c)
+            ? cloneElement(c as ReactElement<{ fill?: string }>, {
+                fill: "#5158F6",
+              })
+            : c
+        )
       : children}
   </i>
 );
@@ -225,7 +288,6 @@ const Title = ({
 }: {
   isActive?: boolean;
   children?: ReactNode;
-  props?: unknown;
 }) => (
   <h3
     className={twMerge(

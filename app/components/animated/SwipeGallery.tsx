@@ -1,5 +1,5 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
+  type PanInfo,
   motion,
   useAnimationControls,
   useMotionTemplate,
@@ -57,7 +57,7 @@ export const SwipeGallery = ({ children }: { children?: ReactNode }) => {
   };
 
   // handlers
-  async function handleDragEnd(_, info) {
+  async function handleDragEnd(_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
     if (info.offset.x < -150) {
       fullMovement(-1);
       return;

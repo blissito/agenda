@@ -11,6 +11,7 @@ type CustomerEventAccess = {
 type SessionData = {
   userId: string;
   customerEventAccess?: CustomerEventAccess;
+  newUserCreated?: boolean;
 };
 
 type SessionFlashData = {

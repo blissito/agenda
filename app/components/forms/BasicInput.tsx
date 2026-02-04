@@ -12,7 +12,7 @@ type Props = {
   registerOptions?: { required: string | boolean };
   placeholder?: string;
   as?: "textarea";
-  type?: "text" | "number" | "email" | "date";
+  type?: "text" | "number" | "email" | "date" | "search";
   isDisabled?: boolean;
   containerClassName?: string;
   icon?: ReactNode;

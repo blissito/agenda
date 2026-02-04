@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
   Form,
   redirect,
@@ -250,7 +249,7 @@ export default function Page() {
                   label="Email"
                   name="email"
                   className="mb-0 pb-0"
-                  error={actionData?.error || undefined}
+                  error={actionData?.error ? { type: "manual", message: actionData.error.message } : undefined}
                 />
                 <PrimaryButton
                   isLoading={navigation.state !== "idle"}

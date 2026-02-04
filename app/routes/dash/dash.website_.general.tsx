@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { BasicInput } from "~/components/forms/BasicInput";
 
 import {
@@ -11,6 +10,7 @@ import {
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { SecondaryButton } from "~/components/common/secondaryButton";
 import { data as json, redirect } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { getUserAndOrgOrRedirect, updateOrg } from "~/.server/userGetters";
 import { Form, useFetcher, useLoaderData } from "react-router";
 import { useForm } from "react-hook-form";
@@ -18,7 +18,6 @@ import { db } from "~/utils/db.server";
 import { z } from "zod";
 import { InputFile } from "~/components/forms/InputFile";
 import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server";
-import type { Route } from "./+types/dash.website_.general";
 
 const generalFormSchema = z.object({
   name: z.string().min(1),
@@ -30,7 +29,7 @@ const generalFormSchema = z.object({
 
 export type GeneralFormSchemaType = z.infer<typeof generalFormSchema>;
 
-export const loader = async ({ request }: Route.LoaderArgs) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { user } = await getUserAndOrgOrRedirect(request);
   if (!user.orgId) throw json(null, { status: 404 });
   const org = await db.org.findUnique({

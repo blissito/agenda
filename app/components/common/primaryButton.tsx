@@ -1,38 +1,45 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { Link } from "react-router";
-import type { ReactNode } from "react";
+import { Link, type LinkProps } from "react-router";
+import type { ReactNode, ButtonHTMLAttributes, AnchorHTMLAttributes } from "react";
 import { FaSpinner } from "react-icons/fa";
 import { twMerge } from "tailwind-merge";
 
-export const PrimaryButton = ({
-  as = "button",
-  isDisabled,
-  isLoading,
-  className,
-  children,
-  onClick,
-  mode = "primary",
-  prefetch = "intent",
-  ...props
-}: {
+type BaseProps = {
   onClick?: () => void;
   mode?: "ghost" | "cancel" | "primary";
-  prefetch?: "intent" | "render" | "viewport" | "none";
-  // booleanos útiles
   isDisabled?: boolean;
   isLoading?: boolean;
-  // Se puede sobreescribir cualquier clase o utilidad
   className?: string;
-  // Se puede devolver un button o un anchor (<a>) si es necesario
-  as?: "a" | "button" | "Link";
-  // Si se elije anchor, se necesita de un href (link externos)
-  href?: string;
-  // Es probable que se quiera rutear internamente con Link
-  to?: string;
   children?: ReactNode;
-  [x: string]: unknown;
-}) => {
-  const Element = as === "Link" ? Link : as;
+};
+
+type ButtonProps = BaseProps & {
+  as?: "button";
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseProps>;
+
+type AnchorProps = BaseProps & {
+  as: "a";
+  href: string;
+} & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof BaseProps>;
+
+type LinkPropsType = BaseProps & {
+  as: "Link";
+  to: string;
+  prefetch?: "intent" | "render" | "viewport" | "none";
+} & Omit<LinkProps, keyof BaseProps | "to">;
+
+type PrimaryButtonProps = ButtonProps | AnchorProps | LinkPropsType;
+
+export const PrimaryButton = (props: PrimaryButtonProps) => {
+  const {
+    as = "button",
+    isDisabled,
+    isLoading,
+    className,
+    children,
+    onClick,
+    mode = "primary",
+    ...rest
+  } = props;
 
   const getClassName = () => {
     const getGeneral = () =>
@@ -48,25 +55,56 @@ export const PrimaryButton = ({
       getGeneral(),
       isLoading && getLoadingStyles(),
       isDisabled && getDisabledStyles(),
-      !isDisabled && !isLoading && "hover:-translate-y-1", // hack para no repetir
+      !isDisabled && !isLoading && "hover:-translate-y-1",
       mode === "cancel" && "bg-gray-300 text-gray-800",
       className
     );
   };
 
+  const content = !isDisabled && isLoading ? (
+    <FaSpinner className="animate-spin text-xl" />
+  ) : (
+    children
+  );
+
+  if (as === "Link") {
+    const { to, prefetch = "intent", ...linkRest } = rest as Omit<LinkPropsType, keyof BaseProps | "as">;
+    return (
+      <Link
+        to={to}
+        prefetch={prefetch}
+        onClick={onClick}
+        className={getClassName()}
+        {...linkRest}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  if (as === "a") {
+    const { href, ...anchorRest } = rest as Omit<AnchorProps, keyof BaseProps | "as">;
+    return (
+      <a
+        href={href}
+        onClick={onClick}
+        className={getClassName()}
+        {...anchorRest}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  const buttonRest = rest as Omit<ButtonProps, keyof BaseProps | "as">;
   return (
-    <Element
+    <button
       onClick={onClick}
-      prefetch={prefetch}
       disabled={isDisabled}
-      {...props}
       className={getClassName()}
+      {...buttonRest}
     >
-      {!isDisabled && isLoading ? (
-        <FaSpinner className="animate-spin text-xl" />
-      ) : (
-        children
-      )}
-    </Element>
+      {content}
+    </button>
   );
 };

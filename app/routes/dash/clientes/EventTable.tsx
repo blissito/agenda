@@ -1,8 +1,9 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Service, Event } from "@prisma/client";
 import { TableHeader } from "../dash.clientes";
 import { FaRegClock } from "react-icons/fa6";
 import { DropdownMenu } from "~/components/common/DropDownMenu";
+
+export type EventWithService = Event & { service: Service };
 
 // Status Tag component matching Figma design
 const StatusTag = ({
@@ -44,7 +45,7 @@ const StatusTag = ({
   );
 };
 
-export const EventTable = ({ events }: { events: Event[] }) => {
+export const EventTable = ({ events }: { events: EventWithService[] }) => {
   return (
     <section className="w-full">
       <TableHeader
@@ -69,7 +70,7 @@ export const EventTable = ({ events }: { events: Event[] }) => {
 export const EventRow = ({
   event,
 }: {
-  event: Event & { service: Service };
+  event: EventWithService;
 }) => {
   const getEventDate = () => {
     const date = new Date(event.start);
@@ -105,8 +106,8 @@ export const EventRow = ({
       </div>
       <p className="col-span-2 font-satoBold text-[12px] text-[#11151a] flex items-center">{event.service.name}</p>
       <p className="col-span-2 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{event.service.employeeName || "s/n"}</p>
-      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{event.service.points}</p>
-      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{formatPrice(event.service.price)}</p>
+      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{String(event.service.points)}</p>
+      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">{formatPrice(Number(event.service.price))}</p>
       <div className="col-span-3 flex gap-2 items-center pl-4">
         <StatusTag
           variant={event.status === "ACTIVE" ? "confirmed" : "canceled"}

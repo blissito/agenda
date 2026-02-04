@@ -2,13 +2,15 @@
  * Clean URL route for subdomains/custom domains: /:serviceSlug
  * Org is resolved from the hostname, not from URL params.
  */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, redirect, useFetcher } from "react-router";
+import toast from "react-hot-toast";
 import { Footer, Header, InfoShower } from "~/components/agenda/components";
 import { twMerge } from "tailwind-merge";
 import { getMaxDate } from "~/components/agenda/utils";
 import { MonthView } from "~/components/forms/agenda/MonthView";
 import TimeView from "~/components/forms/agenda/TimeView";
+import type { WeekTuples } from "~/components/forms/TimesForm";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { useForm } from "react-hook-form";
 import { PrimaryButton } from "~/components/common/primaryButton";
@@ -78,6 +80,11 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     });
     if (!service) throw new Response("Service not found", { status: 404 });
 
+    // Check if User with this email already exists
+    const existingUser = await db.user.findUnique({
+      where: { email: data.customer.email },
+    });
+
     const customer = await db.customer.create({
       data: {
         displayName: data.customer.displayName,
@@ -87,6 +94,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         org: { connect: { id: org.id } },
         createdAt: new Date(),
         updatedAt: new Date(),
+        // Link to existing User if found
+        ...(existingUser && { user: { connect: { id: existingUser.id } } }),
       },
     });
 
@@ -137,29 +146,46 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     }
 
     // Servicio gratuito o sin MP configurado: crear evento directamente
-    const event = await db.event.create({
-      data: {
-        start: startDate,
-        end: endDate,
-        duration: data.duration,
-        service: { connect: { id: data.serviceId } },
-        title: data.title,
-        status: data.status,
-        org: { connect: { id: org.id } },
-        customer: { connect: { id: customer.id } },
-        allDay: false,
-        archived: false,
-        createdAt: new Date(),
-        paid: !service.payment, // true si es gratuito
-        type: "appointment",
-        userId: org.ownerId,
-        updatedAt: new Date(),
-      },
-      include: {
-        customer: true,
-        service: { include: { org: true } },
-      },
-    });
+    let event;
+    try {
+      event = await db.event.create({
+        data: {
+          start: startDate,
+          end: endDate,
+          duration: data.duration,
+          service: { connect: { id: data.serviceId } },
+          title: data.title,
+          status: data.status,
+          org: { connect: { id: org.id } },
+          customer: { connect: { id: customer.id } },
+          allDay: false,
+          archived: false,
+          createdAt: new Date(),
+          paid: !service.payment, // true si es gratuito
+          type: "appointment",
+          userId: org.ownerId,
+          updatedAt: new Date(),
+        },
+        include: {
+          customer: true,
+          service: { include: { org: true } },
+        },
+      });
+    } catch (e: unknown) {
+      // Handle unique constraint violation (slot already taken)
+      if (
+        e &&
+        typeof e === "object" &&
+        "code" in e &&
+        (e as { code: string }).code === "P2002"
+      ) {
+        return {
+          success: false,
+          error: "Este horario acaba de ser reservado. Por favor selecciona otro.",
+        };
+      }
+      throw e;
+    }
 
     // Emit booking.created event for plugins
     const { emit } = await import("~/plugins/index.server");
@@ -194,7 +220,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       console.error("Failed to schedule notifications:", e);
     }
 
-    return { event, org };
+    return { success: true, event, org };
   }
   return null;
 };
@@ -287,8 +313,23 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       },
       { method: "post" }
     );
-    setShow("success");
+    setShow("loading");
   };
+
+  // React to fetcher result
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      const data = fetcher.data as { success?: boolean; error?: string; event?: unknown };
+      if (data.success && data.event) {
+        setShow("success");
+      } else if (data.error) {
+        // Slot was taken, go back to time selection
+        setShow("");
+        setTime(undefined);
+        toast.error(data.error);
+      }
+    }
+  }, [fetcher.state, fetcher.data]);
 
   const maxDate = getMaxDate(
     new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
@@ -334,18 +375,31 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setTime(undefined);
   };
 
-  // Mostrar error si el action retornó error
-  const actionError = fetcher.data && "error" in fetcher.data ? fetcher.data.error : null;
-
   // Mostrar success solo si hay evento creado
-  if (show === "success" && fetcher.data?.event) {
+  const fetcherData = fetcher.data as { success?: boolean; event?: Record<string, unknown>; error?: string } | null;
+  if (show === "success" && fetcherData?.event) {
     return (
       <Success
         org={org}
-        event={fetcher.data.event}
+        event={fetcherData.event as any}
         service={service}
         onFinish={reset}
       />
+    );
+  }
+
+  // Show loading state while submitting
+  if (show === "loading") {
+    return (
+      <article className="bg-[#f8f8f8] min-h-screen relative">
+        <Header org={org} />
+        <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand_blue mx-auto mb-4"></div>
+            <p className="text-brand_gray">Reservando tu cita...</p>
+          </div>
+        </main>
+      </article>
     );
   }
 
@@ -368,7 +422,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   intent="get_times_for_selected_date"
                   slotDuration={service.duration}
                   onSelect={handleTimeSelection}
-                  weekDays={(service.weekDays || org.weekDays) as WeekDaysType}
+                  weekDays={(service.weekDays || org.weekDays) as unknown as WeekTuples}
                   selected={date}
                   action={`/${service.slug}`}
                   timezone={timezone}
@@ -382,11 +436,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {show === "user_info" && (
             <Form onSubmit={handleSubmit(onSubmit)} className="flex-1">
               <h3 className="text-lg font-bold mb-6 text-brand_dark">Cuéntanos sobre ti</h3>
-              {actionError && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-                  {actionError}
-                </div>
-              )}
               <BasicInput
                 register={register}
                 name="displayName"

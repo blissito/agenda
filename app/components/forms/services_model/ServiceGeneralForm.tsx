@@ -1,5 +1,5 @@
 import { Form } from "react-router";
-import { useForm, type FieldError } from "react-hook-form";
+import { useForm, type FieldError, type FieldValues, type UseFormRegister } from "react-hook-form";
 import { z } from "zod";
 import { BasicInput } from "../BasicInput";
 import { TextAreaInput } from "../TextAreaInput";
@@ -85,7 +85,7 @@ export const ServiceGeneralForm = ({
       />
       <TextAreaInput
         error={errors.description}
-        register={register}
+        register={register as unknown as UseFormRegister<FieldValues>}
         placeholder="Cuéntale a tus clientes sobre tu servicio"
         label="Descripción"
         name="description"

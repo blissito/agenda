@@ -1,19 +1,22 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useFetcher } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { redirect } from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { completeWeek } from "@hectorbliss/denik-calendar";
+import { completeWeek, type CalendarEvent } from "@hectorbliss/denik-calendar";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { db } from "~/utils/db.server";
 import { Calendar as SimpleBigWeekView } from "@hectorbliss/denik-calendar";
 import { WeekSelector } from "~/components/dash/agenda/WeekSelector";
 import { Spinner } from "~/components/common/Spinner";
-import { type Event } from "@prisma/client";
+import { type Event as PrismaEvent } from "@prisma/client";
 import { EventFormDrawer } from "~/components/forms/EventFormDrawer";
 import { newEventSchema } from "~/utils/zod_schemas";
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer";
 import type { Route } from "./+types/dash.agenda";
+
+type EventWithService = PrismaEvent & {
+  service: { name: string } | null;
+};
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
@@ -21,6 +24,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "add_event") {
     const { org, user } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     const validData = newEventSchema.parse(
       JSON.parse(formData.get("data") as string)
     );
@@ -31,6 +37,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
         orgId: org.id,
         userId: user.id,
         title: "Nuevo evento",
+        allDay: false,
+        archived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: "pending",
+        type: "EVENT",
       },
     });
   }
@@ -48,6 +60,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const d = new Date(start);
     d.setMinutes(0);
     const { org, user } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     /**
      * 1. create block event
      */
@@ -57,6 +72,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
         start: d,
         orgId: org.id,
         userId: user.id,
+        allDay: false,
+        archived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: "confirmed",
+        title: "Bloqueo",
+        paid: false,
+        duration: 60,
       },
     });
     throw redirect("/dash/agenda?success=1");
@@ -77,6 +100,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "fetch_week") {
     const { org } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     const orgServices = await db.service.findMany({
       where: {
         orgId: org.id,
@@ -108,6 +134,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
     redirectURL: "/signup/1",
   });
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   const yesterday = new Date();
   yesterday.setDate(new Date().getDate() - 1);
   const events = await db.event.findMany({
@@ -144,10 +173,24 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { events, customers, services, employees } = loaderData;
   const [week, setWeek] = useState(completeWeek(new Date()));
-  const fetcher = useFetcher();
-  const [weekEvents, setWeekEvents] = useState(events);
-  const [editableEvent, setEditableEvent] = useState<Partial<Event> | null>(
+  const fetcher = useFetcher<{ events?: EventWithService[] }>();
+  const [weekEvents, setWeekEvents] = useState<EventWithService[]>(events);
+  const [editableEvent, setEditableEvent] = useState<Partial<PrismaEvent> | null>(
     null
+  );
+
+  // Map Prisma events to CalendarEvent format
+  const calendarEvents: CalendarEvent[] = useMemo(
+    () =>
+      weekEvents.map((e) => ({
+        id: e.id,
+        start: new Date(e.start),
+        duration: Number(e.duration),
+        title: e.title,
+        type: e.type as "BLOCK" | "EVENT",
+        service: e.service ? { name: e.service.name } : null,
+      })),
+    [weekEvents]
   );
 
   const handleWeekNavigation = (direction: -1 | 1) => {
@@ -164,18 +207,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     fetcher.submit(
       {
         intent: "fetch_week",
-        monday: w[0] as string,
-        sunday: w[w.length - 1] as string,
+        monday: (w[0] as Date).toISOString(),
+        sunday: (w[w.length - 1] as Date).toISOString(),
       },
       {
         method: "post",
-        // encType: "application/json"
       }
     );
   };
 
   useEffect(() => {
-    if (fetcher.data?.events?.length > 0) {
+    if (fetcher.data?.events && fetcher.data.events.length > 0) {
       setWeekEvents(fetcher.data.events);
     }
   }, [fetcher]);
@@ -184,8 +226,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setWeekEvents(events);
   }, [events]);
 
-  const handleEventClick = (event: Event) => {
-    setEditableEvent(event);
+  const handleEventClick = (event: CalendarEvent) => {
+    // Find the full event from weekEvents
+    const fullEvent = weekEvents.find((e) => e.id === event.id);
+    if (fullEvent) {
+      setEditableEvent(fullEvent);
+    }
   };
 
   const handleNewEvent = (date: Date) => {
@@ -238,8 +284,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <WeekSelector onClick={handleWeekNavigation} week={week} />
       <SimpleBigWeekView
         onNewEvent={handleNewEvent}
-        events={weekEvents}
-        date={week[0]}
+        events={calendarEvents}
+        date={week[0] as Date}
         onEventClick={handleEventClick}
         onEventMove={handleEventMove}
         onAddBlock={handleAddBlock}
@@ -250,7 +296,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         employees={employees}
         customers={customers}
         onClose={() => setEditableEvent(null)}
-        event={editableEvent}
+        event={editableEvent as PrismaEvent}
         isOpen={!!editableEvent}
         onNewClientClick={handleNewClientClick}
       />

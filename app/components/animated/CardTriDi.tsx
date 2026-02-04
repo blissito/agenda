@@ -1,9 +1,8 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useSpring, motion } from "motion/react";
 import { type MouseEvent, type ReactNode } from "react";
 import { useTimeout } from "../hooks/useTimeout";
 
-export const CardTriDi = ({ children }: { children?: ReactNode }) => {
+export const CardTriDi = ({ children }: { children?: ReactNode[] }) => {
   const rotateX = useSpring(0);
   const rotateY = useSpring(0);
   const { placeTimeout } = useTimeout(2000);
@@ -49,14 +48,14 @@ export const CardTriDi = ({ children }: { children?: ReactNode }) => {
             z: 50,
           }}
         >
-          {children[0]}
+          {children?.[0]}
         </motion.div>
         <motion.div
           style={{
             z: 70,
           }}
         >
-          {children[1]}
+          {children?.[1]}
         </motion.div>
       </motion.div>
     </section>

@@ -20,6 +20,9 @@ type ServiceReview = {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   const link = generateLink(request.url, org.slug);
   const services = await getServices(request);
 

@@ -1,13 +1,18 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { AnimatePresence, useInView, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "~/utils/cn";
 
-export const StickyScroll = ({ items }) => {
-  const [current, setCurrent] = useState(items[0]);
+interface ScrollItem {
+  title: string;
+  text: ReactNode;
+  img: ReactNode;
+}
 
-  const handleInView = (i) => {
-    setCurrent(i);
+export const StickyScroll = ({ items }: { items: ScrollItem[] }) => {
+  const [current, setCurrent] = useState<ScrollItem>(items[0]);
+
+  const handleInView = (item: ScrollItem) => {
+    setCurrent(item);
   };
 
   return (
@@ -35,8 +40,14 @@ export const StickyScroll = ({ items }) => {
   );
 };
 
-export const InViewDetector = ({ item, onInView }) => {
-  const ref = useRef(null);
+export const InViewDetector = ({
+  item,
+  onInView,
+}: {
+  item: ScrollItem;
+  onInView?: (item: ScrollItem) => void;
+}) => {
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { amount: 1 });
 
   useEffect(() => {

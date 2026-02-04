@@ -1,8 +1,7 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type ReactNode, useRef } from "react";
 import {
   motion,
-  MotionValue,
+  type MotionValue,
   useScroll,
   useSpring,
   useTransform,
@@ -111,7 +110,7 @@ const Circles = ({ scrollYProgress }: { scrollYProgress: MotionValue }) => {
 };
 
 const FloatingElements = ({
-  srcset,
+  srcset = [],
   scrollYProgress,
 }: {
   scrollYProgress: MotionValue<number>;

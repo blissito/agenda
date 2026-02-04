@@ -1,16 +1,15 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { ReactNode } from "react";
 
 const sleep = (s: number) => new Promise((r) => setTimeout(r, s * 1000));
 
 export const useToast = () => {
-  const setInitial = (toast) => {
+  const setInitial = (toast: HTMLElement) => {
     toast.style.transition = "all .3s ease";
     toast.style.position = "fixed";
     toast.style.top = "64px";
     toast.style.right = "40px";
     toast.style.transform = "translateY(20px)";
-    toast.style.opacity = 0;
+    toast.style.opacity = "0";
   };
 
   const setAnimate = (toast: HTMLElement) => {

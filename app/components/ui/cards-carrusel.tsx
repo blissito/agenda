@@ -1,21 +1,33 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+  type ImgHTMLAttributes,
+} from "react";
 import { cn } from "~/utils/cn";
 import { AnimatePresence, motion } from "motion/react";
 import { useOutsideClick } from "~/utils/hooks/use-outside-click";
 import { ArrowRight } from "../icons/arrowRight";
 import { BiCloset } from "react-icons/bi";
-import type { ReactNode } from "react";
 
 interface CarouselProps {
-  items: JSX.Element[];
+  items: ReactElement[];
   initialScroll?: number;
 }
 
-type Card = {
+type CardType = {
   src: string;
   title: string;
   category: string;
   content: ReactNode;
+};
+
+type ImageProps = ImgHTMLAttributes<HTMLImageElement> & {
+  fill?: boolean;
 };
 
 export const CarouselContext = createContext<{
@@ -111,7 +123,6 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
                     duration: 0.5,
                     delay: 0.2 * index,
                     ease: "easeOut",
-                    once: true,
                   },
                 }}
                 key={"card" + index}
@@ -148,13 +159,13 @@ export const Card = ({
   index,
   layout = false,
 }: {
-  card: Card;
+  card: CardType;
   index: number;
   layout?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { onCardClose, currentIndex } = useContext(CarouselContext);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const { onCardClose } = useContext(CarouselContext);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -258,11 +269,10 @@ export const Card = ({
 };
 
 export const BlurImage = ({
-  height,
-  width,
   src,
   className,
   alt,
+  fill,
   ...rest
 }: ImageProps) => {
   const [isLoading, setLoading] = useState(true);
@@ -275,11 +285,6 @@ export const BlurImage = ({
       )}
       onLoad={() => setLoading(false)}
       src={src}
-      //   width={width}
-      //   height={height}
-      //   loading="lazy"
-      //   decoding="async"
-      //   blurDataURL={typeof src === "string" ? src : undefined}
       alt={alt ? alt : "Background of a beautiful view"}
       {...rest}
     />

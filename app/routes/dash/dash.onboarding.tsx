@@ -1,5 +1,5 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useLoaderData, useNavigate } from "react-router";
+import type { LoaderFunctionArgs } from "react-router";
 import { AnimatePresence } from "motion/react";
 import { type ReactNode, useEffect, useState } from "react";
 import { PrimaryButton } from "~/components/common/primaryButton";
@@ -14,9 +14,10 @@ import { motion } from "motion/react";
 import { twMerge } from "tailwind-merge";
 import { db } from "~/utils/db.server";
 
-export const loader = async ({ request }) => {
+export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) throw new Error("Org not found");
   const servicesCount = await db.service.count({
     where: {
       orgId: org.id,

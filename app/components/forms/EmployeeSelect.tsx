@@ -1,20 +1,22 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useEffect, type ChangeEvent } from "react";
 import { SelectInput } from "./SelectInput";
 import { Link, useFetcher } from "react-router";
 import { FaPlus } from "react-icons/fa6";
 import type { User } from "@prisma/client";
 
+type EmployeeSelectProps = {
+  defaultValue?: string;
+  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
+};
+
 export const EmployeeSelect = ({
   onChange,
   defaultValue,
-}: {
-  defaultValue?: string;
-  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
-}) => {
-  const fetcher = useFetcher();
+}: EmployeeSelectProps) => {
+  const fetcher = useFetcher<{ employees?: User[] }>();
   useEffect(() => {
     fetcher.load("/api/employees");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const employees: User[] = fetcher.data?.employees || [];
@@ -25,7 +27,7 @@ export const EmployeeSelect = ({
         defaultValue={defaultValue}
         onChange={onChange}
         className="flex-grow"
-        options={employees.map((s) => ({ title: s.displayName, value: s.id }))}
+        options={employees.map((s) => ({ title: s.displayName ?? undefined, value: s.id }))}
         placeholder="Selecciona un profesional"
         label="Profesional"
       />

@@ -10,6 +10,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "new") {
     const { org } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 });
+    }
     const rawData = JSON.parse(formData.get("data") as string);
     const result = newCustomerSchema.safeParse(rawData);
     if (!result.success) {
@@ -36,6 +39,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   const url = new URL(request.url);
   const rawSearch = url.searchParams.get("search") || "";
   // Sanitize: remove special regex chars and limit length

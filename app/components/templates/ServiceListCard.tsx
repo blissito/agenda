@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { motion } from "motion/react";
 import { Link } from "react-router";
 import { Tag } from "~/components/common/Tag";
@@ -11,9 +10,9 @@ export const ServiceListCard = ({
   link,
 }: {
   title: string;
-  image?: string;
-  duration: number;
-  price: string;
+  image?: string | null;
+  duration: number | bigint;
+  price: number | bigint | string;
   link?: string;
 }) => {
   return (
@@ -23,7 +22,7 @@ export const ServiceListCard = ({
       exit={{ opacity: 0, y: -5 }}
       className="relative group"
     >
-      <Link to={link} className="group ">
+      <Link to={link || "#"} className="group ">
         <section className="bg-white border-[1px] border-[#EFEFEF] flex items-center justify-between rounded-2xl overflow-hidden hover:scale-95 transition-all cursor-pointer">
           <div className="p-3 flex justify-between w-full items-center">
             <div className="flex items-center gap-3">

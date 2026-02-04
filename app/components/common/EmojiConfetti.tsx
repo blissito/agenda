@@ -1,14 +1,15 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useEffect } from "react";
 import JSConfetti from "js-confetti";
 
-const sleep = (t = 1) => new Promise((r) => setTimeout(r, t * 1000));
+const sleep = (t = 1): Promise<void> =>
+  new Promise((r) => setTimeout(r, t * 1000));
 
-const shotBlueConfetti = (trigger) =>
+const shotBlueConfetti = (trigger: JSConfetti): void => {
   trigger.addConfetti({
     confettiRadius: 6,
     confettiColors: ["rgb(81 88 246)"],
   });
+};
 
 export const EmojiConfetti = ({
   mode = "default",

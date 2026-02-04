@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Agenda } from "@hokify/agenda";
 import { sendExperiment } from "~/utils/emails/sendExperiment";
 

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from "react";
 import { MultipleOptions, Option, Otro } from "./MultipleOptions";
 import { PrimaryButton } from "../common/primaryButton";

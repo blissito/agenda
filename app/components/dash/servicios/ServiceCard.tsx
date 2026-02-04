@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link, useFetcher } from "react-router";
 import { Tag } from "~/components/common/Tag";
 import { Plus } from "~/components/icons/plus";
@@ -38,7 +37,7 @@ export const ServiceCard = ({
   path: string;
 }) => {
   // lets try with an api endpoint...
-  const fetcher = useFetcher<typeof action>();
+  const fetcher = useFetcher();
   const [show, setShow] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
 
@@ -50,7 +49,7 @@ export const ServiceCard = ({
     includeEscape: true, // captures [Esc] key press
   });
 
-  const { ref: copiadoRef, setLink } = useCopyLink(link);
+  const { ref: copiadoRef, setLink } = useCopyLink<HTMLButtonElement>(link);
 
   const handleToggleDeactivation = () => {
     fetcher.submit(

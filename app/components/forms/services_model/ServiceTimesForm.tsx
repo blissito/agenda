@@ -1,7 +1,6 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { twMerge } from "tailwind-merge";
 import { type Option, SelectInput } from "../SelectInput";
-import { useForm } from "react-hook-form";
+import { type FieldValues, type UseFormRegister, useForm } from "react-hook-form";
 import { Form, useFetcher } from "react-router";
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
 import { useState, type RefObject } from "react";
@@ -9,7 +8,7 @@ import { z } from "zod";
 import { TimesForm } from "../TimesForm";
 import type { WeekSchema } from "~/utils/zod_schemas";
 
-const tuple = z.array(z.array(z.string(), z.string())).optional();
+const tuple = z.array(z.tuple([z.string(), z.string()])).optional();
 const weekDaysSchema = z.object({
   monday: tuple,
   tuesday: tuple,
@@ -29,31 +28,31 @@ type ServiceTimesFields = z.infer<typeof serviceTimesSchema>;
 const OPTIONS: Option[] = [
   {
     title: "15 minutos",
-    value: 15,
+    value: "15",
   },
   {
     title: "30 minutos",
-    value: 30,
+    value: "30",
   },
   {
     title: "45 minutos",
-    value: 45,
+    value: "45",
   },
   {
     title: "60 minutos",
-    value: 60,
+    value: "60",
   },
   {
     title: "1 hora 15 minutos",
-    value: 75,
+    value: "75",
   },
   {
     title: "1 hora 30 minutos",
-    value: 90,
+    value: "90",
   },
   {
     title: "2 horas",
-    value: 120,
+    value: "120",
   },
 ];
 const initialValues = {
@@ -85,7 +84,7 @@ export const ServiceTimesForm = ({
     },
   });
 
-  const onSubmit = (values) => {
+  const onSubmit = (values: Record<string, unknown>) => {
     const fullObj = {
       ...values,
       weekDays: localWeekDays === "specific" ? week : "",
@@ -135,9 +134,8 @@ export const ServiceTimesForm = ({
         <>
           <TimesForm
             noSubmit
-            org={{ weekDays: week }} // @TODO: hack, please improve
-            submitButton={<></>}
-            onChange={(data: WeekDaysType) => {
+            org={{ weekDays: week } as unknown as import("@prisma/client").Org} // @TODO: hack, please improve
+            onChange={(data: WeekSchema) => {
               onTimesChange?.(data);
               const initialValues = {
                 monday: [
@@ -147,10 +145,10 @@ export const ServiceTimesForm = ({
               };
               // console.log("?? ", data, !!Object.keys(data).length);
               if (Object.keys(data).length < 1) {
-                setWeek(initialValues);
+                setWeek(initialValues as unknown as typeof week);
                 setValue("localWeekDays", "inherit");
               } else {
-                setWeek(data);
+                setWeek(data as unknown as typeof week);
               }
             }}
           />

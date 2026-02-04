@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { motion } from "motion/react";
 import { Link } from "react-router";
 import { Tag } from "~/components/common/Tag";
@@ -11,9 +10,9 @@ export const ServiceCardClient = ({
   serviceSlug,
 }: {
   title: string;
-  image?: string;
-  duration: number;
-  price: string;
+  image?: string | null;
+  duration: number | bigint;
+  price: number | bigint | string;
   serviceSlug?: string;
 }) => {
   // Use relative path for navigation within subdomain

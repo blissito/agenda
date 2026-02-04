@@ -3,10 +3,10 @@
  * Shows confirmation success page after customer clicks email link
  * The event is already confirmed in event.action.tsx
  */
-import { redirect } from "react-router";
+import { redirect, data } from "react-router";
 import type { Route } from "./+types/event.$eventId.confirm";
 import { db } from "~/utils/db.server";
-import { getSession } from "~/sessions";
+import { getSession, commitSession } from "~/sessions";
 import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
@@ -34,32 +34,48 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     throw redirect("/error?reason=event_not_found");
   }
 
+  // Check if a new user account was created
+  const newUserCreated = session.get("newUserCreated") || false;
+  if (newUserCreated) {
+    session.unset("newUserCreated");
+  }
+
   const timezone =
     (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE;
 
-  return {
-    event: {
-      id: event.id,
-      status: event.status,
-      start: event.start.toISOString(),
-      startFormatted: formatFullDateInTimezone(event.start, timezone),
+  const headers: HeadersInit = {};
+  if (newUserCreated) {
+    headers["Set-Cookie"] = await commitSession(session);
+  }
+
+  return data(
+    {
+      event: {
+        id: event.id,
+        status: event.status,
+        start: event.start.toISOString(),
+        startFormatted: formatFullDateInTimezone(event.start, timezone),
+      },
+      service: event.service
+        ? {
+            name: event.service.name,
+            orgName: event.service.org.name,
+          }
+        : null,
+      customer: {
+        displayName: event.customer?.displayName,
+        email: event.customer?.email,
+      },
+      newUserCreated,
     },
-    service: event.service
-      ? {
-          name: event.service.name,
-          orgName: event.service.org.name,
-        }
-      : null,
-    customer: {
-      displayName: event.customer?.displayName,
-    },
-  };
+    { headers }
+  );
 };
 
 export default function ConfirmEventPage({
   loaderData,
 }: Route.ComponentProps) {
-  const { event, service } = loaderData;
+  const { event, service, customer, newUserCreated } = loaderData;
 
   return (
     <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
@@ -107,6 +123,15 @@ export default function ConfirmEventPage({
             <p className="font-medium">{service?.orgName}</p>
           </div>
         </div>
+
+        {newUserCreated && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6 text-left">
+            <p className="text-blue-800 text-sm">
+              Tu cuenta Denik ha sido creada con <strong>{customer?.email}</strong>.
+              Podrás ver todas tus citas desde tu portal.
+            </p>
+          </div>
+        )}
       </div>
     </main>
   );

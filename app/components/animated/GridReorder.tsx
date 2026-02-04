@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Children, type MouseEvent, type ReactNode, useState } from "react";
 import { LayoutGroup, motion, useDragControls } from "motion/react";
 import { cn } from "~/utils/cn";
@@ -70,8 +69,8 @@ export const GridReorder = ({
     // }
   };
 
-  const handleDragEnd = (event: DragEvent, grabbingIndex: number) => {
-    const hoverIndex = getIndex(event, { grabbingIndex });
+  const handleDragEnd = (event: MouseEvent<HTMLDivElement>, grabbingIndex: number) => {
+    const hoverIndex = getIndex(event as unknown as MouseEvent<HTMLDivElement>, { grabbingIndex });
     if (hoverIndex === null || hoverIndex === undefined) return;
     // reorder
     swapCells({ grabbingIndex, hoverIndex });
@@ -119,12 +118,12 @@ const DropableCell = ({
 }: {
   isLastGrabbed?: boolean;
   layoutId: string; // needed to animate
-  onDragEnd?: (arg0: DragEvent, arg1: number) => void;
-  onDragStart?: (arg0: DragEvent) => void;
+  onDragEnd?: (arg0: MouseEvent<HTMLDivElement>, arg1: number) => void;
+  onDragStart?: () => void;
   isCurrentHover?: boolean;
   index?: number;
   children?: ReactNode;
-  onDrag?: (arg0: MouseEvent<unknown>, arg1: number) => void;
+  onDrag?: (arg0: MouseEvent<HTMLDivElement>, arg1: number) => void;
 }) => {
   // experiment for real time reordering
   const controls = useDragControls();
@@ -138,8 +137,8 @@ const DropableCell = ({
       layout
       layoutId={layoutId}
       key={layoutId}
-      onDragEnd={(e) => onDragEnd?.(e, index)}
-      onDrag={(e) => onDrag?.(e, index)}
+      onDragEnd={(e) => onDragEnd?.(e as unknown as MouseEvent<HTMLDivElement>, index as number)}
+      onDrag={(e) => onDrag?.(e as unknown as MouseEvent<HTMLDivElement>, index as number)}
       whileTap={{ cursor: "grabbing" }}
       whileDrag={{ zIndex: 50 }}
       drag

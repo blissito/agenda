@@ -99,6 +99,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!success) throw new Response("Error in form fields", { status: 400 });
 
     const { org } = await getUserAndOrgOrRedirect(request);
+    if (!org) {
+      throw new Response("Organization not found", { status: 404 });
+    }
     const newService = await db.service.create({
       data: {
         ...parsedData,
@@ -126,6 +129,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 });
+  }
   return {
     services: await db.service.findMany({
       where: {

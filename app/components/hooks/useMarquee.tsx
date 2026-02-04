@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
   useAnimationFrame,
   useMotionValue,
@@ -6,16 +5,20 @@ import {
   useSpring,
   useTransform,
   useVelocity,
+  type MotionValue,
 } from "motion/react";
-import { useRef } from "react";
+import { useRef, type RefObject } from "react";
 import { useScrollDirection } from "~/components/hooks/useScrollDirection";
 
-export const useMarquee = (reversed: boolean = false) => {
-  // Scroll direction
+type UseMarqueeReturn = {
+  ref: RefObject<HTMLDivElement | null>;
+  x: MotionValue<number>;
+};
+
+export const useMarquee = (reversed: boolean = false): UseMarqueeReturn => {
   const direction = useScrollDirection();
-  // Movemennt 🛸
   const x = useMotionValue(0);
-  const ref = useRef<HTMLDivElement>();
+  const ref = useRef<HTMLDivElement | null>(null);
   // valocity
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);

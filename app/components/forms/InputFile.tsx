@@ -1,5 +1,4 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import type { FieldValues, UseFormRegister } from "react-hook-form";
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
 import { FaRegTrashCan } from "react-icons/fa6";
 import {
   type ChangeEvent,
@@ -8,19 +7,18 @@ import {
   useState,
 } from "react";
 import { twMerge } from "tailwind-merge";
-// @TODO: scale and optimize images
+
 type Props = {
-  action?: { readUrl?: string; removeUrl?: string; putURL?: string };
+  action?: { readUrl?: string; removeUrl?: string; putUrl?: string };
   name: string;
   children: ReactNode;
   title?: string;
-  register?: UseFormRegister<FieldValues> | any;
+  register?: UseFormRegister<FieldValues>;
   description?: string;
   error?: FieldError;
   className?: string;
   registerOptions?: { required: string | boolean };
   multiple?: boolean;
-  // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
 };
 // const morras =
 //   "https://media.licdn.com/dms/image/C561BAQE8cwNr6BMj_Q/company-background_10000/0/1612306118493/cover_corp_cover?e=2147483647&v=beta&t=2-D8AuQQLqxb8ML7eEs3AtJbC7jspwH47Z8Ta-B4MpA";
@@ -29,7 +27,7 @@ export const InputFile = ({
   action,
   children,
   description,
-  register = () => false,
+  register,
   registerOptions = { required: "campo requerido" },
   error,
   name,
@@ -38,40 +36,46 @@ export const InputFile = ({
   ...props
 }: Props) => {
   const [isOver, setIsOver] = useState(false);
-  const [preview, setPreview] = useState<string>(action?.readUrl);
+  const [preview, setPreview] = useState<string | undefined>(action?.readUrl);
   const handleOnDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsOver(true);
   };
-  // @TODO: prohibe more than 1mb
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setPreview("");
     setIsOver(false);
-    await putFile(event.dataTransfer.files[0]);
-    setPreview(action.readUrl);
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      await putFile(file);
+      setPreview(action?.readUrl);
+    }
   };
   const handleDelete = async () => {
-    setPreview(null);
-    await fetch(action.removeUrl, {
-      method: "delete",
-    }).catch((e) => console.error(e));
+    setPreview(undefined);
+    if (action?.removeUrl) {
+      await fetch(action.removeUrl, {
+        method: "delete",
+      }).catch((e) => console.error(e));
+    }
   };
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const url = URL.createObjectURL(event.target.files[0]);
-    setPreview(url);
-    await putFile(event.target.files[0]);
+    const file = event.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setPreview(url);
+      await putFile(file);
+    }
   };
 
   const putFile = async (file: File) => {
-    if (!action) return;
+    if (!action?.putUrl) return;
 
-    // do not use formData ⚠
     await fetch(action.putUrl, {
       method: "put",
       body: file,
       headers: {
-        "Content-Length": file.size,
+        "Content-Length": String(file.size),
         "Content-Type": file.type,
       },
     }).catch((e) => console.error(e));
@@ -113,7 +117,7 @@ export const InputFile = ({
             </button>
           </div>
         )}
-        <input type="hidden" name={name} {...register(name, registerOptions)} />
+        <input type="hidden" name={name} {...register?.(name, registerOptions)} />
         <input
           onChange={handleChange}
           type="file"
@@ -121,7 +125,6 @@ export const InputFile = ({
           className="inputfile inputfile-3"
           data-multiple-caption="{count} archivos seleccionados"
           multiple={multiple}
-          {...props}
         />
         <label htmlFor={name}>{children}</label>
         {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}

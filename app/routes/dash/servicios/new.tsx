@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import type { Route } from "./+types/new";
 import {
   generalFormSchema,
@@ -9,7 +8,8 @@ import { cn } from "~/utils/cn";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
-import type { ZodError, ZodIssue } from "zod";
+import type { ZodError } from "zod";
+import type { FieldError } from "react-hook-form";
 import { Link, useFetcher } from "react-router";
 import {
   ServicePhotoForm,
@@ -32,7 +32,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const id = url.searchParams.get("id");
   let service;
   const { org } = await getUserAndOrgOrRedirect(request);
-  if (id) {
+  if (id && org) {
     service = await db.service.findUnique({
       where: {
         id,
@@ -43,16 +43,20 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   return { id, service };
 };
 
-const formatErrors = (zodError: ZodError) => {
-  return zodError.issues.reduce((acc, err) => {
-    acc[err.path[0]] = err;
-    return acc;
-  }, {}) as Record<string, ZodIssue>;
+const formatErrors = (zodError: ZodError): Record<string, FieldError> => {
+  return zodError.issues.reduce(
+    (acc, err) => {
+      const key = String(err.path[0]);
+      acc[key] = { type: err.code, message: err.message };
+      return acc;
+    },
+    {} as Record<string, FieldError>
+  );
 };
 
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { id, service } = loaderData;
-  const [errors, setErrors] = useState<Record<string, ZodIssue>>({});
+  const [errors, setErrors] = useState<Record<string, FieldError>>({});
   const formRef = useRef<HTMLFormElement>(null);
   const [index, setIndex] = useState(id ? 1 : 0);
   const [times, setTimes] = useState<WeekSchema>({});
@@ -137,20 +141,19 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           )}
           {index === 1 && (
             <ServicePhotoForm
-              defaultValues={{ place: "ONLINE" }}
-              errors={errors}
+              defaultValues={{ place: "ONLINE", isActive: true, allowMultiple: false }}
               formRef={formRef}
             />
           )}
           {index === 2 && (
             <ServiceTimesForm
               onTimesChange={setTimes}
-              errors={errors}
-              formRef={formRef}
+              defaultValues={{ duration: 30, weekDays: null }}
+              formRef={formRef as React.RefObject<HTMLFormElement>}
             />
           )}
           {index === 3 && (
-            <ServiceConfigForm errors={errors} formRef={formRef} />
+            <ServiceConfigForm formRef={formRef as React.RefObject<HTMLFormElement>} />
           )}
           <ServiceFormFooter onClick={detonateSubmit} />
         </section>

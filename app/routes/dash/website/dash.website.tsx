@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
@@ -24,6 +23,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       customDomainDns: true,
     },
   });
+  if (!org) {
+    throw new Response("Org not found", { status: 404 });
+  }
   const agendaUrl = `https://${org.slug}.denik.me`;
   const qr = await getQRImageURL(agendaUrl);
   const services = await db.service.findMany({

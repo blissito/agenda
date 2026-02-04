@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "~/utils/cn";
@@ -19,9 +18,9 @@ export default function SimpleGallery({
 }) {
   const [hovering, setHovering] = useState<number>(4);
 
-  const timeout = useRef<ReturnType<typeof setTimeout>>();
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const move = () => {
-    timeout.current && clearTimeout(timeout.current);
+    if (timeout.current) clearTimeout(timeout.current);
     setHovering((index) => (index + 1) % images.length);
     timeout.current = setTimeout(move, 3000);
   };
@@ -45,7 +44,7 @@ export default function SimpleGallery({
               isHovering={hovering === index}
               onHover={() => {
                 setHovering(index);
-                timeout.current && clearTimeout(timeout.current);
+                if (timeout.current) clearTimeout(timeout.current);
               }}
               src={img}
               key={img}

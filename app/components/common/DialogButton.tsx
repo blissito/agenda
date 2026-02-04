@@ -1,38 +1,40 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { Link } from "react-router";
-import React, { type ReactNode, useRef, useState } from "react";
+import { Link, type LinkProps } from "react-router";
+import { type ReactNode, useRef, useState, type ButtonHTMLAttributes } from "react";
 import { twMerge } from "tailwind-merge";
 
 import { motion } from "motion/react";
 import { cn } from "~/utils/cn";
 
-export const DialogButton = ({
-  className,
-  children,
-  isDisabled,
-  isLoading,
-  as,
-  to = "",
-  onClick,
-  ...props
-}: {
+type BaseProps = {
   onClick?: () => void;
-  as?: "Link";
-  to?: string;
   isLoading?: boolean;
   isDisabled?: boolean;
   className?: string;
   children: ReactNode;
-  [x: string]: any;
-}) => {
-  const Element = as === "Link" ? Link : "button";
+};
+
+type ButtonProps = BaseProps & {
+  as?: undefined;
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseProps>;
+
+type LinkPropsType = BaseProps & {
+  as: "Link";
+  to: string;
+} & Omit<LinkProps, keyof BaseProps | "to">;
+
+type DialogButtonProps = ButtonProps | LinkPropsType;
+
+export const DialogButton = (props: DialogButtonProps) => {
+  const { className, children, isDisabled, isLoading, as, onClick, ...rest } = props;
+  const to = as === "Link" ? (rest as { to: string }).to : "";
   const [isOpen, setOpen] = useState(false);
-  const ref = useRef();
+  const ref = useRef<HTMLDivElement>(null);
 
   const openModal = () => {
     setOpen(true);
-    // const modal = document.createElement("div");
-    document.body.appendChild(ref.current);
+    if (ref.current) {
+      document.body.appendChild(ref.current);
+    }
   };
 
   const closeModal = () => {
@@ -95,24 +97,49 @@ export const DialogButton = ({
     </div>
   );
 
+  const buttonClassName = twMerge(
+    "rounded-full hover:-translate-y-1 transition-all bg-fish text-base md:text-lg bg-brand_blue text-white h-12 md:h-12 px-6 flex gap-2 items-center justify-center font-light",
+    "disabled:bg-slate-300 disabled:pointer-events-none",
+    className
+  );
+
+  const content = (
+    <>
+      {!isLoading && children}
+      {isLoading && (
+        <div className="w-6 h-6 rounded-full animate-spin border-4 border-t-indigo-500" />
+      )}
+    </>
+  );
+
+  if (as === "Link") {
+    const { to: linkTo, ...linkRest } = rest as Omit<LinkPropsType, keyof BaseProps | "as">;
+    return (
+      <>
+        <Link
+          onClick={onClick ?? openModal}
+          to={linkTo}
+          className={buttonClassName}
+          {...linkRest}
+        >
+          {content}
+        </Link>
+        {jsx}
+      </>
+    );
+  }
+
+  const buttonRest = rest as Omit<ButtonProps, keyof BaseProps | "as">;
   return (
     <>
-      <Element
-        onClick={onClick ? onClick : openModal}
-        to={to}
+      <button
+        onClick={onClick ?? openModal}
         disabled={isDisabled}
-        {...props}
-        className={twMerge(
-          "rounded-full hover:-translate-y-1 transition-all bg-fish text-base md:text-lg bg-brand_blue text-white h-12 md:h-12 px-6 flex gap-2 items-center justify-center font-light",
-          "disabled:bg-slate-300 disabled:pointer-events-none",
-          className
-        )}
+        className={buttonClassName}
+        {...buttonRest}
       >
-        {!isLoading && children}
-        {isLoading && (
-          <div className="w-6 h-6 rounded-full animate-spin border-4 border-t-indigo-500" />
-        )}
-      </Element>
+        {content}
+      </button>
       {jsx}
     </>
   );

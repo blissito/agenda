@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { type RefObject, useEffect, useRef } from "react";
 
 export const useOutsideClick = <T extends HTMLElement>({
@@ -11,8 +10,8 @@ export const useOutsideClick = <T extends HTMLElement>({
   isActive?: boolean;
   onClickInside?: (e: MouseEvent) => void;
   onClickOutside?: (e: MouseEvent | KeyboardEvent) => void;
-}): RefObject<T> => {
-  const ref = useRef<T>(null);
+}): RefObject<T | null> => {
+  const ref = useRef<T | null>(null);
   useEffect(() => {
     if (!isActive) return;
     const handleClick = (event: MouseEvent) => {

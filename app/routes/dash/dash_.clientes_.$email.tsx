@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link } from "react-router";
 import { db } from "~/utils/db.server";
 import { Avatar } from "~/components/common/Avatar";
@@ -15,26 +14,63 @@ import { MailButton } from "~/components/icons/mailButton";
 import { CalendarPicker } from "~/components/icons/calendarPicker";
 import { Phone } from "~/components/icons/phone";
 import type { Route } from "./+types/dash_.clientes_.$email";
-import { EventTable } from "./clientes/EventTable";
+import { EventTable, type EventWithService } from "./clientes/EventTable";
 
 // Mock avatar image from Figma (valid for 7 days)
 const MOCK_AVATAR = "https://www.figma.com/api/mcp/asset/3f2720cf-f252-4635-97c8-073948b07470";
 //@TODO: filter by date, edit contact, send email, send whats, download contacts?one?all?, delete contact
 
-// Mock events data for visualization
-const createMockEvents = (customerName: string) => [
+// Mock events data for visualization - typed to match EventWithService
+const createMockEvents = (_customerName: string): EventWithService[] => [
   {
     id: "mock-1",
     start: new Date("2024-04-30T15:00:00"),
     end: new Date("2024-04-30T16:00:00"),
     status: "ACTIVE",
     paid: false,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
   {
@@ -43,12 +79,49 @@ const createMockEvents = (customerName: string) => [
     end: new Date("2024-04-30T16:00:00"),
     status: "ACTIVE",
     paid: true,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
   {
@@ -57,12 +130,49 @@ const createMockEvents = (customerName: string) => [
     end: new Date("2024-04-30T16:00:00"),
     status: "ACTIVE",
     paid: true,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
   {
@@ -71,12 +181,49 @@ const createMockEvents = (customerName: string) => [
     end: new Date("2024-04-30T16:00:00"),
     status: "CANCELED",
     paid: false,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
   {
@@ -85,12 +232,49 @@ const createMockEvents = (customerName: string) => [
     end: new Date("2024-04-30T16:00:00"),
     status: "ACTIVE",
     paid: true,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
   {
@@ -99,12 +283,49 @@ const createMockEvents = (customerName: string) => [
     end: new Date("2024-04-30T16:00:00"),
     status: "ACTIVE",
     paid: true,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
   {
@@ -113,12 +334,49 @@ const createMockEvents = (customerName: string) => [
     end: new Date("2024-04-30T16:00:00"),
     status: "ACTIVE",
     paid: true,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
   {
@@ -127,15 +385,66 @@ const createMockEvents = (customerName: string) => [
     end: new Date("2024-04-30T16:00:00"),
     status: "ACTIVE",
     paid: true,
+    allDay: false,
+    archived: false,
+    createdAt: new Date(),
+    customerId: null,
+    duration: BigInt(60),
+    employeeId: null,
+    notes: null,
+    orgId: "",
+    payment_method: null,
+    serviceId: "s1",
+    title: "Clase de piano",
+    type: "appointment",
+    updatedAt: new Date(),
+    userId: "",
+    mp_preference_id: null,
+    mp_payment_id: null,
+    stripe_session_id: null,
+    stripe_payment_intent_id: null,
+    reminderSentAt: null,
+    surveySentAt: null,
     service: {
       id: "s1",
       name: "Clase de piano",
-      points: 15,
-      price: 399,
+      points: BigInt(15),
+      price: BigInt(399),
       employeeName: "Brenda Ortega",
+      address: null,
+      allowMultiple: false,
+      archived: false,
+      config: null,
+      currency: "MXN",
+      description: null,
+      duration: BigInt(60),
+      isActive: true,
+      limit: null,
+      orgId: "",
+      paid: false,
+      payment: false,
+      photoURL: null,
+      place: "online",
+      seats: BigInt(1),
+      slug: "clase-de-piano",
+      weekDays: null,
     },
   },
 ];
+
+// Extended customer type to include address for display purposes
+type CustomerWithAddress = {
+  id: string;
+  email: string;
+  displayName: string;
+  tel: string;
+  comments: string;
+  createdAt: Date;
+  updatedAt: Date;
+  orgId: string;
+  userId: string | null;
+  address?: string; // For mock data display
+};
 
 export const loader = async ({
   request,
@@ -145,11 +454,12 @@ export const loader = async ({
   if (!org || !email) throw new Response(null, { status: 404 });
 
   // Try to find real customer or create mock
-  let customer = await db.customer.findFirst({ where: { email } });
+  const dbCustomer = await db.customer.findFirst({ where: { email } });
   let isMockCustomer = false;
+  let customer: CustomerWithAddress;
 
   // If no customer found, create mock data for visualization
-  if (!customer) {
+  if (!dbCustomer) {
     isMockCustomer = true;
     customer = {
       id: "mock-customer",
@@ -160,26 +470,33 @@ export const loader = async ({
       comments: "Lorem ipsum dolor sit amet consectetur. At mattis nulla sed curabitur gravida et quam sed at. Sit tellus hendrerit volutpat sed ac consequat eros in et. Phasellus odio nisi urna. nulla sed curabitur gravida et quam sed at. Sit",
       createdAt: new Date("2022-04-11"),
       updatedAt: new Date(),
+      orgId: org.id,
+      userId: null,
     };
+  } else {
+    customer = dbCustomer;
   }
 
   // Only query events if we have a real customer
-  let events = isMockCustomer
-    ? []
-    : await db.event.findMany({
-        where: {
-          customerId: customer.id,
-          orgId: org.id,
-        },
-        include: { service: true },
-      });
+  let events: EventWithService[] = [];
+  if (!isMockCustomer) {
+    const dbEvents = await db.event.findMany({
+      where: {
+        customerId: customer.id,
+        orgId: org.id,
+      },
+      include: { service: true },
+    });
+    // Filter to only events with a service (EventWithService requires non-null service)
+    events = dbEvents.filter((e): e is typeof e & { service: NonNullable<typeof e.service> } => e.service !== null);
+  }
 
   // Use mock events if no real events
   if (events.length === 0) {
     events = createMockEvents(customer.displayName || "Cliente");
   }
 
-  const totalPoints = events.reduce((acc, e) => acc + (e.service?.points || 0), 0);
+  const totalPoints = events.reduce((acc, e) => acc + Number(e.service.points), 0);
 
   return {
     customer,

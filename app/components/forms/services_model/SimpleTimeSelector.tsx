@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { cn } from "~/utils/cn";
@@ -16,8 +15,9 @@ export type Week = {
   viernes?: Gaps;
   sábado?: Gaps;
   domingo?: Gaps;
+  [key: string]: Gaps | undefined;
 };
-type DayName = "lunes" | "martes" | "miércoles" | "jueves" | "viernes";
+type DayName = "lunes" | "martes" | "miércoles" | "jueves" | "viernes" | "sábado" | "domingo";
 
 export const SimpleTimeSelector = ({
   onSubmit,
@@ -67,9 +67,9 @@ export const SimpleTimeSelector = ({
           <DaySelector
             defaultValue={week[dayName]}
             key={dayName}
-            onDeactivate={handleRemove(dayName)}
+            onDeactivate={handleRemove(dayName as DayName)}
             dayName={dayName}
-            onChange={handleDayChange(dayName)}
+            onChange={handleDayChange(dayName as DayName)}
           />
         ))}
       </section>
@@ -292,7 +292,7 @@ export const SimpleSwitch = ({
   };
 
   useEffect(() => {
-    setOn(value);
+    setOn(value ?? false);
   }, [value]);
 
   return (

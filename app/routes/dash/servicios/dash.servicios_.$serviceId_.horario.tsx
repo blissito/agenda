@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,10 +7,8 @@ import {
 } from "~/components/ui/breadcrump";
 import { db } from "~/utils/db.server";
 import type { Route } from "./+types/dash.servicios_.$serviceId_.horario";
-import { TimesForm } from "~/components/forms/TimesForm";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { useState } from "react";
-import { Modal } from "~/components/common/Modal";
 import {
   SimpleTimeSelector,
   type Week,
@@ -19,7 +16,7 @@ import {
 import { useFetcher } from "react-router";
 import { useToast } from "~/components/hooks/useToaster";
 
-export const loader = async ({ params, request }: Route.LoaderArgs) => {
+export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId;
   const service = await db.service.findUnique({ where: { id: serviceId } });
   if (!service) throw new Response(null, { status: 404 });
@@ -29,6 +26,9 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { service } = loaderData;
   const fetcher = useFetcher();
+  const toast = useToast();
+  const [showForm, setShowForm] = useState(false);
+
   const handleSubmit = (weekDays: Week) => {
     if (Object.values(weekDays).length < 1) return;
 
@@ -39,10 +39,13 @@ export default function Index({ loaderData }: Route.ComponentProps) {
       },
       { method: "post", action: "/api/services" }
     );
-    useToast().success({ text: "Los horarios se guardarón con éxito " });
+    toast.success({ text: "Los horarios se guardarón con éxito " });
   };
 
   const isLoading = fetcher.state !== "idle";
+
+  // Cast service.weekDays to Week type for SimpleTimeSelector
+  const weekDaysForSelector = service.weekDays as Week | null;
 
   return (
     <>
@@ -66,10 +69,10 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
-        {service.weekDays ? (
+        {weekDaysForSelector || showForm ? (
           <SimpleTimeSelector
             isLoading={isLoading}
-            defaultValue={service.weekDays}
+            defaultValue={weekDaysForSelector ?? undefined}
             onSubmit={handleSubmit}
           />
         ) : (
@@ -95,7 +98,6 @@ export default function Index({ loaderData }: Route.ComponentProps) {
                 </PrimaryButton>
                 <PrimaryButton
                   as="button"
-                  to={"/dash/servicios/" + service.id}
                   className="my-4 disabled:bg-yellow-500/40"
                   onClick={() => setShowForm(true)}
                 >

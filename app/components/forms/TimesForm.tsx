@@ -1,4 +1,3 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Form, useFetcher } from "react-router";
 import { Switch } from "./Switch";
 import { PrimaryButton } from "../common/primaryButton";
@@ -15,19 +14,10 @@ import {
 import { nanoid } from "nanoid";
 import { type Org } from "@prisma/client";
 import type { WeekSchema } from "~/utils/zod_schemas";
-import invariant from "tiny-invariant";
 import { ArrowRight } from "~/components/icons/arrowRight";
 
 export type DayTuple = [string, string][];
-export type WeekTuples = {
-  lunes?: DayTuple;
-  martes?: DayTuple;
-  miércoles?: DayTuple;
-  jueves?: DayTuple;
-  viernes?: DayTuple;
-  sábado?: DayTuple;
-  domingo?: DayTuple;
-};
+export type WeekTuples = Record<string, DayTuple | undefined>;
 
 const ENTIRE_WEEK = [
   "lunes",
@@ -79,7 +69,9 @@ export const TimesForm = ({
   org: Org;
 }) => {
   const fetcher = useFetcher();
-  const [data, setData] = useState<WeekSchema>(org.weekDays || initialValues);
+  const [data, setData] = useState<WeekTuples>(
+    (org.weekDays as unknown as WeekTuples) || initialValues
+  );
   const initialData = org.weekDays
     ? Object.keys(org.weekDays)
     : Object.keys(initialValues);
@@ -91,7 +83,7 @@ export const TimesForm = ({
     setError,
     formState: { errors, isValid },
     handleSubmit,
-  } = useForm({
+  } = useForm<{ weekDays: string[] }>({
     defaultValues: {
       weekDays: initialData,
     },
@@ -100,7 +92,7 @@ export const TimesForm = ({
   const submit = () => {
     if (noSubmit) return;
 
-    onSubmit?.(data);
+    onSubmit?.(data as WeekSchema);
     fetcher.submit(
       {
         intent: "update_org",
@@ -115,23 +107,21 @@ export const TimesForm = ({
   const handleSwitchChange = (node: HTMLInputElement) => {
     let action: "adding" | "removing";
     clearErrors();
-    const values = getValues()[node.name];
+    const values = [...getValues().weekDays];
 
     if (node.checked) {
       action = "adding";
       values.push(node.value);
     } else {
       action = "removing";
-      values.splice(
-        values.findIndex((v: string) => v === node.value),
-        1
-      );
+      const idx = values.findIndex((v: string) => v === node.value);
+      if (idx !== -1) values.splice(idx, 1);
     }
 
-    setValue(node.name, [...new Set(values)], { shouldValidate: true });
+    setValue("weekDays", [...new Set(values)], { shouldValidate: true });
 
     if (!values.length) {
-      setError(node.name, { message: ERROR_MESSAGE });
+      setError("weekDays", { message: ERROR_MESSAGE });
     }
 
     // copy ranges for new active day
@@ -140,11 +130,11 @@ export const TimesForm = ({
 
   const toggleRange = (action: "adding" | "removing", dayString: string) => {
     if (action === "adding") {
-      const dayValues = Object.values(data);
+      const dayValues = Object.values(data).filter(Boolean) as DayTuple[];
       const copy = dayValues.length
         ? dayValues[dayValues.length - 1]
-        : [RANGE_TEMPLATE];
-      setData((data) => ({ ...data, [dayString]: copy }));
+        : [RANGE_TEMPLATE as [string, string]];
+      setData((prev) => ({ ...prev, [dayString]: copy }));
     } else if (action === "removing") {
       const d = { ...data };
       delete d[dayString];
@@ -153,39 +143,44 @@ export const TimesForm = ({
   };
 
   const addRange = (dayString: string) => {
-    if (data[dayString]?.length) {
+    const dayData = data[dayString];
+    if (dayData?.length) {
       setData((d) => {
-        const dd = JSON.parse(JSON.stringify(d));
-        const lastRange = dd[dayString].pop();
+        const dd = JSON.parse(JSON.stringify(d)) as WeekTuples;
+        const dayArr = dd[dayString];
+        if (!dayArr) return d;
+        const lastRange = dayArr[dayArr.length - 1];
+        if (!Array.isArray(lastRange)) return d;
         const nextH = getStringFromMinutes(
           getMinutesFromString(lastRange[1]) + 30
         );
-
-        if (!Array.isArray(lastRange)) return d;
-        const nextRange = [
+        const nextRange: [string, string] = [
           nextH,
           getStringFromMinutes(getMinutesFromString(lastRange[1]) + 60),
         ];
+        const currentDay = d[dayString] || [];
         return {
           ...d,
-          [dayString]: [...d[dayString], nextRange],
+          [dayString]: [...currentDay, nextRange],
         };
       });
     }
   };
 
   const removeRange = (day: string, index: number) => {
-    const arr = [...data[day]];
+    const dayData = data[day];
+    if (!dayData) return;
+    const arr = [...dayData];
     arr.splice(index, 1);
-    setData((d) => ({ ...d, [day]: arr }));
+    setData((d) => ({ ...d, [day]: arr as DayTuple }));
   };
 
-  const handleUpdate = (day: string, ranges: string[][]) => {
+  const handleUpdate = (day: string, ranges: [string, string][]) => {
     setData((d) => ({ ...d, [day]: ranges }));
   };
 
   useEffect(() => {
-    onChange?.(data);
+    onChange?.(data as WeekSchema);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
@@ -203,13 +198,11 @@ export const TimesForm = ({
       {ENTIRE_WEEK.map((dayString: string) => (
         <DayTimesSelector
           key={dayString}
-          ranges={data[dayString]}
+          ranges={data[dayString] || []}
           addRange={() => addRange(dayString)}
           onRemoveRange={(index) => removeRange(dayString, index)}
-          onUpdate={(ranges) => handleUpdate(dayString, ranges)}
-          // onRange={(range) => handleRange(dayString, range)}
+          onUpdate={(ranges) => handleUpdate(dayString, ranges as [string, string][])}
           isActive={getValues().weekDays.includes(dayString)}
-          id={dayString}
         >
           <Switch
             defaultChecked={getValues().weekDays.includes(dayString)}
@@ -255,13 +248,11 @@ export const DayTimesSelector = ({
   isActive?: boolean;
   children?: ReactNode;
 }) => {
-  const handleChange = (index: number, range: string[]) => {
-    const arr = [...ranges];
+  const handleChange = (index: number, range: [string, string]) => {
+    const arr = [...ranges] as [string, string][];
     arr[index] = range;
     onUpdate?.(arr);
   };
-
-  type Range = [string, string]; // ['09:00','16:00']
 
   return (
     <div className="rounded-xl">
@@ -277,12 +268,12 @@ export const DayTimesSelector = ({
           "text-neutral-600"
         )}
       >
-        {ranges.map((range: Range, index) => (
+        {ranges.map((range, index) => (
           <div className="flex items-center gap-4" key={nanoid()}>
             <RangeTimePicker
               isDisabled={!isActive}
               index={index}
-              onChange={(range) => handleChange(index, range)}
+              onChange={(r) => handleChange(index, r as [string, string])}
               startTime={range[0]}
               endTime={range[1]}
               onDelete={() => onRemoveRange?.(index)}
