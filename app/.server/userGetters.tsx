@@ -237,8 +237,13 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
 
   if (!user) return genericError;
 
+  // Get next URL from request if available
+  const url = new URL(request.url);
+  const next = url.searchParams.get("next") || "/dash";
+
   return setUserSessionAndRedirect({
     userId: user.id,
+    redirectURL: next,
     request,
   });
 };
