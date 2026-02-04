@@ -184,6 +184,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [ ] **URGENTE**: Reevaluar sistema de integraciones y activar Messenger lo antes posible
 - [ ] **SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio: https://www.denik.me/dash/servicios/nuevo?id=6983a008b2667879031dd0fb
 - [ ] **SIGUIENTE**: Leamos buenas practicas de react router v7 y las estrategias de navegacion, actualmente un clic en el link a pagos no da feedback pues tarda en cargar la ruta mucho y el user da varias veces click. Debemos usar patterns por default que eviten la espera del user. Refactorizar.
+- [] **PENULTIMO**: onboarding apunta a rutas que no existen y no se calcula bien los progresos, deja de ser util, puedes nrepararlo y sugerir mejora?
 - [] **ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario, lo dice siempre, en la noche o en la tarde. (dash)
 
 ## Checklist de Producción (Webhooks)
