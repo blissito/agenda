@@ -63,17 +63,38 @@ prisma/
 | Dashboard | ✅ |
 | Email notifications | ✅ |
 | Stripe Connect | ✅ |
-| Webhooks Stripe | ⚠️ Handler básico creado |
+| Webhooks Stripe | ✅ checkout.session.completed, payment_intent.failed |
 | MercadoPago | ✅ OAuth, webhooks, token refresh |
 | Tests | ❌ 0% |
 
 ## TODO
 
-- [ ] **Completar webhook Stripe** (`app/routes/stripe/webhook.ts`)
-  - Actualizar estado de pagos en DB cuando `checkout.session.completed`
-  - Manejar `payment_intent.failed` para notificar al usuario
-  - Agregar `STRIPE_WEBHOOK_SECRET` a producción
-- [ ] Configurar `MP_WEBHOOK_SECRET` en producción
+- [x] ~~Completar webhook Stripe~~ (implementado)
+- [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
+
+## Checklist de Producción (Webhooks)
+
+### Stripe
+1. Ir a [Stripe Dashboard → Developers → Webhooks](https://dashboard.stripe.com/webhooks)
+2. Crear endpoint: `https://tudominio.com/stripe/webhook`
+3. Seleccionar eventos: `checkout.session.completed`, `payment_intent.payment_failed`, `account.updated`
+4. Copiar "Signing secret" y agregarlo como `STRIPE_WEBHOOK_SECRET` en producción
+
+### MercadoPago
+1. Ir a [Panel MercadoPago → Configuración → Webhooks](https://www.mercadopago.com.mx/developers/panel/app)
+2. Configurar URL: `https://tudominio.com/mercadopago/webhook`
+3. Seleccionar eventos: `payment`
+4. Copiar "Secret key" y agregarla como `MP_WEBHOOK_SECRET` en producción
+
+### Verificar funcionamiento
+```bash
+# Stripe CLI (desarrollo)
+stripe listen --forward-to localhost:3000/stripe/webhook
+stripe trigger checkout.session.completed
+
+# Probar webhook manualmente
+curl -X POST https://tudominio.com/stripe/webhook -d '{}'  # Debe dar 400 (sin firma)
+```
 
 ## Variables de Entorno
 

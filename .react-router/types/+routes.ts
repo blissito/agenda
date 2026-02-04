@@ -144,6 +144,27 @@ type Pages = {
       "serviceSlug": string;
     };
   };
+  "/error": {
+    params: {};
+  };
+  "/event/action": {
+    params: {};
+  };
+  "/event/:eventId/confirm": {
+    params: {
+      "eventId": string;
+    };
+  };
+  "/event/:eventId/modify": {
+    params: {
+      "eventId": string;
+    };
+  };
+  "/event/:eventId/cancel": {
+    params: {
+      "eventId": string;
+    };
+  };
   "/:serviceSlug": {
     params: {
       "serviceSlug": string;
@@ -154,7 +175,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/agenda/:orgSlug/:serviceSlug" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -304,6 +325,26 @@ type RouteFiles = {
     id: "routes/agenda.$orgSlug.$serviceSlug";
     page: "/agenda/:orgSlug/:serviceSlug";
   };
+  "routes/error.tsx": {
+    id: "routes/error";
+    page: "/error";
+  };
+  "routes/event.action.tsx": {
+    id: "routes/event.action";
+    page: "/event/action";
+  };
+  "routes/event.$eventId.confirm.tsx": {
+    id: "routes/event.$eventId.confirm";
+    page: "/event/:eventId/confirm";
+  };
+  "routes/event.$eventId.modify.tsx": {
+    id: "routes/event.$eventId.modify";
+    page: "/event/:eventId/modify";
+  };
+  "routes/event.$eventId.cancel.tsx": {
+    id: "routes/event.$eventId.cancel";
+    page: "/event/:eventId/cancel";
+  };
   "routes/service.$serviceSlug.tsx": {
     id: "routes/service.$serviceSlug";
     page: "/:serviceSlug";
@@ -349,5 +390,10 @@ type RouteModules = {
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
   "routes/demo.smatch": typeof import("./app/routes/demo.smatch.tsx");
   "routes/agenda.$orgSlug.$serviceSlug": typeof import("./app/routes/agenda.$orgSlug.$serviceSlug.tsx");
+  "routes/error": typeof import("./app/routes/error.tsx");
+  "routes/event.action": typeof import("./app/routes/event.action.tsx");
+  "routes/event.$eventId.confirm": typeof import("./app/routes/event.$eventId.confirm.tsx");
+  "routes/event.$eventId.modify": typeof import("./app/routes/event.$eventId.modify.tsx");
+  "routes/event.$eventId.cancel": typeof import("./app/routes/event.$eventId.cancel.tsx");
   "routes/service.$serviceSlug": typeof import("./app/routes/service.$serviceSlug.tsx");
 };
