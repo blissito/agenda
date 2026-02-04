@@ -94,17 +94,29 @@ export const newCustomerSchema = z.object({
 export type NewCustomerSchema = z.infer<typeof newCustomerSchema>
 
 // Org update
+export const orgSocialSchema = z.object({
+  facebook: z.string().optional().nullable(),
+  instagram: z.string().optional().nullable(),
+  linkedin: z.string().optional().nullable(),
+  tiktok: z.string().optional().nullable(),
+  website: z.string().optional().nullable(),
+  x: z.string().optional().nullable(),
+  youtube: z.string().optional().nullable(),
+})
+
 export const orgUpdateSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).optional(),
   slug: z.string().min(1).optional(),
   shopKeeper: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   businessType: z.string().optional().nullable(),
   weekDays: weekTuples.optional(),
   email: z.string().email().optional().nullable(),
   tel: z.string().optional().nullable(),
   logo: z.string().optional().nullable(),
+  social: orgSocialSchema.optional().nullable(),
   websiteConfig: z
     .object({
       color: z.string().optional().nullable(),

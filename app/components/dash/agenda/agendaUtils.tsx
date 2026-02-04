@@ -83,16 +83,18 @@ export const generateHours = ({
 export const generateSecuense = (
   fromMins: number,
   toMins: number,
-  mins: number,
-  min: number = 0,
+  duration: number,
+  minTime: number = 0,
 ) => {
-  let count = fromMins
-  const slots = []
-  while (count < toMins) {
-    if (count > min) slots.push(count)
-    count += mins
-  }
-  return slots
+  const lastValidStart = toMins - duration
+
+  if (lastValidStart < fromMins) return []
+
+  const slotCount = Math.floor((lastValidStart - fromMins) / duration) + 1
+
+  return Array.from({ length: slotCount }, (_, i) => fromMins + i * duration).filter(
+    (slot) => slot > minTime,
+  )
 }
 
 export const getMonday = (today: Date = new Date()) => {

@@ -69,7 +69,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         { status: 400 },
       )
     }
-    const { id, weekDays, ...restData } = result.data
+    const { id, weekDays, social, ...restData } = result.data
 
     // Validate slug if being updated
     if (restData.slug) {
@@ -96,10 +96,24 @@ export const action = async ({ request }: Route.ActionArgs) => {
       ? spanishToEnglish(weekDays)
       : undefined
 
-    // Build Prisma update data, wrapping weekDays in `set` for embedded types
+    // Build Prisma update data, wrapping embedded types in `set`
+    // For social, ensure all fields are strings (Prisma embedded type requires non-null)
+    const normalizedSocial = social
+      ? {
+          facebook: social.facebook ?? "",
+          instagram: social.instagram ?? "",
+          linkedin: social.linkedin ?? "",
+          tiktok: social.tiktok ?? "",
+          website: social.website ?? "",
+          x: social.x ?? "",
+          youtube: social.youtube ?? "",
+        }
+      : undefined
+
     const prismaData = {
       ...restData,
       ...(transformedWeekDays && { weekDays: { set: transformedWeekDays } }),
+      ...(normalizedSocial && { social: { set: normalizedSocial } }),
     }
 
     await db.org.update({ where: { id }, data: prismaData })

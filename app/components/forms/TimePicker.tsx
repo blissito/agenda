@@ -1,14 +1,17 @@
 import { type ChangeEvent, useState } from "react"
 
-export const generateTimesFromRange = (range: string[], mins: number) => {
-  const maxMins = getMinutesFromString(range[1])
-  const starMins = getMinutesFromString(range[0])
-  let minsSlot = starMins
-  const slots = []
-  while (minsSlot <= maxMins) {
-    slots.push((minsSlot += mins))
-  }
-  return slots.map((slot) => getStringFromMinutes(slot))
+export const generateTimesFromRange = (range: string[], slotDuration: number) => {
+  const startMins = getMinutesFromString(range[0])
+  const endMins = getMinutesFromString(range[1])
+  const lastValidStart = endMins - slotDuration
+
+  if (lastValidStart < startMins) return [] // Rango muy corto para la duración
+
+  const slotCount = Math.floor((lastValidStart - startMins) / slotDuration) + 1
+
+  return Array.from({ length: slotCount }, (_, i) =>
+    getStringFromMinutes(startMins + i * slotDuration)
+  )
 }
 
 // chulada!

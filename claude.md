@@ -180,12 +180,13 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~Completar webhook Stripe~~ (implementado)
 - [ ] **ELMASURGENTE**: El link de pagos en el menú no funciona, confirmar que todo el sistema de pagos con mercado pago es accesible en produccion y que los enclaces en el app funcionan correctamente, también el agendamiento con cobro.
 - [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
-- [ ] **URGENTE**: Arreglar link de evaluaciones (la ruta falla)
-- [ ] **URGENTE**: Reevaluar sistema de integraciones y activar Messenger lo antes posible
+- [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
+- [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)
 - [ ] **SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio: https://www.denik.me/dash/servicios/nuevo?id=6983a008b2667879031dd0fb
 - [ ] **SIGUIENTE**: Leamos buenas practicas de react router v7 y las estrategias de navegacion, actualmente un clic en el link a pagos no da feedback pues tarda en cargar la ruta mucho y el user da varias veces click. Debemos usar patterns por default que eviten la espera del user. Refactorizar.
 - [] **PENULTIMO**: onboarding apunta a rutas que no existen y no se calcula bien los progresos, deja de ser util, puedes nrepararlo y sugerir mejora?
 - [] **ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario, lo dice siempre, en la noche o en la tarde. (dash)
+- [ ] Drag & drop en galería de servicio para reordenar imágenes y seleccionar la principal
 
 ## Checklist de Producción (Webhooks)
 

@@ -3,7 +3,6 @@ import {
   forwardRef,
   type InputHTMLAttributes,
   type ReactNode,
-  useEffect,
   useState,
 } from "react"
 import { cn } from "~/utils/cn"
@@ -52,11 +51,12 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     },
     _ref,
   ) => {
-    // const ref = useRef<HTMLInputElement>(null);
     const [checked, set] = useState(defaultChecked)
-    useEffect(() => {
-      onChange?.(checked)
-    }, [checked, onChange])
+
+    const handleChange = (newChecked: boolean) => {
+      set(newChecked)
+      onChange?.(newChecked)
+    }
     return (
       <label
         className={cn(
@@ -77,7 +77,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
           className="hidden"
           {...props}
           {...register?.(name, registerOptions)}
-          onChange={(event) => set(event.currentTarget.checked)}
+          onChange={(event) => handleChange(event.currentTarget.checked)}
           checked={checked}
         />
         {/* Container */}

@@ -163,11 +163,6 @@ export default function Clients() {
               tool="WhatsApp Business"
               description="Envía recordatorios y confirmaciones por WhatsApp."
             />
-            <IntegrationCardComingSoon
-              icon="/images/messenger.svg"
-              tool="Messenger"
-              description="Conecta con tus clientes a través de Facebook Messenger."
-            />
           </div>
           <p className=" text-brand_dark font-satoshi mt-6 mb-4">
             {" "}
