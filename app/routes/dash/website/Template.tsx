@@ -1,19 +1,19 @@
-import { useState } from "react";
-import { FiCopy, FiCheck, FiGlobe, FiEdit2 } from "react-icons/fi";
-import { IoQrCodeOutline } from "react-icons/io5";
-import { twMerge } from "tailwind-merge";
-import type { Org } from "@prisma/client";
-import { PlantillaSelect } from "~/components/forms/website/Plantilla";
-import { TemplateFormModal } from "~/components/ui/dialog";
+import type { Org } from "@prisma/client"
+import { useState } from "react"
+import { FiCheck, FiCopy, FiEdit2, FiGlobe } from "react-icons/fi"
+import { IoQrCodeOutline } from "react-icons/io5"
+import { twMerge } from "tailwind-merge"
+import { PlantillaSelect } from "~/components/forms/website/Plantilla"
+import { TemplateFormModal } from "~/components/ui/dialog"
 
 export const Template = ({
   url,
   qr,
   org,
 }: {
-  org: Org;
-  qr: string;
-  url: string;
+  org: Org
+  qr: string
+  url: string
 }) => {
   return (
     <section className="col-span-6 xl:col-span-2 ">
@@ -31,33 +31,33 @@ export const Template = ({
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
 type OrgWithDomain = Org & {
-  customDomain?: string | null;
-  customDomainStatus?: string | null;
-  customDomainDns?: unknown;
-};
+  customDomain?: string | null
+  customDomainStatus?: string | null
+  customDomainDns?: unknown
+}
 
 const DomainCard = ({
   org,
   url,
   qr,
 }: {
-  org: OrgWithDomain;
-  url: string;
-  qr: string;
+  org: OrgWithDomain
+  url: string
+  qr: string
 }) => {
-  const [copied, setCopied] = useState(false);
-  const hasCustomDomain = !!org.customDomain;
-  const isActive = org.customDomainStatus === "active";
+  const [copied, setCopied] = useState(false)
+  const hasCustomDomain = !!org.customDomain
+  const isActive = org.customDomainStatus === "active"
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1000);
-  };
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1000)
+  }
 
   return (
     <div className="px-4 py-4 relative">
@@ -70,11 +70,17 @@ const DomainCard = ({
             {copied ? (
               <FiCheck className="text-green-500" size={18} />
             ) : (
-              <FiCopy className="text-brand_gray hover:text-brand_blue cursor-pointer" size={18} />
+              <FiCopy
+                className="text-brand_gray hover:text-brand_blue cursor-pointer"
+                size={18}
+              />
             )}
           </button>
           <a download="código_qr" href={qr} target="_blank" rel="noreferrer">
-            <IoQrCodeOutline className="text-brand_gray hover:text-brand_blue cursor-pointer" size={18} />
+            <IoQrCodeOutline
+              className="text-brand_gray hover:text-brand_blue cursor-pointer"
+              size={18}
+            />
           </a>
           <TemplateFormModal
             org={org}
@@ -120,7 +126,7 @@ const DomainCard = ({
                 "text-xs px-2 py-0.5 rounded-full",
                 isActive
                   ? "bg-green-100 text-green-700"
-                  : "bg-yellow-100 text-yellow-700"
+                  : "bg-yellow-100 text-yellow-700",
               )}
             >
               {isActive ? "activo" : "pendiente"}
@@ -129,5 +135,5 @@ const DomainCard = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}

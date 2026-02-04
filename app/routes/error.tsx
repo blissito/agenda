@@ -2,7 +2,7 @@
  * Route: /error?reason=xxx
  * Generic error page for event action errors
  */
-import type { Route } from "./+types/error";
+import type { Route } from "./+types/error"
 
 const ERROR_MESSAGES: Record<string, { title: string; message: string }> = {
   missing_token: {
@@ -24,28 +24,29 @@ const ERROR_MESSAGES: Record<string, { title: string; message: string }> = {
   },
   session_expired: {
     title: "Sesión expirada",
-    message: "Tu sesión ha expirado. Por favor usa el link del email nuevamente.",
+    message:
+      "Tu sesión ha expirado. Por favor usa el link del email nuevamente.",
   },
   invalid_action: {
     title: "Acción no válida",
     message: "La acción solicitada no es válida.",
   },
-};
+}
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const url = new URL(request.url);
-  const reason = url.searchParams.get("reason") || "unknown";
+  const url = new URL(request.url)
+  const reason = url.searchParams.get("reason") || "unknown"
 
   const errorInfo = ERROR_MESSAGES[reason] || {
     title: "Error",
     message: "Ha ocurrido un error inesperado.",
-  };
+  }
 
-  return { reason, ...errorInfo };
-};
+  return { reason, ...errorInfo }
+}
 
 export default function ErrorPage({ loaderData }: Route.ComponentProps) {
-  const { title, message } = loaderData;
+  const { title, message } = loaderData
 
   return (
     <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
@@ -76,5 +77,5 @@ export default function ErrorPage({ loaderData }: Route.ComponentProps) {
         </a>
       </div>
     </main>
-  );
+  )
 }

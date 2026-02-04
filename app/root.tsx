@@ -1,3 +1,4 @@
+import type { ReactNode } from "react"
 import {
   isRouteErrorResponse,
   Links,
@@ -6,20 +7,19 @@ import {
   redirect,
   Scripts,
   useRouteError,
-} from "react-router";
-import stylesheet from "./app.css?url";
-import { getMetaTags } from "./utils/getMetaTags";
-import type { ReactNode } from "react";
-import { ParallaxProvider } from "react-scroll-parallax";
-import { isOrgDomain, isRouteAllowedOnOrgDomain } from "~/utils/host.server";
-import type { Route } from "./+types/root";
+} from "react-router"
+import { ParallaxProvider } from "react-scroll-parallax"
+import { isOrgDomain, isRouteAllowedOnOrgDomain } from "~/utils/host.server"
+import type { Route } from "./+types/root"
+import stylesheet from "./app.css?url"
+import { getMetaTags } from "./utils/getMetaTags"
 
 export const meta = () =>
   getMetaTags({
     title: "Tienes un mensaje sorpresa esperandote 🎁",
     description: `Te han dejado un mensaje`,
     image: "/xmas/message-alert.png",
-  });
+  })
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -38,19 +38,19 @@ export const links = () => [
     href: "/images/agenda-dash.svg",
     type: "image/svg+xml",
   },
-];
+]
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const isOrg = isOrgDomain(request);
-  const url = new URL(request.url);
+  const isOrg = isOrgDomain(request)
+  const url = new URL(request.url)
 
   // Block app routes on subdomains/custom domains
   if (isOrg && !isRouteAllowedOnOrgDomain(url.pathname)) {
-    throw redirect("/");
+    throw redirect("/")
   }
 
-  return null;
-};
+  return null
+}
 
 export function Layout({ children }: { children: ReactNode }) {
   // useGoogleTM();
@@ -69,24 +69,23 @@ export function Layout({ children }: { children: ReactNode }) {
         <Scripts />
       </body>
     </html>
-  );
+  )
 }
 
 export default function App() {
   return (
-    <ParallaxProvider
-    >
+    <ParallaxProvider>
       <Outlet />
     </ParallaxProvider>
-  );
+  )
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError();
-  const isDev = process.env.NODE_ENV === "development";
+  const error = useRouteError()
+  const isDev = process.env.NODE_ENV === "development"
 
-  const is404 = isRouteErrorResponse(error);
-  const isError = error instanceof Error;
+  const is404 = isRouteErrorResponse(error)
+  const isError = error instanceof Error
 
   return (
     <div className="text-white pt-20 p-8">
@@ -118,5 +117,5 @@ export function ErrorBoundary() {
         </p>
       )}
     </div>
-  );
+  )
 }

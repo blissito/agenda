@@ -1,5 +1,5 @@
-import type { FieldError } from "react-hook-form";
-import { cn } from "~/utils/cn";
+import type { FieldError } from "react-hook-form"
+import { cn } from "~/utils/cn"
 
 export const DateInput = ({
   label,
@@ -11,13 +11,13 @@ export const DateInput = ({
   registerOptions = { required: true },
   ...props
 }: {
-  error?: FieldError;
-  type?: "time" | "date";
-  register?: any;
-  onChange?: (arg0: number, arg1: number) => void;
-  label?: string;
-  name: string;
-  [x: string]: unknown;
+  error?: FieldError
+  type?: "time" | "date"
+  register?: any
+  onChange?: (arg0: number, arg1: number) => void
+  label?: string
+  name: string
+  [x: string]: unknown
 }) => {
   return (
     <label>
@@ -33,11 +33,11 @@ export const DateInput = ({
           "disabled:bg-brand_stroke disabled:cursor-not-allowed",
           {
             "ring-2 ring-red-500": error,
-          }
+          },
         )}
         {...register?.(name, registerOptions)}
         // value="2024-12-12"
       />
     </label>
-  );
-};
+  )
+}

@@ -1,19 +1,18 @@
-import { Facebook } from "~/components/icons/facebook";
-import { Instagram } from "~/components/icons/insta";
-import { Linkedin } from "~/components/icons/linkedin";
-import { Website } from "~/components/icons/menu/webiste";
-import { Tiktok } from "~/components/icons/tiktok";
-import { Twitter } from "~/components/icons/twitter";
-import { Denik } from "~/components/icons/denik";
-import { PiPhone } from "react-icons/pi";
-import { IoMailOutline } from "react-icons/io5";
-import { IoLocationOutline } from "react-icons/io5";
-import { CiStopwatch } from "react-icons/ci";
-import { ServiceCardClient } from "./ServiceCardClient";
-import { SocialMedia } from "./SocialMedia";
-import { ItemClient } from "./ItemClient";
-import { WorkHour, type TemplateOrg } from "./TemplateTwo";
-import type { Service } from "@prisma/client";
+import type { Service } from "@prisma/client"
+import { CiStopwatch } from "react-icons/ci"
+import { IoLocationOutline, IoMailOutline } from "react-icons/io5"
+import { PiPhone } from "react-icons/pi"
+import { Denik } from "~/components/icons/denik"
+import { Facebook } from "~/components/icons/facebook"
+import { Instagram } from "~/components/icons/insta"
+import { Linkedin } from "~/components/icons/linkedin"
+import { Website } from "~/components/icons/menu/webiste"
+import { Tiktok } from "~/components/icons/tiktok"
+import { Twitter } from "~/components/icons/twitter"
+import { ItemClient } from "./ItemClient"
+import { ServiceCardClient } from "./ServiceCardClient"
+import { SocialMedia } from "./SocialMedia"
+import { type TemplateOrg, WorkHour } from "./TemplateTwo"
 
 export default function TemplateOne({
   services = [],
@@ -21,10 +20,10 @@ export default function TemplateOne({
   org,
   link,
 }: {
-  link?: string;
-  isPublic?: boolean;
-  services?: Service[];
-  org?: TemplateOrg;
+  link?: string
+  isPublic?: boolean
+  services?: Service[]
+  org?: TemplateOrg
 }) {
   return (
     <div className="p-0 m-0 bg-[#FDFEFF] min-h-screen ">
@@ -115,5 +114,5 @@ export default function TemplateOne({
         <Denik className="h-8 -ml-5" />
       </section>
     </div>
-  );
+  )
 }

@@ -1,12 +1,12 @@
-import { useLoaderData, Link } from "react-router";
-import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm";
-import { getServicefromSearchParams } from "~/.server/userGetters";
+import { Link, useLoaderData } from "react-router"
+import { getServicefromSearchParams } from "~/.server/userGetters"
+import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm"
 
 type ServiceTimesData = {
-  id: string;
-  duration: number | bigint;
-  weekDays: unknown;
-};
+  id: string
+  duration: number | bigint
+  weekDays: unknown
+}
 
 export const loader = async ({ request }: { request: Request }) => {
   // will redirect when 404
@@ -16,15 +16,15 @@ export const loader = async ({ request }: { request: Request }) => {
       duration: true,
       weekDays: true,
     },
-  });
-  const service = serviceData as unknown as ServiceTimesData;
+  })
+  const service = serviceData as unknown as ServiceTimesData
   return {
     service,
-  };
-};
+  }
+}
 
 export default function NewServiceTimetable() {
-  const { service } = useLoaderData<typeof loader>();
+  const { service } = useLoaderData<typeof loader>()
 
   return (
     <main className="max-w-xl mx-auto py-20 min-h-screen relative">
@@ -34,7 +34,9 @@ export default function NewServiceTimetable() {
       <ServiceTimesForm
         defaultValues={{
           duration: Number(service.duration),
-          weekDays: (service.weekDays as unknown as { monday?: [string, string][] }) ?? null,
+          weekDays:
+            (service.weekDays as unknown as { monday?: [string, string][] }) ??
+            null,
         }}
       />
       <div className="mt-4 text-center">
@@ -46,5 +48,5 @@ export default function NewServiceTimetable() {
         </Link>
       </div>
     </main>
-  );
+  )
 }

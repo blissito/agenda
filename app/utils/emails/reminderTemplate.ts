@@ -10,16 +10,16 @@ export default ({
   customerName,
   hoursUntil,
 }: {
-  modifyLink: string;
-  cancelLink: string;
-  serviceName?: string;
-  dateString?: string;
-  minutes?: string | number;
-  displayName?: string;
-  address?: string;
-  customerName?: string;
-  orgName?: string;
-  hoursUntil?: number;
+  modifyLink: string
+  cancelLink: string
+  serviceName?: string
+  dateString?: string
+  minutes?: string | number
+  displayName?: string
+  address?: string
+  customerName?: string
+  orgName?: string
+  hoursUntil?: number
 }) => `
 <body style="font-family:Arial; background-color:#F8F8F8;padding:24px; ">
 <div style="min-width:360px; max-width:480px; margin:0 auto;padding:24px; background-color:#ffffff; border-radius:24px;">
@@ -27,7 +27,7 @@ export default ({
     <img alt="logo" style="width:120px;" src="https://i.imgur.com/sunNMiV.png"/>
   </div>
   <div style="text-align:left; background:white; border-radius:16px; margin-top:16px; ">
-    <h2 style="color:#15191E; font-size:20px; margin-top:24px">${customerName}, tu cita es ${hoursUntil === 1 ? 'en 1 hora' : `en ${hoursUntil} horas`}</h2>
+    <h2 style="color:#15191E; font-size:20px; margin-top:24px">${customerName}, tu cita es ${hoursUntil === 1 ? "en 1 hora" : `en ${hoursUntil} horas`}</h2>
     <p style="margin-top:14px; color:#4B5563">Este es un recordatorio de tu cita en <strong>${orgName}</strong></p>
      <div style="margin-top:40px; border:1px #EFEFEF solid; border-radius:16px; padding:24px;">
        <h3 style="font-size:16px;">
@@ -67,4 +67,4 @@ ${address}
 
 </div>
 </body>
-`;
+`

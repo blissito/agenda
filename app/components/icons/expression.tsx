@@ -2,8 +2,8 @@ export const Expression = ({
   fill = "#5158F6",
   ...props
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="44"
@@ -48,4 +48,4 @@ export const Expression = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

@@ -1,4 +1,4 @@
-import qrcode from "qrcode";
+import qrcode from "qrcode"
 
 export const getQRImageURL = (urlString: string): Promise<string> =>
   new Promise((res) => {
@@ -9,7 +9,7 @@ export const getQRImageURL = (urlString: string): Promise<string> =>
         scale: 20,
       },
       (_, link) => {
-        res(link);
-      }
-    );
-  });
+        res(link)
+      },
+    )
+  })

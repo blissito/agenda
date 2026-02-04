@@ -1,46 +1,46 @@
-import { Children, type ReactNode, useState } from "react";
-import { stagger, useAnimate, useSpring } from "motion/react";
-import { nanoid } from "nanoid";
+import { stagger, useAnimate, useSpring } from "motion/react"
+import { nanoid } from "nanoid"
+import { Children, type ReactNode, useState } from "react"
 
 //@TODO: STILL A WIP, HOW TO STAGGER PAIR LETTERS ??
 
 interface WordNodeElement {
   props?: {
-    children?: string;
-  };
+    children?: string
+  }
 }
 
 export const FlipWordsThree = ({
   delay: _delay = 0.03,
   children,
 }: {
-  delay?: number;
-  children: ReactNode;
+  delay?: number
+  children: ReactNode
 }) => {
-  const wordNode = Children.toArray(children)[0] as WordNodeElement;
+  const wordNode = Children.toArray(children)[0] as WordNodeElement
   const [letters] = useState<string[]>(
-    (wordNode?.props?.children ?? "").split("")
-  );
+    (wordNode?.props?.children ?? "").split(""),
+  )
 
   // Unused springs for future implementation
-  const _rotateX = useSpring(0, { bounce: 0 });
-  const _y = useSpring(0, { bounce: 0 });
+  const _rotateX = useSpring(0, { bounce: 0 })
+  const _y = useSpring(0, { bounce: 0 })
 
-  return <BoxLetters letters={letters} />;
-};
+  return <BoxLetters letters={letters} />
+}
 
 export const BoxLetters = ({
   children: _children,
   letters,
 }: {
-  children?: ReactNode;
-  letters: string[];
+  children?: ReactNode
+  letters: string[]
 }) => {
-  const [scope, animate] = useAnimate<HTMLUListElement>();
+  const [scope, animate] = useAnimate<HTMLUListElement>()
 
   const handleEnter = () => {
-    animate("li", { y: "50%" }, { delay: stagger(0.1) });
-  };
+    animate("li", { y: "50%" }, { delay: stagger(0.1) })
+  }
 
   return (
     <ul
@@ -63,5 +63,5 @@ export const BoxLetters = ({
         </section>
       ))}
     </ul>
-  );
-};
+  )
+}

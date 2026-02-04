@@ -1,55 +1,51 @@
 import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
+import { CSS } from "@dnd-kit/utilities"
+import {
   type MouseEvent,
   type ReactNode,
   useEffect,
   useRef,
   useState,
-} from "react";
-import { completeWeek } from "./agendaUtils";
-import { type CalendarEvent, type CalendarProps } from "./types";
-import { useEventOverlap } from "./useEventOverlap";
-import { cn } from "~/utils/cn";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { useMexDate } from "~/utils/hooks/useMexDate";
-import { useOutsideClick } from "~/components/hooks/useOutsideClick";
-import { FaTrash } from "react-icons/fa6";
-import { RxCross2 } from "react-icons/rx";
-import { FiEdit } from "react-icons/fi";
-import {
-  DndContext,
-  type DragEndEvent,
-  PointerSensor,
-  KeyboardSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  DragOverlay,
-  useDraggable,
-  useDroppable,
-} from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
+} from "react"
+import { FaTrash } from "react-icons/fa6"
+import { FiEdit } from "react-icons/fi"
+import { RxCross2 } from "react-icons/rx"
+import { useOutsideClick } from "~/components/hooks/useOutsideClick"
+import { cn } from "~/utils/cn"
+import { useClickOutside } from "~/utils/hooks/useClickOutside"
+import { useMexDate } from "~/utils/hooks/useMexDate"
+import { completeWeek } from "./agendaUtils"
+import { type CalendarEvent, type CalendarProps } from "./types"
+import { useEventOverlap } from "./useEventOverlap"
 
-export const noop = () => false;
+export const noop = () => false
 
 export const getComparableTime = (date: Date) => {
-  date = new Date(date);
-  return new Date(
-    date.getFullYear(),
-    date.getMonth(),
-    date.getDate()
-  ).getTime();
-};
+  date = new Date(date)
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
+}
 
 export const isToday = (date: Date) => {
-  date = new Date(date);
-  const hoy = new Date();
-  const one = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const two = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-  return one.getTime() === two.getTime();
-};
+  date = new Date(date)
+  const hoy = new Date()
+  const one = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const two = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
+  return one.getTime() === two.getTime()
+}
 
 const DayHeader = ({ date }: { date: Date }) => {
-  date = new Date(date);
+  date = new Date(date)
 
   return (
     <p className="grid place-items-center">
@@ -66,8 +62,8 @@ const DayHeader = ({ date }: { date: Date }) => {
         {date.getDate()}
       </span>
     </p>
-  );
-};
+  )
+}
 
 export function SimpleBigWeekView({
   date = new Date(),
@@ -78,9 +74,9 @@ export function SimpleBigWeekView({
   onAddBlock,
   onRemoveBlock,
 }: CalendarProps) {
-  const week = completeWeek(date);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const { canMove } = useEventOverlap(events ?? []);
+  const week = completeWeek(date)
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const { canMove } = useEventOverlap(events ?? [])
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
@@ -89,61 +85,61 @@ export function SimpleBigWeekView({
         distance: 8, // 8px movement required before drag starts (prevents conflict with click)
       },
     }),
-    useSensor(KeyboardSensor)
-  );
+    useSensor(KeyboardSensor),
+  )
 
   const handleDragStart = (event: DragEndEvent) => {
-    setActiveId(event.active.id as string);
-  };
+    setActiveId(event.active.id as string)
+  }
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
+    const { active, over } = event
+    setActiveId(null)
 
-    if (!over) return; // Dropped outside droppable area
+    if (!over) return // Dropped outside droppable area
 
     // Parse the event ID and target cell
-    const eventId = active.id.toString().replace("event-", "");
-    const [_, dayIndexStr, hourStr] = over.id.toString().split("-");
-    const dayIndex = parseInt(dayIndexStr);
-    const hour = parseInt(hourStr);
+    const eventId = active.id.toString().replace("event-", "")
+    const [_, dayIndexStr, hourStr] = over.id.toString().split("-")
+    const dayIndex = parseInt(dayIndexStr, 10)
+    const hour = parseInt(hourStr, 10)
 
     // Calculate new start date
-    const targetDay = week[dayIndex];
-    const newStart = new Date(targetDay);
-    newStart.setHours(hour, 0, 0, 0);
+    const targetDay = week[dayIndex]
+    const newStart = new Date(targetDay)
+    newStart.setHours(hour, 0, 0, 0)
 
     // Find the event being moved
-    const movedEvent = events.find((e) => e.id === eventId);
-    if (!movedEvent) return;
+    const movedEvent = events.find((e) => e.id === eventId)
+    if (!movedEvent) return
 
     // Check if dropped in same position
-    const currentStart = new Date(movedEvent.start);
+    const currentStart = new Date(movedEvent.start)
     if (
       currentStart.getDate() === newStart.getDate() &&
       currentStart.getHours() === newStart.getHours()
     ) {
-      return; // No change
+      return // No change
     }
 
     // Validation: Check for overlapping events using hook
     if (!canMove(eventId, newStart)) {
-      console.warn("Cannot move event: time slot is occupied");
-      return;
+      console.warn("Cannot move event: time slot is occupied")
+      return
     }
 
     // Call parent callback - parent handles persistence and optimistic updates
-    onEventMove?.(eventId, newStart);
-  };
+    onEventMove?.(eventId, newStart)
+  }
 
   const handleDragCancel = () => {
-    setActiveId(null);
-  };
+    setActiveId(null)
+  }
 
   // Find active event for DragOverlay
   const activeEvent = activeId
     ? events.find((e) => `event-${e.id}` === activeId)
-    : null;
+    : null
 
   return (
     <DndContext
@@ -179,11 +175,11 @@ export function SimpleBigWeekView({
               onEventClick={onEventClick}
               key={dayOfWeek.toISOString()}
               events={(events ?? []).filter((event) => {
-                const date = new Date(event.start);
+                const date = new Date(event.start)
                 return (
                   date.getDate() + date.getMonth() ===
                   dayOfWeek.getDate() + dayOfWeek.getMonth()
-                );
+                )
               })}
             />
           ))}
@@ -193,7 +189,7 @@ export function SimpleBigWeekView({
         {activeEvent ? <EventOverlay event={activeEvent} /> : null}
       </DragOverlay>
     </DndContext>
-  );
+  )
 }
 
 const Cell = ({
@@ -204,26 +200,26 @@ const Cell = ({
   className,
   dayIndex,
 }: {
-  className?: string;
-  date?: Date;
-  onClick?: () => void;
-  hours?: number;
-  children?: ReactNode;
-  dayIndex?: number;
+  className?: string
+  date?: Date
+  onClick?: () => void
+  hours?: number
+  children?: ReactNode
+  dayIndex?: number
 }) => {
   const isToday = () =>
-    date ? getComparableTime(date) === getComparableTime(new Date()) : false;
+    date ? getComparableTime(date) === getComparableTime(new Date()) : false
 
   const isThisHour = () => {
-    if (!isToday()) return false;
-    return hours === new Date().getHours();
-  };
+    if (!isToday()) return false
+    return hours === new Date().getHours()
+  }
 
   // Make cell droppable (only if dayIndex is provided - i.e., not TimeColumn)
   const { setNodeRef, isOver } = useDroppable({
     id: dayIndex !== undefined ? `cell-${dayIndex}-${hours}` : `time-${hours}`,
     disabled: dayIndex === undefined, // Disable for TimeColumn cells
-  });
+  })
 
   return (
     <div
@@ -238,13 +234,13 @@ const Cell = ({
           "border-t-2 border-t-brand_blue": isToday() && isThisHour(),
           "bg-brand_blue/20": isOver && dayIndex !== undefined, // Visual feedback when dragging over
         },
-        className
+        className,
       )}
     >
       {children || hours}
     </div>
-  );
-};
+  )
+}
 
 const EmptyButton = ({
   hours,
@@ -252,83 +248,81 @@ const EmptyButton = ({
   onNewEvent,
   onAddBlock,
 }: {
-  onNewEvent?: (arg0: Date) => void;
-  onAddBlock?: (start: Date) => void;
-  onClick?: () => void;
-  hours: number;
-  date: Date;
+  onNewEvent?: (arg0: Date) => void
+  onAddBlock?: (start: Date) => void
+  onClick?: () => void
+  hours: number
+  date: Date
 }) => {
-  const d = new Date(date);
-  d.setHours(hours);
-  d.setMinutes(0);
-  d.setSeconds(0);
-  d.setMilliseconds(0);
-  const [show, setShow] = useState(false);
-  const buttonRef = useRef<HTMLDivElement>(null);
+  const d = new Date(date)
+  d.setHours(hours)
+  d.setMinutes(0)
+  d.setSeconds(0)
+  d.setMilliseconds(0)
+  const [show, setShow] = useState(false)
+  const buttonRef = useRef<HTMLDivElement>(null)
   const outsideRef = useClickOutside<HTMLDivElement>({
     isActive: show,
     onOutsideClick: () => setShow(false),
-  });
-  const [rect, setRect] = useState<DOMRect | null>(null);
+  })
+  const [rect, setRect] = useState<DOMRect | null>(null)
 
   useEffect(() => {
-    if (!buttonRef.current) return;
-    const r = buttonRef.current?.getBoundingClientRect();
-    setRect(r);
-  }, [buttonRef]);
+    if (!buttonRef.current) return
+    const r = buttonRef.current?.getBoundingClientRect()
+    setRect(r)
+  }, [])
 
   const handleClick = () => {
     if (buttonRef.current) {
-      setRect(buttonRef.current.getBoundingClientRect());
+      setRect(buttonRef.current.getBoundingClientRect())
     }
-    setShow(true);
-  };
+    setShow(true)
+  }
 
   const handleReserva = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    onNewEvent?.(d);
-    setShow(false);
-  };
+    event.stopPropagation()
+    onNewEvent?.(d)
+    setShow(false)
+  }
 
   return (
-    <>
-      <div
-        role="button"
-        tabIndex={0}
-        ref={buttonRef}
-        className="w-full h-full text-xs hover:bg-brand_blue/10 relative"
-        onClick={handleClick}
-      >
-        {show && (
-          <div
-            ref={outsideRef}
-            style={{
-              height: rect ? rect.height + 24 : "auto",
-            }}
-            className="absolute border bg-white rounded-lg grid p-1 bottom-[-100%] left-0 z-20"
+    <div
+      role="button"
+      tabIndex={0}
+      ref={buttonRef}
+      className="w-full h-full text-xs hover:bg-brand_blue/10 relative"
+      onClick={handleClick}
+    >
+      {show && (
+        <div
+          ref={outsideRef}
+          style={{
+            height: rect ? rect.height + 24 : "auto",
+          }}
+          className="absolute border bg-white rounded-lg grid p-1 bottom-[-100%] left-0 z-20"
+        >
+          <button
+            onClick={handleReserva}
+            className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg"
           >
-            <button
-              onClick={handleReserva}
-              className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg"
-            >
-              Reservar
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddBlock?.(d);
-                setShow(false);
-              }}
-              className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg"
-            >
-              Bloquear
-            </button>
-          </div>
-        )}
-      </div>
-    </>
-  );
-};
+            Reservar
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onAddBlock?.(d)
+              setShow(false)
+            }}
+            className="hover:bg-brand_blue/10 px-4 py-2 rounded-lg"
+          >
+            Bloquear
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
 
 const Column = ({
   onEventClick,
@@ -339,44 +333,44 @@ const Column = ({
   onRemoveBlock,
   dayIndex,
 }: {
-  onEventClick?: (event: CalendarEvent) => void;
-  onNewEvent?: (arg0: Date) => void;
-  onAddBlock?: (start: Date) => void;
-  onRemoveBlock?: (eventId: string) => void;
-  dayOfWeek?: Date;
-  events: CalendarEvent[];
-  dayIndex: number;
+  onEventClick?: (event: CalendarEvent) => void
+  onNewEvent?: (arg0: Date) => void
+  onAddBlock?: (start: Date) => void
+  onRemoveBlock?: (eventId: string) => void
+  dayOfWeek?: Date
+  events: CalendarEvent[]
+  dayIndex: number
 }) => {
-  const columnRef = useRef<HTMLDivElement>(null);
+  const columnRef = useRef<HTMLDivElement>(null)
 
   // Auto-scroll to current hour on mount (only for today's column)
   useEffect(() => {
-    if (!dayOfWeek || !columnRef.current) return;
+    if (!dayOfWeek || !columnRef.current) return
 
-    const today = new Date();
+    const today = new Date()
     const isColumnToday =
       dayOfWeek.getDate() === today.getDate() &&
       dayOfWeek.getMonth() === today.getMonth() &&
-      dayOfWeek.getFullYear() === today.getFullYear();
+      dayOfWeek.getFullYear() === today.getFullYear()
 
-    if (!isColumnToday) return;
+    if (!isColumnToday) return
 
-    const currentHour = today.getHours();
+    const currentHour = today.getHours()
     // Find the cell for current hour
-    const currentCell = columnRef.current.children[currentHour] as HTMLElement;
+    const currentCell = columnRef.current.children[currentHour] as HTMLElement
 
     if (currentCell) {
       // Scroll with some offset so the current hour is visible but not at the top
       setTimeout(() => {
-        currentCell.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 100);
+        currentCell.scrollIntoView({ behavior: "smooth", block: "center" })
+      }, 100)
     }
-  }, [dayOfWeek]);
+  }, [dayOfWeek])
   const findEvent = (hours: number, events: CalendarEvent[]) => {
     // Find event that STARTS at this hour
     const eventStartsHere = events.find(
-      (event) => new Date(event.start).getHours() === hours
-    );
+      (event) => new Date(event.start).getHours() === hours,
+    )
 
     if (eventStartsHere) {
       return (
@@ -385,23 +379,23 @@ const Column = ({
           event={eventStartsHere}
           onRemoveBlock={onRemoveBlock}
         />
-      );
+      )
     }
 
     // Check if any event SPANS this hour (multi-hour events)
     const eventSpansHere = events.find((event) => {
-      const eventStart = new Date(event.start);
-      const startHour = eventStart.getHours();
-      const durationInHours = event.duration / 60;
-      const endHour = startHour + durationInHours;
+      const eventStart = new Date(event.start)
+      const startHour = eventStart.getHours()
+      const durationInHours = event.duration / 60
+      const endHour = startHour + durationInHours
 
       // This hour is within the event's duration (but event doesn't start here)
-      return hours > startHour && hours < endHour;
-    });
+      return hours > startHour && hours < endHour
+    })
 
     // If a multi-hour event spans this cell, don't show EmptyButton
     if (eventSpansHere) {
-      return null; // Cell is occupied but we don't render the event again
+      return null // Cell is occupied but we don't render the event again
     }
 
     // Cell is empty, show EmptyButton
@@ -412,8 +406,8 @@ const Column = ({
         onNewEvent={onNewEvent}
         onAddBlock={onAddBlock}
       />
-    ) : null;
-  };
+    ) : null
+  }
 
   return (
     <div ref={columnRef} className="grid">
@@ -432,8 +426,8 @@ const Column = ({
         </Cell>
       ))}
     </div>
-  );
-};
+  )
+}
 
 const TimeColumn = () => {
   return (
@@ -463,35 +457,35 @@ const TimeColumn = () => {
       <Cell>22:00</Cell>
       <Cell>23:00</Cell>
     </div>
-  );
-};
+  )
+}
 
 const DraggableEvent = ({
   event,
   onClick,
   onRemoveBlock,
 }: {
-  onClick?: (arg0: CalendarEvent) => void;
-  onRemoveBlock?: (eventId: string) => void;
-  event: CalendarEvent;
+  onClick?: (arg0: CalendarEvent) => void
+  onRemoveBlock?: (eventId: string) => void
+  event: CalendarEvent
 }) => {
-  const [showOptions, setShowOptions] = useState(false);
+  const [showOptions, setShowOptions] = useState(false)
 
   // Make event draggable (but not BLOCK events)
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: `event-${event.id}`,
       disabled: event.type === "BLOCK", // Blocks can't be dragged
-    });
+    })
 
   const style = {
     height: (event.duration / 60) * 60, // Calculate height based on duration
     transform: transform ? CSS.Translate.toString(transform) : undefined,
-  };
+  }
 
   const handleBlockClick = () => {
-    setShowOptions(true);
-  };
+    setShowOptions(true)
+  }
 
   return (
     <>
@@ -499,7 +493,7 @@ const DraggableEvent = ({
         ref={setNodeRef}
         style={style}
         onClick={
-          event.type == "BLOCK" ? handleBlockClick : () => onClick?.(event)
+          event.type === "BLOCK" ? handleBlockClick : () => onClick?.(event)
         }
         {...listeners}
         {...attributes}
@@ -512,7 +506,7 @@ const DraggableEvent = ({
               event.type === "BLOCK",
             "cursor-grab": event.type !== "BLOCK",
             "cursor-grabbing opacity-50": isDragging && event.type !== "BLOCK",
-          }
+          },
         )}
       >
         {event.type === "BLOCK" && (
@@ -528,8 +522,8 @@ const DraggableEvent = ({
         onRemoveBlock={onRemoveBlock}
       />
     </>
-  );
-};
+  )
+}
 
 // EventOverlay component for DragOverlay
 const EventOverlay = ({ event }: { event: CalendarEvent }) => {
@@ -541,7 +535,7 @@ const EventOverlay = ({ event }: { event: CalendarEvent }) => {
         "text-xs text-left pl-1 bg-brand_blue text-white rounded-md w-[200px] opacity-90 shadow-lg",
         {
           "bg-gray-300": event.type === "BLOCK",
-        }
+        },
       )}
       style={{
         height: (event.duration / 60) * 60,
@@ -553,8 +547,8 @@ const EventOverlay = ({ event }: { event: CalendarEvent }) => {
       <span>{event.title}</span>
       <span className="text-gray-300">{event.service?.name}</span>
     </div>
-  );
-};
+  )
+}
 
 export const Options = ({
   event,
@@ -562,22 +556,22 @@ export const Options = ({
   isOpen,
   onRemoveBlock,
 }: {
-  event: CalendarEvent;
-  onClose?: () => void;
-  isOpen?: boolean;
-  onRemoveBlock?: (eventId: string) => void;
+  event: CalendarEvent
+  onClose?: () => void
+  isOpen?: boolean
+  onRemoveBlock?: (eventId: string) => void
 }) => {
   const mainRef = useOutsideClick<HTMLDivElement>({
     isActive: isOpen,
     onClickOutside: onClose,
-  });
+  })
 
-  const eventDate = useMexDate(event.start);
+  const eventDate = useMexDate(event.start)
 
   const handleRemove = () => {
-    onRemoveBlock?.(event.id);
-    onClose();
-  };
+    onRemoveBlock?.(event.id)
+    onClose()
+  }
 
   return isOpen ? (
     <div
@@ -585,7 +579,7 @@ export const Options = ({
       style={{ top: "-100%", left: "-350%" }}
       className={cn(
         "text-left z-20 bg-white",
-        "absolute border rounded-lg grid p-3 w-[264px]"
+        "absolute border rounded-lg grid p-3 w-[264px]",
       )}
     >
       <header>
@@ -601,10 +595,7 @@ export const Options = ({
         >
           <FaTrash />
         </button>
-        <button
-          type="button"
-          className="hover:bg-brand_blue/10 rounded-lg"
-        >
+        <button type="button" className="hover:bg-brand_blue/10 rounded-lg">
           <FiEdit />
         </button>
         <button
@@ -616,5 +607,5 @@ export const Options = ({
         </button>
       </div>
     </div>
-  ) : null;
-};
+  ) : null
+}

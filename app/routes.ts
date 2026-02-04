@@ -1,10 +1,10 @@
 import {
-  type RouteConfig,
   index,
   layout,
   prefix,
+  type RouteConfig,
   route,
-} from "@react-router/dev/routes";
+} from "@react-router/dev/routes"
 
 export default [
   index("routes/home.tsx"),
@@ -28,27 +28,27 @@ export default [
         route("nuevo", "routes/dash/servicios/new.tsx"),
         route(
           ":serviceId",
-          "routes/dash/servicios/dash.servicios_.$serviceId.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId.tsx",
         ),
         route(
           ":serviceId/general",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.general.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.general.tsx",
         ),
         route(
           ":serviceId/agendamiento",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.agendamiento.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.agendamiento.tsx",
         ),
         route(
           ":serviceId/horario",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.horario.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.horario.tsx",
         ),
         route(
           ":serviceId/cobros",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx",
         ),
         route(
           ":serviceId/acciones",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx",
         ),
       ]),
       route("website", "routes/dash/website/dash.website.tsx"),
@@ -58,7 +58,7 @@ export default [
       route("evaluaciones", "routes/dash/dash.reviews.tsx"),
       route(
         "evaluaciones/:serviceId",
-        "routes/dash/dash.reviews_.$serviceId.tsx"
+        "routes/dash/dash.reviews_.$serviceId.tsx",
       ),
       route("ajustes", "routes/dash/dash.ajustes.tsx"),
       route("pagos", "routes/dash/pagos.tsx"),
@@ -86,7 +86,10 @@ export default [
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
   // Public booking route (works on localhost): /agenda/:orgSlug/:serviceSlug
-  route("agenda/:orgSlug/:serviceSlug", "routes/agenda.$orgSlug.$serviceSlug.tsx"),
+  route(
+    "agenda/:orgSlug/:serviceSlug",
+    "routes/agenda.$orgSlug.$serviceSlug.tsx",
+  ),
   // Error page
   route("error", "routes/error.tsx"),
   // Event actions from email links
@@ -98,4 +101,4 @@ export default [
   route("survey", "routes/survey.tsx"),
   // Clean URL for subdomains/custom domains: /:serviceSlug
   route(":serviceSlug", "routes/service.$serviceSlug.tsx"),
-] satisfies RouteConfig;
+] satisfies RouteConfig

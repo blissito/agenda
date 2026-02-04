@@ -1,5 +1,5 @@
-import paymentFailedTemplate from "./paymentFailedTemplate";
-import { getRemitent, getSesTransport } from "./ses";
+import paymentFailedTemplate from "./paymentFailedTemplate"
+import { getRemitent, getSesTransport } from "./ses"
 
 export const sendPaymentFailedEmail = async ({
   email,
@@ -8,13 +8,13 @@ export const sendPaymentFailedEmail = async ({
   orgName,
   retryLink,
 }: {
-  email: string;
-  customerName: string;
-  serviceName: string;
-  orgName: string;
-  retryLink: string;
+  email: string
+  customerName: string
+  serviceName: string
+  orgName: string
+  retryLink: string
 }) => {
-  const sesTransport = getSesTransport();
+  const sesTransport = getSesTransport()
 
   return sesTransport
     .sendMail({
@@ -29,6 +29,6 @@ export const sendPaymentFailedEmail = async ({
       }),
     })
     .catch((e: unknown) => {
-      console.error("Error sending payment failed email:", e);
-    });
-};
+      console.error("Error sending payment failed email:", e)
+    })
+}

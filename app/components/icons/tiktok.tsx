@@ -2,8 +2,8 @@ export const Tiktok = ({
   fill = "#11151A",
   className = "className",
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -20,4 +20,4 @@ export const Tiktok = ({
       fill={fill}
     />
   </svg>
-);
+)

@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
-import { Link } from "react-router";
-import { Tag } from "~/components/common/Tag";
+import { motion } from "motion/react"
+import { Link } from "react-router"
+import { Tag } from "~/components/common/Tag"
 
 export const ServiceCardClient = ({
   title,
@@ -9,14 +9,14 @@ export const ServiceCardClient = ({
   price,
   serviceSlug,
 }: {
-  title: string;
-  image?: string | null;
-  duration: number | bigint;
-  price: number | bigint | string;
-  serviceSlug?: string;
+  title: string
+  image?: string | null
+  duration: number | bigint
+  price: number | bigint | string
+  serviceSlug?: string
 }) => {
   // Use relative path for navigation within subdomain
-  const serviceLink = `/${serviceSlug}`;
+  const serviceLink = `/${serviceSlug}`
 
   return (
     <motion.section
@@ -50,5 +50,5 @@ export const ServiceCardClient = ({
         </section>
       </Link>
     </motion.section>
-  );
-};
+  )
+}

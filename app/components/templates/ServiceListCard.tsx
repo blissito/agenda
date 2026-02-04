@@ -1,6 +1,6 @@
-import { motion } from "motion/react";
-import { Link } from "react-router";
-import { Tag } from "~/components/common/Tag";
+import { motion } from "motion/react"
+import { Link } from "react-router"
+import { Tag } from "~/components/common/Tag"
 
 export const ServiceListCard = ({
   title,
@@ -9,11 +9,11 @@ export const ServiceListCard = ({
   price,
   link,
 }: {
-  title: string;
-  image?: string | null;
-  duration: number | bigint;
-  price: number | bigint | string;
-  link?: string;
+  title: string
+  image?: string | null
+  duration: number | bigint
+  price: number | bigint | string
+  link?: string
 }) => {
   return (
     <motion.section
@@ -48,5 +48,5 @@ export const ServiceListCard = ({
         </section>
       </Link>
     </motion.section>
-  );
-};
+  )
+}

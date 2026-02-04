@@ -2,8 +2,8 @@ export const Rank = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="24"
@@ -39,4 +39,4 @@ export const Rank = ({
       mask="url(#path-2-outside-1_421_1468)"
     />
   </svg>
-);
+)

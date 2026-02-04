@@ -1,30 +1,30 @@
-import { Link, useLoaderData } from "react-router";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { Anchor } from "~/components/icons/link";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { generateLink } from "~/utils/generateSlug";
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
-import { useCopyLink } from "~/components/hooks/useCopyLink";
-import { BsBarChart } from "react-icons/bs";
-import { db } from "~/utils/db.server";
-import type { Route } from "./+types/dash.reviews";
+import { BsBarChart } from "react-icons/bs"
+import { Link, useLoaderData } from "react-router"
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { useCopyLink } from "~/components/hooks/useCopyLink"
+import { Anchor } from "~/components/icons/link"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { db } from "~/utils/db.server"
+import { generateLink } from "~/utils/generateSlug"
+import type { Route } from "./+types/dash.reviews"
 
 type ServiceReview = {
-  id: string;
-  name: string;
-  image: string | null;
-  reviewCount: number;
-  averageRating: number;
-};
+  id: string
+  name: string
+  image: string | null
+  reviewCount: number
+  averageRating: number
+}
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request);
+  const { org } = await getUserAndOrgOrRedirect(request)
   if (!org) {
-    throw new Response("Organization not found", { status: 404 });
+    throw new Response("Organization not found", { status: 404 })
   }
-  const link = generateLink(request.url, org.slug);
-  const services = await getServices(request);
+  const link = generateLink(request.url, org.slug)
+  const services = await getServices(request)
 
   // Get review stats grouped by service
   const reviewStats = await db.surveyResponse.groupBy({
@@ -32,53 +32,50 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     where: { orgId: org.id },
     _count: true,
     _avg: { rating: true },
-  });
+  })
 
   // Create a map for quick lookup
   const statsMap = new Map(
     reviewStats.map((stat) => [
       stat.serviceId,
       { count: stat._count, avg: stat._avg.rating ?? 0 },
-    ])
-  );
+    ]),
+  )
 
   const serviceReviews: ServiceReview[] = services.map((service) => {
-    const stats = statsMap.get(service.id);
+    const stats = statsMap.get(service.id)
     return {
       id: service.id,
       name: service.name,
       image: service.photoURL,
       reviewCount: stats?.count ?? 0,
       averageRating: stats?.avg ?? 0,
-    };
-  });
+    }
+  })
 
   // Calculate overall average
-  const totalReviews = serviceReviews.reduce(
-    (acc, s) => acc + s.reviewCount,
-    0
-  );
+  const totalReviews = serviceReviews.reduce((acc, s) => acc + s.reviewCount, 0)
   const overallAverage =
     totalReviews > 0
       ? serviceReviews.reduce(
           (acc, s) => acc + s.averageRating * s.reviewCount,
-          0
+          0,
         ) / totalReviews
-      : 0;
+      : 0
 
   return {
     serviceReviews,
     overallAverage,
     totalReviews,
     link,
-  };
-};
+  }
+}
 
 export default function Reviews() {
   const { serviceReviews, overallAverage, totalReviews, link } =
-    useLoaderData<typeof loader>();
+    useLoaderData<typeof loader>()
 
-  const hasReviews = totalReviews > 0;
+  const hasReviews = totalReviews > 0
 
   return (
     <main>
@@ -93,7 +90,7 @@ export default function Reviews() {
         <EmptyStateReviews link={link} />
       )}
     </main>
-  );
+  )
 }
 
 const SummaryCard = ({ average }: { average: number }) => {
@@ -119,8 +116,8 @@ const SummaryCard = ({ average }: { average: number }) => {
         </span>
       </div>
     </section>
-  );
-};
+  )
+}
 
 const ReviewsTable = ({ services }: { services: ServiceReview[] }) => {
   return (
@@ -140,8 +137,8 @@ const ReviewsTable = ({ services }: { services: ServiceReview[] }) => {
         <ServiceRow key={service.id} service={service} />
       ))}
     </section>
-  );
-};
+  )
+}
 
 const ServiceRow = ({ service }: { service: ServiceReview }) => {
   return (
@@ -207,20 +204,20 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
         </DropdownMenu>
       </div>
     </Link>
-  );
-};
+  )
+}
 
 const StarIcon = ({
   filled,
   partial = false,
   size = 24,
 }: {
-  filled: boolean;
-  partial?: boolean;
-  size?: number;
+  filled: boolean
+  partial?: boolean
+  size?: number
 }) => {
-  const fillColor = "#F5A623";
-  const emptyColor = "#E5E7EB";
+  const fillColor = "#F5A623"
+  const emptyColor = "#E5E7EB"
 
   if (partial) {
     return (
@@ -242,7 +239,7 @@ const StarIcon = ({
           fill={`url(#partial-${size})`}
         />
       </svg>
-    );
+    )
   }
 
   return (
@@ -258,11 +255,11 @@ const StarIcon = ({
         fill={filled ? fillColor : emptyColor}
       />
     </svg>
-  );
-};
+  )
+}
 
 const EmptyStateReviews = ({ link }: { link: string }) => {
-  const { setLink, ref } = useCopyLink(link);
+  const { setLink, ref } = useCopyLink(link)
   return (
     <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center">
       <div className="text-center">
@@ -286,5 +283,5 @@ const EmptyStateReviews = ({ link }: { link: string }) => {
         </SecondaryButton>
       </div>
     </div>
-  );
-};
+  )
+}

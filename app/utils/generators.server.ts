@@ -1,7 +1,7 @@
-import { z } from "zod";
-import { generateSlug } from "./generateSlug";
-import { db } from "./db.server";
-import { type Org } from "@prisma/client";
+import { type Org } from "@prisma/client"
+import { z } from "zod"
+import { db } from "./db.server"
+import { generateSlug } from "./generateSlug"
 
 // aux functions for signup process
 
@@ -9,7 +9,7 @@ export const notifyConfigSchema = z.object({
   confirmation: z.boolean().default(true),
   reminder: z.boolean().default(true),
   survey: z.boolean().default(true),
-});
+})
 
 export const serviceSchema = z.object({
   name: z.string().min(1),
@@ -18,7 +18,7 @@ export const serviceSchema = z.object({
   config: notifyConfigSchema,
   employeeName: z.string().min(1),
   photoURL: z.string().min(11),
-});
+})
 
 const defaultConfig = {
   confirmation: true,
@@ -27,7 +27,7 @@ const defaultConfig = {
   whatsapp_confirmation: null,
   whatsapp_reminder: null,
   reminderHours: 4, // Default: 4 hours before appointment
-};
+}
 
 const templates = [
   {
@@ -52,7 +52,7 @@ const templates = [
     config: defaultConfig,
     name: "Instrucción a la técnica de retroalimentación con guitarra eléctrica",
     slug: generateSlug(
-      "Instrucción a la técnica de retroalimentación con guitarra eléctrica"
+      "Instrucción a la técnica de retroalimentación con guitarra eléctrica",
     ),
     price: 199,
     employeeName: "Jimi Hendrix",
@@ -68,10 +68,10 @@ const templates = [
     photoURL:
       "https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   },
-];
+]
 
 export const getOneTemplate = () =>
-  templates[Math.floor(Math.random() * templates.length)];
+  templates[Math.floor(Math.random() * templates.length)]
 
 export const generateDummyService = async (org: Org) =>
   await db.service.create({
@@ -91,4 +91,4 @@ export const generateDummyService = async (org: Org) =>
       points: 0,
       seats: 1,
     },
-  });
+  })

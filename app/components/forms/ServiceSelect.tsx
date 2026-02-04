@@ -1,22 +1,22 @@
-import { useEffect, type ChangeEvent } from "react";
-import { SelectInput } from "./SelectInput";
-import { Link, useFetcher } from "react-router";
-import { FaPlus } from "react-icons/fa6";
-import type { Service } from "@prisma/client";
+import type { Service } from "@prisma/client"
+import { type ChangeEvent, useEffect } from "react"
+import { FaPlus } from "react-icons/fa6"
+import { Link, useFetcher } from "react-router"
+import { SelectInput } from "./SelectInput"
 
 export const ServiceSelect = ({
   onChange,
   defaultValue,
 }: {
-  defaultValue?: string;
-  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
+  defaultValue?: string
+  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void
 }) => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher()
   useEffect(() => {
-    fetcher.load("/api/services");
-  }, []);
+    fetcher.load("/api/services")
+  }, [fetcher])
 
-  const services: Service[] = fetcher.data?.services || [];
+  const services: Service[] = fetcher.data?.services || []
 
   return (
     <div className="flex items-center gap-2">
@@ -37,5 +37,5 @@ export const ServiceSelect = ({
         </span>
       </Link>
     </div>
-  );
-};
+  )
+}

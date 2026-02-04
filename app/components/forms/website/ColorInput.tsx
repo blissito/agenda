@@ -1,16 +1,16 @@
-import type { SyntheticEvent } from "react";
-import { ColorCube } from "~/components/common/ColorCube";
+import type { SyntheticEvent } from "react"
+import { ColorCube } from "~/components/common/ColorCube"
 
 export const ColorInput = ({
   value,
   onChange,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  value: string
+  onChange: (value: string) => void
 }) => {
   const handleColorChange = (colorString: string) => {
-    onChange(colorString);
-  };
+    onChange(colorString)
+  }
 
   return (
     <section>
@@ -71,5 +71,5 @@ export const ColorInput = ({
         />
       </div>
     </section>
-  );
-};
+  )
+}

@@ -2,9 +2,9 @@ export const Barbershop = ({
   className,
   fill = "#8391A1",
 }: {
-  className?: string;
-  fill?: string;
-  props?: unknown;
+  className?: string
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     className={className}
@@ -34,4 +34,4 @@ export const Barbershop = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

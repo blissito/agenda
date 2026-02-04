@@ -1,4 +1,4 @@
-import { cn } from "~/utils/cn";
+import { cn } from "~/utils/cn"
 
 export const ColorCube = ({
   className,
@@ -6,10 +6,10 @@ export const ColorCube = ({
   style,
   hexColor = "#bb333c",
 }: {
-  onClick?: () => void;
-  style?: { backgroundColor: string };
-  className?: string;
-  hexColor?: string;
+  onClick?: () => void
+  style?: { backgroundColor: string }
+  className?: string
+  hexColor?: string
 }) => (
   <button
     type="button"
@@ -17,11 +17,11 @@ export const ColorCube = ({
     className={cn(
       "w-4 h-4 rounded cursor-pointer",
       `bg-[${hexColor}]`,
-      className
+      className,
     )}
     style={{
       backgroundColor: hexColor,
       ...style,
     }}
   />
-);
+)

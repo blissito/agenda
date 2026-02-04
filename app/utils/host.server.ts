@@ -1,7 +1,7 @@
-import { db } from "~/utils/db.server";
-import type { Org, Service } from "@prisma/client";
+import type { Org, Service } from "@prisma/client"
+import { db } from "~/utils/db.server"
 
-const PLATFORM_DOMAINS = ["denik.me", "localhost", "127.0.0.1"];
+const PLATFORM_DOMAINS = ["denik.me", "localhost", "127.0.0.1"]
 
 /**
  * Normalizes a hostname by removing port, www prefix, and converting to lowercase
@@ -10,7 +10,7 @@ export function normalizeHost(host: string): string {
   return host
     .split(":")[0] // Remove port if present (e.g., domain.com:3000 -> domain.com)
     .toLowerCase() // Normalize case
-    .replace(/^www\./, ""); // Remove www prefix (e.g., www.domain.com -> domain.com)
+    .replace(/^www\./, "") // Remove www prefix (e.g., www.domain.com -> domain.com)
 }
 
 /**
@@ -18,42 +18,42 @@ export function normalizeHost(host: string): string {
  */
 export function getHostFromRequest(request: Request): string {
   // X-Forwarded-Host is set by reverse proxies (Fly.io, Cloudflare, etc.)
-  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedHost = request.headers.get("x-forwarded-host")
   if (forwardedHost) {
     // Can be comma-separated list, take the first one
-    return forwardedHost.split(",")[0].trim();
+    return forwardedHost.split(",")[0].trim()
   }
-  return request.headers.get("host") || "";
+  return request.headers.get("host") || ""
 }
 
 /**
  * Extracts subdomain from a denik.me host
  */
 function getSubdomain(host: string): string | null {
-  const normalized = normalizeHost(host);
+  const normalized = normalizeHost(host)
   if (normalized.endsWith(".denik.me")) {
-    const slug = normalized.split(".")[0];
-    return slug && slug !== "www" ? slug : null;
+    const slug = normalized.split(".")[0]
+    return slug && slug !== "www" ? slug : null
   }
-  return null;
+  return null
 }
 
 /**
  * Checks if the host is a platform domain (denik.me, localhost, etc.)
  */
 function isPlatformDomain(host: string): boolean {
-  const normalized = normalizeHost(host);
+  const normalized = normalizeHost(host)
   return PLATFORM_DOMAINS.some(
-    (domain) => normalized === domain || normalized.endsWith(`.${domain}`)
-  );
+    (domain) => normalized === domain || normalized.endsWith(`.${domain}`),
+  )
 }
 
-export type OrgWithServices = Org & { services: Service[] };
+export type OrgWithServices = Org & { services: Service[] }
 
 export type HostResolution =
   | { type: "landing" }
   | { type: "org"; org: OrgWithServices }
-  | { type: "not_found" };
+  | { type: "not_found" }
 
 /**
  * Resolves the host for the index page
@@ -64,7 +64,7 @@ export type HostResolution =
  * 3. Platform domain (denik.me, www.denik.me) -> show landing page
  */
 export async function resolveHostForIndex(
-  request: Request
+  request: Request,
 ): Promise<HostResolution> {
   // Debug: log all relevant headers
   console.log("[resolveHostForIndex] Headers:", {
@@ -73,56 +73,56 @@ export async function resolveHostForIndex(
     xForwardedFor: request.headers.get("x-forwarded-for"),
     flyClientIp: request.headers.get("fly-client-ip"),
     flyRequestId: request.headers.get("fly-request-id"),
-  });
+  })
 
-  const rawHost = getHostFromRequest(request);
-  const host = normalizeHost(rawHost);
+  const rawHost = getHostFromRequest(request)
+  const host = normalizeHost(rawHost)
 
-  console.log("[resolveHostForIndex] rawHost:", rawHost, "normalized:", host);
+  console.log("[resolveHostForIndex] rawHost:", rawHost, "normalized:", host)
 
-  const isPlatform = isPlatformDomain(host);
+  const isPlatform = isPlatformDomain(host)
 
   // Custom domain: any domain that's not a platform domain
   if (!isPlatform && host.length > 0) {
     const org = await db.org.findFirst({
       where: { customDomain: host, customDomainStatus: "active" },
       include: { services: { where: { isActive: true, archived: false } } },
-    });
-    return org ? { type: "org", org } : { type: "not_found" };
+    })
+    return org ? { type: "org", org } : { type: "not_found" }
   }
 
   // Subdomain: orgslug.denik.me
-  const subdomain = getSubdomain(host);
+  const subdomain = getSubdomain(host)
   if (subdomain) {
     const org = await db.org.findUnique({
       where: { slug: subdomain },
       include: { services: { where: { isActive: true, archived: false } } },
-    });
-    return org ? { type: "org", org } : { type: "not_found" };
+    })
+    return org ? { type: "org", org } : { type: "not_found" }
   }
 
   // Platform domain without subdomain -> landing page
-  return { type: "landing" };
+  return { type: "landing" }
 }
 
 /**
  * Checks if request is from a subdomain or custom domain (not main platform)
  */
 export function isOrgDomain(request: Request): boolean {
-  const rawHost = getHostFromRequest(request);
-  const host = normalizeHost(rawHost);
+  const rawHost = getHostFromRequest(request)
+  const host = normalizeHost(rawHost)
 
   // Check if it's a platform domain without subdomain
-  const isPlatform = PLATFORM_DOMAINS.some((d) => host === d);
-  console.log("[isOrgDomain] host:", host, "isPlatform:", isPlatform);
-  if (isPlatform) return false;
+  const isPlatform = PLATFORM_DOMAINS.some((d) => host === d)
+  console.log("[isOrgDomain] host:", host, "isPlatform:", isPlatform)
+  if (isPlatform) return false
 
   // Check for subdomain
-  const subdomain = getSubdomain(host);
-  if (subdomain) return true;
+  const subdomain = getSubdomain(host)
+  if (subdomain) return true
 
   // Check for custom domain (not a platform domain at all)
-  return !isPlatformDomain(host);
+  return !isPlatformDomain(host)
 }
 
 /**
@@ -138,15 +138,15 @@ const BLOCKED_APP_ROUTES = [
   /^\/auth/,
   /^\/planes/,
   /^\/demo/,
-];
+]
 
 export function isRouteAllowedOnOrgDomain(pathname: string): boolean {
   // Block known app routes
   if (BLOCKED_APP_ROUTES.some((pattern) => pattern.test(pathname))) {
-    return false;
+    return false
   }
   // Allow: / (home) and /:serviceSlug (any other single-segment path)
-  return true;
+  return true
 }
 
 /**
@@ -159,30 +159,30 @@ export function isRouteAllowedOnOrgDomain(pathname: string): boolean {
  */
 export async function resolveOrgFromRequest(
   request: Request,
-  orgSlugParam: string | undefined
+  orgSlugParam: string | undefined,
 ): Promise<Org | null> {
-  const rawHost = getHostFromRequest(request);
-  const host = normalizeHost(rawHost);
+  const rawHost = getHostFromRequest(request)
+  const host = normalizeHost(rawHost)
 
-  const isPlatform = isPlatformDomain(host);
+  const isPlatform = isPlatformDomain(host)
 
   // 1. Custom domain: any domain that's not a platform domain
   if (!isPlatform && host.length > 0) {
     return db.org.findFirst({
       where: { customDomain: host, customDomainStatus: "active" },
-    });
+    })
   }
 
   // 2. Subdomain: orgslug.denik.me
-  const subdomain = getSubdomain(host);
+  const subdomain = getSubdomain(host)
   if (subdomain) {
-    return db.org.findUnique({ where: { slug: subdomain } });
+    return db.org.findUnique({ where: { slug: subdomain } })
   }
 
   // 3. Fallback: use orgSlug from URL path
   if (orgSlugParam) {
-    return db.org.findUnique({ where: { slug: orgSlugParam } });
+    return db.org.findUnique({ where: { slug: orgSlugParam } })
   }
 
-  return null;
+  return null
 }

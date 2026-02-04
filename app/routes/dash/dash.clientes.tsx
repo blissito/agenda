@@ -1,54 +1,54 @@
-import { Link, useLoaderData } from "react-router";
-import { Avatar } from "~/components/common/Avatar";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { useCopyLink } from "~/components/hooks/useCopyLink";
-import { Anchor } from "~/components/icons/link";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { db } from "~/utils/db.server";
-import { generateLink } from "~/utils/generateSlug";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
-import { BiSolidUserDetail } from "react-icons/bi";
-import { twMerge } from "tailwind-merge";
-import { usePluralize } from "~/components/hooks/usePluralize";
-import { Download } from "~/components/icons/download";
-import { Settings } from "~/components/icons/settings";
-import { Upload } from "~/components/icons/upload";
-import type { Route } from "./+types/dash.clientes";
+import { BiSolidUserDetail } from "react-icons/bi"
+import { Link, useLoaderData } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Avatar } from "~/components/common/Avatar"
+import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { BasicInput } from "~/components/forms/BasicInput"
+import { useCopyLink } from "~/components/hooks/useCopyLink"
+import { usePluralize } from "~/components/hooks/usePluralize"
+import { Download } from "~/components/icons/download"
+import { Anchor } from "~/components/icons/link"
+import { Settings } from "~/components/icons/settings"
+import { Upload } from "~/components/icons/upload"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { db } from "~/utils/db.server"
+import { generateLink } from "~/utils/generateSlug"
+import type { Route } from "./+types/dash.clientes"
 
 // @TODO: actions, search with searchParams, real user avatars?, row actions (delete)
 
 export type Client = {
-  points: number;
-  updatedAt: Date | string;
-  createdAt?: Date | string;
-  eventCount: number;
-  nextEventDate: Date | string;
-  loggedUserId?: string | null;
-  displayName?: string | null;
-  email: string;
-  tel?: string | null;
-  comments?: string | null;
-  id: string;
-  orgId?: string;
-};
+  points: number
+  updatedAt: Date | string
+  createdAt?: Date | string
+  eventCount: number
+  nextEventDate: Date | string
+  loggedUserId?: string | null
+  displayName?: string | null
+  email: string
+  tel?: string | null
+  comments?: string | null
+  id: string
+  orgId?: string
+}
 
 type Stats = {
-  clientsCount: number;
-  percentage: string;
-};
+  clientsCount: number
+  percentage: string
+}
 
 // @TODO generate custom model
 export const loader = async ({ request }: Route.LoaderArgs) => {
   // @TODO: consider the search input working via searchParams
   // @TODO: upload / download
-  const { org } = await getUserAndOrgOrRedirect(request);
+  const { org } = await getUserAndOrgOrRedirect(request)
   if (!org) {
-    throw new Response("Organization not found", { status: 404 });
+    throw new Response("Organization not found", { status: 404 })
   }
-  const link = generateLink(request.url, org.slug);
-  const services = await getServices(request);
+  const link = generateLink(request.url, org.slug)
+  const services = await getServices(request)
   const events = await db.event.findMany({
     where: {
       service: {
@@ -59,20 +59,20 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       service: true,
       customer: true,
     },
-  });
+  })
 
-  const clientsObject: { [x: string]: Client } = {};
+  const clientsObject: { [x: string]: Client } = {}
 
-  const counter: Record<string, number> = {};
+  const counter: Record<string, number> = {}
   events.forEach((e) => {
-    const tomorrow = new Date();
-    const { email } = e.customer || {};
-    if (!email) return;
+    const tomorrow = new Date()
+    const { email } = e.customer || {}
+    if (!email) return
     counter[email] =
       counter[email] && typeof counter[email] === "number"
         ? counter[email] + 1
-        : 1;
-    tomorrow.setDate(tomorrow.getDate() + 1);
+        : 1
+    tomorrow.setDate(tomorrow.getDate() + 1)
     if (email) {
       clientsObject[email] = {
         ...e.customer,
@@ -82,10 +82,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         eventCount: counter[email], // @TODO: count while filter
         nextEventDate: tomorrow,
         id: e.id, // @TODO: not the right id
-      };
+      }
     }
-  });
-  let clients = Object.values(clientsObject) as Client[];
+  })
+  let clients = Object.values(clientsObject) as Client[]
 
   // Mock data si no hay clientes reales
   if (clients.length === 0) {
@@ -181,8 +181,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         comments: null,
         loggedUserId: null,
       },
-    ];
-    clients = mockClients;
+    ]
+    clients = mockClients
   }
 
   return {
@@ -194,11 +194,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       percentage: `${clients.length * 100}%`, // @todo real percentage
       srcset: [], // @TODO: real user images?
     } as Stats,
-  };
-};
+  }
+}
 
 export default function Clients() {
-  const { orgId, stats, clients = [], link } = useLoaderData<typeof loader>();
+  const { orgId, stats, clients = [], link } = useLoaderData<typeof loader>()
   return (
     <>
       <RouteTitle>Clientes</RouteTitle>
@@ -220,7 +220,7 @@ export default function Clients() {
       ))}
       {!clients.length && <EmptyStateClients link={link} />}
     </>
-  );
+  )
 }
 const SearchNav = () => {
   return (
@@ -252,48 +252,48 @@ const SearchNav = () => {
         </Link>
       </div>
     </div>
-  );
-};
+  )
+}
 
 export const ActionButton = ({
   className,
   isDisabled,
   ...props
 }: {
-  className?: string;
-  isDisabled?: boolean;
-  [x: string]: unknown;
+  className?: string
+  isDisabled?: boolean
+  [x: string]: unknown
 }) => (
   <button
     className={twMerge(
       "text-brand_gray border rounded-full h-12 w-12 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white",
-      className
+      className,
     )}
     disabled={isDisabled}
     {...props}
   />
-);
+)
 
 export const TableHeader = ({
   titles,
 }: {
   // @TODO: class container for main columns number definition
-  titles: (string | [string, string])[];
+  titles: (string | [string, string])[]
 }) => {
   return (
     <div className="grid grid-cols-12 text-[12px] font-satoMedium rounded-t-2xl border-t text-[#4b5563] py-3 px-6 bg-white border-slate-100 border mt-4">
       {titles.map((tuple: string | [string, string]) => {
-        const title = Array.isArray(tuple) ? tuple[0] : tuple;
-        const span = Array.isArray(tuple) ? tuple[1] : "col-span-2";
+        const title = Array.isArray(tuple) ? tuple[0] : tuple
+        const span = Array.isArray(tuple) ? tuple[1] : "col-span-2"
         return (
           <h3 className={twMerge("capitalize", span)} key={title}>
             {title}
           </h3>
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}
 
 export const Client = ({ client }: { client: Client; orgId?: string }) => {
   const letters =
@@ -301,7 +301,7 @@ export const Client = ({ client }: { client: Client; orgId?: string }) => {
       ? (
           client.displayName.charAt(0) + client.displayName.charAt(1)
         ).toUpperCase()
-      : "DE";
+      : "DE"
   return (
     <div className=" border-slate-100 grid items-center grid-cols-12 py-3 border-b-[1px] bg-white px-8">
       <div className="flex gap-3 items-center col-span-3">
@@ -321,7 +321,7 @@ export const Client = ({ client }: { client: Client; orgId?: string }) => {
             day: "numeric",
             month: "short",
             year: "numeric",
-          }
+          },
         )}
       </p>
       <p className="font-bold text-xs col-span-2">{client.points} puntos</p>
@@ -354,11 +354,11 @@ export const Client = ({ client }: { client: Client; orgId?: string }) => {
         </MenuButton>
       </DropdownMenu>
     </div>
-  );
-};
+  )
+}
 
 export const Summary = ({ stats }: { stats: Stats }) => {
-  const pluralize = usePluralize();
+  const pluralize = usePluralize()
   return (
     <section className="bg-white rounded-2xl p-6 flex justify-between items-center">
       <div>
@@ -383,11 +383,11 @@ export const Summary = ({ stats }: { stats: Stats }) => {
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
 const EmptyStateClients = ({ link }: { link: string }) => {
-  const { setLink, ref } = useCopyLink(link);
+  const { setLink, ref } = useCopyLink(link)
   return (
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
@@ -411,5 +411,5 @@ const EmptyStateClients = ({ link }: { link: string }) => {
         </SecondaryButton>
       </div>
     </div>
-  );
-};
+  )
+}

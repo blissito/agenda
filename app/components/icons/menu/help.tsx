@@ -2,8 +2,8 @@ export const Help = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="24"
@@ -19,4 +19,4 @@ export const Help = ({
       strokeWidth="0.1"
     />
   </svg>
-);
+)

@@ -1,13 +1,13 @@
-import { type ReactNode, useRef } from "react";
 import {
-  motion,
   type MotionValue,
+  motion,
   useScroll,
   useSpring,
   useTransform,
-} from "motion/react";
-import { cn } from "~/utils/cn";
-import { FaWeightScale } from "react-icons/fa6";
+} from "motion/react"
+import { type ReactNode, useRef } from "react"
+import { FaWeightScale } from "react-icons/fa6"
+import { cn } from "~/utils/cn"
 
 const floatingElements = [
   "https://cdn.prod.website-files.com/667fa6c733097c1516bb9760/667fa6c733097c1516bb977a_hero-watch-p-500.webp",
@@ -15,10 +15,10 @@ const floatingElements = [
   "https://cdn.prod.website-files.com/667fa6c733097c1516bb9760/667fa6c733097c1516bb977b_circle-blue-p-500.webp",
   "https://cdn.prod.website-files.com/667fa6c733097c1516bb9760/668f8308983e734e585bbb6d_hero-element-p-500.webp",
   "",
-];
+]
 export const PhoneHero = ({ title }: { title: ReactNode }) => {
-  const scrollerRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: scrollerRef });
+  const scrollerRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({ target: scrollerRef })
 
   return (
     <article className="h-[600vh]" ref={scrollerRef}>
@@ -32,13 +32,13 @@ export const PhoneHero = ({ title }: { title: ReactNode }) => {
         <Paragraph scrollYProgress={scrollYProgress} />
       </Container>
     </article>
-  );
-};
+  )
+}
 
 const Paragraph = ({ scrollYProgress }: { scrollYProgress: MotionValue }) => {
-  const y = useTransform(scrollYProgress, [0.6, 1], ["100vh", "-25vh"]);
-  const rotateZ = useTransform(scrollYProgress, [0.5, 1], [-500, 0]);
-  const opacity = useTransform(scrollYProgress, [0.6, 1], [0, 1]);
+  const y = useTransform(scrollYProgress, [0.6, 1], ["100vh", "-25vh"])
+  const rotateZ = useTransform(scrollYProgress, [0.5, 1], [-500, 0])
+  const opacity = useTransform(scrollYProgress, [0.6, 1], [0, 1])
   return (
     <section className="inset-0 fixed flex flex-col justify-end items-center pb-20 pointer-events-none bottom-0 left-0 right-0">
       <motion.main
@@ -68,16 +68,16 @@ const Paragraph = ({ scrollYProgress }: { scrollYProgress: MotionValue }) => {
         </p>
       </motion.main>
     </section>
-  );
-};
+  )
+}
 
 const Circles = ({ scrollYProgress }: { scrollYProgress: MotionValue }) => {
-  const scale = useTransform(scrollYProgress, [0.2, 1], [0, 4]);
-  const y = useTransform(scrollYProgress, [0, 1], ["50vh", "-100vh"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.4, 0.7, 1], [0, 1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0.2, 1], [0, 4])
+  const y = useTransform(scrollYProgress, [0, 1], ["50vh", "-100vh"])
+  const opacity = useTransform(scrollYProgress, [0, 0.4, 0.7, 1], [0, 1, 1, 0])
 
   const absoluteCentering =
-    "absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]";
+    "absolute top-[50%] translate-y-[-50%] left-[50%] translate-x-[-50%]"
   return (
     <motion.section
       style={{
@@ -90,37 +90,37 @@ const Circles = ({ scrollYProgress }: { scrollYProgress: MotionValue }) => {
       <div
         className={cn(
           "rounded-full w-[800px] h-[800px] border-8 blur-md border-indigo-300",
-          absoluteCentering
+          absoluteCentering,
         )}
       />
       <div
         className={cn(
           "rounded-full w-[500px] h-[500px] border-8 blur-md border-pink-300",
-          absoluteCentering
+          absoluteCentering,
         )}
       />
       <div
         className={cn(
           "rounded-full w-[300px] h-[300px] border-8 blur-md border-blue-300",
-          absoluteCentering
+          absoluteCentering,
         )}
       />
     </motion.section>
-  );
-};
+  )
+}
 
 const FloatingElements = ({
   srcset = [],
   scrollYProgress,
 }: {
-  scrollYProgress: MotionValue<number>;
-  srcset?: string[];
+  scrollYProgress: MotionValue<number>
+  srcset?: string[]
 }) => {
-  const yCero = useTransform(scrollYProgress, [0, 0.25], ["65vh", "-50vh"]);
-  const yOne = useTransform(scrollYProgress, [0, 0.25], ["55vh", "-80vh"]);
+  const yCero = useTransform(scrollYProgress, [0, 0.25], ["65vh", "-50vh"])
+  const yOne = useTransform(scrollYProgress, [0, 0.25], ["55vh", "-80vh"])
   // blured items
-  const yTwo = useTransform(scrollYProgress, [0, 0.25], ["55vh", "-150vh"]);
-  const yThree = useTransform(scrollYProgress, [0, 0.25], ["65vh", "-40vh"]);
+  const yTwo = useTransform(scrollYProgress, [0, 0.25], ["55vh", "-150vh"])
+  const yThree = useTransform(scrollYProgress, [0, 0.25], ["65vh", "-40vh"])
   return (
     <section className="inset-0 fixed z-10 pointer-events-none">
       <motion.img
@@ -149,17 +149,17 @@ const FloatingElements = ({
         alt="floating"
       />
     </section>
-  );
-};
+  )
+}
 
 const Phone = ({
   scrollYProgress,
 }: {
-  scrollYProgress: MotionValue<number>;
+  scrollYProgress: MotionValue<number>
 }) => {
   // @todo: need to know viewPort size
-  const y = useTransform(scrollYProgress, [0, 1], ["50vh", "0vh"]);
-  const scale = useTransform(scrollYProgress, [0, 0.2, 1], [1, 0.9, 1.5]);
+  const y = useTransform(scrollYProgress, [0, 1], ["50vh", "0vh"])
+  const scale = useTransform(scrollYProgress, [0, 0.2, 1], [1, 0.9, 1.5])
 
   return (
     <div className="w-[34%] mx-auto fixed inset-0">
@@ -173,8 +173,8 @@ const Phone = ({
         alt="iphone"
       />
     </div>
-  );
-};
+  )
+}
 
 const Container = ({
   scrollYProgress,
@@ -182,33 +182,33 @@ const Container = ({
   title,
   children,
 }: {
-  scrollYProgress: MotionValue;
-  className?: string;
-  title: ReactNode;
-  children?: ReactNode;
+  scrollYProgress: MotionValue
+  className?: string
+  title: ReactNode
+  children?: ReactNode
 }) => {
   // container
   const containerY = useSpring(
     useTransform(scrollYProgress, [0, 0.3], [0, -100]),
     {
       bounce: 0,
-    }
-  );
+    },
+  )
   const containerScale = useSpring(
     useTransform(scrollYProgress, [0, 0.3], [0.9, 0.6]),
     {
       bounce: 0,
-    }
-  );
+    },
+  )
   // title
   const titleOpacity = useSpring(
     useTransform(scrollYProgress, [0, 0.05], [1, 0]),
     {
       bounce: 0,
-    }
-  );
+    },
+  )
 
-  const titleY = useTransform(scrollYProgress, [0, 0.15], [0, 500]);
+  const titleY = useTransform(scrollYProgress, [0, 0.15], [0, 500])
 
   return (
     <section
@@ -245,8 +245,8 @@ const Container = ({
       */}
       <div className="mt-auto">{children}</div>
     </section>
-  );
-};
+  )
+}
 
 const PlayIcon = () => (
   <svg
@@ -263,7 +263,7 @@ const PlayIcon = () => (
       fill="currentColor"
     ></path>
   </svg>
-);
+)
 
 const AppleIcon = () => (
   <svg
@@ -278,4 +278,4 @@ const AppleIcon = () => (
       fill="currentColor"
     ></path>
   </svg>
-);
+)

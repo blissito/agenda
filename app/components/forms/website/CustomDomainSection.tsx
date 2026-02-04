@@ -1,56 +1,56 @@
-import { useState, useEffect } from "react";
-import { useFetcher } from "react-router";
-import type { Org } from "@prisma/client";
-import { twMerge } from "tailwind-merge";
+import type { Org } from "@prisma/client"
+import { useEffect, useState } from "react"
 import {
-  FiCheck,
   FiAlertCircle,
+  FiCheck,
   FiClock,
-  FiTrash2,
   FiCopy,
   FiRefreshCw,
-} from "react-icons/fi";
-import { Spinner } from "~/components/common/Spinner";
+  FiTrash2,
+} from "react-icons/fi"
+import { useFetcher } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { Spinner } from "~/components/common/Spinner"
 
 type DomainDns = {
-  type: string;
-  name: string;
-  value: string;
-  validationHostname?: string;
-  validationTarget?: string;
-};
+  type: string
+  name: string
+  value: string
+  validationHostname?: string
+  validationTarget?: string
+}
 
-type DomainStatus = "pending" | "validating" | "active" | "failed" | null;
+type DomainStatus = "pending" | "validating" | "active" | "failed" | null
 
 type OrgWithDomain = Org & {
-  customDomain?: string | null;
-  customDomainStatus?: string | null;
-  customDomainDns?: unknown;
-};
+  customDomain?: string | null
+  customDomainStatus?: string | null
+  customDomainDns?: unknown
+}
 
 export function CustomDomainSection({ org }: { org: OrgWithDomain }) {
-  const [domain, setDomain] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [lastIntent, setLastIntent] = useState<string | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [domain, setDomain] = useState("")
+  const [copied, setCopied] = useState(false)
+  const [lastIntent, setLastIntent] = useState<string | null>(null)
+  const [showSuccess, setShowSuccess] = useState(false)
   const fetcher = useFetcher<{
-    success?: boolean;
-    error?: string;
-    domain?: string;
-    status?: DomainStatus;
-    dns?: DomainDns;
-  }>();
+    success?: boolean
+    error?: string
+    domain?: string
+    status?: DomainStatus
+    dns?: DomainDns
+  }>()
 
-  const isLoading = fetcher.state !== "idle";
-  const hasCustomDomain = !!org.customDomain;
+  const isLoading = fetcher.state !== "idle"
+  const hasCustomDomain = !!org.customDomain
   const domainStatus = (fetcher.data?.status ||
-    org.customDomainStatus) as DomainStatus;
+    org.customDomainStatus) as DomainStatus
   const dnsInstructions =
-    fetcher.data?.dns || (org.customDomainDns as DomainDns | null);
+    fetcher.data?.dns || (org.customDomainDns as DomainDns | null)
 
-  const isAddingDomain = isLoading && lastIntent === "add_domain";
-  const isCheckingDomain = isLoading && lastIntent === "check_domain";
-  const isRemovingDomain = isLoading && lastIntent === "remove_domain";
+  const isAddingDomain = isLoading && lastIntent === "add_domain"
+  const isCheckingDomain = isLoading && lastIntent === "check_domain"
+  const _isRemovingDomain = isLoading && lastIntent === "remove_domain"
 
   useEffect(() => {
     if (
@@ -59,47 +59,47 @@ export function CustomDomainSection({ org }: { org: OrgWithDomain }) {
       lastIntent === "check_domain"
     ) {
       if (fetcher.data.status === "active") {
-        setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 3000);
+        setShowSuccess(true)
+        setTimeout(() => setShowSuccess(false), 3000)
       }
     }
-  }, [fetcher.state, fetcher.data, lastIntent]);
+  }, [fetcher.state, fetcher.data, lastIntent])
 
   const handleAddDomain = () => {
-    setLastIntent("add_domain");
+    setLastIntent("add_domain")
     fetcher.submit(
       { intent: "add_domain", domain },
-      { method: "post", action: "/api/domain" }
-    );
-  };
+      { method: "post", action: "/api/domain" },
+    )
+  }
 
   const handleCheckDomain = () => {
-    setLastIntent("check_domain");
+    setLastIntent("check_domain")
     fetcher.submit(
       { intent: "check_domain" },
-      { method: "post", action: "/api/domain" }
-    );
-  };
+      { method: "post", action: "/api/domain" },
+    )
+  }
 
   const handleRemoveDomain = () => {
     if (
       confirm(
-        "¿Estás seguro de eliminar el dominio personalizado? Tu agenda seguirá funcionando en el dominio gratuito."
+        "¿Estás seguro de eliminar el dominio personalizado? Tu agenda seguirá funcionando en el dominio gratuito.",
       )
     ) {
-      setLastIntent("remove_domain");
+      setLastIntent("remove_domain")
       fetcher.submit(
         { intent: "remove_domain" },
-        { method: "post", action: "/api/domain" }
-      );
+        { method: "post", action: "/api/domain" },
+      )
     }
-  };
+  }
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const getStatusBadge = (status: DomainStatus) => {
     const configs = {
@@ -123,21 +123,21 @@ export function CustomDomainSection({ org }: { org: OrgWithDomain }) {
         text: "Error",
         className: "bg-red-100 text-red-800",
       },
-    };
-    const config = status ? configs[status] : configs.pending;
-    const Icon = config.icon;
+    }
+    const config = status ? configs[status] : configs.pending
+    const Icon = config.icon
     return (
       <span
         className={twMerge(
           "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
-          config.className
+          config.className,
         )}
       >
         <Icon size={12} />
         {config.text}
       </span>
-    );
-  };
+    )
+  }
 
   return (
     <section className="space-y-4">
@@ -289,5 +289,5 @@ export function CustomDomainSection({ org }: { org: OrgWithDomain }) {
         </div>
       )}
     </section>
-  );
+  )
 }

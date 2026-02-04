@@ -3,45 +3,45 @@ import {
   ListboxButton,
   ListboxOption,
   ListboxOptions,
-} from "@headlessui/react";
-import { CiStopwatch } from "react-icons/ci";
-import { IoIosArrowDown } from "react-icons/io";
-import { IoLocationOutline, IoMailOutline } from "react-icons/io5";
-import { PiPhone } from "react-icons/pi";
-import { twMerge } from "tailwind-merge";
-import { Facebook } from "~/components/icons/facebook";
-import { Instagram } from "~/components/icons/insta";
-import { Linkedin } from "~/components/icons/linkedin";
-import { Tiktok } from "~/components/icons/tiktok";
-import { Twitter } from "~/components/icons/twitter";
-import { type ReactNode, useState } from "react";
-import { Website } from "~/components/icons/menu/webiste";
-import { Denik } from "~/components/icons/denik";
-import { ServiceListCard } from "./ServiceListCard";
-import { SocialMedia } from "./SocialMedia";
-import { ItemClient } from "./ItemClient";
-import { formatRange } from "../common/FormatRange";
-import type { Service } from "@prisma/client";
+} from "@headlessui/react"
+import type { Service } from "@prisma/client"
+import { type ReactNode, useState } from "react"
+import { CiStopwatch } from "react-icons/ci"
+import { IoIosArrowDown } from "react-icons/io"
+import { IoLocationOutline, IoMailOutline } from "react-icons/io5"
+import { PiPhone } from "react-icons/pi"
+import { twMerge } from "tailwind-merge"
+import { Denik } from "~/components/icons/denik"
+import { Facebook } from "~/components/icons/facebook"
+import { Instagram } from "~/components/icons/insta"
+import { Linkedin } from "~/components/icons/linkedin"
+import { Website } from "~/components/icons/menu/webiste"
+import { Tiktok } from "~/components/icons/tiktok"
+import { Twitter } from "~/components/icons/twitter"
+import { formatRange } from "../common/FormatRange"
+import { ItemClient } from "./ItemClient"
+import { ServiceListCard } from "./ServiceListCard"
+import { SocialMedia } from "./SocialMedia"
 
 // Extended org type for templates (includes legacy props used by templates)
 export type TemplateOrg = {
-  name?: string;
-  description?: string | null;
-  address?: string | null;
-  email?: string | null;
-  phone?: string;
-  mail?: string;
-  photoURL?: string;
+  name?: string
+  description?: string | null
+  address?: string | null
+  email?: string | null
+  phone?: string
+  mail?: string
+  photoURL?: string
   weekDays?: {
-    lunes?: unknown;
-    martes?: unknown;
-    mi_rcoles?: unknown;
-    jueves?: unknown;
-    viernes?: unknown;
-    s_bado?: unknown;
-    domingo?: unknown;
-  } | null;
-};
+    lunes?: unknown
+    martes?: unknown
+    mi_rcoles?: unknown
+    jueves?: unknown
+    viernes?: unknown
+    s_bado?: unknown
+    domingo?: unknown
+  } | null
+}
 
 const week = [
   { id: 1, name: "Lun 9:00 a 5:00pm" },
@@ -49,16 +49,16 @@ const week = [
   { id: 3, name: "Mie 9:00 a 5:00pm" },
   { id: 4, name: "Jue 9:00 a 5:00pm" },
   { id: 5, name: "Vie 9:00 a 5:00pm" },
-];
+]
 
 export default function TemplateTwo({
   services = [],
   isPublic,
   org,
 }: {
-  isPublic?: boolean;
-  services?: Service[];
-  org?: TemplateOrg;
+  isPublic?: boolean
+  services?: Service[]
+  org?: TemplateOrg
 }) {
   return (
     <section className="w-full min-h-screen h-auto bg-white pb-10  ">
@@ -126,19 +126,19 @@ export default function TemplateTwo({
         <Denik className="h-8 -ml-5" />
       </section>
     </section>
-  );
+  )
 }
 
 export const WorkHour = ({
   icon,
   org,
 }: {
-  icon: ReactNode;
-  text?: string;
-  status?: string;
-  org?: TemplateOrg;
+  icon: ReactNode
+  text?: string
+  status?: string
+  org?: TemplateOrg
 }) => {
-  const [selected] = useState(week[1]);
+  const [selected] = useState(week[1])
 
   return (
     <section className="flex items-center my-2">
@@ -147,7 +147,7 @@ export const WorkHour = ({
         <ListboxButton
           className={twMerge(
             "relative block w-auto rounded-lg  pr-8 pl-3 text-left text-sm/6 text-brand_gray",
-            "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+            "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
           )}
         >
           <span className="mr-2 text-[#8AAA35]">Abierto ahora</span>
@@ -162,7 +162,7 @@ export const WorkHour = ({
           transition
           className={twMerge(
             "w-[var(--button-width)] rounded-xl shadow z-40 bg-white p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
-            "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
+            "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0",
           )}
         >
           <ListboxOption
@@ -253,5 +253,5 @@ export const WorkHour = ({
         </ListboxOptions>
       </Listbox>
     </section>
-  );
-};
+  )
+}

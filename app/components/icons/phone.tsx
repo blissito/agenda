@@ -2,8 +2,8 @@ export const Phone = ({
   fill = "currentColor",
   className,
 }: {
-  className?: string;
-  fill?: string;
+  className?: string
+  fill?: string
 }) => (
   <svg
     className={className}
@@ -18,4 +18,4 @@ export const Phone = ({
       fill={fill}
     />
   </svg>
-);
+)

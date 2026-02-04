@@ -1,19 +1,19 @@
-import { AnimatePresence, motion } from "motion/react";
-import { IoClose } from "react-icons/io5";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { SecondaryButton } from "./secondaryButton";
-import { PrimaryButton } from "./primaryButton";
+import { AnimatePresence, motion } from "motion/react"
+import { IoClose } from "react-icons/io5"
+import { useClickOutside } from "~/utils/hooks/useClickOutside"
+import { PrimaryButton } from "./primaryButton"
+import { SecondaryButton } from "./secondaryButton"
 
 type ConfirmModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  description?: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: "danger" | "default";
-};
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  title: string
+  description?: string
+  confirmText?: string
+  cancelText?: string
+  variant?: "danger" | "default"
+}
 
 export const ConfirmModal = ({
   isOpen,
@@ -29,7 +29,7 @@ export const ConfirmModal = ({
     onOutsideClick: onClose,
     isActive: isOpen,
     includeEscape: true,
-  });
+  })
 
   return (
     <AnimatePresence>
@@ -86,10 +86,7 @@ export const ConfirmModal = ({
 
               {/* buttons */}
               <div className="mt-12 flex items-center justify-center gap-8">
-                <SecondaryButton
-                  onClick={onClose}
-                  className="w-[160px] h-10"
-                >
+                <SecondaryButton onClick={onClose} className="w-[160px] h-10">
                   {cancelText}
                 </SecondaryButton>
 
@@ -109,5 +106,5 @@ export const ConfirmModal = ({
         </motion.div>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}

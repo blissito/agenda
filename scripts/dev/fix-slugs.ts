@@ -9,14 +9,18 @@
  *   npx tsx scripts/dev/fix-slugs.ts          # Dry run (preview changes)
  *   npx tsx scripts/dev/fix-slugs.ts --apply  # Apply changes
  */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
 async function main() {
-  const dryRun = !process.argv.includes("--apply");
+  const dryRun = !process.argv.includes("--apply")
 
-  console.log(dryRun ? "\n🔍 DRY RUN (use --apply to execute)\n" : "\n🚀 APPLYING CHANGES\n");
+  console.log(
+    dryRun
+      ? "\n🔍 DRY RUN (use --apply to execute)\n"
+      : "\n🚀 APPLYING CHANGES\n",
+  )
 
   // Find orgs with underscores in slug
   const orgsWithUnderscore = await prisma.org.findMany({
@@ -28,54 +32,56 @@ async function main() {
       name: true,
       slug: true,
     },
-  });
+  })
 
   if (orgsWithUnderscore.length === 0) {
-    console.log("✅ No orgs found with underscores in slug. Nothing to fix.");
-    return;
+    console.log("✅ No orgs found with underscores in slug. Nothing to fix.")
+    return
   }
 
-  console.log(`Found ${orgsWithUnderscore.length} org(s) with underscore in slug:\n`);
+  console.log(
+    `Found ${orgsWithUnderscore.length} org(s) with underscore in slug:\n`,
+  )
 
   for (const org of orgsWithUnderscore) {
-    const newSlug = org.slug.replace(/_/g, "-");
+    const newSlug = org.slug.replace(/_/g, "-")
 
-    console.log(`  📦 ${org.name}`);
-    console.log(`     ${org.slug} → ${newSlug}`);
+    console.log(`  📦 ${org.name}`)
+    console.log(`     ${org.slug} → ${newSlug}`)
 
     if (!dryRun) {
       // Check if new slug already exists
       const existing = await prisma.org.findFirst({
         where: { slug: newSlug },
-      });
+      })
 
       if (existing) {
-        console.log(`     ⚠️  SKIPPED: slug "${newSlug}" already exists`);
-        continue;
+        console.log(`     ⚠️  SKIPPED: slug "${newSlug}" already exists`)
+        continue
       }
 
       await prisma.org.update({
         where: { id: org.id },
         data: { slug: newSlug },
-      });
-      console.log(`     ✅ Updated`);
+      })
+      console.log(`     ✅ Updated`)
     }
 
-    console.log("");
+    console.log("")
   }
 
   if (dryRun) {
-    console.log("Run with --apply to execute these changes.");
+    console.log("Run with --apply to execute these changes.")
   } else {
-    console.log("✅ Done!");
+    console.log("✅ Done!")
   }
 }
 
 main()
   .catch((e) => {
-    console.error("Error:", e);
-    process.exit(1);
+    console.error("Error:", e)
+    process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect();
-  });
+    await prisma.$disconnect()
+  })

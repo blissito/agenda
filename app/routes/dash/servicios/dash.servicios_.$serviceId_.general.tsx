@@ -1,47 +1,47 @@
-import { BasicInput } from "~/components/forms/BasicInput";
+import { redirect, useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Spinner } from "~/components/common/Spinner"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { BasicInput } from "~/components/forms/BasicInput"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrump";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { db } from "~/utils/db.server";
-import type { Route } from "./+types/dash.servicios_.$serviceId_.general";
-import { Form, redirect, useFetcher } from "react-router";
-import { serviceUpdateSchema } from "~/utils/zod_schemas";
-import { Spinner } from "~/components/common/Spinner";
+} from "~/components/ui/breadcrump"
+import { db } from "~/utils/db.server"
+import { serviceUpdateSchema } from "~/utils/zod_schemas"
+import type { Route } from "./+types/dash.servicios_.$serviceId_.general"
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
   if (intent === "update_service") {
-    const form = Object.fromEntries(formData);
-    const validData = serviceUpdateSchema.parse(form);
-    const { id, slug, orgId, ...updateData } = validData;
+    const form = Object.fromEntries(formData)
+    const validData = serviceUpdateSchema.parse(form)
+    const { id, slug, orgId, ...updateData } = validData
     await db.service.update({
       where: { id },
       data: updateData,
-    });
-    return redirect("/dash/servicios/" + id);
+    })
+    return redirect(`/dash/servicios/${id}`)
   }
-  return null;
-};
+  return null
+}
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
-  const serviceId = params.serviceId;
-  const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) throw new Response(null, { status: 404 });
+  const serviceId = params.serviceId
+  const service = await db.service.findUnique({ where: { id: serviceId } })
+  if (!service) throw new Response(null, { status: 404 })
 
-  return { service };
-};
+  return { service }
+}
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { service } = loaderData;
-  const fetcher = useFetcher();
-  const isFetching = fetcher.state !== "idle";
+  const { service } = loaderData
+  const fetcher = useFetcher()
+  const isFetching = fetcher.state !== "idle"
 
   return (
     <section>
@@ -126,5 +126,5 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         </div>
       </fetcher.Form>
     </section>
-  );
+  )
 }

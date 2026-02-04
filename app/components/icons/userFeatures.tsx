@@ -2,8 +2,8 @@ export const UserFeatures = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -106,4 +106,4 @@ export const UserFeatures = ({
       ></path>
     </g>
   </svg>
-);
+)

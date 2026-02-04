@@ -1,11 +1,11 @@
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "tailwind-merge"
 
 export const StarLights = ({
   fill = "#5158F6",
   className = "className",
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={twMerge(className)}
@@ -43,4 +43,4 @@ export const StarLights = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

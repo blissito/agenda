@@ -1,10 +1,10 @@
-import { Drawer } from "../animated/SimpleDrawer";
-import { ClientForm } from "./agenda/ClientForm";
+import { Drawer } from "../animated/SimpleDrawer"
+import { ClientForm } from "./agenda/ClientForm"
 
 type ClientFormDrawerProps = {
-  onClose?: () => void;
-  isOpen?: boolean;
-};
+  onClose?: () => void
+  isOpen?: boolean
+}
 
 export const ClientFormDrawer = ({
   onClose,
@@ -20,5 +20,5 @@ export const ClientFormDrawer = ({
     >
       <ClientForm onFetch={onClose} />
     </Drawer>
-  );
-};
+  )
+}

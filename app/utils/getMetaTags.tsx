@@ -6,12 +6,12 @@ export const getMetaTags = ({
   video,
   audio,
 }: {
-  title?: string;
-  description?: string;
-  image?: string;
-  video?: string;
-  audio?: string;
-  url?: string;
+  title?: string
+  description?: string
+  image?: string
+  video?: string
+  audio?: string
+  url?: string
 }) => [
   { title },
   {
@@ -83,4 +83,4 @@ export const getMetaTags = ({
     name: "facebook-domain-verification",
     content: "9cs2yjdol8os1yyxqmrghha3dhdr6l",
   },
-];
+]

@@ -1,66 +1,68 @@
-import { twMerge } from "tailwind-merge";
-import { FaArrowRight, FaArrowLeft, FaLinkedin } from "react-icons/fa";
-import { motion } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { generatePics } from "~/utils/generatePics";
+import { motion } from "motion/react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { FaArrowLeft, FaArrowRight, FaLinkedin } from "react-icons/fa"
+import { twMerge } from "tailwind-merge"
+import { generatePics } from "~/utils/generatePics"
 
 export type Pic = {
-  src: string;
-  name: string;
-  text: string;
-  title: string;
-  link: string;
-};
+  src: string
+  name: string
+  text: string
+  title: string
+  link: string
+}
 export type SimpeAnimatedGalleryProps = {
-  pics?: Pic[]; // Should be 8 minimum
-  delay?: number;
-};
+  pics?: Pic[] // Should be 8 minimum
+  delay?: number
+}
 
 export const SimpleAnimatedGallery = ({
   pics = generatePics(),
   delay = 5,
 }: SimpeAnimatedGalleryProps) => {
-  const [gallery, setGallery] = useState<Pic[]>(pics);
-  const saved = useRef<Pic | null | undefined>(null);
-  const interval = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const placeInterval = () => {
-    interval.current && clearInterval(interval.current);
-    interval.current = setInterval(() => {
-      handleNext();
-    }, delay * 1000);
-    return removeInterval;
-  };
-
-  const removeInterval = () => {
-    (interval.current && clearInterval(interval.current)) ?? undefined;
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(placeInterval, [gallery]);
+  const [gallery, setGallery] = useState<Pic[]>(pics)
+  const saved = useRef<Pic | null | undefined>(null)
+  const interval = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const handleNext = () => {
-    const cloned = [...gallery];
-    saved.current && cloned.unshift(saved.current);
-    saved.current = cloned.pop();
-    setGallery(cloned);
-  };
+    setGallery((prev) => {
+      const cloned = [...prev]
+      saved.current && cloned.unshift(saved.current)
+      saved.current = cloned.pop()
+      return cloned
+    })
+  }
 
   const handlePrev = () => {
-    const cloned = [...gallery];
-    saved.current && cloned.push(saved.current);
-    saved.current = cloned.shift();
-    setGallery(cloned);
-  };
+    const cloned = [...gallery]
+    saved.current && cloned.push(saved.current)
+    saved.current = cloned.shift()
+    setGallery(cloned)
+  }
+
+  const removeInterval = () => {
+    if (interval.current) clearInterval(interval.current)
+  }
+
+  const placeInterval = () => {
+    removeInterval()
+    interval.current = setInterval(handleNext, delay * 1000)
+    return removeInterval
+  }
+
+  useEffect(() => {
+    placeInterval()
+    return removeInterval
+  }, [delay])
 
   const handlePicClick = (index: number) => {
-    const cloned = [...gallery];
-    saved.current = cloned.splice(index, 1)[0];
-    cloned.splice(gallery.length - 2, 0, saved.current);
-    setGallery(cloned);
-  };
+    const cloned = [...gallery]
+    saved.current = cloned.splice(index, 1)[0]
+    cloned.splice(gallery.length - 2, 0, saved.current)
+    setGallery(cloned)
+  }
 
-  const active = useMemo(() => gallery[gallery.length - 2], [gallery]);
+  const active = useMemo(() => gallery[gallery.length - 2], [gallery])
 
   return (
     <main
@@ -72,7 +74,7 @@ export const SimpleAnimatedGallery = ({
       <article className="flex justify-center items-center h-[40vh]">
         <section className="flex gap-2 justify-end w-[60%] items-end h-full translate-x-[117px] z-10 relative">
           {gallery.map((pic, i) => {
-            const isActive = i === gallery.length - 2;
+            const isActive = i === gallery.length - 2
             return (
               <Image
                 id={pic.text}
@@ -82,7 +84,7 @@ export const SimpleAnimatedGallery = ({
                 isActive={isActive}
                 onClick={() => handlePicClick(i)}
               />
-            );
+            )
           })}
         </section>
 
@@ -112,27 +114,27 @@ export const SimpleAnimatedGallery = ({
         </NavigationButton>
       </section>
     </main>
-  );
-};
+  )
+}
 
 const NavigationButton = ({
   onClick,
   className,
   ...props
 }: {
-  className?: string;
-  onClick: () => void;
-  [x: string]: unknown;
+  className?: string
+  onClick: () => void
+  [x: string]: unknown
 }) => (
   <button
     {...props}
     onClick={onClick}
     className={twMerge(
       "hover:scale-105 active:scale-100 rounded-full h-12 w-12 box-border bg-gray-200 grid place-content-center text-gray-800 transition-all",
-      className
+      className,
     )}
   />
-);
+)
 
 const Image = ({
   onClick,
@@ -142,13 +144,13 @@ const Image = ({
   className,
   id,
 }: {
-  id?: string;
-  index?: string | number;
-  onClick?: () => void;
-  isActive?: boolean;
-  link?: string;
-  className?: string;
-  src: string;
+  id?: string
+  index?: string | number
+  onClick?: () => void
+  isActive?: boolean
+  link?: string
+  className?: string
+  src: string
 }) => {
   return (
     <motion.button
@@ -159,7 +161,7 @@ const Image = ({
       className={twMerge(
         "relative h-44 min-w-28 rounded-lg",
         isActive && "h-[95%] min-w-40",
-        className
+        className,
       )}
       whileHover={{ scaleY: 1.03, top: -2 }}
     >
@@ -180,5 +182,5 @@ const Image = ({
         </a>
       )}
     </motion.button>
-  );
-};
+  )
+}

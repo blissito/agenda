@@ -1,27 +1,27 @@
-import { useSpring, motion } from "motion/react";
-import { type MouseEvent, type ReactNode } from "react";
-import { useTimeout } from "../hooks/useTimeout";
+import { motion, useSpring } from "motion/react"
+import { type MouseEvent, type ReactNode } from "react"
+import { useTimeout } from "../hooks/useTimeout"
 
 export const CardTriDi = ({ children }: { children?: ReactNode[] }) => {
-  const rotateX = useSpring(0);
-  const rotateY = useSpring(0);
-  const { placeTimeout } = useTimeout(2000);
+  const rotateX = useSpring(0)
+  const rotateY = useSpring(0)
+  const { placeTimeout } = useTimeout(2000)
 
   const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
-    const { clientX, clientY, currentTarget } = event;
-    const { width, height, left, top } = currentTarget.getBoundingClientRect();
-    const x = (clientX - left - width / 2) * 0.1; // 🪄✨
-    const y = (clientY - top - height / 2) * 0.1;
-    rotateX.set(-y); // invertimos
-    rotateY.set(x);
-  };
+    const { clientX, clientY, currentTarget } = event
+    const { width, height, left, top } = currentTarget.getBoundingClientRect()
+    const x = (clientX - left - width / 2) * 0.1 // 🪄✨
+    const y = (clientY - top - height / 2) * 0.1
+    rotateX.set(-y) // invertimos
+    rotateY.set(x)
+  }
 
   const handleMouseLeave = () => {
     placeTimeout(() => {
-      rotateX.set(0);
-      rotateY.set(0);
-    });
-  };
+      rotateX.set(0)
+      rotateY.set(0)
+    })
+  }
 
   return (
     <section
@@ -59,5 +59,5 @@ export const CardTriDi = ({ children }: { children?: ReactNode[] }) => {
         </motion.div>
       </motion.div>
     </section>
-  );
-};
+  )
+}

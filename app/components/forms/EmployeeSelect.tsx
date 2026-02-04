@@ -1,25 +1,25 @@
-import { useEffect, type ChangeEvent } from "react";
-import { SelectInput } from "./SelectInput";
-import { Link, useFetcher } from "react-router";
-import { FaPlus } from "react-icons/fa6";
-import type { User } from "@prisma/client";
+import type { User } from "@prisma/client"
+import { type ChangeEvent, useEffect } from "react"
+import { FaPlus } from "react-icons/fa6"
+import { Link, useFetcher } from "react-router"
+import { SelectInput } from "./SelectInput"
 
 type EmployeeSelectProps = {
-  defaultValue?: string;
-  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
-};
+  defaultValue?: string
+  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void
+}
 
 export const EmployeeSelect = ({
   onChange,
   defaultValue,
 }: EmployeeSelectProps) => {
-  const fetcher = useFetcher<{ employees?: User[] }>();
+  const fetcher = useFetcher<{ employees?: User[] }>()
   useEffect(() => {
-    fetcher.load("/api/employees");
+    fetcher.load("/api/employees")
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetcher])
 
-  const employees: User[] = fetcher.data?.employees || [];
+  const employees: User[] = fetcher.data?.employees || []
 
   return (
     <div className="flex items-center gap-2">
@@ -27,7 +27,10 @@ export const EmployeeSelect = ({
         defaultValue={defaultValue}
         onChange={onChange}
         className="flex-grow"
-        options={employees.map((s) => ({ title: s.displayName ?? undefined, value: s.id }))}
+        options={employees.map((s) => ({
+          title: s.displayName ?? undefined,
+          value: s.id,
+        }))}
         placeholder="Selecciona un profesional"
         label="Profesional"
       />
@@ -40,5 +43,5 @@ export const EmployeeSelect = ({
         </span>
       </Link>
     </div>
-  );
-};
+  )
+}

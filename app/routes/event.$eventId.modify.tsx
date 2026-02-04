@@ -4,17 +4,17 @@
  * - Customer: uses temporary session from email token
  * - Owner: must be logged in (via magic link auto-login)
  */
-import { redirect } from "react-router";
-import type { Route } from "./+types/event.$eventId.modify";
-import { db } from "~/utils/db.server";
-import { getSession } from "~/sessions";
-import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
-import { getUserOrNull } from "~/.server/userGetters";
+import { redirect } from "react-router"
+import { getUserOrNull } from "~/.server/userGetters"
+import { getSession } from "~/sessions"
+import { db } from "~/utils/db.server"
+import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
+import type { Route } from "./+types/event.$eventId.modify"
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  const session = await getSession(request.headers.get("Cookie"));
-  const customerAccess = session.get("customerEventAccess");
-  const user = await getUserOrNull(request);
+  const session = await getSession(request.headers.get("Cookie"))
+  const customerAccess = session.get("customerEventAccess")
+  const user = await getUserOrNull(request)
 
   const event = await db.event.findUnique({
     where: { id: params.eventId },
@@ -22,23 +22,23 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       customer: true,
       service: { include: { org: true } },
     },
-  });
+  })
 
   if (!event) {
-    throw redirect("/error?reason=event_not_found");
+    throw redirect("/error?reason=event_not_found")
   }
 
   const timezone =
-    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE;
+    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE
 
   // Check access: customer with temporary token OR logged-in owner
   const isCustomerWithAccess =
     customerAccess?.eventId === params.eventId &&
-    customerAccess.expiresAt > Date.now();
-  const isOwner = user && event.service?.org.ownerId === user.id;
+    customerAccess.expiresAt > Date.now()
+  const isOwner = user && event.service?.org.ownerId === user.id
 
   if (!isCustomerWithAccess && !isOwner) {
-    throw redirect("/error?reason=unauthorized");
+    throw redirect("/error?reason=unauthorized")
   }
 
   return {
@@ -63,39 +63,39 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       tel: event.customer?.tel,
     },
     isOwner: !!isOwner,
-  };
-};
+  }
+}
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  const session = await getSession(request.headers.get("Cookie"));
-  const customerAccess = session.get("customerEventAccess");
-  const user = await getUserOrNull(request);
+  const session = await getSession(request.headers.get("Cookie"))
+  const customerAccess = session.get("customerEventAccess")
+  const user = await getUserOrNull(request)
 
   // Get event to check ownership
   const event = await db.event.findUnique({
     where: { id: params.eventId },
     include: { service: { include: { org: true } } },
-  });
+  })
 
   if (!event) {
-    throw redirect("/error?reason=event_not_found");
+    throw redirect("/error?reason=event_not_found")
   }
 
   // Check access: customer with temporary token OR logged-in owner
   const isCustomerWithAccess =
     customerAccess?.eventId === params.eventId &&
-    customerAccess.expiresAt > Date.now();
-  const isOwner = user && event.service?.org.ownerId === user.id;
+    customerAccess.expiresAt > Date.now()
+  const isOwner = user && event.service?.org.ownerId === user.id
 
   if (!isCustomerWithAccess && !isOwner) {
-    throw redirect("/error?reason=unauthorized");
+    throw redirect("/error?reason=unauthorized")
   }
 
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
 
   if (intent === "update_notes") {
-    const notes = formData.get("notes") as string;
+    const notes = formData.get("notes") as string
 
     await db.event.update({
       where: { id: params.eventId },
@@ -103,19 +103,19 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         notes,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    return { success: true, message: "Notas actualizadas" };
+    return { success: true, message: "Notas actualizadas" }
   }
 
-  return { success: false, message: "Acción no válida" };
-};
+  return { success: false, message: "Acción no válida" }
+}
 
 export default function ModifyEventPage({
   loaderData,
   actionData,
 }: Route.ComponentProps) {
-  const { event, service, customer } = loaderData;
+  const { event, service, customer } = loaderData
 
   return (
     <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
@@ -191,5 +191,5 @@ export default function ModifyEventPage({
         </div>
       </div>
     </main>
-  );
+  )
 }

@@ -1,45 +1,54 @@
-import { Link, type LinkProps } from "react-router";
 import {
+  type AnchorHTMLAttributes,
+  type ButtonHTMLAttributes,
   forwardRef,
   type ReactNode,
-  type ButtonHTMLAttributes,
-  type AnchorHTMLAttributes,
-} from "react";
-import { FaSpinner } from "react-icons/fa";
-import { twMerge } from "tailwind-merge";
+} from "react"
+import { FaSpinner } from "react-icons/fa"
+import { Link, type LinkProps } from "react-router"
+import { twMerge } from "tailwind-merge"
 
 type BaseProps = {
-  isDisabled?: boolean;
-  isLoading?: boolean;
-  className?: string;
-  children?: ReactNode;
-  onClick?: () => void;
-};
+  isDisabled?: boolean
+  isLoading?: boolean
+  className?: string
+  children?: ReactNode
+  onClick?: () => void
+}
 
 type ButtonProps = BaseProps & {
-  as?: "button" | "span";
-} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseProps>;
+  as?: "button" | "span"
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseProps>
 
 type AnchorProps = BaseProps & {
-  as: "a";
-  href: string;
-} & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof BaseProps>;
+  as: "a"
+  href: string
+} & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof BaseProps>
 
 type LinkPropsType = BaseProps & {
-  as: "Link";
-  to: string;
-} & Omit<LinkProps, keyof BaseProps | "to">;
+  as: "Link"
+  to: string
+} & Omit<LinkProps, keyof BaseProps | "to">
 
-type SecondaryButtonProps = ButtonProps | AnchorProps | LinkPropsType;
+type SecondaryButtonProps = ButtonProps | AnchorProps | LinkPropsType
 
 export const SecondaryButton = forwardRef<
   HTMLButtonElement | HTMLAnchorElement | HTMLElement,
   SecondaryButtonProps
 >((props, ref) => {
-  const { as = "button", onClick, isDisabled, isLoading, className, children, ...rest } = props;
+  const {
+    as = "button",
+    onClick,
+    isDisabled,
+    isLoading,
+    className,
+    children,
+    ...rest
+  } = props
 
   const mergedClassName = twMerge(
-    isDisabled && "disabled:bg-gray-300 disabled:cursor-not-allowed font-satoMiddle",
+    isDisabled &&
+      "disabled:bg-gray-300 disabled:cursor-not-allowed font-satoMiddle",
     "bg-brand_pale text-brand-dark h-[48px] min-w-[80px] px-4",
     "enabled:hover:-translate-y-1 transition duration-400",
     "rounded-full flex items-center justify-center text-center gap-2",
@@ -47,18 +56,21 @@ export const SecondaryButton = forwardRef<
     "enabled:active:translate-y-[0.1px]",
     "disabled:text-gray-500",
     isLoading && "bg-brand_blue/50 text-gray-600 pointer-events-none",
-    className
-  );
+    className,
+  )
 
   const content = (
     <>
       {children}
       {!isDisabled && isLoading && <FaSpinner className="animate-spin" />}
     </>
-  );
+  )
 
   if (as === "Link") {
-    const { to, ...linkRest } = rest as Omit<LinkPropsType, keyof BaseProps | "as">;
+    const { to, ...linkRest } = rest as Omit<
+      LinkPropsType,
+      keyof BaseProps | "as"
+    >
     return (
       <Link
         ref={ref as React.Ref<HTMLAnchorElement>}
@@ -69,11 +81,14 @@ export const SecondaryButton = forwardRef<
       >
         {content}
       </Link>
-    );
+    )
   }
 
   if (as === "a") {
-    const { href, ...anchorRest } = rest as Omit<AnchorProps, keyof BaseProps | "as">;
+    const { href, ...anchorRest } = rest as Omit<
+      AnchorProps,
+      keyof BaseProps | "as"
+    >
     return (
       <a
         ref={ref as React.Ref<HTMLAnchorElement>}
@@ -84,7 +99,7 @@ export const SecondaryButton = forwardRef<
       >
         {content}
       </a>
-    );
+    )
   }
 
   if (as === "span") {
@@ -92,10 +107,10 @@ export const SecondaryButton = forwardRef<
       <span onClick={onClick} className={mergedClassName}>
         {content}
       </span>
-    );
+    )
   }
 
-  const buttonRest = rest as Omit<ButtonProps, keyof BaseProps | "as">;
+  const buttonRest = rest as Omit<ButtonProps, keyof BaseProps | "as">
   return (
     <button
       ref={ref as React.Ref<HTMLButtonElement>}
@@ -106,7 +121,7 @@ export const SecondaryButton = forwardRef<
     >
       {content}
     </button>
-  );
-});
+  )
+})
 
-SecondaryButton.displayName = "SecondaryButton";
+SecondaryButton.displayName = "SecondaryButton"

@@ -2,8 +2,8 @@ export const ArrowRight = ({
   fill = "#ffffff",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -32,4 +32,4 @@ export const ArrowRight = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

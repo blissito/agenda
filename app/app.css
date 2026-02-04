@@ -56,13 +56,13 @@ html {
 .font-grotesk {
   font-family: "Space Grotesk";
 }
-.font-jakarta-bold{
-    font-family: "JakarBold";
-    font-weight: 800;
+.font-jakarta-bold {
+  font-family: "JakarBold";
+  font-weight: 800;
 }
-.font-jakarta{
+.font-jakarta {
   font-family: "Jakarta";
-    font-weight: 500;
+  font-weight: 500;
 }
 html {
   --bg-mask-color: red;
@@ -82,8 +82,7 @@ p {
   font-weight: 800;
 }
 .font-satoMiddle {
-    font-family: "Medium Font ", sans-serif; /* Satoshi-Medium.ttf */
-
+  font-family: "Medium Font ", sans-serif; /* Satoshi-Medium.ttf */
 }
 
 .font-satoshi {
@@ -92,12 +91,10 @@ p {
 
 .font-satoMedium {
   font-family: "Medium Font ", sans-serif; /* Satoshi-Medium.ttf */
-
 }
 .font-satoBold {
   font-family: "Denik bold ";
 }
-
 
 .overlay {
   background-color: white;
@@ -208,21 +205,42 @@ input[type="color"].custom {
 
 /* Animacion notoria para la miniatura nueva */
 @keyframes lg-thumb-pop {
-  0%   { opacity: 0; transform: translateY(18px) scale(0.78); filter: blur(10px); }
-  45%  { opacity: 1; transform: translateY(-10px) scale(1.14); filter: blur(0); }
-  70%  { opacity: 1; transform: translateY(2px) scale(0.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.78);
+    filter: blur(10px);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.14);
+    filter: blur(0);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(2px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes lg-glow {
-  0%   { box-shadow: 0 0 0 rgba(0,0,0,0); }
-  35%  { box-shadow: 0 18px 48px rgba(0,0,0,0.18); }
-  100% { box-shadow: 0 0 0 rgba(0,0,0,0); }
+  0% {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  35% {
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 
 .lg-thumb-pop {
-  animation: lg-thumb-pop 850ms cubic-bezier(0.2, 0.9, 0.2, 1) both,
-             lg-glow 850ms ease-out both;
+  animation:
+    lg-thumb-pop 850ms cubic-bezier(0.2, 0.9, 0.2, 1) both,
+    lg-glow 850ms ease-out both;
   will-change: transform, opacity, filter;
 }
 
@@ -234,4 +252,3 @@ input[type="color"].custom {
 .lg-scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-

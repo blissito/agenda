@@ -1,42 +1,42 @@
+import { useForm } from "react-hook-form"
+import type { LoaderFunctionArgs } from "react-router"
+import { Form, useFetcher, useLoaderData } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { BasicInput } from "~/components/forms/BasicInput"
+import { Facebook } from "~/components/icons/facebook"
+import { Instagram } from "~/components/icons/insta"
+import { Anchor } from "~/components/icons/link"
+import { Linkedin } from "~/components/icons/linkedin"
+import { Tiktok } from "~/components/icons/tiktok"
+import { Twitter } from "~/components/icons/twitter"
+import { Youtube } from "~/components/icons/youtube"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrump";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { Facebook } from "~/components/icons/facebook";
-import { Twitter } from "~/components/icons/twitter";
-import { Instagram } from "~/components/icons/insta";
-import { Tiktok } from "~/components/icons/tiktok";
-import { Linkedin } from "~/components/icons/linkedin";
-import { Anchor } from "~/components/icons/link";
-import { Form, useFetcher, useLoaderData } from "react-router";
-import type { LoaderFunctionArgs } from "react-router";
-import { useForm } from "react-hook-form";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { Youtube } from "~/components/icons/youtube";
+} from "~/components/ui/breadcrump"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
     redirectURL: "/dash/website/",
-  });
+  })
   if (!org) {
-    throw new Response("Org not found", { status: 404 });
+    throw new Response("Org not found", { status: 404 })
   }
-  return { org: { social: org.social, id: org.id } };
-};
+  return { org: { social: org.social, id: org.id } }
+}
 
 export default function Index() {
-  const { org } = useLoaderData<typeof loader>();
-  const fetcher = useFetcher();
+  const { org } = useLoaderData<typeof loader>()
+  const fetcher = useFetcher()
 
   const { handleSubmit, register } = useForm({
     defaultValues: org.social || {},
-  });
+  })
 
   const onSubmit = (values: unknown) => {
     fetcher.submit(
@@ -44,9 +44,9 @@ export default function Index() {
         data: JSON.stringify({ id: org.id, social: values }),
         intent: "org_update",
       },
-      { method: "POST", action: "/api/org" }
-    );
-  };
+      { method: "POST", action: "/api/org" },
+    )
+  }
 
   return (
     <section>
@@ -173,5 +173,5 @@ export default function Index() {
         </div>
       </Form>
     </section>
-  );
+  )
 }

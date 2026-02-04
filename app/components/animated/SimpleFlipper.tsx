@@ -1,35 +1,35 @@
-import { Children, type ReactNode, useRef, useState } from "react";
-import { motion, useAnimationFrame, useMotionValue } from "motion/react";
+import { motion, useAnimationFrame, useMotionValue } from "motion/react"
+import { Children, type ReactNode, useRef, useState } from "react"
 
 export const SimpleFlipper = ({ children }: { children?: ReactNode }) => {
-  const items = Children.toArray(children);
-  const nextIndex = useRef(1);
+  const items = Children.toArray(children)
+  const nextIndex = useRef(1)
 
-  const [prevItem, setPrevItem] = useState(items[0]);
-  const [nextItem, setNextItem] = useState(items[1]);
+  const [prevItem, setPrevItem] = useState(items[0])
+  const [nextItem, setNextItem] = useState(items[1])
 
-  const xDegs = useMotionValue(0);
-  const invertedXDegs = useMotionValue(-180);
+  const xDegs = useMotionValue(0)
+  const invertedXDegs = useMotionValue(-180)
 
   const getNextIndex = async () => {
-    const prev = nextIndex.current;
-    const next = (nextIndex.current + 1) % items.length;
-    nextIndex.current = next;
-    return { prevIndex: prev, nextIndex: next };
-  };
+    const prev = nextIndex.current
+    const next = (nextIndex.current + 1) % items.length
+    nextIndex.current = next
+    return { prevIndex: prev, nextIndex: next }
+  }
 
   useAnimationFrame(async () => {
     // jumps
     if (xDegs.get() % 180 === 0) {
-      const { prevIndex, nextIndex } = await getNextIndex(); // 🪄
-      setPrevItem(items[prevIndex]);
-      setNextItem(items[nextIndex]);
-      xDegs.jump(0);
-      invertedXDegs.jump(-180);
+      const { prevIndex, nextIndex } = await getNextIndex() // 🪄
+      setPrevItem(items[prevIndex])
+      setNextItem(items[nextIndex])
+      xDegs.jump(0)
+      invertedXDegs.jump(-180)
     }
-    xDegs.set(xDegs.get() - 1);
-    invertedXDegs.set(invertedXDegs.get() - 1);
-  });
+    xDegs.set(xDegs.get() - 1)
+    invertedXDegs.set(invertedXDegs.get() - 1)
+  })
 
   return (
     <section
@@ -75,5 +75,5 @@ export const SimpleFlipper = ({ children }: { children?: ReactNode }) => {
 
       <hr className="border-black w-full border-t-2 absolute z-50 left-0 top-[49.7%]" />
     </section>
-  );
-};
+  )
+}

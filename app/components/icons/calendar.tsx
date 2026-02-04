@@ -1,12 +1,12 @@
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "tailwind-merge"
 
 export const Calendar = ({
   fill = "#5158F6",
   className = "className",
 }: {
-  fill?: string;
-  props?: unknown;
-  className?: string;
+  fill?: string
+  props?: unknown
+  className?: string
 }) => (
   <svg
     className={twMerge(className)}
@@ -65,4 +65,4 @@ export const Calendar = ({
       fill={fill}
     />
   </svg>
-);
+)

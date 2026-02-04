@@ -1,22 +1,25 @@
-import { getRemitent, getSesTransport } from "./ses";
+import { getRemitent, getSesTransport } from "./ses"
 
 export const sendExperiment = async (
   emails: string[],
-  { when, subject }: { when?: string | Date; subject?: string }
+  { when, subject }: { when?: string | Date; subject?: string },
 ) => {
-  const formatedDate = new Date(when ?? Date.now()).toLocaleDateString("es-MX", {
-    timeZone: "America/Mexico_City",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
+  const formatedDate = new Date(when ?? Date.now()).toLocaleDateString(
+    "es-MX",
+    {
+      timeZone: "America/Mexico_City",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    },
+  )
 
   const formatTime = new Date().toLocaleTimeString("es-MX", {
     hour: "numeric",
     timeZone: "America/Mexico_City",
-  });
+  })
 
-  const sesTransport = getSesTransport();
+  const sesTransport = getSesTransport()
 
   return sesTransport
     .sendMail({
@@ -32,6 +35,6 @@ export const sendExperiment = async (
       `,
     })
     .catch((e: unknown) => {
-      console.error("Error sending experiment email:", e);
-    });
-};
+      console.error("Error sending experiment email:", e)
+    })
+}

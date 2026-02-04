@@ -1,6 +1,5 @@
-import React from "react";
-import { PrimaryButton } from "./primaryButton";
-import { TopBar } from "./topBar";
+import { PrimaryButton } from "./primaryButton"
+import { TopBar } from "./topBar"
 
 export const NotFound = () => {
   return (
@@ -18,5 +17,5 @@ export const NotFound = () => {
         </div>
       </div>
     </section>
-  );
-};
+  )
+}

@@ -2,8 +2,8 @@ export const Arrow = ({
   fill = "#5158F6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -18,4 +18,4 @@ export const Arrow = ({
       fill={fill}
     />
   </svg>
-);
+)

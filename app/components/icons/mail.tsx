@@ -2,8 +2,8 @@ export const Mail = ({
   stroke = "currentColor",
   className,
 }: {
-  className?: string;
-  stroke?: string;
+  className?: string
+  stroke?: string
 }) => (
   <svg
     className={className}
@@ -33,4 +33,4 @@ export const Mail = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

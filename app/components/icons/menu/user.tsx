@@ -2,8 +2,8 @@ export const User = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className="w-[36px]"
@@ -17,4 +17,4 @@ export const User = ({
       <path d="M46.76 38.26a1.5 1.5 0 0 1-1.5-1.5V25.42a1.5 1.5 0 0 1 3 0v11.34a1.51 1.51 0 0 1-1.5 1.5Z"></path>
     </g>
   </svg>
-);
+)

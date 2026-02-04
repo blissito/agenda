@@ -2,8 +2,8 @@ export const Profile = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="24"
@@ -19,4 +19,4 @@ export const Profile = ({
       strokeWidth="0.1"
     />
   </svg>
-);
+)

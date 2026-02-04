@@ -11,31 +11,31 @@
  * 4. Store credentials in OrgIntegrations.messenger
  */
 
-import type { Org } from "@prisma/client";
+import type { Org } from "@prisma/client"
 
 export class MessengerNotConfiguredError extends Error {
   constructor(message = "Messenger is not configured for this organization") {
-    super(message);
-    this.name = "MessengerNotConfiguredError";
+    super(message)
+    this.name = "MessengerNotConfiguredError"
   }
 }
 
 type OrgWithIntegrations = Org & {
   integrations?: {
     messenger?: {
-      pageId?: string | null;
-      pageAccessToken?: string | null;
-      connectedAt?: Date | null;
-    } | null;
-  } | null;
-};
+      pageId?: string | null
+      pageAccessToken?: string | null
+      connectedAt?: Date | null
+    } | null
+  } | null
+}
 
 /**
  * Check if Messenger is configured for an organization
  */
 export function isMessengerConfigured(org: OrgWithIntegrations): boolean {
-  const messenger = org.integrations?.messenger;
-  return !!(messenger?.pageId && messenger?.pageAccessToken);
+  const messenger = org.integrations?.messenger
+  return !!(messenger?.pageId && messenger?.pageAccessToken)
 }
 
 /**
@@ -45,10 +45,10 @@ export function isMessengerConfigured(org: OrgWithIntegrations): boolean {
 export async function sendMessengerMessage(
   org: OrgWithIntegrations,
   _recipientId: string,
-  _message: string
+  _message: string,
 ): Promise<void> {
   if (!isMessengerConfigured(org)) {
-    throw new MessengerNotConfiguredError();
+    throw new MessengerNotConfiguredError()
   }
 
   // TODO: Implement actual Messenger Platform API call
@@ -69,8 +69,8 @@ export async function sendMessengerMessage(
   // );
 
   throw new MessengerNotConfiguredError(
-    "Messenger integration is coming soon. Please use email notifications for now."
-  );
+    "Messenger integration is coming soon. Please use email notifications for now.",
+  )
 }
 
 /**
@@ -81,10 +81,10 @@ export async function sendMessengerReminder(
   recipientId: string,
   customerName: string,
   serviceName: string,
-  dateTime: string
+  dateTime: string,
 ): Promise<void> {
-  const message = `Hola ${customerName}, te recordamos que tu cita para ${serviceName} es ${dateTime}. ¡Te esperamos!`;
-  return sendMessengerMessage(org, recipientId, message);
+  const message = `Hola ${customerName}, te recordamos que tu cita para ${serviceName} es ${dateTime}. ¡Te esperamos!`
+  return sendMessengerMessage(org, recipientId, message)
 }
 
 /**
@@ -95,8 +95,8 @@ export async function sendMessengerConfirmation(
   recipientId: string,
   customerName: string,
   serviceName: string,
-  dateTime: string
+  dateTime: string,
 ): Promise<void> {
-  const message = `¡Hola ${customerName}! Tu cita para ${serviceName} ha sido confirmada para ${dateTime}. ¡Gracias por tu reserva!`;
-  return sendMessengerMessage(org, recipientId, message);
+  const message = `¡Hola ${customerName}! Tu cita para ${serviceName} ha sido confirmada para ${dateTime}. ¡Gracias por tu reserva!`
+  return sendMessengerMessage(org, recipientId, message)
 }

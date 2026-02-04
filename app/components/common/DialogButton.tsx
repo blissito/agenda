@@ -1,45 +1,50 @@
-import { Link, type LinkProps } from "react-router";
-import { type ReactNode, useRef, useState, type ButtonHTMLAttributes } from "react";
-import { twMerge } from "tailwind-merge";
-
-import { motion } from "motion/react";
-import { cn } from "~/utils/cn";
+import { motion } from "motion/react"
+import {
+  type ButtonHTMLAttributes,
+  type ReactNode,
+  useRef,
+  useState,
+} from "react"
+import { Link, type LinkProps } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { cn } from "~/utils/cn"
 
 type BaseProps = {
-  onClick?: () => void;
-  isLoading?: boolean;
-  isDisabled?: boolean;
-  className?: string;
-  children: ReactNode;
-};
+  onClick?: () => void
+  isLoading?: boolean
+  isDisabled?: boolean
+  className?: string
+  children: ReactNode
+}
 
 type ButtonProps = BaseProps & {
-  as?: undefined;
-} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseProps>;
+  as?: undefined
+} & Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof BaseProps>
 
 type LinkPropsType = BaseProps & {
-  as: "Link";
-  to: string;
-} & Omit<LinkProps, keyof BaseProps | "to">;
+  as: "Link"
+  to: string
+} & Omit<LinkProps, keyof BaseProps | "to">
 
-type DialogButtonProps = ButtonProps | LinkPropsType;
+type DialogButtonProps = ButtonProps | LinkPropsType
 
 export const DialogButton = (props: DialogButtonProps) => {
-  const { className, children, isDisabled, isLoading, as, onClick, ...rest } = props;
-  const to = as === "Link" ? (rest as { to: string }).to : "";
-  const [isOpen, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const { className, children, isDisabled, isLoading, as, onClick, ...rest } =
+    props
+  const _to = as === "Link" ? (rest as { to: string }).to : ""
+  const [isOpen, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
   const openModal = () => {
-    setOpen(true);
+    setOpen(true)
     if (ref.current) {
-      document.body.appendChild(ref.current);
+      document.body.appendChild(ref.current)
     }
-  };
+  }
 
   const closeModal = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const jsx = (
     <div
@@ -49,7 +54,7 @@ export const DialogButton = (props: DialogButtonProps) => {
         {
           visible: isOpen,
           invisible: !isOpen,
-        }
+        },
       )}
     >
       <motion.div
@@ -95,13 +100,13 @@ export const DialogButton = (props: DialogButtonProps) => {
         </div>
       </div>
     </div>
-  );
+  )
 
   const buttonClassName = twMerge(
     "rounded-full hover:-translate-y-1 transition-all bg-fish text-base md:text-lg bg-brand_blue text-white h-12 md:h-12 px-6 flex gap-2 items-center justify-center font-light",
     "disabled:bg-slate-300 disabled:pointer-events-none",
-    className
-  );
+    className,
+  )
 
   const content = (
     <>
@@ -110,10 +115,13 @@ export const DialogButton = (props: DialogButtonProps) => {
         <div className="w-6 h-6 rounded-full animate-spin border-4 border-t-indigo-500" />
       )}
     </>
-  );
+  )
 
   if (as === "Link") {
-    const { to: linkTo, ...linkRest } = rest as Omit<LinkPropsType, keyof BaseProps | "as">;
+    const { to: linkTo, ...linkRest } = rest as Omit<
+      LinkPropsType,
+      keyof BaseProps | "as"
+    >
     return (
       <>
         <Link
@@ -126,10 +134,10 @@ export const DialogButton = (props: DialogButtonProps) => {
         </Link>
         {jsx}
       </>
-    );
+    )
   }
 
-  const buttonRest = rest as Omit<ButtonProps, keyof BaseProps | "as">;
+  const buttonRest = rest as Omit<ButtonProps, keyof BaseProps | "as">
   return (
     <>
       <button
@@ -142,5 +150,5 @@ export const DialogButton = (props: DialogButtonProps) => {
       </button>
       {jsx}
     </>
-  );
-};
+  )
+}

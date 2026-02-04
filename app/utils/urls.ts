@@ -2,7 +2,7 @@
  * Utility functions for generating public URLs and data transformations
  */
 
-const PLATFORM_DOMAIN = "denik.me";
+const PLATFORM_DOMAIN = "denik.me"
 
 /**
  * Mapping from Spanish day names to English day names (UI)
@@ -23,7 +23,7 @@ const SPANISH_TO_ENGLISH_DAYS: Record<string, string> = {
   // Without accents (just in case)
   miercoles: "wednesday",
   sabado: "saturday",
-};
+}
 
 /**
  * Default weekDays (Mon-Fri 9:00-18:00) used when no schedule is configured
@@ -34,7 +34,7 @@ const DEFAULT_WEEK_DAYS: Record<string, string[][]> = {
   wednesday: [["09:00", "18:00"]],
   thursday: [["09:00", "18:00"]],
   friday: [["09:00", "18:00"]],
-};
+}
 
 /**
  * Converts weekDays object from Spanish keys to English keys
@@ -43,26 +43,26 @@ const DEFAULT_WEEK_DAYS: Record<string, string[][]> = {
  */
 export function convertWeekDaysToEnglish(
   weekDays: Record<string, any> | null | undefined,
-  useDefaultIfEmpty = true
+  useDefaultIfEmpty = true,
 ): Record<string, any> {
   if (!weekDays || Object.keys(weekDays).length === 0) {
-    return useDefaultIfEmpty ? DEFAULT_WEEK_DAYS : {};
+    return useDefaultIfEmpty ? DEFAULT_WEEK_DAYS : {}
   }
 
-  const converted: Record<string, any> = {};
+  const converted: Record<string, any> = {}
   for (const [spanishDay, value] of Object.entries(weekDays)) {
-    const englishDay = SPANISH_TO_ENGLISH_DAYS[spanishDay];
+    const englishDay = SPANISH_TO_ENGLISH_DAYS[spanishDay]
     if (englishDay && value) {
-      converted[englishDay] = value;
+      converted[englishDay] = value
     }
   }
 
   // Return default if conversion resulted in empty object
   if (Object.keys(converted).length === 0 && useDefaultIfEmpty) {
-    return DEFAULT_WEEK_DAYS;
+    return DEFAULT_WEEK_DAYS
   }
 
-  return converted;
+  return converted
 }
 
 /**
@@ -70,20 +70,23 @@ export function convertWeekDaysToEnglish(
  * - Localhost: http://localhost:PORT/agenda/{orgSlug}/{serviceSlug}
  * - Production: https://{orgSlug}.denik.me/{serviceSlug}
  */
-export function getServicePublicUrl(orgSlug: string, serviceSlug: string): string {
+export function getServicePublicUrl(
+  orgSlug: string,
+  serviceSlug: string,
+): string {
   if (typeof window !== "undefined") {
-    const { hostname, port, protocol } = window.location;
-    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1";
+    const { hostname, port, protocol } = window.location
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1"
 
     if (isLocalhost) {
       // In dev, use path-based route since subdomains don't work on localhost
-      const portPart = port ? `:${port}` : "";
-      return `${protocol}//${hostname}${portPart}/agenda/${orgSlug}/${serviceSlug}`;
+      const portPart = port ? `:${port}` : ""
+      return `${protocol}//${hostname}${portPart}/agenda/${orgSlug}/${serviceSlug}`
     }
   }
 
   // Production: use subdomain-based URL
-  return `https://${orgSlug}.${PLATFORM_DOMAIN}/${serviceSlug}`;
+  return `https://${orgSlug}.${PLATFORM_DOMAIN}/${serviceSlug}`
 }
 
 /**
@@ -92,5 +95,5 @@ export function getServicePublicUrl(orgSlug: string, serviceSlug: string): strin
  * Format: https://{orgSlug}.denik.me
  */
 export function getOrgPublicUrl(orgSlug: string): string {
-  return `https://${orgSlug}.${PLATFORM_DOMAIN}`;
+  return `https://${orgSlug}.${PLATFORM_DOMAIN}`
 }

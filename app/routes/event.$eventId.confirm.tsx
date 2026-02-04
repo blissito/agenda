@@ -3,15 +3,15 @@
  * Shows confirmation success page after customer clicks email link
  * The event is already confirmed in event.action.tsx
  */
-import { redirect, data } from "react-router";
-import type { Route } from "./+types/event.$eventId.confirm";
-import { db } from "~/utils/db.server";
-import { getSession, commitSession } from "~/sessions";
-import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
+import { data, redirect } from "react-router"
+import { commitSession, getSession } from "~/sessions"
+import { db } from "~/utils/db.server"
+import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
+import type { Route } from "./+types/event.$eventId.confirm"
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  const session = await getSession(request.headers.get("Cookie"));
-  const access = session.get("customerEventAccess");
+  const session = await getSession(request.headers.get("Cookie"))
+  const access = session.get("customerEventAccess")
 
   // Verify session access
   if (
@@ -19,7 +19,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     access.eventId !== params.eventId ||
     access.expiresAt < Date.now()
   ) {
-    throw redirect("/error?reason=session_expired");
+    throw redirect("/error?reason=session_expired")
   }
 
   const event = await db.event.findUnique({
@@ -28,24 +28,24 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       customer: true,
       service: { include: { org: true } },
     },
-  });
+  })
 
   if (!event) {
-    throw redirect("/error?reason=event_not_found");
+    throw redirect("/error?reason=event_not_found")
   }
 
   // Check if a new user account was created
-  const newUserCreated = session.get("newUserCreated") || false;
+  const newUserCreated = session.get("newUserCreated") || false
   if (newUserCreated) {
-    session.unset("newUserCreated");
+    session.unset("newUserCreated")
   }
 
   const timezone =
-    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE;
+    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE
 
-  const headers: HeadersInit = {};
+  const headers: HeadersInit = {}
   if (newUserCreated) {
-    headers["Set-Cookie"] = await commitSession(session);
+    headers["Set-Cookie"] = await commitSession(session)
   }
 
   return data(
@@ -68,14 +68,12 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       },
       newUserCreated,
     },
-    { headers }
-  );
-};
+    { headers },
+  )
+}
 
-export default function ConfirmEventPage({
-  loaderData,
-}: Route.ComponentProps) {
-  const { event, service, customer, newUserCreated } = loaderData;
+export default function ConfirmEventPage({ loaderData }: Route.ComponentProps) {
+  const { event, service, customer, newUserCreated } = loaderData
 
   return (
     <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
@@ -127,12 +125,13 @@ export default function ConfirmEventPage({
         {newUserCreated && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6 text-left">
             <p className="text-blue-800 text-sm">
-              Tu cuenta Denik ha sido creada con <strong>{customer?.email}</strong>.
-              Podrás ver todas tus citas desde tu portal.
+              Tu cuenta Denik ha sido creada con{" "}
+              <strong>{customer?.email}</strong>. Podrás ver todas tus citas
+              desde tu portal.
             </p>
           </div>
         )}
       </div>
     </main>
-  );
+  )
 }

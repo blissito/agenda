@@ -1,8 +1,7 @@
-import { DialogButton } from "../common/DialogButton";
-import { PrimaryButton } from "../common/primaryButton";
-import { SecondaryButton } from "../common/secondaryButton";
-import { ArrowRight } from "../icons/arrowRight";
-import { Meteors } from "./Meteors";
+import { DialogButton } from "../common/DialogButton"
+import { SecondaryButton } from "../common/secondaryButton"
+import { ArrowRight } from "../icons/arrowRight"
+import { Meteors } from "./Meteors"
 
 // @ Meteors require Banner to be wrapped in a Suspense!
 export const Banner = () => {
@@ -30,5 +29,5 @@ export const Banner = () => {
       </div>
       <Meteors />
     </section>
-  );
-};
+  )
+}

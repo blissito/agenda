@@ -1,8 +1,8 @@
 export const Courses = ({
   fill = "#8391A1",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -61,4 +61,4 @@ export const Courses = ({
       strokeLinejoin="round"
     />
   </svg>
-);
+)

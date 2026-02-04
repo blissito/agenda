@@ -2,8 +2,8 @@ export const FeaturesList = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -28,4 +28,4 @@ export const FeaturesList = ({
     />
     <path d="M13.7461 18.2227H20.5001" stroke={fill} strokeLinecap="round" />
   </svg>
-);
+)

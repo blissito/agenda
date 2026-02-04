@@ -2,8 +2,8 @@ export const Share = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="32"
@@ -19,4 +19,4 @@ export const Share = ({
       strokeWidth="0.3"
     />
   </svg>
-);
+)

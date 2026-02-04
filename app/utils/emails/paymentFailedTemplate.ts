@@ -4,10 +4,10 @@ export default ({
   orgName,
   retryLink,
 }: {
-  customerName: string;
-  serviceName: string;
-  orgName: string;
-  retryLink: string;
+  customerName: string
+  serviceName: string
+  orgName: string
+  retryLink: string
 }) => `
 <body style="font-family:Arial; background-color:#F8F8F8;padding:24px;">
 <div style="min-width:360px; max-width:480px; margin:0 auto;padding:24px; background-color:#ffffff; border-radius:24px;">
@@ -31,4 +31,4 @@ export default ({
   </div>
 </div>
 </body>
-`;
+`

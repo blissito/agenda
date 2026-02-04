@@ -1,19 +1,19 @@
-import type { HourOrDay } from "~/components/hooks/useCoordinates";
+import type { HourOrDay } from "~/components/hooks/useCoordinates"
 
 export interface Day {
-  day: string;
-  date: Date;
-  meta?: Record<string, unknown>;
+  day: string
+  date: Date
+  meta?: Record<string, unknown>
 }
 
 export type BasicBoxType = {
-  x?: number;
-  y?: number;
-  id?: number;
-  date: Date | string | number;
-  title?: string;
-  text?: string;
-};
+  x?: number
+  y?: number
+  id?: number
+  date: Date | string | number
+  title?: string
+  text?: string
+}
 
 export const defaultDays: Day[] = [
   {
@@ -44,123 +44,122 @@ export const defaultDays: Day[] = [
     day: "sunday",
     date: new Date(),
   },
-];
+]
 
-export const toNumber = (string: string) => Number(string.replace(":00", ""));
+export const toNumber = (string: string) => Number(string.replace(":00", ""))
 export const fromMinsToLocaleTimeString = (mins: number) => {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
   const today = new Date(
     new Date().getFullYear(),
     new Date().getMonth(),
     new Date().getDate(),
     h,
     m,
-    0
-  );
-  return today.toLocaleTimeString("es-MX");
-};
+    0,
+  )
+  return today.toLocaleTimeString("es-MX")
+}
 export const fromMinsToTimeString = (mins: number) => {
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}:00`; // @TODO: real secs
-};
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return `${h < 10 ? `0${h}` : h}:${m < 10 ? `0${m}` : m}:00` // @TODO: real secs
+}
 export const generateHours = ({
   fromHour,
   toHour,
 }: {
-  fromHour: number | string;
-  toHour: number | string;
-  justNumbers?: boolean;
+  fromHour: number | string
+  toHour: number | string
+  justNumbers?: boolean
 }) => {
-  const fh = Number(fromHour);
-  const th = Number(toHour);
+  const fh = Number(fromHour)
+  const th = Number(toHour)
   return Array.from({ length: th - fh }).map((_, index) =>
-    fh + index < 10 ? `0${fh + index}:00` : `${fh + index}:00`
-  );
-};
+    fh + index < 10 ? `0${fh + index}:00` : `${fh + index}:00`,
+  )
+}
 
 export const generateSecuense = (
   fromMins: number,
   toMins: number,
   mins: number,
-  min: number = 0
+  min: number = 0,
 ) => {
-  let count = fromMins;
-  const slots = [];
+  let count = fromMins
+  const slots = []
   while (count < toMins) {
-    if (count > min) slots.push(count);
-    count += mins;
+    if (count > min) slots.push(count)
+    count += mins
   }
-  return slots;
-};
+  return slots
+}
 
 export const getMonday = (today: Date = new Date()) => {
-  const day = today.getDay();
-  const diff = today.getDate() - day + (day == 1 ? -6 : 1); // the magic 🪄
-  return new Date(today.setDate(diff));
-};
+  const day = today.getDay()
+  const diff = today.getDate() - day + (day === 1 ? -6 : 1) // the magic 🪄
+  return new Date(today.setDate(diff))
+}
 
 export const completeWeek = (date: Date) => {
-  const startDate = new Date(date);
-  const day = new Date(startDate).getDay();
-  const offset = -day + 1; // looking for monday 🤓
-  startDate.setDate(startDate.getDate() + offset);
+  const startDate = new Date(date)
+  const day = new Date(startDate).getDay()
+  const offset = -day + 1 // looking for monday 🤓
+  startDate.setDate(startDate.getDate() + offset)
   return [0, 1, 1, 1, 1, 1, 1].map((n) => {
-    startDate.setDate(startDate.getDate() + n);
-    return new Date(startDate);
-  });
-};
+    startDate.setDate(startDate.getDate() + n)
+    return new Date(startDate)
+  })
+}
 
 export const generateWeek = (
   monday: Date = getMonday(),
-  numberOfDays: 5 | 7 = 5
+  numberOfDays: 5 | 7 = 5,
 ): Day[] => {
-  const days = [...defaultDays];
+  const days = [...defaultDays]
 
   const fillWeek = () => {
     Array.from({ length: numberOfDays }).forEach((_, index) => {
-      const m = new Date(monday);
-      days[index].date = new Date(m.setDate(m.getDate() + index));
-    });
-  };
+      const m = new Date(monday)
+      days[index].date = new Date(m.setDate(m.getDate() + index))
+    })
+  }
   // 1. encuentra el día de hoy
-  const today = new Date();
-  const dayOfWeek = today.getDay();
-  const todayIndex = dayOfWeek - 1; // day is 0 when sunday, we want
-  days[todayIndex].meta = { foo: "bar" }; // just to remember we have meta
+  const today = new Date()
+  const dayOfWeek = today.getDay()
+  const todayIndex = dayOfWeek - 1 // day is 0 when sunday, we want
+  days[todayIndex].meta = { foo: "bar" } // just to remember we have meta
   // 2. qué día de la semana es? No importa. Se encuentra el lunes y se rellena solo hacia adelante
-  fillWeek();
-  return [...days];
-};
+  fillWeek()
+  return [...days]
+}
 
-export const addDaysToDate = (days: number, date: Date) =>
-  date.getDate() + days;
+export const addDaysToDate = (days: number, date: Date) => date.getDate() + days
 
 export const addMinutesToDate = (date: Date, mins?: number) => {
-  if (!date || !mins) return;
-  const d = new Date(date);
+  if (!date || !mins) return
+  const d = new Date(date)
   return new Date(
     d.getFullYear(),
     d.getMonth(),
     d.getDate(),
     d.getHours(),
-    d.getMinutes() + mins
-  );
-};
+    d.getMinutes() + mins,
+  )
+}
 
 export const getCoord = ({
   coord = "x",
   index,
   colsLength,
 }: {
-  coord?: "x" | "y";
-  index: number;
-  colsLength: number;
+  coord?: "x" | "y"
+  index: number
+  colsLength: number
 }) =>
   coord.toLocaleLowerCase() === "y"
     ? Math.floor(index / colsLength)
-    : Math.floor(index % colsLength);
+    : Math.floor(index % colsLength)
 
 export const generateWeekGrid = ({
   factor,
@@ -168,16 +167,16 @@ export const generateWeekGrid = ({
   hours,
   days,
 }: {
-  days: string[];
-  factor: number;
-  week: Day[];
-  hours: HourOrDay[];
+  days: string[]
+  factor: number
+  week: Day[]
+  hours: HourOrDay[]
 }) => {
   return [...Array(hours.length * factor * days.length).keys()].map((index) => {
-    const y = Math.floor(index / days.length); // auto? D:
-    const x = Math.floor(index % days.length);
-    const hoursY = Math.floor(index / days.length / factor);
-    const mins = (y % factor) * 15;
+    const y = Math.floor(index / days.length) // auto? D:
+    const x = Math.floor(index % days.length)
+    const hoursY = Math.floor(index / days.length / factor)
+    const mins = (y % factor) * 15
     return {
       index,
       y,
@@ -189,7 +188,7 @@ export const generateWeekGrid = ({
         new Date(week[x].date).getMonth(),
         new Date(week[x].date).getDate(),
         new Date(week[x].date).getHours(),
-        mins
+        mins,
       ),
       hour: hours[hoursY]?.number ?? 0,
       mins: mins === 0 ? "00" : mins,
@@ -201,11 +200,11 @@ export const generateWeekGrid = ({
         new Date(week[x].date).getMonth(),
         new Date(week[x].date).getDate(),
         new Date(week[x].date).getHours(),
-        mins
+        mins,
       ),
-    };
-  });
-};
+    }
+  })
+}
 
 /**
  *
@@ -214,27 +213,27 @@ export const generateWeekGrid = ({
  * @todo enero no funciona
  */
 export const getDaysInMonth = (date: Date) => {
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1)
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0)
   // Ajuste para semana que empieza en Lunes (0=Lunes, 6=Domingo)
-  const leftOffset = (firstDay.getDay() + 6) % 7;
-  const numberOfMissing = (7 - lastDay.getDay()) % 7;
+  const leftOffset = (firstDay.getDay() + 6) % 7
+  const numberOfMissing = (7 - lastDay.getDay()) % 7
   // initial offset
-  firstDay.setDate(firstDay.getDate() - leftOffset); // first week offset
+  firstDay.setDate(firstDay.getDate() - leftOffset) // first week offset
   // defining array and first day
-  const days = [];
-  days.push(new Date(firstDay)); // first day
+  const days = []
+  days.push(new Date(firstDay)) // first day
   // loops
   while (firstDay < lastDay) {
-    firstDay.setDate(firstDay.getDate() + 1);
-    days.push(new Date(firstDay));
+    firstDay.setDate(firstDay.getDate() + 1)
+    days.push(new Date(firstDay))
   }
   for (let i = 0; i < numberOfMissing; i++) {
-    firstDay.setDate(firstDay.getDate() + 1);
-    days.push(new Date(firstDay));
+    firstDay.setDate(firstDay.getDate() + 1)
+    days.push(new Date(firstDay))
   }
-  return days;
-};
+  return days
+}
 
 export const isToday = (_date: Date) => {
   // comparing without time
@@ -242,31 +241,34 @@ export const isToday = (_date: Date) => {
     new Date(
       new Date().getFullYear(),
       new Date().getMonth(),
-      new Date().getDate()
+      new Date().getDate(),
     ).toString() ===
     new Date(_date.getFullYear(), _date.getMonth(), _date.getDate()).toString()
-  );
-};
+  )
+}
 
 export const areSameDates = (d1: Date, d2: Date | null) => {
-  if (!d1 || !d2 || !(d1 instanceof Date) || !(d2 instanceof Date)) return false;
-  const date1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate());
-  const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate());
-  return date1.getTime() === date2.getTime();
-};
+  if (!d1 || !d2 || !(d1 instanceof Date) || !(d2 instanceof Date)) return false
+  const date1 = new Date(d1.getFullYear(), d1.getMonth(), d1.getDate())
+  const date2 = new Date(d2.getFullYear(), d2.getMonth(), d2.getDate())
+  return date1.getTime() === date2.getTime()
+}
 
-export const fromDateToTimeString = (_date: Date, _locale: "es-MX" = "es-MX") => {
-  return new Date(_date).toLocaleTimeString();
-};
+export const fromDateToTimeString = (
+  _date: Date,
+  _locale: "es-MX" = "es-MX",
+) => {
+  return new Date(_date).toLocaleTimeString()
+}
 
 export const from12To24 = (string: string) => {
-  const meridiem = string.split(" ")[1];
-  const h = Number(string.split(":")[0]);
-  const m = Number(string.split(":")[1]);
+  const meridiem = string.split(" ")[1]
+  const h = Number(string.split(":")[0])
+  const m = Number(string.split(":")[1])
   return meridiem === "p.m."
-    ? `${(h === 12 ? 0 : h) + 12}:${m < 10 ? "0" + m : m}`
-    : `${h < 10 ? "0" + h : h}:${m < 10 ? "0" + m : m}`;
-};
+    ? `${(h === 12 ? 0 : h) + 12}:${m < 10 ? `0${m}` : m}`
+    : `${h < 10 ? `0${h}` : h}:${m < 10 ? `0${m}` : m}`
+}
 
 const days = [
   "sunday",
@@ -276,8 +278,8 @@ const days = [
   "thursday",
   "friday",
   "saturday",
-];
+]
 
 export const convertDayToString = (number: number) => {
-  return days[number];
-};
+  return days[number]
+}

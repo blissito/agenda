@@ -1,31 +1,29 @@
 // Public API for the calendar component
 // Can be extracted as a separate npm package
 
+// Utilities
+export {
+  addDaysToDate,
+  addMinutesToDate,
+  areSameDates,
+  completeWeek,
+  fromDateToTimeString,
+  fromMinsToLocaleTimeString,
+  fromMinsToTimeString,
+  generateHours,
+  generateWeek,
+  getDaysInMonth,
+  getMonday,
+  isToday,
+} from "./agendaUtils"
 // Main component
-export { SimpleBigWeekView } from "./SimpleBigWeekView";
-
-// Headless hook for overlap detection
-export { useEventOverlap } from "./useEventOverlap";
+export { SimpleBigWeekView } from "./SimpleBigWeekView"
 
 // Types
 export type {
+  CalendarConfig,
   CalendarEvent,
   CalendarProps,
-  CalendarConfig,
-} from "./types";
-
-// Utilities
-export {
-  completeWeek,
-  generateWeek,
-  generateHours,
-  getMonday,
-  isToday,
-  areSameDates,
-  addDaysToDate,
-  addMinutesToDate,
-  fromMinsToTimeString,
-  fromMinsToLocaleTimeString,
-  fromDateToTimeString,
-  getDaysInMonth,
-} from "./agendaUtils";
+} from "./types"
+// Headless hook for overlap detection
+export { useEventOverlap } from "./useEventOverlap"

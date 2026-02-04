@@ -1,8 +1,8 @@
 export const Money = ({
   fill = "#4B5563",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -31,4 +31,4 @@ export const Money = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

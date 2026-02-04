@@ -1,25 +1,25 @@
-import { useFetcher } from "react-router";
-import { BasicInput } from "../BasicInput";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { Facebook } from "~/components/icons/facebook";
-import { Twitter } from "~/components/icons/twitter";
-import { Instagram } from "~/components/icons/insta";
-import { Tiktok } from "~/components/icons/tiktok";
-import { Linkedin } from "~/components/icons/linkedin";
-import { Anchor } from "~/components/icons/link";
-import { useForm } from "react-hook-form";
-import type { Org } from "@prisma/client";
-import { Youtube } from "~/components/icons/youtube";
+import type { Org } from "@prisma/client"
+import { useForm } from "react-hook-form"
+import { useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { Facebook } from "~/components/icons/facebook"
+import { Instagram } from "~/components/icons/insta"
+import { Anchor } from "~/components/icons/link"
+import { Linkedin } from "~/components/icons/linkedin"
+import { Tiktok } from "~/components/icons/tiktok"
+import { Twitter } from "~/components/icons/twitter"
+import { Youtube } from "~/components/icons/youtube"
+import { BasicInput } from "../BasicInput"
 
 export const SocialDataForm = ({
   defaultValues,
   onClose,
 }: {
-  onClose?: () => void;
-  defaultValues?: Org;
+  onClose?: () => void
+  defaultValues?: Org
 }) => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher()
 
   const {
     handleSubmit,
@@ -28,7 +28,7 @@ export const SocialDataForm = ({
   } = useForm({
     defaultValues: defaultValues?.social || {},
     mode: "onChange",
-  });
+  })
 
   const onSubmit = (values: unknown) => {
     fetcher.submit(
@@ -36,13 +36,13 @@ export const SocialDataForm = ({
         data: JSON.stringify({ social: values, id: defaultValues?.id }),
         intent: "org_update",
       },
-      { method: "POST", action: "/api/org" }
-    );
-    onClose?.();
-  };
+      { method: "POST", action: "/api/org" },
+    )
+    onClose?.()
+  }
 
-  const isDisabled = !isDirty || !isValid;
-  const isLoading = fetcher.state !== "idle";
+  const isDisabled = !isDirty || !isValid
+  const isLoading = fetcher.state !== "idle"
 
   return (
     <fetcher.Form
@@ -140,10 +140,7 @@ export const SocialDataForm = ({
         }
       />
       <footer className="flex justify-center gap-4 sticky bottom-0 py-4 bg-white">
-        <SecondaryButton
-          onClick={onClose}
-          className="w-[120px]"
-        >
+        <SecondaryButton onClick={onClose} className="w-[120px]">
           Cancelar
         </SecondaryButton>
         <PrimaryButton
@@ -155,5 +152,5 @@ export const SocialDataForm = ({
         </PrimaryButton>
       </footer>
     </fetcher.Form>
-  );
-};
+  )
+}

@@ -2,8 +2,8 @@ export const AddImage = ({
   fill = "#4B5563",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -18,4 +18,4 @@ export const AddImage = ({
       fill={fill}
     />
   </svg>
-);
+)

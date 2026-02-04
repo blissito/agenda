@@ -3,9 +3,9 @@ export const CalendarPicker = ({
   stroke = "currentColor",
   className,
 }: {
-  className?: string;
-  fill?: string;
-  stroke?: string;
+  className?: string
+  fill?: string
+  stroke?: string
 }) => (
   <svg
     className={className}
@@ -22,4 +22,4 @@ export const CalendarPicker = ({
       strokeWidth="0.2"
     />
   </svg>
-);
+)

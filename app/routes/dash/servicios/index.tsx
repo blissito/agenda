@@ -1,25 +1,25 @@
-import { Outlet, redirect, useFetcher, useLoaderData } from "react-router";
-import { AnimatePresence } from "motion/react";
-import { useCallback } from "react";
-import { PrimaryButton } from "~/components/common/primaryButton";
+import type { Service } from "@prisma/client"
+import { AnimatePresence } from "motion/react"
+import { useCallback } from "react"
+import { Outlet, redirect, useFetcher } from "react-router"
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
 import {
   AddService,
   ServiceCard,
-} from "~/components/dash/servicios/ServiceCard";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import type { Route } from "./+types";
-import { db } from "~/utils/db.server";
-import type { Service } from "@prisma/client";
-import { getServicePublicUrl } from "~/utils/urls";
-import { generateUniqueServiceSlug } from "~/utils/slugs.server";
+} from "~/components/dash/servicios/ServiceCard"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { db } from "~/utils/db.server"
+import { generateUniqueServiceSlug } from "~/utils/slugs.server"
+import { getServicePublicUrl } from "~/utils/urls"
+import type { Route } from "./+types"
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
 
   if (intent === "update_service") {
-    const data = JSON.parse(formData.get("data") as string);
+    const data = JSON.parse(formData.get("data") as string)
     // @todo validate
     await db.service.update({
       where: {
@@ -29,13 +29,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
         ...data,
         id: undefined,
       },
-    });
+    })
   }
 
   if (intent === "create_dummy_service") {
-    const { org } = await getUserAndOrgOrRedirect(request);
+    const { org } = await getUserAndOrgOrRedirect(request)
     if (!org) {
-      return Response.json({ error: "Organization not found" }, { status: 404 });
+      return Response.json({ error: "Organization not found" }, { status: 404 })
     }
     const dummy = await db.service.create({
       data: {
@@ -55,27 +55,27 @@ export const action = async ({ request }: Route.ActionArgs) => {
         price: 0,
         seats: 1,
       },
-    });
-    return redirect(`/dash/servicios/${dummy.id}`);
+    })
+    return redirect(`/dash/servicios/${dummy.id}`)
   }
-};
+}
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const services = await getServices(request);
-  const { org } = await getUserAndOrgOrRedirect(request);
+  const services = await getServices(request)
+  const { org } = await getUserAndOrgOrRedirect(request)
   if (!org) {
-    throw new Response("Organization not found", { status: 404 });
+    throw new Response("Organization not found", { status: 404 })
   }
-  return { services, org };
-};
+  return { services, org }
+}
 
 export default function Services({ loaderData }: Route.ComponentProps) {
-  const { services, org } = loaderData;
+  const { services, org } = loaderData
 
   const getLink = useCallback(
     (service: Service) => getServicePublicUrl(org.slug, service.slug),
-    [org.slug]
-  );
+    [org.slug],
+  )
 
   return (
     <main className=" ">
@@ -109,11 +109,11 @@ export default function Services({ loaderData }: Route.ComponentProps) {
       </div>
       <Outlet />
     </main>
-  );
+  )
 }
 
 const EmptyStateServices = () => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher()
   return (
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
@@ -135,13 +135,13 @@ const EmptyStateServices = () => {
           onClick={() => {
             fetcher.submit(
               { intent: "create_dummy_service" },
-              { method: "post" }
-            );
+              { method: "post" },
+            )
           }}
         >
           + Agregar servicio
         </PrimaryButton>
       </div>
     </div>
-  );
-};
+  )
+}

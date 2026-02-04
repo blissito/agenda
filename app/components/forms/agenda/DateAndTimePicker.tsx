@@ -1,29 +1,28 @@
-import { type ReactNode, useState } from "react";
-import { FaClock, FaGlobeAmericas } from "react-icons/fa";
-import { type Org, type Service } from "@prisma/client";
-import { twMerge } from "tailwind-merge";
-import { AnimatePresence, motion } from "motion/react";
-import { nanoid } from "nanoid";
+import { type Org } from "@prisma/client"
+import { AnimatePresence, motion } from "motion/react"
+import { type ReactNode, useState } from "react"
+import { FaClock, FaGlobeAmericas } from "react-icons/fa"
+import { twMerge } from "tailwind-merge"
+import { weekDictionary } from "~/components/agenda/utils"
 import {
   from12To24,
   fromMinsToLocaleTimeString,
   generateSecuense,
-} from "~/components/dash/agenda/agendaUtils";
+} from "~/components/dash/agenda/agendaUtils"
+import { Clook } from "~/components/icons/appointment/clook"
+import { Id } from "~/components/icons/appointment/id"
+import { Location } from "~/components/icons/appointment/location"
+import { Money } from "~/components/icons/appointment/money"
+import { Schedule } from "~/components/icons/appointment/schedule"
 import {
   formatDateInTimezone,
   getTimezoneLabel,
   type SupportedTimezone,
-} from "~/utils/timezone";
-import { Schedule } from "~/components/icons/appointment/schedule";
-import { Clook } from "~/components/icons/appointment/clook";
-import { Money } from "~/components/icons/appointment/money";
-import { Id } from "~/components/icons/appointment/id";
-import { Location } from "~/components/icons/appointment/location";
-import { weekDictionary } from "~/components/agenda/utils";
-import { MonthView } from "./MonthView";
+} from "~/utils/timezone"
+import { MonthView } from "./MonthView"
 
-type WeekDaysType = Record<string, string[][]>;
-type ScheduledDatesType = Record<string, Record<string, string[]>>;
+type WeekDaysType = Record<string, string[][]>
+type ScheduledDatesType = Record<string, Record<string, string[]>>
 
 // Calendar picker and time (Legacy component - consider using MonthView + TimeView directly)
 export const DateAndTimePicker = ({
@@ -35,60 +34,60 @@ export const DateAndTimePicker = ({
   onTimeChange,
   time,
 }: {
-  scheduledDates?: ScheduledDatesType;
-  weekDays: WeekDaysType;
-  duration?: number;
-  selectedDate: Date | null;
-  time?: string;
-  onTimeChange?: (arg0: string) => void;
-  onDateChange: (arg0: Date) => void;
+  scheduledDates?: ScheduledDatesType
+  weekDays: WeekDaysType
+  duration?: number
+  selectedDate: Date | null
+  time?: string
+  onTimeChange?: (arg0: string) => void
+  onDateChange: (arg0: Date) => void
 }) => {
-  const [times, setTimes] = useState<string[]>([]);
+  const [times, setTimes] = useState<string[]>([])
 
   const handleDaySelect = (date: Date) => {
-    onDateChange?.(date);
-    updateTimes(date);
-  };
+    onDateChange?.(date)
+    updateTimes(date)
+  }
 
   const updateTimes = (date: Date) => {
-    const today = new Date();
+    const today = new Date()
     const isToday =
       new Date(
         today.getFullYear(),
         today.getMonth(),
-        today.getDate()
+        today.getDate(),
       ).getTime() ===
-      new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+      new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 
-    const dayName = weekDictionary[new Date(date).getDay()];
-    const range = weekDays[dayName];
+    const dayName = weekDictionary[new Date(date).getDay()]
+    const range = weekDays[dayName]
     if (!range) {
-      setTimes([]);
-      return;
+      setTimes([])
+      return
     }
 
     const minutes = range.map((tuple: string[]) =>
-      tuple.map((str) => Number(str.split(":")[0]) * 60)
-    );
+      tuple.map((str) => Number(str.split(":")[0]) * 60),
+    )
 
-    let slots: string[] = [];
+    let slots: string[] = []
     minutes.forEach((tuple: number[]) => {
       const secuence = generateSecuense(
         tuple[0],
         tuple[1],
         duration,
-        isToday ? today.getHours() * 60 + today.getMinutes() : undefined
-      ).map(fromMinsToLocaleTimeString);
-      slots = slots.concat(secuence);
-    });
+        isToday ? today.getHours() * 60 + today.getMinutes() : undefined,
+      ).map(fromMinsToLocaleTimeString)
+      slots = slots.concat(secuence)
+    })
 
-    const month = String(new Date(date).getMonth());
-    const day = String(new Date(date).getDate());
+    const month = String(new Date(date).getMonth())
+    const day = String(new Date(date).getDate())
 
-    const scheduledSlots = scheduledDates?.[month]?.[day] ?? [];
-    slots = slots.filter((slot) => !scheduledSlots.includes(slot));
-    setTimes(slots);
-  };
+    const scheduledSlots = scheduledDates?.[month]?.[day] ?? []
+    slots = slots.filter((slot) => !scheduledSlots.includes(slot))
+    setTimes(slots)
+  }
 
   return (
     <main className="min-w-fit ">
@@ -130,10 +129,10 @@ export const DateAndTimePicker = ({
       </article>
       {/* </AnimatePresence> */}
     </main>
-  );
-};
+  )
+}
 
-const monthNames = [
+const _monthNames = [
   "enero",
   "febrero",
   "marzo",
@@ -146,14 +145,14 @@ const monthNames = [
   "octubre",
   "noviembre",
   "diciembre",
-];
+]
 // const tool = new Date();
-const vDates = [
+const _vDates = [
   new Date(2024, 5, 30),
   new Date(2024, 6, 8),
   new Date(2024, 6, 5),
   // new Date(2024, 6, 26),
-];
+]
 
 const TimeButton = ({
   className,
@@ -161,14 +160,14 @@ const TimeButton = ({
   isActive,
   onChange,
 }: {
-  onChange?: (arg0: string) => void;
-  isActive?: boolean;
-  defaultValue?: string;
-  className?: string;
+  onChange?: (arg0: string) => void
+  isActive?: boolean
+  defaultValue?: string
+  className?: string
 }) => {
   const formatTime = (time?: string) => {
-    if (!time) return null;
-    return time.replace(":00", "");
+    if (!time) return null
+    return time.replace(":00", "")
     // if (meridiem) {
     //   const h = Number(time.split(":")[0]);
     //   const m = Number(time.split(":")[1]);
@@ -178,7 +177,7 @@ const TimeButton = ({
     //   } ${merid}`;
     // }
     // return time;
-  };
+  }
 
   return (
     <motion.label
@@ -191,7 +190,7 @@ const TimeButton = ({
         "text-sm text-brand_blue/90 py-1 px-6 text-nowrap h-9 flex items-center justify-center rounded border border-brand_blue/30",
         isActive && "bg-brand_blue text-white border-transparent",
         !isActive && "hover:bg-brand_blue/10",
-        className
+        className,
       )}
     >
       {formatTime(defaultValue)}
@@ -199,18 +198,25 @@ const TimeButton = ({
         onChange={(e) => onChange?.(defaultValue || e.target.value)}
         defaultValue={defaultValue}
         className={twMerge(
-          "hidden bg-transparent absolute"
+          "hidden bg-transparent absolute",
           // "opacity-0"
         )}
         name="time"
         type="radio"
       />
     </motion.label>
-  );
-};
+  )
+}
 
-type OrgLike = Partial<Org> & Record<string, unknown>;
-type ServiceLike = { duration?: number | bigint; price?: number | bigint; currency?: string; employeeName?: string | null; place?: string | null; address?: string | null } & Record<string, unknown>;
+type OrgLike = Partial<Org> & Record<string, unknown>
+type ServiceLike = {
+  duration?: number | bigint
+  price?: number | bigint
+  currency?: string
+  employeeName?: string | null
+  place?: string | null
+  address?: string | null
+} & Record<string, unknown>
 
 export const ServiceList = ({
   service,
@@ -218,10 +224,10 @@ export const ServiceList = ({
   org,
   timezone,
 }: {
-  service: ServiceLike;
-  org: OrgLike;
-  date?: Date;
-  timezone?: SupportedTimezone;
+  service: ServiceLike
+  org: OrgLike
+  date?: Date
+  timezone?: SupportedTimezone
 }) => {
   const formattedDate = date
     ? timezone
@@ -239,7 +245,7 @@ export const ServiceList = ({
           hour: "numeric",
           minute: "numeric",
         })
-    : null;
+    : null
 
   return (
     <div className="text-xs text-brand_gray grid gap-3">
@@ -280,21 +286,21 @@ export const ServiceList = ({
           (service.place?.toLowerCase() === "online"
             ? "Online"
             : service.place?.toLowerCase() === "athome"
-            ? "A domicilio"
-            : service.address || org.address) as string
+              ? "A domicilio"
+              : service.address || org.address) as string
         }
         key={"address"}
       />
     </div>
-  );
-};
+  )
+}
 
 const ServiceListItem = ({
   text,
   icon = <FaClock />,
 }: {
-  icon?: ReactNode;
-  text?: string | number;
+  icon?: ReactNode
+  text?: string | number
 }) => {
   return (
     <motion.div
@@ -306,5 +312,5 @@ const ServiceListItem = ({
       <span className="text-lg">{icon}</span>
       {text}
     </motion.div>
-  );
-};
+  )
+}

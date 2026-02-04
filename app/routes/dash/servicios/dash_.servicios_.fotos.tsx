@@ -1,15 +1,15 @@
-import { useLoaderData } from "react-router";
-import { getServicefromSearchParams } from "~/.server/userGetters";
-import { ServicePhotoForm } from "~/components/forms/services_model/ServicePhotoForm";
-import invariant from "tiny-invariant";
+import { useLoaderData } from "react-router"
+import invariant from "tiny-invariant"
+import { getServicefromSearchParams } from "~/.server/userGetters"
+import { ServicePhotoForm } from "~/components/forms/services_model/ServicePhotoForm"
 
 type ServicePhotoData = {
-  id: string;
-  place: string;
-  allowMultiple: boolean;
-  isActive: boolean;
-  photoURL?: string | null;
-};
+  id: string
+  place: string
+  allowMultiple: boolean
+  isActive: boolean
+  photoURL?: string | null
+}
 
 export const loader = async ({ request }: { request: Request }) => {
   const serviceData = await getServicefromSearchParams(request, {
@@ -20,14 +20,14 @@ export const loader = async ({ request }: { request: Request }) => {
       isActive: true,
       photoURL: true,
     },
-  });
-  const service = serviceData as unknown as ServicePhotoData;
-  invariant(service && service.id);
-  return { service };
-};
+  })
+  const service = serviceData as unknown as ServicePhotoData
+  invariant(service?.id)
+  return { service }
+}
 
 export default function NewServicePhotos() {
-  const { service } = useLoaderData<typeof loader>();
+  const { service } = useLoaderData<typeof loader>()
 
   return (
     <main className="max-w-xl mx-auto pt-20  min-h-screen relative ">
@@ -43,5 +43,5 @@ export default function NewServicePhotos() {
         }}
       />
     </main>
-  );
+  )
 }

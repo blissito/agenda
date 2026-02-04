@@ -1,11 +1,9 @@
-import { twMerge } from "tailwind-merge";
-
 export const Thunder = ({
   fill = "#5158F6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -20,4 +18,4 @@ export const Thunder = ({
       fill={fill}
     />
   </svg>
-);
+)

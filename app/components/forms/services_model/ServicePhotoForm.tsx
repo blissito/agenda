@@ -1,17 +1,17 @@
+import { motion } from "motion/react"
+import { type RefObject, useRef, useState } from "react"
 import {
   type FieldValues,
-  useForm,
   type UseFormRegister,
-} from "react-hook-form";
-import { InputFile } from "../InputFile";
-import { AddImage } from "~/components/icons/addImage";
-import { type Option, SelectInput } from "../SelectInput";
-import { z, ZodError } from "zod";
-import { Form, useFetcher } from "react-router";
-import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
-import { motion } from "motion/react";
-import { cn } from "~/utils/cn";
-import { useRef, useState, type RefObject } from "react";
+  useForm,
+} from "react-hook-form"
+import { Form, useFetcher } from "react-router"
+import { z } from "zod"
+import { AddImage } from "~/components/icons/addImage"
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug"
+import { cn } from "~/utils/cn"
+import { InputFile } from "../InputFile"
+import { type Option, SelectInput } from "../SelectInput"
 
 export const serverServicePhotoFormSchema = z.object({
   photoURL: z.string().optional(),
@@ -19,7 +19,7 @@ export const serverServicePhotoFormSchema = z.object({
   allowMultiple: z.boolean().optional(),
   isActive: z.boolean().optional(),
   // seats: z.coerce.number(), // @TODO update in other place?
-});
+})
 
 export const servicePhotoFormSchema = z.object({
   photoURL: z.string().optional(),
@@ -31,11 +31,11 @@ export const servicePhotoFormSchema = z.object({
   isActive: z
     .enum(["true", "false", "on"])
     .optional()
-    .transform((value) => value === "true" || value == "on"),
+    .transform((value) => value === "true" || value === "on"),
   // seats: z.coerce.number(), // @TODO update in other place?
-});
+})
 
-type ServicePhotoFormFields = z.infer<typeof servicePhotoFormSchema>;
+type ServicePhotoFormFields = z.infer<typeof servicePhotoFormSchema>
 
 const OPTIONS: Option[] = [
   {
@@ -50,7 +50,7 @@ const OPTIONS: Option[] = [
     value: "ATHOME",
     title: "A domicilio",
   },
-];
+]
 
 const initialPhotoValues = {
   place: "",
@@ -58,19 +58,19 @@ const initialPhotoValues = {
   isActive: true,
   allowMultiple: false,
   photoURL: "",
-};
+}
 export const ServicePhotoForm = ({
   action,
   formRef,
   defaultValues = initialPhotoValues,
   errors = {} as Record<string, { message?: string }>,
 }: {
-  formRef?: RefObject<HTMLFormElement | null>;
-  action?: string;
-  errors?: Record<string, { message?: string }>;
-  defaultValues?: ServicePhotoFormFields;
+  formRef?: RefObject<HTMLFormElement | null>
+  action?: string
+  errors?: Record<string, { message?: string }>
+  defaultValues?: ServicePhotoFormFields
 }) => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher()
   const {
     handleSubmit,
     register,
@@ -78,17 +78,17 @@ export const ServicePhotoForm = ({
     setValue,
   } = useForm({
     defaultValues: { ...defaultValues, photoURL: defaultValues?.photoURL },
-  });
+  })
 
-  const onSubmit = (values: ServicePhotoFormFields) => {
+  const _onSubmit = (values: ServicePhotoFormFields) => {
     fetcher.submit(
       {
         ...values,
         intent: "update_service",
       },
-      { method: "post" }
-    );
-  };
+      { method: "post" },
+    )
+  }
 
   return (
     <Form ref={formRef} method="post">
@@ -137,8 +137,8 @@ export const ServicePhotoForm = ({
         type="number"
       /> */}
     </Form>
-  );
-};
+  )
+}
 
 // @TODO: Swith props pending
 export const SwitchOption = ({
@@ -151,24 +151,24 @@ export const SwitchOption = ({
   setValue,
   defaultChecked,
 }: {
-  isDisabled?: boolean;
-  defaultChecked?: boolean;
-  setValue?: () => void; // @todo: fix
-  name: string;
-  register: UseFormRegister<FieldValues> | any;
-  title: string;
-  description?: string;
-  registerOptions?: { required: string | false };
+  isDisabled?: boolean
+  defaultChecked?: boolean
+  setValue?: () => void // @todo: fix
+  name: string
+  register: UseFormRegister<FieldValues> | any
+  title: string
+  description?: string
+  registerOptions?: { required: string | false }
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [isOn, setOn] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [isOn, setOn] = useState(false)
 
   const onClick = () => {
     setOn((o) => {
-      inputRef.current!.checked = !o;
-      return !o;
-    });
-  };
+      inputRef.current!.checked = !o
+      return !o
+    })
+  }
 
   return (
     <button
@@ -192,7 +192,7 @@ export const SwitchOption = ({
 
           {
             "justify-end bg-brand_blue/30 shadow": isOn,
-          }
+          },
         )}
       >
         <motion.div
@@ -212,5 +212,5 @@ export const SwitchOption = ({
         // {...register?.(name, registerOptions)}
       />
     </button>
-  );
-};
+  )
+}

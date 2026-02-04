@@ -1,28 +1,27 @@
-import { Children, type ReactNode, useEffect, useState } from "react";
-import { motion } from "motion/react";
-
-import { nanoid } from "nanoid";
-import { cn } from "~/utils/cn";
+import { motion } from "motion/react"
+import { nanoid } from "nanoid"
+import { Children, type ReactNode, useEffect, useState } from "react"
+import { cn } from "~/utils/cn"
 
 interface WordNodeElement {
   props?: {
-    children?: string;
-    className?: string;
-  };
+    children?: string
+    className?: string
+  }
 }
 
 export const FlipWordsTwo = ({
   delay = 0.03,
   children,
 }: {
-  delay?: number;
-  children: ReactNode;
+  delay?: number
+  children: ReactNode
 }) => {
-  const [letters, setLetters] = useState<ReactNode[]>([]);
-  const wordNode = Children.toArray(children)[0] as WordNodeElement;
+  const [letters, setLetters] = useState<ReactNode[]>([])
+  const wordNode = Children.toArray(children)[0] as WordNodeElement
 
   const replaceNodes = () => {
-    const childText = wordNode?.props?.children ?? "";
+    const childText = wordNode?.props?.children ?? ""
     const letrs = childText.split("").map((letter: string, i: number) => {
       return letter === " " ? (
         <span key={i}>&nbsp;</span>
@@ -48,15 +47,15 @@ export const FlipWordsTwo = ({
           transition={{ delay: delay * i, type: "spring", bounce: 0 }}
           key={nanoid()} // truco de mágia 🪄
         />
-      );
-    });
-    setLetters(letrs);
-  };
+      )
+    })
+    setLetters(letrs)
+  }
 
   useEffect(() => {
-    replaceNodes();
+    replaceNodes()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [replaceNodes])
 
   return (
     <button
@@ -65,5 +64,5 @@ export const FlipWordsTwo = ({
     >
       {letters}
     </button>
-  );
-};
+  )
+}

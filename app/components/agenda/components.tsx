@@ -1,14 +1,14 @@
-import type { Org, Service } from "@prisma/client";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
-import type { SupportedTimezone } from "~/utils/timezone";
+import type { Org, Service } from "@prisma/client"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker"
+import type { SupportedTimezone } from "~/utils/timezone"
 
 const example =
-  "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg";
+  "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg"
 
 // Partial org type for components that don't need full Prisma type
-type OrgLike = Pick<Org, "name"> & { logo?: string; [key: string]: unknown };
-type ServiceLike = Pick<Service, "name"> & { [key: string]: unknown };
+type OrgLike = Pick<Org, "name"> & { logo?: string; [key: string]: unknown }
+type ServiceLike = Pick<Service, "name"> & { [key: string]: unknown }
 
 export const Header = ({ org }: { org: OrgLike }) => {
   return (
@@ -20,8 +20,8 @@ export const Header = ({ org }: { org: OrgLike }) => {
       />
       <h1 className="font-bold text-2xl text-brand_dark">{org?.name}</h1>
     </div>
-  );
-};
+  )
+}
 
 export const InfoShower = ({
   org,
@@ -29,10 +29,10 @@ export const InfoShower = ({
   date,
   timezone,
 }: {
-  org: OrgLike;
-  service: ServiceLike;
-  date?: Date;
-  timezone?: SupportedTimezone;
+  org: OrgLike
+  service: ServiceLike
+  date?: Date
+  timezone?: SupportedTimezone
 }) => {
   return (
     <>
@@ -41,21 +41,31 @@ export const InfoShower = ({
         <h2 className="text-2xl font-satoMiddle mb-5 text-brand_dark">
           {service?.name}
         </h2>
-        <ServiceList org={org} service={service} date={date} timezone={timezone} />
+        <ServiceList
+          org={org}
+          service={service}
+          date={date}
+          timezone={timezone}
+        />
       </div>
       <hr className="border-l-brand_gray/10 md:my-0 md:h-96 md:w-1 w-full my-4 mx-10 border-l md:mr-8 " />
     </>
-  );
-};
+  )
+}
 
 type FooterProps = {
-  errors?: Record<string, { message?: string }>;
-  isLoading: boolean;
-  onSubmit: () => void;
-  isValid?: boolean;
-};
+  errors?: Record<string, { message?: string }>
+  isLoading: boolean
+  onSubmit: () => void
+  isValid?: boolean
+}
 
-export const Footer = ({ errors = {}, isLoading, onSubmit, isValid = false }: FooterProps) => {
+export const Footer = ({
+  errors = {},
+  isLoading,
+  onSubmit,
+  isValid = false,
+}: FooterProps) => {
   return (
     <>
       <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">
@@ -76,5 +86,5 @@ export const Footer = ({ errors = {}, isLoading, onSubmit, isValid = false }: Fo
         src="/images/denik-markwater.png"
       />
     </>
-  );
-};
+  )
+}

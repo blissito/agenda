@@ -2,8 +2,8 @@ export const Upload = ({
   className,
   fill = "currentColor",
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => {
   return (
     <svg
@@ -23,5 +23,5 @@ export const Upload = ({
         fill={fill}
       />
     </svg>
-  );
-};
+  )
+}

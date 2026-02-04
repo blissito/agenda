@@ -2,18 +2,19 @@
  * Route: /event/:eventId/cancel
  * Allows customer to cancel their appointment via email link
  */
-import { redirect } from "react-router";
-import { useState } from "react";
-import type { Route } from "./+types/event.$eventId.cancel";
-import { db } from "~/utils/db.server";
-import { getSession } from "~/sessions";
-import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
-import { getServicePublicUrl } from "~/utils/urls";
-import { cancelEventJobs } from "~/jobs/agenda.server";
+
+import { useState } from "react"
+import { redirect } from "react-router"
+import { cancelEventJobs } from "~/jobs/agenda.server"
+import { getSession } from "~/sessions"
+import { db } from "~/utils/db.server"
+import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
+import { getServicePublicUrl } from "~/utils/urls"
+import type { Route } from "./+types/event.$eventId.cancel"
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  const session = await getSession(request.headers.get("Cookie"));
-  const access = session.get("customerEventAccess");
+  const session = await getSession(request.headers.get("Cookie"))
+  const access = session.get("customerEventAccess")
 
   // Verify session access
   if (
@@ -21,7 +22,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     access.eventId !== params.eventId ||
     access.expiresAt < Date.now()
   ) {
-    throw redirect("/error?reason=session_expired");
+    throw redirect("/error?reason=session_expired")
   }
 
   const event = await db.event.findUnique({
@@ -30,19 +31,19 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       customer: true,
       service: { include: { org: true } },
     },
-  });
+  })
 
   if (!event) {
-    throw redirect("/error?reason=event_not_found");
+    throw redirect("/error?reason=event_not_found")
   }
 
   const timezone =
-    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE;
+    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE
 
   // Generate rebooking URL
   const rebookUrl = event.service
     ? getServicePublicUrl(event.service.org.slug, event.service.slug)
-    : null;
+    : null
 
   return {
     event: {
@@ -61,12 +62,12 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       displayName: event.customer?.displayName,
     },
     rebookUrl,
-  };
-};
+  }
+}
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  const session = await getSession(request.headers.get("Cookie"));
-  const access = session.get("customerEventAccess");
+  const session = await getSession(request.headers.get("Cookie"))
+  const access = session.get("customerEventAccess")
 
   // Verify session access
   if (
@@ -74,15 +75,15 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     access.eventId !== params.eventId ||
     access.expiresAt < Date.now()
   ) {
-    throw redirect("/error?reason=session_expired");
+    throw redirect("/error?reason=session_expired")
   }
 
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
 
   if (intent === "cancel") {
     // Cancel pending jobs (reminder, survey)
-    await cancelEventJobs(params.eventId);
+    await cancelEventJobs(params.eventId)
 
     await db.event.update({
       where: { id: params.eventId },
@@ -91,20 +92,20 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         archived: true,
         updatedAt: new Date(),
       },
-    });
+    })
 
-    return { success: true, cancelled: true, message: "Cita cancelada" };
+    return { success: true, cancelled: true, message: "Cita cancelada" }
   }
 
-  return { success: false, message: "Acción no válida" };
-};
+  return { success: false, message: "Acción no válida" }
+}
 
 export default function CancelEventPage({
   loaderData,
   actionData,
 }: Route.ComponentProps) {
-  const { event, service, customer, rebookUrl } = loaderData;
-  const [showConfirm, setShowConfirm] = useState(false);
+  const { event, service, customer, rebookUrl } = loaderData
+  const [showConfirm, setShowConfirm] = useState(false)
 
   if (actionData?.cancelled) {
     return (
@@ -140,7 +141,7 @@ export default function CancelEventPage({
           )}
         </div>
       </main>
-    );
+    )
   }
 
   if (event.status === "CANCELLED") {
@@ -164,7 +165,7 @@ export default function CancelEventPage({
           )}
         </div>
       </main>
-    );
+    )
   }
 
   return (
@@ -240,5 +241,5 @@ export default function CancelEventPage({
         )}
       </div>
     </main>
-  );
+  )
 }

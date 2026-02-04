@@ -11,32 +11,34 @@
  * 4. Store credentials in OrgIntegrations.whatsapp
  */
 
-import type { Org } from "@prisma/client";
+import type { Org } from "@prisma/client"
 
 export class WhatsAppNotConfiguredError extends Error {
-  constructor(message = "WhatsApp Business API is not configured for this organization") {
-    super(message);
-    this.name = "WhatsAppNotConfiguredError";
+  constructor(
+    message = "WhatsApp Business API is not configured for this organization",
+  ) {
+    super(message)
+    this.name = "WhatsAppNotConfiguredError"
   }
 }
 
 type OrgWithIntegrations = Org & {
   integrations?: {
     whatsapp?: {
-      phoneNumberId?: string | null;
-      accessToken?: string | null;
-      businessId?: string | null;
-      connectedAt?: Date | null;
-    } | null;
-  } | null;
-};
+      phoneNumberId?: string | null
+      accessToken?: string | null
+      businessId?: string | null
+      connectedAt?: Date | null
+    } | null
+  } | null
+}
 
 /**
  * Check if WhatsApp is configured for an organization
  */
 export function isWhatsAppConfigured(org: OrgWithIntegrations): boolean {
-  const whatsapp = org.integrations?.whatsapp;
-  return !!(whatsapp?.phoneNumberId && whatsapp?.accessToken);
+  const whatsapp = org.integrations?.whatsapp
+  return !!(whatsapp?.phoneNumberId && whatsapp?.accessToken)
 }
 
 /**
@@ -47,10 +49,10 @@ export async function sendWhatsAppMessage(
   org: OrgWithIntegrations,
   _to: string,
   _templateName: string,
-  _templateParams: Record<string, string>
+  _templateParams: Record<string, string>,
 ): Promise<void> {
   if (!isWhatsAppConfigured(org)) {
-    throw new WhatsAppNotConfiguredError();
+    throw new WhatsAppNotConfiguredError()
   }
 
   // TODO: Implement actual WhatsApp Business API call
@@ -85,8 +87,8 @@ export async function sendWhatsAppMessage(
   // );
 
   throw new WhatsAppNotConfiguredError(
-    "WhatsApp Business API integration is coming soon. Please use email notifications for now."
-  );
+    "WhatsApp Business API integration is coming soon. Please use email notifications for now.",
+  )
 }
 
 /**
@@ -97,13 +99,13 @@ export async function sendWhatsAppReminder(
   phoneNumber: string,
   customerName: string,
   serviceName: string,
-  dateTime: string
+  dateTime: string,
 ): Promise<void> {
   return sendWhatsAppMessage(org, phoneNumber, "appointment_reminder", {
     customer_name: customerName,
     service_name: serviceName,
     date_time: dateTime,
-  });
+  })
 }
 
 /**
@@ -114,11 +116,11 @@ export async function sendWhatsAppConfirmation(
   phoneNumber: string,
   customerName: string,
   serviceName: string,
-  dateTime: string
+  dateTime: string,
 ): Promise<void> {
   return sendWhatsAppMessage(org, phoneNumber, "appointment_confirmation", {
     customer_name: customerName,
     service_name: serviceName,
     date_time: dateTime,
-  });
+  })
 }

@@ -1,20 +1,20 @@
-import * as React from "react";
+import * as React from "react"
 
-type TrialStatus = "ending_soon" | "expired";
+type TrialStatus = "ending_soon" | "expired"
 
 type TrialBannerProps = {
-  open: boolean;
-  status: TrialStatus;
-  imageSrc?: string;
+  open: boolean
+  status: TrialStatus
+  imageSrc?: string
 
-  onPrimaryAction: () => void;
-  onDismiss?: () => void;
+  onPrimaryAction: () => void
+  onDismiss?: () => void
 
-  primaryLabel?: string;
-  secondaryLabel?: string;
+  primaryLabel?: string
+  secondaryLabel?: string
 
-  className?: string;
-};
+  className?: string
+}
 
 const COPY: Record<
   TrialStatus,
@@ -32,7 +32,7 @@ const COPY: Record<
       "Mejora tu plan ahora y obtén 20% de descuento en tu primer año.",
     primaryLabel: "Suscribirme",
   },
-};
+}
 
 export default function TrialBanner({
   open,
@@ -44,10 +44,10 @@ export default function TrialBanner({
   secondaryLabel = "En otro momento",
   className = "",
 }: TrialBannerProps) {
-  const copy = COPY[status];
-  const titleId = React.useId();
+  const copy = COPY[status]
+  const titleId = React.useId()
 
-  if (!open) return null;
+  if (!open) return null
 
   return (
     <div
@@ -59,11 +59,7 @@ export default function TrialBanner({
       <div className="w-full max-w-[520px] overflow-hidden rounded-2xl bg-white shadow-xl">
         <div className="relative">
           {imageSrc ? (
-            <img
-              src={imageSrc}
-              alt=""
-              className="h-40 w-full object-cover"
-            />
+            <img src={imageSrc} alt="" className="h-40 w-full object-cover" />
           ) : (
             <div className="h-40 w-full bg-neutral-100" />
           )}
@@ -93,9 +89,7 @@ export default function TrialBanner({
             {copy.title}
           </h2>
 
-          <p className="mt-2 text-sm text-neutral-600">
-            {copy.description}
-          </p>
+          <p className="mt-2 text-sm text-neutral-600">{copy.description}</p>
 
           <div className="mt-6 flex items-center gap-3">
             {onDismiss ? (
@@ -129,5 +123,5 @@ export default function TrialBanner({
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,16 +1,16 @@
-import { Slot } from "@radix-ui/react-slot";
-import { FiMoreHorizontal } from "react-icons/fi";
-import { FaChevronRight } from "react-icons/fa";
-import { cn } from "~/utils/cn";
-import { type ReactNode, forwardRef } from "react";
+import { Slot } from "@radix-ui/react-slot"
+import { forwardRef, type ReactNode } from "react"
+import { FaChevronRight } from "react-icons/fa"
+import { FiMoreHorizontal } from "react-icons/fi"
+import { cn } from "~/utils/cn"
 
 const Breadcrumb = forwardRef<
   HTMLElement,
   React.ComponentPropsWithoutRef<"nav"> & {
-    separator?: ReactNode;
+    separator?: ReactNode
   }
->(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />);
-Breadcrumb.displayName = "Breadcrumb";
+>(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />)
+Breadcrumb.displayName = "Breadcrumb"
 
 const BreadcrumbList = forwardRef<
   HTMLOListElement,
@@ -20,12 +20,12 @@ const BreadcrumbList = forwardRef<
     ref={ref}
     className={cn(
       "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
-      className
+      className,
     )}
     {...props}
   />
-));
-BreadcrumbList.displayName = "BreadcrumbList";
+))
+BreadcrumbList.displayName = "BreadcrumbList"
 
 const BreadcrumbItem = forwardRef<
   HTMLLIElement,
@@ -36,16 +36,16 @@ const BreadcrumbItem = forwardRef<
     className={cn("inline-flex items-center gap-1.5", className)}
     {...props}
   />
-));
-BreadcrumbItem.displayName = "BreadcrumbItem";
+))
+BreadcrumbItem.displayName = "BreadcrumbItem"
 
 const BreadcrumbLink = forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a"> & {
-    asChild?: boolean;
+    asChild?: boolean
   }
 >(({ asChild, className, ...props }, ref) => {
-  const Comp = asChild ? Slot : "a";
+  const Comp = asChild ? Slot : "a"
 
   return (
     <Comp
@@ -53,9 +53,9 @@ const BreadcrumbLink = forwardRef<
       className={cn("transition-colors hover:text-foreground", className)}
       {...props}
     />
-  );
-});
-BreadcrumbLink.displayName = "BreadcrumbLink";
+  )
+})
+BreadcrumbLink.displayName = "BreadcrumbLink"
 
 const BreadcrumbPage = forwardRef<
   HTMLSpanElement,
@@ -69,8 +69,8 @@ const BreadcrumbPage = forwardRef<
     className={cn("font-normal text-foreground", className)}
     {...props}
   />
-));
-BreadcrumbPage.displayName = "BreadcrumbPage";
+))
+BreadcrumbPage.displayName = "BreadcrumbPage"
 
 const BreadcrumbSeparator = ({
   children,
@@ -85,8 +85,8 @@ const BreadcrumbSeparator = ({
   >
     {children ?? <FaChevronRight />}
   </li>
-);
-BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
+)
+BreadcrumbSeparator.displayName = "BreadcrumbSeparator"
 
 const BreadcrumbEllipsis = ({
   className,
@@ -101,8 +101,8 @@ const BreadcrumbEllipsis = ({
     <FiMoreHorizontal className="h-4 w-4" />
     <span className="sr-only">More</span>
   </span>
-);
-BreadcrumbEllipsis.displayName = "BreadcrumbElipssis";
+)
+BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
 
 export {
   Breadcrumb,
@@ -112,4 +112,4 @@ export {
   BreadcrumbPage,
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
-};
+}

@@ -1,12 +1,10 @@
-import { twMerge } from "tailwind-merge";
-
 export const Camera = ({
   fill = "#D4D6DA",
   className = "className",
 }: {
-  fill?: string;
-  props?: unknown;
-  className?: string;
+  fill?: string
+  props?: unknown
+  className?: string
 }) => (
   <svg
     className={className}
@@ -22,4 +20,4 @@ export const Camera = ({
       fillOpacity="0.24"
     />
   </svg>
-);
+)

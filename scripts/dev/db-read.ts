@@ -10,57 +10,57 @@
  *   npx tsx scripts/dev/db-read.ts Customer --search "Juan"
  *   npx tsx scripts/dev/db-read.ts Event --count
  */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client"
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient()
 
-const MODELS = ["User", "Org", "Service", "Event", "Customer"] as const;
-type ModelName = (typeof MODELS)[number];
+const MODELS = ["User", "Org", "Service", "Event", "Customer"] as const
+type ModelName = (typeof MODELS)[number]
 
 function parseArgs() {
-  const args = process.argv.slice(2);
+  const args = process.argv.slice(2)
   const options: {
-    model?: string;
-    listModels: boolean;
-    limit: number;
-    where?: Record<string, string>;
-    count: boolean;
-    id?: string;
-    search?: string;
+    model?: string
+    listModels: boolean
+    limit: number
+    where?: Record<string, string>
+    count: boolean
+    id?: string
+    search?: string
   } = {
     listModels: false,
     limit: 20,
     count: false,
-  };
+  }
 
   for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
+    const arg = args[i]
 
     if (arg === "--list-models") {
-      options.listModels = true;
+      options.listModels = true
     } else if (arg === "--limit" && args[i + 1]) {
-      options.limit = parseInt(args[++i], 10);
+      options.limit = parseInt(args[++i], 10)
     } else if (arg === "--where" && args[i + 1]) {
-      const whereStr = args[++i];
-      options.where = {};
+      const whereStr = args[++i]
+      options.where = {}
       whereStr.split(",").forEach((pair) => {
-        const [key, value] = pair.split("=");
+        const [key, value] = pair.split("=")
         if (key && value) {
-          options.where![key.trim()] = value.trim();
+          options.where![key.trim()] = value.trim()
         }
-      });
+      })
     } else if (arg === "--count") {
-      options.count = true;
+      options.count = true
     } else if (arg === "--id" && args[i + 1]) {
-      options.id = args[++i];
+      options.id = args[++i]
     } else if (arg === "--search" && args[i + 1]) {
-      options.search = args[++i];
+      options.search = args[++i]
     } else if (!arg.startsWith("--") && !options.model) {
-      options.model = arg;
+      options.model = arg
     }
   }
 
-  return options;
+  return options
 }
 
 function getModelDelegate(model: ModelName) {
@@ -70,25 +70,25 @@ function getModelDelegate(model: ModelName) {
     Service: prisma.service,
     Event: prisma.event,
     Customer: prisma.customer,
-  };
-  return delegates[model];
+  }
+  return delegates[model]
 }
 
 /**
  * Build a search where clause for text search on name/email fields
  * Returns OR conditions for relevant fields based on model
  */
-function buildSearchWhere(model: ModelName, search: string): Record<string, any> {
-  const searchCondition = { contains: search, mode: "insensitive" };
+function buildSearchWhere(
+  model: ModelName,
+  search: string,
+): Record<string, any> {
+  const searchCondition = { contains: search, mode: "insensitive" }
 
   switch (model) {
     case "User":
       return {
-        OR: [
-          { email: searchCondition },
-          { displayName: searchCondition },
-        ],
-      };
+        OR: [{ email: searchCondition }, { displayName: searchCondition }],
+      }
     case "Org":
       return {
         OR: [
@@ -96,143 +96,141 @@ function buildSearchWhere(model: ModelName, search: string): Record<string, any>
           { slug: searchCondition },
           { email: searchCondition },
         ],
-      };
+      }
     case "Service":
       return {
-        OR: [
-          { name: searchCondition },
-          { slug: searchCondition },
-        ],
-      };
+        OR: [{ name: searchCondition }, { slug: searchCondition }],
+      }
     case "Customer":
       return {
-        OR: [
-          { displayName: searchCondition },
-          { email: searchCondition },
-        ],
-      };
+        OR: [{ displayName: searchCondition }, { email: searchCondition }],
+      }
     case "Event":
       return {
-        OR: [
-          { title: searchCondition },
-        ],
-      };
+        OR: [{ title: searchCondition }],
+      }
     default:
-      return {};
+      return {}
   }
 }
 
 // Convert BigInt to string for JSON serialization
 function serializeBigInt(obj: any): any {
-  if (obj === null || obj === undefined) return obj;
-  if (typeof obj === "bigint") return obj.toString();
-  if (Array.isArray(obj)) return obj.map(serializeBigInt);
+  if (obj === null || obj === undefined) return obj
+  if (typeof obj === "bigint") return obj.toString()
+  if (Array.isArray(obj)) return obj.map(serializeBigInt)
   if (typeof obj === "object") {
-    const result: any = {};
+    const result: any = {}
     for (const key in obj) {
-      result[key] = serializeBigInt(obj[key]);
+      result[key] = serializeBigInt(obj[key])
     }
-    return result;
+    return result
   }
-  return obj;
+  return obj
 }
 
 async function main() {
-  const options = parseArgs();
+  const options = parseArgs()
 
   if (options.listModels) {
-    console.log("\nAvailable models:");
-    MODELS.forEach((m) => console.log(`  - ${m}`));
-    console.log("\nUsage examples:");
-    console.log("  npx tsx scripts/dev/db-read.ts User");
-    console.log('  npx tsx scripts/dev/db-read.ts Org --where "ownerId=abc123"');
-    console.log("  npx tsx scripts/dev/db-read.ts Service --limit 5");
-    console.log("  npx tsx scripts/dev/db-read.ts Event --count");
-    console.log('  npx tsx scripts/dev/db-read.ts Customer --id "abc123"');
-    console.log('  npx tsx scripts/dev/db-read.ts Customer --search "Juan"');
-    return;
+    console.log("\nAvailable models:")
+    MODELS.forEach((m) => console.log(`  - ${m}`))
+    console.log("\nUsage examples:")
+    console.log("  npx tsx scripts/dev/db-read.ts User")
+    console.log('  npx tsx scripts/dev/db-read.ts Org --where "ownerId=abc123"')
+    console.log("  npx tsx scripts/dev/db-read.ts Service --limit 5")
+    console.log("  npx tsx scripts/dev/db-read.ts Event --count")
+    console.log('  npx tsx scripts/dev/db-read.ts Customer --id "abc123"')
+    console.log('  npx tsx scripts/dev/db-read.ts Customer --search "Juan"')
+    return
   }
 
   if (!options.model) {
-    console.error("Error: Model name required. Use --list-models to see available models.");
-    process.exit(1);
+    console.error(
+      "Error: Model name required. Use --list-models to see available models.",
+    )
+    process.exit(1)
   }
 
-  const modelName = options.model as ModelName;
+  const modelName = options.model as ModelName
   if (!MODELS.includes(modelName)) {
-    console.error(`Error: Unknown model "${options.model}". Use --list-models to see available models.`);
-    process.exit(1);
+    console.error(
+      `Error: Unknown model "${options.model}". Use --list-models to see available models.`,
+    )
+    process.exit(1)
   }
 
-  const delegate = getModelDelegate(modelName);
+  const delegate = getModelDelegate(modelName)
 
   try {
     // Build where clause combining --where and --search
-    let whereClause: Record<string, any> = options.where || {};
+    let whereClause: Record<string, any> = options.where || {}
     if (options.search) {
-      const searchWhere = buildSearchWhere(modelName, options.search);
-      whereClause = { ...whereClause, ...searchWhere };
+      const searchWhere = buildSearchWhere(modelName, options.search)
+      whereClause = { ...whereClause, ...searchWhere }
     }
 
     if (options.count) {
-      const count = await delegate.count({ where: whereClause });
-      console.log(`\n${modelName} count: ${count}`);
-      return;
+      const count = await delegate.count({ where: whereClause })
+      console.log(`\n${modelName} count: ${count}`)
+      return
     }
 
     if (options.id) {
-      const record = await delegate.findUnique({ where: { id: options.id } });
+      const record = await delegate.findUnique({ where: { id: options.id } })
       if (record) {
-        console.log(`\n${modelName} with id "${options.id}":`);
-        console.log(JSON.stringify(serializeBigInt(record), null, 2));
+        console.log(`\n${modelName} with id "${options.id}":`)
+        console.log(JSON.stringify(serializeBigInt(record), null, 2))
       } else {
-        console.log(`\nNo ${modelName} found with id "${options.id}"`);
+        console.log(`\nNo ${modelName} found with id "${options.id}"`)
       }
-      return;
+      return
     }
 
     const records = await delegate.findMany({
       where: whereClause,
       take: options.limit,
       orderBy: { id: "desc" },
-    });
+    })
 
-    const searchLabel = options.search ? ` matching "${options.search}"` : "";
-    console.log(`\n${modelName} records${searchLabel} (${records.length} of ${await delegate.count({ where: whereClause })}):\n`);
+    const searchLabel = options.search ? ` matching "${options.search}"` : ""
+    console.log(
+      `\n${modelName} records${searchLabel} (${records.length} of ${await delegate.count({ where: whereClause })}):\n`,
+    )
 
     if (records.length === 0) {
-      console.log("  No records found.");
+      console.log("  No records found.")
     } else {
       records.forEach((record: any, i: number) => {
-        const summary = getSummary(modelName, record);
-        console.log(`  ${i + 1}. ${summary}`);
-      });
+        const summary = getSummary(modelName, record)
+        console.log(`  ${i + 1}. ${summary}`)
+      })
     }
 
-    console.log("\n(Use --id <id> to see full record details)");
+    console.log("\n(Use --id <id> to see full record details)")
   } catch (error) {
-    console.error("Error:", error);
-    process.exit(1);
+    console.error("Error:", error)
+    process.exit(1)
   }
 }
 
 function getSummary(model: ModelName, record: any): string {
   switch (model) {
     case "User":
-      return `[${record.id}] ${record.email} - ${record.displayName || "No name"}`;
+      return `[${record.id}] ${record.email} - ${record.displayName || "No name"}`
     case "Org":
-      return `[${record.id}] ${record.slug} - ${record.name}`;
+      return `[${record.id}] ${record.slug} - ${record.name}`
     case "Service":
-      return `[${record.id}] ${record.slug} - ${record.name} ($${record.price})`;
+      return `[${record.id}] ${record.slug} - ${record.name} ($${record.price})`
     case "Event":
-      return `[${record.id}] ${record.title} - ${record.status} (${record.start?.toISOString().split("T")[0]})`;
+      return `[${record.id}] ${record.title} - ${record.status} (${record.start?.toISOString().split("T")[0]})`
     case "Customer":
-      return `[${record.id}] ${record.email} - ${record.displayName}`;
+      return `[${record.id}] ${record.email} - ${record.displayName}`
     default:
-      return `[${record.id}]`;
+      return `[${record.id}]`
   }
 }
 
 main()
   .catch(console.error)
-  .finally(() => prisma.$disconnect());
+  .finally(() => prisma.$disconnect())

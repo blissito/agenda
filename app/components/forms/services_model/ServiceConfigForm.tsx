@@ -1,24 +1,24 @@
-import { Form, useFetcher } from "react-router";
-import { SwitchOption } from "./ServicePhotoForm";
-import { RadioButton } from "./ServiceTimesForm";
-import { useForm } from "react-hook-form";
-import { z, ZodError } from "zod";
-import type { RefObject } from "react";
+import type { RefObject } from "react"
+import { useForm } from "react-hook-form"
+import { Form } from "react-router"
+import { z } from "zod"
+import { SwitchOption } from "./ServicePhotoForm"
+import { RadioButton } from "./ServiceTimesForm"
 
 export const corceBooleanSchema = z
   .enum(["true", "false", "on"])
   .optional()
-  .transform((value) => value === "true" || value === "on");
+  .transform((value) => value === "true" || value === "on")
 
 const configSchema = z.object({
   confirmation: corceBooleanSchema,
   reminder: corceBooleanSchema,
   survey: corceBooleanSchema,
-});
+})
 export const serviceConfigFormSchema = z.object({
   payment: z.string().transform((value) => value === "true"),
   config: configSchema,
-});
+})
 export const ServerServiceConfigFormSchema = z.object({
   payment: z.boolean(),
   config: z.object({
@@ -26,21 +26,24 @@ export const ServerServiceConfigFormSchema = z.object({
     reminder: z.boolean(),
     survey: z.boolean(),
   }),
-});
+})
 
-type ServiceConfigFormFields = z.infer<typeof serviceConfigFormSchema>;
+type ServiceConfigFormFields = z.infer<typeof serviceConfigFormSchema>
 export const ServiceConfigForm = ({
   formRef,
   errors,
-  defaultValues = { payment: true, config: { confirmation: false, reminder: false, survey: false } },
+  defaultValues = {
+    payment: true,
+    config: { confirmation: false, reminder: false, survey: false },
+  },
 }: {
-  errors?: Record<string, { message?: string }>;
-  formRef?: RefObject<HTMLFormElement>;
-  defaultValues?: ServiceConfigFormFields;
+  errors?: Record<string, { message?: string }>
+  formRef?: RefObject<HTMLFormElement>
+  defaultValues?: ServiceConfigFormFields
 }) => {
   const { register } = useForm({
     defaultValues,
-  });
+  })
 
   return (
     <Form ref={formRef} className="mt-14">
@@ -92,5 +95,5 @@ export const ServiceConfigForm = ({
         />
       </div>
     </Form>
-  );
-};
+  )
+}

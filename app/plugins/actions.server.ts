@@ -1,40 +1,40 @@
-import type { Customer, Event, Service } from "@prisma/client";
-import { register } from "./index.server";
-import { db } from "~/utils/db.server";
+import type { Customer, Event, Service } from "@prisma/client"
+import { db } from "~/utils/db.server"
+import { register } from "./index.server"
 
 type WebhookConfig = {
-  url: string;
-  includeCustomer?: boolean;
-  includeEvent?: boolean;
-  includeService?: boolean;
-};
+  url: string
+  includeCustomer?: boolean
+  includeEvent?: boolean
+  includeService?: boolean
+}
 
 type BookingCreatedData = {
-  event: Event;
-  service: Service;
-  customer: Customer;
-};
+  event: Event
+  service: Service
+  customer: Customer
+}
 
 const handleBookingCreated = async (
   data: unknown,
-  orgId: string
+  _orgId: string,
 ): Promise<void> => {
-  const { event, service, customer } = data as BookingCreatedData;
+  const { event, service, customer } = data as BookingCreatedData
 
   const actions = await db.serviceAction.findMany({
     where: { serviceId: service.id, enabled: true },
-  });
+  })
 
   for (const action of actions) {
     if (action.type === "webhook") {
-      const config = action.config as WebhookConfig;
+      const config = action.config as WebhookConfig
 
-      if (!config.url) continue;
+      if (!config.url) continue
 
       const payload: Record<string, unknown> = {
         eventType: "booking.created",
         timestamp: new Date().toISOString(),
-      };
+      }
 
       if (config.includeCustomer !== false) {
         payload.customer = {
@@ -42,7 +42,7 @@ const handleBookingCreated = async (
           displayName: customer.displayName,
           email: customer.email,
           tel: customer.tel,
-        };
+        }
       }
 
       if (config.includeEvent !== false) {
@@ -52,7 +52,7 @@ const handleBookingCreated = async (
           end: event.end,
           duration: Number(event.duration),
           status: event.status,
-        };
+        }
       }
 
       if (config.includeService !== false) {
@@ -61,7 +61,7 @@ const handleBookingCreated = async (
           name: service.name,
           price: Number(service.price),
           duration: Number(service.duration),
-        };
+        }
       }
 
       try {
@@ -69,13 +69,13 @@ const handleBookingCreated = async (
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        });
+        })
       } catch (error) {
-        console.error(`[Actions Plugin] Webhook failed:`, error);
+        console.error(`[Actions Plugin] Webhook failed:`, error)
       }
     }
   }
-};
+}
 
 register({
   id: "actions",
@@ -85,4 +85,4 @@ register({
   onEvent: {
     "booking.created": handleBookingCreated,
   },
-});
+})

@@ -1,23 +1,24 @@
-import { Link } from "react-router";
-import { db } from "~/utils/db.server";
-import { Avatar } from "~/components/common/Avatar";
-import { TbEdit } from "react-icons/tb";
-import { FiDownload, FiMapPin } from "react-icons/fi";
-import { HiCalendarDays } from "react-icons/hi2";
-import { IoDocumentTextOutline } from "react-icons/io5";
-import { FaWhatsapp } from "react-icons/fa6";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { usePluralize } from "~/components/hooks/usePluralize";
-import { Mail } from "~/components/icons/mail";
-import { MailButton } from "~/components/icons/mailButton";
-import { CalendarPicker } from "~/components/icons/calendarPicker";
-import { Phone } from "~/components/icons/phone";
-import type { Route } from "./+types/dash_.clientes_.$email";
-import { EventTable, type EventWithService } from "./clientes/EventTable";
+import { FaWhatsapp } from "react-icons/fa6"
+import { FiDownload, FiMapPin } from "react-icons/fi"
+import { HiCalendarDays } from "react-icons/hi2"
+import { IoDocumentTextOutline } from "react-icons/io5"
+import { TbEdit } from "react-icons/tb"
+import { Link } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Avatar } from "~/components/common/Avatar"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { usePluralize } from "~/components/hooks/usePluralize"
+import { CalendarPicker } from "~/components/icons/calendarPicker"
+import { Mail } from "~/components/icons/mail"
+import { MailButton } from "~/components/icons/mailButton"
+import { Phone } from "~/components/icons/phone"
+import { db } from "~/utils/db.server"
+import type { Route } from "./+types/dash_.clientes_.$email"
+import { EventTable, type EventWithService } from "./clientes/EventTable"
 
 // Mock avatar image from Figma (valid for 7 days)
-const MOCK_AVATAR = "https://www.figma.com/api/mcp/asset/3f2720cf-f252-4635-97c8-073948b07470";
+const MOCK_AVATAR =
+  "https://www.figma.com/api/mcp/asset/3f2720cf-f252-4635-97c8-073948b07470"
 //@TODO: filter by date, edit contact, send email, send whats, download contacts?one?all?, delete contact
 
 // Mock events data for visualization - typed to match EventWithService
@@ -430,55 +431,56 @@ const createMockEvents = (_customerName: string): EventWithService[] => [
       weekDays: null,
     },
   },
-];
+]
 
 // Extended customer type to include address for display purposes
 type CustomerWithAddress = {
-  id: string;
-  email: string;
-  displayName: string;
-  tel: string;
-  comments: string;
-  createdAt: Date;
-  updatedAt: Date;
-  orgId: string;
-  userId: string | null;
-  address?: string; // For mock data display
-};
+  id: string
+  email: string
+  displayName: string
+  tel: string
+  comments: string
+  createdAt: Date
+  updatedAt: Date
+  orgId: string
+  userId: string | null
+  address?: string // For mock data display
+}
 
 export const loader = async ({
   request,
   params: { email },
 }: Route.LoaderArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request);
-  if (!org || !email) throw new Response(null, { status: 404 });
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org || !email) throw new Response(null, { status: 404 })
 
   // Try to find real customer or create mock
-  const dbCustomer = await db.customer.findFirst({ where: { email } });
-  let isMockCustomer = false;
-  let customer: CustomerWithAddress;
+  const dbCustomer = await db.customer.findFirst({ where: { email } })
+  let isMockCustomer = false
+  let customer: CustomerWithAddress
 
   // If no customer found, create mock data for visualization
   if (!dbCustomer) {
-    isMockCustomer = true;
+    isMockCustomer = true
     customer = {
       id: "mock-customer",
       email,
       displayName: "Isabela Lozano",
       tel: "55 555 55 55",
       address: "Av. Lopez Mateos 116, col. centro, CDMX, MEX",
-      comments: "Lorem ipsum dolor sit amet consectetur. At mattis nulla sed curabitur gravida et quam sed at. Sit tellus hendrerit volutpat sed ac consequat eros in et. Phasellus odio nisi urna. nulla sed curabitur gravida et quam sed at. Sit",
+      comments:
+        "Lorem ipsum dolor sit amet consectetur. At mattis nulla sed curabitur gravida et quam sed at. Sit tellus hendrerit volutpat sed ac consequat eros in et. Phasellus odio nisi urna. nulla sed curabitur gravida et quam sed at. Sit",
       createdAt: new Date("2022-04-11"),
       updatedAt: new Date(),
       orgId: org.id,
       userId: null,
-    };
+    }
   } else {
-    customer = dbCustomer;
+    customer = dbCustomer
   }
 
   // Only query events if we have a real customer
-  let events: EventWithService[] = [];
+  let events: EventWithService[] = []
   if (!isMockCustomer) {
     const dbEvents = await db.event.findMany({
       where: {
@@ -486,17 +488,23 @@ export const loader = async ({
         orgId: org.id,
       },
       include: { service: true },
-    });
+    })
     // Filter to only events with a service (EventWithService requires non-null service)
-    events = dbEvents.filter((e): e is typeof e & { service: NonNullable<typeof e.service> } => e.service !== null);
+    events = dbEvents.filter(
+      (e): e is typeof e & { service: NonNullable<typeof e.service> } =>
+        e.service !== null,
+    )
   }
 
   // Use mock events if no real events
   if (events.length === 0) {
-    events = createMockEvents(customer.displayName || "Cliente");
+    events = createMockEvents(customer.displayName || "Cliente")
   }
 
-  const totalPoints = events.reduce((acc, e) => acc + Number(e.service.points), 0);
+  const _totalPoints = events.reduce(
+    (acc, e) => acc + Number(e.service.points),
+    0,
+  )
 
   return {
     customer,
@@ -508,12 +516,12 @@ export const loader = async ({
       points: 80,
       since: "11 de abril de 2022",
     },
-  };
-};
+  }
+}
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { events, stats, customer } = loaderData;
-  const pluralize = usePluralize();
+  const { events, stats, customer } = loaderData
+  const pluralize = usePluralize()
 
   return (
     <div className="min-h-screen">
@@ -549,11 +557,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <div
           className="bg-white rounded-2xl pt-8 pb-6 px-6 relative"
           style={{
-            WebkitMaskImage: 'radial-gradient(circle 75px at 60px 44px, transparent 74px, black 75px)',
-            maskImage: 'radial-gradient(circle 75px at 60px 44px, transparent 74px, black 75px)',
+            WebkitMaskImage:
+              "radial-gradient(circle 75px at 60px 44px, transparent 74px, black 75px)",
+            maskImage:
+              "radial-gradient(circle 75px at 60px 44px, transparent 74px, black 75px)",
           }}
         >
-
           {/* Main content grid */}
           <div className="flex">
             {/* Left section - Profile info */}
@@ -590,17 +599,27 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="text-[#8391a1]" />
-                  <span className="text-[#4b5563]">{customer.tel || "Sin teléfono"}</span>
+                  <span className="text-[#4b5563]">
+                    {customer.tel || "Sin teléfono"}
+                  </span>
                 </div>
                 <div className="flex items-start gap-2 max-w-[248px]">
-                  <FiMapPin className="text-[#8391a1] mt-0.5 shrink-0" size={20} />
-                  <span className="text-[#4b5563]">{customer.address || "Sin dirección"}</span>
+                  <FiMapPin
+                    className="text-[#8391a1] mt-0.5 shrink-0"
+                    size={20}
+                  />
+                  <span className="text-[#4b5563]">
+                    {customer.address || "Sin dirección"}
+                  </span>
                 </div>
               </div>
 
               {/* Notes section */}
               <div className="flex items-start gap-2 mt-6">
-                <IoDocumentTextOutline className="text-[#8391a1] mt-0.5 shrink-0" size={20} />
+                <IoDocumentTextOutline
+                  className="text-[#8391a1] mt-0.5 shrink-0"
+                  size={20}
+                />
                 <p className="text-sm text-[#4b5563] max-w-[840px]">
                   {customer.comments || "Sin comentarios"}
                 </p>
@@ -618,14 +637,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
               <div className="mb-4">
                 <div className="flex items-center gap-1">
-                  <span className="text-2xl font-satoBold text-[#11151a]">{stats.commentsCount}</span>
+                  <span className="text-2xl font-satoBold text-[#11151a]">
+                    {stats.commentsCount}
+                  </span>
                   <span className="text-yellow-500">⭐</span>
                 </div>
                 <p className="text-xs text-[#8391a1]">comentarios</p>
               </div>
 
               <div>
-                <p className="text-2xl font-satoBold text-[#11151a]">{stats.points}</p>
+                <p className="text-2xl font-satoBold text-[#11151a]">
+                  {stats.points}
+                </p>
                 <p className="text-xs text-[#8391a1]">puntos</p>
               </div>
             </div>
@@ -637,7 +660,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <div className="relative z-10 flex items-center gap-4 mt-8 mb-0">
         {/* Date filter */}
         <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 min-w-[340px]">
-          <span className="text-[#8391a1] font-satoMedium text-base flex-1">Filtrar por fecha</span>
+          <span className="text-[#8391a1] font-satoMedium text-base flex-1">
+            Filtrar por fecha
+          </span>
           <CalendarPicker className="text-[#8391a1]" />
         </div>
 
@@ -646,10 +671,24 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
         {/* Citas dropdown */}
         <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 min-w-[180px]">
-          <span className="text-[#4b5563] font-satoMedium text-base">Citas</span>
+          <span className="text-[#4b5563] font-satoMedium text-base">
+            Citas
+          </span>
           <div className="ml-auto">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="rotate-90">
-              <path d="M9 18l6-6-6-6" stroke="#4b5563" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="rotate-90"
+            >
+              <path
+                d="M9 18l6-6-6-6"
+                stroke="#4b5563"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </div>
         </div>
@@ -663,5 +702,5 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       {/* Events Table */}
       <EventTable events={events} />
     </div>
-  );
+  )
 }

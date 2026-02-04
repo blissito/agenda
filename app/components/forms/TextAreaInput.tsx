@@ -1,16 +1,16 @@
-import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
-import { twMerge } from "tailwind-merge";
-import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
+import { twMerge } from "tailwind-merge"
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug"
 
 type Props = {
-  name: string;
-  register?: UseFormRegister<FieldValues>;
-  error?: FieldError;
-  label?: string;
-  className?: string;
-  registerOptions?: { required: string | boolean };
-  placeholder?: string;
-};
+  name: string
+  register?: UseFormRegister<FieldValues>
+  error?: FieldError
+  label?: string
+  className?: string
+  registerOptions?: { required: string | boolean }
+  placeholder?: string
+}
 export const TextAreaInput = ({
   placeholder,
   className,
@@ -36,7 +36,7 @@ export const TextAreaInput = ({
           "w-full",
           "focus:border-brand_blue h-20 font-satoMedium text-brand_dark",
           "rounded-xl border-gray-200 h-20 placeholder:text-brand_iron",
-          !!error && "border-red-500"
+          !!error && "border-red-500",
         )}
         {...props}
         {...register?.(name, registerOptions)}
@@ -45,5 +45,5 @@ export const TextAreaInput = ({
 
       {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
     </div>
-  );
-};
+  )
+}

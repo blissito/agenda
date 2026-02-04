@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { RxCross2 } from "react-icons/rx";
+import type { ReactNode } from "react"
+import { RxCross2 } from "react-icons/rx"
 
 export const Modal = ({
   children,
@@ -7,10 +7,10 @@ export const Modal = ({
   onClose,
   title,
 }: {
-  title: ReactNode;
-  isOpen: boolean;
-  onClose?: () => void;
-  children?: ReactNode;
+  title: ReactNode
+  isOpen: boolean
+  onClose?: () => void
+  children?: ReactNode
 }) => {
   return isOpen ? (
     <article className="fixed bg-brand_blue/50 backdrop-blur-sm z-20 inset-0 grid place-content-center">
@@ -28,5 +28,5 @@ export const Modal = ({
         <div>{children}</div>
       </section>
     </article>
-  ) : null;
-};
+  ) : null
+}

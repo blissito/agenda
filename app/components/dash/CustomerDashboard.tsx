@@ -1,29 +1,29 @@
-import type { User } from "@prisma/client";
+import type { User } from "@prisma/client"
 
 type CustomerEvent = {
-  id: string;
-  start: string;
-  status: string;
-  serviceName?: string;
-  orgName?: string;
-};
+  id: string
+  start: string
+  status: string
+  serviceName?: string
+  orgName?: string
+}
 
 type CustomerDashboardProps = {
-  events: CustomerEvent[];
-  user: User;
-};
+  events: CustomerEvent[]
+  user: User
+}
 
 export function CustomerDashboard({ events, user }: CustomerDashboardProps) {
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return new Intl.DateTimeFormat("es-MX", {
       weekday: "long",
       day: "numeric",
       month: "long",
       hour: "numeric",
       minute: "2-digit",
-    }).format(date);
-  };
+    }).format(date)
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -85,5 +85,5 @@ export function CustomerDashboard({ events, user }: CustomerDashboardProps) {
         </a>
       </div>
     </div>
-  );
+  )
 }

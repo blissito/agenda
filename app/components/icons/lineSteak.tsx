@@ -1,8 +1,8 @@
 export const LineSteak = ({
   fill = "#5158F6",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="88"
@@ -16,4 +16,4 @@ export const LineSteak = ({
       fill={fill}
     />
   </svg>
-);
+)

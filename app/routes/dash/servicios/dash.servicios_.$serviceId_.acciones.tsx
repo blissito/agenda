@@ -1,53 +1,53 @@
-import { useState } from "react";
+import { useState } from "react"
+import { FaBolt, FaClipboardList, FaEnvelope } from "react-icons/fa6"
+import { useFetcher } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Spinner } from "~/components/common/Spinner"
+import { Switch } from "~/components/common/Switch"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { BasicInput } from "~/components/forms/BasicInput"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrump";
-import { db } from "~/utils/db.server";
-import { useFetcher } from "react-router";
-import type { Route } from "./+types/dash.servicios_.$serviceId_.acciones";
-import { Switch } from "~/components/common/Switch";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { Spinner } from "~/components/common/Spinner";
-import { FaBolt, FaEnvelope, FaClipboardList } from "react-icons/fa6";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { cn } from "~/utils/cn";
+} from "~/components/ui/breadcrump"
+import { cn } from "~/utils/cn"
+import { db } from "~/utils/db.server"
+import type { Route } from "./+types/dash.servicios_.$serviceId_.acciones"
 
-type ActionType = "webhook" | "quiz" | "email";
+type ActionType = "webhook" | "quiz" | "email"
 
 type ActionConfig = {
   webhook: {
-    url: string;
-    includeCustomer: boolean;
-    includeEvent: boolean;
-    includeService: boolean;
-  };
+    url: string
+    includeCustomer: boolean
+    includeEvent: boolean
+    includeService: boolean
+  }
   quiz: {
-    questions: string[];
-  };
+    questions: string[]
+  }
   email: {
-    subject: string;
-    body: string;
-  };
-};
+    subject: string
+    body: string
+  }
+}
 
 type ActionState = {
-  type: ActionType;
-  enabled: boolean;
-  config: ActionConfig[ActionType];
-  id?: string;
-};
+  type: ActionType
+  enabled: boolean
+  config: ActionConfig[ActionType]
+  id?: string
+}
 
 const ACTION_TYPES: {
-  type: ActionType;
-  name: string;
-  description: string;
-  icon: React.ReactNode;
+  type: ActionType
+  name: string
+  description: string
+  icon: React.ReactNode
 }[] = [
   {
     type: "webhook",
@@ -67,39 +67,39 @@ const ACTION_TYPES: {
     description: "Envía un correo personalizado al cliente",
     icon: <FaEnvelope className="w-4 h-4" />,
   },
-];
+]
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request);
-  if (!org) throw new Response(null, { status: 401 });
-  const serviceId = params.serviceId;
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Response(null, { status: 401 })
+  const serviceId = params.serviceId
 
   const service = await db.service.findUnique({
     where: { id: serviceId, orgId: org.id },
-  });
-  if (!service) throw new Response(null, { status: 404 });
+  })
+  if (!service) throw new Response(null, { status: 404 })
 
   const actions = await db.serviceAction.findMany({
     where: { serviceId },
-  });
+  })
 
-  return { service, actions, org };
-};
+  return { service, actions, org }
+}
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
 
   if (intent === "update_action") {
-    const data = JSON.parse(formData.get("data") as string);
-    const { type, enabled, config, id } = data;
+    const data = JSON.parse(formData.get("data") as string)
+    const { type, enabled, config, id } = data
 
     if (id) {
       // Update existing action
       await db.serviceAction.update({
         where: { id },
         data: { enabled, config },
-      });
+      })
     } else {
       // Create new action
       await db.serviceAction.create({
@@ -109,40 +109,40 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
           enabled,
           config,
         },
-      });
+      })
     }
   }
 
   if (intent === "delete_action") {
-    const id = formData.get("id") as string;
-    await db.serviceAction.delete({ where: { id } });
+    const id = formData.get("id") as string
+    await db.serviceAction.delete({ where: { id } })
   }
 
-  return null;
-};
+  return null
+}
 
 function ActionCard({
   actionType,
   savedAction,
   serviceId,
 }: {
-  actionType: (typeof ACTION_TYPES)[number];
-  savedAction?: { id: string; enabled: boolean; config: unknown };
-  serviceId: string;
+  actionType: (typeof ACTION_TYPES)[number]
+  savedAction?: { id: string; enabled: boolean; config: unknown }
+  serviceId: string
 }) {
-  const fetcher = useFetcher();
-  const [enabled, setEnabled] = useState(savedAction?.enabled ?? false);
+  const fetcher = useFetcher()
+  const [enabled, setEnabled] = useState(savedAction?.enabled ?? false)
   const [config, setConfig] = useState<ActionConfig["webhook"]>(
     (savedAction?.config as ActionConfig["webhook"]) ?? {
       url: "",
       includeCustomer: true,
       includeEvent: true,
       includeService: false,
-    }
-  );
+    },
+  )
 
   const handleToggle = (checked: boolean) => {
-    setEnabled(checked);
+    setEnabled(checked)
 
     // If disabling and has saved action, update it
     if (savedAction?.id) {
@@ -156,10 +156,10 @@ function ActionCard({
             config,
           }),
         },
-        { method: "post" }
-      );
+        { method: "post" },
+      )
     }
-  };
+  }
 
   const handleSave = () => {
     fetcher.submit(
@@ -172,19 +172,19 @@ function ActionCard({
           config,
         }),
       },
-      { method: "post" }
-    );
-  };
+      { method: "post" },
+    )
+  }
 
-  const isWebhook = actionType.type === "webhook";
-  const isExpanded = enabled && isWebhook;
+  const isWebhook = actionType.type === "webhook"
+  const isExpanded = enabled && isWebhook
 
   return (
     <div
       className={cn(
         "bg-white rounded-2xl p-5 border transition-all",
         enabled ? "border-brand_blue/30" : "border-brand_stroke/60",
-        !enabled && "hover:border-brand_stroke"
+        !enabled && "hover:border-brand_stroke",
       )}
     >
       <div className="flex items-center justify-between">
@@ -192,7 +192,7 @@ function ActionCard({
           <div
             className={cn(
               "p-2.5 rounded-xl",
-              enabled ? "bg-brand_blue/10" : "bg-neutral-100"
+              enabled ? "bg-brand_blue/10" : "bg-neutral-100",
             )}
           >
             <span className={enabled ? "text-brand_blue" : "text-brand_gray"}>
@@ -283,14 +283,14 @@ function ActionCard({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export default function ActionsPage({ loaderData }: Route.ComponentProps) {
-  const { service, actions } = loaderData;
+  const { service, actions } = loaderData
 
   const getActionByType = (type: ActionType) =>
-    actions.find((a) => a.type === type);
+    actions.find((a) => a.type === type)
 
   return (
     <section>
@@ -338,5 +338,5 @@ export default function ActionsPage({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
     </section>
-  );
+  )
 }

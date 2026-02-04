@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link } from "react-router"
 
 export default function MPSuccess() {
   return (
@@ -19,5 +19,5 @@ export default function MPSuccess() {
         </Link>
       </div>
     </article>
-  );
+  )
 }

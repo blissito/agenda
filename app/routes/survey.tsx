@@ -2,45 +2,45 @@
  * Route: /survey?token=xxx&rating=N (optional)
  * Allows customer to submit feedback after their appointment
  */
-import { redirect, data } from "react-router";
-import type { Route } from "./+types/survey";
-import { db } from "~/utils/db.server";
-import { verifySurveyToken } from "~/utils/emails/sendSurvey";
-import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
-import { RatingPicker } from "~/components/survey/RatingPicker";
-import { sendNegativeReviewAlert } from "~/utils/emails/sendNegativeReviewAlert";
+import { data } from "react-router"
+import { RatingPicker } from "~/components/survey/RatingPicker"
+import { db } from "~/utils/db.server"
+import { sendNegativeReviewAlert } from "~/utils/emails/sendNegativeReviewAlert"
+import { verifySurveyToken } from "~/utils/emails/sendSurvey"
+import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
+import type { Route } from "./+types/survey"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const url = new URL(request.url);
-  const token = url.searchParams.get("token");
-  const preRating = url.searchParams.get("rating");
+  const url = new URL(request.url)
+  const token = url.searchParams.get("token")
+  const preRating = url.searchParams.get("rating")
 
   if (!token) {
     return {
       error: "Token requerido",
       errorType: "missing_token" as const,
-    };
+    }
   }
 
-  const payload = verifySurveyToken(token);
+  const payload = verifySurveyToken(token)
 
   if (!payload) {
     return {
       error: "El link ha expirado o no es válido",
       errorType: "invalid_token" as const,
-    };
+    }
   }
 
   // Check if already responded
   const existing = await db.surveyResponse.findUnique({
     where: { eventId: payload.eventId },
-  });
+  })
 
   if (existing) {
     return {
       alreadySubmitted: true,
       rating: existing.rating,
-    };
+    }
   }
 
   // Load event info
@@ -50,24 +50,24 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       customer: true,
       service: { include: { org: true } },
     },
-  });
+  })
 
   if (!event) {
     return {
       error: "Evento no encontrado",
       errorType: "event_not_found" as const,
-    };
+    }
   }
 
   if (event.customerId !== payload.customerId) {
     return {
       error: "No autorizado",
       errorType: "unauthorized" as const,
-    };
+    }
   }
 
   const timezone =
-    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE;
+    (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE
 
   return {
     event: {
@@ -85,46 +85,49 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     },
     preRating: preRating ? parseInt(preRating, 10) : null,
     token, // Pass token to form for action
-  };
-};
+  }
+}
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const token = formData.get("token") as string;
-  const rating = parseInt(formData.get("rating") as string, 10);
-  const comment = (formData.get("comment") as string) || null;
+  const formData = await request.formData()
+  const token = formData.get("token") as string
+  const rating = parseInt(formData.get("rating") as string, 10)
+  const comment = (formData.get("comment") as string) || null
 
   if (!token) {
-    return data({ error: "Token requerido" }, { status: 400 });
+    return data({ error: "Token requerido" }, { status: 400 })
   }
 
-  const payload = verifySurveyToken(token);
+  const payload = verifySurveyToken(token)
 
   if (!payload) {
-    return data({ error: "Token inválido o expirado" }, { status: 400 });
+    return data({ error: "Token inválido o expirado" }, { status: 400 })
   }
 
   // Validate rating
-  if (isNaN(rating) || rating < 1 || rating > 5) {
-    return data({ error: "Calificación inválida (debe ser 1-5)" }, { status: 400 });
+  if (Number.isNaN(rating) || rating < 1 || rating > 5) {
+    return data(
+      { error: "Calificación inválida (debe ser 1-5)" },
+      { status: 400 },
+    )
   }
 
   // Check if already responded
   const existing = await db.surveyResponse.findUnique({
     where: { eventId: payload.eventId },
-  });
+  })
 
   if (existing) {
-    return { success: true, alreadySubmitted: true, rating: existing.rating };
+    return { success: true, alreadySubmitted: true, rating: existing.rating }
   }
 
   // Load event to get orgId and serviceId
   const event = await db.event.findUnique({
     where: { id: payload.eventId },
-  });
+  })
 
   if (!event || !event.serviceId) {
-    return data({ error: "Evento no encontrado" }, { status: 404 });
+    return data({ error: "Evento no encontrado" }, { status: 404 })
   }
 
   // Create survey response
@@ -138,7 +141,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       comment,
       createdAt: new Date(),
     },
-  });
+  })
 
   // Send alert to business owner if rating is low (< 3)
   if (rating < 3) {
@@ -148,12 +151,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
         customer: true,
         service: { include: { org: true } },
       },
-    });
+    })
 
     if (eventWithDetails?.service?.org) {
       const owner = await db.user.findUnique({
         where: { id: eventWithDetails.service.org.ownerId },
-      });
+      })
 
       if (owner) {
         await sendNegativeReviewAlert({
@@ -163,13 +166,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
           rating,
           comment,
           orgName: eventWithDetails.service.org.name,
-        });
+        })
       }
     }
   }
 
-  return { success: true, rating };
-};
+  return { success: true, rating }
+}
 
 export default function SurveyPage({
   loaderData,
@@ -195,13 +198,11 @@ export default function SurveyPage({
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Error
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Error</h1>
           <p className="text-gray-600">{loaderData.error}</p>
         </div>
       </main>
-    );
+    )
   }
 
   // Already submitted state
@@ -232,7 +233,7 @@ export default function SurveyPage({
           </p>
         </div>
       </main>
-    );
+    )
   }
 
   // Success state after submission
@@ -258,22 +259,20 @@ export default function SurveyPage({
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             ¡Gracias por tu opinión!
           </h1>
-          <p className="text-gray-600">
-            Tu feedback nos ayuda a mejorar.
-          </p>
+          <p className="text-gray-600">Tu feedback nos ayuda a mejorar.</p>
         </div>
       </main>
-    );
+    )
   }
 
   // Form state
   const { event, service, customer, preRating, token } = loaderData as {
-    event: { id: string; startFormatted: string };
-    service: { name: string; orgName: string } | null;
-    customer: { displayName: string | undefined };
-    preRating: number | null;
-    token: string;
-  };
+    event: { id: string; startFormatted: string }
+    service: { name: string; orgName: string } | null
+    customer: { displayName: string | undefined }
+    preRating: number | null
+    token: string
+  }
 
   return (
     <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
@@ -341,5 +340,5 @@ export default function SurveyPage({
         </form>
       </div>
     </main>
-  );
+  )
 }

@@ -1,13 +1,13 @@
-import { Children, type MouseEvent, type ReactNode, useState } from "react";
-import { LayoutGroup, motion, useDragControls } from "motion/react";
-import { cn } from "~/utils/cn";
-import { nanoid } from "nanoid";
-import { useHoverIndex } from "~/components/hooks/useHoverIndex";
+import { LayoutGroup, motion, useDragControls } from "motion/react"
+import { nanoid } from "nanoid"
+import { Children, type MouseEvent, type ReactNode, useState } from "react"
+import { useHoverIndex } from "~/components/hooks/useHoverIndex"
+import { cn } from "~/utils/cn"
 
 export type Cell = {
-  layoutId: string;
-  node: ReactNode;
-};
+  layoutId: string
+  node: ReactNode
+}
 
 export const GridReorder = ({
   rows = 2,
@@ -17,64 +17,72 @@ export const GridReorder = ({
   iterables = [],
   className,
 }: {
-  className?: string;
-  iterables?: string[];
-  onUpdate?: (arg0: string[]) => void;
-  children?: ReactNode;
-  rows?: number;
-  columns?: number;
+  className?: string
+  iterables?: string[]
+  onUpdate?: (arg0: string[]) => void
+  children?: ReactNode
+  rows?: number
+  columns?: number
 }) => {
-  const nodes = Children.toArray(children);
-  const { getIndex } = useHoverIndex(); // 🪄✨
-  const [grabbed, setGrabbed] = useState<Cell | null>(null);
-  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const nodes = Children.toArray(children)
+  const { getIndex } = useHoverIndex() // 🪄✨
+  const [grabbed, setGrabbed] = useState<Cell | null>(null)
+  const [overIndex, setOverIndex] = useState<number | null>(null)
   const [cells, setCells] = useState<Cell[]>(
     Array.from({ length: rows * columns }).map((_, indx) => ({
       layoutId: iterables[indx] || nanoid(), // nice 🪄✨
       node: nodes[indx] || null,
-    }))
-  );
+    })),
+  )
 
   // local utils (usa un estado local)
   const swapCells = ({
     grabbingIndex,
     hoverIndex,
   }: {
-    hoverIndex: number;
-    grabbingIndex: number;
+    hoverIndex: number
+    grabbingIndex: number
   }) => {
-    const _cells = [...cells];
-    const moving = _cells.splice(grabbingIndex, 1)[0];
-    _cells.splice(hoverIndex, 0, moving);
+    const _cells = [...cells]
+    const moving = _cells.splice(grabbingIndex, 1)[0]
+    _cells.splice(hoverIndex, 0, moving)
     // local updates
-    setCells(_cells);
-    setOverIndex(null);
+    setCells(_cells)
+    setOverIndex(null)
     // update parent
     onUpdate?.(
-      _cells.map((cell) => cell.layoutId).filter((id) => iterables.includes(id))
-    );
-  };
+      _cells
+        .map((cell) => cell.layoutId)
+        .filter((id) => iterables.includes(id)),
+    )
+  }
 
   const handleDrag = (
     event: MouseEvent<HTMLDivElement>,
-    grabbingIndex: number
+    grabbingIndex: number,
   ) => {
-    const hoverIndex = getIndex(event, { grabbingIndex });
-    if (hoverIndex === null || hoverIndex === undefined) return;
+    const hoverIndex = getIndex(event, { grabbingIndex })
+    if (hoverIndex === null || hoverIndex === undefined) return
     // could be 0
-    setOverIndex(hoverIndex);
+    setOverIndex(hoverIndex)
     // experiment
     // if (grabbingIndex !== hoverIndex) {
     //   swapCells({ grabbingIndex, hoverIndex });
     // }
-  };
+  }
 
-  const handleDragEnd = (event: MouseEvent<HTMLDivElement>, grabbingIndex: number) => {
-    const hoverIndex = getIndex(event as unknown as MouseEvent<HTMLDivElement>, { grabbingIndex });
-    if (hoverIndex === null || hoverIndex === undefined) return;
+  const handleDragEnd = (
+    event: MouseEvent<HTMLDivElement>,
+    grabbingIndex: number,
+  ) => {
+    const hoverIndex = getIndex(
+      event as unknown as MouseEvent<HTMLDivElement>,
+      { grabbingIndex },
+    )
+    if (hoverIndex === null || hoverIndex === undefined) return
     // reorder
-    swapCells({ grabbingIndex, hoverIndex });
-  };
+    swapCells({ grabbingIndex, hoverIndex })
+  }
 
   return (
     <section
@@ -103,8 +111,8 @@ export const GridReorder = ({
         ))}
       </LayoutGroup>
     </section>
-  );
-};
+  )
+}
 
 const DropableCell = ({
   layoutId,
@@ -116,17 +124,17 @@ const DropableCell = ({
   onDrag,
   isLastGrabbed,
 }: {
-  isLastGrabbed?: boolean;
-  layoutId: string; // needed to animate
-  onDragEnd?: (arg0: MouseEvent<HTMLDivElement>, arg1: number) => void;
-  onDragStart?: () => void;
-  isCurrentHover?: boolean;
-  index?: number;
-  children?: ReactNode;
-  onDrag?: (arg0: MouseEvent<HTMLDivElement>, arg1: number) => void;
+  isLastGrabbed?: boolean
+  layoutId: string // needed to animate
+  onDragEnd?: (arg0: MouseEvent<HTMLDivElement>, arg1: number) => void
+  onDragStart?: () => void
+  isCurrentHover?: boolean
+  index?: number
+  children?: ReactNode
+  onDrag?: (arg0: MouseEvent<HTMLDivElement>, arg1: number) => void
 }) => {
   // experiment for real time reordering
-  const controls = useDragControls();
+  const controls = useDragControls()
   return (
     <motion.div
       dragListener={false}
@@ -137,8 +145,12 @@ const DropableCell = ({
       layout
       layoutId={layoutId}
       key={layoutId}
-      onDragEnd={(e) => onDragEnd?.(e as unknown as MouseEvent<HTMLDivElement>, index as number)}
-      onDrag={(e) => onDrag?.(e as unknown as MouseEvent<HTMLDivElement>, index as number)}
+      onDragEnd={(e) =>
+        onDragEnd?.(e as unknown as MouseEvent<HTMLDivElement>, index as number)
+      }
+      onDrag={(e) =>
+        onDrag?.(e as unknown as MouseEvent<HTMLDivElement>, index as number)
+      }
       whileTap={{ cursor: "grabbing" }}
       whileDrag={{ zIndex: 50 }}
       drag
@@ -149,10 +161,10 @@ const DropableCell = ({
         {
           "bg-red-400": isCurrentHover,
           "z-10": isLastGrabbed, // 🪄✨🎩🐰
-        }
+        },
       )}
     >
       {children}
     </motion.div>
-  );
-};
+  )
+}

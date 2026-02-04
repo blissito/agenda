@@ -4,10 +4,10 @@ export default ({
   customerName,
   surveyLink,
 }: {
-  serviceName?: string;
-  orgName?: string;
-  customerName?: string;
-  surveyLink: string;
+  serviceName?: string
+  orgName?: string
+  customerName?: string
+  surveyLink: string
 }) => `
 <body style="font-family:Arial; background-color:#F8F8F8;padding:24px; ">
 <div style="min-width:360px; max-width:480px; margin:0 auto;padding:24px; background-color:#ffffff; border-radius:24px;">
@@ -91,4 +91,4 @@ export default ({
 
 </div>
 </body>
-`;
+`

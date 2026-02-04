@@ -1,30 +1,30 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react"
+import { useCallback, useEffect, useState } from "react"
 
 export function FlipWords({
   words = ["perro", "mijo", "blissmo"],
   duration = 3000,
   bouncy,
 }: {
-  bouncy?: boolean;
-  words?: string[];
-  duration?: number;
+  bouncy?: boolean
+  words?: string[]
+  duration?: number
 }) {
-  const [word, setWord] = useState(words[0]);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [word, setWord] = useState(words[0])
+  const [isAnimating, setIsAnimating] = useState(false)
 
   const start = useCallback(() => {
-    const w = words[(words.indexOf(word) + 1) % words.length];
-    setWord(w);
-    setIsAnimating(true);
-  }, [word, words]);
+    const w = words[(words.indexOf(word) + 1) % words.length]
+    setWord(w)
+    setIsAnimating(true)
+  }, [word, words])
 
   useEffect(() => {
     if (!isAnimating)
       setTimeout(() => {
-        start();
-      }, duration);
-  }, [isAnimating, duration, start]);
+        start()
+      }, duration)
+  }, [isAnimating, duration, start])
 
   return (
     <AnimatePresence
@@ -63,5 +63,5 @@ export function FlipWords({
         ))}
       </motion.span>
     </AnimatePresence>
-  );
+  )
 }

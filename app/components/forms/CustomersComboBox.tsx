@@ -1,18 +1,18 @@
-import { RiUserSearchLine } from "react-icons/ri";
-import { BasicInput } from "./BasicInput";
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
-import { FaPlus } from "react-icons/fa6";
-import { cn } from "~/utils/cn";
-import type { Customer } from "@prisma/client";
-import { useFetcher } from "react-router";
-import { CgRemove } from "react-icons/cg";
+import type { Customer } from "@prisma/client"
+import { type ChangeEvent, useEffect, useRef, useState } from "react"
+import { CgRemove } from "react-icons/cg"
+import { FaPlus } from "react-icons/fa6"
+import { RiUserSearchLine } from "react-icons/ri"
+import { useFetcher } from "react-router"
+import { cn } from "~/utils/cn"
+import { BasicInput } from "./BasicInput"
 
 type CustomersComboBoxProps = {
-  defaultValue?: string | null;
-  onSelect?: (customer: Customer | null) => void;
-  customers: Customer[];
-  onNewClientClick?: () => void;
-};
+  defaultValue?: string | null
+  onSelect?: (customer: Customer | null) => void
+  customers: Customer[]
+  onNewClientClick?: () => void
+}
 
 export const CustomersComboBox = ({
   onNewClientClick,
@@ -20,66 +20,64 @@ export const CustomersComboBox = ({
   onSelect,
   defaultValue,
 }: CustomersComboBoxProps) => {
-  const fetcher = useFetcher<{ customers?: Customer[] }>();
-  const [showClientList, setShowClientList] = useState(false);
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fetcher = useFetcher<{ customers?: Customer[] }>()
+  const [showClientList, setShowClientList] = useState(false)
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleClick = () => {
-    onNewClientClick?.();
-  };
-  const [searchableElements, setSearchableElements] = useState(customers);
-  const [selected, setSelected] = useState<Customer | null>(null);
+    onNewClientClick?.()
+  }
+  const [searchableElements, setSearchableElements] = useState(customers)
+  const [selected, setSelected] = useState<Customer | null>(null)
 
   // load customers
   useEffect(() => {
-    fetcher.load("/api/customers?search");
-  }, []);
+    fetcher.load("/api/customers?search")
+  }, [fetcher])
 
-  const renders = useRef(0);
+  const renders = useRef(0)
   useEffect(() => {
     if (fetcher.data && "customers" in fetcher.data && fetcher.data.customers) {
-      setSearchableElements(fetcher.data.customers);
+      setSearchableElements(fetcher.data.customers)
       if (renders.current < 1) {
         // default value
-        const found = fetcher.data.customers.find(
-          (c) => c.id === defaultValue
-        );
-        setSelected(found ?? null);
-        renders.current = renders.current + 1;
+        const found = fetcher.data.customers.find((c) => c.id === defaultValue)
+        setSelected(found ?? null)
+        renders.current = renders.current + 1
       }
     }
-  }, [fetcher, defaultValue]);
+  }, [fetcher, defaultValue])
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    timeout.current && clearTimeout(timeout.current);
-    const { value } = event.currentTarget;
+    timeout.current && clearTimeout(timeout.current)
+    const { value } = event.currentTarget
     timeout.current = setTimeout(() => {
-      fetcher.load("/api/customers?search=" + value);
-    }, 500);
-  };
+      fetcher.load(`/api/customers?search=${value}`)
+    }, 500)
+  }
 
   const loadAgain = () => {
-    fetcher.load("/api/customers?search");
-  };
+    fetcher.load("/api/customers?search")
+  }
 
   const handleCustomerSelection = (customer: Customer) => {
-    loadAgain();
-    setSelected(customer);
-    onSelect?.(customer);
-    setShowClientList(false);
-  };
+    loadAgain()
+    setSelected(customer)
+    onSelect?.(customer)
+    setShowClientList(false)
+  }
 
   const handleClearSelection = () => {
-    setSelected(null);
-    onSelect?.(null);
-  };
+    setSelected(null)
+    onSelect?.(null)
+  }
 
   return (
     <section
       className="relative"
       onFocus={() => setShowClientList(true)}
       onBlur={() => {
-        setTimeout(() => setShowClientList(false), 500);
+        setTimeout(() => setShowClientList(false), 500)
       }}
     >
       {selected ? (
@@ -103,15 +101,15 @@ export const CustomersComboBox = ({
         </div>
       )}
     </section>
-  );
-};
+  )
+}
 
 const SelectedCustomer = ({
   customer,
   onClear,
 }: {
-  onClear?: () => void;
-  customer: Customer;
+  onClear?: () => void
+  customer: Customer
 }) => {
   return (
     <section className="mb-6">
@@ -129,15 +127,15 @@ const SelectedCustomer = ({
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
 const CustomerList = ({
   customers,
   onClick,
 }: {
-  onClick?: (arg0: Customer) => void;
-  customers: Customer[];
+  onClick?: (arg0: Customer) => void
+  customers: Customer[]
 }) => {
   return (
     <div className="max-h-[200px] overflow-scroll">
@@ -150,7 +148,7 @@ const CustomerList = ({
             "py-3 px-3",
             "hover:bg-gray-100 w-full text-left rounded-lg",
             "my-1",
-            "flex items-center gap-3"
+            "flex items-center gap-3",
           )}
         >
           <span>{customer.displayName}</span>
@@ -158,8 +156,8 @@ const CustomerList = ({
         </button>
       ))}
     </div>
-  );
-};
+  )
+}
 
 const AddCustomerButton = ({ onClick }: { onClick?: () => void }) => {
   return (
@@ -168,7 +166,7 @@ const AddCustomerButton = ({ onClick }: { onClick?: () => void }) => {
       onClick={onClick}
       className={cn(
         "flex items-center gap-4 bg-brand_blue/10 rounded-full py-2 px-2",
-        "text-brand_blue/80 hover:text-brand_blue"
+        "text-brand_blue/80 hover:text-brand_blue",
       )}
     >
       <span>
@@ -176,5 +174,5 @@ const AddCustomerButton = ({ onClick }: { onClick?: () => void }) => {
       </span>
       <span>Agregar cliente</span>
     </button>
-  );
-};
+  )
+}

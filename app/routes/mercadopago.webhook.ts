@@ -1,47 +1,47 @@
-import type { Route } from "./+types/mercadopago.webhook";
-import { getPayment, validateWebhookSignature } from "~/.server/mercadopago";
-import { db } from "~/utils/db.server";
+import { getPayment, validateWebhookSignature } from "~/.server/mercadopago"
+import { db } from "~/utils/db.server"
 import {
   sendAppointmentToCustomer,
   sendAppointmentToOwner,
-} from "~/utils/emails/sendAppointment";
-import { sendPaymentFailedEmail } from "~/utils/emails/sendPaymentFailed";
+} from "~/utils/emails/sendAppointment"
+import { sendPaymentFailedEmail } from "~/utils/emails/sendPaymentFailed"
+import type { Route } from "./+types/mercadopago.webhook"
 
 export const action = async ({ request }: Route.ActionArgs) => {
   // Requerir MP_WEBHOOK_SECRET en producción por seguridad
   if (!process.env.MP_WEBHOOK_SECRET) {
-    console.error("MP_WEBHOOK_SECRET not configured");
-    return new Response("Webhook not configured", { status: 500 });
+    console.error("MP_WEBHOOK_SECRET not configured")
+    return new Response("Webhook not configured", { status: 500 })
   }
 
-  const body = await request.json();
+  const body = await request.json()
 
   // Validar firma del webhook
   {
-    const xSignature = request.headers.get("x-signature");
-    const xRequestId = request.headers.get("x-request-id");
-    const dataId = body.data?.id?.toString() || "";
+    const xSignature = request.headers.get("x-signature")
+    const xRequestId = request.headers.get("x-request-id")
+    const dataId = body.data?.id?.toString() || ""
 
     if (!validateWebhookSignature(xSignature, xRequestId, dataId)) {
-      console.error("MP Webhook: Invalid signature");
-      return new Response("Unauthorized", { status: 401 });
+      console.error("MP Webhook: Invalid signature")
+      return new Response("Unauthorized", { status: 401 })
     }
   }
 
   // IPN de Mercado Pago
   if (body.type === "payment" && body.data?.id) {
-    const paymentId = body.data.id;
+    const paymentId = body.data.id
 
     try {
-      const payment = await getPayment(paymentId);
+      const payment = await getPayment(paymentId)
 
       if (!payment.external_reference) {
-        return new Response("OK", { status: 200 });
+        return new Response("OK", { status: 200 })
       }
 
       const { serviceId, customerId, start, end } = JSON.parse(
-        payment.external_reference
-      );
+        payment.external_reference,
+      )
 
       // Buscar servicio y customer
       const [service, customer] = await Promise.all([
@@ -50,11 +50,11 @@ export const action = async ({ request }: Route.ActionArgs) => {
           include: { org: true },
         }),
         db.customer.findUnique({ where: { id: customerId } }),
-      ]);
+      ])
 
       if (!service || !customer) {
-        console.error("Service or customer not found:", serviceId, customerId);
-        return new Response("OK", { status: 200 });
+        console.error("Service or customer not found:", serviceId, customerId)
+        return new Response("OK", { status: 200 })
       }
 
       // Pago aprobado: crear evento
@@ -62,13 +62,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
         // Idempotencia: verificar si ya existe un evento con este payment_id
         const existingEvent = await db.event.findFirst({
           where: { mp_payment_id: String(paymentId) },
-        });
+        })
         if (existingEvent) {
           console.log(
             "MP Webhook: Event already exists for payment:",
-            paymentId
-          );
-          return new Response("OK", { status: 200 });
+            paymentId,
+          )
+          return new Response("OK", { status: 200 })
         }
 
         const event = await db.event.create({
@@ -96,31 +96,31 @@ export const action = async ({ request }: Route.ActionArgs) => {
             customer: true,
             service: { include: { org: true } },
           },
-        });
+        })
 
         // Enviar emails
         try {
           await sendAppointmentToCustomer({
             email: customer.email,
             event: event as any,
-          });
+          })
           if (service.org.email) {
             await sendAppointmentToOwner({
               email: service.org.email,
               event: event as any,
-            });
+            })
           }
         } catch (e) {
-          console.error("Email send failed:", e);
+          console.error("Email send failed:", e)
         }
 
-        console.log("MP Payment approved, event created:", event.id);
+        console.log("MP Payment approved, event created:", event.id)
       }
 
       // Pago rechazado o cancelado: enviar email
       if (payment.status === "rejected" || payment.status === "cancelled") {
-        const url = new URL(request.url);
-        const retryLink = `${url.origin}/${service.slug}`;
+        const url = new URL(request.url)
+        const retryLink = `${url.origin}/${service.slug}`
 
         await sendPaymentFailedEmail({
           email: customer.email,
@@ -128,17 +128,17 @@ export const action = async ({ request }: Route.ActionArgs) => {
           serviceName: service.name,
           orgName: service.org.name,
           retryLink,
-        });
+        })
 
-        console.log("MP Payment failed, email sent:", payment.status);
+        console.log("MP Payment failed, email sent:", payment.status)
       }
     } catch (e) {
-      console.error("MP Webhook error:", e);
+      console.error("MP Webhook error:", e)
     }
   }
 
-  return new Response("OK", { status: 200 });
-};
+  return new Response("OK", { status: 200 })
+}
 
 // GET para verificación de MP
-export const loader = () => new Response("OK", { status: 200 });
+export const loader = () => new Response("OK", { status: 200 })

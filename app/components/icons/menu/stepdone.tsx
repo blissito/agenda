@@ -2,8 +2,8 @@ export const StepDone = ({
   fill = "#8AAA35",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="48"
@@ -17,4 +17,4 @@ export const StepDone = ({
       fill={fill}
     />
   </svg>
-);
+)

@@ -1,39 +1,39 @@
-import { Agenda } from "@hokify/agenda";
-import { sendExperiment } from "~/utils/emails/sendExperiment";
+import { Agenda } from "@hokify/agenda"
+import { sendExperiment } from "~/utils/emails/sendExperiment"
 
 const mongoConnectionString =
-  "mongodb+srv://borrame_secure:o9FQXFbKI8TNWhyV@cluster0.ahniito.mongodb.net/jobs?retryWrites=true&w=majority&appName=Cluster0";
+  "mongodb+srv://borrame_secure:o9FQXFbKI8TNWhyV@cluster0.ahniito.mongodb.net/jobs?retryWrites=true&w=majority&appName=Cluster0"
 
 const agenda = new Agenda({
   db: { address: mongoConnectionString },
-});
+})
 
 agenda.define(
   "send_experiment",
   async (job) => {
-    const { emails, when } = job.attrs.data;
-    await sendExperiment(emails, { when });
+    const { emails, when } = job.attrs.data
+    await sendExperiment(emails, { when })
   },
-  { priority: "normal", concurrency: 10 }
-);
+  { priority: "normal", concurrency: 10 },
+)
 
 export const scheduleMail = async ({
   emails,
   when,
   template = "send_experiment",
 }: {
-  when?: string | Date;
-  emails: string[];
-  template?: "send_experiment" | string;
-  data?: unknown;
+  when?: string | Date
+  emails: string[]
+  template?: "send_experiment" | string
+  data?: unknown
 }) => {
-  await agenda.start();
+  await agenda.start()
   const r = when
     ? await agenda.schedule(when, template, { emails, when })
-    : await agenda.now("send_experiment");
+    : await agenda.now("send_experiment")
 
-  return r.attrs._id;
-};
+  return r.attrs._id
+}
 
 // (async function(){
 //     await agenda.start()
@@ -46,4 +46,4 @@ export const scheduleMail = async ({
 //   });
 // };
 
-export default agenda;
+export default agenda

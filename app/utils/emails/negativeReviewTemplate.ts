@@ -6,14 +6,14 @@ export default ({
   orgName,
   dashboardUrl,
 }: {
-  customerName: string;
-  serviceName: string;
-  rating: number;
-  comment: string | null;
-  orgName: string;
-  dashboardUrl: string;
+  customerName: string
+  serviceName: string
+  rating: number
+  comment: string | null
+  orgName: string
+  dashboardUrl: string
 }) => {
-  const stars = "★".repeat(rating) + "☆".repeat(5 - rating);
+  const stars = "★".repeat(rating) + "☆".repeat(5 - rating)
 
   return `
 <body style="font-family:Arial; background-color:#F8F8F8;padding:24px;">
@@ -40,5 +40,5 @@ export default ({
   </div>
 </div>
 </body>
-`;
-};
+`
+}

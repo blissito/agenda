@@ -1,28 +1,27 @@
-import type { Org } from "@prisma/client";
-import { useForm } from "react-hook-form";
-import { Form, useFetcher } from "react-router";
-import { generalFormSchema } from "../services_model/ServiceGeneralForm";
-import { InputFile } from "../InputFile";
-import { BasicInput } from "../BasicInput";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { PrimaryButton } from "~/components/common/primaryButton";
+import type { Org } from "@prisma/client"
+import { useForm } from "react-hook-form"
+import { Form, useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { BasicInput } from "../BasicInput"
+import { InputFile } from "../InputFile"
 
 export const GeneralForm = ({
   onClose,
   defaultValues,
 }: {
-  onClose?: () => void;
-  defaultValues?: Org;
+  onClose?: () => void
+  defaultValues?: Org
 }) => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher()
   const {
     register,
     formState: { isDirty, isValid },
     handleSubmit,
-  } = useForm({ defaultValues, mode: "onChange" });
+  } = useForm({ defaultValues, mode: "onChange" })
 
-  const isDisabled = !isDirty || !isValid;
-  const isLoading = fetcher.state !== "idle";
+  const isDisabled = !isDirty || !isValid
+  const isLoading = fetcher.state !== "idle"
 
   const submit = (values: Record<string, unknown>) => {
     fetcher.submit(
@@ -30,10 +29,10 @@ export const GeneralForm = ({
         intent: "org_update",
         data: JSON.stringify({ ...values, id: defaultValues?.id }),
       },
-      { method: "post", action: "/api/org" }
-    );
-    onClose?.();
-  };
+      { method: "post", action: "/api/org" },
+    )
+    onClose?.()
+  }
 
   return (
     <Form
@@ -92,5 +91,5 @@ export const GeneralForm = ({
         </PrimaryButton>
       </div>
     </Form>
-  );
-};
+  )
+}

@@ -1,18 +1,18 @@
-import { Link, useFetcher } from "react-router";
-import { Tag } from "~/components/common/Tag";
-import { Plus } from "~/components/icons/plus";
-import { TbDots } from "react-icons/tb";
-import { FaLink, FaRegTrashCan } from "react-icons/fa6";
-import { FiToggleLeft, FiToggleRight } from "react-icons/fi";
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { Spinner } from "~/components/common/Spinner";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { ConfirmModal } from "~/components/common/ConfirmModal";
-import { twMerge } from "tailwind-merge";
-import { useCopyLink } from "~/components/hooks/useCopyLink";
-import { Image } from "~/components/common/Image";
-import type { Service } from "@prisma/client";
+import type { Service } from "@prisma/client"
+import { AnimatePresence, motion } from "motion/react"
+import { useState } from "react"
+import { FaLink, FaRegTrashCan } from "react-icons/fa6"
+import { FiToggleLeft, FiToggleRight } from "react-icons/fi"
+import { TbDots } from "react-icons/tb"
+import { Link, useFetcher } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { Image } from "~/components/common/Image"
+import { Spinner } from "~/components/common/Spinner"
+import { Tag } from "~/components/common/Tag"
+import { useCopyLink } from "~/components/hooks/useCopyLink"
+import { Plus } from "~/components/icons/plus"
+import { useClickOutside } from "~/utils/hooks/useClickOutside"
 
 export const ServiceCard = ({
   service,
@@ -25,31 +25,31 @@ export const ServiceCard = ({
   id,
   isActive,
 }: {
-  service: Service;
-  isActive: boolean;
-  id: string;
-  title: string;
-  image?: string;
-  duration: number;
-  price: string;
-  status: string;
-  link: string;
-  path: string;
+  service: Service
+  isActive: boolean
+  id: string
+  title: string
+  image?: string
+  duration: number
+  price: string
+  status: string
+  link: string
+  path: string
 }) => {
   // lets try with an api endpoint...
-  const fetcher = useFetcher();
-  const [show, setShow] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
+  const fetcher = useFetcher()
+  const [show, setShow] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
 
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: () => {
-      setShow(false);
+      setShow(false)
     },
     isActive: show,
     includeEscape: true, // captures [Esc] key press
-  });
+  })
 
-  const { ref: copiadoRef, setLink } = useCopyLink<HTMLButtonElement>(link);
+  const { ref: copiadoRef, setLink } = useCopyLink<HTMLButtonElement>(link)
 
   const handleToggleDeactivation = () => {
     fetcher.submit(
@@ -57,30 +57,30 @@ export const ServiceCard = ({
         intent: "api_update_service",
         data: JSON.stringify({ serviceId: id, isActive: !isActive }),
       },
-      { method: "post", action: "/dash/servicios/nuevo" }
-    );
-  };
+      { method: "post", action: "/dash/servicios/nuevo" },
+    )
+  }
 
   const handleDelete = () => {
-    setShow(false);
-    setShowDelete(true);
-  };
+    setShow(false)
+    setShowDelete(true)
+  }
 
   const handleDeleteConfirm = () => {
-    setShowDelete(false);
+    setShowDelete(false)
     fetcher.submit(
       {
         intent: "update_service",
         data: JSON.stringify({ id, archived: true }),
       },
-      { method: "post" }
-    );
-  };
+      { method: "post" },
+    )
+  }
 
   const handleCopyLink = () => {
-    setLink();
-    setShow(false);
-  };
+    setLink()
+    setShow(false)
+  }
 
   return (
     <motion.section
@@ -91,13 +91,13 @@ export const ServiceCard = ({
     >
       <button
         onClick={() => {
-          setShow((s) => !s);
+          setShow((s) => !s)
         }}
         type="button"
         className={twMerge(
           "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full  bg-transparent z-10 text-transparent active:scale-95 focus:text-white focus:bg-gray-400/70",
           "opacity-1 group-hover:bg-gray-400/70 group-hover:text-white",
-          show && "text-white bg-gray-400/70 "
+          show && "text-white bg-gray-400/70 ",
         )}
       >
         <TbDots />
@@ -147,9 +147,7 @@ export const ServiceCard = ({
                   </span>
                 </>
               ) : (
-                <>
-                  <Spinner className="scale-[20%]" />
-                </>
+                <Spinner className="scale-[20%]" />
               )}
             </button>
           </motion.div>
@@ -192,16 +190,14 @@ export const ServiceCard = ({
         </section>
       </Link>
     </motion.section>
-  );
-};
+  )
+}
 
 export const AddService = () => {
-  const fetcher = useFetcher();
+  const _fetcher = useFetcher()
   return (
     <Link to="/dash/servicios/nuevo">
-      <button
-        className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center"
-      >
+      <button className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center">
         <div>
           <Plus className="mx-auto group-hover:scale-125 transition-all" />
           <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
@@ -210,5 +206,5 @@ export const AddService = () => {
         </div>
       </button>
     </Link>
-  );
-};
+  )
+}

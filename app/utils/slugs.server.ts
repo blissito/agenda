@@ -1,5 +1,5 @@
-import slugify from "slugify";
-import { db } from "./db.server";
+import slugify from "slugify"
+import { db } from "./db.server"
 
 /**
  * Generates a unique slug for a service within an org.
@@ -7,25 +7,25 @@ import { db } from "./db.server";
  */
 export async function generateUniqueServiceSlug(
   name: string,
-  orgId: string
+  orgId: string,
 ): Promise<string> {
-  const baseSlug = slugify(name, { lower: true, strict: true });
+  const baseSlug = slugify(name, { lower: true, strict: true })
 
   // Check if base slug is available
   const existing = await db.service.findFirst({
     where: { orgId, slug: baseSlug },
-  });
+  })
 
-  if (!existing) return baseSlug;
+  if (!existing) return baseSlug
 
   // Find next available number
-  let counter = 2;
+  let counter = 2
   while (true) {
-    const candidateSlug = `${baseSlug}-${counter}`;
+    const candidateSlug = `${baseSlug}-${counter}`
     const exists = await db.service.findFirst({
       where: { orgId, slug: candidateSlug },
-    });
-    if (!exists) return candidateSlug;
-    counter++;
+    })
+    if (!exists) return candidateSlug
+    counter++
   }
 }

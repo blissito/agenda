@@ -10,59 +10,53 @@
  * - booking.completed: Send survey after appointment
  * - booking.cancelled: Send cancellation notice
  */
-import type { Customer, Event, Org, Service } from "@prisma/client";
-import { register } from "./index.server";
-import { db } from "~/utils/db.server";
+import type { Customer, Event, Org, Service } from "@prisma/client"
 import {
+  isWhatsAppConfigured,
   sendWhatsAppConfirmation,
   sendWhatsAppReminder,
-  isWhatsAppConfigured,
   WhatsAppNotConfiguredError,
-} from "~/.server/whatsapp";
-import {
-  sendMessengerConfirmation,
-  sendMessengerReminder,
-  isMessengerConfigured,
-  MessengerNotConfiguredError,
-} from "~/.server/messenger";
-import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
+} from "~/.server/whatsapp"
+import { db } from "~/utils/db.server"
+import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
+import { register } from "./index.server"
 
 type ServiceConfig = {
-  confirmation?: boolean;
-  reminder?: boolean;
-  survey?: boolean;
-  whatsapp_confirmation?: boolean;
-  whatsapp_reminder?: boolean;
-};
+  confirmation?: boolean
+  reminder?: boolean
+  survey?: boolean
+  whatsapp_confirmation?: boolean
+  whatsapp_reminder?: boolean
+}
 
 type OrgWithIntegrations = Org & {
   integrations?: {
     whatsapp?: {
-      phoneNumberId?: string | null;
-      accessToken?: string | null;
-      businessId?: string | null;
-      connectedAt?: Date | null;
-    } | null;
+      phoneNumberId?: string | null
+      accessToken?: string | null
+      businessId?: string | null
+      connectedAt?: Date | null
+    } | null
     messenger?: {
-      pageId?: string | null;
-      pageAccessToken?: string | null;
-      connectedAt?: Date | null;
-    } | null;
-  } | null;
-  timezone?: string | null;
-};
+      pageId?: string | null
+      pageAccessToken?: string | null
+      connectedAt?: Date | null
+    } | null
+  } | null
+  timezone?: string | null
+}
 
 type BookingEventData = {
-  event: Event;
-  service: Service;
-  customer: Customer;
-};
+  event: Event
+  service: Service
+  customer: Customer
+}
 
 /**
  * Get formatted date string for notifications
  */
 function getFormattedDateTime(date: Date, timezone?: string | null): string {
-  return formatFullDateInTimezone(date, timezone || DEFAULT_TIMEZONE);
+  return formatFullDateInTimezone(date, timezone || DEFAULT_TIMEZONE)
 }
 
 /**
@@ -71,19 +65,19 @@ function getFormattedDateTime(date: Date, timezone?: string | null): string {
  */
 async function handleBookingCreated(
   data: unknown,
-  orgId: string
+  orgId: string,
 ): Promise<void> {
-  const { event, service, customer } = data as BookingEventData;
-  const config = service.config as ServiceConfig | null;
+  const { event, service, customer } = data as BookingEventData
+  const config = service.config as ServiceConfig | null
 
   // Get org with integrations
-  const org = await db.org.findUnique({
+  const org = (await db.org.findUnique({
     where: { id: orgId },
-  }) as OrgWithIntegrations | null;
+  })) as OrgWithIntegrations | null
 
-  if (!org) return;
+  if (!org) return
 
-  const dateTime = getFormattedDateTime(event.start, org.timezone);
+  const dateTime = getFormattedDateTime(event.start, org.timezone)
 
   // WhatsApp confirmation
   if (config?.whatsapp_confirmation && customer.tel) {
@@ -94,13 +88,15 @@ async function handleBookingCreated(
           customer.tel,
           customer.displayName,
           service.name,
-          dateTime
-        );
-        console.log(`[Notifications] WhatsApp confirmation sent for event ${event.id}`);
+          dateTime,
+        )
+        console.log(
+          `[Notifications] WhatsApp confirmation sent for event ${event.id}`,
+        )
       }
     } catch (error) {
       if (!(error instanceof WhatsAppNotConfiguredError)) {
-        console.error(`[Notifications] WhatsApp confirmation failed:`, error);
+        console.error(`[Notifications] WhatsApp confirmation failed:`, error)
       }
     }
   }
@@ -116,19 +112,19 @@ async function handleBookingCreated(
  */
 async function handleBookingReminder(
   data: unknown,
-  orgId: string
+  orgId: string,
 ): Promise<void> {
-  const { event, service, customer } = data as BookingEventData;
-  const config = service.config as ServiceConfig | null;
+  const { event, service, customer } = data as BookingEventData
+  const config = service.config as ServiceConfig | null
 
   // Get org with integrations
-  const org = await db.org.findUnique({
+  const org = (await db.org.findUnique({
     where: { id: orgId },
-  }) as OrgWithIntegrations | null;
+  })) as OrgWithIntegrations | null
 
-  if (!org) return;
+  if (!org) return
 
-  const dateTime = getFormattedDateTime(event.start, org.timezone);
+  const dateTime = getFormattedDateTime(event.start, org.timezone)
 
   // WhatsApp reminder
   if (config?.whatsapp_reminder && customer.tel) {
@@ -139,13 +135,15 @@ async function handleBookingReminder(
           customer.tel,
           customer.displayName,
           service.name,
-          dateTime
-        );
-        console.log(`[Notifications] WhatsApp reminder sent for event ${event.id}`);
+          dateTime,
+        )
+        console.log(
+          `[Notifications] WhatsApp reminder sent for event ${event.id}`,
+        )
       }
     } catch (error) {
       if (!(error instanceof WhatsAppNotConfiguredError)) {
-        console.error(`[Notifications] WhatsApp reminder failed:`, error);
+        console.error(`[Notifications] WhatsApp reminder failed:`, error)
       }
     }
   }
@@ -157,13 +155,13 @@ async function handleBookingReminder(
  */
 async function handleBookingCompleted(
   data: unknown,
-  _orgId: string
+  _orgId: string,
 ): Promise<void> {
-  const { event } = data as BookingEventData;
+  const { event } = data as BookingEventData
 
   // Survey is handled by email via the job scheduler
   // WhatsApp/Messenger surveys would be a future feature
-  console.log(`[Notifications] Booking completed: ${event.id}`);
+  console.log(`[Notifications] Booking completed: ${event.id}`)
 }
 
 /**
@@ -172,20 +170,20 @@ async function handleBookingCompleted(
  */
 async function handleBookingCancelled(
   data: unknown,
-  orgId: string
+  orgId: string,
 ): Promise<void> {
-  const { event, service, customer } = data as BookingEventData;
+  const { event, service, customer } = data as BookingEventData
 
   // Get org with integrations
-  const org = await db.org.findUnique({
+  const org = (await db.org.findUnique({
     where: { id: orgId },
-  }) as OrgWithIntegrations | null;
+  })) as OrgWithIntegrations | null
 
-  if (!org) return;
+  if (!org) return
 
   // Email cancellation is handled elsewhere
   // WhatsApp/Messenger cancellation would be a future feature
-  console.log(`[Notifications] Booking cancelled: ${event.id}`);
+  console.log(`[Notifications] Booking cancelled: ${event.id}`)
 }
 
 // Register the notifications plugin
@@ -200,4 +198,4 @@ register({
     "booking.completed": handleBookingCompleted,
     "booking.cancelled": handleBookingCancelled,
   },
-});
+})

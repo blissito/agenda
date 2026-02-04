@@ -1,63 +1,62 @@
-import { useLoaderData, useNavigate } from "react-router";
-import type { LoaderFunctionArgs } from "react-router";
-import { AnimatePresence } from "motion/react";
-import { type ReactNode, useEffect, useState } from "react";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { Checklist } from "~/components/icons/menu/checklist";
-import { Landing } from "~/components/icons/menu/landing";
-import { Share } from "~/components/icons/menu/share";
-import { StepDone } from "~/components/icons/menu/stepdone";
-import { Stripe } from "~/components/icons/menu/stripe";
-import { User } from "~/components/icons/menu/user";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { motion } from "motion/react";
-import { twMerge } from "tailwind-merge";
-import { db } from "~/utils/db.server";
+import { AnimatePresence, motion } from "motion/react"
+import { type ReactNode, useEffect, useState } from "react"
+import type { LoaderFunctionArgs } from "react-router"
+import { useLoaderData, useNavigate } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Checklist } from "~/components/icons/menu/checklist"
+import { Landing } from "~/components/icons/menu/landing"
+import { Share } from "~/components/icons/menu/share"
+import { StepDone } from "~/components/icons/menu/stepdone"
+import { Stripe } from "~/components/icons/menu/stripe"
+import { User } from "~/components/icons/menu/user"
+import { db } from "~/utils/db.server"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const { org } = await getUserAndOrgOrRedirect(request);
-  if (!org) throw new Error("Org not found");
+  const url = new URL(request.url)
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Error("Org not found")
   const servicesCount = await db.service.count({
     where: {
       orgId: org.id,
     },
-  });
-  url.pathname = `/${org.slug}/agenda`;
+  })
+  url.pathname = `/${org.slug}/agenda`
 
-  return { url: url.toString(), org, servicesCount };
-};
+  return { url: url.toString(), org, servicesCount }
+}
 
 export default function DashOnboarding() {
-  const { servicesCount, url } = useLoaderData<typeof loader>();
-  const [pop, setPop] = useState(false);
-  const [shareLink, setShareLink] = useState("0");
-  const [sitioWebDone, setSitioWeb] = useState("0");
-  const navigate = useNavigate();
+  const { servicesCount, url } = useLoaderData<typeof loader>()
+  const [pop, setPop] = useState(false)
+  const [shareLink, setShareLink] = useState("0")
+  const [sitioWebDone, setSitioWeb] = useState("0")
+  const navigate = useNavigate()
 
   const handleSitioWeb = () => {
-    localStorage.setItem("sitioWebDone", "1");
-    navigate(new URL(url).pathname);
-  };
+    localStorage.setItem("sitioWebDone", "1")
+    navigate(new URL(url).pathname)
+  }
 
   const handleCopyURL = () => {
-    navigator.clipboard.writeText(url);
-    setPop(true);
-    setTimeout(() => setPop(false), 1000);
-    localStorage.setItem("shareLink", "1");
-    setShareLink("1");
-  };
+    navigator.clipboard.writeText(url)
+    setPop(true)
+    setTimeout(() => setPop(false), 1000)
+    localStorage.setItem("shareLink", "1")
+    setShareLink("1")
+  }
 
   useEffect(() => {
-    const sitioW = localStorage.getItem("sitioWebDone");
-    const shareL = localStorage.getItem("shareLink");
+    const sitioW = localStorage.getItem("sitioWebDone")
+    const shareL = localStorage.getItem("shareLink")
     if (sitioW === "1") {
-      setSitioWeb(sitioW);
+      setSitioWeb(sitioW)
     }
     if (shareL) {
-      setShareLink(shareL);
+      setShareLink(shareL)
     }
-  }, []);
+  }, [])
 
   return (
     <main className="max-w-7xl  mx-auto pt-28  max-h-screen  ">
@@ -83,30 +82,27 @@ export default function DashOnboarding() {
             title="Conoce tu sitio web y agenda una cita de prueba"
             description="Échale un ojo a tu sitio web y pruébalo"
             cta={
-              // @TODO convert into component because is reapeting
-              <>
-                <AnimatePresence>
-                  {sitioWebDone !== "1" ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                    >
-                      <PrimaryButton onClick={handleSitioWeb} className="h-10">
-                        Visitar
-                      </PrimaryButton>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                    >
-                      <StepCheck />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </>
+              <AnimatePresence>
+                {sitioWebDone !== "1" ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <PrimaryButton onClick={handleSitioWeb} className="h-10">
+                      Visitar
+                    </PrimaryButton>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <StepCheck />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             }
           />
           <Step
@@ -124,36 +120,32 @@ export default function DashOnboarding() {
             title="Crea tu primer servicio"
             description="Agrega uno o todos tus servicios "
             cta={
-              <>
-                {
-                  <AnimatePresence>
-                    {servicesCount < 2 ? (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                      >
-                        <PrimaryButton
-                          as="Link"
-                          to="/dash/servicios"
-                          onClick={handleCopyURL}
-                          className="h-10"
-                        >
-                          Agregar
-                        </PrimaryButton>
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                      >
-                        <StepCheck />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                }
-              </>
+              <AnimatePresence>
+                {servicesCount < 2 ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <PrimaryButton
+                      as="Link"
+                      to="/dash/servicios"
+                      onClick={handleCopyURL}
+                      className="h-10"
+                    >
+                      Agregar
+                    </PrimaryButton>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <StepCheck />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             }
           />
           <Step
@@ -187,7 +179,7 @@ export default function DashOnboarding() {
                   id="pop"
                   className={twMerge(
                     "bg-brand_dark text-white text-xs min-w-fit p-2 rounded-lg absolute right-0",
-                    pop ? "block" : "hidden"
+                    pop ? "block" : "hidden",
                   )}
                 >
                   Copiado ✅
@@ -211,7 +203,7 @@ export default function DashOnboarding() {
         />
       </div>
     </main>
-  );
+  )
 }
 
 const StepCheck = () => {
@@ -219,8 +211,8 @@ const StepCheck = () => {
     <section className="w-[120px] flex justify-center">
       <StepDone />
     </section>
-  );
-};
+  )
+}
 
 const Step = ({
   icon,
@@ -230,12 +222,12 @@ const Step = ({
   isDone,
   onClick,
 }: {
-  isDone?: boolean;
-  onClick?: () => void;
-  icon?: ReactNode;
-  title: string;
-  description: string;
-  cta?: ReactNode;
+  isDone?: boolean
+  onClick?: () => void
+  icon?: ReactNode
+  title: string
+  description: string
+  cta?: ReactNode
 }) => {
   return (
     <section className="flex justify-between items-center">
@@ -250,5 +242,5 @@ const Step = ({
       </div>
       {cta}
     </section>
-  );
-};
+  )
+}

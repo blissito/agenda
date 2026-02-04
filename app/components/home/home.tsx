@@ -1,19 +1,19 @@
-import { PrimaryButton } from "../common/primaryButton";
-import { SecondaryButton } from "../common/secondaryButton";
-import { ArrowRight } from "../icons/arrowRight";
-import { Calendar } from "../icons/calendar";
-import { LineSteak } from "../icons/lineSteak";
-import { twMerge } from "tailwind-merge";
-import { Rocket } from "../icons/rocket";
-import { Expression } from "../icons/expression";
-import { Waves } from "../icons/waves";
-import { Arrow } from "../icons/arrow";
-import type { ReactNode } from "react";
-import { Search } from "../icons/search";
-import { Thunder } from "../icons/thunder";
-import { Comment } from "../icons/comment";
-import { WobbleCard } from "../animated/WoobleCard";
-import { Parallax } from "react-scroll-parallax";
+import type { ReactNode } from "react"
+import { Parallax } from "react-scroll-parallax"
+import { twMerge } from "tailwind-merge"
+import { WobbleCard } from "../animated/WoobleCard"
+import { PrimaryButton } from "../common/primaryButton"
+import { SecondaryButton } from "../common/secondaryButton"
+import { Arrow } from "../icons/arrow"
+import { ArrowRight } from "../icons/arrowRight"
+import { Calendar } from "../icons/calendar"
+import { Comment } from "../icons/comment"
+import { Expression } from "../icons/expression"
+import { LineSteak } from "../icons/lineSteak"
+import { Rocket } from "../icons/rocket"
+import { Search } from "../icons/search"
+import { Thunder } from "../icons/thunder"
+import { Waves } from "../icons/waves"
 
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center  ">
@@ -48,7 +48,7 @@ export const Hero = () => (
       </div>
     </div>
   </section>
-);
+)
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
   <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-y-visible pb-12 w-full items-start md:items-center mt-10 md:mt-0 ">
@@ -57,7 +57,11 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         <LineSteak />
       </div>
 
-      <Parallax speed={-2} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-2}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardSmall
           className="rotate-[4deg] -left-4 md:left-0 "
           name="Paola Alvarado"
@@ -67,11 +71,19 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         />
       </Parallax>
 
-      <Parallax speed={-3} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-3}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardImage className="-rotate-[4deg] top-16 md:top-16" />
       </Parallax>
 
-      <Parallax speed={-10} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-10}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardLarge
           className="rotate-[4deg] "
           name="Luis Escobedo"
@@ -84,7 +96,11 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
     </div>
 
     <div className="flex justify-between gap-10 md:gap-20">
-      <Parallax speed={-12} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-12}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardSmall
           className="rotate-[4deg] mt-10 md:-mt-20  "
           name="Catalina López"
@@ -95,14 +111,22 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         />
       </Parallax>
 
-      <Parallax speed={-8} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-8}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardImage
           className="-rotate-[4deg] top-20 md:top-0 "
           img="/images/img1.jpg"
         />
       </Parallax>
 
-      <Parallax speed={-16} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-16}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardLarge
           className="rotate-[4deg] "
           name="Georgina Hernández"
@@ -113,7 +137,11 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         />
       </Parallax>
 
-      <Parallax speed={-4} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-4}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardImage className="-rotate-[4deg] " img="/images/img4.jpg" />
       </Parallax>
     </div>
@@ -126,14 +154,22 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         <Waves />
       </span>
 
-      <Parallax speed={-12} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-12}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardImage
           className="rotate-[4deg] mt-0 md:-mt-28 -left-16 md:left-0"
           img="/images/img3.jpg"
         />
       </Parallax>
 
-      <Parallax speed={-20} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-20}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardLarge
           className="-rotate-[4deg] mt-32 md:-mt-10 -left-16 md:left-0"
           name="Jose Luis González"
@@ -144,11 +180,19 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
         />
       </Parallax>
 
-      <Parallax speed={-8} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-8}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardImage className="rotate-[4deg] " img="/images/img2.jpg" />
       </Parallax>
 
-      <Parallax speed={-16} className="static inline-block max-w-full" style={{ willChange: "transform" }}>
+      <Parallax
+        speed={-16}
+        className="static inline-block max-w-full"
+        style={{ willChange: "transform" }}
+      >
         <CardSmall
           className="-rotate-[4deg] "
           name="Paola Alvarado"
@@ -159,8 +203,7 @@ export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
       </Parallax>
     </div>
   </section>
-);
-
+)
 
 export const CardSmall = ({
   className,
@@ -170,17 +213,17 @@ export const CardSmall = ({
   comment,
   icon,
 }: {
-  img?: string;
-  name: string;
-  rol: string;
-  comment: string;
-  className?: string;
-  icon?: ReactNode;
+  img?: string
+  name: string
+  rol: string
+  comment: string
+  className?: string
+  icon?: ReactNode
 }) => (
   <section
     className={twMerge(
       " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[240px] lg:w-[340px] h-[260px] lg:h-[400px] rounded-lg	p-6 relative flex flex-col justify-between",
-      className
+      className,
     )}
   >
     <article className="flex gap-3">
@@ -207,7 +250,7 @@ export const CardSmall = ({
       {icon ? icon : <Rocket />}
     </span>
   </section>
-);
+)
 export const CardLarge = ({
   className,
   img,
@@ -216,17 +259,17 @@ export const CardLarge = ({
   comment,
   icon,
 }: {
-  className: string;
-  img?: string;
-  name: string;
-  rol: string;
-  comment: string;
-  icon?: ReactNode;
+  className: string
+  img?: string
+  name: string
+  rol: string
+  comment: string
+  icon?: ReactNode
 }) => (
   <section
     className={twMerge(
       " hover:scale-95 transition-all cursor-pointer shadow-[0px_12px_32px_0px_#00000014] w-[220px] lg:w-[280px] h-[300px] md:h-[380px] rounded-lg	p-6 relative flex flex-col justify-between",
-      className
+      className,
     )}
   >
     <article className="flex gap-3">
@@ -253,19 +296,19 @@ export const CardLarge = ({
       {icon ? icon : <Rocket />}
     </span>
   </section>
-);
+)
 
 export const CardImage = ({
   className,
   img,
 }: {
-  className?: string;
-  img?: string;
+  className?: string
+  img?: string
 }) => (
   <section
     className={twMerge(
       " hover:scale-95 transition-all cursor-pointer w-[210px] h-[280px] lg:w-[420px] rounded-lg	p-6 xl:h-[280px]  relative",
-      className
+      className,
     )}
   >
     <span className=" absolute -left-2 -top-2 ">
@@ -281,7 +324,7 @@ export const CardImage = ({
       }
     />
   </section>
-);
+)
 
 export const Features = () => (
   <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
@@ -367,4 +410,4 @@ export const Features = () => (
       </WobbleCard>
     </div>
   </section>
-);
+)

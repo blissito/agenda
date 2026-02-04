@@ -1,12 +1,12 @@
-import { useLoaderData } from "react-router";
-import { type ReactNode } from "react";
-import { FaCheck } from "react-icons/fa6";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { Switch } from "~/components/common/Switch";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import SelectStylized, { type Choice } from "~/components/ui/select";
-import { SUPPORTED_TIMEZONES } from "~/utils/timezone";
+import { type ReactNode } from "react"
+import { FaCheck } from "react-icons/fa6"
+import { useLoaderData } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Switch } from "~/components/common/Switch"
+import { BasicInput } from "~/components/forms/BasicInput"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import SelectStylized, { type Choice } from "~/components/ui/select"
+import { SUPPORTED_TIMEZONES } from "~/utils/timezone"
 
 const COUNTRIES: Choice[] = [
   { value: "MX", label: "🇲🇽 México" },
@@ -14,32 +14,32 @@ const COUNTRIES: Choice[] = [
   { value: "CO", label: "🇨🇴 Colombia" },
   { value: "ES", label: "🇪🇸 España" },
   { value: "PE", label: "🇵🇪 Perú" },
-];
+]
 
 const TIMEZONES: Choice[] = SUPPORTED_TIMEZONES.map((tz) => ({
   value: tz.value,
   label: tz.label,
-}));
+}))
 
 const PERIOD: Choice[] = [
   { value: "3m", label: "3 meses" },
   { value: "6m", label: "6 meses" },
   { value: "1y", label: "1 año" },
-];
+]
 
 const RANGES: Choice[] = [
   { value: "15", label: "15 minutos" },
   { value: "30", label: "30 minutos" },
   { value: "60", label: "1 hora" },
   { value: "1440", label: "24 horas" },
-];
+]
 
 const TIMES: Choice[] = [
   { value: "1", label: "1 vez" },
   { value: "2", label: "2 veces" },
   { value: "3", label: "3 veces" },
   { value: "unlimited", label: "Ilimitadas" },
-];
+]
 
 export const loader = async () => {
   return {
@@ -48,11 +48,11 @@ export const loader = async () => {
     period: PERIOD,
     ranges: RANGES,
     times: TIMES,
-  };
-};
+  }
+}
 
 export default function Clients() {
-  const { countries, timeZones } = useLoaderData<typeof loader>();
+  const { countries, timeZones } = useLoaderData<typeof loader>()
   return (
     <main className=" pb-10">
       <RouteTitle>Ajustes</RouteTitle>
@@ -212,7 +212,7 @@ export default function Clients() {
         </div>
       </section>
     </main>
-  );
+  )
 }
 
 export const IntegrationCard = ({
@@ -220,9 +220,9 @@ export const IntegrationCard = ({
   tool,
   description,
 }: {
-  icon: string;
-  tool: string;
-  description: string;
+  icon: string
+  tool: string
+  description: string
 }) => {
   return (
     <section className=" col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative cursor-pointer group">
@@ -240,21 +240,25 @@ export const IntegrationCard = ({
         <p className="text-brand_gray text-sm mt-1">{description}</p>
       </div>
     </section>
-  );
-};
+  )
+}
 
 export const IntegrationCardComingSoon = ({
   icon,
   tool,
   description,
 }: {
-  icon: string;
-  tool: string;
-  description: string;
+  icon: string
+  tool: string
+  description: string
 }) => {
   return (
     <section className="col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative opacity-60 cursor-not-allowed">
-      <img className="w-6 h-6 rounded-full grayscale" src={icon} alt="integration" />
+      <img
+        className="w-6 h-6 rounded-full grayscale"
+        src={icon}
+        alt="integration"
+      />
       <div>
         <div className="flex items-center gap-3">
           <h3 className="text-brand_dark">{tool}</h3>
@@ -267,17 +271,17 @@ export const IntegrationCardComingSoon = ({
         <p className="text-brand_gray text-sm mt-1">{description}</p>
       </div>
     </section>
-  );
-};
+  )
+}
 
 export const OptionBox = ({
   title,
   description,
   children,
 }: {
-  title: string;
-  children?: ReactNode;
-  description?: string;
+  title: string
+  children?: ReactNode
+  description?: string
 }) => {
   return (
     <section className="grid grid-cols-8 gap-6 my-6 ">
@@ -292,5 +296,5 @@ export const OptionBox = ({
       </div>
       <div className="col-span-3 flex items-center justify-end">{children}</div>
     </section>
-  );
-};
+  )
+}

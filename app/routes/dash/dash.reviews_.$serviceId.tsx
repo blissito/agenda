@@ -1,31 +1,30 @@
-import { Link, useLoaderData } from "react-router";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { db } from "~/utils/db.server";
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
-import { BsTrash, BsEnvelope } from "react-icons/bs";
-import type { Route } from "./+types/dash.reviews_.$serviceId";
+import { BsEnvelope, BsTrash } from "react-icons/bs"
+import { Link, useLoaderData } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { db } from "~/utils/db.server"
+import type { Route } from "./+types/dash.reviews_.$serviceId"
 
 type Review = {
-  id: string;
-  customerName: string;
-  customerEmail: string;
-  rating: number;
-  comment: string | null;
-  createdAt: Date | string;
-  avatarUrl?: string;
-};
+  id: string
+  customerName: string
+  customerEmail: string
+  rating: number
+  comment: string | null
+  createdAt: Date | string
+  avatarUrl?: string
+}
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  await getUserAndOrgOrRedirect(request);
-  const { serviceId } = params;
+  await getUserAndOrgOrRedirect(request)
+  const { serviceId } = params
 
   const service = await db.service.findUnique({
     where: { id: serviceId },
-  });
+  })
 
   if (!service) {
-    throw new Response("Servicio no encontrado", { status: 404 });
+    throw new Response("Servicio no encontrado", { status: 404 })
   }
 
   // Get real reviews from SurveyResponse
@@ -33,7 +32,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     where: { serviceId },
     include: { customer: true },
     orderBy: { createdAt: "desc" },
-  });
+  })
 
   const reviews: Review[] = surveyResponses.map((response) => ({
     id: response.id,
@@ -42,24 +41,24 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     rating: response.rating,
     comment: response.comment,
     createdAt: response.createdAt,
-  }));
+  }))
 
   // Calculate rating distribution
-  const ratingDistribution = [0, 0, 0, 0, 0]; // index 0 = 1 star, index 4 = 5 stars
+  const ratingDistribution = [0, 0, 0, 0, 0] // index 0 = 1 star, index 4 = 5 stars
   reviews.forEach((r) => {
     if (r.rating >= 1 && r.rating <= 5) {
-      ratingDistribution[r.rating - 1]++;
+      ratingDistribution[r.rating - 1]++
     }
-  });
+  })
 
-  const totalReviews = reviews.length;
+  const totalReviews = reviews.length
   const averageRating =
     totalReviews > 0
       ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
-      : 0;
+      : 0
 
   // Unique customers
-  const uniqueCustomers = new Set(reviews.map((r) => r.customerEmail)).size;
+  const uniqueCustomers = new Set(reviews.map((r) => r.customerEmail)).size
 
   return {
     service,
@@ -70,11 +69,11 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       uniqueCustomers,
       ratingDistribution,
     },
-  };
-};
+  }
+}
 
 export default function ServiceReviewDetail() {
-  const { service, reviews, stats } = useLoaderData<typeof loader>();
+  const { service, reviews, stats } = useLoaderData<typeof loader>()
 
   return (
     <main>
@@ -110,22 +109,26 @@ export default function ServiceReviewDetail() {
         )}
       </section>
     </main>
-  );
+  )
 }
 
 const ServiceHeaderCard = ({
   service,
   stats,
 }: {
-  service: { name: string; description?: string | null; photoURL?: string | null };
+  service: {
+    name: string
+    description?: string | null
+    photoURL?: string | null
+  }
   stats: {
-    averageRating: number;
-    totalReviews: number;
-    uniqueCustomers: number;
-    ratingDistribution: number[];
-  };
+    averageRating: number
+    totalReviews: number
+    uniqueCustomers: number
+    ratingDistribution: number[]
+  }
 }) => {
-  const maxRatingCount = Math.max(...stats.ratingDistribution, 1);
+  const maxRatingCount = Math.max(...stats.ratingDistribution, 1)
 
   return (
     <section className="bg-white rounded-2xl p-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] max-w-[845px]">
@@ -181,8 +184,8 @@ const ServiceHeaderCard = ({
         {/* Rating Distribution Bars */}
         <div className="flex-1 flex flex-col justify-center gap-2">
           {[5, 4, 3, 2, 1].map((rating) => {
-            const count = stats.ratingDistribution[rating - 1];
-            const percentage = (count / maxRatingCount) * 100;
+            const count = stats.ratingDistribution[rating - 1]
+            const percentage = (count / maxRatingCount) * 100
             return (
               <div key={rating} className="flex items-center gap-3">
                 <span className="text-base text-[#606264] font-satoMedium w-4">
@@ -195,7 +198,7 @@ const ServiceHeaderCard = ({
                   />
                 </div>
               </div>
-            );
+            )
           })}
         </div>
 
@@ -223,22 +226,22 @@ const ServiceHeaderCard = ({
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
 const ReviewCard = ({
   review,
   showDivider,
 }: {
-  review: Review;
-  showDivider: boolean;
+  review: Review
+  showDivider: boolean
 }) => {
   const initials = review.customerName
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
-    .slice(0, 2);
+    .slice(0, 2)
 
   return (
     <>
@@ -252,7 +255,9 @@ const ReviewCard = ({
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-sm font-satoBold text-gray-600">{initials}</span>
+            <span className="text-sm font-satoBold text-gray-600">
+              {initials}
+            </span>
           )}
         </div>
 
@@ -298,20 +303,20 @@ const ReviewCard = ({
       </div>
       {showDivider && <div className="h-px bg-gray-100" />}
     </>
-  );
-};
+  )
+}
 
 const StarIcon = ({
   filled,
   partial = false,
   size = 24,
 }: {
-  filled: boolean;
-  partial?: boolean;
-  size?: number;
+  filled: boolean
+  partial?: boolean
+  size?: number
 }) => {
-  const fillColor = "#F5A623";
-  const emptyColor = "#E5E7EB";
+  const fillColor = "#F5A623"
+  const emptyColor = "#E5E7EB"
 
   if (partial) {
     return (
@@ -333,7 +338,7 @@ const StarIcon = ({
           fill={`url(#partial-detail-${size})`}
         />
       </svg>
-    );
+    )
   }
 
   return (
@@ -349,8 +354,8 @@ const StarIcon = ({
         fill={filled ? fillColor : emptyColor}
       />
     </svg>
-  );
-};
+  )
+}
 
 const ChevronRight = () => (
   <svg
@@ -368,4 +373,4 @@ const ChevronRight = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)

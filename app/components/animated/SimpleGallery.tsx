@@ -1,6 +1,6 @@
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
-import { cn } from "~/utils/cn";
+import { AnimatePresence, motion } from "motion/react"
+import { useEffect, useRef, useState } from "react"
+import { cn } from "~/utils/cn"
 
 export const defaultImages = [
   "https://images.pexels.com/photos/5600005/pexels-photo-5600005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
@@ -9,25 +9,25 @@ export const defaultImages = [
   "https://images.pexels.com/photos/5427540/pexels-photo-5427540.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   "https://images.pexels.com/photos/29083766/pexels-photo-29083766/free-photo-of-colorida-celebracion-del-dia-de-muertos-en-mexico.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
   "https://images.pexels.com/photos/29071379/pexels-photo-29071379/free-photo-of-iglesia-de-la-catrina.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-];
+]
 
 export default function SimpleGallery({
   images = defaultImages,
 }: {
-  images: string[];
+  images: string[]
 }) {
-  const [hovering, setHovering] = useState<number>(4);
+  const [hovering, setHovering] = useState<number>(4)
 
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const move = () => {
-    if (timeout.current) clearTimeout(timeout.current);
-    setHovering((index) => (index + 1) % images.length);
-    timeout.current = setTimeout(move, 3000);
-  };
+    if (timeout.current) clearTimeout(timeout.current)
+    setHovering((index) => (index + 1) % images.length)
+    timeout.current = setTimeout(move, 3000)
+  }
 
   useEffect(() => {
-    move();
-  }, []);
+    move()
+  }, [move])
 
   return (
     <article className="bg-slate-950">
@@ -43,8 +43,8 @@ export default function SimpleGallery({
             <AnimatedImage
               isHovering={hovering === index}
               onHover={() => {
-                setHovering(index);
-                if (timeout.current) clearTimeout(timeout.current);
+                setHovering(index)
+                if (timeout.current) clearTimeout(timeout.current)
               }}
               src={img}
               key={img}
@@ -53,7 +53,7 @@ export default function SimpleGallery({
         </AnimatePresence>
       </section>
     </article>
-  );
+  )
 }
 
 const AnimatedImage = ({
@@ -61,11 +61,11 @@ const AnimatedImage = ({
   isHovering,
   onHover,
 }: {
-  isHovering?: boolean;
-  onHover?: (arg0: boolean) => void;
-  src: string;
+  isHovering?: boolean
+  onHover?: (arg0: boolean) => void
+  src: string
 }) => {
-  const handleEnter = () => onHover?.(true);
+  const handleEnter = () => onHover?.(true)
   return (
     <motion.img
       layout
@@ -77,5 +77,5 @@ const AnimatedImage = ({
       src={src}
       alt="illustration"
     />
-  );
-};
+  )
+}

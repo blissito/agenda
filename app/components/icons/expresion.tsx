@@ -2,8 +2,8 @@ export const ExpressionOne = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -17,14 +17,14 @@ export const ExpressionOne = ({
       className="color000000 svgShape"
     ></path>
   </svg>
-);
+)
 
 export const ExpressionTwo = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -38,14 +38,14 @@ export const ExpressionTwo = ({
       className="color000000 svgShape"
     ></path>
   </svg>
-);
+)
 
 export const ExpressionThree = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -59,14 +59,14 @@ export const ExpressionThree = ({
       className="color000000 svgShape"
     ></path>
   </svg>
-);
+)
 
 export const ExpressionFour = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -80,14 +80,14 @@ export const ExpressionFour = ({
       className="color000000 svgShape"
     ></path>
   </svg>
-);
+)
 
 export const ExpressionFive = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -101,14 +101,14 @@ export const ExpressionFive = ({
       className="color000000 svgShape"
     ></path>
   </svg>
-);
+)
 
 export const ExpressionSix = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -121,14 +121,14 @@ export const ExpressionSix = ({
       fill={fill}
     ></path>
   </svg>
-);
+)
 
 export const ExpressionSeven = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -142,14 +142,14 @@ export const ExpressionSeven = ({
       fill={fill}
     ></path>
   </svg>
-);
+)
 
 export const ExpressionEight = ({
   fill = "#5158f6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -163,4 +163,4 @@ export const ExpressionEight = ({
       className="color000000 svgShape"
     ></path>
   </svg>
-);
+)

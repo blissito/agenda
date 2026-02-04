@@ -1,25 +1,25 @@
-import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
-import { FaRegTrashCan } from "react-icons/fa6";
 import {
   type ChangeEvent,
   type DragEvent,
   type ReactNode,
   useState,
-} from "react";
-import { twMerge } from "tailwind-merge";
+} from "react"
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
+import { FaRegTrashCan } from "react-icons/fa6"
+import { twMerge } from "tailwind-merge"
 
 type Props = {
-  action?: { readUrl?: string; removeUrl?: string; putUrl?: string };
-  name: string;
-  children: ReactNode;
-  title?: string;
-  register?: UseFormRegister<FieldValues>;
-  description?: string;
-  error?: FieldError;
-  className?: string;
-  registerOptions?: { required: string | boolean };
-  multiple?: boolean;
-};
+  action?: { readUrl?: string; removeUrl?: string; putUrl?: string }
+  name: string
+  children: ReactNode
+  title?: string
+  register?: UseFormRegister<FieldValues>
+  description?: string
+  error?: FieldError
+  className?: string
+  registerOptions?: { required: string | boolean }
+  multiple?: boolean
+}
 // const morras =
 //   "https://media.licdn.com/dms/image/C561BAQE8cwNr6BMj_Q/company-background_10000/0/1612306118493/cover_corp_cover?e=2147483647&v=beta&t=2-D8AuQQLqxb8ML7eEs3AtJbC7jspwH47Z8Ta-B4MpA";
 export const InputFile = ({
@@ -35,41 +35,41 @@ export const InputFile = ({
   className,
   ...props
 }: Props) => {
-  const [isOver, setIsOver] = useState(false);
-  const [preview, setPreview] = useState<string | undefined>(action?.readUrl);
+  const [isOver, setIsOver] = useState(false)
+  const [preview, setPreview] = useState<string | undefined>(action?.readUrl)
   const handleOnDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setIsOver(true);
-  };
+    event.preventDefault()
+    setIsOver(true)
+  }
   const handleDragEnd = async (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setPreview("");
-    setIsOver(false);
-    const file = event.dataTransfer.files[0];
+    event.preventDefault()
+    setPreview("")
+    setIsOver(false)
+    const file = event.dataTransfer.files[0]
     if (file) {
-      await putFile(file);
-      setPreview(action?.readUrl);
+      await putFile(file)
+      setPreview(action?.readUrl)
     }
-  };
+  }
   const handleDelete = async () => {
-    setPreview(undefined);
+    setPreview(undefined)
     if (action?.removeUrl) {
       await fetch(action.removeUrl, {
         method: "delete",
-      }).catch((e) => console.error(e));
+      }).catch((e) => console.error(e))
     }
-  };
+  }
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const file = event.target.files?.[0]
     if (file) {
-      const url = URL.createObjectURL(file);
-      setPreview(url);
-      await putFile(file);
+      const url = URL.createObjectURL(file)
+      setPreview(url)
+      await putFile(file)
     }
-  };
+  }
 
   const putFile = async (file: File) => {
-    if (!action?.putUrl) return;
+    if (!action?.putUrl) return
 
     await fetch(action.putUrl, {
       method: "put",
@@ -78,8 +78,8 @@ export const InputFile = ({
         "Content-Length": String(file.size),
         "Content-Type": file.type,
       },
-    }).catch((e) => console.error(e));
-  };
+    }).catch((e) => console.error(e))
+  }
 
   return (
     <div className="mb-8">
@@ -94,14 +94,14 @@ export const InputFile = ({
           "bg-transparent flex justify-center text-center items-center border-[1px] border-[#CFCFCF] border-dashed rounded-2xl mt-6 h-[160px] text-red-500 transition-all",
           "hover:border-brand_blue relative overflow-hidden",
           isOver && "border-brand_blue scale-105 bg-brand_blue/10",
-          className
+          className,
         )}
       >
         {preview && (
           <div className="absolute inset-0">
             <img
               onError={() => {
-                setPreview("");
+                setPreview("")
               }}
               alt="preview"
               className="w-full h-full object-cover"
@@ -117,7 +117,11 @@ export const InputFile = ({
             </button>
           </div>
         )}
-        <input type="hidden" name={name} {...register?.(name, registerOptions)} />
+        <input
+          type="hidden"
+          name={name}
+          {...register?.(name, registerOptions)}
+        />
         <input
           onChange={handleChange}
           type="file"
@@ -130,5 +134,5 @@ export const InputFile = ({
         {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
       </div>
     </div>
-  );
-};
+  )
+}

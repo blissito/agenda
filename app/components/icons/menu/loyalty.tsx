@@ -2,8 +2,8 @@ export const Loyalty = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="24"
@@ -17,4 +17,4 @@ export const Loyalty = ({
       fill={fill}
     />
   </svg>
-);
+)

@@ -1,19 +1,19 @@
-import { AnimatePresence, useInView, motion } from "motion/react";
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import { cn } from "~/utils/cn";
+import { AnimatePresence, motion, useInView } from "motion/react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
+import { cn } from "~/utils/cn"
 
 interface ScrollItem {
-  title: string;
-  text: ReactNode;
-  img: ReactNode;
+  title: string
+  text: ReactNode
+  img: ReactNode
 }
 
 export const StickyScroll = ({ items }: { items: ScrollItem[] }) => {
-  const [current, setCurrent] = useState<ScrollItem>(items[0]);
+  const [current, setCurrent] = useState<ScrollItem>(items[0])
 
   const handleInView = (item: ScrollItem) => {
-    setCurrent(item);
-  };
+    setCurrent(item)
+  }
 
   return (
     <section className="h-[350vh] bg-white">
@@ -37,25 +37,25 @@ export const StickyScroll = ({ items }: { items: ScrollItem[] }) => {
         </div>
       </main>
     </section>
-  );
-};
+  )
+}
 
 export const InViewDetector = ({
   item,
   onInView,
 }: {
-  item: ScrollItem;
-  onInView?: (item: ScrollItem) => void;
+  item: ScrollItem
+  onInView?: (item: ScrollItem) => void
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { amount: 1 });
+  const ref = useRef<HTMLDivElement>(null)
+  const isInView = useInView(ref, { amount: 1 })
 
   useEffect(() => {
     if (isInView) {
-      onInView?.(item);
+      onInView?.(item)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInView]);
+  }, [isInView, item, onInView])
   return (
     <div ref={ref}>
       <h3
@@ -77,5 +77,5 @@ export const InViewDetector = ({
         {item.text}
       </div>
     </div>
-  );
-};
+  )
+}

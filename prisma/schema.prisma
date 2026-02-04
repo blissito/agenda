@@ -298,19 +298,25 @@ type OrgIntegrations {
 }
 
 model Customer {
-  id              String           @id @default(auto()) @map("_id") @db.ObjectId
-  comments        String
-  createdAt       DateTime         @db.Date
-  displayName     String
-  email           String
-  orgId           String           @db.ObjectId
-  tel             String
-  updatedAt       DateTime         @db.Date
-  userId          String?          @db.ObjectId
-  org             Org              @relation(fields: [orgId], references: [id])
-  user            User?            @relation(fields: [userId], references: [id])
-  events          Event[]
-  surveyResponses SurveyResponse[]
+  id                  String               @id @default(auto()) @map("_id") @db.ObjectId
+  comments            String
+  createdAt           DateTime             @db.Date
+  displayName         String
+  email               String
+  orgId               String               @db.ObjectId
+  tel                 String
+  updatedAt           DateTime             @db.Date
+  userId              String?              @db.ObjectId
+  // Loyalty program fields
+  loyaltyPoints       Int                  @default(0) // Available points to redeem
+  loyaltyTotalEarned  Int                  @default(0) // Lifetime points (for tier calculation)
+  loyaltyTier         String               @default("bronze")
+  org                 Org                  @relation(fields: [orgId], references: [id])
+  user                User?                @relation(fields: [userId], references: [id])
+  events              Event[]
+  surveyResponses     SurveyResponse[]
+  loyaltyTransactions LoyaltyTransaction[]
+  loyaltyRedemptions  LoyaltyRedemption[]
 }
 
 model Event {
@@ -458,4 +464,71 @@ model User {
   mercadopago   UserMercadoPago?
   uid           String?
   customers     Customer[]
+}
+
+// ==================== LOYALTY SYSTEM ====================
+
+// Audit trail for all point changes
+model LoyaltyTransaction {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String   @db.ObjectId
+  orgId      String   @db.ObjectId
+  eventId    String?  @db.ObjectId // Link to booking that generated points
+
+  type       String   // "earn" | "redeem" | "adjust" | "expire"
+  points     Int      // + for earn, - for redeem
+  balance    Int      // Balance after transaction
+  reason     String   // "booking_completed" | "first_visit_bonus" | "tier_bonus" | "manual" | "redemption"
+  metadata   Json?    // Extra data for extensibility (e.g., tier multiplier applied)
+
+  createdAt  DateTime @default(now()) @db.Date
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId, orgId])
+  @@index([orgId, createdAt])
+}
+
+// Catalog of rewards that customers can redeem
+model LoyaltyReward {
+  id                 String              @id @default(auto()) @map("_id") @db.ObjectId
+  orgId              String              @db.ObjectId
+  name               String              // "10% descuento", "Servicio gratis"
+  description        String?
+  type               String              // "discount_percent" | "discount_fixed" | "free_service"
+  value              Int                 // 10 = 10%, or fixed amount in cents
+  pointsCost         Int                 // Points required to redeem
+  isActive           Boolean             @default(true)
+  minTier            String?             // Minimum tier required (null = all tiers)
+  maxRedemptions     Int?                // null = unlimited
+  currentRedemptions Int                 @default(0)
+  createdAt          DateTime            @default(now()) @db.Date
+  updatedAt          DateTime            @updatedAt @db.Date
+
+  redemptions        LoyaltyRedemption[]
+
+  @@index([orgId, isActive])
+}
+
+// Individual redemption records
+model LoyaltyRedemption {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  customerId    String    @db.ObjectId
+  orgId         String    @db.ObjectId
+  rewardId      String    @db.ObjectId
+  transactionId String    @db.ObjectId // Link to the LoyaltyTransaction that deducted points
+
+  code          String    @unique // Unique code to use the reward
+  status        String    // "pending" | "used" | "expired"
+  usedAt        DateTime? @db.Date
+  expiresAt     DateTime  @db.Date
+
+  createdAt     DateTime  @default(now()) @db.Date
+
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  reward        LoyaltyReward @relation(fields: [rewardId], references: [id])
+
+  @@index([customerId, status])
+  @@index([code])
+  @@index([orgId, createdAt])
 }
