@@ -40,7 +40,7 @@ export const links = () => [
   },
 ];
 
-export const loader = ({ request }: Route.LoaderArgs) => {
+export const loader = async ({ request }: Route.LoaderArgs) => {
   const isOrg = isOrgDomain(request);
   const url = new URL(request.url);
 

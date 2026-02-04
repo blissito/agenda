@@ -21,8 +21,17 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     where: { id: params.serviceId, orgId: org.id }, // @TODO: this can vary if multiple orgs
   });
   if (!service) throw new Response(null, { status: 404 });
+  // Provide default config if none exists
+  const defaultConfig = {
+    confirmation: true,
+    reminder: true,
+    survey: true,
+    whatsapp_confirmation: null,
+    whatsapp_reminder: null,
+    reminderHours: 4,
+  };
   return {
-    service: { ...service, config: service.config ? service.config : {} },
+    service: { ...service, config: service.config ? service.config : defaultConfig },
     orgWeekDays: org.weekDays,
   };
 };

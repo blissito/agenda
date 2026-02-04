@@ -39,6 +39,7 @@ type ServiceConfig {
   survey                Boolean
   whatsapp_confirmation Boolean?
   whatsapp_reminder     Boolean?
+  reminderHours         Int?      // Hours before appointment for reminder (default: 4)
 }
 
 type ServiceLimit {
@@ -278,6 +279,24 @@ type UserMercadoPago {
   expires_at    DateTime
 }
 
+type OrgWhatsAppConfig {
+  phoneNumberId    String?
+  accessToken      String?
+  businessId       String?
+  connectedAt      DateTime?
+}
+
+type OrgMessengerConfig {
+  pageId           String?
+  pageAccessToken  String?
+  connectedAt      DateTime?
+}
+
+type OrgIntegrations {
+  whatsapp    OrgWhatsAppConfig?
+  messenger   OrgMessengerConfig?
+}
+
 model Customer {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   comments    String
@@ -315,6 +334,8 @@ model Event {
   mp_payment_id            String?
   stripe_session_id        String?
   stripe_payment_intent_id String?
+  reminderSentAt           DateTime? @db.Date  // null = reminder not sent yet
+  surveySentAt             DateTime? @db.Date  // null = survey not sent yet
   customer                 Customer? @relation(fields: [customerId], references: [id])
   org              Org       @relation(fields: [orgId], references: [id])
   service          Service?  @relation(fields: [serviceId], references: [id])
@@ -337,6 +358,7 @@ model Org {
   description        String?
   email              String?
   isActive           Boolean
+  integrations       OrgIntegrations?
   /// Could not determine type: the field only had null or empty values in the sample set.
   location           Json?
   name               String

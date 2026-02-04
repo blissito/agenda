@@ -159,3 +159,90 @@ export function formatTime12h(timeString: string): string {
   const hour12 = hours % 12 || 12;
   return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`;
 }
+
+/**
+ * Convert a time slot from one timezone to another
+ * @param timeString - Time in HH:MM format (e.g., "09:00")
+ * @param date - The date for the slot (needed for DST calculations)
+ * @param fromTimezone - Source timezone (e.g., "America/Mexico_City")
+ * @param toTimezone - Target timezone (e.g., "Europe/Madrid")
+ * @returns Object with converted time and whether it's on the same day
+ */
+export function convertTimeSlot(
+  timeString: string,
+  date: Date,
+  fromTimezone: string,
+  toTimezone: string
+): { time: string; sameDay: boolean; dayOffset: number } {
+  const [hours, minutes] = timeString.split(":").map(Number);
+
+  // Create a date string in the source timezone
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const day = date.getDate();
+
+  // Create date in source timezone
+  const sourceDate = new Date(year, month, day, hours, minutes);
+
+  // Get the time in source timezone as ISO string components
+  const sourceFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: fromTimezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  // Get the time in target timezone
+  const targetFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: toTimezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  // Parse source parts
+  const sourceParts = sourceFormatter.formatToParts(sourceDate);
+  const sourceDay = Number(sourceParts.find(p => p.type === "day")?.value);
+
+  // Parse target parts
+  const targetParts = targetFormatter.formatToParts(sourceDate);
+  const targetDay = Number(targetParts.find(p => p.type === "day")?.value);
+  const targetHour = targetParts.find(p => p.type === "hour")?.value || "00";
+  const targetMinute = targetParts.find(p => p.type === "minute")?.value || "00";
+
+  const dayOffset = targetDay - sourceDay;
+
+  return {
+    time: `${targetHour}:${targetMinute}`,
+    sameDay: dayOffset === 0,
+    dayOffset,
+  };
+}
+
+/**
+ * Convert an array of time slots from org timezone to user timezone
+ */
+export function convertTimeSlotsToTimezone(
+  slots: string[],
+  date: Date,
+  orgTimezone: string,
+  userTimezone: string
+): string[] {
+  if (orgTimezone === userTimezone) return slots;
+
+  return slots
+    .map(slot => {
+      const converted = convertTimeSlot(slot, date, orgTimezone, userTimezone);
+      // Only include slots that are on the same day
+      if (!converted.sameDay) return null;
+      return converted.time;
+    })
+    .filter((slot): slot is string => slot !== null)
+    .sort();
+}

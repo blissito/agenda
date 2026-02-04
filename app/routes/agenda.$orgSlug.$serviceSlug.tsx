@@ -141,6 +141,19 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       console.error("Email send failed:", e);
     }
 
+    // Schedule reminder and survey notifications
+    try {
+      const { scheduleEventNotifications } = await import("~/jobs/definitions.server");
+      await scheduleEventNotifications(
+        event.id,
+        startDate,
+        endDate,
+        service.config as { reminder?: boolean; survey?: boolean; reminderHours?: number | null } | undefined
+      );
+    } catch (e) {
+      console.error("Failed to schedule notifications:", e);
+    }
+
     return { event, org };
   }
 
@@ -257,6 +270,46 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     }
   };
 
+  const handleTimezoneChange = (newTimezone: SupportedTimezone) => {
+    // When timezone changes, convert the selected time to the new timezone
+    // The same moment in time should remain selected, just displayed differently
+    if (time && date) {
+      // Get the offset difference between timezones
+      const oldOffset = new Date().toLocaleString("en-US", { timeZone: timezone, timeZoneName: "shortOffset" });
+      const newOffset = new Date().toLocaleString("en-US", { timeZone: newTimezone, timeZoneName: "shortOffset" });
+
+      // Parse offsets (e.g., "GMT-6" -> -6)
+      const parseOffset = (str: string) => {
+        const match = str.match(/GMT([+-]?\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      };
+
+      const oldOffsetHours = parseOffset(oldOffset);
+      const newOffsetHours = parseOffset(newOffset);
+      const diffHours = newOffsetHours - oldOffsetHours;
+
+      // Convert current time to new timezone
+      const [h, m] = time.split(":").map(Number);
+      let newHour = h + diffHours;
+
+      // Handle day boundaries
+      if (newHour >= 0 && newHour < 24) {
+        const newTimeString = `${newHour.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+        setTime(newTimeString);
+
+        // Update date with new hour
+        const updatedDate = new Date(date);
+        updatedDate.setHours(newHour);
+        updatedDate.setMinutes(m);
+        setDate(updatedDate);
+      } else {
+        // Time falls on different day, clear selection
+        setTime(undefined);
+      }
+    }
+    setTimezone(newTimezone);
+  };
+
   const {
     formState: { errors, isValid },
     setError,
@@ -307,7 +360,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   selected={date}
                   action={`/agenda/${org.slug}/${service.slug}`}
                   timezone={timezone}
-                  onTimezoneChange={setTimezone}
+                  orgTimezone={org.timezone as SupportedTimezone}
+                  onTimezoneChange={handleTimezoneChange}
                   selectedTime={time}
                 />
               )}

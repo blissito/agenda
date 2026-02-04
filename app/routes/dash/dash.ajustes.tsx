@@ -154,6 +154,22 @@ export default function Clients() {
           <h3 className="text-lg font-bold">Integraciones</h3>
           <p className=" text-brand_dark font-satoshi mt-4 mb-4">
             {" "}
+            <strong className="font-satoMiddle">Mensajería</strong>
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <IntegrationCardComingSoon
+              icon="/images/whatsapp.svg"
+              tool="WhatsApp Business"
+              description="Envía recordatorios y confirmaciones por WhatsApp."
+            />
+            <IntegrationCardComingSoon
+              icon="/images/messenger.svg"
+              tool="Messenger"
+              description="Conecta con tus clientes a través de Facebook Messenger."
+            />
+          </div>
+          <p className=" text-brand_dark font-satoshi mt-6 mb-4">
+            {" "}
             <strong className="font-satoMiddle">Videollamadas</strong>
           </p>
           <div className="grid  grid-cols-1 md:grid-cols-5 gap-6">
@@ -217,6 +233,33 @@ export const IntegrationCard = ({
             <FaCheck className="text-[10px]" fill="#3D7E5A" />{" "}
             <span className="text-[10px] items-center gap-1 text-[#3D7E5A] group-hover:block transition-all hidden">
               Conectado
+            </span>
+          </div>
+        </div>
+        <p className="text-brand_gray text-sm mt-1">{description}</p>
+      </div>
+    </section>
+  );
+};
+
+export const IntegrationCardComingSoon = ({
+  icon,
+  tool,
+  description,
+}: {
+  icon: string;
+  tool: string;
+  description: string;
+}) => {
+  return (
+    <section className="col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative opacity-60 cursor-not-allowed">
+      <img className="w-6 h-6 rounded-full grayscale" src={icon} alt="integration" />
+      <div>
+        <div className="flex items-center gap-3">
+          <h3 className="text-brand_dark">{tool}</h3>
+          <div className="bg-[#FEF3C7] h-4 rounded-full px-2 flex gap-1 justify-start items-center">
+            <span className="text-[10px] items-center gap-1 text-[#92400E]">
+              Próximamente
             </span>
           </div>
         </div>

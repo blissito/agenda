@@ -12,6 +12,7 @@ import {
   formatTimeOnly,
   isTimePassed,
   formatTime12h,
+  convertTimeSlotsToTimezone,
   type SupportedTimezone,
 } from "~/utils/timezone";
 
@@ -23,6 +24,7 @@ export default function TimeView({
   slotDuration,
   intent,
   timezone = DEFAULT_TIMEZONE,
+  orgTimezone = DEFAULT_TIMEZONE,
   onTimezoneChange,
   selectedTime,
 }: {
@@ -33,6 +35,7 @@ export default function TimeView({
   slotDuration: number;
   intent: string;
   timezone?: SupportedTimezone;
+  orgTimezone?: SupportedTimezone;
   onTimezoneChange?: (timezone: SupportedTimezone) => void;
   selectedTime?: string;
 }) {
@@ -66,9 +69,15 @@ export default function TimeView({
   const dayString = convertDayToString(selected.getDay());
   const dayRanges = (weekDays as Record<string, DayTuple>)[dayString];
 
-  const ranges = dayRanges?.flatMap((range: string[]) =>
+  // Generate slots in org timezone, then convert to user timezone
+  const rawRanges = dayRanges?.flatMap((range: string[]) =>
     generateTimesFromRange(range, slotDuration)
   );
+
+  // Convert slots from org timezone to user's selected timezone
+  const ranges = rawRanges
+    ? convertTimeSlotsToTimezone(rawRanges, selected, orgTimezone, timezone)
+    : undefined;
 
   const handleClick = (timeString: string) => () => {
     setTime(timeString);

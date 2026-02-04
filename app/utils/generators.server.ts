@@ -24,6 +24,9 @@ const defaultConfig = {
   confirmation: true,
   reminder: true,
   survey: true,
+  whatsapp_confirmation: null,
+  whatsapp_reminder: null,
+  reminderHours: 4, // Default: 4 hours before appointment
 };
 
 const templates = [
