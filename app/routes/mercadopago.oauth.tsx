@@ -9,14 +9,19 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
 
+  // Force HTTPS in production (Fly.io proxy doesn't forward protocol correctly)
+  const origin = process.env.NODE_ENV === "production"
+    ? url.origin.replace("http://", "https://")
+    : url.origin;
+
   // Si no hay code, redirigir a MP para autorización
   if (!code) {
-    const redirectUri = `${url.origin}/mercadopago/oauth`;
+    const redirectUri = `${origin}/mercadopago/oauth`;
     throw redirect(getMPAuthUrl(redirectUri));
   }
 
   // Intercambiar code por tokens
-  const redirectUri = `${url.origin}/mercadopago/oauth`;
+  const redirectUri = `${origin}/mercadopago/oauth`;
   const tokens = await exchangeCodeForTokens(code, redirectUri);
 
   if (!tokens.access_token) {
