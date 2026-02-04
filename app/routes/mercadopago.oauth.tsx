@@ -9,10 +9,12 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
 
-  // Force HTTPS in production (Fly.io proxy doesn't forward protocol correctly)
-  const origin = process.env.NODE_ENV === "production"
-    ? url.origin.replace("http://", "https://")
-    : url.origin;
+  // Use APP_URL for consistent redirect URIs (required for MP OAuth)
+  const origin = process.env.APP_URL || (
+    process.env.NODE_ENV === "production"
+      ? url.origin.replace("http://", "https://")
+      : url.origin
+  );
 
   // Si no hay code, redirigir a MP para autorización
   if (!code) {

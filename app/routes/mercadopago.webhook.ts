@@ -8,10 +8,16 @@ import {
 import { sendPaymentFailedEmail } from "~/utils/emails/sendPaymentFailed";
 
 export const action = async ({ request }: Route.ActionArgs) => {
+  // Requerir MP_WEBHOOK_SECRET en producción por seguridad
+  if (!process.env.MP_WEBHOOK_SECRET) {
+    console.error("MP_WEBHOOK_SECRET not configured");
+    return new Response("Webhook not configured", { status: 500 });
+  }
+
   const body = await request.json();
 
-  // Validar firma si MP_WEBHOOK_SECRET está configurado
-  if (process.env.MP_WEBHOOK_SECRET) {
+  // Validar firma del webhook
+  {
     const xSignature = request.headers.get("x-signature");
     const xRequestId = request.headers.get("x-request-id");
     const dataId = body.data?.id?.toString() || "";
