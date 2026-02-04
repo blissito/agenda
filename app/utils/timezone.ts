@@ -31,14 +31,19 @@ export function formatTimeInTimezone(
 
 /**
  * Format just the time (HH:MM) in a specific timezone
+ * Uses formatToParts for consistent output format across locales
  */
 export function formatTimeOnly(date: Date, timezone: string): string {
-  return date.toLocaleString("es-MX", {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: timezone,
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
   });
+  const parts = formatter.formatToParts(date);
+  const hour = parts.find((p) => p.type === "hour")?.value || "00";
+  const minute = parts.find((p) => p.type === "minute")?.value || "00";
+  return `${hour}:${minute}`;
 }
 
 /**
@@ -102,6 +107,7 @@ export function isValidTimezone(timezone: string): timezone is SupportedTimezone
 /**
  * Convert a time string (HH:MM) to a Date object in a specific timezone
  * The date part is taken from the baseDate parameter
+ * Handles DST correctly by using Intl API
  */
 export function createDateInTimezone(
   timeString: string,
@@ -110,18 +116,53 @@ export function createDateInTimezone(
 ): Date {
   const [hours, minutes] = timeString.split(":").map(Number);
 
-  // Create a date string in the target timezone
+  // Get the date in the target timezone
   const dateStr = baseDate.toLocaleDateString("en-CA", { timeZone: timezone });
   const [year, month, day] = dateStr.split("-").map(Number);
 
-  // Create the date in UTC, then adjust for timezone
-  const date = new Date(Date.UTC(year, month - 1, day, hours, minutes));
+  // Create an ISO string for the target date/time and parse it as if it were in that timezone
+  // We do this by finding the UTC offset for that specific moment in that timezone
+  const targetDateTimeStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}T${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
 
-  // Adjust for timezone offset
-  const offset = getTimezoneOffset(timezone);
-  date.setTime(date.getTime() + offset * 60 * 60 * 1000);
+  // Create a rough date to get the actual offset at that moment (handles DST)
+  const roughDate = new Date(targetDateTimeStr);
 
-  return date;
+  // Get the offset by comparing local representation in target timezone vs UTC
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+
+  // Binary search to find the correct UTC time that displays as our target in the timezone
+  // Start with a guess and adjust
+  let guess = new Date(`${targetDateTimeStr}Z`); // Start assuming UTC
+
+  for (let i = 0; i < 3; i++) {
+    const parts = formatter.formatToParts(guess);
+    const guessHour = Number(parts.find((p) => p.type === "hour")?.value);
+    const guessMinute = Number(parts.find((p) => p.type === "minute")?.value);
+    const guessDay = Number(parts.find((p) => p.type === "day")?.value);
+
+    const hourDiff = hours - guessHour;
+    const minuteDiff = minutes - guessMinute;
+    const dayDiff = day - guessDay;
+
+    if (hourDiff === 0 && minuteDiff === 0 && dayDiff === 0) break;
+
+    guess = new Date(
+      guess.getTime() +
+        dayDiff * 24 * 60 * 60 * 1000 +
+        hourDiff * 60 * 60 * 1000 +
+        minuteDiff * 60 * 1000
+    );
+  }
+
+  return guess;
 }
 
 /**

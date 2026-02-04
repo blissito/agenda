@@ -11,14 +11,10 @@ type Review = {
   customerName: string;
   customerEmail: string;
   rating: number;
-  comment: string;
+  comment: string | null;
   createdAt: Date | string;
   avatarUrl?: string;
 };
-
-// Figma mock images (válidas por 7 días)
-const MOCK_SERVICE_IMAGE = "https://www.figma.com/api/mcp/asset/ea8fa9fb-4758-4a26-828c-d1a7313353ce";
-const MOCK_AVATAR_IMAGE = "https://www.figma.com/api/mcp/asset/3f2720cf-f252-4635-97c8-073948b07470";
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   await getUserAndOrgOrRedirect(request);
@@ -32,67 +28,42 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     throw new Response("Servicio no encontrado", { status: 404 });
   }
 
-  // @TODO: Implementar modelo Review real
-  // Por ahora datos mock para visualizar el diseño
-  const mockReviews: Review[] = [
-    {
-      id: "1",
-      customerName: "Isabela Lozano",
-      customerEmail: "isabela_lozano_lonez@gmail.com",
-      rating: 5,
-      comment:
-        "Lorem ipsum dolor sit amet consectetur. Lectus fermentum odio lorem orci curabitur turpis amet. Et nisi egestas purus mauris felis. Netus facilisi imperdiet egestas dui aliquam odio malesuada sed.",
-      createdAt: new Date(),
-      avatarUrl: MOCK_AVATAR_IMAGE,
-    },
-    {
-      id: "2",
-      customerName: "Isabela Lozano",
-      customerEmail: "isabela_lozano_lonez@gmail.com",
-      rating: 4,
-      comment:
-        "Lorem ipsum dolor sit amet consectetur. Lectus fermentum odio lorem orci curabitur turpis amet. Et nisi egestas purus mauris felis. Netus facilisi imperdiet egestas dui aliquam odio malesuada sed.",
-      createdAt: new Date(),
-      avatarUrl: MOCK_AVATAR_IMAGE,
-    },
-    {
-      id: "3",
-      customerName: "Isabela Lozano",
-      customerEmail: "isabela_lozano_lonez@gmail.com",
-      rating: 3,
-      comment:
-        "Lorem ipsum dolor sit amet consectetur. Lectus fermentum odio lorem orci curabitur turpis amet. Et nisi egestas purus mauris felis. Netus facilisi imperdiet egestas dui aliquam odio malesuada sed.",
-      createdAt: new Date(),
-      avatarUrl: MOCK_AVATAR_IMAGE,
-    },
-  ];
+  // Get real reviews from SurveyResponse
+  const surveyResponses = await db.surveyResponse.findMany({
+    where: { serviceId },
+    include: { customer: true },
+    orderBy: { createdAt: "desc" },
+  });
 
-  // Usar imagen mock si el servicio no tiene foto
-  const serviceWithImage = {
-    ...service,
-    photoURL: service.photoURL || MOCK_SERVICE_IMAGE,
-  };
+  const reviews: Review[] = surveyResponses.map((response) => ({
+    id: response.id,
+    customerName: response.customer.displayName ?? "Cliente",
+    customerEmail: response.customer.email,
+    rating: response.rating,
+    comment: response.comment,
+    createdAt: response.createdAt,
+  }));
 
-  // Calcular distribución de ratings
-  const ratingDistribution = [0, 0, 0, 0, 0]; // índice 0 = 1 estrella, índice 4 = 5 estrellas
-  mockReviews.forEach((r) => {
+  // Calculate rating distribution
+  const ratingDistribution = [0, 0, 0, 0, 0]; // index 0 = 1 star, index 4 = 5 stars
+  reviews.forEach((r) => {
     if (r.rating >= 1 && r.rating <= 5) {
       ratingDistribution[r.rating - 1]++;
     }
   });
 
-  const totalReviews = mockReviews.length;
+  const totalReviews = reviews.length;
   const averageRating =
     totalReviews > 0
-      ? mockReviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
+      ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
       : 0;
 
-  // Clientes únicos
-  const uniqueCustomers = new Set(mockReviews.map((r) => r.customerEmail)).size;
+  // Unique customers
+  const uniqueCustomers = new Set(reviews.map((r) => r.customerEmail)).size;
 
   return {
-    service: serviceWithImage,
-    reviews: mockReviews,
+    service,
+    reviews,
     stats: {
       averageRating,
       totalReviews,

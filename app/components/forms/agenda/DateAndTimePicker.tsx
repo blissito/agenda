@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from "react";
-import { FaClock } from "react-icons/fa";
+import { FaClock, FaGlobeAmericas } from "react-icons/fa";
 import { type Org, type Service } from "@prisma/client";
 import { twMerge } from "tailwind-merge";
 import { AnimatePresence, motion } from "motion/react";
@@ -254,7 +254,7 @@ export const ServiceList = ({
             <ServiceListItem
               key={"timezone"}
               text={getTimezoneLabel(timezone)}
-              icon={<span>🌐</span>}
+              icon={<FaGlobeAmericas />}
             />
           )}
         </>

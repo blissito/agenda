@@ -428,3 +428,176 @@ describe("Event Action Tokens", () => {
     expect(result).toBeNull();
   });
 });
+
+describe("negativeReviewTemplate", () => {
+  it("should generate valid HTML with all parameters", async () => {
+    const { default: negativeReviewTemplate } = await import("~/utils/emails/negativeReviewTemplate");
+
+    const html = negativeReviewTemplate({
+      customerName: "Juan Pérez",
+      serviceName: "Corte de cabello",
+      rating: 2,
+      comment: "El servicio fue lento",
+      orgName: "Barbería Example",
+      dashboardUrl: "https://example.com/dash/evaluaciones",
+    });
+
+    expect(html).toContain("Juan Pérez");
+    expect(html).toContain("Corte de cabello");
+    expect(html).toContain("Barbería Example");
+    expect(html).toContain("2/5");
+    expect(html).toContain("El servicio fue lento");
+    expect(html).toContain("https://example.com/dash/evaluaciones");
+    expect(html).toContain("Ver en dashboard");
+  });
+
+  it("should display correct star rating", async () => {
+    const { default: negativeReviewTemplate } = await import("~/utils/emails/negativeReviewTemplate");
+
+    const html = negativeReviewTemplate({
+      customerName: "Test",
+      serviceName: "Test Service",
+      rating: 1,
+      comment: null,
+      orgName: "Test Org",
+      dashboardUrl: "https://example.com",
+    });
+
+    // 1 filled star, 4 empty stars
+    expect(html).toContain("★☆☆☆☆");
+  });
+
+  it("should handle null comment", async () => {
+    const { default: negativeReviewTemplate } = await import("~/utils/emails/negativeReviewTemplate");
+
+    const html = negativeReviewTemplate({
+      customerName: "Test",
+      serviceName: "Test Service",
+      rating: 2,
+      comment: null,
+      orgName: "Test Org",
+      dashboardUrl: "https://example.com",
+    });
+
+    // Should not contain the comment block styling
+    expect(html).not.toContain("font-style:italic");
+  });
+
+  it("should include Deník branding", async () => {
+    const { default: negativeReviewTemplate } = await import("~/utils/emails/negativeReviewTemplate");
+
+    const html = negativeReviewTemplate({
+      customerName: "Test",
+      serviceName: "Test",
+      rating: 1,
+      comment: null,
+      orgName: "Test Org",
+      dashboardUrl: "https://example.com",
+    });
+
+    expect(html).toContain("Deník");
+    expect(html).toContain("denik.me");
+  });
+});
+
+describe("Negative Review Alert Logic", () => {
+  const shouldSendAlert = (rating: number): boolean => rating < 3;
+
+  it("should send alert for rating 1", () => {
+    expect(shouldSendAlert(1)).toBe(true);
+  });
+
+  it("should send alert for rating 2", () => {
+    expect(shouldSendAlert(2)).toBe(true);
+  });
+
+  it("should NOT send alert for rating 3", () => {
+    expect(shouldSendAlert(3)).toBe(false);
+  });
+
+  it("should NOT send alert for rating 4", () => {
+    expect(shouldSendAlert(4)).toBe(false);
+  });
+
+  it("should NOT send alert for rating 5", () => {
+    expect(shouldSendAlert(5)).toBe(false);
+  });
+});
+
+describe("Review Stats Calculation", () => {
+  // Helper to calculate stats like the dashboard does
+  const calculateStats = (reviews: { rating: number; customerId: string }[]) => {
+    const ratingDistribution = [0, 0, 0, 0, 0];
+    reviews.forEach((r) => {
+      if (r.rating >= 1 && r.rating <= 5) {
+        ratingDistribution[r.rating - 1]++;
+      }
+    });
+
+    const totalReviews = reviews.length;
+    const averageRating =
+      totalReviews > 0
+        ? reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews
+        : 0;
+    const uniqueCustomers = new Set(reviews.map((r) => r.customerId)).size;
+
+    return { ratingDistribution, totalReviews, averageRating, uniqueCustomers };
+  };
+
+  it("should calculate correct distribution", () => {
+    const reviews = [
+      { rating: 5, customerId: "c1" },
+      { rating: 5, customerId: "c2" },
+      { rating: 4, customerId: "c3" },
+      { rating: 3, customerId: "c4" },
+      { rating: 1, customerId: "c5" },
+    ];
+
+    const stats = calculateStats(reviews);
+
+    expect(stats.ratingDistribution).toEqual([1, 0, 1, 1, 2]); // [1star, 2star, 3star, 4star, 5star]
+    expect(stats.totalReviews).toBe(5);
+    expect(stats.averageRating).toBe(3.6);
+    expect(stats.uniqueCustomers).toBe(5);
+  });
+
+  it("should handle empty reviews", () => {
+    const stats = calculateStats([]);
+
+    expect(stats.ratingDistribution).toEqual([0, 0, 0, 0, 0]);
+    expect(stats.totalReviews).toBe(0);
+    expect(stats.averageRating).toBe(0);
+    expect(stats.uniqueCustomers).toBe(0);
+  });
+
+  it("should count unique customers correctly", () => {
+    const reviews = [
+      { rating: 5, customerId: "c1" },
+      { rating: 4, customerId: "c1" }, // same customer
+      { rating: 3, customerId: "c2" },
+    ];
+
+    const stats = calculateStats(reviews);
+
+    expect(stats.totalReviews).toBe(3);
+    expect(stats.uniqueCustomers).toBe(2);
+  });
+
+  it("should calculate weighted average for overall rating", () => {
+    // This simulates the overall average calculation from dash.reviews.tsx
+    const serviceReviews = [
+      { reviewCount: 10, averageRating: 5.0 },
+      { reviewCount: 5, averageRating: 3.0 },
+    ];
+
+    const totalReviews = serviceReviews.reduce((acc, s) => acc + s.reviewCount, 0);
+    const overallAverage =
+      totalReviews > 0
+        ? serviceReviews.reduce((acc, s) => acc + s.averageRating * s.reviewCount, 0) / totalReviews
+        : 0;
+
+    expect(totalReviews).toBe(15);
+    // (10*5 + 5*3) / 15 = (50 + 15) / 15 = 65/15 = 4.333...
+    expect(overallAverage).toBeCloseTo(4.333, 2);
+  });
+});

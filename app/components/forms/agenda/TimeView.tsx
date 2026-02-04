@@ -28,7 +28,7 @@ export default function TimeView({
   onTimezoneChange,
   selectedTime,
 }: {
-  onSelect?: (arg0: string, arg1: number, arg2: number) => void;
+  onSelect?: (timeString: string) => void;
   selected: Date;
   action: string;
   weekDays: WeekTuples;
@@ -81,8 +81,7 @@ export default function TimeView({
 
   const handleClick = (timeString: string) => () => {
     setTime(timeString);
-    const timeParts = timeString.split(":").map((el) => Number(el));
-    onSelect?.(timeString, timeParts[0], timeParts[1]);
+    onSelect?.(timeString);
   };
 
   const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

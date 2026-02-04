@@ -94,6 +94,8 @@ export default [
   route("event/:eventId/confirm", "routes/event.$eventId.confirm.tsx"),
   route("event/:eventId/modify", "routes/event.$eventId.modify.tsx"),
   route("event/:eventId/cancel", "routes/event.$eventId.cancel.tsx"),
+  // Survey from email links
+  route("survey", "routes/survey.tsx"),
   // Clean URL for subdomains/custom domains: /:serviceSlug
   route(":serviceSlug", "routes/service.$serviceSlug.tsx"),
 ] satisfies RouteConfig;

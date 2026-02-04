@@ -7,6 +7,7 @@ import { generateLink } from "~/utils/generateSlug";
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
 import { useCopyLink } from "~/components/hooks/useCopyLink";
 import { BsBarChart } from "react-icons/bs";
+import { db } from "~/utils/db.server";
 import type { Route } from "./+types/dash.reviews";
 
 type ServiceReview = {
@@ -22,43 +23,34 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const link = generateLink(request.url, org.slug);
   const services = await getServices(request);
 
-  // @TODO: Implementar reviews reales cuando exista el modelo Review
-  // Por ahora usar datos de ejemplo basados en servicios reales
-  const mockRatings = [3.0, 4.0, 4.0, 5.0, 5.0, 5.0, 5.0];
-  const mockReviewCounts = [24, 13, 46, 13, 2, 67, 90];
+  // Get review stats grouped by service
+  const reviewStats = await db.surveyResponse.groupBy({
+    by: ["serviceId"],
+    where: { orgId: org.id },
+    _count: true,
+    _avg: { rating: true },
+  });
 
-  const serviceReviews: ServiceReview[] = services.map((service, index) => ({
-    id: service.id,
-    name: service.name,
-    image: service.photoURL,
-    // Usar datos mock para visualizar el diseño
-    reviewCount: mockReviewCounts[index % mockReviewCounts.length],
-    averageRating: mockRatings[index % mockRatings.length],
-  }));
+  // Create a map for quick lookup
+  const statsMap = new Map(
+    reviewStats.map((stat) => [
+      stat.serviceId,
+      { count: stat._count, avg: stat._avg.rating ?? 0 },
+    ])
+  );
 
-  // Si no hay servicios, agregar datos de ejemplo para ver el diseño
-  if (serviceReviews.length === 0) {
-    const mockServices = [
-      { name: "Clase de canto", reviews: 24, rating: 3.0 },
-      { name: "Clase de piano", reviews: 13, rating: 4.0 },
-      { name: "Clase de guitarra", reviews: 46, rating: 4.0 },
-      { name: "Clase de violín", reviews: 13, rating: 5.0 },
-      { name: "Clase de batería", reviews: 2, rating: 5.0 },
-      { name: "Clase de bajo", reviews: 67, rating: 5.0 },
-      { name: "Clase de edición musical", reviews: 90, rating: 5.0 },
-    ];
-    mockServices.forEach((mock, i) => {
-      serviceReviews.push({
-        id: `mock-${i}`,
-        name: mock.name,
-        image: null,
-        reviewCount: mock.reviews,
-        averageRating: mock.rating,
-      });
-    });
-  }
+  const serviceReviews: ServiceReview[] = services.map((service) => {
+    const stats = statsMap.get(service.id);
+    return {
+      id: service.id,
+      name: service.name,
+      image: service.photoURL,
+      reviewCount: stats?.count ?? 0,
+      averageRating: stats?.avg ?? 0,
+    };
+  });
 
-  // Calcular promedio general
+  // Calculate overall average
   const totalReviews = serviceReviews.reduce(
     (acc, s) => acc + s.reviewCount,
     0

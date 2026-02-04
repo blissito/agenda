@@ -180,6 +180,9 @@ type Pages = {
       "eventId": string;
     };
   };
+  "/survey": {
+    params: {};
+  };
   "/:serviceSlug": {
     params: {
       "serviceSlug": string;
@@ -190,7 +193,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -380,6 +383,10 @@ type RouteFiles = {
     id: "routes/event.$eventId.cancel";
     page: "/event/:eventId/cancel";
   };
+  "routes/survey.tsx": {
+    id: "routes/survey";
+    page: "/survey";
+  };
   "routes/service.$serviceSlug.tsx": {
     id: "routes/service.$serviceSlug";
     page: "/:serviceSlug";
@@ -435,5 +442,6 @@ type RouteModules = {
   "routes/event.$eventId.confirm": typeof import("./app/routes/event.$eventId.confirm.tsx");
   "routes/event.$eventId.modify": typeof import("./app/routes/event.$eventId.modify.tsx");
   "routes/event.$eventId.cancel": typeof import("./app/routes/event.$eventId.cancel.tsx");
+  "routes/survey": typeof import("./app/routes/survey.tsx");
   "routes/service.$serviceSlug": typeof import("./app/routes/service.$serviceSlug.tsx");
 };

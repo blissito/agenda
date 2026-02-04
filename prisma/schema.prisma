@@ -298,16 +298,17 @@ type OrgIntegrations {
 }
 
 model Customer {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  comments    String
-  createdAt   DateTime @db.Date
-  displayName String
-  email       String
-  orgId       String   @db.ObjectId
-  tel         String
-  updatedAt   DateTime @db.Date
-  org         Org      @relation(fields: [orgId], references: [id])
-  events      Event[]
+  id              String           @id @default(auto()) @map("_id") @db.ObjectId
+  comments        String
+  createdAt       DateTime         @db.Date
+  displayName     String
+  email           String
+  orgId           String           @db.ObjectId
+  tel             String
+  updatedAt       DateTime         @db.Date
+  org             Org              @relation(fields: [orgId], references: [id])
+  events          Event[]
+  surveyResponses SurveyResponse[]
 }
 
 model Event {
@@ -336,9 +337,10 @@ model Event {
   stripe_payment_intent_id String?
   reminderSentAt           DateTime? @db.Date  // null = reminder not sent yet
   surveySentAt             DateTime? @db.Date  // null = survey not sent yet
-  customer                 Customer? @relation(fields: [customerId], references: [id])
+  customer                 Customer?       @relation(fields: [customerId], references: [id])
   org              Org       @relation(fields: [orgId], references: [id])
   service          Service?  @relation(fields: [serviceId], references: [id])
+  surveyResponse   SurveyResponse?
 
   // Previene doble reserva del mismo slot
   @@unique([serviceId, start], name: "unique_slot")
@@ -413,6 +415,28 @@ model ServiceAction {
   config    Json
   enabled   Boolean @default(true)
   service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+}
+
+model SurveyResponse {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId    String   @unique @db.ObjectId
+  customerId String   @db.ObjectId
+  orgId      String   @db.ObjectId
+  serviceId  String   @db.ObjectId
+
+  // Response data (v1: simple satisfaction survey)
+  rating     Int      // 1-5 scale
+  comment    String?  // Optional feedback text
+
+  createdAt  DateTime @db.Date
+
+  // Future extensibility: answers Json? for custom questions
+
+  // Relations
+  event      Event    @relation(fields: [eventId], references: [id])
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  // Note: eventId is unique so only one response per event
 }
 
 model User {

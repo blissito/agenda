@@ -9,6 +9,7 @@ import { db } from "~/utils/db.server";
 import { getSession } from "~/sessions";
 import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
 import { getServicePublicUrl } from "~/utils/urls";
+import { cancelEventJobs } from "~/jobs/agenda.server";
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
@@ -80,6 +81,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   const intent = formData.get("intent");
 
   if (intent === "cancel") {
+    // Cancel pending jobs (reminder, survey)
+    await cancelEventJobs(params.eventId);
+
     await db.event.update({
       where: { id: params.eventId },
       data: {

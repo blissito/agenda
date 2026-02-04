@@ -23,7 +23,9 @@ import {
 } from "~/utils/emails/sendAppointment";
 import { convertWeekDaysToEnglish } from "~/utils/urls";
 import {
+  createDateInTimezone,
   DEFAULT_TIMEZONE,
+  formatTimeOnly,
   type SupportedTimezone,
 } from "~/utils/timezone";
 
@@ -256,10 +258,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
   );
 
-  const handleTimeSelection = (timeString: string, h: number, m: number) => {
-    const updated = new Date(date as Date);
-    updated.setHours(h);
-    updated.setMinutes(m);
+  const handleTimeSelection = (timeString: string) => {
+    // Create date in the user's selected timezone (handles DST correctly)
+    const updated = createDateInTimezone(timeString, date as Date, timezone);
     setDate(updated);
     setTime(timeString);
   };
@@ -271,41 +272,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   };
 
   const handleTimezoneChange = (newTimezone: SupportedTimezone) => {
-    // When timezone changes, convert the selected time to the new timezone
-    // The same moment in time should remain selected, just displayed differently
+    // When timezone changes, the absolute moment (date) stays the same
+    // We just need to display the time in the new timezone
     if (time && date) {
-      // Get the offset difference between timezones
-      const oldOffset = new Date().toLocaleString("en-US", { timeZone: timezone, timeZoneName: "shortOffset" });
-      const newOffset = new Date().toLocaleString("en-US", { timeZone: newTimezone, timeZoneName: "shortOffset" });
-
-      // Parse offsets (e.g., "GMT-6" -> -6)
-      const parseOffset = (str: string) => {
-        const match = str.match(/GMT([+-]?\d+)/);
-        return match ? parseInt(match[1]) : 0;
-      };
-
-      const oldOffsetHours = parseOffset(oldOffset);
-      const newOffsetHours = parseOffset(newOffset);
-      const diffHours = newOffsetHours - oldOffsetHours;
-
-      // Convert current time to new timezone
-      const [h, m] = time.split(":").map(Number);
-      let newHour = h + diffHours;
-
-      // Handle day boundaries
-      if (newHour >= 0 && newHour < 24) {
-        const newTimeString = `${newHour.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-        setTime(newTimeString);
-
-        // Update date with new hour
-        const updatedDate = new Date(date);
-        updatedDate.setHours(newHour);
-        updatedDate.setMinutes(m);
-        setDate(updatedDate);
-      } else {
-        // Time falls on different day, clear selection
-        setTime(undefined);
-      }
+      // Use the existing date (which is an absolute moment) and format it in the new timezone
+      const newTimeString = formatTimeOnly(date, newTimezone);
+      setTime(newTimeString);
     }
     setTimezone(newTimezone);
   };
