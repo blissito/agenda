@@ -90,7 +90,7 @@ export default function Clients() {
             title="Disponibilidad de servicios"
             description="¿Tus servicios pueden agendarse al mismo tiempo? Recomendado si eres un centro deportivo que tiene los espacios disponibles de forma simultánea."
           >
-            <Switch className="h-10" />
+            <Switch name="simultaneous_services" className="h-10" />
           </OptionBox>
           <hr className="bg-brand_stroke my-6" />
 
@@ -145,6 +145,7 @@ export default function Clients() {
               Añádelos a continuación.
             </p>
             <BasicInput
+              name="terms"
               as="textarea"
               className="mt-4"
               placeholder="Pega aquí los términos y condiciones de tus servicios"

@@ -10,6 +10,7 @@ import {
   FiCopy,
   FiRefreshCw,
 } from "react-icons/fi";
+import { Spinner } from "~/components/common/Spinner";
 
 type DomainDns = {
   type: string;

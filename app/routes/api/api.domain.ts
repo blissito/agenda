@@ -82,7 +82,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const normalizedDomain = domain.toLowerCase().trim();
 
     // Check if domain already used by another org
-    const existingOrg = await db.org.findUnique({
+    const existingOrg = await db.org.findFirst({
       where: { customDomain: normalizedDomain },
     });
     if (existingOrg && existingOrg.id !== org.id) {

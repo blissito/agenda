@@ -3,7 +3,7 @@ import type { Customer, Event, Org, Service, User } from "@prisma/client";
 import appointmentOwnerTemplate from "./appointmentOwnerTemplate";
 import { getRemitent, getSesTransport } from "./ses";
 import { formatDateForDisplay } from "~/utils/formatDate";
-import { generateEventActionToken } from "~/utils/tokens";
+import { generateEventActionToken, generateUserToken } from "~/utils/tokens";
 import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
 
 type ServiceWithOrg = Service & {
@@ -58,10 +58,10 @@ export const sendAppointmentToCustomer = async ({
         displayName: event.service.org.shopKeeper ?? undefined,
         confirmLink,
         modifyLink,
-        amount: event.service.price,
+        amount: Number(event.service.price),
         address: event.service.org.address ?? undefined,
         dateString: formatFullDateInTimezone(event.start, timezone),
-        minutes: event.duration ?? undefined,
+        minutes: event.duration ? Number(event.duration) : undefined,
         reservationNumber: event.id,
         serviceName: event.service.name,
         orgName: event.service.org.name,
@@ -88,8 +88,19 @@ export const sendAppointmentToOwner = async ({
     console.error("sendAppointmentToOwner: No email provided");
     return;
   }
-  const url = new URL(request?.url || "https://denik.me");
-  url.pathname = "/dash";
+
+  const baseUrl = process.env.APP_URL || "https://denik.me";
+
+  // Generate magic link for auto-login
+  // Token includes owner email, redirects to event modify page after login
+  const ownerToken = generateUserToken(email);
+  const destination = `/event/${event.id}/modify`;
+  const link = `${baseUrl}/login/signin?token=${ownerToken}&next=${encodeURIComponent(destination)}`;
+
+  // Get timezone from org or use default
+  const timezone =
+    (event.service.org as Org & { timezone?: string }).timezone ||
+    DEFAULT_TIMEZONE;
 
   const sesTransport = getSesTransport();
 
@@ -100,11 +111,11 @@ export const sendAppointmentToOwner = async ({
       to: email,
       html: appointmentOwnerTemplate({
         displayName: event.service.org.shopKeeper ?? undefined,
-        link: url.toString(),
-        amount: event.service.price,
+        link,
+        amount: Number(event.service.price),
         address: event.service.org.address ?? undefined,
-        dateString: formatDateForDisplay(event.start),
-        minutes: event.duration ?? undefined,
+        dateString: formatFullDateInTimezone(event.start, timezone),
+        minutes: event.duration ? Number(event.duration) : undefined,
         reservationNumber: event.id,
         serviceName: event.service.name,
         orgName: event.service.org.name,

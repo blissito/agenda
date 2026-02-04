@@ -18,13 +18,16 @@ export const action = async ({ request }: Route.ActionArgs) => {
         { status: 400 }
       );
     }
+    const now = new Date();
     return await db.customer.create({
       data: {
         displayName: result.data.displayName,
         email: result.data.email,
-        tel: result.data.tel ?? undefined,
-        comments: result.data.comments ?? undefined,
+        tel: result.data.tel ?? "",
+        comments: result.data.comments ?? "",
         orgId: org.id,
+        createdAt: now,
+        updatedAt: now,
       },
     });
   }

@@ -74,7 +74,7 @@ export const MultipleOptions = ({
         {options.map((option, index) => {
           return (
             <Option
-              onChange={(val) => set(val)}
+              onChange={(val: string) => set(val)}
               label={option}
               index={index}
               key={option}

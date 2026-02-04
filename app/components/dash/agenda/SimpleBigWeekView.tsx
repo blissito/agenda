@@ -212,7 +212,7 @@ const Cell = ({
   dayIndex?: number;
 }) => {
   const isToday = () =>
-    getComparableTime(date) === getComparableTime(new Date());
+    date ? getComparableTime(date) === getComparableTime(new Date()) : false;
 
   const isThisHour = () => {
     if (!isToday()) return false;
@@ -264,12 +264,12 @@ const EmptyButton = ({
   d.setSeconds(0);
   d.setMilliseconds(0);
   const [show, setShow] = useState(false);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const outsideRef = useClickOutside<HTMLButtonElement>({
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const outsideRef = useClickOutside<HTMLDivElement>({
     isActive: show,
     onOutsideClick: () => setShow(false),
   });
-  const [rect, setRect] = useState({});
+  const [rect, setRect] = useState<DOMRect | null>(null);
 
   useEffect(() => {
     if (!buttonRef.current) return;
@@ -278,7 +278,9 @@ const EmptyButton = ({
   }, [buttonRef]);
 
   const handleClick = () => {
-    setRect((buttonRef.current as HTMLButtonElement).getBoundingClientRect());
+    if (buttonRef.current) {
+      setRect(buttonRef.current.getBoundingClientRect());
+    }
     setShow(true);
   };
 
@@ -301,7 +303,7 @@ const EmptyButton = ({
           <div
             ref={outsideRef}
             style={{
-              height: rect.height + 24,
+              height: rect ? rect.height + 24 : "auto",
             }}
             className="absolute border bg-white rounded-lg grid p-1 bottom-[-100%] left-0 z-20"
           >
@@ -403,14 +405,14 @@ const Column = ({
     }
 
     // Cell is empty, show EmptyButton
-    return (
+    return dayOfWeek ? (
       <EmptyButton
         hours={hours}
         date={dayOfWeek}
         onNewEvent={onNewEvent}
         onAddBlock={onAddBlock}
       />
-    );
+    ) : null;
   };
 
   return (
@@ -565,7 +567,7 @@ export const Options = ({
   isOpen?: boolean;
   onRemoveBlock?: (eventId: string) => void;
 }) => {
-  const mainRef = useOutsideClick({
+  const mainRef = useOutsideClick<HTMLDivElement>({
     isActive: isOpen,
     onClickOutside: onClose,
   });

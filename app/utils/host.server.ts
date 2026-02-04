@@ -84,7 +84,7 @@ export async function resolveHostForIndex(
 
   // Custom domain: any domain that's not a platform domain
   if (!isPlatform && host.length > 0) {
-    const org = await db.org.findUnique({
+    const org = await db.org.findFirst({
       where: { customDomain: host, customDomainStatus: "active" },
       include: { services: { where: { isActive: true, archived: false } } },
     });
@@ -168,7 +168,7 @@ export async function resolveOrgFromRequest(
 
   // 1. Custom domain: any domain that's not a platform domain
   if (!isPlatform && host.length > 0) {
-    return db.org.findUnique({
+    return db.org.findFirst({
       where: { customDomain: host, customDomainStatus: "active" },
     });
   }

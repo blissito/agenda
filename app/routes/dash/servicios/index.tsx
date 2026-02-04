@@ -87,7 +87,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
               image={service.photoURL ?? undefined}
               key={service.id}
               title={service.name}
-              duration={service.duration} // @TODO: format function this is minutes for now
+              duration={Number(service.duration)} // @TODO: format function this is minutes for now
               price={`${service.price} mxn`}
               status={service.isActive ? "Activo" : "Desactivado"}
               link={getLink(service)} // for copy link action

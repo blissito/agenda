@@ -14,9 +14,11 @@ export const getOrCreateStripeAccount = async (request: Request) => {
       account = await retrieveAccountSafe(stripeData.id);
     } else {
       account = await createConnectedAccount(user.email);
+      // Store partial stripe data (just id) until full account is retrieved
       await db.user.update({
         where: { id: user.id },
-        data: { stripe: { id: account.id } },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: { stripe: { id: account.id } as any },
       });
     }
   } catch (e) {

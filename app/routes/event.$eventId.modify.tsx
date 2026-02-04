@@ -1,25 +1,20 @@
 /**
  * Route: /event/:eventId/modify
- * Allows customer to modify their appointment via email link
+ * Allows customer OR owner to view/modify their appointment via email link
+ * - Customer: uses temporary session from email token
+ * - Owner: must be logged in (via magic link auto-login)
  */
 import { redirect } from "react-router";
 import type { Route } from "./+types/event.$eventId.modify";
 import { db } from "~/utils/db.server";
 import { getSession } from "~/sessions";
 import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
+import { getUserOrNull } from "~/.server/userGetters";
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
-  const access = session.get("customerEventAccess");
-
-  // Verify session access
-  if (
-    !access ||
-    access.eventId !== params.eventId ||
-    access.expiresAt < Date.now()
-  ) {
-    throw redirect("/error?reason=session_expired");
-  }
+  const customerAccess = session.get("customerEventAccess");
+  const user = await getUserOrNull(request);
 
   const event = await db.event.findUnique({
     where: { id: params.eventId },
@@ -35,6 +30,16 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 
   const timezone =
     (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE;
+
+  // Check access: customer with temporary token OR logged-in owner
+  const isCustomerWithAccess =
+    customerAccess?.eventId === params.eventId &&
+    customerAccess.expiresAt > Date.now();
+  const isOwner = user && event.service?.org.ownerId === user.id;
+
+  if (!isCustomerWithAccess && !isOwner) {
+    throw redirect("/error?reason=unauthorized");
+  }
 
   return {
     event: {
@@ -57,20 +62,33 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       email: event.customer?.email,
       tel: event.customer?.tel,
     },
+    isOwner: !!isOwner,
   };
 };
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const session = await getSession(request.headers.get("Cookie"));
-  const access = session.get("customerEventAccess");
+  const customerAccess = session.get("customerEventAccess");
+  const user = await getUserOrNull(request);
 
-  // Verify session access
-  if (
-    !access ||
-    access.eventId !== params.eventId ||
-    access.expiresAt < Date.now()
-  ) {
-    throw redirect("/error?reason=session_expired");
+  // Get event to check ownership
+  const event = await db.event.findUnique({
+    where: { id: params.eventId },
+    include: { service: { include: { org: true } } },
+  });
+
+  if (!event) {
+    throw redirect("/error?reason=event_not_found");
+  }
+
+  // Check access: customer with temporary token OR logged-in owner
+  const isCustomerWithAccess =
+    customerAccess?.eventId === params.eventId &&
+    customerAccess.expiresAt > Date.now();
+  const isOwner = user && event.service?.org.ownerId === user.id;
+
+  if (!isCustomerWithAccess && !isOwner) {
+    throw redirect("/error?reason=unauthorized");
   }
 
   const formData = await request.formData();

@@ -31,12 +31,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "create_stripe_account") {
     const email = formData.get("email") as string;
     const account = await createConnectedAccount(email);
+    // Store partial stripe data (just id) until full account is retrieved
     return await db.user.update({
       where: {
         id: user.id,
       },
       data: {
-        stripe: { id: account.id },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        stripe: { id: account.id } as any,
       },
     });
   }

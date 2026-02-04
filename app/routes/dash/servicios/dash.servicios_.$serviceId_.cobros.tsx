@@ -131,7 +131,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Lo enviaremos en cuanto se complete la reservación"
           />
           <Switch
-            defaultChecked={service.config?.whatsapp_confirmation}
+            defaultChecked={service.config?.whatsapp_confirmation ?? false}
             onChange={(checked: boolean) =>
               handleSwitchChange("whatsapp_confirmation", checked)
             }
@@ -150,7 +150,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Lo enviaremos 24 hrs antes de la sesión"
           />
           <Switch
-            defaultChecked={service.config?.whatsapp_reminder}
+            defaultChecked={service.config?.whatsapp_reminder ?? false}
             onChange={(checked: boolean) =>
               handleSwitchChange("whatsapp_reminder", checked)
             }

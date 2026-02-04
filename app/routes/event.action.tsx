@@ -55,6 +55,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   // Redirect to the appropriate action page
   switch (payload.action) {
     case "confirm":
+      // Confirm the event automatically when clicking the email link
+      await db.event.update({
+        where: { id: payload.eventId },
+        data: {
+          status: "CONFIRMED",
+          updatedAt: new Date(),
+        },
+      });
       throw redirect(`/event/${payload.eventId}/confirm`, { headers });
     case "modify":
       throw redirect(`/event/${payload.eventId}/modify`, { headers });

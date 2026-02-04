@@ -92,12 +92,20 @@ export const action = async ({ request }: Route.ActionArgs) => {
       where: { id: validData.customerId as string },
       select: { displayName: true },
     });
+    const now = new Date();
     const event = await db.event.create({
       data: {
         ...validData,
         orgId: org.id,
         userId: user.id,
-        title: customer?.displayName,
+        title: customer?.displayName ?? "",
+        // Required fields
+        allDay: false,
+        archived: false,
+        status: "pending",
+        type: "APPOINTMENT",
+        createdAt: now,
+        updatedAt: now,
       },
     });
     return event;

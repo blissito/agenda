@@ -79,5 +79,16 @@ export const generateDummyService = async (org: Org) =>
       ...getOneTemplate(),
       address: org.address,
       orgId: org.id,
+      // Required fields with defaults
+      allowMultiple: false,
+      archived: false,
+      currency: "MXN",
+      duration: 60,
+      isActive: true,
+      paid: false,
+      payment: false,
+      place: "INPLACE",
+      points: 0,
+      seats: 1,
     },
   });
