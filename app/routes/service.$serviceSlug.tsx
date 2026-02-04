@@ -24,6 +24,8 @@ import {
 import { resolveOrgFromRequest } from "~/utils/host.server";
 import { convertWeekDaysToEnglish } from "~/utils/urls";
 import { createPreference, getValidAccessToken } from "~/.server/mercadopago";
+import { emit } from "~/plugins/index";
+import "~/plugins/register";
 
 type WeekDaysType = Record<string, string[][]>;
 
@@ -143,6 +145,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         service: { include: { org: true } },
       },
     });
+
+    // Emit booking.created event for plugins
+    await emit("booking.created", { event, service, customer }, org.id);
 
     try {
       await sendAppointmentToCustomer({

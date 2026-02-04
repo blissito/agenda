@@ -46,6 +46,10 @@ export default [
           ":serviceId/cobros",
           "routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx"
         ),
+        route(
+          ":serviceId/acciones",
+          "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx"
+        ),
       ]),
       route("website", "routes/dash/website/dash.website.tsx"),
       route("clientes/:email", "routes/dash/dash_.clientes_.$email.tsx"),

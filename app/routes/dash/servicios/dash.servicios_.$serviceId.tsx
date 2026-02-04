@@ -434,6 +434,19 @@ export const ServiceDetail = ({
           </div>
         </div>
       </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
+          <div className="flex items-center justify-between">
+            <h3 className="font-satoBold text-lg text-brand_dark">Acciones</h3>
+            <EditButton to={`/dash/servicios/${service.id}/acciones`} label="Configurar acciones" />
+          </div>
+
+          <p className="mt-3 font-satoMedium text-brand_gray">
+            Automatiza tareas después de cada agendamiento, como enviar datos a tu CRM o disparar webhooks.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

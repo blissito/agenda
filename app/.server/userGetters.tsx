@@ -42,8 +42,14 @@ export const getUserOrRedirect = async (
   const session = await getSession(request.headers.get("Cookie"));
   const userId = session.get("userId");
 
+  // Build redirect URL with next parameter
+  const url = new URL(request.url);
+  const currentPath = url.pathname + url.search;
+  const baseRedirect = options.redirectURL || "/signin";
+  const redirectWithNext = `${baseRedirect}?next=${encodeURIComponent(currentPath)}`;
+
   if (!userId) {
-    throw redirect(options.redirectURL || "/signin");
+    throw redirect(redirectWithNext);
   }
 
   const user = await db.user.findUnique({ where: { id: userId } });
@@ -51,7 +57,7 @@ export const getUserOrRedirect = async (
   if (!user) {
     // Clear invalid session
     session.unset("userId");
-    throw redirect(options.redirectURL || "/signin", {
+    throw redirect(redirectWithNext, {
       headers: { "Set-Cookie": await commitSession(session) },
     });
   }

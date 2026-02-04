@@ -337,6 +337,7 @@ model Org {
   name               String
   numberOfEmployees  String?
   ownerId            String            @db.ObjectId
+  plugins            Json?
   shopKeeper         String?
   slug               String            @unique
   social             OrgSocial?
@@ -374,6 +375,16 @@ model Service {
   weekDays      ServiceWeekDays?
   org           Org              @relation(fields: [orgId], references: [id])
   events        Event[]
+  actions       ServiceAction[]
+}
+
+model ServiceAction {
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  serviceId String  @db.ObjectId
+  type      String
+  config    Json
+  enabled   Boolean @default(true)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 }
 
 model User {

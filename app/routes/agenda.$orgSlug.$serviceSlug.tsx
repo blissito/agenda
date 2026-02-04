@@ -22,6 +22,8 @@ import {
   sendAppointmentToOwner,
 } from "~/utils/emails/sendAppointment";
 import { convertWeekDaysToEnglish } from "~/utils/urls";
+import { emit } from "~/plugins/index";
+import "~/plugins/register";
 
 type WeekDaysType = Record<string, string[][]>;
 
@@ -71,6 +73,13 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   if (intent === "create_event") {
     const data = JSON.parse(formData.get("data") as string);
 
+    const service = await db.service.findUnique({
+      where: { id: data.serviceId },
+    });
+    if (!service || service.orgId !== org.id) {
+      throw new Response("Service not found", { status: 404 });
+    }
+
     const customer = await db.customer.create({
       data: {
         displayName: data.customer.displayName,
@@ -109,6 +118,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         service: { include: { org: true } },
       },
     });
+
+    // Emit booking.created event for plugins
+    await emit("booking.created", { event, service, customer }, org.id);
 
     try {
       await sendAppointmentToCustomer({
