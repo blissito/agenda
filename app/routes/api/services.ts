@@ -3,8 +3,7 @@ import { db } from "~/utils/db.server";
 import type { Route } from "./+types/services";
 import type { Prisma, Service } from "@prisma/client";
 import { generalFormSchema } from "~/components/forms/services_model/ServiceGeneralForm";
-import slugify from "slugify";
-import { nanoid } from "nanoid";
+import { generateUniqueServiceSlug } from "~/utils/slugs.server";
 import { serverServicePhotoFormSchema } from "~/components/forms/services_model/ServicePhotoForm";
 import { serviceTimesSchema } from "~/components/forms/services_model/ServiceTimesForm";
 import { ServerServiceConfigFormSchema } from "~/components/forms/services_model/ServiceConfigForm";
@@ -104,7 +103,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       data: {
         ...parsedData,
         orgId: org.id,
-        slug: slugify(parsedData.name + "_" + nanoid(4)),
+        slug: await generateUniqueServiceSlug(parsedData.name, org.id),
         // Valores por defecto para campos requeridos
         allowMultiple: false,
         archived: false,

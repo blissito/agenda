@@ -358,7 +358,7 @@ export const updateOrg = async (formData: FormData, stepSlug: string) => {
 
   if ("name" in validData) {
     updateData.name = validData.name;
-    updateData.slug = slugify(validData.name) + "_" + nanoid(4);
+    updateData.slug = slugify(validData.name, { lower: true }) + "-" + nanoid(4);
     updateData.shopKeeper = validData.shopKeeper;
     updateData.address = validData.address;
     updateData.numberOfEmployees = validData.numberOfEmployees;

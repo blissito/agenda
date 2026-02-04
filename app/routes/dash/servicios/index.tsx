@@ -10,10 +10,9 @@ import { RouteTitle } from "~/components/sideBar/routeTitle";
 import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import type { Route } from "./+types";
 import { db } from "~/utils/db.server";
-import slugify from "slugify";
-import { nanoid } from "nanoid";
 import type { Service } from "@prisma/client";
 import { getServicePublicUrl } from "~/utils/urls";
+import { generateUniqueServiceSlug } from "~/utils/slugs.server";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData();
@@ -38,7 +37,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const dummy = await db.service.create({
       data: {
         name: "Fancy Service",
-        slug: slugify("Fancy Service") + nanoid(4),
+        slug: await generateUniqueServiceSlug("Fancy Service", org.id),
         orgId: org.id,
         // Valores por defecto para campos requeridos
         allowMultiple: false,

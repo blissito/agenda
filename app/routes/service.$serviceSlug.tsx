@@ -106,20 +106,30 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       }
 
       const url = new URL(request.url);
-      const preference = await createPreference(accessToken, {
-        serviceId: service.id,
-        serviceName: service.name,
-        price: Number(service.price),
-        customerId: customer.id,
-        start: startDate.toISOString(),
-        end: endDate.toISOString(),
-        backUrl: url.origin,
-        webhookUrl: `${url.origin}/mercadopago/webhook`,
-      });
 
-      if (preference.init_point) {
-        // Redirigir a MP, el evento se crea en el webhook
-        throw redirect(preference.init_point);
+      try {
+        const preference = await createPreference(accessToken, {
+          serviceId: service.id,
+          serviceName: service.name,
+          price: Number(service.price),
+          customerId: customer.id,
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+          backUrl: url.origin,
+          webhookUrl: `${url.origin}/mercadopago/webhook`,
+        });
+
+        if (preference.init_point) {
+          // Redirigir a MP, el evento se crea en el webhook
+          throw redirect(preference.init_point);
+        }
+      } catch (e) {
+        // Re-throw redirects
+        if (e instanceof Response) throw e;
+        console.error("MercadoPago preference error:", e);
+        return {
+          error: "Error al procesar el pago. Por favor intenta de nuevo.",
+        };
       }
     }
 
