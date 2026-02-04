@@ -7,6 +7,7 @@
  *   npx tsx scripts/dev/db-read.ts User
  *   npx tsx scripts/dev/db-read.ts Org --limit 5
  *   npx tsx scripts/dev/db-read.ts Service --where "orgId=abc123"
+ *   npx tsx scripts/dev/db-read.ts Customer --search "Juan"
  *   npx tsx scripts/dev/db-read.ts Event --count
  */
 import { PrismaClient } from "@prisma/client";
@@ -25,6 +26,7 @@ function parseArgs() {
     where?: Record<string, string>;
     count: boolean;
     id?: string;
+    search?: string;
   } = {
     listModels: false,
     limit: 20,
@@ -51,6 +53,8 @@ function parseArgs() {
       options.count = true;
     } else if (arg === "--id" && args[i + 1]) {
       options.id = args[++i];
+    } else if (arg === "--search" && args[i + 1]) {
+      options.search = args[++i];
     } else if (!arg.startsWith("--") && !options.model) {
       options.model = arg;
     }
@@ -68,6 +72,54 @@ function getModelDelegate(model: ModelName) {
     Customer: prisma.customer,
   };
   return delegates[model];
+}
+
+/**
+ * Build a search where clause for text search on name/email fields
+ * Returns OR conditions for relevant fields based on model
+ */
+function buildSearchWhere(model: ModelName, search: string): Record<string, any> {
+  const searchCondition = { contains: search, mode: "insensitive" };
+
+  switch (model) {
+    case "User":
+      return {
+        OR: [
+          { email: searchCondition },
+          { displayName: searchCondition },
+        ],
+      };
+    case "Org":
+      return {
+        OR: [
+          { name: searchCondition },
+          { slug: searchCondition },
+          { email: searchCondition },
+        ],
+      };
+    case "Service":
+      return {
+        OR: [
+          { name: searchCondition },
+          { slug: searchCondition },
+        ],
+      };
+    case "Customer":
+      return {
+        OR: [
+          { displayName: searchCondition },
+          { email: searchCondition },
+        ],
+      };
+    case "Event":
+      return {
+        OR: [
+          { title: searchCondition },
+        ],
+      };
+    default:
+      return {};
+  }
 }
 
 // Convert BigInt to string for JSON serialization
@@ -97,6 +149,7 @@ async function main() {
     console.log("  npx tsx scripts/dev/db-read.ts Service --limit 5");
     console.log("  npx tsx scripts/dev/db-read.ts Event --count");
     console.log('  npx tsx scripts/dev/db-read.ts Customer --id "abc123"');
+    console.log('  npx tsx scripts/dev/db-read.ts Customer --search "Juan"');
     return;
   }
 
@@ -114,8 +167,15 @@ async function main() {
   const delegate = getModelDelegate(modelName);
 
   try {
+    // Build where clause combining --where and --search
+    let whereClause: Record<string, any> = options.where || {};
+    if (options.search) {
+      const searchWhere = buildSearchWhere(modelName, options.search);
+      whereClause = { ...whereClause, ...searchWhere };
+    }
+
     if (options.count) {
-      const count = await delegate.count({ where: options.where });
+      const count = await delegate.count({ where: whereClause });
       console.log(`\n${modelName} count: ${count}`);
       return;
     }
@@ -132,12 +192,13 @@ async function main() {
     }
 
     const records = await delegate.findMany({
-      where: options.where,
+      where: whereClause,
       take: options.limit,
       orderBy: { id: "desc" },
     });
 
-    console.log(`\n${modelName} records (${records.length} of ${await delegate.count({ where: options.where })}):\n`);
+    const searchLabel = options.search ? ` matching "${options.search}"` : "";
+    console.log(`\n${modelName} records${searchLabel} (${records.length} of ${await delegate.count({ where: whereClause })}):\n`);
 
     if (records.length === 0) {
       console.log("  No records found.");

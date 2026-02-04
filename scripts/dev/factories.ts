@@ -5,14 +5,15 @@
 import { faker } from "@faker-js/faker/locale/es_MX";
 
 // Default week days configuration (Mon-Fri 9-18)
+// Uses Spanish day names to match Prisma schema (ServiceWeekDays/OrgWeekDays types)
 const defaultWeekDays = {
-  monday: [{ start: "09:00", end: "18:00" }],
-  tuesday: [{ start: "09:00", end: "18:00" }],
-  wednesday: [{ start: "09:00", end: "18:00" }],
-  thursday: [{ start: "09:00", end: "18:00" }],
-  friday: [{ start: "09:00", end: "18:00" }],
-  saturday: null,
-  sunday: null,
+  lunes: [{ start: "09:00", end: "18:00" }],
+  martes: [{ start: "09:00", end: "18:00" }],
+  mi_rcoles: [{ start: "09:00", end: "18:00" }],
+  jueves: [{ start: "09:00", end: "18:00" }],
+  viernes: [{ start: "09:00", end: "18:00" }],
+  s_bado: null,
+  domingo: null,
 };
 
 const defaultServiceConfig = {
@@ -86,15 +87,25 @@ export function generateService(orgId: string, overrides?: Partial<{
   const name = overrides?.name || faker.commerce.productName();
   const slug = overrides?.slug || faker.helpers.slugify(name).toLowerCase() + "-" + faker.string.alphanumeric(4);
 
+  // Extract fields that are handled explicitly above
+  const {
+    name: _name,
+    slug: _slug,
+    price,
+    duration,
+    seats,
+    ...restOverrides
+  } = overrides || {};
+
   return {
     name,
     slug,
     orgId,
-    price: BigInt(overrides?.price ?? faker.number.int({ min: 100, max: 5000 })),
-    duration: BigInt(overrides?.duration ?? faker.helpers.arrayElement([30, 45, 60, 90, 120])),
+    price: BigInt(price ?? faker.number.int({ min: 100, max: 5000 })),
+    duration: BigInt(duration ?? faker.helpers.arrayElement([30, 45, 60, 90, 120])),
     description: faker.commerce.productDescription(),
     employeeName: faker.person.fullName(),
-    currency: overrides?.currency || "MXN",
+    currency: restOverrides.currency || "MXN",
     isActive: true,
     archived: false,
     paid: false,
@@ -102,10 +113,10 @@ export function generateService(orgId: string, overrides?: Partial<{
     allowMultiple: false,
     place: faker.helpers.arrayElement(["presencial", "virtual"]),
     points: BigInt(0),
-    seats: BigInt(overrides?.seats ?? 1),
+    seats: BigInt(seats ?? 1),
     config: defaultServiceConfig,
     weekDays: defaultWeekDays,
-    ...overrides,
+    ...restOverrides,
   };
 }
 

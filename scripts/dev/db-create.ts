@@ -4,7 +4,9 @@
  *
  * Usage:
  *   npx tsx scripts/dev/db-create.ts User
+ *   npx tsx scripts/dev/db-create.ts User --email "test@example.com" --name "John Doe"
  *   npx tsx scripts/dev/db-create.ts Org --full          # Creates user + org + 2 services + 3 customers
+ *   npx tsx scripts/dev/db-create.ts Service --orgId "ID" --name "Consulta" --price 300 --duration 60
  *   npx tsx scripts/dev/db-create.ts Customer --count 5 --orgId "ID"
  *   npx tsx scripts/dev/db-create.ts Event --serviceId "ID" --customerId "ID"
  */
@@ -32,6 +34,12 @@ function parseArgs() {
     serviceId?: string;
     customerId?: string;
     userId?: string;
+    // Custom field overrides
+    name?: string;
+    slug?: string;
+    price?: number;
+    duration?: number;
+    email?: string;
   } = {
     full: false,
     count: 1,
@@ -52,6 +60,16 @@ function parseArgs() {
       options.customerId = args[++i];
     } else if (arg === "--userId" && args[i + 1]) {
       options.userId = args[++i];
+    } else if (arg === "--name" && args[i + 1]) {
+      options.name = args[++i];
+    } else if (arg === "--slug" && args[i + 1]) {
+      options.slug = args[++i];
+    } else if (arg === "--price" && args[i + 1]) {
+      options.price = parseInt(args[++i], 10);
+    } else if (arg === "--duration" && args[i + 1]) {
+      options.duration = parseInt(args[++i], 10);
+    } else if (arg === "--email" && args[i + 1]) {
+      options.email = args[++i];
     } else if (!arg.startsWith("--") && !options.model) {
       options.model = arg;
     }
@@ -60,15 +78,18 @@ function parseArgs() {
   return options;
 }
 
-async function createUser() {
-  const data = generateUser();
+async function createUser(overrides?: { email?: string; name?: string }) {
+  const data = generateUser({
+    email: overrides?.email,
+    displayName: overrides?.name,
+  });
   const user = await prisma.user.create({ data });
   console.log(`Created User: [${user.id}] ${user.email}`);
   return user;
 }
 
-async function createOrg(ownerId: string) {
-  const data = generateOrg(ownerId);
+async function createOrg(ownerId: string, overrides?: { name?: string; slug?: string; email?: string }) {
+  const data = generateOrg(ownerId, overrides);
   const org = await prisma.org.create({ data });
 
   // Update user's orgId and orgIds
@@ -84,15 +105,29 @@ async function createOrg(ownerId: string) {
   return org;
 }
 
-async function createService(orgId: string) {
-  const data = generateService(orgId);
+async function createService(
+  orgId: string,
+  overrides?: { name?: string; slug?: string; price?: number; duration?: number }
+) {
+  const data = generateService(orgId, overrides);
   const service = await prisma.service.create({ data });
+
+  // Get org slug to build booking URL
+  const org = await prisma.org.findUnique({ where: { id: orgId }, select: { slug: true } });
+  const bookingUrl = org
+    ? `https://${org.slug}.denik.me/${service.slug}`
+    : `(org not found)`;
+
   console.log(`Created Service: [${service.id}] ${service.slug} - ${service.name}`);
+  console.log(`  Booking URL: ${bookingUrl}`);
   return service;
 }
 
-async function createCustomer(orgId: string) {
-  const data = generateCustomer(orgId);
+async function createCustomer(orgId: string, overrides?: { name?: string; email?: string }) {
+  const data = generateCustomer(orgId, {
+    displayName: overrides?.name,
+    email: overrides?.email,
+  });
   const customer = await prisma.customer.create({ data });
   console.log(`Created Customer: [${customer.id}] ${customer.email} - ${customer.displayName}`);
   return customer;
@@ -165,10 +200,18 @@ async function main() {
   if (!options.model) {
     console.log("\nUsage:");
     console.log("  npx tsx scripts/dev/db-create.ts User");
+    console.log('  npx tsx scripts/dev/db-create.ts User --email "test@example.com" --name "John Doe"');
     console.log("  npx tsx scripts/dev/db-create.ts Org --full");
+    console.log('  npx tsx scripts/dev/db-create.ts Service --orgId "ID" --name "Consulta" --price 300');
     console.log('  npx tsx scripts/dev/db-create.ts Customer --count 5 --orgId "ID"');
     console.log('  npx tsx scripts/dev/db-create.ts Event --serviceId "ID" --customerId "ID"');
     console.log("\nAvailable models: " + MODELS.join(", "));
+    console.log("\nOptional flags:");
+    console.log("  --name      Custom name/displayName");
+    console.log("  --slug      Custom slug");
+    console.log("  --price     Custom price (Service)");
+    console.log("  --duration  Custom duration in minutes (Service)");
+    console.log("  --email     Custom email");
     return;
   }
 
@@ -182,7 +225,7 @@ async function main() {
     switch (model) {
       case "User":
         for (let i = 0; i < options.count; i++) {
-          await createUser();
+          await createUser({ email: options.email, name: options.name });
         }
         break;
 
@@ -194,11 +237,11 @@ async function main() {
           let userId = options.userId;
           if (!userId) {
             console.log("No --userId provided, creating a new user...");
-            const user = await createUser();
+            const user = await createUser({ email: options.email });
             userId = user.id;
           }
           for (let i = 0; i < options.count; i++) {
-            await createOrg(userId);
+            await createOrg(userId, { name: options.name, slug: options.slug, email: options.email });
           }
         }
         break;
@@ -209,7 +252,12 @@ async function main() {
           process.exit(1);
         }
         for (let i = 0; i < options.count; i++) {
-          await createService(options.orgId);
+          await createService(options.orgId, {
+            name: options.name,
+            slug: options.slug,
+            price: options.price,
+            duration: options.duration,
+          });
         }
         break;
 
@@ -219,7 +267,7 @@ async function main() {
           process.exit(1);
         }
         for (let i = 0; i < options.count; i++) {
-          await createCustomer(options.orgId);
+          await createCustomer(options.orgId, { name: options.name, email: options.email });
         }
         break;
 
