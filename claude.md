@@ -63,9 +63,16 @@ prisma/
 | Dashboard | ✅ |
 | Email notifications | ✅ |
 | Stripe Connect | ✅ |
-| Webhooks Stripe | ✅ checkout.session.completed, payment_intent.failed |
-| MercadoPago | ✅ OAuth, webhooks, token refresh |
+| Webhooks Stripe | ✅ idempotentes (checkout.session.completed, payment_intent.failed) |
+| MercadoPago | ✅ OAuth, webhooks idempotentes, token refresh |
 | Tests | ❌ 0% |
+
+## Protección contra duplicados
+
+Los webhooks verifican si ya existe un evento antes de crear:
+- **Stripe**: busca por `stripe_session_id`
+- **MercadoPago**: busca por `mp_payment_id`
+- **DB**: unique constraint `@@unique([serviceId, start])` en modelo Event
 
 ## TODO
 

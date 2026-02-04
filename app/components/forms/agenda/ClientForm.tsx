@@ -34,7 +34,7 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} className="flex flex-col grow">
-      <h3 className="text-base font-bold mb-8">Completa la información</h3>
+      <h3 className="text-lg font-bold mb-6 text-brand_dark">Cuéntanos sobre ti</h3>
       <BasicInput
         name="displayName"
         label="Nombre"
@@ -63,7 +63,7 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
         name="comments"
         label="Notas o comentarios"
         as="textarea"
-        placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita"
+        placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
         registerOptions={{ required: false }}
       />
       <PrimaryButton

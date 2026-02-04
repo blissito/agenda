@@ -59,6 +59,18 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
       // Pago aprobado: crear evento
       if (payment.status === "approved") {
+        // Idempotencia: verificar si ya existe un evento con este payment_id
+        const existingEvent = await db.event.findFirst({
+          where: { mp_payment_id: String(paymentId) },
+        });
+        if (existingEvent) {
+          console.log(
+            "MP Webhook: Event already exists for payment:",
+            paymentId
+          );
+          return new Response("OK", { status: 200 });
+        }
+
         const event = await db.event.create({
           data: {
             start: new Date(start),

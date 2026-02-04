@@ -9,6 +9,11 @@ import {
   fromMinsToLocaleTimeString,
   generateSecuense,
 } from "~/components/dash/agenda/agendaUtils";
+import {
+  formatDateInTimezone,
+  getTimezoneLabel,
+  type SupportedTimezone,
+} from "~/utils/timezone";
 import { Schedule } from "~/components/icons/appointment/schedule";
 import { Clook } from "~/components/icons/appointment/clook";
 import { Money } from "~/components/icons/appointment/money";
@@ -205,31 +210,54 @@ const TimeButton = ({
 };
 
 type OrgLike = Partial<Org> & Record<string, unknown>;
-type ServiceLike = { duration?: number | bigint; price?: number | bigint; currency?: string; employeeName?: string | null } & Record<string, unknown>;
+type ServiceLike = { duration?: number | bigint; price?: number | bigint; currency?: string; employeeName?: string | null; place?: string | null; address?: string | null } & Record<string, unknown>;
 
 export const ServiceList = ({
   service,
   date,
   org,
+  timezone,
 }: {
   service: ServiceLike;
   org: OrgLike;
   date?: Date;
+  timezone?: SupportedTimezone;
 }) => {
+  const formattedDate = date
+    ? timezone
+      ? formatDateInTimezone(date, timezone, {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+        })
+      : date.toLocaleString("es-MX", {
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "numeric",
+        })
+    : null;
+
   return (
     <div className="text-xs text-brand_gray grid gap-3">
       {date && (
-        <ServiceListItem
-          key={"date"}
-          text={date.toLocaleString("es-MX", {
-            month: "long",
-            day: "numeric",
-            year: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-          })}
-          icon={<Schedule />}
-        />
+        <>
+          <ServiceListItem
+            key={"date"}
+            text={formattedDate || ""}
+            icon={<Schedule />}
+          />
+          {timezone && (
+            <ServiceListItem
+              key={"timezone"}
+              text={getTimezoneLabel(timezone)}
+              icon={<span>🌐</span>}
+            />
+          )}
+        </>
       )}
       <ServiceListItem
         key={"duración"}
@@ -249,9 +277,9 @@ export const ServiceList = ({
       <ServiceListItem
         icon={<Location />}
         text={
-          (service.place === "ONLINE"
+          (service.place?.toLowerCase() === "online"
             ? "Online"
-            : service.place === "ATHOME"
+            : service.place?.toLowerCase() === "athome"
             ? "A domicilio"
             : service.address || org.address) as string
         }
@@ -270,7 +298,7 @@ const ServiceListItem = ({
 }) => {
   return (
     <motion.div
-      key={text || nanoid()}
+      key={text || "no-text"}
       className="flex items-center gap-4 text-base font-satoshi"
       initial={{ opacity: 0, x: 10 }}
       animate={{ x: 0, opacity: 1 }}

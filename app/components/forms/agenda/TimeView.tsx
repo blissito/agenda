@@ -1,5 +1,4 @@
 import { useFetcher } from "react-router";
-import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { cn } from "~/utils/cn";
 import { convertDayToString } from "~/components/dash/agenda/agendaUtils";
@@ -12,6 +11,7 @@ import {
   formatDateInTimezone,
   formatTimeOnly,
   isTimePassed,
+  formatTime12h,
   type SupportedTimezone,
 } from "~/utils/timezone";
 
@@ -24,6 +24,7 @@ export default function TimeView({
   intent,
   timezone = DEFAULT_TIMEZONE,
   onTimezoneChange,
+  selectedTime,
 }: {
   onSelect?: (arg0: string, arg1: number, arg2: number) => void;
   selected: Date;
@@ -33,9 +34,17 @@ export default function TimeView({
   intent: string;
   timezone?: SupportedTimezone;
   onTimezoneChange?: (timezone: SupportedTimezone) => void;
+  selectedTime?: string;
 }) {
-  const [time, setTime] = useState("");
+  const [time, setTime] = useState(selectedTime || "");
   const fetcher = useFetcher();
+
+  // Sync with parent's selectedTime prop
+  useEffect(() => {
+    if (selectedTime !== undefined) {
+      setTime(selectedTime);
+    }
+  }, [selectedTime]);
 
   useEffect(() => {
     if (selected) {
@@ -122,7 +131,7 @@ export default function TimeView({
             <TimeButton
               isActive={timeString === time}
               onClick={handleClick(timeString)}
-              key={nanoid()}
+              key={timeString}
               timeString={timeString}
             />
           ))}
@@ -173,7 +182,7 @@ const TimeButton = ({
         }
       )}
     >
-      {timeString}
+      {formatTime12h(timeString)}
     </button>
   );
 };

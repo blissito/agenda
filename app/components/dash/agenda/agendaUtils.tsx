@@ -217,8 +217,9 @@ export const generateWeekGrid = ({
 export const getDaysInMonth = (date: Date) => {
   const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
   const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  const numberOfMissing = 6 - lastDay.getDay();
-  const leftOffset = firstDay.getDay();
+  // Ajuste para semana que empieza en Lunes (0=Lunes, 6=Domingo)
+  const leftOffset = (firstDay.getDay() + 6) % 7;
+  const numberOfMissing = (7 - lastDay.getDay()) % 7;
   // initial offset
   firstDay.setDate(firstDay.getDate() - leftOffset); // first week offset
   // defining array and first day

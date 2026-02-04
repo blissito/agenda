@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import { useState } from "react";
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
 import {
@@ -24,7 +23,7 @@ const monthNames = [
   "noviembre",
   "diciembre",
 ];
-const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
+const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
 
 export const MonthView = ({
   weekDays,
@@ -86,7 +85,7 @@ export const MonthView = ({
         <button
           onClick={() => handleDayClick(_date)}
           disabled={isDisabled}
-          key={nanoid()}
+          key={_date.toISOString()}
           className={cn(
             "text-base italic text-neutral-400 rounded-full md:px-2 py-1 m-1 h-9 transition-all flex justify-center items-center hover:bg-brand_blue hover:text-white",
             {
@@ -143,7 +142,7 @@ export const MonthView = ({
       </nav>
       <div className="grid grid-cols-7 text-center font-thin italic text-sm">
         {dayNames.map((dayName) => (
-          <span className="text-gray-600 text-base " key={nanoid()}>
+          <span className="text-gray-600 text-base " key={dayName}>
             {dayName}
           </span>
         ))}

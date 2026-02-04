@@ -74,6 +74,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           break;
         }
 
+        // Idempotencia: verificar si ya existe un evento con este session_id
+        const existingEvent = await db.event.findFirst({
+          where: { stripe_session_id: session.id },
+        });
+        if (existingEvent) {
+          console.log(
+            "Stripe webhook: Event already exists for session:",
+            session.id
+          );
+          break;
+        }
+
         // Crear evento con pago confirmado
         const dbEvent = await db.event.create({
           data: {

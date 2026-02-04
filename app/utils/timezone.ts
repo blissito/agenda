@@ -4,11 +4,11 @@
  */
 
 export const SUPPORTED_TIMEZONES = [
-  { value: "America/Mexico_City", label: "México (CDMX)", offset: -6 },
-  { value: "Europe/Madrid", label: "España", offset: 1 },
-  { value: "America/Lima", label: "Perú", offset: -5 },
-  { value: "America/Bogota", label: "Colombia", offset: -5 },
-  { value: "America/Argentina/Buenos_Aires", label: "Argentina", offset: -3 },
+  { value: "America/Mexico_City", label: "México/Ciudad_de_México", offset: -6 },
+  { value: "Europe/Madrid", label: "España/Madrid", offset: 1 },
+  { value: "America/Lima", label: "Perú/Lima", offset: -5 },
+  { value: "America/Bogota", label: "Colombia/Bogotá", offset: -5 },
+  { value: "America/Argentina/Buenos_Aires", label: "Argentina/Buenos_Aires", offset: -3 },
 ] as const;
 
 export type SupportedTimezone = (typeof SUPPORTED_TIMEZONES)[number]["value"];
@@ -146,4 +146,16 @@ export function getTodayInTimezone(timezone: string): Date {
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-CA", { timeZone: timezone });
   return new Date(dateStr + "T00:00:00");
+}
+
+/**
+ * Format a time string (HH:MM) to 12h format with am/pm
+ * @example formatTime12h("09:00") => "9:00 am"
+ * @example formatTime12h("14:30") => "2:30 pm"
+ */
+export function formatTime12h(timeString: string): string {
+  const [hours, minutes] = timeString.split(":").map(Number);
+  const period = hours >= 12 ? "pm" : "am";
+  const hour12 = hours % 12 || 12;
+  return `${hour12}:${minutes.toString().padStart(2, "0")} ${period}`;
 }

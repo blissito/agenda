@@ -1,49 +1,49 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { useLoaderData } from "react-router";
-import React, { type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { FaCheck } from "react-icons/fa6";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { Switch } from "~/components/common/Switch";
 import { BasicInput } from "~/components/forms/BasicInput";
 import { RouteTitle } from "~/components/sideBar/routeTitle";
 import SelectStylized, { type Choice } from "~/components/ui/select";
+import { SUPPORTED_TIMEZONES } from "~/utils/timezone";
 
-const CHOICES: Choice[] = [
-  { id: 1, name: "🇲🇽 México" },
-  { id: 2, name: "🇺🇸 Estados Unidos" },
-  { id: 3, name: "🇦🇷 Argentina" },
-  { id: 4, name: "🇨🇴 Colombia" },
-  { id: 5, name: "🇨🇱 Chile" },
+const COUNTRIES: Choice[] = [
+  { value: "MX", label: "🇲🇽 México" },
+  { value: "AR", label: "🇦🇷 Argentina" },
+  { value: "CO", label: "🇨🇴 Colombia" },
+  { value: "ES", label: "🇪🇸 España" },
+  { value: "PE", label: "🇵🇪 Perú" },
 ];
 
-const TIMEZONES: Choice[] = [
-  { id: 1, name: "America/Mexico_City" },
-  { id: 2, name: "America/Indiana/Indianapolis" },
-  { id: 3, name: "America/Indiana/Vincennes" },
-];
+const TIMEZONES: Choice[] = SUPPORTED_TIMEZONES.map((tz) => ({
+  value: tz.value,
+  label: tz.label,
+}));
+
 const PERIOD: Choice[] = [
-  { id: 1, name: "3 meses" },
-  { id: 2, name: "6 meses" },
-  { id: 3, name: "1 años" },
+  { value: "3m", label: "3 meses" },
+  { value: "6m", label: "6 meses" },
+  { value: "1y", label: "1 año" },
 ];
 
 const RANGES: Choice[] = [
-  { id: 1, name: "15 minutos" },
-  { id: 2, name: "30 minutos" },
-  { id: 3, name: "1 hora" },
-  { id: 4, name: "24 horas" },
+  { value: "15", label: "15 minutos" },
+  { value: "30", label: "30 minutos" },
+  { value: "60", label: "1 hora" },
+  { value: "1440", label: "24 horas" },
 ];
 
 const TIMES: Choice[] = [
-  { id: 1, name: "1 vez" },
-  { id: 2, name: "2 veces" },
-  { id: 3, name: "3 veces" },
-  { id: 4, name: "Ilimitadas" },
+  { value: "1", label: "1 vez" },
+  { value: "2", label: "2 veces" },
+  { value: "3", label: "3 veces" },
+  { value: "unlimited", label: "Ilimitadas" },
 ];
 
 export const loader = async () => {
   return {
-    countries: CHOICES,
+    countries: COUNTRIES,
     timeZones: TIMEZONES,
     period: PERIOD,
     ranges: RANGES,

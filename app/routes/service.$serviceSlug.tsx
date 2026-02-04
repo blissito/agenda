@@ -329,7 +329,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <Header org={org} />
       <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2">
         <section className={twMerge("flex flex-wrap")}>
-          <InfoShower service={service} org={org} date={date} />
+          <InfoShower service={service} org={org} date={date} timezone={timezone} />
           {show !== "user_info" && (
             <>
               <MonthView
@@ -348,12 +348,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   action={`/${service.slug}`}
                   timezone={timezone}
                   onTimezoneChange={setTimezone}
+                  selectedTime={time}
                 />
               )}
             </>
           )}
           {show === "user_info" && (
-            <Form onSubmit={handleSubmit(onSubmit)} className="">
+            <Form onSubmit={handleSubmit(onSubmit)} className="flex-1">
+              <h3 className="text-lg font-bold mb-6 text-brand_dark">Cuéntanos sobre ti</h3>
               {actionError && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
                   {actionError}
@@ -363,6 +365,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 register={register}
                 name="displayName"
                 label="Nombre"
+                placeholder="Nombre completo"
                 error={errors.displayName}
               />
               <div className="flex gap-4">
@@ -371,38 +374,52 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   register={register}
                   name="email"
                   label="Email"
+                  placeholder="ejemplo@ejemplo.com"
                 />
                 <BasicInput
                   error={errors.tel}
                   name="tel"
                   register={register}
                   label="Teléfono"
+                  placeholder="555 555 55 66"
                 />
               </div>
               <BasicInput
                 error={errors.comments}
                 as="textarea"
-                label="Comentarios"
+                label="Notas o comentarios"
                 register={register}
                 name="comments"
+                placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
                 registerOptions={{ required: false }}
               />
-              <PrimaryButton
-                isDisabled={!isValid || fetcher.state !== "idle"}
-                className="ml-auto"
-                type="submit"
-              >
-                {fetcher.state !== "idle" ? "Agendando..." : "Agendar"}
-              </PrimaryButton>
             </Form>
           )}
         </section>
-        {show !== "user_info" && (
+        {show !== "user_info" ? (
           <Footer
             onSubmit={handleNextForm}
             isValid={!!date && !!time}
             isLoading={fetcher.state !== "idle"}
           />
+        ) : (
+          <div className="flex justify-between items-center mt-8">
+            <button
+              type="button"
+              onClick={() => setShow("")}
+              className="flex items-center gap-2 bg-[#f5f5f5] text-brand_dark px-4 py-3 rounded-full hover:bg-gray-200 transition-colors"
+            >
+              <span className="text-lg">←</span>
+              <span className="font-medium">Volver</span>
+            </button>
+            <PrimaryButton
+              isDisabled={!isValid || fetcher.state !== "idle"}
+              onClick={handleSubmit(onSubmit)}
+              type="button"
+            >
+              {fetcher.state !== "idle" ? "Agendando..." : "Continuar"}
+            </PrimaryButton>
+          </div>
         )}
       </main>
     </article>

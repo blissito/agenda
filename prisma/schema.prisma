@@ -318,6 +318,9 @@ model Event {
   customer                 Customer? @relation(fields: [customerId], references: [id])
   org              Org       @relation(fields: [orgId], references: [id])
   service          Service?  @relation(fields: [serviceId], references: [id])
+
+  // Previene doble reserva del mismo slot
+  @@unique([serviceId, start], name: "unique_slot")
 }
 
 model Job {

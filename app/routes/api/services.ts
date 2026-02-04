@@ -112,7 +112,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         isActive: false,
         paid: false,
         payment: false,
-        place: "presencial",
+        place: "INPLACE",
         points: parsedData.points ?? 0,
         price: parsedData.price ?? 0,
         seats: 1,
