@@ -5,6 +5,7 @@
 ## Qué es esta app
 
 Sistema de agendamiento/citas multi-tenant donde:
+
 - Negocios crean cuenta y servicios
 - Clientes reservan citas via subdominios (ver sección URLs Públicas)
 - Dashboard para gestionar agenda, clientes, servicios
@@ -16,12 +17,13 @@ Sistema de agendamiento/citas multi-tenant donde:
 
 El sistema usa **subdominios** para identificar organizaciones:
 
-| Tipo | Formato (Producción) | Formato (Localhost) |
-|------|---------------------|---------------------|
-| Landing del negocio | `{orgSlug}.denik.me` | N/A (usar producción) |
+| Tipo                | Formato (Producción)               | Formato (Localhost)                             |
+| ------------------- | ---------------------------------- | ----------------------------------------------- |
+| Landing del negocio | `{orgSlug}.denik.me`               | N/A (usar producción)                           |
 | Booking de servicio | `{orgSlug}.denik.me/{serviceSlug}` | `localhost:3000/agenda/{orgSlug}/{serviceSlug}` |
 
 **Archivos clave:**
+
 - `app/routes/service.$serviceSlug.tsx` - Booking público (producción, usa subdominio)
 - `app/routes/agenda.$orgSlug.$serviceSlug.tsx` - Booking público (localhost, ruta path-based)
 - `app/utils/host.server.ts` - Resuelve org desde hostname/subdominio
@@ -31,6 +33,7 @@ El sistema usa **subdominios** para identificar organizaciones:
   - `convertWeekDaysToEnglish(weekDays)` - Convierte días de español (DB) a inglés (UI)
 
 **Notas importantes:**
+
 - En producción, los links de servicios usan rutas relativas (`/{serviceSlug}`) dentro del subdominio
 - En localhost, el helper `getServicePublicUrl()` genera URLs con path `/agenda/:orgSlug/:serviceSlug`
 - Los `weekDays` se guardan en español en la DB pero el UI espera inglés (usa `convertWeekDaysToEnglish`)
@@ -152,21 +155,22 @@ Después de cambiar el schema: `npx prisma generate`
 
 ## Estado de Features
 
-| Feature | Estado |
-|---------|--------|
-| Auth (magic link) | ✅ |
-| Booking público | ✅ |
-| Dashboard | ✅ |
-| Email notifications | ✅ |
-| Stripe Connect | ✅ |
-| Webhooks Stripe | ✅ idempotentes (checkout.session.completed, payment_intent.failed) |
-| MercadoPago | ✅ OAuth, webhooks idempotentes, token refresh |
-| Loyalty (puntos/tiers) | ✅ |
-| Tests | ❌ 0% |
+| Feature                | Estado                                                              |
+| ---------------------- | ------------------------------------------------------------------- |
+| Auth (magic link)      | ✅                                                                  |
+| Booking público        | ✅                                                                  |
+| Dashboard              | ✅                                                                  |
+| Email notifications    | ✅                                                                  |
+| Stripe Connect         | ✅                                                                  |
+| Webhooks Stripe        | ✅ idempotentes (checkout.session.completed, payment_intent.failed) |
+| MercadoPago            | ✅ OAuth, webhooks idempotentes, token refresh                      |
+| Loyalty (puntos/tiers) | ✅                                                                  |
+| Tests                  | ❌ 0%                                                               |
 
 ## Protección contra duplicados
 
 Los webhooks verifican si ya existe un evento antes de crear:
+
 - **Stripe**: busca por `stripe_session_id`
 - **MercadoPago**: busca por `mp_payment_id`
 - **DB**: unique constraint `@@unique([serviceId, start])` en modelo Event
@@ -174,23 +178,32 @@ Los webhooks verifican si ya existe un evento antes de crear:
 ## TODO
 
 - [x] ~~Completar webhook Stripe~~ (implementado)
+- [ ] **ELMASURGENTE**: El link de pagos en el menú no funciona, confirmar que todo el sistema de pagos con mercado pago es accesible en produccion y que los enclaces en el app funcionan correctamente, también el agendamiento con cobro.
 - [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
+- [ ] **URGENTE**: Arreglar link de evaluaciones (la ruta falla)
+- [ ] **URGENTE**: Reevaluar sistema de integraciones y activar Messenger lo antes posible
+- [ ] **SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio: https://www.denik.me/dash/servicios/nuevo?id=6983a008b2667879031dd0fb
+- [ ] **SIGUIENTE**: Leamos buenas practicas de react router v7 y las estrategias de navegacion, actualmente un clic en el link a pagos no da feedback pues tarda en cargar la ruta mucho y el user da varias veces click. Debemos usar patterns por default que eviten la espera del user. Refactorizar.
+- [] **ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario, lo dice siempre, en la noche o en la tarde. (dash)
 
 ## Checklist de Producción (Webhooks)
 
 ### Stripe
+
 1. Ir a [Stripe Dashboard → Developers → Webhooks](https://dashboard.stripe.com/webhooks)
 2. Crear endpoint: `https://tudominio.com/stripe/webhook`
 3. Seleccionar eventos: `checkout.session.completed`, `payment_intent.payment_failed`, `account.updated`
 4. Copiar "Signing secret" y agregarlo como `STRIPE_WEBHOOK_SECRET` en producción
 
 ### MercadoPago
+
 1. Ir a [Panel MercadoPago → Configuración → Webhooks](https://www.mercadopago.com.mx/developers/panel/app)
 2. Configurar URL: `https://tudominio.com/mercadopago/webhook`
 3. Seleccionar eventos: `payment`
 4. Copiar "Secret key" y agregarla como `MP_WEBHOOK_SECRET` en producción
 
 ### Verificar funcionamiento
+
 ```bash
 # Stripe CLI (desarrollo)
 stripe listen --forward-to localhost:3000/stripe/webhook
@@ -293,6 +306,7 @@ npx prisma studio
 ### Factories
 
 Los generadores de datos fake están en `scripts/dev/factories.ts`:
+
 - `generateUser(overrides?)` - Usuario con email/displayName fake
 - `generateOrg(ownerId, overrides?)` - Org con slug único
 - `generateService(orgId, overrides?)` - Servicio con price/duration
