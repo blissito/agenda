@@ -109,7 +109,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
         <p className="text-gray-600 mb-4">
           Recibe pagos con tarjeta, OXXO, SPEI y más métodos populares en México.
         </p>
-        {mpSuccess && (
+        {mpSuccess && mpConnected && (
           <p className="text-green-600 mb-4">
             ¡Cuenta de Mercado Pago conectada exitosamente!
           </p>
