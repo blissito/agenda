@@ -11,6 +11,7 @@ import { redirect, useFetcher, useSearchParams } from "react-router";
 import { Spinner } from "~/components/common/Spinner";
 import { getUserOrRedirect } from "~/.server/userGetters";
 import invariant from "tiny-invariant";
+import { Prisma } from "@prisma/client";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const user = await getUserOrRedirect(request);
@@ -50,6 +51,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const redirectUri = `${origin}/mercadopago/oauth`;
     throw redirect(getMPAuthUrl(redirectUri));
   }
+
+  if (intent === "disconnect_mercadopago") {
+    await db.user.update({
+      where: { id: user.id },
+      data: { mercadopago: Prisma.DbNull },
+    });
+    return { success: true, disconnected: "mercadopago" };
+  }
 };
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -82,6 +91,12 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
     fetcher.submit({ intent: "connect_mercadopago" }, { method: "post" });
   };
 
+  const disconnectMercadoPago = () => {
+    if (confirm("¿Estás seguro de que quieres desconectar tu cuenta de Mercado Pago?")) {
+      fetcher.submit({ intent: "disconnect_mercadopago" }, { method: "post" });
+    }
+  };
+
   const isLoading = fetcher.state !== "idle";
 
   return (
@@ -105,24 +120,38 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
             Error al conectar Mercado Pago. Intenta de nuevo.
           </p>
         )}
-        <button
-          disabled={isLoading}
-          onClick={connectMercadoPago}
-          className={cn(
-            "px-8 py-4 rounded-3xl border-2 my-4 flex gap-3",
-            "hover:scale-105 enabled:active:scale-100 transition-all",
-            mpConnected
-              ? "bg-green-50 border-green-500"
-              : "bg-blue-50 border-blue-500"
-          )}
-        >
-          <span>
-            {mpConnected
-              ? `MP conectado (ID: ${mpUserId})`
-              : "Conectar Mercado Pago"}
-          </span>
-          {isLoading && <Spinner />}
-        </button>
+        {mpConnected ? (
+          <div className="flex items-center gap-4 my-4">
+            <div
+              className={cn(
+                "px-8 py-4 rounded-3xl border-2 flex gap-3",
+                "bg-green-50 border-green-500"
+              )}
+            >
+              <span>MP conectado (ID: {mpUserId})</span>
+            </div>
+            <button
+              disabled={isLoading}
+              onClick={disconnectMercadoPago}
+              className="text-red-500 text-sm hover:underline disabled:opacity-50"
+            >
+              {isLoading ? <Spinner /> : "Desconectar"}
+            </button>
+          </div>
+        ) : (
+          <button
+            disabled={isLoading}
+            onClick={connectMercadoPago}
+            className={cn(
+              "px-8 py-4 rounded-3xl border-2 my-4 flex gap-3",
+              "hover:scale-105 enabled:active:scale-100 transition-all",
+              "bg-blue-50 border-blue-500"
+            )}
+          >
+            <span>Conectar Mercado Pago</span>
+            {isLoading && <Spinner />}
+          </button>
+        )}
       </section>
 
       <hr />
