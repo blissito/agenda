@@ -11,7 +11,6 @@ import { redirect, useFetcher, useSearchParams } from "react-router";
 import { Spinner } from "~/components/common/Spinner";
 import { getUserOrRedirect } from "~/.server/userGetters";
 import invariant from "tiny-invariant";
-import { Prisma } from "@prisma/client";
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const user = await getUserOrRedirect(request);
@@ -55,7 +54,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "disconnect_mercadopago") {
     await db.user.update({
       where: { id: user.id },
-      data: { mercadopago: Prisma.DbNull },
+      data: { mercadopago: { unset: true } },
     });
     return { success: true, disconnected: "mercadopago" };
   }
