@@ -72,6 +72,7 @@ export default [
     route("events", "routes/api/events.ts"),
     route("org", "routes/api/api.org.ts"),
     route("domain", "routes/api/api.domain.ts"),
+    route("loyalty", "routes/api/loyalty.ts"),
   ]),
   // Stripe
   ...prefix("stripe", [index("routes/stripe/api.ts")]),
