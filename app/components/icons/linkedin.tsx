@@ -2,8 +2,8 @@ export const Linkedin = ({
   fill = "#11151A",
   className = "className",
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -30,4 +30,4 @@ export const Linkedin = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

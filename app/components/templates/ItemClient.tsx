@@ -1,13 +1,13 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from "react"
 
 export const ItemClient = ({
   icon,
   text,
   link,
 }: {
-  icon: ReactNode;
-  text: string;
-  link?: string;
+  icon: ReactNode
+  text: string
+  link?: string
 }) => {
   return (
     <a href={link}>
@@ -16,5 +16,5 @@ export const ItemClient = ({
         <p>{text}</p>
       </div>
     </a>
-  );
-};
+  )
+}

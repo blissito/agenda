@@ -1,74 +1,82 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { type User } from "@prisma/client";
-import { Form, Link, useLocation } from "react-router";
+import { type User as PrismaUser } from "@prisma/client"
+import { motion, type Transition } from "motion/react"
 import {
   Children,
   cloneElement,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
   useEffect,
   useRef,
-  type ReactNode,
-} from "react";
-import { twMerge } from "tailwind-merge";
-import { Dashboard } from "~/components/icons/dashboard";
-import { Agenda } from "../icons/menu/agenda";
-import { Services } from "../icons/menu/services";
-import { Website } from "../icons/menu/webiste";
-import { Financial } from "../icons/menu/financial";
-import { Clients } from "../icons/menu/clients";
-import { Loyalty } from "../icons/menu/loyalty";
-import { Rank } from "../icons/menu/rank";
-import { Settings } from "../icons/menu/settings";
-import { Profile } from "../icons/menu/profile";
-import { Help } from "../icons/menu/help";
-import { Out } from "../icons/menu/out";
-import { Denik } from "../icons/denik";
-import { PrimaryButton } from "../common/primaryButton";
-import {
-  useAnimate,
-  motion,
-  useMotionValue,
-  useTransform,
-} from "motion/react";
+} from "react"
+import { Form, Link, useLocation } from "react-router"
+import { twMerge } from "tailwind-merge"
+
+// Chevron animado con dos líneas que rotan desde el vértice
+const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => {
+  const transition: Transition = {
+    type: "spring",
+    stiffness: 260,
+    damping: 20,
+  }
+
+  return (
+    <motion.svg
+      className="w-5 h-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      animate={{ scaleX: isOpen ? 1 : -1 }}
+      transition={transition}
+    >
+      {/* Línea superior: del vértice (10,12) hacia arriba-derecha */}
+      <motion.line
+        x1="10"
+        y1="12"
+        x2="15"
+        y2="7"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+      {/* Línea inferior: del vértice (10,12) hacia abajo-derecha */}
+      <motion.line
+        x1="10"
+        y1="12"
+        x2="15"
+        y2="17"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </motion.svg>
+  )
+}
+import { Dashboard } from "~/components/icons/dashboard"
+import { PrimaryButton } from "../common/primaryButton"
+import { useSidebarState } from "../hooks/useSidebarState"
+import { Denik } from "../icons/denik"
+import { Agenda } from "../icons/menu/agenda"
+import { Clients } from "../icons/menu/clients"
+import { Financial } from "../icons/menu/financial"
+import { Help } from "../icons/menu/help"
+import { Loyalty } from "../icons/menu/loyalty"
+import { Out } from "../icons/menu/out"
+import { Profile } from "../icons/menu/profile"
+import { Rank } from "../icons/menu/rank"
+import { Services } from "../icons/menu/services"
+import { Settings } from "../icons/menu/settings"
+import { Website } from "../icons/menu/webiste"
 
 export function SideBar({
   user,
   children,
   ...props
 }: {
-  children?: ReactNode;
-  user: User;
-  props?: unknown;
+  children?: ReactNode
+  user: PrismaUser
+  props?: unknown
 }) {
-  // default closed:
-  const isClosed = useMotionValue(true);
-  const x = useMotionValue(-290);
-  //
-  const [scope, animate] = useAnimate();
-  const t = useTransform(x, [-300, 0, 300], [60, 360, 660]);
-
-  const handleClick = () => {
-    if (!isClosed.get()) {
-      isClosed.set(true);
-      animate(scope.current, { x: -290 }, { type: "spring", bounce: 0.5 });
-    } else {
-      isClosed.set(false);
-      animate(scope.current, { x: 0 }, { type: "spring", bounce: 0.2 }); // open
-    }
-  };
-
-  const handleDragEnd = () => {
-    if (x.get() < -180) {
-      animate(scope.current, { x: -290 }, { type: "spring", bounce: 0.5 }); // close
-      isClosed.set(true);
-    } else {
-      animate(
-        scope.current,
-        { x: 0 },
-        { type: "spring", bounce: 0.5, duration: 0.5 }
-      ); // open
-      isClosed.set(false);
-    }
-  };
+  const sidebar = useSidebarState()
 
   return (
     <article
@@ -76,67 +84,76 @@ export function SideBar({
       {...props}
     >
       <motion.aside
+        id="sidebar-nav"
+        role="navigation"
+        aria-label="Navegación principal"
         dragElastic={0.5}
         whileTap={{ cursor: "grabbing" }}
-        ref={scope}
-        onDragEnd={handleDragEnd}
+        ref={sidebar.scope}
+        onDragEnd={sidebar.onDragEnd}
         dragSnapToOrigin
         drag="x"
-        dragConstraints={{ right: 0, left: -290 }}
-        style={{
-          x,
-        }}
+        dragConstraints={{ right: 0, left: sidebar.config.closedX }}
+        style={{ x: sidebar.x }}
         className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen overflow-hidden"
       >
-        <Header
-          dragElement={
-            <button
-              onClick={handleClick}
-              className="h-8 rounded-full w-5 bg-brand_gray/30 absolute bottom-0 right-1 cursor-grab active:cursor-grabbing hover:bg-brand_gray/40 hover:scale-110 transition-all"
-            />
-          }
-          user={user}
-          className="pl-6"
-          handleDragEnd={handleDragEnd}
-        />
+        <Header user={user} className="pl-6" />
         <MainMenu className="mb-auto" />
         <OnboardingBanner />
         <Footer />
       </motion.aside>
+      {/* Botón toggle fuera del aside para evitar overflow-hidden */}
+      <motion.button
+        onClick={sidebar.toggle}
+        aria-expanded={sidebar.isOpen}
+        aria-controls="sidebar-nav"
+        aria-label={sidebar.isOpen ? "Cerrar menú" : "Abrir menú"}
+        style={{ x: sidebar.x }}
+        className="h-10 w-10 rounded-full bg-white flex items-center justify-center
+          hover:bg-gray-50 transition-colors fixed left-[295px] top-1/2 -translate-y-1/2 z-50
+          shadow-md border border-gray-200 cursor-pointer group"
+      >
+        <span className="text-gray-500 group-hover:text-brand_blue transition-colors">
+          <ChevronIcon isOpen={sidebar.isOpen} />
+        </span>
+        {/* Tooltip */}
+        <span
+          className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded
+            opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+        >
+          {sidebar.isOpen ? "Cerrar menú" : "Abrir menú"}
+          <kbd className="ml-1 px-1 bg-gray-700 rounded text-[10px]">⌘B</kbd>
+        </span>
+      </motion.button>
       <motion.section
-        style={{ paddingLeft: t }}
+        style={{ paddingLeft: sidebar.contentPadding }}
         className="pl-[360px] lg:pr-10 pr-6 py-6 lg:py-10 w-full min-h-screen h-auto box-border "
       >
         {children}
       </motion.section>
     </article>
-  );
+  )
 }
 
 const Header = ({
   className,
   user,
-  dragElement,
 }: {
-  dragElement?: ReactNode;
-  handleDragEnd?: () => void;
-  onClick?: () => void;
-  className?: string;
-  user: Partial<User>;
+  className?: string
+  user: Partial<PrismaUser>
 }) => {
   return (
     <header className={twMerge("relative", className)}>
       <Denik className="mb-6 mt-6" />
-      {user && <User user={user} />}
+      {user && <UserAvatar user={user} />}
       <hr className="my-4 max-w-[80%]" />
-      {dragElement}
     </header>
-  );
-};
+  )
+}
 
 const Footer = () => {
-  const location = useLocation();
-  const match = (string: string) => location.pathname.includes(string);
+  const location = useLocation()
+  const match = (string: string) => location.pathname.includes(string)
   return (
     <div className="">
       <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3>
@@ -164,88 +181,97 @@ const Footer = () => {
         </button>
       </Form>
     </div>
-  );
-};
+  )
+}
 
 const MenuButton = ({
   isActive = false,
   className,
   children,
   to = "",
-  ...props
+  prefetch,
 }: {
-  to?: string;
-  className?: string;
-  props?: unknown;
-  isActive?: boolean;
-  children?: ReactNode;
+  to?: string
+  className?: string
+  isActive?: boolean
+  children?: ReactNode
+  prefetch?: "intent" | "render" | "none" | "viewport"
 }) => {
-  const Element = to ? Link : "button";
-  return (
-    <Element
-      prefetch="intent"
-      to={to}
-      className={twMerge(
-        isActive && "text-brand_blue",
-        className,
-        "relative h-12 flex items-center gap-3 cursor-pointer"
-      )}
-      {...props}
-    >
+  const sharedClassName = twMerge(
+    isActive && "text-brand_blue",
+    className,
+    "relative h-12 flex items-center gap-3 cursor-pointer",
+  )
+  const content = (
+    <>
       <span
         className={twMerge(
           "mr-2 w-1 h-11",
-          isActive && "bg-brand_blue rounded-e-lg font-satoshi"
+          isActive && "bg-brand_blue rounded-e-lg font-satoshi",
         )}
       />
       {children}
-    </Element>
-  );
-};
+    </>
+  )
+
+  if (to) {
+    return (
+      <Link prefetch={prefetch ?? "intent"} to={to} className={sharedClassName}>
+        {content}
+      </Link>
+    )
+  }
+
+  return <button className={sharedClassName}>{content}</button>
+}
 
 const Icon = ({
   children,
   isActive,
   ...props
 }: {
-  isActive?: boolean;
-  children?: ReactNode;
-  props?: unknown;
+  isActive?: boolean
+  children?: ReactNode
 }) => (
   <i {...props}>
     {isActive
-      ? Children.map(children, (c) => cloneElement(c, { fill: "#5158F6" }))
+      ? Children.map(children, (c) =>
+          isValidElement(c)
+            ? cloneElement(c as ReactElement<{ fill?: string }>, {
+                fill: "#5158F6",
+              })
+            : c,
+        )
       : children}
   </i>
-);
+)
 const Title = ({
   children,
   isActive,
   ...props
 }: {
-  isActive?: boolean;
-  children?: ReactNode;
-  props?: unknown;
+  isActive?: boolean
+  children?: ReactNode
 }) => (
   <h3
     className={twMerge(
       "hover:opacity-70 capitalize",
       "text-base text-brand_dark",
-      isActive && "text-brand_blue"
+      isActive && "text-brand_blue",
     )}
     {...props}
   >
     {children}
   </h3>
-);
-MenuButton.Icon = Icon;
-MenuButton.Title = Title;
+)
+MenuButton.Icon = Icon
+MenuButton.Title = Title
 
 const MainMenu = ({ className }: { className?: string }) => {
-  const location = useLocation();
-  const match = (string: string) => location.pathname.includes(string);
+  const location = useLocation()
+  const match = (string: string) => location.pathname.includes(string)
   const matchIndex = (string: string = location.pathname) =>
-    /^\/dash$/.test(string);
+    /^\/dash$/.test(string)
 
   return (
     <div className={twMerge("overflow-auto mb-auto h-full", className)}>
@@ -297,27 +323,27 @@ const MainMenu = ({ className }: { className?: string }) => {
         <NavButton pathname="ajustes" icon={<Settings />} />
       </section>
     </div>
-  );
-};
+  )
+}
 
 const NavButton = ({
   pathname,
   icon,
 }: {
-  icon?: ReactNode;
-  pathname: string;
+  icon?: ReactNode
+  pathname: string
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-  const match = (string: string) => location.pathname.includes(string);
+  const ref = useRef<HTMLDivElement>(null)
+  const location = useLocation()
+  const match = (string: string) => location.pathname.includes(string)
   useEffect(() => {
     if (match(pathname) && ref.current) {
-      ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      ref.current.scrollIntoView({ behavior: "smooth", block: "center" })
     }
-  }, [location]);
+  }, [match, pathname])
   return (
     <div ref={ref}>
-      <MenuButton to={"/dash/" + pathname} isActive={match(pathname)}>
+      <MenuButton to={`/dash/${pathname}`} isActive={match(pathname)}>
         <MenuButton.Icon isActive={match(pathname)}>
           {icon || <Clients />}
         </MenuButton.Icon>
@@ -326,20 +352,20 @@ const NavButton = ({
         </MenuButton.Title>
       </MenuButton>
     </div>
-  );
-};
+  )
+}
 
-const User = ({ user }: { user: Partial<User> }) => (
+const UserAvatar = ({ user }: { user: Partial<PrismaUser> }) => (
   <div className="flex  text-brand_dark">
     <img
       className={twMerge(
-        "w-12 h-12 object-cover border-2 border-brand_blue rounded-full mr-2"
-        // "self-center"
+        "w-12 h-12 object-cover border-2 border-brand_blue rounded-full mr-2",
       )}
       alt="avatar"
       src={user.photoURL ?? "https://loremflickr.com/640/480?lock=1234"}
       onError={(e) => {
-        (e.target as HTMLImageElement).src = "https://loremflickr.com/640/480?lock=1234";
+        ;(e.target as HTMLImageElement).src =
+          "https://loremflickr.com/640/480?lock=1234"
       }}
     />
     <div className="grid">
@@ -347,7 +373,7 @@ const User = ({ user }: { user: Partial<User> }) => (
       <p className="text-gray-400 font-thin -mt-1">{user.email}</p>
     </div>
   </div>
-);
+)
 
 const OnboardingBanner = () => {
   return (
@@ -366,5 +392,5 @@ const OnboardingBanner = () => {
         </PrimaryButton>
       </div>
     </section>
-  );
-};
+  )
+}

@@ -1,43 +1,57 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
-import { serviceConfigHandler } from "~/.server/form_handlers/serviceConfigHandler";
-import { ServiceConfigForm } from "~/components/forms/services_model/ServiceConfigForm";
-import { getServicefromSearchParams } from "~/.server/userGetters";
+import { Link, useLoaderData } from "react-router"
+import { getServicefromSearchParams } from "~/.server/userGetters"
+import { ServiceConfigForm } from "~/components/forms/services_model/ServiceConfigForm"
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-  if (intent === "update_service") {
-    await serviceConfigHandler(request, formData); // not return if want to do stuff at the end
-  }
-  return null;
-};
+type ServiceConfigData = {
+  id: string
+  payment: boolean
+  config: {
+    confirmation?: boolean
+    reminder?: boolean
+    survey?: boolean
+  } | null
+}
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const service = await getServicefromSearchParams(request, {
+export const loader = async ({ request }: { request: Request }) => {
+  const serviceData = await getServicefromSearchParams(request, {
     select: {
       id: true,
       payment: true,
       config: true,
     },
-  });
+  })
+  const service = serviceData as unknown as ServiceConfigData
   return {
     service,
-  };
-};
+  }
+}
 
 export default function Page() {
-  const { service } = useLoaderData<typeof loader>();
+  const { service } = useLoaderData<typeof loader>()
+  const defaultConfig = {
+    confirmation: service.config?.confirmation ?? false,
+    reminder: service.config?.reminder ?? false,
+    survey: service.config?.survey ?? false,
+  }
   return (
-    <main className="max-w-xl mx-auto pt-20  min-h-screen relative ">
+    <main className="max-w-xl mx-auto pt-20 min-h-screen relative">
       <h2 className="text-4xl font-bold font-title text-center leading-tight">
         Define tus cobros y recordatorios
       </h2>
       <ServiceConfigForm
-        defaultValues={service}
-        backButtonLink={`/dash/servicios/horario?serviceId=${service.id}`}
+        defaultValues={{
+          payment: service.payment,
+          config: defaultConfig,
+        }}
       />
+      <div className="mt-4 text-center">
+        <Link
+          to={`/dash/servicios/horario?serviceId=${service.id}`}
+          className="text-brand_blue hover:underline"
+        >
+          Volver al horario
+        </Link>
+      </div>
     </main>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-import { Denik } from "../icons/denik";
-import { ArrowRight } from "../icons/arrowRight";
-import { PrimaryButton } from "./primaryButton";
-import { Link } from "react-router";
+import { Link } from "react-router"
+import { ArrowRight } from "../icons/arrowRight"
+import { Denik } from "../icons/denik"
+import { PrimaryButton } from "./primaryButton"
 
 export const TopBar = () => (
   <section className=" fixed flex justify-center w-full z-50">
@@ -25,4 +25,4 @@ export const TopBar = () => (
       </div>
     </article>
   </section>
-);
+)

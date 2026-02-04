@@ -1,5 +1,5 @@
-import { redirect } from "react-router";
+import { redirect } from "react-router"
 
 export const loader = () => {
-  throw redirect("/signup/1");
-};
+  throw redirect("/signup/1")
+}

@@ -9,7 +9,7 @@ const DAYS_MAP = {
   viernes: "viernes",
   sábado: "s_bado", // sábado → s_bado
   domingo: "domingo",
-} as const;
+} as const
 
 const DAYS_MAP_REVERSE = {
   // Spanish without accents to Spanish with accents (for frontend)
@@ -20,27 +20,29 @@ const DAYS_MAP_REVERSE = {
   viernes: "viernes",
   s_bado: "sábado",
   domingo: "domingo",
-} as const;
+} as const
 
-type SpanishDayWithAccent = keyof typeof DAYS_MAP;
-type SpanishDayWithoutAccent = keyof typeof DAYS_MAP_REVERSE;
+type SpanishDayWithAccent = keyof typeof DAYS_MAP
+type SpanishDayWithoutAccent = keyof typeof DAYS_MAP_REVERSE
 
 /**
  * Convert Spanish day names with accents to without accents for Prisma
  * @param weekDays Object with Spanish day names (with accents) as keys
  * @returns Object with Spanish day names (without accents) as keys
  */
-export function spanishToEnglish<T>(weekDays: Record<string, T>): Record<string, T> {
-  const result: Record<string, T> = {};
+export function spanishToEnglish<T>(
+  weekDays: Record<string, T>,
+): Record<string, T> {
+  const result: Record<string, T> = {}
 
   for (const [key, value] of Object.entries(weekDays)) {
-    const noAccentKey = DAYS_MAP[key as SpanishDayWithAccent];
+    const noAccentKey = DAYS_MAP[key as SpanishDayWithAccent]
     if (noAccentKey) {
-      result[noAccentKey] = value;
+      result[noAccentKey] = value
     }
   }
 
-  return result;
+  return result
 }
 
 /**
@@ -48,15 +50,17 @@ export function spanishToEnglish<T>(weekDays: Record<string, T>): Record<string,
  * @param weekDays Object with Spanish day names (without accents) as keys
  * @returns Object with Spanish day names (with accents) as keys
  */
-export function englishToSpanish<T>(weekDays: Record<string, T>): Record<string, T> {
-  const result: Record<string, T> = {};
+export function englishToSpanish<T>(
+  weekDays: Record<string, T>,
+): Record<string, T> {
+  const result: Record<string, T> = {}
 
   for (const [key, value] of Object.entries(weekDays)) {
-    const withAccentKey = DAYS_MAP_REVERSE[key as SpanishDayWithoutAccent];
+    const withAccentKey = DAYS_MAP_REVERSE[key as SpanishDayWithoutAccent]
     if (withAccentKey) {
-      result[withAccentKey] = value;
+      result[withAccentKey] = value
     }
   }
 
-  return result;
+  return result
 }

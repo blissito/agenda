@@ -1,17 +1,54 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import type { User } from "@prisma/client";
-import { twMerge } from "tailwind-merge";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import type { Route } from "./+types/dash._index";
+import type { User } from "@prisma/client"
+import { twMerge } from "tailwind-merge"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { CustomerDashboard } from "~/components/dash/CustomerDashboard"
+import { db } from "~/utils/db.server"
+import type { Route } from "./+types/dash._index"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { user } = await getUserAndOrgOrRedirect(request);
+  const { user, org } = await getUserAndOrgOrRedirect(request)
+
+  // Customer without org - load their events
+  if (user.role === "customer" && !org) {
+    const myEvents = await db.event.findMany({
+      where: {
+        customer: { userId: user.id },
+        start: { gte: new Date() },
+        status: { not: "CANCELLED" },
+      },
+      include: {
+        service: { include: { org: true } },
+      },
+      orderBy: { start: "asc" },
+    })
+
+    return {
+      user,
+      isCustomerView: true,
+      myEvents: myEvents.map((e) => ({
+        id: e.id,
+        start: e.start.toISOString(),
+        status: e.status,
+        serviceName: e.service?.name,
+        orgName: e.service?.org.name,
+      })),
+    }
+  }
+
   return {
     user,
-  };
-};
+    isCustomerView: false,
+    myEvents: [],
+  }
+}
 
-export default function Page({ loaderData: { user } }) {
+export default function Page({ loaderData }: Route.ComponentProps) {
+  const { user, isCustomerView, myEvents } = loaderData
+
+  if (isCustomerView) {
+    return <CustomerDashboard events={myEvents} user={user} />
+  }
+
   return (
     <section className=" w-full h-full 	">
       <div className="h-auto lg:h-screen  flex flex-col  box-border ">
@@ -19,7 +56,7 @@ export default function Page({ loaderData: { user } }) {
         <EmptyStateDash />
       </div>
     </section>
-  );
+  )
 }
 
 const EmptyStateDash = () => {
@@ -35,10 +72,10 @@ const EmptyStateDash = () => {
         </p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-const Data = () => {
+const _Data = () => {
   return (
     <div className="grid grid-cols-6 gap-6 mt-10 overflow-hidden h-full  ">
       <div className="col-span-6 xl:col-span-4 flex flex-col">
@@ -161,8 +198,8 @@ const Data = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const Summary = ({ user }: { user: User }) => {
   return (
@@ -209,8 +246,8 @@ const Summary = ({ user }: { user: User }) => {
         />
       </div>
     </div>
-  );
-};
+  )
+}
 
 const Appointment = ({
   img,
@@ -220,12 +257,12 @@ const Appointment = ({
   hour,
   time,
 }: {
-  img?: string;
-  service: string;
-  client: string;
-  date: string;
-  hour: string;
-  time: string;
+  img?: string
+  service: string
+  client: string
+  date: string
+  hour: string
+  time: string
 }) => {
   return (
     <section className="flex px-6 items-center gap-2 py-4 border-b-[1px] border-brand_stroke justify-between hover:scale-95 transition-all">
@@ -244,8 +281,8 @@ const Appointment = ({
 
       <span className="text-brand_iron">{time}</span>
     </section>
-  );
-};
+  )
+}
 
 const SummaryCard = ({
   img,
@@ -253,10 +290,10 @@ const SummaryCard = ({
   description,
   data,
 }: {
-  img?: string;
-  title: string;
-  description: string;
-  data: string;
+  img?: string
+  title: string
+  description: string
+  data: string
 }) => {
   return (
     <section className="border-[1px] min-w-[132px]  border-brand_stroke rounded-2xl flex flex-col items-center text-center p-3 hover:scale-95 transition-all">
@@ -268,8 +305,8 @@ const SummaryCard = ({
       <p className="text-brand_gray text-sm">{description}</p>
       <span className="mt-4 font-satoMiddle">{data}</span>
     </section>
-  );
-};
+  )
+}
 
 const DashCard = ({
   icon,
@@ -277,16 +314,16 @@ const DashCard = ({
   value,
   className,
 }: {
-  icon?: string;
-  title: string;
-  value: string;
-  className?: string;
+  icon?: string
+  title: string
+  value: string
+  className?: string
 }) => {
   return (
     <section
       className={twMerge(
         "w-[140px] md:w-[20%] rounded-2xl h-[140px] md:h-[240px] relative flex flex-col justify-end p-4 group grow ",
-        className
+        className,
       )}
     >
       <img
@@ -298,5 +335,5 @@ const DashCard = ({
         <h3 className="text-3xl font-satoMedium">{value}</h3>
       </div>
     </section>
-  );
-};
+  )
+}

@@ -1,39 +1,29 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { Facebook } from "~/components/icons/facebook";
-import { Instagram } from "~/components/icons/insta";
-import { Linkedin } from "~/components/icons/linkedin";
-import { Website } from "~/components/icons/menu/webiste";
-import { Tiktok } from "~/components/icons/tiktok";
-import { Twitter } from "~/components/icons/twitter";
-import { Denik } from "~/components/icons/denik";
-import { PiPhone } from "react-icons/pi";
-import { IoMailOutline } from "react-icons/io5";
-import { IoLocationOutline } from "react-icons/io5";
-import { CiStopwatch } from "react-icons/ci";
-import { ServiceCardClient } from "./ServiceCardClient";
-import { SocialMedia } from "./SocialMedia";
-import { ItemClient } from "./ItemClient";
-import { WorkHour } from "./TemplateTwo";
-import type { Org, Service } from "@prisma/client";
-
-const week = [
-  { id: 1, name: "Lun 9:00 a 5:00pm" },
-  { id: 2, name: "Mar 9:00 a 5:00pm" },
-  { id: 3, name: "Mie 9:00 a 5:00pm" },
-  { id: 4, name: "Jue 9:00 a 5:00pm" },
-  { id: 5, name: "Vie 9:00 a 5:00pm" },
-];
+import type { Service } from "@prisma/client"
+import { CiStopwatch } from "react-icons/ci"
+import { IoLocationOutline, IoMailOutline } from "react-icons/io5"
+import { PiPhone } from "react-icons/pi"
+import { Denik } from "~/components/icons/denik"
+import { Facebook } from "~/components/icons/facebook"
+import { Instagram } from "~/components/icons/insta"
+import { Linkedin } from "~/components/icons/linkedin"
+import { Website } from "~/components/icons/menu/webiste"
+import { Tiktok } from "~/components/icons/tiktok"
+import { Twitter } from "~/components/icons/twitter"
+import { ItemClient } from "./ItemClient"
+import { ServiceCardClient } from "./ServiceCardClient"
+import { SocialMedia } from "./SocialMedia"
+import { type TemplateOrg, WorkHour } from "./TemplateTwo"
 
 export default function TemplateOne({
   services = [],
   isPublic,
-  org = {},
+  org,
   link,
 }: {
-  link?: string;
-  isPublic?: boolean;
-  services?: Service[];
-  org?: Org;
+  link?: string
+  isPublic?: boolean
+  services?: Service[]
+  org?: TemplateOrg
 }) {
   return (
     <div className="p-0 m-0 bg-[#FDFEFF] min-h-screen ">
@@ -52,17 +42,17 @@ export default function TemplateOne({
               className="w-[120px] h-[120px] rounded-full mb-6 "
               src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
             />
-            <h1 className="text-2xl font-title font-bold">{org.name}</h1>
+            <h1 className="text-2xl font-title font-bold">{org?.name}</h1>
             <p className="mt-4 text-brand_gray">
-              {org.description ? org.description : null}
+              {org?.description ? org.description : null}
             </p>
             <div className="mt-6 block xl:hidden">
-              {org.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
-              {org.mail && (
+              {org?.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
+              {org?.mail && (
                 <ItemClient icon={<IoMailOutline />} text={org.mail} />
               )}
               <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
-              {org.address && (
+              {org?.address && (
                 <ItemClient icon={<IoLocationOutline />} text={org.address} />
               )}
             </div>
@@ -98,7 +88,6 @@ export default function TemplateOne({
             <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 mt-6 gap-4 gap-y-6">
               {services.map((service) => (
                 <ServiceCardClient
-                  slug={org.slug}
                   serviceSlug={service.slug}
                   key={service.id}
                   title={service.name}
@@ -111,11 +100,11 @@ export default function TemplateOne({
           </div>
         </div>
         <div className="hidden xl:block xl:col-span-2 mt-[164px]">
-          {org.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
+          {org?.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
 
-          {org.mail && <ItemClient icon={<IoMailOutline />} text={org.mail} />}
+          {org?.mail && <ItemClient icon={<IoMailOutline />} text={org.mail} />}
           <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
-          {org.address && (
+          {org?.address && (
             <ItemClient icon={<IoLocationOutline />} text={org.address} />
           )}
         </div>
@@ -125,5 +114,5 @@ export default function TemplateOne({
         <Denik className="h-8 -ml-5" />
       </section>
     </div>
-  );
+  )
 }

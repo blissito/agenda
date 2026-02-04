@@ -1,15 +1,39 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
+import { motion } from "motion/react"
 import {
-  type ChangeEvent,
   forwardRef,
+  type InputHTMLAttributes,
   type ReactNode,
   useEffect,
   useState,
-} from "react";
-import { cn } from "~/utils/cn";
-import { motion } from "motion/react";
+} from "react"
+import { cn } from "~/utils/cn"
 
-export const Switch = forwardRef(
+type RegisterResult = {
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
+  ref?: React.Ref<HTMLInputElement>
+  name?: string
+}
+
+type SwitchProps = {
+  icon?: ReactNode
+  subtitle?: string
+  onChange?: (checked: boolean) => void
+  registerOptions?: { required: boolean }
+  register?: (
+    name: string,
+    options: Record<string, string | boolean>,
+  ) => RegisterResult
+  setValue?: (name: string, value: boolean) => void
+  className?: string
+  containerClassName?: string
+  backgroundColor?: string
+  label?: string
+  defaultChecked?: boolean
+  name: string
+} & Omit<InputHTMLAttributes<HTMLInputElement>, "onChange">
+
+export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
   (
     {
       label,
@@ -25,79 +49,60 @@ export const Switch = forwardRef(
       subtitle,
       icon,
       ...props
-    }: {
-      icon?: ReactNode;
-      subtitle?: string;
-      onChange?: (arg0: boolean) => void;
-      registerOptions?: { required: boolean };
-      register?: (
-        arg0: string,
-        arg1: Record<string, string | boolean>
-      ) => Record<string, string>;
-      setValue?: (arg0: string, arg1: boolean) => void; // @TODO: fix
-      className?: string;
-      containerClassName?: string;
-      backgroundColor?: string;
-      label?: string;
-      defaultChecked?: boolean;
-      name: string;
     },
-    ref // coming from register
+    _ref,
   ) => {
     // const ref = useRef<HTMLInputElement>(null);
-    const [checked, set] = useState(defaultChecked);
+    const [checked, set] = useState(defaultChecked)
     useEffect(() => {
-      onChange?.(checked);
-    }, [checked]);
+      onChange?.(checked)
+    }, [checked, onChange])
     return (
-      <>
-        <label
-          type="button"
+      <label
+        className={cn(
+          "flex items-center gap-4 justify-between",
+          "cursor-pointer",
+          containerClassName,
+        )}
+      >
+        <div className="grid">
+          <div className="flex gap-1 items-center">
+            <span>{icon}</span>
+            <span>{label}</span>
+          </div>
+          <span className="text-xs text-gray-500">{subtitle}</span>
+        </div>
+        <input
+          type="checkbox"
+          className="hidden"
+          {...props}
+          {...register?.(name, registerOptions)}
+          onChange={(event) => set(event.currentTarget.checked)}
+          checked={checked}
+        />
+        {/* Container */}
+        <div
           className={cn(
-            "flex items-center gap-4 justify-between",
-            "cursor-pointer",
-            containerClassName
+            "bg-brand_switch_inactive rounded-full w-8 h-5 p-1 flex transition-all",
+            {
+              "justify-end bg-brand_blue": checked,
+              className,
+            },
           )}
+          style={{
+            backgroundColor: checked ? backgroundColor : undefined,
+          }}
         >
-          <div className="grid">
-            <div className="flex gap-1 items-center">
-              <span>{icon}</span>
-              <span>{label}</span>
-            </div>
-            <span className="text-xs text-gray-500">{subtitle}</span>
-          </div>
-          <input
-            type="checkbox"
-            className="hidden"
-            {...props}
-            {...register?.(name, registerOptions)}
-            onChange={(event) => set(event.currentTarget.checked)}
-            checked={checked}
+          {/* Circle */}
+          <motion.div
+            transition={{ type: "spring", bounce: 0.6, duration: 0.3 }}
+            layout
+            className="bg-white h-full w-3 rounded-full"
           />
-          {/* Container */}
-          <div
-            className={cn(
-              "bg-brand_switch_inactive rounded-full w-8 h-5 p-1 flex transition-all",
-              {
-                "justify-end bg-brand_blue": checked,
-                className,
-              }
-            )}
-            style={{
-              backgroundColor: checked ? backgroundColor : undefined,
-            }}
-          >
-            {/* Circle */}
-            <motion.div
-              transition={{ type: "spring", bounce: 0.6, duration: 0.3 }}
-              layout
-              className="bg-white h-full w-3 rounded-full"
-            />
-          </div>
-        </label>
-      </>
-    );
-  }
-);
+        </div>
+      </label>
+    )
+  },
+)
 
-Switch.displayName = "Switch";
+Switch.displayName = "Switch"

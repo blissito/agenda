@@ -1,42 +1,51 @@
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import type { Route } from "./+types/customers";
-import { db } from "~/utils/db.server";
-import { newCustomerSchema } from "~/utils/zod_schemas";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { db } from "~/utils/db.server"
+import { newCustomerSchema } from "~/utils/zod_schemas"
+import type { Route } from "./+types/customers"
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const url = new URL(request.url);
-  const intent = url.searchParams.get("intent");
-  const formData = await request.formData();
+  const url = new URL(request.url)
+  const intent = url.searchParams.get("intent")
+  const formData = await request.formData()
 
   if (intent === "new") {
-    const { org } = await getUserAndOrgOrRedirect(request);
-    const rawData = JSON.parse(formData.get("data") as string);
-    const result = newCustomerSchema.safeParse(rawData);
+    const { org } = await getUserAndOrgOrRedirect(request)
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 })
+    }
+    const rawData = JSON.parse(formData.get("data") as string)
+    const result = newCustomerSchema.safeParse(rawData)
     if (!result.success) {
       return Response.json(
         { error: "Datos inválidos", details: result.error.flatten() },
-        { status: 400 }
-      );
+        { status: 400 },
+      )
     }
+    const now = new Date()
     return await db.customer.create({
       data: {
         displayName: result.data.displayName,
         email: result.data.email,
-        tel: result.data.tel ?? undefined,
-        comments: result.data.comments ?? undefined,
+        tel: result.data.tel ?? "",
+        comments: result.data.comments ?? "",
         orgId: org.id,
+        createdAt: now,
+        updatedAt: now,
       },
-    });
+    })
   }
-  return null;
-};
+  return null
+}
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request);
-  const url = new URL(request.url);
-  const rawSearch = url.searchParams.get("search") || "";
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 })
+  }
+  const url = new URL(request.url)
+  const rawSearch = url.searchParams.get("search") || ""
   // Sanitize: remove special regex chars and limit length
-  const search = rawSearch.replace(/[.*+?^${}()|[\]\\]/g, "").slice(0, 100);
+  const search = rawSearch.replace(/[.*+?^${}()|[\]\\]/g, "").slice(0, 100)
 
   if (!search) {
     return {
@@ -44,7 +53,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         where: { orgId: org.id },
         take: 50,
       }),
-    };
+    }
   }
 
   return {
@@ -80,5 +89,5 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       },
       take: 50,
     }),
-  };
-};
+  }
+}

@@ -1,23 +1,18 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { useLoaderData } from "@remix-run/react";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { getServicefromSearchParams } from "~/.server/userGetters";
-import { ServicePhotoForm } from "~/components/forms/services_model/ServicePhotoForm";
-import { servicePhotoFormHandler } from "~/.server/form_handlers/servicePhotoFormHandler";
-import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server";
-import invariant from "tiny-invariant";
+import { useLoaderData } from "react-router"
+import invariant from "tiny-invariant"
+import { getServicefromSearchParams } from "~/.server/userGetters"
+import { ServicePhotoForm } from "~/components/forms/services_model/ServicePhotoForm"
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
-  if (intent === "update_service") {
-    await servicePhotoFormHandler(request, formData); // not return if want to do stuff at the end
-  }
-  return null;
-};
+type ServicePhotoData = {
+  id: string
+  place: string
+  allowMultiple: boolean
+  isActive: boolean
+  photoURL?: string | null
+}
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const service = await getServicefromSearchParams(request, {
+export const loader = async ({ request }: { request: Request }) => {
+  const serviceData = await getServicefromSearchParams(request, {
     select: {
       id: true,
       place: true,
@@ -25,22 +20,14 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       isActive: true,
       photoURL: true,
     },
-  });
-  invariant(service && service.id);
-  const putUrl = await getPutFileUrl(service.id);
-  const removeUrl = await removeFileUrl(service.id);
-  return {
-    service,
-    action: {
-      removeUrl,
-      putUrl,
-      readUrl: `/api/images?key=${service.id}`,
-    },
-  };
-};
+  })
+  const service = serviceData as unknown as ServicePhotoData
+  invariant(service?.id)
+  return { service }
+}
 
 export default function NewServicePhotos() {
-  const { service, action } = useLoaderData<typeof loader>();
+  const { service } = useLoaderData<typeof loader>()
 
   return (
     <main className="max-w-xl mx-auto pt-20  min-h-screen relative ">
@@ -48,10 +35,13 @@ export default function NewServicePhotos() {
         Un poco más de información del agendamiento
       </h2>
       <ServicePhotoForm
-        action={action}
-        backButtonLink={`/dash/servicios/nuevo?serviceId=${service.id}`}
-        defaultValues={service}
+        defaultValues={{
+          place: service.place,
+          allowMultiple: service.allowMultiple,
+          isActive: service.isActive,
+          photoURL: service.photoURL ?? undefined,
+        }}
       />
     </main>
-  );
+  )
 }

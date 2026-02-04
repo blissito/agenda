@@ -1,28 +1,47 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import {
   Listbox,
   ListboxButton,
   ListboxOption,
   ListboxOptions,
-} from "@headlessui/react";
-import { CiStopwatch } from "react-icons/ci";
-import { IoIosArrowDown } from "react-icons/io";
-import { IoLocationOutline, IoMailOutline } from "react-icons/io5";
-import { PiPhone } from "react-icons/pi";
-import { twMerge } from "tailwind-merge";
-import { Facebook } from "~/components/icons/facebook";
-import { Instagram } from "~/components/icons/insta";
-import { Linkedin } from "~/components/icons/linkedin";
-import { Tiktok } from "~/components/icons/tiktok";
-import { Twitter } from "~/components/icons/twitter";
-import { type ReactNode, useState } from "react";
-import { Website } from "~/components/icons/menu/webiste";
-import { Denik } from "~/components/icons/denik";
-import { ServiceListCard } from "./ServiceListCard";
-import { SocialMedia } from "./SocialMedia";
-import { ItemClient } from "./ItemClient";
-import { formatRange } from "../common/FormatRange";
-import type { Org, Service } from "@prisma/client";
+} from "@headlessui/react"
+import type { Service } from "@prisma/client"
+import { type ReactNode, useState } from "react"
+import { CiStopwatch } from "react-icons/ci"
+import { IoIosArrowDown } from "react-icons/io"
+import { IoLocationOutline, IoMailOutline } from "react-icons/io5"
+import { PiPhone } from "react-icons/pi"
+import { twMerge } from "tailwind-merge"
+import { Denik } from "~/components/icons/denik"
+import { Facebook } from "~/components/icons/facebook"
+import { Instagram } from "~/components/icons/insta"
+import { Linkedin } from "~/components/icons/linkedin"
+import { Website } from "~/components/icons/menu/webiste"
+import { Tiktok } from "~/components/icons/tiktok"
+import { Twitter } from "~/components/icons/twitter"
+import { formatRange } from "../common/FormatRange"
+import { ItemClient } from "./ItemClient"
+import { ServiceListCard } from "./ServiceListCard"
+import { SocialMedia } from "./SocialMedia"
+
+// Extended org type for templates (includes legacy props used by templates)
+export type TemplateOrg = {
+  name?: string
+  description?: string | null
+  address?: string | null
+  email?: string | null
+  phone?: string
+  mail?: string
+  photoURL?: string
+  weekDays?: {
+    lunes?: unknown
+    martes?: unknown
+    mi_rcoles?: unknown
+    jueves?: unknown
+    viernes?: unknown
+    s_bado?: unknown
+    domingo?: unknown
+  } | null
+}
 
 const week = [
   { id: 1, name: "Lun 9:00 a 5:00pm" },
@@ -30,16 +49,16 @@ const week = [
   { id: 3, name: "Mie 9:00 a 5:00pm" },
   { id: 4, name: "Jue 9:00 a 5:00pm" },
   { id: 5, name: "Vie 9:00 a 5:00pm" },
-];
+]
 
 export default function TemplateTwo({
   services = [],
   isPublic,
-  org = {},
+  org,
 }: {
-  isPublic?: boolean;
-  services?: Service[];
-  org?: Org;
+  isPublic?: boolean
+  services?: Service[]
+  org?: TemplateOrg
 }) {
   return (
     <section className="w-full min-h-screen h-auto bg-white pb-10  ">
@@ -54,24 +73,24 @@ export default function TemplateTwo({
         alt="company logo"
         className="w-[160px] h-[160px] rounded-full border-[8px] border-white ml-[5%] -mt-[60px]"
         src={
-          org.photoURL
+          org?.photoURL
             ? org.photoURL
             : "https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=800"
         }
       />
       <section className="grid grid-cols-6 px-[5%] mt-6 gap-10 pb-12 md:pb-20   ">
         <div className="col-span-6 lg:col-span-2">
-          <h1 className="text-2xl font-title font-bold">{org.name}</h1>
+          <h1 className="text-2xl font-title font-bold">{org?.name}</h1>
           <p className="mt-4 text-brand_gray">
-            {org.description ? org.description : null}
+            {org?.description ? org.description : null}
           </p>
           <div className="mt-6 ">
-            {org.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
-            {org.mail && (
+            {org?.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
+            {org?.mail && (
               <ItemClient icon={<IoMailOutline />} text={org.mail} />
             )}
             <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
-            {org.address && (
+            {org?.address && (
               <ItemClient icon={<IoLocationOutline />} text={org.address} />
             )}
           </div>
@@ -91,8 +110,6 @@ export default function TemplateTwo({
               {services.map((service) => (
                 <ServiceListCard
                   link={`/${service.slug}`}
-                  slug={org.slug}
-                  serviceSlug={service.slug}
                   key={service.id}
                   title={service.name}
                   duration={service.duration}
@@ -109,19 +126,19 @@ export default function TemplateTwo({
         <Denik className="h-8 -ml-5" />
       </section>
     </section>
-  );
+  )
 }
 
 export const WorkHour = ({
   icon,
   org,
 }: {
-  icon: ReactNode;
-  text?: string;
-  status?: string;
-  org?: Org;
+  icon: ReactNode
+  text?: string
+  status?: string
+  org?: TemplateOrg
 }) => {
-  const [selected] = useState(week[1]);
+  const [selected] = useState(week[1])
 
   return (
     <section className="flex items-center my-2">
@@ -130,7 +147,7 @@ export const WorkHour = ({
         <ListboxButton
           className={twMerge(
             "relative block w-auto rounded-lg  pr-8 pl-3 text-left text-sm/6 text-brand_gray",
-            "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25"
+            "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
           )}
         >
           <span className="mr-2 text-[#8AAA35]">Abierto ahora</span>
@@ -145,7 +162,7 @@ export const WorkHour = ({
           transition
           className={twMerge(
             "w-[var(--button-width)] rounded-xl shadow z-40 bg-white p-1 [--anchor-gap:var(--spacing-1)] focus:outline-none",
-            "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0"
+            "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0",
           )}
         >
           <ListboxOption
@@ -157,7 +174,7 @@ export const WorkHour = ({
               Lun -{" "}
               <span className="ml-1">
                 {" "}
-                {formatRange(org.weekDays?.["lunes"])}
+                {formatRange(org?.weekDays?.lunes as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -169,7 +186,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Mar -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["martes"])}
+                {formatRange(org?.weekDays?.martes as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -181,7 +198,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Mié -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["miércoles"])}
+                {formatRange(org?.weekDays?.mi_rcoles as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -193,7 +210,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Jue -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["jueves"])}
+                {formatRange(org?.weekDays?.jueves as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -205,7 +222,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Vie -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["viernes"])}
+                {formatRange(org?.weekDays?.viernes as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -217,7 +234,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Sáb -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["sábado"])}
+                {formatRange(org?.weekDays?.s_bado as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -229,12 +246,12 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Dom -{" "}
               <span className="ml-1">
-                {formatRange(org.weekDays?.["domingo"])}
+                {formatRange(org?.weekDays?.domingo as [string, string][])}
               </span>
             </div>
           </ListboxOption>
         </ListboxOptions>
       </Listbox>
     </section>
-  );
-};
+  )
+}

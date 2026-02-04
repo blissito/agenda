@@ -3,12 +3,12 @@
  * Default timezone: America/Mexico_City (for Mexican businesses)
  */
 
-const DEFAULT_TIMEZONE = "America/Mexico_City";
+const DEFAULT_TIMEZONE = "America/Mexico_City"
 
 interface FormatOptions {
-  timezone?: string;
-  includeTime?: boolean;
-  includeYear?: boolean;
+  timezone?: string
+  includeTime?: boolean
+  includeYear?: boolean
 }
 
 /**
@@ -16,11 +16,15 @@ interface FormatOptions {
  */
 export function formatDateForDisplay(
   date: Date | string,
-  options: FormatOptions = {}
+  options: FormatOptions = {},
 ): string {
-  const { timezone = DEFAULT_TIMEZONE, includeTime = true, includeYear = true } = options;
+  const {
+    timezone = DEFAULT_TIMEZONE,
+    includeTime = true,
+    includeYear = true,
+  } = options
 
-  const d = new Date(date);
+  const d = new Date(date)
 
   const dateOptions: Intl.DateTimeFormatOptions = {
     timeZone: timezone,
@@ -32,9 +36,9 @@ export function formatDateForDisplay(
       minute: "2-digit",
       hour12: true,
     }),
-  };
+  }
 
-  return d.toLocaleDateString("es-MX", dateOptions);
+  return d.toLocaleDateString("es-MX", dateOptions)
 }
 
 /**
@@ -42,9 +46,9 @@ export function formatDateForDisplay(
  */
 export function formatDateShort(
   date: Date | string,
-  timezone: string = DEFAULT_TIMEZONE
+  timezone: string = DEFAULT_TIMEZONE,
 ): string {
-  const d = new Date(date);
+  const d = new Date(date)
 
   return d.toLocaleDateString("es-MX", {
     timeZone: timezone,
@@ -54,7 +58,7 @@ export function formatDateShort(
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-  });
+  })
 }
 
 /**
@@ -62,24 +66,24 @@ export function formatDateShort(
  */
 export function formatTimeOnly(
   date: Date | string,
-  timezone: string = DEFAULT_TIMEZONE
+  timezone: string = DEFAULT_TIMEZONE,
 ): string {
-  const d = new Date(date);
+  const d = new Date(date)
 
   return d.toLocaleTimeString("es-MX", {
     timeZone: timezone,
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
-  });
+  })
 }
 
 /**
  * Get current date in specified timezone
  */
 export function getNowInTimezone(timezone: string = DEFAULT_TIMEZONE): Date {
-  const nowStr = new Date().toLocaleString("en-US", { timeZone: timezone });
-  return new Date(nowStr);
+  const nowStr = new Date().toLocaleString("en-US", { timeZone: timezone })
+  return new Date(nowStr)
 }
 
-export { DEFAULT_TIMEZONE };
+export { DEFAULT_TIMEZONE }

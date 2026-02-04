@@ -1,4 +1,4 @@
-import { SecondaryButton } from "~/components/common/secondaryButton";
+import { SecondaryButton } from "~/components/common/secondaryButton"
 
 export default function NewServiceSuccess() {
   return (
@@ -20,5 +20,5 @@ export default function NewServiceSuccess() {
         Ver mis servicios
       </SecondaryButton>
     </main>
-  );
+  )
 }

@@ -1,10 +1,10 @@
 import {
-  type RouteConfig,
   index,
   layout,
   prefix,
+  type RouteConfig,
   route,
-} from "@react-router/dev/routes";
+} from "@react-router/dev/routes"
 
 export default [
   index("routes/home.tsx"),
@@ -28,23 +28,27 @@ export default [
         route("nuevo", "routes/dash/servicios/new.tsx"),
         route(
           ":serviceId",
-          "routes/dash/servicios/dash.servicios_.$serviceId.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId.tsx",
         ),
         route(
           ":serviceId/general",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.general.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.general.tsx",
         ),
         route(
           ":serviceId/agendamiento",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.agendamiento.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.agendamiento.tsx",
         ),
         route(
           ":serviceId/horario",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.horario.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.horario.tsx",
         ),
         route(
           ":serviceId/cobros",
-          "routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx"
+          "routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx",
+        ),
+        route(
+          ":serviceId/acciones",
+          "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx",
         ),
       ]),
       route("website", "routes/dash/website/dash.website.tsx"),
@@ -52,6 +56,10 @@ export default [
       route("clientes", "routes/dash/dash.clientes.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),
       route("evaluaciones", "routes/dash/dash.reviews.tsx"),
+      route(
+        "evaluaciones/:serviceId",
+        "routes/dash/dash.reviews_.$serviceId.tsx",
+      ),
       route("ajustes", "routes/dash/dash.ajustes.tsx"),
       route("pagos", "routes/dash/pagos.tsx"),
     ]),
@@ -64,11 +72,34 @@ export default [
     route("events", "routes/api/events.ts"),
     route("org", "routes/api/api.org.ts"),
     route("domain", "routes/api/api.domain.ts"),
+    route("loyalty", "routes/api/loyalty.ts"),
   ]),
   // Stripe
   ...prefix("stripe", [index("routes/stripe/api.ts")]),
+  // MercadoPago
+  ...prefix("mercadopago", [
+    route("oauth", "routes/mercadopago.oauth.tsx"),
+    route("webhook", "routes/mercadopago.webhook.ts"),
+    route("success", "routes/mercadopago.success.tsx"),
+    route("pending", "routes/mercadopago.pending.tsx"),
+    route("failure", "routes/mercadopago.failure.tsx"),
+  ]),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
+  // Public booking route (works on localhost): /agenda/:orgSlug/:serviceSlug
+  route(
+    "agenda/:orgSlug/:serviceSlug",
+    "routes/agenda.$orgSlug.$serviceSlug.tsx",
+  ),
+  // Error page
+  route("error", "routes/error.tsx"),
+  // Event actions from email links
+  route("event/action", "routes/event.action.tsx"),
+  route("event/:eventId/confirm", "routes/event.$eventId.confirm.tsx"),
+  route("event/:eventId/modify", "routes/event.$eventId.modify.tsx"),
+  route("event/:eventId/cancel", "routes/event.$eventId.cancel.tsx"),
+  // Survey from email links
+  route("survey", "routes/survey.tsx"),
   // Clean URL for subdomains/custom domains: /:serviceSlug
   route(":serviceSlug", "routes/service.$serviceSlug.tsx"),
-] satisfies RouteConfig;
+] satisfies RouteConfig

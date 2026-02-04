@@ -1,28 +1,34 @@
-import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, useState } from "react";
-import { FaRegTrashCan } from "react-icons/fa6";
-import { TbDots } from "react-icons/tb";
-import { twMerge } from "tailwind-merge";
-import { useOutsideClick } from "../hooks/useOutsideClick";
-import { Link } from "react-router";
+import { AnimatePresence, motion } from "motion/react"
+import { type ReactNode, useState } from "react"
+import { FaRegTrashCan } from "react-icons/fa6"
+import { TbDots } from "react-icons/tb"
+import { Link } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { useOutsideClick } from "../hooks/useOutsideClick"
 
-export const DropdownMenu = ({ children }: { children?: ReactNode }) => {
-  const [show, setShow] = useState(false);
+export const DropdownMenu = ({
+  children,
+  hideDefaultButton,
+}: {
+  children?: ReactNode
+  hideDefaultButton?: boolean
+}) => {
+  const [show, setShow] = useState(false)
   const ref = useOutsideClick<HTMLDivElement>({
     isActive: show,
     onClickOutside: () => setShow(false),
     keyboardListener: true,
-  });
+  })
   return (
     <div className="relative">
       <button
         onClick={() => {
-          setShow((s) => !s);
+          setShow((s) => !s)
         }}
         type="button"
         className={twMerge(
           "text-brand_gray ml-auton text-xl",
-          show && "bg-brand_pale"
+          show && "bg-brand_pale",
         )}
       >
         <TbDots />
@@ -37,13 +43,13 @@ export const DropdownMenu = ({ children }: { children?: ReactNode }) => {
             className="z-10 absolute bg-white shadow-lg text-brand_gray rounded-3xl top-[100%] right-8 border w-max px-4 py-3 flex flex-col gap-5"
           >
             {children}
-            <MenuButton isDisabled />
+            {!hideDefaultButton && <MenuButton isDisabled />}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  );
-};
+  )
+}
 
 export const MenuButton = ({
   children = "eliminar",
@@ -51,42 +57,43 @@ export const MenuButton = ({
   state,
   isDisabled,
   onClick,
-  icon = ( // @TODO: remove default
+  icon = (
+    // @TODO: remove default
     <span className="text-md">
       <FaRegTrashCan />
     </span>
   ),
   className = "text-red-500/70 hover:text-red-500",
 }: {
-  state?: Record<string, string>;
-  to?: string;
-  isDisabled?: boolean;
-  className?: string;
-  onClick?: () => void;
-  children?: ReactNode;
-  icon?: ReactNode;
+  state?: Record<string, string>
+  to?: string
+  isDisabled?: boolean
+  className?: string
+  onClick?: () => void
+  children?: ReactNode
+  icon?: ReactNode
 }) => {
   const Element = ({ ...props }: { [x: string]: unknown }) => {
     return to ? (
       <Link {...props} to={to} state={state} />
     ) : (
       <div {...props}></div>
-    );
-  };
+    )
+  }
   return (
-    <Element>
+    <Element className="w-full">
       <button
         disabled={isDisabled}
         onClick={onClick}
         className={twMerge(
-          "transition-all gap-3 items-center flex hover:text-black enabled:active:scale-95",
+          "transition-all gap-3 items-center flex w-full hover:bg-[#F9FAFB] rounded-lg px-2 py-1 -mx-2 -my-1 enabled:active:scale-95",
           isDisabled && "disabled:text-gray-300 disabled:cursor-not-allowed",
-          className
+          className,
         )}
       >
         {icon}
         <span className="capitalize">{children}</span>
       </button>
     </Element>
-  );
-};
+  )
+}

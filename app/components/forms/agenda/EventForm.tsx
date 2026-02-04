@@ -1,22 +1,21 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import type { Customer, Event, Service, User } from "@prisma/client";
-import { Form, useFetcher } from "react-router";
-import { useForm, useWatch } from "react-hook-form";
-import { BasicInput } from "../BasicInput";
-import { SelectInput } from "../SelectInput";
-import { Switch } from "~/components/common/Switch";
-import { DateInput } from "../DateInput";
-import { useEffect, useState, type ChangeEvent } from "react";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { newEventSchema } from "~/utils/zod_schemas";
-import { CustomersComboBox } from "../CustomersComboBox";
-import { ServiceSelect } from "../ServiceSelect";
-import { EmployeeSelect } from "../EmployeeSelect";
+import type { Customer, Event, Service, User } from "@prisma/client"
+import { type ChangeEvent, useEffect, useState } from "react"
+import { type FieldValues, useForm, useWatch } from "react-hook-form"
+import { Form, useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Switch } from "~/components/common/Switch"
+import { newEventSchema } from "~/utils/zod_schemas"
+import { BasicInput } from "../BasicInput"
+import { CustomersComboBox } from "../CustomersComboBox"
+import { DateInput } from "../DateInput"
+import { EmployeeSelect } from "../EmployeeSelect"
+import { SelectInput } from "../SelectInput"
+import { ServiceSelect } from "../ServiceSelect"
 
-const formatDate = (d: Date | string) =>
-  new Date(d).toISOString().substring(0, 10);
+const formatDate = (d: Date | string): string =>
+  new Date(d).toISOString().substring(0, 10)
 
-const formatHour = (d: Date | string, reset?: boolean) => {
+const formatHour = (d: Date | string, reset?: boolean): string => {
   const time = new Date(d)
     .toLocaleDateString("es-MX", {
       hour: "numeric",
@@ -24,13 +23,39 @@ const formatHour = (d: Date | string, reset?: boolean) => {
       hour12: false,
     })
     .split(",")[1]
-    .trim();
+    .trim()
   if (reset) {
-    return time.split(":")[0] + ":00";
+    return `${time.split(":")[0]}:00`
   } else {
-    return time;
+    return time
   }
-};
+}
+
+// Form values type - using Record for flexibility with react-hook-form
+type EventFormValues = Record<string, unknown> & {
+  id?: string
+  customerId?: string | null
+  employeeId?: string | null
+  serviceId?: string | null
+  startHour?: string
+  endHour?: string
+  start?: string
+  end?: string
+  notes?: string | null
+  paid?: boolean
+  payment_method?: string | null
+}
+
+type EventFormProps = {
+  services: Service[]
+  employees: User[]
+  customers: Customer[]
+  onNewClientClick: () => void
+  onCancel?: () => void
+  onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void
+  defaultValues: Partial<Event>
+  ownerName?: string
+}
 
 export const EventForm = ({
   defaultValues,
@@ -39,24 +64,18 @@ export const EventForm = ({
   customers,
   services,
   employees,
-}: {
-  services: Service[];
-  employees: User[];
-  customers: Customer[];
-  onNewClientClick: () => void;
-  onCancel?: () => void;
-  onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void;
-  defaultValues: Event;
-  ownerName?: string;
-}) => {
-  const fetcher = useFetcher();
-  const oneMoreHour = new Date(defaultValues.start as Date);
-  oneMoreHour.setHours(oneMoreHour.getHours() + 1);
+}: EventFormProps) => {
+  const fetcher = useFetcher()
+  const startDateValue = defaultValues.start
+    ? new Date(defaultValues.start)
+    : new Date()
+  const oneMoreHour = new Date(startDateValue)
+  oneMoreHour.setHours(oneMoreHour.getHours() + 1)
 
   // Pre-populate start and end hours from the clicked date/time
-  const startDate = new Date(defaultValues.start as Date);
-  const endDate = new Date(startDate);
-  endDate.setHours(startDate.getHours() + 1); // Default to 1 hour duration
+  const startDate = new Date(startDateValue)
+  const endDate = new Date(startDate)
+  endDate.setHours(startDate.getHours() + 1) // Default to 1 hour duration
 
   const {
     register,
@@ -69,47 +88,56 @@ export const EventForm = ({
   } = useForm({
     defaultValues: {
       ...defaultValues,
-      start: formatDate(defaultValues.start as Date),
+      start: formatDate(startDateValue),
       end: defaultValues.end ? formatDate(defaultValues.end as Date) : "",
       startHour: formatHour(startDate),
       endHour: formatHour(endDate),
-    },
-  });
+    } as EventFormValues,
+  })
 
   // duration calculation 🧠
-  const [duration, setDuration] = useState(60);
+  const [duration, setDuration] = useState(60)
   const handleHoursChange = () => {
-    const v = getValues();
-    const sh = Number(v.startHour.split(":")[0]),
-      sm = Number(v.startHour.split(":")[1]),
-      eh = Number(v.endHour.split(":")[0]),
-      em = Number(v.endHour.split(":")[1]);
+    const v = getValues()
+    const startHourStr = v.startHour || "00:00"
+    const endHourStr = v.endHour || "01:00"
+    const sh = Number(startHourStr.split(":")[0]),
+      sm = Number(startHourStr.split(":")[1]),
+      eh = Number(endHourStr.split(":")[0]),
+      em = Number(endHourStr.split(":")[1])
     const one = new Date(),
-      dos = new Date();
-    one.setHours(sh);
-    one.setMinutes(sm);
-    dos.setHours(eh);
-    dos.setMinutes(em);
-    const du = (dos.getTime() - one.getTime()) / 1000 / 60; // mins
-    setDuration(du);
-    setValue("startHour", v.startHour);
-  };
+      dos = new Date()
+    one.setHours(sh)
+    one.setMinutes(sm)
+    dos.setHours(eh)
+    dos.setMinutes(em)
+    const du = (dos.getTime() - one.getTime()) / 1000 / 60 // mins
+    setDuration(du)
+    setValue("startHour", v.startHour)
+  }
 
-  const parseData = (values: Partial<Event>) => {
-    const start = new Date(values.start + "T00:00:00");
-    start.setDate(start.getDate()); // why?
-    start.setHours(values.startHour.split(":")[0]);
-    start.setMinutes(values.startHour.split(":")[1]);
+  const parseData = (values: FieldValues) => {
+    const startHour = values.startHour || "00:00"
+    const endHour = values.endHour || "01:00"
+    const startStr =
+      typeof values.start === "string"
+        ? values.start
+        : formatDate(values.start || new Date())
 
-    const end = new Date(values.start + "T00:00:00");
-    end.setHours(values.endHour.split(":")[0]);
-    end.setMinutes(values.endHour.split(":")[1]);
+    const start = new Date(`${startStr}T00:00:00`)
+    start.setDate(start.getDate())
+    start.setHours(Number(startHour.split(":")[0]))
+    start.setMinutes(Number(startHour.split(":")[1]))
+
+    const end = new Date(`${startStr}T00:00:00`)
+    end.setHours(Number(endHour.split(":")[0]))
+    end.setMinutes(Number(endHour.split(":")[1]))
 
     if (start > end) {
       setError("startHour", {
         message: "La fecha de inicio debe ser menor a la de finalización 🔁",
-      });
-      return;
+      })
+      return
     }
 
     const payload = {
@@ -117,22 +145,22 @@ export const EventForm = ({
       duration,
       start,
       end,
-    };
-    const r = newEventSchema.safeParse(payload);
-    if (!r.success) {
-      console.error("PARSE_ERROR: ", r.error);
-      r.error.issues.forEach((issue) => {
-        setError(issue.path[0], { message: issue.message });
-      });
-      return;
     }
-    return r.data;
-  };
+    const r = newEventSchema.safeParse(payload)
+    if (!r.success) {
+      console.error("PARSE_ERROR: ", r.error)
+      r.error.issues.forEach((issue) => {
+        setError(String(issue.path[0]), { message: issue.message })
+      })
+      return
+    }
+    return r.data
+  }
 
-  const onSubmit = async (v: Partial<Event>) => {
-    const validData = parseData(v);
+  const onSubmit = async (v: FieldValues) => {
+    const validData = parseData(v)
 
-    if (!validData) return console.error("::ERROR_ON_VALIDATION::", validData);
+    if (!validData) return console.error("::ERROR_ON_VALIDATION::", validData)
     // return;
     fetcher.submit(
       { data: JSON.stringify(validData) },
@@ -141,66 +169,66 @@ export const EventForm = ({
         action: validData.id
           ? `/api/events?intent=update&eventId=${validData.id}`
           : "/api/events?intent=new",
-      }
-    );
-    onCancel?.();
-  };
+      },
+    )
+    onCancel?.()
+  }
 
   const handleCustomerSelection = (selectedCustomer: Customer | null) => {
     if (!selectedCustomer) {
-      setValue("customerId", "", { shouldValidate: true, shouldDirty: true });
+      setValue("customerId", "", { shouldValidate: true, shouldDirty: true })
     } else {
       setValue("customerId", selectedCustomer.id, {
         shouldValidate: true,
         shouldDirty: true,
-      });
+      })
     }
-  };
+  }
 
-  const isLoading = fetcher.state !== "idle";
+  const isLoading = fetcher.state !== "idle"
 
-  const startHour = useWatch({ control, name: "startHour" });
-  const endHour = useWatch({ control, name: "endHour" });
+  const _startHour = useWatch({ control, name: "startHour" })
+  const _endHour = useWatch({ control, name: "endHour" })
 
   useEffect(() => {
-    handleHoursChange();
+    handleHoursChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startHour, endHour]);
+  }, [handleHoursChange])
 
   const registerVirtualFields = () => {
     // virtual fields
-    register("customerId", { required: true, value: "" });
-    register("serviceId", { required: true, value: services[0]?.id });
-    register("employeeId", { required: true, value: employees[0]?.id });
-  };
+    register("customerId", { required: true, value: "" })
+    register("serviceId", { required: true, value: services[0]?.id })
+    register("employeeId", { required: true, value: employees[0]?.id })
+  }
 
   useEffect(() => {
-    registerVirtualFields();
-  }, []);
+    registerVirtualFields()
+  }, [registerVirtualFields])
 
   const handleServiceSelect = (event: ChangeEvent<HTMLSelectElement>) => {
     setValue("serviceId", event.currentTarget.value, {
       shouldValidate: true,
       shouldDirty: true,
-    });
-  };
+    })
+  }
 
   const hanldeEmployeeSelect = (event: ChangeEvent<HTMLSelectElement>) => {
     setValue("employeeId", event.currentTarget.value, {
       shouldValidate: true,
       shouldDirty: true,
-    });
-  };
+    })
+  }
 
   const handleDelete = async () => {
-    if (!confirm("Esta acción no es reversible")) return;
+    if (!confirm("Esta acción no es reversible")) return
 
     await fetcher.submit(null, {
       method: "delete",
       action: `/api/events?intent=delete&eventId=${defaultValues.id}`,
-    });
-    onCancel?.();
-  };
+    })
+    onCancel?.()
+  }
 
   return (
     <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
@@ -240,7 +268,7 @@ export const EventForm = ({
           error={errors.startHour}
         />
       </div>
-      {errors["startHour"] ? (
+      {errors.startHour ? (
         <p className="text-red-500">{errors.startHour.message}</p>
       ) : (
         <p className="mb-6">
@@ -312,5 +340,5 @@ export const EventForm = ({
         </PrimaryButton>
       </nav>
     </Form>
-  );
-};
+  )
+}

@@ -1,33 +1,33 @@
-import type { Org } from "@prisma/client";
-import { useState } from "react";
-import { useFetcher } from "react-router";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { UsernameInput } from "./UserNameInput";
-import { CustomDomainSection } from "./CustomDomainSection";
-import { Plantilla } from "./Plantilla";
-import { ColorInput } from "./ColorInput";
+import type { Org } from "@prisma/client"
+import { useState } from "react"
+import { useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { ColorInput } from "./ColorInput"
+import { CustomDomainSection } from "./CustomDomainSection"
+import { Plantilla } from "./Plantilla"
+import { UsernameInput } from "./UserNameInput"
 
 type OrgWithDomain = Org & {
-  customDomain?: string | null;
-  customDomainStatus?: string | null;
-  customDomainDns?: unknown;
-};
+  customDomain?: string | null
+  customDomainStatus?: string | null
+  customDomainDns?: unknown
+}
 
 export const TemplateForm = ({
   org,
   onClose,
 }: {
-  onClose?: () => void;
-  org: OrgWithDomain;
+  onClose?: () => void
+  org: OrgWithDomain
 }) => {
   const [template, setTemplate] = useState<string>(
     org.websiteConfig?.template ?? "defaultTemplate",
-  );
+  )
   const [color, setColor] = useState<string>(
     org.websiteConfig?.color ?? "#705fe0",
-  );
-  const fetcher = useFetcher();
+  )
+  const fetcher = useFetcher()
 
   const handleSubmit = () => {
     fetcher.submit(
@@ -39,9 +39,9 @@ export const TemplateForm = ({
         intent: "org_update",
       },
       { method: "POST", action: "/api/org" },
-    );
-    onClose?.();
-  };
+    )
+    onClose?.()
+  }
 
   return (
     <article className="grid">
@@ -67,5 +67,5 @@ export const TemplateForm = ({
         </PrimaryButton>
       </nav>
     </article>
-  );
-};
+  )
+}

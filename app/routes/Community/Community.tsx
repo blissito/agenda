@@ -1,5 +1,5 @@
-import { TopBar } from "~/components/common/topBar";
-import { CommunityPage } from "~/components/Community/CommunityPage";
+import { CommunityPage } from "~/components/Community/CommunityPage"
+import { TopBar } from "~/components/common/topBar"
 
 export default function Community() {
   return (
@@ -9,5 +9,5 @@ export default function Community() {
         <CommunityPage />
       </div>
     </main>
-  );
+  )
 }

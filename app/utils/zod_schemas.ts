@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod"
 
 export const serviceUpdateSchema = z.object({
   id: z.string().min(3),
@@ -8,12 +8,10 @@ export const serviceUpdateSchema = z.object({
   description: z.string().optional().nullable(),
   price: z.coerce.number().optional(),
   points: z.coerce.number().optional(),
-});
-export type ServiceUpdateSchema = z.infer<typeof signup2Schema>;
+})
+export type ServiceUpdateSchema = z.infer<typeof signup2Schema>
 
-const rangesSchema = z
-  .array(z.tuple([z.string(), z.string()]))
-  .optional();
+const rangesSchema = z.array(z.tuple([z.string(), z.string()])).optional()
 export const weekSchema = z.object({
   lunes: rangesSchema,
   martes: rangesSchema,
@@ -22,20 +20,20 @@ export const weekSchema = z.object({
   viernes: rangesSchema,
   sábado: rangesSchema,
   domingo: rangesSchema,
-});
-export type WeekSchema = z.infer<typeof weekSchema>;
+})
+export type WeekSchema = z.infer<typeof weekSchema>
 
 export const signup3Schema = z.object({
   id: z.string().min(3),
   weekDays: weekSchema,
-});
-export type Signup3SchemaType = z.infer<typeof signup2Schema>;
+})
+export type Signup3SchemaType = z.infer<typeof signup2Schema>
 
 export const signup2Schema = z.object({
   id: z.string().min(3),
   businessType: z.string().min(3),
-});
-export type Signup2SchemaType = z.infer<typeof signup2Schema>;
+})
+export type Signup2SchemaType = z.infer<typeof signup2Schema>
 
 export const signup1Schema = z.object({
   id: z.string().min(3),
@@ -43,12 +41,12 @@ export const signup1Schema = z.object({
   shopKeeper: z.string().min(3),
   address: z.string().optional().nullable(),
   numberOfEmployees: z.string().min(1),
-});
-export type Signup1SchemaType = z.infer<typeof signup1Schema>;
+})
+export type Signup1SchemaType = z.infer<typeof signup1Schema>
 
 export const dayTupleSchema = z
   .array(z.tuple([z.string().min(5), z.string().min(5)]))
-  .optional();
+  .optional()
 export const weekTuples = z.object({
   lunes: dayTupleSchema,
   martes: dayTupleSchema,
@@ -57,13 +55,13 @@ export const weekTuples = z.object({
   viernes: dayTupleSchema,
   sábado: dayTupleSchema,
   domingo: dayTupleSchema,
-});
+})
 
 export const weekDaysOrgSchema = z.object({
   weekDays: weekTuples,
-});
+})
 
-export type WeekDaysOrg = z.infer<typeof weekDaysOrgSchema>;
+export type WeekDaysOrg = z.infer<typeof weekDaysOrgSchema>
 
 //MODELS
 // Event
@@ -81,9 +79,9 @@ export const newEventSchema = z.object({
     .number()
     .min(5, { message: "La duración de la sesión, no puede ser negativa" })
     .default(60),
-});
+})
 
-const typeEnum = z.enum(["Private", "Business"]);
+const _typeEnum = z.enum(["Private", "Business"])
 // type: typeEnum.extract( [ 'Private' ] ),
 
 // Customer
@@ -92,8 +90,8 @@ export const newCustomerSchema = z.object({
   email: z.string().email("Email inválido"),
   tel: z.string().optional().nullable(),
   comments: z.string().optional().nullable(),
-});
-export type NewCustomerSchema = z.infer<typeof newCustomerSchema>;
+})
+export type NewCustomerSchema = z.infer<typeof newCustomerSchema>
 
 // Org update
 export const orgUpdateSchema = z.object({
@@ -114,5 +112,5 @@ export const orgUpdateSchema = z.object({
     })
     .optional()
     .nullable(),
-});
-export type OrgUpdateSchema = z.infer<typeof orgUpdateSchema>;
+})
+export type OrgUpdateSchema = z.infer<typeof orgUpdateSchema>

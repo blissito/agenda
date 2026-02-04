@@ -48,4 +48,4 @@ export default ({ link }: { link: string }) => `
 
     </div>
 </body>
-`;
+`

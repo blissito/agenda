@@ -1,18 +1,16 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import type { FieldValues, UseFormRegister } from "react-hook-form";
-import { twMerge } from "tailwind-merge";
-import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
+import { twMerge } from "tailwind-merge"
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug"
 
 type Props = {
-  name: string;
-  register?: UseFormRegister<FieldValues> | any;
-  error?: FieldError;
-  label?: string;
-  className?: string;
-  registerOptions?: { required: string | boolean };
-  placeholder?: string;
-  // onChange?: (arg0: ChangeEvent<HTMLInputElement>) => void;
-};
+  name: string
+  register?: UseFormRegister<FieldValues>
+  error?: FieldError
+  label?: string
+  className?: string
+  registerOptions?: { required: string | boolean }
+  placeholder?: string
+}
 export const TextAreaInput = ({
   placeholder,
   className,
@@ -26,7 +24,7 @@ export const TextAreaInput = ({
   return (
     <div>
       <label
-        className={twMerge(" text-neutral-950 mb-1", className)}
+        className={twMerge(" text-brand_gray mb-1 font-satoMedium", className)}
         htmlFor={name}
       >
         {label}
@@ -36,9 +34,9 @@ export const TextAreaInput = ({
         placeholder={placeholder}
         className={twMerge(
           "w-full",
-          "focus:border-brand_blue h-20 font-satoshi text-brand_gray",
+          "focus:border-brand_blue h-20 font-satoMedium text-brand_dark",
           "rounded-xl border-gray-200 h-20 placeholder:text-brand_iron",
-          !!error && "border-red-500"
+          !!error && "border-red-500",
         )}
         {...props}
         {...register?.(name, registerOptions)}
@@ -47,5 +45,5 @@ export const TextAreaInput = ({
 
       {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
     </div>
-  );
-};
+  )
+}

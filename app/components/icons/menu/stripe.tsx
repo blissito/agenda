@@ -2,8 +2,8 @@ export const Stripe = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="32"
@@ -31,4 +31,4 @@ export const Stripe = ({
       fill={fill}
     />
   </svg>
-);
+)

@@ -1,33 +1,23 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { Form, useFetcher } from "react-router";
-import { Switch } from "./Switch";
-import { PrimaryButton } from "../common/primaryButton";
-import { useForm } from "react-hook-form";
-import { twMerge } from "tailwind-merge";
-import { motion } from "motion/react";
-import { type ReactNode, useEffect, useState } from "react";
-import { FaRegTrashCan } from "react-icons/fa6";
+import { type Org } from "@prisma/client"
+import { motion } from "motion/react"
+import { nanoid } from "nanoid"
+import { type ReactNode, useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { FaRegTrashCan } from "react-icons/fa6"
+import { Form, useFetcher } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { ArrowRight } from "~/components/icons/arrowRight"
+import type { WeekSchema } from "~/utils/zod_schemas"
+import { PrimaryButton } from "../common/primaryButton"
+import { Switch } from "./Switch"
 import {
   getMinutesFromString,
   getStringFromMinutes,
   TimePicker,
-} from "./TimePicker";
-import { nanoid } from "nanoid";
-import { type Org } from "@prisma/client";
-import type { WeekSchema } from "~/utils/zod_schemas";
-import invariant from "tiny-invariant";
-import { ArrowRight } from "~/components/icons/arrowRight";
+} from "./TimePicker"
 
-export type DayTuple = [string, string][];
-export type WeekTuples = {
-  lunes?: DayTuple;
-  martes?: DayTuple;
-  miércoles?: DayTuple;
-  jueves?: DayTuple;
-  viernes?: DayTuple;
-  sábado?: DayTuple;
-  domingo?: DayTuple;
-};
+export type DayTuple = [string, string][]
+export type WeekTuples = Record<string, DayTuple | undefined>
 
 const ENTIRE_WEEK = [
   "lunes",
@@ -37,18 +27,28 @@ const ENTIRE_WEEK = [
   "viernes",
   "sábado",
   "domingo",
-];
+]
+
+const DAY_LABELS: Record<string, string> = {
+  lunes: "Lunes",
+  martes: "Martes",
+  miércoles: "Miércoles",
+  jueves: "Jueves",
+  viernes: "Viernes",
+  sábado: "Sábado",
+  domingo: "Domingo",
+}
 
 const initialValues: WeekSchema = {
   lunes: [["09:00", "16:00"]],
-};
+}
 
-const RANGE_TEMPLATE = ["09:00", "14:00"];
-export const ERROR_MESSAGE = "Debes seleccionar al menos un día";
+const RANGE_TEMPLATE = ["09:00", "14:00"]
+export const ERROR_MESSAGE = "Debes seleccionar al menos un día"
 
-function cap(s: string) {
-  if (!s) return s;
-  return s.charAt(0).toUpperCase() + s.slice(1);
+function _cap(s: string) {
+  if (!s) return s
+  return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
 export const TimesForm = ({
@@ -60,19 +60,21 @@ export const TimesForm = ({
   onClose,
   noSubmit,
 }: {
-  noSubmit?: boolean;
-  cta?: string;
-  onClose?: () => void;
-  children?: ReactNode; // acting as footer
-  onChange?: (data: WeekSchema) => void;
-  onSubmit?: (data: WeekSchema) => void;
-  org: Org;
+  noSubmit?: boolean
+  cta?: string
+  onClose?: () => void
+  children?: ReactNode // acting as footer
+  onChange?: (data: WeekSchema) => void
+  onSubmit?: (data: WeekSchema) => void
+  org: Org
 }) => {
-  const fetcher = useFetcher();
-  const [data, setData] = useState<WeekSchema>(org.weekDays || initialValues);
+  const fetcher = useFetcher()
+  const [data, setData] = useState<WeekTuples>(
+    (org.weekDays as unknown as WeekTuples) || initialValues,
+  )
   const initialData = org.weekDays
     ? Object.keys(org.weekDays)
-    : Object.keys(initialValues);
+    : Object.keys(initialValues)
 
   const {
     clearErrors,
@@ -81,193 +83,156 @@ export const TimesForm = ({
     setError,
     formState: { errors, isValid },
     handleSubmit,
-  } = useForm({
+  } = useForm<{ weekDays: string[] }>({
     defaultValues: {
       weekDays: initialData,
     },
-  });
+  })
 
   const submit = () => {
-    if (noSubmit) return;
+    if (noSubmit) return
 
-    onSubmit?.(data);
+    onSubmit?.(data as WeekSchema)
     fetcher.submit(
       {
-        intent: "org_update_and_redirect",
+        intent: "update_org",
         data: JSON.stringify({ weekDays: data, id: org.id }),
-
         next: "/signup/6",
       },
-      { method: "post", action: "/api/org" }
-    );
-    onClose?.();
-  };
+      { method: "post" },
+    )
+    onClose?.()
+  }
 
   const handleSwitchChange = (node: HTMLInputElement) => {
-    let action: "adding" | "removing";
-    clearErrors();
-    const values = getValues()[node.name];
+    let action: "adding" | "removing"
+    clearErrors()
+    const values = [...getValues().weekDays]
 
     if (node.checked) {
-      action = "adding";
-      values.push(node.value);
+      action = "adding"
+      values.push(node.value)
     } else {
-      action = "removing";
-      values.splice(
-        values.findIndex((v: string) => v === node.value),
-        1
-      );
+      action = "removing"
+      const idx = values.findIndex((v: string) => v === node.value)
+      if (idx !== -1) values.splice(idx, 1)
     }
 
-    setValue(node.name, [...new Set(values)], { shouldValidate: true });
+    setValue("weekDays", [...new Set(values)], { shouldValidate: true })
 
     if (!values.length) {
-      setError(node.name, { message: ERROR_MESSAGE });
+      setError("weekDays", { message: ERROR_MESSAGE })
     }
 
     // copy ranges for new active day
-    toggleRange(action, node.id);
-  };
+    toggleRange(action, node.id)
+  }
 
   const toggleRange = (action: "adding" | "removing", dayString: string) => {
     if (action === "adding") {
-      const dayValues = Object.values(data);
+      const dayValues = Object.values(data).filter(Boolean) as DayTuple[]
       const copy = dayValues.length
         ? dayValues[dayValues.length - 1]
-        : [RANGE_TEMPLATE];
-      setData((data) => ({ ...data, [dayString]: copy }));
+        : [RANGE_TEMPLATE as [string, string]]
+      setData((prev) => ({ ...prev, [dayString]: copy }))
     } else if (action === "removing") {
-      const d = { ...data };
-      delete d[dayString];
-      setData(d);
+      const d = { ...data }
+      delete d[dayString]
+      setData(d)
     }
-  };
+  }
 
   const addRange = (dayString: string) => {
-    if (data[dayString]?.length) {
+    const dayData = data[dayString]
+    if (dayData?.length) {
       setData((d) => {
-        const dd = JSON.parse(JSON.stringify(d));
-        const lastRange = dd[dayString].pop();
+        const dd = JSON.parse(JSON.stringify(d)) as WeekTuples
+        const dayArr = dd[dayString]
+        if (!dayArr) return d
+        const lastRange = dayArr[dayArr.length - 1]
+        if (!Array.isArray(lastRange)) return d
         const nextH = getStringFromMinutes(
-          getMinutesFromString(lastRange[1]) + 30
-        );
-
-        if (!Array.isArray(lastRange)) return d;
-        const nextRange = [
+          getMinutesFromString(lastRange[1]) + 30,
+        )
+        const nextRange: [string, string] = [
           nextH,
           getStringFromMinutes(getMinutesFromString(lastRange[1]) + 60),
-        ];
+        ]
+        const currentDay = d[dayString] || []
         return {
           ...d,
-          [dayString]: [...d[dayString], nextRange],
-        };
-      });
+          [dayString]: [...currentDay, nextRange],
+        }
+      })
     }
-  };
+  }
 
   const removeRange = (day: string, index: number) => {
-    const arr = [...data[day]];
-    arr.splice(index, 1);
-    setData((d) => ({ ...d, [day]: arr }));
-  };
+    const dayData = data[day]
+    if (!dayData) return
+    const arr = [...dayData]
+    arr.splice(index, 1)
+    setData((d) => ({ ...d, [day]: arr as DayTuple }))
+  }
 
-  const handleUpdate = (day: string, ranges: string[][]) => {
-    setData((d) => ({ ...d, [day]: ranges }));
-  };
+  const handleUpdate = (day: string, ranges: [string, string][]) => {
+    setData((d) => ({ ...d, [day]: ranges }))
+  }
 
   useEffect(() => {
-    onChange?.(data);
+    onChange?.(data as WeekSchema)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [data, onChange])
 
-  const isDisabled = !isValid || (errors.weekDays ? true : false);
+  const isDisabled = !isValid || !!errors.weekDays
 
   return (
-    <Form onSubmit={handleSubmit(submit)} className="w-full">
-      {/* Layout tipo Figma: izquierda controles / derecha preview */}
-      <div className="grid gap-20 lg:grid-cols-2 items-center min-h-[calc(100vh-190px)]">
-
-        {/* ==================== IZQUIERDA ==================== */}
-        <div className="w-full max-w-6xl">
-          <a
-            href="/signup/4"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
-          >
-            <span className="text-lg leading-none">‹</span> Volver
-          </a>
-
-          <h1 className="text-xl md:text-2xl font-jakarta font-semibold text-brand_dark">
-            Y por último, ¿Cuál es el horario de tu negocio?
-          </h1>
-
-          {/* Lista de días */}
-          <div className="mt-6 space-y-4">
-            {ENTIRE_WEEK.map((dayString: string) => {
-              const active = getValues().weekDays.includes(dayString);
-
-              return (
-                <DayTimesSelector
-                  key={dayString}
-                  ranges={data[dayString] ?? []}
-                  addRange={() => addRange(dayString)}
-                  onRemoveRange={(index) => removeRange(dayString, index)}
-                  onUpdate={(ranges) => handleUpdate(dayString, ranges)}
-                  isActive={active}
-                  id={dayString}
-                >
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-neutral-700">
-                      {cap(dayString)}
-                    </span>
-
-                    <Switch
-                      defaultChecked={active}
-                      name="weekDays"
-                      value={dayString}
-                      onChange={handleSwitchChange}
-                      label={<span className="sr-only">{cap(dayString)}</span>}
-                    />
-                  </div>
-                </DayTimesSelector>
-              );
-            })}
-          </div>
-
-          {/* Botón + error */}
-          <div className="mt-10 max-w-sm">
-            {children ? (
-              children
-            ) : noSubmit ? null : (
-              <PrimaryButton
-                isLoading={fetcher.state !== "idle"}
-                className="w-[190px]"
-                isDisabled={isDisabled}
-                type="submit"
-              >
-                {cta || "Continuar"}{" "} <ArrowRight />
-              </PrimaryButton>
-            )}
-
-            <p className="mt-3 ml-1 h-auto text-red-500 text-xs">
-              {errors.weekDays?.message}
-            </p>
-          </div>
-        </div>
-
-        {/* ==================== DERECHA (preview) ==================== */}
-        <div className="hidden lg:flex w-full justify-center pt-16">
-          <img
-            src="/images/agenda.png"
-            alt="preview"
-            className="w-full max-w-[500px] select-none pointer-events-none"
-            draggable={false}
+    <Form
+      onSubmit={handleSubmit(submit)}
+      className={twMerge(
+        "h-full pt-6 md:pt-20 px-[5%] md:px-2  max-w-xl mx-auto",
+        "flex flex-col justify-evenly h-full gap-5 text-brand_dark",
+      )}
+    >
+      {/* Switches */}
+      {ENTIRE_WEEK.map((dayString: string) => (
+        <DayTimesSelector
+          key={dayString}
+          ranges={data[dayString] || []}
+          addRange={() => addRange(dayString)}
+          onRemoveRange={(index) => removeRange(dayString, index)}
+          onUpdate={(ranges) =>
+            handleUpdate(dayString, ranges as [string, string][])
+          }
+          isActive={getValues().weekDays.includes(dayString)}
+        >
+          <Switch
+            defaultChecked={getValues().weekDays.includes(dayString)}
+            name="weekDays"
+            value={dayString}
+            label={DAY_LABELS[dayString]}
+            onChange={handleSwitchChange}
           />
-        </div>
+        </DayTimesSelector>
+      ))}
+
+      <div className="mt-auto">
+        {children ? (
+          children
+        ) : noSubmit ? null : (
+          <PrimaryButton
+            isLoading={fetcher.state !== "idle"}
+            className="w-full mt-auto"
+            isDisabled={isDisabled}
+            type="submit"
+          >
+            {cta || "Continuar"} <ArrowRight />
+          </PrimaryButton>
+        )}
       </div>
     </Form>
-  );
-};
+  )
+}
 
 export const DayTimesSelector = ({
   children,
@@ -277,21 +242,19 @@ export const DayTimesSelector = ({
   ranges = [],
   onUpdate,
 }: {
-  ranges: DayTuple;
-  addRange?: () => void;
-  onRemoveRange?: (arg0: number) => void;
-  onUpdate?: (ranges: string[][]) => void;
-  range?: string[];
-  isActive?: boolean;
-  children?: ReactNode;
+  ranges: DayTuple
+  addRange?: () => void
+  onRemoveRange?: (arg0: number) => void
+  onUpdate?: (ranges: string[][]) => void
+  range?: string[]
+  isActive?: boolean
+  children?: ReactNode
 }) => {
-  const handleChange = (index: number, range: string[]) => {
-    const arr = [...ranges];
-    arr[index] = range;
-    onUpdate?.(arr);
-  };
-
-  type Range = [string, string]; // ['09:00','16:00']
+  const handleChange = (index: number, range: [string, string]) => {
+    const arr = [...ranges] as [string, string][]
+    arr[index] = range
+    onUpdate?.(arr)
+  }
 
   return (
     <div className="rounded-xl">
@@ -304,15 +267,15 @@ export const DayTimesSelector = ({
         className={twMerge(
           "mt-3 pl-1",
           isActive ? "grid gap-3" : "hidden",
-          "text-neutral-600"
+          "text-neutral-600",
         )}
       >
-        {ranges.map((range: Range, index) => (
+        {ranges.map((range, index) => (
           <div className="flex items-center gap-4" key={nanoid()}>
             <RangeTimePicker
               isDisabled={!isActive}
               index={index}
-              onChange={(range) => handleChange(index, range)}
+              onChange={(r) => handleChange(index, r as [string, string])}
               startTime={range[0]}
               endTime={range[1]}
               onDelete={() => onRemoveRange?.(index)}
@@ -328,7 +291,7 @@ export const DayTimesSelector = ({
                     "text-sm",
                     "w-auto",
                     "disabled:cursor-not-allowed",
-                    "text-neutral-400 hover:text-neutral-600"
+                    "text-neutral-400 hover:text-neutral-600",
                   )}
                 >
                   + Agregar
@@ -338,8 +301,8 @@ export const DayTimesSelector = ({
         ))}
       </motion.div>
     </div>
-  );
-};
+  )
+}
 
 export const RangeTimePicker = ({
   index,
@@ -349,25 +312,25 @@ export const RangeTimePicker = ({
   onDelete,
   isDisabled,
 }: {
-  isDisabled?: boolean;
-  index?: number;
-  onDelete?: () => void;
-  startTime: string;
-  endTime: string;
-  onChange?: (arg0: string[]) => void;
+  isDisabled?: boolean
+  index?: number
+  onDelete?: () => void
+  startTime: string
+  endTime: string
+  onChange?: (arg0: string[]) => void
 }) => {
   const changeStartTime = (time: string) => {
-    onChange?.([time, endTime]);
-  };
+    onChange?.([time, endTime])
+  }
 
   const changeEndTime = (time: string) => {
-    onChange?.([startTime, time]);
-  };
+    onChange?.([startTime, time])
+  }
 
-  const getTime = (startTime: string) => {
-    const mins = getMinutesFromString(startTime);
-    return getStringFromMinutes(mins);
-  };
+  const _getTime = (startTime: string) => {
+    const mins = getMinutesFromString(startTime)
+    return getStringFromMinutes(mins)
+  }
 
   return (
     <div className="flex items-center gap-3">
@@ -397,5 +360,5 @@ export const RangeTimePicker = ({
         </button>
       )}
     </div>
-  );
-};
+  )
+}

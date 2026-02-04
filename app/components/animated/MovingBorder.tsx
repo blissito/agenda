@@ -1,22 +1,22 @@
-import { motion, useAnimationControls } from "motion/react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { motion, useAnimationControls } from "motion/react"
+import { type ReactNode, useEffect, useRef } from "react"
 
 export const MovingBorder = ({ children }: { children?: ReactNode }) => {
-  const containerRef = useRef<HTMLButtonElement>(null);
-  const controls = useAnimationControls();
+  const containerRef = useRef<HTMLButtonElement>(null)
+  const controls = useAnimationControls()
 
   const move = async () => {
-    await controls.start({ x: "101.3%" }, { ease: "linear", duration: 0.5 });
-    await controls.start({ y: "14%" }, { ease: "linear", duration: 0.5 });
-    await controls.start({ x: 0 }, { ease: "linear", duration: 0.5 });
-    await controls.start({ y: 0 }, { ease: "linear", duration: 0.5 });
-    await move();
-  };
+    await controls.start({ x: "101.3%" }, { ease: "linear", duration: 0.5 })
+    await controls.start({ y: "14%" }, { ease: "linear", duration: 0.5 })
+    await controls.start({ x: 0 }, { ease: "linear", duration: 0.5 })
+    await controls.start({ y: 0 }, { ease: "linear", duration: 0.5 })
+    await move()
+  }
 
   useEffect(() => {
-    move();
+    move()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [move])
 
   return (
     <motion.button
@@ -33,5 +33,5 @@ export const MovingBorder = ({ children }: { children?: ReactNode }) => {
       />
       <div className="relative z-10">{children}</div>
     </motion.button>
-  );
-};
+  )
+}

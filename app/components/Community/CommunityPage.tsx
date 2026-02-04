@@ -1,83 +1,84 @@
-import { useMemo, useState } from "react";
-import { NavLink, useNavigate } from "react-router";
-import { MOCK_BUSINESSES, type Business } from "../Community/mockBusinesses";
+import { useMemo, useState } from "react"
+import { NavLink, useNavigate } from "react-router"
+import { type Business, MOCK_BUSINESSES } from "../Community/mockBusinesses"
 
 const normalize = (v: string) =>
   v
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .trim();
+    .trim()
 
-    type CategoryTabsProps = {
-      categories: string[];
-      active: string;
-      onChange: (category: string) => void;
-    };
-    
-    function CategoryTabs({ categories, active, onChange }: CategoryTabsProps) {
-      return (
-        <div className="w-full">
-          <div
-            className={[
-              "flex items-center gap-3",
-              "flex-nowrap whitespace-nowrap",
-              "overflow-x-auto",
-              "py-2",
-              "px-2",
-              "no-scrollbar",
-            ].join(" ")}
-          >
-            {categories.map((cat) => {
-              const isActive = normalize(cat) === normalize(active);
-    
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => onChange(cat)}
-                  className={[
-                    "shrink-0",
-                    "px-4 py-2 rounded-full text-sm md:text-base font-semibold transition",
-                    isActive
-                      ? "bg-gray-100 text-brand_dark"
-                      : "bg-transparent text-brand_gray hover:bg-gray-100 hover:text-brand_dark",
-                  ].join(" ")}
-                >
-                  {cat}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
-    
+type CategoryTabsProps = {
+  categories: string[]
+  active: string
+  onChange: (category: string) => void
+}
+
+function CategoryTabs({ categories, active, onChange }: CategoryTabsProps) {
+  return (
+    <div className="w-full">
+      <div
+        className={[
+          "flex items-center gap-3",
+          "flex-nowrap whitespace-nowrap",
+          "overflow-x-auto",
+          "py-2",
+          "px-2",
+          "no-scrollbar",
+        ].join(" ")}
+      >
+        {categories.map((cat) => {
+          const isActive = normalize(cat) === normalize(active)
+
+          return (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => onChange(cat)}
+              className={[
+                "shrink-0",
+                "px-4 py-2 rounded-full text-sm md:text-base font-semibold transition",
+                isActive
+                  ? "bg-gray-100 text-brand_dark"
+                  : "bg-transparent text-brand_gray hover:bg-gray-100 hover:text-brand_dark",
+              ].join(" ")}
+            >
+              {cat}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 function AgendaSlugBar() {
-  const [slug, setSlug] = useState<string>("");
-  const navigate = useNavigate();
+  const [slug, setSlug] = useState<string>("")
+  const navigate = useNavigate()
 
   const goSignin = () => {
-    const value = slug.trim();
+    const value = slug.trim()
     if (!value) {
-      navigate("/signin");
-      return;
+      navigate("/signin")
+      return
     }
-    navigate(`/signin?slug=${encodeURIComponent(value)}`);
-  };
+    navigate(`/signin?slug=${encodeURIComponent(value)}`)
+  }
 
   return (
     <div className="flex flex-col items-center">
       <div className="w-full max-w-xl bg-white border border-brand-gray-light rounded-full px-5 py-3 flex items-center justify-between gap-3 shadow-sm">
         <div className="flex items-center flex-1 min-w-0">
-          <span className="font-semibold text-brand_dark shrink-0">denik.me/</span>
+          <span className="font-semibold text-brand_dark shrink-0">
+            denik.me/
+          </span>
 
           <input
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Enter") goSignin();
+              if (e.key === "Enter") goSignin()
             }}
             placeholder="tunegocio"
             className="ml-2 w-full !bg-transparent !border-0 !outline-none !ring-0 focus:!ring-0 focus:!outline-none text-brand_gray placeholder:text-brand_gray/70"
@@ -93,9 +94,11 @@ function AgendaSlugBar() {
         </button>
       </div>
 
-      <p className="mt-3 text-xs md:text-sm text-brand_gray">Empieza a usar Deník gratis</p>
+      <p className="mt-3 text-xs md:text-sm text-brand_gray">
+        Empieza a usar Deník gratis
+      </p>
     </div>
-  );
+  )
 }
 
 function BusinessCard({ business }: { business: Business }) {
@@ -116,15 +119,15 @@ function BusinessCard({ business }: { business: Business }) {
         </div>
       </div>
     </NavLink>
-  );
+  )
 }
 
 function AnimatedItemBlur({
   index,
   children,
 }: {
-  index: number;
-  children: React.ReactNode;
+  index: number
+  children: React.ReactNode
 }) {
   return (
     <div
@@ -140,33 +143,28 @@ function AnimatedItemBlur({
         }
       `}</style>
     </div>
-  );
+  )
 }
 
-
-
-
-
-
 export function CommunityPage() {
-  const [activeCategory, setActiveCategory] = useState<string>("Todos");
+  const [activeCategory, setActiveCategory] = useState<string>("Todos")
 
   const categories = useMemo(() => {
-    const map = new Map<string, string>(); // norm -> label
+    const map = new Map<string, string>() // norm -> label
     for (const b of MOCK_BUSINESSES) {
-      const norm = normalize(b.category);
-      if (!map.has(norm)) map.set(norm, b.category);
+      const norm = normalize(b.category)
+      if (!map.has(norm)) map.set(norm, b.category)
     }
-    return ["Todos", ...Array.from(map.values())];
-  }, []);
+    return ["Todos", ...Array.from(map.values())]
+  }, [])
 
   const filtered = useMemo(() => {
-    if (normalize(activeCategory) === normalize("Todos")) return MOCK_BUSINESSES;
+    if (normalize(activeCategory) === normalize("Todos")) return MOCK_BUSINESSES
 
     return MOCK_BUSINESSES.filter(
-      (b) => normalize(b.category) === normalize(activeCategory)
-    );
-  }, [activeCategory]);
+      (b) => normalize(b.category) === normalize(activeCategory),
+    )
+  }, [activeCategory])
 
   return (
     <section className="pt-28 pb-16 px-6">
@@ -177,8 +175,8 @@ export function CommunityPage() {
         </h1>
 
         <p className="mt-5 text-brand_gray text-base md:text-lg max-w-2xl mx-auto">
-          Conoce a la comunidad y encuentra servicios cercanos a tu ubicación o crea una agenda
-          para tu negocio
+          Conoce a la comunidad y encuentra servicios cercanos a tu ubicación o
+          crea una agenda para tu negocio
         </p>
 
         <div className="mt-8">
@@ -187,28 +185,30 @@ export function CommunityPage() {
       </div>
 
       <div className="max-w-6xl mx-auto mt-12">
-        <CategoryTabs categories={categories} active={activeCategory} onChange={setActiveCategory} />
+        <CategoryTabs
+          categories={categories}
+          active={activeCategory}
+          onChange={setActiveCategory}
+        />
 
         {filtered.length === 0 ? (
           <p className="mt-10 text-center text-brand_gray">
-            No hay negocios en <span className="font-semibold">{activeCategory}</span>.
+            No hay negocios en{" "}
+            <span className="font-semibold">{activeCategory}</span>.
           </p>
         ) : (
-          <div 
-           key={normalize(activeCategory)}
-              className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6"
-              >
+          <div
+            key={normalize(activeCategory)}
+            className="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6"
+          >
             {filtered.map((b, i) => (
-  <AnimatedItemBlur key={b.id} index={i}>
-    <BusinessCard business={b} />
-  </AnimatedItemBlur>
-))}
-
-
-
+              <AnimatedItemBlur key={b.id} index={i}>
+                <BusinessCard business={b} />
+              </AnimatedItemBlur>
+            ))}
           </div>
         )}
       </div>
     </section>
-  );
+  )
 }

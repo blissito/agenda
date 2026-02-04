@@ -1,49 +1,47 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { BasicInput } from "~/components/forms/BasicInput";
+import { redirect, useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Spinner } from "~/components/common/Spinner"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { BasicInput } from "~/components/forms/BasicInput"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrump";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { db } from "~/utils/db.server";
-import type { Route } from "./+types/dash.servicios_.$serviceId_.general";
-import { Form, redirect, useFetcher } from "react-router";
-import { serviceUpdateSchema } from "~/utils/zod_schemas";
-import { Spinner } from "~/components/common/Spinner";
+} from "~/components/ui/breadcrump"
+import { db } from "~/utils/db.server"
+import { serviceUpdateSchema } from "~/utils/zod_schemas"
+import type { Route } from "./+types/dash.servicios_.$serviceId_.general"
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
   if (intent === "update_service") {
-    const form = Object.fromEntries(formData);
-    const validData = serviceUpdateSchema.parse(form);
+    const form = Object.fromEntries(formData)
+    const validData = serviceUpdateSchema.parse(form)
+    const { id, slug, orgId, ...updateData } = validData
     await db.service.update({
-      where: {
-        id: validData.id,
-      },
-      data: { ...validData, id: undefined, slug: undefined },
-    });
-    return redirect("/dash/servicios/" + validData.id);
+      where: { id },
+      data: updateData,
+    })
+    return redirect(`/dash/servicios/${id}`)
   }
-  return null;
-};
+  return null
+}
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
-  const serviceId = params.serviceId;
-  const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) throw new Response(null, { status: 404 });
+  const serviceId = params.serviceId
+  const service = await db.service.findUnique({ where: { id: serviceId } })
+  if (!service) throw new Response(null, { status: 404 })
 
-  return { service };
-};
+  return { service }
+}
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { service } = loaderData;
-  const fetcher = useFetcher();
-  const isFetching = fetcher.state !== "idle";
+  const { service } = loaderData
+  const fetcher = useFetcher()
+  const isFetching = fetcher.state !== "idle"
 
   return (
     <section>
@@ -75,39 +73,39 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <input type="hidden" name="orgId" value={service.orgId} />
 
         <h2
-          className="font-satoMiddle mb-8 text-xl
+          className="font-satoBold mb-8 text-xl
         "
         >
           Información General
         </h2>
-        {/* Revisar props */}
-        <div className="flex gap-6"></div>
-        <BasicInput
-          placeholder="Clase de piano"
-          label="Nombre del servicio"
-          name="name"
-          defaultValue={service.name}
-        />
-        <BasicInput
-          placeholder="$0.00"
-          label="Precio"
-          name="price"
-          type="number"
-          defaultValue={service.price}
-        />
-        <BasicInput
-          name="points"
-          placeholder="100"
-          label="¿A cuántos puntos de recompensas equivale el servicio?"
-          defaultValue={service.points}
-        />
-        <BasicInput
-          as="textarea"
-          name="description"
-          placeholder="Cuéntale a tus clientes sobre tu servicio"
-          label="Descripción"
-          defaultValue={service.description}
-        />
+        <div className="flex flex-col gap-6">
+          <BasicInput
+            placeholder="Clase de piano"
+            label="Nombre del servicio"
+            name="name"
+            defaultValue={service.name}
+          />
+          <BasicInput
+            placeholder="$0.00"
+            label="Precio"
+            name="price"
+            type="number"
+            defaultValue={Number(service.price)}
+          />
+          <BasicInput
+            name="points"
+            placeholder="100"
+            label="¿A cuántos puntos de recompensas equivale el servicio?"
+            defaultValue={Number(service.points)}
+          />
+          <BasicInput
+            as="textarea"
+            name="description"
+            placeholder="Cuéntale a tus clientes sobre tu servicio"
+            label="Descripción"
+            defaultValue={service.description ?? undefined}
+          />
+        </div>
 
         <div className="flex mt-16 justify-end gap-6">
           <SecondaryButton
@@ -128,5 +126,5 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         </div>
       </fetcher.Form>
     </section>
-  );
+  )
 }

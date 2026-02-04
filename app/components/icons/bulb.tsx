@@ -1,8 +1,8 @@
 export const Bulb = ({
   fill = "#5158F6",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -52,4 +52,4 @@ export const Bulb = ({
       fill={fill}
     />
   </svg>
-);
+)

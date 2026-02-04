@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState } from "react"
 export const useDisclosure = (initial: boolean = false) => {
-  const [isOpen, setIsOpen] = useState(initial);
+  const [isOpen, setIsOpen] = useState(initial)
   return {
     isOpen,
     close() {
-      setIsOpen(false);
+      setIsOpen(false)
     },
     open() {
-      setIsOpen(true);
+      setIsOpen(true)
     },
-  };
-};
+  }
+}

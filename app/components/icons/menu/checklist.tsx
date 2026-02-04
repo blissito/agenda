@@ -2,8 +2,8 @@ export const Checklist = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="32"
@@ -17,4 +17,4 @@ export const Checklist = ({
       fill={fill}
     />
   </svg>
-);
+)

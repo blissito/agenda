@@ -1,30 +1,34 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { type ReactNode, useEffect, useRef } from "react";
-import type { Org } from "@prisma/client";
-import { TemplateForm } from "../forms/website/TemplateForm";
-import { AnimatePresence, motion } from "motion/react";
-import { cn } from "~/utils/cn";
-import { useDisclosure } from "~/utils/hooks/useDisclosure";
+import type { Org } from "@prisma/client"
+import { AnimatePresence, motion } from "motion/react"
+import {
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+} from "react"
+import { cn } from "~/utils/cn"
+import { useDisclosure } from "~/utils/hooks/useDisclosure"
+import { TemplateForm } from "../forms/website/TemplateForm"
 
 type OrgWithDomain = Org & {
-  customDomain?: string | null;
-  customDomainStatus?: string | null;
-  customDomainDns?: unknown;
-};
+  customDomain?: string | null
+  customDomainStatus?: string | null
+  customDomainDns?: unknown
+}
 
 export function TemplateFormModal({
   org,
   trigger,
 }: {
-  trigger: ReactNode;
-  org: OrgWithDomain;
+  trigger: ReactNode
+  org: OrgWithDomain
 }) {
-  const { isOpen, close, open } = useDisclosure(false);
+  const { isOpen, close, open } = useDisclosure(false)
   return (
     <Modal onOpen={open} onClose={close} open={isOpen} trigger={trigger}>
       {<TemplateForm onClose={close} org={org} />}
     </Modal>
-  );
+  )
 }
 
 export const Modal = ({
@@ -35,12 +39,12 @@ export const Modal = ({
   children,
   title,
 }: {
-  title?: string;
-  onOpen: () => void;
-  onClose: () => void;
-  open: boolean;
-  trigger: ReactNode;
-  children: ReactNode;
+  title?: string
+  onOpen: () => void
+  onClose: () => void
+  open: boolean
+  trigger: ReactNode
+  children: ReactNode
 }) => {
   return (
     <>
@@ -53,65 +57,63 @@ export const Modal = ({
         )}
       </AnimatePresence>
     </>
-  );
-};
+  )
+}
 
 const OpenedModal = ({
   children,
   title,
   onClose,
 }: {
-  title?: string;
-  onClose: () => void;
-  children: ReactNode;
+  title?: string
+  onClose: () => void
+  children: ReactNode
 }) => {
-  const overlayRef = useRef(null);
+  const overlayRef = useRef(null)
   useEffect(() => {
     const escListener = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose?.();
+        onClose?.()
       }
-    };
-    addEventListener("keydown", escListener);
-    document.body.style.overflowY = "hidden";
+    }
+    addEventListener("keydown", escListener)
+    document.body.style.overflowY = "hidden"
 
     return () => {
-      removeEventListener("keydown", escListener);
-      document.body.style.overflowY = "auto";
-    };
-  }, []);
+      removeEventListener("keydown", escListener)
+      document.body.style.overflowY = "auto"
+    }
+  }, [onClose])
 
   return (
-    <>
-      <motion.article
-        ref={overlayRef}
-        onClick={(event) => {
-          if (event.currentTarget === overlayRef.current) {
-            onClose?.();
-          }
-        }}
-        initial={{ backdropFilter: "blur(0px)" }}
-        animate={{ backdropFilter: "blur(4px)" }}
-        exit={{ backdropFilter: "blur(0px)" }}
+    <motion.article
+      ref={overlayRef}
+      onClick={(event) => {
+        if (event.currentTarget === overlayRef.current) {
+          onClose?.()
+        }
+      }}
+      initial={{ backdropFilter: "blur(0px)" }}
+      animate={{ backdropFilter: "blur(4px)" }}
+      exit={{ backdropFilter: "blur(0px)" }}
+      className={cn(
+        "relative",
+        "fixed bg-black/50 backdrop-blur z-10 inset-0 grid place-content-center",
+      )}
+    >
+      <motion.section
+        onClick={(event: ReactMouseEvent) => event.stopPropagation()} // to avoid closing by upper onClick
+        initial={{ y: 10, opacity: 0, filter: "blur(4px)" }}
+        animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+        exit={{ y: -10, opacity: 0, filter: "blur(4px)" }}
         className={cn(
-          "relative",
-          "fixed bg-black/50 backdrop-blur z-10 inset-0 grid place-content-center"
+          "bg-white px-6 pt-6 overflow-auto rounded-xl mx-auto w-max h-[80vh]",
         )}
+        style={{ scrollbarWidth: "none" }}
       >
-        <motion.section
-          onClick={(event: MouseEvent) => event.stopPropagation()} // to avoid closing by upper onClick
-          initial={{ y: 10, opacity: 0, filter: "blur(4px)" }}
-          animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-          exit={{ y: -10, opacity: 0, filter: "blur(4px)" }}
-          className={cn(
-            "bg-white px-6 pt-6 overflow-auto rounded-xl mx-auto w-max h-[80vh]"
-          )}
-          style={{ scrollbarWidth: "none" }}
-        >
-          <h2 className="text-2xl">{title}</h2>
-          {children}
-        </motion.section>
-      </motion.article>
-    </>
-  );
-};
+        <h2 className="text-2xl">{title}</h2>
+        {children}
+      </motion.section>
+    </motion.article>
+  )
+}

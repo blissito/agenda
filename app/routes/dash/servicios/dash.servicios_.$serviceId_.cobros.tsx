@@ -1,44 +1,67 @@
+import { FaWhatsapp } from "react-icons/fa6"
+import { useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Switch } from "~/components/common/Switch"
+import { SecondaryButton } from "~/components/common/secondaryButton"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrump";
-import { db } from "~/utils/db.server";
-import { useFetcher } from "react-router";
-import type { Route } from "./+types/dash.servicios_.$serviceId_.cobros";
-import { Switch } from "~/components/common/Switch";
-import { useState } from "react";
-import { FaWhatsapp } from "react-icons/fa6";
-import { PrimaryButton } from "~/components/common/primaryButton";
+} from "~/components/ui/breadcrump"
+import { db } from "~/utils/db.server"
+import type { Route } from "./+types/dash.servicios_.$serviceId_.cobros"
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
-  const serviceId = params.serviceId;
-  const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) throw new Response(null, { status: 404 });
-  return { service };
-};
+  const serviceId = params.serviceId
+  const service = await db.service.findUnique({ where: { id: serviceId } })
+  if (!service) throw new Response(null, { status: 404 })
+  return { service }
+}
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
   if (intent === "update_service") {
-    const data = JSON.parse(formData.get("data") as string);
-    await db.service.update({
-      where: { id: data.id },
-      data: {
-        ...data,
-        id: undefined,
-      },
-    });
+    const data = JSON.parse(formData.get("data") as string)
+    const { id, config: newConfig, ...rest } = data
+
+    if (newConfig) {
+      const currentService = await db.service.findUnique({ where: { id } })
+      const currentConfig = currentService?.config || {
+        confirmation: false,
+        reminder: false,
+        survey: false,
+        whatsapp_confirmation: null,
+        whatsapp_reminder: null,
+      }
+
+      await db.service.update({
+        where: { id },
+        data: {
+          ...rest,
+          config: {
+            set: {
+              ...currentConfig,
+              ...newConfig,
+            },
+          },
+        },
+      })
+    } else {
+      await db.service.update({
+        where: { id },
+        data: rest,
+      })
+    }
   }
-  return null;
-};
+  return null
+}
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { service } = loaderData;
-  const fetcher = useFetcher();
+  const { service } = loaderData
+  const fetcher = useFetcher()
   const handleSwitchChange = (name: string, checked: boolean) => {
     if (name === "payment") {
       fetcher.submit(
@@ -46,9 +69,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           intent: "update_service",
           data: JSON.stringify({ payment: checked, id: service.id }),
         },
-        { method: "post" }
-      );
-      return;
+        { method: "post" },
+      )
+      return
     }
 
     fetcher.submit(
@@ -59,9 +82,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           config: { ...service.config, [name]: checked },
         }),
       },
-      { method: "post" }
-    );
-  };
+      { method: "post" },
+    )
+  }
   return (
     <section>
       <Breadcrumb className="text-brand_gray">
@@ -87,7 +110,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <h2 className="font-satoMiddle mb-8 text-xl">
           Actualiza tus cobros y recordatorios
         </h2>
-        <section>
+        <div className="flex flex-col gap-6">
           <Switch
             defaultChecked={service.payment}
             onChange={(checked: boolean) =>
@@ -107,7 +130,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Lo enviaremos en cuanto se complete la reservación"
           />
           <Switch
-            defaultChecked={service.config?.whatsapp_confirmation}
+            defaultChecked={service.config?.whatsapp_confirmation ?? false}
             onChange={(checked: boolean) =>
               handleSwitchChange("whatsapp_confirmation", checked)
             }
@@ -126,7 +149,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Lo enviaremos 24 hrs antes de la sesión"
           />
           <Switch
-            defaultChecked={service.config?.whatsapp_reminder}
+            defaultChecked={service.config?.whatsapp_reminder ?? false}
             onChange={(checked: boolean) =>
               handleSwitchChange("whatsapp_reminder", checked)
             }
@@ -135,11 +158,21 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Lo enviaremos 24 hrs antes de la sesión"
             icon={<FaWhatsapp />}
           />
-          <PrimaryButton as="Link" to={"/dash/servicios/" + service.id}>
-            Volver
+        </div>
+
+        <div className="flex mt-16 justify-end gap-6">
+          <SecondaryButton
+            as="Link"
+            to={`/dash/servicios/${service.id}`}
+            className="w-[120px]"
+          >
+            Cancelar
+          </SecondaryButton>
+          <PrimaryButton as="Link" to={`/dash/servicios/${service.id}`}>
+            Guardar
           </PrimaryButton>
-        </section>
+        </div>
       </div>
     </section>
-  );
+  )
 }

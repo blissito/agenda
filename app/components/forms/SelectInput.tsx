@@ -1,29 +1,29 @@
-import type { ChangeEvent, ReactNode } from "react";
-import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form";
-import { twMerge } from "tailwind-merge";
-import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
-import { cn } from "~/utils/cn";
+import type { ChangeEvent, ReactNode } from "react"
+import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
+import { twMerge } from "tailwind-merge"
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug"
+import { cn } from "~/utils/cn"
 
 export type Option = {
-  value: string;
-  title?: string;
-};
+  value: string
+  title?: string
+}
 
 type Props = {
-  value?: string;
-  defaultValue?: string;
-  name?: string;
-  register?: UseFormRegister<FieldValues> | any;
-  error?: FieldError;
-  label?: string;
-  className?: string;
-  registerOptions?: { required: string | boolean };
-  placeholder?: string;
-  options?: Option[];
-  icon?: ReactNode;
-  isDisabled?: boolean;
-  onChange?: (arg0: ChangeEvent<HTMLSelectElement>) => void;
-};
+  value?: string
+  defaultValue?: string
+  name?: string
+  register?: UseFormRegister<FieldValues> | any
+  error?: FieldError
+  label?: string
+  className?: string
+  registerOptions?: { required: string | boolean }
+  placeholder?: string
+  options?: Option[]
+  icon?: ReactNode
+  isDisabled?: boolean
+  onChange?: (arg0: ChangeEvent<HTMLSelectElement>) => void
+}
 export const SelectInput = ({
   value,
   defaultValue = "",
@@ -62,7 +62,7 @@ export const SelectInput = ({
             {
               "disabled:cursor-not-allowed": isDisabled,
               "pl-14 relative": icon,
-            }
+            },
           )}
           {...props}
           {...register?.(name, registerOptions)}
@@ -75,7 +75,7 @@ export const SelectInput = ({
               <option key={index} value={option.value}>
                 {option.title ? option.title : option.value}
               </option>
-            );
+            )
           })}
         </select>
       </div>
@@ -83,5 +83,5 @@ export const SelectInput = ({
         <p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>
       )}
     </section>
-  );
-};
+  )
+}

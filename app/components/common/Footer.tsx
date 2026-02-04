@@ -1,10 +1,9 @@
-import { Link } from "react-router";
-import { Denik } from "../icons/denik";
-import { Facebook } from "../icons/facebook";
-import { Linkedin } from "../icons/linkedin";
-import { Instagram } from "../icons/insta";
-import { Twitter } from "../icons/twitter";
-import { Youtube } from "../icons/youtube";
+import { Link } from "react-router"
+import { Denik } from "../icons/denik"
+import { Facebook } from "../icons/facebook"
+import { Instagram } from "../icons/insta"
+import { Linkedin } from "../icons/linkedin"
+import { Youtube } from "../icons/youtube"
 
 export const Footer = () => {
   return (
@@ -87,5 +86,5 @@ export const Footer = () => {
         Todos los derechos reservados Deník® 2024
       </p>
     </section>
-  );
-};
+  )
+}

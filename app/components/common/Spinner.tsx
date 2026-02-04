@@ -1,4 +1,4 @@
-import { twMerge } from "tailwind-merge";
+import { twMerge } from "tailwind-merge"
 
 export const Spinner = ({ className }: { className?: string }) => {
   return (
@@ -7,5 +7,5 @@ export const Spinner = ({ className }: { className?: string }) => {
       alt="loading spinner"
       src="/images/logos/spinner.svg"
     />
-  );
-};
+  )
+}

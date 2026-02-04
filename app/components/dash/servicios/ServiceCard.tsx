@@ -1,18 +1,18 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { Link, useFetcher } from "react-router";
-import { Tag } from "~/components/common/Tag";
-import { Plus } from "~/components/icons/plus";
-import { TbDots } from "react-icons/tb";
-import { FaLink, FaRegTrashCan } from "react-icons/fa6";
-import { FiToggleLeft, FiToggleRight } from "react-icons/fi";
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { Spinner } from "~/components/common/Spinner";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { twMerge } from "tailwind-merge";
-import { useCopyLink } from "~/components/hooks/useCopyLink";
-import { Image } from "~/components/common/Image";
-import type { Service } from "@prisma/client";
+import type { Service } from "@prisma/client"
+import { AnimatePresence, motion } from "motion/react"
+import { useState } from "react"
+import { FaLink, FaRegTrashCan } from "react-icons/fa6"
+import { FiToggleLeft, FiToggleRight } from "react-icons/fi"
+import { TbDots } from "react-icons/tb"
+import { Link, useFetcher } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { Image } from "~/components/common/Image"
+import { Spinner } from "~/components/common/Spinner"
+import { Tag } from "~/components/common/Tag"
+import { useCopyLink } from "~/components/hooks/useCopyLink"
+import { Plus } from "~/components/icons/plus"
+import { useClickOutside } from "~/utils/hooks/useClickOutside"
 
 export const ServiceCard = ({
   service,
@@ -25,38 +25,31 @@ export const ServiceCard = ({
   id,
   isActive,
 }: {
-  service: Service;
-  isActive: boolean;
-  id: string;
-  title: string;
-  image?: string;
-  duration: number;
-  price: string;
-  status: string;
-  link: string;
-  path: string;
+  service: Service
+  isActive: boolean
+  id: string
+  title: string
+  image?: string
+  duration: number
+  price: string
+  status: string
+  link: string
+  path: string
 }) => {
   // lets try with an api endpoint...
-  const fetcher = useFetcher<typeof action>();
-  const [show, setShow] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
+  const fetcher = useFetcher()
+  const [show, setShow] = useState(false)
+  const [showDelete, setShowDelete] = useState(false)
 
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: () => {
-      setShow(false);
+      setShow(false)
     },
     isActive: show,
     includeEscape: true, // captures [Esc] key press
-  });
-  const refDelete = useClickOutside<HTMLDivElement>({
-    onOutsideClick: () => {
-      setShowDelete(false);
-    },
-    isActive: showDelete,
-    includeEscape: true,
-  });
+  })
 
-  const { ref: copiadoRef, setLink } = useCopyLink(link);
+  const { ref: copiadoRef, setLink } = useCopyLink<HTMLButtonElement>(link)
 
   const handleToggleDeactivation = () => {
     fetcher.submit(
@@ -64,30 +57,30 @@ export const ServiceCard = ({
         intent: "api_update_service",
         data: JSON.stringify({ serviceId: id, isActive: !isActive }),
       },
-      { method: "post", action: "/dash/servicios/nuevo" }
-    );
-  };
+      { method: "post", action: "/dash/servicios/nuevo" },
+    )
+  }
 
   const handleDelete = () => {
-    setShow(false);
-    setShowDelete(true);
-  };
+    setShow(false)
+    setShowDelete(true)
+  }
 
   const handleDeleteConfirm = () => {
-    setShowDelete(false);
+    setShowDelete(false)
     fetcher.submit(
       {
         intent: "update_service",
         data: JSON.stringify({ id, archived: true }),
       },
-      { method: "post" }
-    );
-  };
+      { method: "post" },
+    )
+  }
 
   const handleCopyLink = () => {
-    setLink();
-    setShow(false);
-  };
+    setLink()
+    setShow(false)
+  }
 
   return (
     <motion.section
@@ -98,13 +91,13 @@ export const ServiceCard = ({
     >
       <button
         onClick={() => {
-          setShow((s) => !s);
+          setShow((s) => !s)
         }}
         type="button"
         className={twMerge(
           "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full  bg-transparent z-10 text-transparent active:scale-95 focus:text-white focus:bg-gray-400/70",
           "opacity-1 group-hover:bg-gray-400/70 group-hover:text-white",
-          show && "text-white bg-gray-400/70 "
+          show && "text-white bg-gray-400/70 ",
         )}
       >
         <TbDots />
@@ -154,93 +147,23 @@ export const ServiceCard = ({
                   </span>
                 </>
               ) : (
-                <>
-                  <Spinner className="scale-[20%]" />
-                </>
+                <Spinner className="scale-[20%]" />
               )}
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* MODAL ELIMINAR */}
-      <AnimatePresence>
-        {showDelete && (
-          <motion.div
-            className="fixed inset-0 z-[999] flex items-center justify-center px-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            aria-modal="true"
-            role="dialog"
-          >
-            {/* overlay más borroso */}
-            <motion.button
-              type="button"
-              onClick={() => setShowDelete(false)}
-              className="absolute inset-0 bg-black/35 backdrop-blur-[16px]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              aria-label="Cerrar"
-            />
-
-            {/* caja */}
-            <motion.div
-              ref={refDelete}
-              initial={{ opacity: 0, scale: 0.98, y: 6 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.98, y: 6 }}
-              transition={{ type: "spring", stiffness: 260, damping: 22 }}
-              className="relative w-[600px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoMedium"
-            >
-              <button
-                type="button"
-                onClick={() => setShowDelete(false)}
-                className="absolute right-4 top-4 h-8 w-8 grid place-items-center text-brand_gray/70 hover:text-brand_gray transition-all active:scale-95"
-                aria-label="Cerrar"
-              >
-                ✕
-              </button>
-
-              <div className="w-full px-12 pt-7 pb-6 flex flex-col items-center font-satoshi">
-                <div
-                  role="heading"
-                  aria-level={3}
-                  className="text-center font-bold text-2xl leading-8 text-brand_dark"
-                >
-                  ¿Seguro que quieres eliminar este servicio? 🫣
-                </div>
-
-                <p className="mt-4 text-center text-brand_gray leading-normal">
-                  Al eliminarlo también eliminaremos todas las citas agendadas del servicio.
-                  Enviaremos una notificación a cada client@.
-                </p>
-
-                <div className="mt-12 flex items-center justify-center gap-8">
-                  <button
-                    type="button"
-                    onClick={() => setShowDelete(false)}
-                    className="w-[160px] h-[40px] rounded-full bg-brand_light_gray  font-medium transition-all active:scale-95"
-                  >
-                    Cancelar
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleDeleteConfirm}
-                    className="w-[160px] h-[40px] rounded-full bg-brand_red text-white font-medium transition-all active:scale-95"
-                  >
-                    Sí, eliminar
-                  </button>
-                </div>
-              </div>
-
-            </motion.div>
-
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ConfirmModal
+        isOpen={showDelete}
+        onClose={() => setShowDelete(false)}
+        onConfirm={handleDeleteConfirm}
+        title="¿Seguro que quieres eliminar este servicio? 🫣"
+        description="Al eliminarlo también eliminaremos todas las citas agendadas del servicio. Enviaremos una notificación a cada client@."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+      />
 
       <Link to={path ? path : "/dash/servicios"} className="group ">
         <section className="bg-white h-full rounded-2xl overflow-hidden hover:scale-105 transition-all cursor-pointer flex flex-col">
@@ -267,16 +190,14 @@ export const ServiceCard = ({
         </section>
       </Link>
     </motion.section>
-  );
-};
+  )
+}
 
 export const AddService = () => {
-  const fetcher = useFetcher();
+  const _fetcher = useFetcher()
   return (
     <Link to="/dash/servicios/nuevo">
-      <button
-        className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center"
-      >
+      <button className="group min-h-[200px]  h-full  bg-transparent  rounded-2xl border-[1px] border-brand_gray  border-dashed w-full flex justify-center items-center text-center">
         <div>
           <Plus className="mx-auto group-hover:scale-125 transition-all" />
           <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
@@ -285,5 +206,5 @@ export const AddService = () => {
         </div>
       </button>
     </Link>
-  );
-};
+  )
+}

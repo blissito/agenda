@@ -1,58 +1,58 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { useLoaderData } from "react-router";
-import React, { type ReactNode } from "react";
-import { FaCheck } from "react-icons/fa6";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { Switch } from "~/components/common/Switch";
-import { BasicInput } from "~/components/forms/BasicInput";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import SelectStylized, { type Choice } from "~/components/ui/select";
+import { type ReactNode } from "react"
+import { FaCheck } from "react-icons/fa6"
+import { useLoaderData } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { Switch } from "~/components/common/Switch"
+import { BasicInput } from "~/components/forms/BasicInput"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import SelectStylized, { type Choice } from "~/components/ui/select"
+import { SUPPORTED_TIMEZONES } from "~/utils/timezone"
 
-const CHOICES: Choice[] = [
-  { id: 1, name: "🇲🇽 México" },
-  { id: 2, name: "🇺🇸 Estados Unidos" },
-  { id: 3, name: "🇦🇷 Argentina" },
-  { id: 4, name: "🇨🇴 Colombia" },
-  { id: 5, name: "🇨🇱 Chile" },
-];
+const COUNTRIES: Choice[] = [
+  { value: "MX", label: "🇲🇽 México" },
+  { value: "AR", label: "🇦🇷 Argentina" },
+  { value: "CO", label: "🇨🇴 Colombia" },
+  { value: "ES", label: "🇪🇸 España" },
+  { value: "PE", label: "🇵🇪 Perú" },
+]
 
-const TIMEZONES: Choice[] = [
-  { id: 1, name: "America/Mexico_City" },
-  { id: 2, name: "America/Indiana/Indianapolis" },
-  { id: 3, name: "America/Indiana/Vincennes" },
-];
+const TIMEZONES: Choice[] = SUPPORTED_TIMEZONES.map((tz) => ({
+  value: tz.value,
+  label: tz.label,
+}))
+
 const PERIOD: Choice[] = [
-  { id: 1, name: "3 meses" },
-  { id: 2, name: "6 meses" },
-  { id: 3, name: "1 años" },
-];
+  { value: "3m", label: "3 meses" },
+  { value: "6m", label: "6 meses" },
+  { value: "1y", label: "1 año" },
+]
 
 const RANGES: Choice[] = [
-  { id: 1, name: "15 minutos" },
-  { id: 2, name: "30 minutos" },
-  { id: 3, name: "1 hora" },
-  { id: 4, name: "24 horas" },
-];
+  { value: "15", label: "15 minutos" },
+  { value: "30", label: "30 minutos" },
+  { value: "60", label: "1 hora" },
+  { value: "1440", label: "24 horas" },
+]
 
 const TIMES: Choice[] = [
-  { id: 1, name: "1 vez" },
-  { id: 2, name: "2 veces" },
-  { id: 3, name: "3 veces" },
-  { id: 4, name: "Ilimitadas" },
-];
+  { value: "1", label: "1 vez" },
+  { value: "2", label: "2 veces" },
+  { value: "3", label: "3 veces" },
+  { value: "unlimited", label: "Ilimitadas" },
+]
 
 export const loader = async () => {
   return {
-    countries: CHOICES,
+    countries: COUNTRIES,
     timeZones: TIMEZONES,
     period: PERIOD,
     ranges: RANGES,
     times: TIMES,
-  };
-};
+  }
+}
 
 export default function Clients() {
-  const { countries, timeZones } = useLoaderData<typeof loader>();
+  const { countries, timeZones } = useLoaderData<typeof loader>()
   return (
     <main className=" pb-10">
       <RouteTitle>Ajustes</RouteTitle>
@@ -90,7 +90,7 @@ export default function Clients() {
             title="Disponibilidad de servicios"
             description="¿Tus servicios pueden agendarse al mismo tiempo? Recomendado si eres un centro deportivo que tiene los espacios disponibles de forma simultánea."
           >
-            <Switch className="h-10" />
+            <Switch name="simultaneous_services" className="h-10" />
           </OptionBox>
           <hr className="bg-brand_stroke my-6" />
 
@@ -145,6 +145,7 @@ export default function Clients() {
               Añádelos a continuación.
             </p>
             <BasicInput
+              name="terms"
               as="textarea"
               className="mt-4"
               placeholder="Pega aquí los términos y condiciones de tus servicios"
@@ -153,6 +154,22 @@ export default function Clients() {
           <hr className="bg-brand_stroke my-6" />
           <h3 className="text-lg font-bold">Integraciones</h3>
           <p className=" text-brand_dark font-satoshi mt-4 mb-4">
+            {" "}
+            <strong className="font-satoMiddle">Mensajería</strong>
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <IntegrationCardComingSoon
+              icon="/images/whatsapp.svg"
+              tool="WhatsApp Business"
+              description="Envía recordatorios y confirmaciones por WhatsApp."
+            />
+            <IntegrationCardComingSoon
+              icon="/images/messenger.svg"
+              tool="Messenger"
+              description="Conecta con tus clientes a través de Facebook Messenger."
+            />
+          </div>
+          <p className=" text-brand_dark font-satoshi mt-6 mb-4">
             {" "}
             <strong className="font-satoMiddle">Videollamadas</strong>
           </p>
@@ -195,7 +212,7 @@ export default function Clients() {
         </div>
       </section>
     </main>
-  );
+  )
 }
 
 export const IntegrationCard = ({
@@ -203,9 +220,9 @@ export const IntegrationCard = ({
   tool,
   description,
 }: {
-  icon: string;
-  tool: string;
-  description: string;
+  icon: string
+  tool: string
+  description: string
 }) => {
   return (
     <section className=" col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative cursor-pointer group">
@@ -223,17 +240,48 @@ export const IntegrationCard = ({
         <p className="text-brand_gray text-sm mt-1">{description}</p>
       </div>
     </section>
-  );
-};
+  )
+}
+
+export const IntegrationCardComingSoon = ({
+  icon,
+  tool,
+  description,
+}: {
+  icon: string
+  tool: string
+  description: string
+}) => {
+  return (
+    <section className="col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative opacity-60 cursor-not-allowed">
+      <img
+        className="w-6 h-6 rounded-full grayscale"
+        src={icon}
+        alt="integration"
+      />
+      <div>
+        <div className="flex items-center gap-3">
+          <h3 className="text-brand_dark">{tool}</h3>
+          <div className="bg-[#FEF3C7] h-4 rounded-full px-2 flex gap-1 justify-start items-center">
+            <span className="text-[10px] items-center gap-1 text-[#92400E]">
+              Próximamente
+            </span>
+          </div>
+        </div>
+        <p className="text-brand_gray text-sm mt-1">{description}</p>
+      </div>
+    </section>
+  )
+}
 
 export const OptionBox = ({
   title,
   description,
   children,
 }: {
-  title: string;
-  children?: ReactNode;
-  description?: string;
+  title: string
+  children?: ReactNode
+  description?: string
 }) => {
   return (
     <section className="grid grid-cols-8 gap-6 my-6 ">
@@ -248,5 +296,5 @@ export const OptionBox = ({
       </div>
       <div className="col-span-3 flex items-center justify-end">{children}</div>
     </section>
-  );
-};
+  )
+}

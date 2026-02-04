@@ -1,5 +1,5 @@
-import { icons, muchos, pocos } from "./utils";
-import { StarLights } from "../icons/starLights";
+import { StarLights } from "../icons/starLights"
+import { muchos, pocos } from "./utils"
 
 export const CompaniesScroll = ({ ...props }: { props?: unknown }) => (
   <section className=" relative ">
@@ -22,4 +22,4 @@ export const CompaniesScroll = ({ ...props }: { props?: unknown }) => (
       ))}
     </div>
   </section>
-);
+)

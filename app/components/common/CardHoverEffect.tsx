@@ -1,21 +1,21 @@
-import { cn } from "../../utils/cn";
-import { Link } from "react-router";
-import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, useState } from "react";
+import { AnimatePresence, motion } from "motion/react"
+import { type ReactNode, useState } from "react"
+import { Link } from "react-router"
+import { cn } from "../../utils/cn"
 
 export const HoverEffect = ({
   items,
   className,
 }: {
   items: {
-    plan: string;
-    price: string;
-    link?: string;
-    children: ReactNode;
-  }[];
-  className?: string;
+    plan: string
+    price: string
+    link?: string
+    children: ReactNode
+  }[]
+  className?: string
 }) => {
-  let [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   return (
     <motion.div
@@ -77,5 +77,5 @@ export const HoverEffect = ({
         ))}
       </div>
     </motion.div>
-  );
-};
+  )
+}

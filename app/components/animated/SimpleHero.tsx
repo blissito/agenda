@@ -1,21 +1,21 @@
-import { motion, useScroll, useSpring, useTransform } from "motion/react";
-import { cn } from "~/utils/cn";
+import { motion, useScroll, useSpring, useTransform } from "motion/react"
+import { cn } from "~/utils/cn"
 
 const getRandomNumber = (min: number, max: number) => {
-  return Math.floor(Math.random() * max) + min;
-};
+  return Math.floor(Math.random() * max) + min
+}
 
 export const SimpleHero = () => {
-  const { scrollYProgress } = useScroll();
+  const { scrollYProgress } = useScroll()
   const smoothScroll = useSpring(scrollYProgress, {
     bounce: 0,
-  });
+  })
 
-  const rotateZ = useTransform(smoothScroll, [0, 1], [0, -45]);
+  const rotateZ = useTransform(smoothScroll, [0, 1], [0, -45])
 
-  const scale = useTransform(smoothScroll, [0, 1], [1, 0.2]);
+  const scale = useTransform(smoothScroll, [0, 1], [1, 0.2])
 
-  const y = useTransform(smoothScroll, [0, 1], [0, 300]);
+  const y = useTransform(smoothScroll, [0, 1], [0, 300])
 
   return (
     <section className="py-48 flex flex-col gap-8 justify-center items-center bg-gradient-to-br from-indigo-700 to-indigo-900 relative">
@@ -40,8 +40,8 @@ export const SimpleHero = () => {
       />
       <Particles />
     </section>
-  );
-};
+  )
+}
 
 const Particles = () => {
   return (
@@ -97,32 +97,32 @@ const Particles = () => {
         }}
       />
     </>
-  );
-};
+  )
+}
 
 const Particle = ({
   position,
   mode = "cube",
 }: {
-  mode?: "cross" | "cube";
-  position: { x: string; y: number | string };
+  mode?: "cross" | "cube"
+  position: { x: string; y: number | string }
 }) => {
-  const { scrollYProgress } = useScroll();
+  const { scrollYProgress } = useScroll()
   const smoothScroll = useSpring(scrollYProgress, {
     bounce: 0.2,
-  });
+  })
 
-  const x = useTransform(smoothScroll, [0, 1], [position.x, "0vw"]);
+  const x = useTransform(smoothScroll, [0, 1], [position.x, "0vw"])
 
-  const y = useTransform(smoothScroll, [0, 1], [position.y, 0]);
+  const y = useTransform(smoothScroll, [0, 1], [position.y, 0])
 
-  const isRight = !position.x.includes("-");
+  const isRight = !position.x.includes("-")
 
   const rotateZ = useTransform(
     smoothScroll,
     [0, 1],
-    isRight ? [getRandomNumber(0, -85), -360] : [getRandomNumber(0, 85), 360]
-  );
+    isRight ? [getRandomNumber(0, -85), -360] : [getRandomNumber(0, 85), 360],
+  )
 
   return (
     <motion.div
@@ -141,8 +141,8 @@ const Particle = ({
         "w-6 h-6 bg-gradient-to-r from-pink-500 to-pink-600 absolute",
         {
           "from-blue-500 to-blue-700 w-4 h-4": mode === "cube",
-        }
+        },
       )}
     />
-  );
-};
+  )
+}

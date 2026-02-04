@@ -1,25 +1,25 @@
+import type { Service } from "@prisma/client"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrump";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { db } from "~/utils/db.server";
-import type { Route } from "./+types/dash.servicios_.$serviceId_.agendamiento";
-import type { Service } from "@prisma/client";
+} from "~/components/ui/breadcrump"
+import { db } from "~/utils/db.server"
+import type { Route } from "./+types/dash.servicios_.$serviceId_.agendamiento"
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
-  const serviceId = params.serviceId;
-  const service = await db.service.findUnique({ where: { id: serviceId } });
-  if (!service) throw new Response(null, { status: 404 });
-  return { service };
-};
+  const serviceId = params.serviceId
+  const service = await db.service.findUnique({ where: { id: serviceId } })
+  if (!service) throw new Response(null, { status: 404 })
+  return { service }
+}
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { service } = loaderData;
+  const { service } = loaderData
 
   return (
     <section>
@@ -57,9 +57,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
     </section>
-  );
+  )
 }
 
 const Info = ({ service }: { service: Partial<Service> }) => {
-  return <></>;
-};
+  return <></>
+}

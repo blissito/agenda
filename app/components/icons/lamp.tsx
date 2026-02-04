@@ -2,8 +2,8 @@ export const Lamp = ({
   fill = "#5158F6",
   className,
 }: {
-  fill?: string;
-  className: string;
+  fill?: string
+  className: string
 }) => (
   <svg
     className={className}
@@ -30,4 +30,4 @@ export const Lamp = ({
       fill={fill}
     />
   </svg>
-);
+)

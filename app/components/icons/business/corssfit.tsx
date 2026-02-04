@@ -1,8 +1,8 @@
 export const Crossfit = ({
   fill = "#8391A1",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -48,4 +48,4 @@ export const Crossfit = ({
       fill={fill}
     />
   </svg>
-);
+)

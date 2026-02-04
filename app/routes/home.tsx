@@ -1,49 +1,49 @@
-import { Banner } from "~/components/home/Banner";
-import { Benefits } from "~/components/home/Benefits";
-import { CompaniesScroll } from "~/components/home/CompaniesScroll";
-import { BlogPreview } from "~/components/home/BlogPreview";
-import { FinalCta } from "~/components/home/FinalCta";
-import { Footer } from "~/components/common/Footer";
-import { ParallaxHero } from "~/components/home/ParallaxHero";
-import { Features, Hero, ScrollReviews } from "~/components/home/home";
-import { People } from "~/components/icons/people";
-import { getMetaTags } from "~/utils/getMetaTags";
-import { TopBar } from "~/components/common/topBar";
-import { resolveHostForIndex } from "~/utils/host.server";
-import TemplateOne from "~/components/templates/TemplateOne";
-import TemplateTwo from "~/components/templates/TemplateTwo";
-import type { Route } from "./+types/home";
+import { Footer } from "~/components/common/Footer"
+import { TopBar } from "~/components/common/topBar"
+import { Banner } from "~/components/home/Banner"
+import { Benefits } from "~/components/home/Benefits"
+import { BlogPreview } from "~/components/home/BlogPreview"
+import { CompaniesScroll } from "~/components/home/CompaniesScroll"
+import { FinalCta } from "~/components/home/FinalCta"
+import { Features, Hero, ScrollReviews } from "~/components/home/home"
+import { ParallaxHero } from "~/components/home/ParallaxHero"
+import { People } from "~/components/icons/people"
+import TemplateOne from "~/components/templates/TemplateOne"
+import TemplateTwo from "~/components/templates/TemplateTwo"
+import { getMetaTags } from "~/utils/getMetaTags"
+import { resolveHostForIndex } from "~/utils/host.server"
+import type { Route } from "./+types/home"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const resolution = await resolveHostForIndex(request);
+  const resolution = await resolveHostForIndex(request)
   if (resolution.type === "not_found") {
-    throw new Response("Empresa no encontrada", { status: 404 });
+    throw new Response("Empresa no encontrada", { status: 404 })
   }
-  return resolution;
-};
+  return resolution
+}
 
 export const meta = ({ data }: Route.MetaArgs) => {
   if (data?.type === "org") {
     return getMetaTags({
       title: `${data.org.name} | Agenda tu cita`,
       description: data.org.description || `Reserva con ${data.org.name}`,
-    });
+    })
   }
   return getMetaTags({
     title: "Deník | Tu agenda en un solo lugar",
     description: "Administra la agenda de tu negocio en un solo lugar",
     image: "https://i.imgur.com/zlnq8Jd.png",
-  });
-};
+  })
+}
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   if (loaderData.type === "org") {
-    const { org } = loaderData;
+    const { org } = loaderData
     return org.websiteConfig?.template === "defaultTemplate" ? (
       <TemplateOne org={org} services={org.services} link="" />
     ) : (
       <TemplateTwo org={org} services={org.services} />
-    );
+    )
   }
   return (
     <main className="bg-brand_dark">
@@ -71,5 +71,5 @@ export default function Index({ loaderData }: Route.ComponentProps) {
       </div>
       <Footer />
     </main>
-  );
+  )
 }

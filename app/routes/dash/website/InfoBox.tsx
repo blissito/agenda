@@ -1,11 +1,11 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from "react"
 
 export const InfoBox = ({
   title,
   value,
 }: {
-  title: ReactNode;
-  value?: ReactNode;
+  title: ReactNode
+  value?: ReactNode
 }) => {
   return (
     <section className="grid grid-cols-8 gap-6 my-4 ">
@@ -17,5 +17,5 @@ export const InfoBox = ({
         {value ? value : "---"}
       </div>
     </section>
-  );
-};
+  )
+}

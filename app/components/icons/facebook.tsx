@@ -2,8 +2,8 @@ export const Facebook = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -18,4 +18,4 @@ export const Facebook = ({
       fill={fill}
     />
   </svg>
-);
+)

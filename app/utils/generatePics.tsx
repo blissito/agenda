@@ -1,4 +1,4 @@
-import { faker } from "@faker-js/faker";
+import { faker } from "@faker-js/faker"
 // @TODO: is not good fake be shiped with the client
 export const generatePics = () => {
   return [...Array(8).keys()].map(() => ({
@@ -8,5 +8,5 @@ export const generatePics = () => {
     title: faker.person.jobTitle(),
     alt: faker.person.bio(),
     link: faker.image.url(),
-  }));
-};
+  }))
+}

@@ -2,8 +2,8 @@ export const Clients = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="24"
@@ -36,4 +36,4 @@ export const Clients = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

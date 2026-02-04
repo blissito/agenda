@@ -1,13 +1,28 @@
-import type { Customer, Event as PrismaEvent, Org, Service } from "@prisma/client";
-import { useEffect, useState } from "react";
-import { EmojiConfetti } from "~/components/common/EmojiConfetti";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
+import type {
+  Customer,
+  Org,
+  Event as PrismaEvent,
+  Service,
+} from "@prisma/client"
+import { useEffect, useState } from "react"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker"
+import { getOrgPublicUrl } from "~/utils/urls"
 
 type EventWithRelations = PrismaEvent & {
-  customer?: Customer | null;
-  service?: (Service & { org: Org }) | null;
-};
+  customer?: Customer | null
+  service?: (Service & { org: Org }) | null
+}
+
+// Flexible types for modified org/service objects
+type OrgLike = Pick<Org, "slug" | "name"> & Record<string, unknown>
+type ServiceLike = {
+  name?: string
+  duration?: number | bigint
+  price?: number | bigint
+  currency?: string
+} & Record<string, unknown>
 
 export const Success = ({
   event,
@@ -15,20 +30,20 @@ export const Success = ({
   onFinish,
   org,
 }: {
-  onFinish: () => void;
-  org: Org;
-  service: Service;
-  event?: EventWithRelations;
+  onFinish: () => void
+  org: OrgLike
+  service: ServiceLike
+  event?: EventWithRelations
 }) => {
-  const [on, set] = useState(true);
+  const [_on, set] = useState(true)
   useEffect(() => {
-    setTimeout(() => set(false), 4000);
-  }, []);
+    setTimeout(() => set(false), 4000)
+  }, [])
 
-  // Clean URL - just the service slug on subdomains/custom domains
+  // Link to org's landing page
   const getCTALink = () => {
-    return `/${service.slug}`;
-  };
+    return getOrgPublicUrl(org.slug)
+  }
 
   return (
     <div className="flex h-screen flex-col items-center text-brand_gray bg-[#f8f8f8] px-2 md:py-20">
@@ -87,5 +102,5 @@ export const Success = ({
       </p>
       <EmojiConfetti />
     </div>
-  );
-};
+  )
+}

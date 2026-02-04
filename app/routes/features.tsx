@@ -1,10 +1,7 @@
-import React, { useEffect } from "react";
-import { TopBar } from "~/components/common/topBar";
-import { FinalCta } from "~/components/home/FinalCta";
-import { Footer } from "~/components/common/Footer";
-import { Rocket } from "~/components/icons/rocket";
-import { HandShake } from "~/components/icons/handshake";
-import { Card, Carousel } from "~/components/ui/cards-carrusel";
+import { useEffect } from "react"
+import { Footer } from "~/components/common/Footer"
+import { TopBar } from "~/components/common/topBar"
+import { FinalCta } from "~/components/home/FinalCta"
 import {
   ExpressionEight,
   ExpressionFive,
@@ -14,8 +11,11 @@ import {
   ExpressionSix,
   ExpressionThree,
   ExpressionTwo,
-} from "~/components/icons/expresion";
-import { UserFeatures } from "~/components/icons/userFeatures";
+} from "~/components/icons/expresion"
+import { HandShake } from "~/components/icons/handshake"
+import { Rocket } from "~/components/icons/rocket"
+import { UserFeatures } from "~/components/icons/userFeatures"
+import { Card, Carousel } from "~/components/ui/cards-carrusel"
 
 export default function Index() {
   useEffect(() => {
@@ -23,8 +23,8 @@ export default function Index() {
       top: 0,
       left: 0,
       behavior: "smooth",
-    });
-  }, []);
+    })
+  }, [])
   return (
     <main className="bg-brand_dark">
       <div className="bg-white rounded-b-[40px] overflow-hidden ">
@@ -44,13 +44,13 @@ export default function Index() {
       </div>
       <Footer />
     </main>
-  );
+  )
 }
 
 const Business = () => {
   const cards = data.map((card, index) => (
     <Card key={card.src} card={card} index={index} />
-  ));
+  ))
   return (
     <section className="my-[160px] relative ">
       <div className="py-[120px] bg-[#F3F6FA] h-[1200px]  mx-auto rounded-[40px] max-w-7xl">
@@ -67,8 +67,8 @@ const Business = () => {
         <Carousel items={cards} />
       </div>
     </section>
-  );
-};
+  )
+}
 
 const Features = () => {
   return (
@@ -194,8 +194,8 @@ const Features = () => {
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
 const data = [
   {
@@ -235,4 +235,4 @@ const data = [
     src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     content: "You can do more with AI.",
   },
-];
+]

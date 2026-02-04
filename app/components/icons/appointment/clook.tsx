@@ -1,8 +1,8 @@
 export const Clook = ({
   fill = "#4B5563",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -16,4 +16,4 @@ export const Clook = ({
       fill={fill}
     />
   </svg>
-);
+)

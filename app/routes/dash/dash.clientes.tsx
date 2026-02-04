@@ -19,10 +19,7 @@ import { Settings } from "~/components/icons/settings";
 import { Upload } from "~/components/icons/upload";
 import type { Route } from "./+types/dash.clientes";
 
-import {
-  useDownloadToast,
-  type ClientForCsv,
-} from "~/components/downloads/downloadToast";
+import { useDownloadToast } from "~/components/downloads/downloadToast";
 
 // @TODO: actions, search with searchParams, real user avatars?, row actions (delete)
 
@@ -89,7 +86,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const clients = Object.values(clientsObject) as Client[];
   return {
     orgId: org.id,
-    orgName: org.name,
+    orgName: org.name, // opcional si quieres usarlo en el nombre del archivo
     clients,
     link,
     stats: {
@@ -104,21 +101,9 @@ export default function Clients() {
   const { orgId, orgName, stats, clients = [], link } =
     useLoaderData<typeof loader>();
 
-  // Adaptamos al tipo ClientForCsv (por si luego agregan más cosas al modelo)
-  const clientsForCsv: ClientForCsv[] = clients.map((c) => ({
-    displayName: c.displayName,
-    email: c.email,
-    tel: c.tel,
-    createdAt: c.createdAt,
-    updatedAt: c.updatedAt,
-    nextEventDate: c.nextEventDate,
-    points: c.points,
-    eventCount: c.eventCount,
-  }));
-
   const { startDownload, toast, canDownload } = useDownloadToast({
-    clients: clientsForCsv,
-    orgName,
+    clients,
+    orgName, // puedes quitarlo si no lo quieres en el nombre del archivo
   });
 
   return (
@@ -176,7 +161,7 @@ const SearchNav = ({
           </ActionButton>
         </Link>
 
-        {/* Botón visible de descarga. Se deshabilita si no hay clientes */}
+        {/* Botón visible de descarga (se deshabilita si no hay clientes) */}
         <ActionButton onClick={onDownload} isDisabled={!canDownload}>
           <Download />
         </ActionButton>

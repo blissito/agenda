@@ -1,25 +1,25 @@
-import { Outlet, redirect, useFetcher, useLoaderData } from "react-router";
-import { AnimatePresence } from "motion/react";
-import { useCallback, useEffect, useRef } from "react";
-import { PrimaryButton } from "~/components/common/primaryButton";
+import type { Service } from "@prisma/client"
+import { AnimatePresence } from "motion/react"
+import { useCallback } from "react"
+import { Outlet, redirect, useFetcher } from "react-router"
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
 import {
   AddService,
   ServiceCard,
-} from "~/components/dash/servicios/ServiceCard";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import type { Route } from "./+types";
-import { db } from "~/utils/db.server";
-import slugify from "slugify";
-import { nanoid } from "nanoid";
-import type { Service } from "@prisma/client";
+} from "~/components/dash/servicios/ServiceCard"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { db } from "~/utils/db.server"
+import { generateUniqueServiceSlug } from "~/utils/slugs.server"
+import { getServicePublicUrl } from "~/utils/urls"
+import type { Route } from "./+types"
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
 
   if (intent === "update_service") {
-    const data = JSON.parse(formData.get("data") as string);
+    const data = JSON.parse(formData.get("data") as string)
     // @todo validate
     await db.service.update({
       where: {
@@ -29,42 +29,53 @@ export const action = async ({ request }: Route.ActionArgs) => {
         ...data,
         id: undefined,
       },
-    });
+    })
   }
 
   if (intent === "create_dummy_service") {
-    const { org } = await getUserAndOrgOrRedirect(request);
+    const { org } = await getUserAndOrgOrRedirect(request)
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 })
+    }
     const dummy = await db.service.create({
       data: {
         name: "Fancy Service",
-        slug: slugify("Fance Service") + nanoid(4),
+        slug: await generateUniqueServiceSlug("Fancy Service", org.id),
         orgId: org.id,
+        // Valores por defecto para campos requeridos
+        allowMultiple: false,
+        archived: false,
+        currency: "MXN",
+        duration: 30,
+        isActive: false,
+        paid: false,
+        payment: false,
+        place: "INPLACE",
+        points: 0,
+        price: 0,
+        seats: 1,
       },
-    });
-    return redirect(`/dash/servicios/${dummy.id}`);
+    })
+    return redirect(`/dash/servicios/${dummy.id}`)
   }
-};
+}
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const services = await getServices(request);
-  const { org } = await getUserAndOrgOrRedirect(request);
-  return { services, org };
-};
+  const services = await getServices(request)
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) {
+    throw new Response("Organization not found", { status: 404 })
+  }
+  return { services, org }
+}
 
 export default function Services({ loaderData }: Route.ComponentProps) {
-  const { services, org } = loaderData;
-  const origin = useRef<string>("");
-
-  useEffect(() => {
-    origin.current = window.location.origin;
-  }, []);
+  const { services, org } = loaderData
 
   const getLink = useCallback(
-    (service: Service) =>
-      `${origin.current}/agenda/${org.slug}/${service.slug}`,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [origin]
-  );
+    (service: Service) => getServicePublicUrl(org.slug, service.slug),
+    [org.slug],
+  )
 
   return (
     <main className=" ">
@@ -82,7 +93,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
               image={service.photoURL ?? undefined}
               key={service.id}
               title={service.name}
-              duration={service.duration} // @TODO: format function this is minutes for now
+              duration={Number(service.duration)} // @TODO: format function this is minutes for now
               price={`${service.price} mxn`}
               status={service.isActive ? "Activo" : "Desactivado"}
               link={getLink(service)} // for copy link action
@@ -98,11 +109,11 @@ export default function Services({ loaderData }: Route.ComponentProps) {
       </div>
       <Outlet />
     </main>
-  );
+  )
 }
 
 const EmptyStateServices = () => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher()
   return (
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
@@ -124,13 +135,13 @@ const EmptyStateServices = () => {
           onClick={() => {
             fetcher.submit(
               { intent: "create_dummy_service" },
-              { method: "post" }
-            );
+              { method: "post" },
+            )
           }}
         >
           + Agregar servicio
         </PrimaryButton>
       </div>
     </div>
-  );
-};
+  )
+}

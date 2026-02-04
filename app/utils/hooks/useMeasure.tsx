@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react"
 
 export const useMeasure = () => {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLElement>(null)
   const [state, setState] = useState<DOMRect>({
     height: 0,
     width: 0,
@@ -12,17 +12,17 @@ export const useMeasure = () => {
     right: 0,
     top: 0,
     toJSON() {},
-  });
+  })
 
   const setMeasure = (node: HTMLElement) => {
-    setState(node.getBoundingClientRect());
-  };
+    setState(node.getBoundingClientRect())
+  }
 
   useEffect(() => {
     if (ref?.current) {
-      setMeasure(ref.current);
+      setMeasure(ref.current)
     }
-  }, [ref]);
+  }, [setMeasure])
 
-  return { ref, state };
-};
+  return { ref, state }
+}

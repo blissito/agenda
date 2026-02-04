@@ -1,4 +1,4 @@
-import { Plan } from "../icons/plan";
+import { Plan } from "../icons/plan"
 
 export const BlogPreview = ({ ...props }: { props?: unknown }) => (
   <section className="max-w-[90%] xl:max-w-7xl w-full mx-auto my-[160px]   text-center">
@@ -49,4 +49,4 @@ export const BlogPreview = ({ ...props }: { props?: unknown }) => (
       </div>
     </article>
   </section>
-);
+)

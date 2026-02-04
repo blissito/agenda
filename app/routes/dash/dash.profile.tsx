@@ -1,17 +1,17 @@
-import type { ReactNode } from "react";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { Camera } from "~/components/icons/camera";
-import { Check } from "~/components/icons/check";
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getUserOrRedirect } from "~/.server/userGetters";
-import type { Route } from "./+types/dash.profile";
+import type { ReactNode } from "react"
+import { getUserOrRedirect } from "~/.server/userGetters"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { Camera } from "~/components/icons/camera"
+import { Check } from "~/components/icons/check"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import type { Route } from "./+types/dash.profile"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const user = await getUserOrRedirect(request);
-  return { user };
-};
+  const user = await getUserOrRedirect(request)
+  return { user }
+}
 export default function Profile({ loaderData }: Route.ComponentProps) {
-  const { user } = loaderData;
+  const { user } = loaderData
 
   return (
     <main className=" ">
@@ -78,7 +78,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
         </PlanCard>
       </section>
     </main>
-  );
+  )
 }
 
 const PlanCard = ({
@@ -87,10 +87,10 @@ const PlanCard = ({
   price,
   plan,
 }: {
-  children: ReactNode;
-  nextPayment?: string;
-  price: string;
-  plan: string;
+  children: ReactNode
+  nextPayment?: string
+  price: string
+  plan: string
 }) => {
   return (
     <section className="flex flex-col gap-4 bg-white p-6 rounded-2xl max-w-3xl my-8">
@@ -114,5 +114,5 @@ const PlanCard = ({
         </SecondaryButton>
       </div>
     </section>
-  );
-};
+  )
+}

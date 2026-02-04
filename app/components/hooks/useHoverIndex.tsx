@@ -1,22 +1,27 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { MouseEvent } from "react";
-// @todo: tolerate same index
-export const useHoverIndex = () => {
+import { type MouseEvent } from "react"
+
+export const useHoverIndex = (): {
+  getIndex: <T extends HTMLDivElement>(
+    event: MouseEvent<T>,
+    options: { grabbingIndex: number },
+  ) => number | null
+} => {
   return {
     getIndex<T extends HTMLDivElement>(
       event: MouseEvent<T>,
-      options: { grabbingIndex: number }
-    ) {
-      const { grabbingIndex } = options || {};
-      const nodes = document.elementsFromPoint(event.clientX, event.clientY);
-      if (!nodes || !Array.isArray(nodes)) return null;
+      options: { grabbingIndex: number },
+    ): number | null {
+      const { grabbingIndex } = options || {}
+      const nodes = document.elementsFromPoint(event.clientX, event.clientY)
+      if (!nodes || !Array.isArray(nodes)) return null
       const cell = nodes.find(
         (ele) =>
-          !!ele.dataset.index && Number(ele.dataset.index) !== grabbingIndex
-      );
-      if (!cell) return null;
+          !!(ele as HTMLElement).dataset.index &&
+          Number((ele as HTMLElement).dataset.index) !== grabbingIndex,
+      )
+      if (!cell) return null
 
-      return Number(cell.dataset.index);
+      return Number((cell as HTMLElement).dataset.index)
     },
-  };
-};
+  }
+}

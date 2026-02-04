@@ -1,15 +1,14 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { twMerge } from "tailwind-merge";
-import { type Option, SelectInput } from "../SelectInput";
-import { useForm } from "react-hook-form";
-import { Form, useFetcher } from "react-router";
-import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug";
-import { useState, type RefObject } from "react";
-import { z } from "zod";
-import { TimesForm } from "../TimesForm";
-import type { WeekSchema } from "~/utils/zod_schemas";
+import { type RefObject, useState } from "react"
+import { useForm } from "react-hook-form"
+import { Form, useFetcher } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { z } from "zod"
+import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug"
+import type { WeekSchema } from "~/utils/zod_schemas"
+import { type Option, SelectInput } from "../SelectInput"
+import { TimesForm } from "../TimesForm"
 
-const tuple = z.array(z.array(z.string(), z.string())).optional();
+const tuple = z.array(z.tuple([z.string(), z.string()])).optional()
 const weekDaysSchema = z.object({
   monday: tuple,
   tuesday: tuple,
@@ -18,59 +17,59 @@ const weekDaysSchema = z.object({
   friday: tuple,
   saturday: tuple,
   sunday: tuple,
-});
+})
 export const serviceTimesSchema = z.object({
   duration: z.coerce.number(),
   weekDays: weekDaysSchema.nullable(),
-});
+})
 
-type ServiceTimesFields = z.infer<typeof serviceTimesSchema>;
+type ServiceTimesFields = z.infer<typeof serviceTimesSchema>
 
 const OPTIONS: Option[] = [
   {
     title: "15 minutos",
-    value: 15,
+    value: "15",
   },
   {
     title: "30 minutos",
-    value: 30,
+    value: "30",
   },
   {
     title: "45 minutos",
-    value: 45,
+    value: "45",
   },
   {
     title: "60 minutos",
-    value: 60,
+    value: "60",
   },
   {
     title: "1 hora 15 minutos",
-    value: 75,
+    value: "75",
   },
   {
     title: "1 hora 30 minutos",
-    value: 90,
+    value: "90",
   },
   {
     title: "2 horas",
-    value: 120,
+    value: "120",
   },
-];
+]
 const initialValues = {
   duration: 30,
   weekDays: {},
-};
+}
 export const ServiceTimesForm = ({
   defaultValues = initialValues,
   onTimesChange,
   formRef,
 }: {
-  onTimesChange?: (t: WeekSchema) => void;
-  formRef?: RefObject<HTMLFormElement>;
-  defaultValues: ServiceTimesFields;
+  onTimesChange?: (t: WeekSchema) => void
+  formRef?: RefObject<HTMLFormElement>
+  defaultValues: ServiceTimesFields
 }) => {
-  const fetcher = useFetcher();
-  const [week, setWeek] = useState(defaultValues.weekDays);
+  const fetcher = useFetcher()
+  const [week, setWeek] = useState(defaultValues.weekDays)
   const {
     // getValues,
     watch,
@@ -83,24 +82,24 @@ export const ServiceTimesForm = ({
       ...defaultValues,
       localWeekDays: defaultValues.weekDays ? "specific" : "inherit",
     },
-  });
+  })
 
-  const onSubmit = (values) => {
+  const _onSubmit = (values: Record<string, unknown>) => {
     const fullObj = {
       ...values,
       weekDays: localWeekDays === "specific" ? week : "",
-    };
+    }
 
     fetcher.submit(
       {
         data: JSON.stringify(fullObj),
         intent: "update_service",
       },
-      { method: "post" }
-    );
-  };
+      { method: "post" },
+    )
+  }
 
-  const localWeekDays: "inherit" | "specific" | string = watch("localWeekDays");
+  const localWeekDays: "inherit" | "specific" | string = watch("localWeekDays")
 
   return (
     <>
@@ -132,33 +131,30 @@ export const ServiceTimesForm = ({
         </div>
       </Form>
       {localWeekDays === "specific" && (
-        <>
-          <TimesForm
-            noSubmit
-            org={{ weekDays: week }} // @TODO: hack, please improve
-            submitButton={<></>}
-            onChange={(data: WeekDaysType) => {
-              onTimesChange?.(data);
-              const initialValues = {
-                monday: [
-                  ["09:00", "16:00"],
-                  ["17:00", "18:00"],
-                ],
-              };
-              // console.log("?? ", data, !!Object.keys(data).length);
-              if (Object.keys(data).length < 1) {
-                setWeek(initialValues);
-                setValue("localWeekDays", "inherit");
-              } else {
-                setWeek(data);
-              }
-            }}
-          />
-        </>
+        <TimesForm
+          noSubmit
+          org={{ weekDays: week } as unknown as import("@prisma/client").Org} // @TODO: hack, please improve
+          onChange={(data: WeekSchema) => {
+            onTimesChange?.(data)
+            const initialValues = {
+              monday: [
+                ["09:00", "16:00"],
+                ["17:00", "18:00"],
+              ],
+            }
+            // console.log("?? ", data, !!Object.keys(data).length);
+            if (Object.keys(data).length < 1) {
+              setWeek(initialValues as unknown as typeof week)
+              setValue("localWeekDays", "inherit")
+            } else {
+              setWeek(data as unknown as typeof week)
+            }
+          }}
+        />
       )}
     </>
-  );
-};
+  )
+}
 
 export const RadioButton = ({
   name,
@@ -168,12 +164,12 @@ export const RadioButton = ({
   register,
   registerOptions = { required: REQUIRED_MESSAGE },
 }: {
-  register?: any;
-  registerOptions?: any;
-  name: string;
-  value: string;
-  label: string;
-  className?: string;
+  register?: any
+  registerOptions?: any
+  name: string
+  value: string
+  label: string
+  className?: string
 }) => {
   return (
     <label
@@ -190,5 +186,5 @@ export const RadioButton = ({
       />
       <span className="font-satoshi">{label}</span>
     </label>
-  );
-};
+  )
+}

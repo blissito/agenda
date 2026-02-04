@@ -1,37 +1,22 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { motion } from "motion/react";
-import { Link, useFetcher } from "react-router";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Tag } from "~/components/common/Tag";
+import { motion } from "motion/react"
+import { Link } from "react-router"
+import { Tag } from "~/components/common/Tag"
 
 export const ServiceCardClient = ({
   title,
   image,
   duration,
   price,
-  link = "",
   serviceSlug,
-  slug,
 }: {
-  slug: string;
-  title: string;
-  image?: string;
-  duration: number;
-  price: string;
-  link?: string;
-  serviceSlug?: string;
+  title: string
+  image?: string | null
+  duration: number | bigint
+  price: number | bigint | string
+  serviceSlug?: string
 }) => {
-  const origin = useRef<string>("");
-
-  useEffect(() => {
-    origin.current = window.location.origin;
-  }, []);
-  const getLink = useCallback(
-    (serviceSlug: string) => `${origin.current}/agenda/${slug}/${serviceSlug}`,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [origin]
-  );
+  // Use relative path for navigation within subdomain
+  const serviceLink = `/${serviceSlug}`
 
   return (
     <motion.section
@@ -40,7 +25,7 @@ export const ServiceCardClient = ({
       exit={{ opacity: 0, y: -5 }}
       className="relative group"
     >
-      <Link to={link} className="group ">
+      <Link to={serviceLink} className="group ">
         <section className="bg-white border-[1px] border-[#EFEFEF] rounded-2xl overflow-hidden hover:scale-95 transition-all cursor-pointer">
           <img
             alt="cover"
@@ -58,14 +43,12 @@ export const ServiceCardClient = ({
                 <span className="mx-1">·</span>${price} mxn
               </p>
             </article>
-            <Link to={getLink(serviceSlug)}>
-              <Tag className="bg-brand_dark rounded-full h-8 text-white text-xs">
-                Agendar
-              </Tag>
-            </Link>
+            <Tag className="bg-brand_dark rounded-full h-8 text-white text-xs">
+              Agendar
+            </Tag>
           </div>
         </section>
       </Link>
     </motion.section>
-  );
-};
+  )
+}

@@ -1,12 +1,12 @@
-export type OAuthProvider = "google" | "outlook";
+export type OAuthProvider = "google" | "outlook"
 
 export interface ProviderConfig {
-  clientId: string;
-  clientSecret: string;
-  authUrl: string;
-  tokenUrl: string;
-  userInfoUrl: string;
-  scope: string;
+  clientId: string
+  clientSecret: string
+  authUrl: string
+  tokenUrl: string
+  userInfoUrl: string
+  scope: string
 }
 
 const providers: Record<OAuthProvider, ProviderConfig> = {
@@ -26,16 +26,16 @@ const providers: Record<OAuthProvider, ProviderConfig> = {
     userInfoUrl: "https://graph.microsoft.com/v1.0/me",
     scope: "openid email profile User.Read",
   },
-};
+}
 
 export function getProvider(name: OAuthProvider): ProviderConfig {
-  const provider = providers[name];
+  const provider = providers[name]
   if (!provider?.clientId) {
-    throw new Error(`Provider ${name} not configured`);
+    throw new Error(`Provider ${name} not configured`)
   }
-  return provider;
+  return provider
 }
 
 export function isValidProvider(name: string): name is OAuthProvider {
-  return name === "google" || name === "outlook";
+  return name === "google" || name === "outlook"
 }

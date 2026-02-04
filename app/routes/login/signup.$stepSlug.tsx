@@ -1,85 +1,75 @@
-import { useNavigate } from "react-router";
-import { twMerge } from "tailwind-merge";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
-import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm";
-import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm";
-import { TimesForm } from "~/components/forms/TimesForm";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { EmojiConfetti } from "~/components/common/EmojiConfetti";
-import { getOrCreateOrgOrRedirect, updateOrg } from "~/.server/userGetters";
-import { Denik } from "~/components/icons/denik";
-import type { Route } from "./+types/signup.$stepSlug";
-import { cn } from "~/utils/cn";
-import { ArrowRight } from "~/components/icons/arrowRight";
-import { AnimatePresence, motion } from "motion/react";
-import { useSearchParams } from "react-router";
+import { AnimatePresence, motion } from "motion/react"
+import { type ReactNode, useEffect, useMemo, useState } from "react"
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi"
+import { useNavigate, useSearchParams } from "react-router"
+import { twMerge } from "tailwind-merge"
+import { getOrCreateOrgOrRedirect, updateOrg } from "~/.server/userGetters"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm"
+import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm"
+import { TimesForm } from "~/components/forms/TimesForm"
+import { ArrowRight } from "~/components/icons/arrowRight"
+import { Denik } from "~/components/icons/denik"
+import type { Route } from "./+types/signup.$stepSlug"
 
-
-
-export const REQUIRED_MESSAGE = "Este campo es requerido";
+export const REQUIRED_MESSAGE = "Este campo es requerido"
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
-  const formData = await request.formData();
-  const intent = formData.get("intent");
+  const formData = await request.formData()
+  const intent = formData.get("intent")
   if (intent === "update_org") {
-    return await updateOrg(formData, params.stepSlug);
+    return await updateOrg(formData, params.stepSlug)
   }
-  return null;
-};
+  return null
+}
 
 export const loader = async ({
   request,
   params: { stepSlug },
 }: Route.LoaderArgs) => {
-  const org = await getOrCreateOrgOrRedirect(request); // redirect if isActive
+  const org = await getOrCreateOrgOrRedirect(request) // redirect if isActive
   return {
     org,
     stepSlug,
-  };
-};
+  }
+}
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams()
 
-const aboutScreen = useMemo(() => {
-  const s = searchParams.get("screen");
-  const n = s ? Number(s) : 0;
-  if (!Number.isFinite(n)) return 0;
-  return Math.max(0, Math.min(2, n));
-}, [searchParams]);
+  const aboutScreen = useMemo(() => {
+    const s = searchParams.get("screen")
+    const n = s ? Number(s) : 0
+    if (!Number.isFinite(n)) return 0
+    return Math.max(0, Math.min(2, n))
+  }, [searchParams])
 
-  const { org, stepSlug } = loaderData;
+  const { org, stepSlug } = loaderData
 
-
-  const FormComponent = useMemo(() => {
+  const _FormComponent = useMemo(() => {
     switch (stepSlug) {
       case "6":
-        return LoaderScreen;
+        return LoaderScreen
       case "5":
-        return TimesForm;
+        return TimesForm
       case "4":
-        return BussinesTypeForm;
-      case "3":
-      case "2":
-      case "1":
+        return BussinesTypeForm
       default:
-        return AboutYourCompanyForm;
+        return AboutYourCompanyForm
     }
-  }, [stepSlug]);
-
+  }, [stepSlug])
 
   const stepNumber =
-  stepSlug === "1" || stepSlug === "2" || stepSlug === "3"
-    ? aboutScreen + 1 
-    : stepSlug === "4"
-    ? 4
-    : stepSlug === "5"
-    ? 5
-    : 6;
+    stepSlug === "1" || stepSlug === "2" || stepSlug === "3"
+      ? aboutScreen + 1
+      : stepSlug === "4"
+        ? 4
+        : stepSlug === "5"
+          ? 5
+          : 6
 
-
-  const progressPercent = (stepNumber / 6) * 100;
+  const progressPercent = (stepNumber / 6) * 100
 
   return (
     <article className="relative min-h-screen w-full bg-white overflow-hidden">
@@ -103,9 +93,7 @@ const aboutScreen = useMemo(() => {
         </button>
       </header>
 
-      <div className="absolute inset-0 z-0 pointer-events-none select-none">
-        
-      </div>
+      <div className="absolute inset-0 z-0 pointer-events-none select-none"></div>
       <main className="relative z-10 mx-auto w-full max-w-6xl px-10">
         <AnimatePresence mode="wait">
           <motion.div
@@ -128,8 +116,6 @@ const aboutScreen = useMemo(() => {
         </AnimatePresence>
       </main>
 
-
-
       <footer className="absolute bottom-6 left-0 right-0 px-10 text-xs text-neutral-400">
         <div className="flex items-center justify-between">
           <span>Todos los derechos reservados Denik® 2024</span>
@@ -139,18 +125,18 @@ const aboutScreen = useMemo(() => {
         </div>
       </footer>
     </article>
-  );
+  )
 }
 
 export const LoaderScreen = ({ title }: { title: string }) => {
-  const [text, setText] = useState("¡Tu agenda en línea está lista!");
-  const [show, set] = useState(false);
+  const [text, _setText] = useState("¡Tu agenda en línea está lista!")
+  const [show, set] = useState(false)
 
   useEffect(() => {
     setTimeout(() => {
-      set(true);
-    }, 2000);
-  }, []);
+      set(true)
+    }, 2000)
+  }, [])
 
   return (
     <section className="absolute inset-0 z-10 bg-white">
@@ -162,13 +148,15 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           draggable={false}
         />
 
-        <h1 className="font-jakarta-bold font-bold text-4xl leading-[44px] text-brand_dark">{/*4xl= 36 */}
+        <h1 className="font-jakarta-bold font-bold text-4xl leading-[44px] text-brand_dark">
+          {/*4xl= 36 */}
           {text}
         </h1>
 
-        <p className="font-jakarta  text-lg leading-[24px] text-brand_gray mt-4">{/*lg= 18px */}
-          Configura tus servicios, comparte tu agenda y empieza a recibir reservas
-          desde tu página web en Denik.
+        <p className="font-jakarta  text-lg leading-[24px] text-brand_gray mt-4">
+          {/*lg= 18px */}
+          Configura tus servicios, comparte tu agenda y empieza a recibir
+          reservas desde tu página web en Denik.
         </p>
 
         <div className="mt-10">
@@ -200,8 +188,8 @@ export const LoaderScreen = ({ title }: { title: string }) => {
         </div>
       </div>
     </section>
-  );
-};
+  )
+}
 
 export const LeftHero = ({ title }: { title: ReactNode }) => {
   return (
@@ -210,11 +198,11 @@ export const LeftHero = ({ title }: { title: ReactNode }) => {
         {title}
       </h2>
     </div>
-  );
-};
+  )
+}
 
 export const BackButton = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   return (
     <button
       onClick={() => navigate(-1)}
@@ -222,14 +210,14 @@ export const BackButton = () => {
         "mb-12 h-4 w-full",
         "transition-all rounded-full top-0 left-0 text-white text-3xl justify-between items-center flex",
         "max-w-xl mx-auto",
-        "active:opacity-50"
+        "active:opacity-50",
       )}
     >
       <HiOutlineArrowNarrowLeft />
       <Denik fill="#ffffff" className="block lg:hidden h-10" />
     </button>
-  );
-};
+  )
+}
 
 export const DenikWatermark = () => {
   return (
@@ -237,10 +225,10 @@ export const DenikWatermark = () => {
       className={twMerge(
         "transition-all top-0 left-0 text-white text-3xl justify-center items-center block",
         "max-w-xl mx-auto",
-        "active:opacity-50"
+        "active:opacity-50",
       )}
     >
       <Denik fill="#ffffff" />
     </div>
-  );
-};
+  )
+}

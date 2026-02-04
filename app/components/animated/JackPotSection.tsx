@@ -1,28 +1,28 @@
-import { useAnimationFrame, motion, useMotionValue } from "motion/react";
-import { useEffect, useRef } from "react";
-import { cn } from "~/utils/cn";
-import { useScrollVelocityFactor } from "../hooks/useScrollVelocityFactor";
+import { motion, useAnimationFrame, useMotionValue } from "motion/react"
+import { useEffect, useRef } from "react"
+import { cn } from "~/utils/cn"
+import { useScrollVelocityFactor } from "../hooks/useScrollVelocityFactor"
 
-type Mode = "fast" | "normal" | "slow";
+type Mode = "fast" | "normal" | "slow"
 
-const noop = () => false;
+const noop = () => false
 
 const shuffle = (images: string[]) => {
-  const randomized: string[] = [];
-  const list = Array.from(images);
+  const randomized: string[] = []
+  const list = Array.from(images)
   images.forEach(() => {
-    const randomIndex = Math.floor(Math.random() * list.length);
-    randomized.push(list.splice(randomIndex, 1)[0]);
-  });
-  return [...randomized];
-};
+    const randomIndex = Math.floor(Math.random() * list.length)
+    randomized.push(list.splice(randomIndex, 1)[0])
+  })
+  return [...randomized]
+}
 
 export const JackPotSection = ({
   images,
   mode = "fast",
 }: {
-  images: string[];
-  mode?: Mode;
+  images: string[]
+  mode?: Mode
 }) => {
   return (
     <section className="bg-gray-100 -my-4 relative -z-10 overflow-hidden">
@@ -35,8 +35,8 @@ export const JackPotSection = ({
         <Roll mode={mode} srcset={shuffle(images)} />
       </main>
     </section>
-  );
-};
+  )
+}
 
 const Roll = ({
   srcset,
@@ -44,36 +44,36 @@ const Roll = ({
   stop,
   mode,
 }: {
-  mode?: Mode;
-  stop?: true;
-  reversed?: boolean;
-  srcset?: string[];
+  mode?: Mode
+  stop?: true
+  reversed?: boolean
+  srcset?: string[]
 }) => {
-  const ref = useRef<HTMLElement>(null);
-  const heightRef = useRef(0);
+  const ref = useRef<HTMLElement>(null)
+  const heightRef = useRef(0)
 
   // scroll
-  const velocityFactor = useScrollVelocityFactor(mode);
+  const velocityFactor = useScrollVelocityFactor(mode)
 
   // movement
-  const y = useMotionValue(0);
+  const y = useMotionValue(0)
   const loop = () => {
-    if (!ref.current) return;
-    y.set(y.get() + (reversed ? 1 : -1) * velocityFactor.get());
+    if (!ref.current) return
+    y.set(y.get() + (reversed ? 1 : -1) * velocityFactor.get())
     // reset
     if (Math.abs(y.get()) > heightRef.current / 2) {
-      y.set(0);
+      y.set(0)
     }
-  };
-  useAnimationFrame(stop ? noop : loop);
+  }
+  useAnimationFrame(stop ? noop : loop)
   //
 
   // save height (to do it once, only)
   useEffect(() => {
     if (ref.current) {
-      heightRef.current = ref.current.getBoundingClientRect().height;
+      heightRef.current = ref.current.getBoundingClientRect().height
     }
-  }, []);
+  }, [])
 
   return (
     <motion.nav
@@ -96,5 +96,5 @@ const Roll = ({
         />
       ))}
     </motion.nav>
-  );
-};
+  )
+}

@@ -1,55 +1,71 @@
-import type { Org, Service } from "@prisma/client";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
+import type { Org, Service } from "@prisma/client"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker"
+import type { SupportedTimezone } from "~/utils/timezone"
 
 const example =
-  "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg";
+  "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg"
 
-export const Header = ({ org }: { org: Org }) => {
-  const orgWithLogo = org as Org & { logo?: string };
+// Partial org type for components that don't need full Prisma type
+type OrgLike = Pick<Org, "name"> & { logo?: string; [key: string]: unknown }
+type ServiceLike = Pick<Service, "name"> & { [key: string]: unknown }
+
+export const Header = ({ org }: { org: OrgLike }) => {
   return (
     <div className="flex gap-3 items-center justify-center py-12">
       <img
-        className="w-8 rounded-full"
+        className="w-10 h-10 rounded-full object-cover"
         alt="org logo"
-        src={orgWithLogo?.logo || example}
+        src={org?.logo || example}
       />
-      <h1 className="font-bold text-sm ">{org?.name}</h1>
+      <h1 className="font-bold text-2xl text-brand_dark">{org?.name}</h1>
     </div>
-  );
-};
+  )
+}
 
 export const InfoShower = ({
   org,
   service,
   date,
+  timezone,
 }: {
-  org: Org;
-  service: Service;
-  date?: Date;
+  org: OrgLike
+  service: ServiceLike
+  date?: Date
+  timezone?: SupportedTimezone
 }) => {
   return (
     <>
       <div className="w-full min-w-[260px] max-w-[260px]">
-        <span className="text-brand_gray text-xs font-thin">{org?.name}</span>
+        <span className="text-brand_gray text-sm font-medium">{org?.name}</span>
         <h2 className="text-2xl font-satoMiddle mb-5 text-brand_dark">
           {service?.name}
         </h2>
-        <ServiceList org={org} service={service} date={date} />
+        <ServiceList
+          org={org}
+          service={service}
+          date={date}
+          timezone={timezone}
+        />
       </div>
       <hr className="border-l-brand_gray/10 md:my-0 md:h-96 md:w-1 w-full my-4 mx-10 border-l md:mr-8 " />
     </>
-  );
-};
+  )
+}
 
 type FooterProps = {
-  errors?: Record<string, { message?: string }>;
-  isLoading: boolean;
-  onSubmit: () => void;
-  isValid?: boolean;
-};
+  errors?: Record<string, { message?: string }>
+  isLoading: boolean
+  onSubmit: () => void
+  isValid?: boolean
+}
 
-export const Footer = ({ errors = {}, isLoading, onSubmit, isValid = false }: FooterProps) => {
+export const Footer = ({
+  errors = {},
+  isLoading,
+  onSubmit,
+  isValid = false,
+}: FooterProps) => {
   return (
     <>
       <p className="text-red-500 ml-auto text-xs pr-8 text-right h-1">
@@ -70,5 +86,5 @@ export const Footer = ({ errors = {}, isLoading, onSubmit, isValid = false }: Fo
         src="/images/denik-markwater.png"
       />
     </>
-  );
-};
+  )
+}

@@ -1,31 +1,29 @@
-// @ts-nocheck
-import { useEffect, useState } from "react";
-import { MultipleOptions, Option, Otro } from "./MultipleOptions";
-import { PrimaryButton } from "../common/primaryButton";
-import { type FieldValues, useForm } from "react-hook-form";
-import { Form, useFetcher } from "react-router";
-import { type Org } from "@prisma/client";
-
-import { Barbershop } from "../icons/business/barbershop";
-import { Beauty } from "../icons/business/beauty";
-import { Sports } from "../icons/business/sports";
-import { Clinic } from "../icons/business/clinic";
-import { Class as ClassIcon } from "../icons/business/class";
-import { Crossfit } from "../icons/business/corssfit";
-import { Dance } from "../icons/business/dance";
-import { Gym } from "../icons/business/gym";
-import { Hair } from "../icons/business/hair";
-import { Pet } from "../icons/business/pet";
-import { Spa } from "../icons/business/spa";
-import { Tourism } from "../icons/business/tourism";
-import { Courses } from "../icons/business/courses";
-import { Equipment } from "../icons/business/equipment";
-import { Brain } from "../icons/business/brain";
-import { Mat } from "../icons/business/mat";
-import { Reformer } from "../icons/business/reformer";
-import { Couch } from "../icons/business/couch";
-import { Apple } from "../icons/business/apple";
-import { ArrowRight } from "~/components/icons/arrowRight";
+import { type Org } from "@prisma/client"
+import { useEffect, useState } from "react"
+import { type FieldValues, useForm } from "react-hook-form"
+import { Form, useFetcher } from "react-router"
+import { ArrowRight } from "~/components/icons/arrowRight"
+import { PrimaryButton } from "../common/primaryButton"
+import { Apple } from "../icons/business/apple"
+import { Barbershop } from "../icons/business/barbershop"
+import { Beauty } from "../icons/business/beauty"
+import { Brain } from "../icons/business/brain"
+import { Class as ClassIcon } from "../icons/business/class"
+import { Clinic } from "../icons/business/clinic"
+import { Crossfit } from "../icons/business/corssfit"
+import { Couch } from "../icons/business/couch"
+import { Courses } from "../icons/business/courses"
+import { Dance } from "../icons/business/dance"
+import { Equipment } from "../icons/business/equipment"
+import { Gym } from "../icons/business/gym"
+import { Hair } from "../icons/business/hair"
+import { Mat } from "../icons/business/mat"
+import { Pet } from "../icons/business/pet"
+import { Reformer } from "../icons/business/reformer"
+import { Spa } from "../icons/business/spa"
+import { Sports } from "../icons/business/sports"
+import { Tourism } from "../icons/business/tourism"
+import { MultipleOptions, Option, Otro } from "./MultipleOptions"
 
 export const OPTIONS = [
   "barbería",
@@ -52,71 +50,71 @@ export const OPTIONS = [
   "code review",
   "uñas",
   "otro",
-];
+]
 
 const getIconByOption = (string?: string, fill = "#8391A1") => {
   switch (string) {
     case "barbería":
-      return <Barbershop fill={fill} />;
+      return <Barbershop fill={fill} />
     case "estética":
-      return <Beauty fill={fill} />;
+      return <Beauty fill={fill} />
     case "centro deportivo":
-      return <Sports fill={fill} />;
+      return <Sports fill={fill} />
     case "consultorio médico":
-      return <Clinic fill={fill} />;
+      return <Clinic fill={fill} />
     case "estudios clínicos":
-      return <Clinic fill={fill} />;
+      return <Clinic fill={fill} />
     case "crossfit":
-      return <Crossfit fill={fill} />;
+      return <Crossfit fill={fill} />
     case "coaching":
-      return <Couch fill={fill} />;
+      return <Couch fill={fill} />
     case "tutorias":
-      return <ClassIcon fill={fill} />;
+      return <ClassIcon fill={fill} />
     case "gimnasio":
-      return <Gym fill={fill} />;
+      return <Gym fill={fill} />
     case "yoga / meditación":
-      return <Mat fill={fill} />;
+      return <Mat fill={fill} />
     case "spa":
-      return <Spa fill={fill} />;
+      return <Spa fill={fill} />
     case "centro de idiomas":
-      return <Courses fill={fill} />;
+      return <Courses fill={fill} />
     case "nutriologo":
-      return <Apple fill={fill} />;
+      return <Apple fill={fill} />
     case "veterinaria":
-      return <Pet fill={fill} />;
+      return <Pet fill={fill} />
     case "danza / baile":
-      return <Dance fill={fill} />;
+      return <Dance fill={fill} />
     case "terapia física":
-      return <Reformer fill={fill} />;
+      return <Reformer fill={fill} />
     case "psicologo":
-      return <Brain fill={fill} />;
+      return <Brain fill={fill} />
     case "experiencias turisticas":
-      return <Tourism fill={fill} />;
+      return <Tourism fill={fill} />
     case "salon de belleza":
-      return <Hair fill={fill} />;
+      return <Hair fill={fill} />
     case "reparaciones":
-      return <Equipment fill={fill} />;
+      return <Equipment fill={fill} />
     case "hojalatería":
-      return <Equipment fill={fill} />;
+      return <Equipment fill={fill} />
     case "code review":
-      return <Courses fill={fill} />;
+      return <Courses fill={fill} />
     case "uñas":
-      return <Beauty fill={fill} />;
+      return <Beauty fill={fill} />
     default:
-      return <Barbershop fill={fill} />;
+      return <Barbershop fill={fill} />
   }
-};
+}
 
 export const BussinesTypeForm = ({ org }: { org: Org }) => {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher()
 
-  const initialCurrent = org.businessType || "";
-  const initialCurrentNormalized = initialCurrent.trim().toLowerCase();
+  const initialCurrent = org.businessType || ""
+  const initialCurrentNormalized = initialCurrent.trim().toLowerCase()
   const isOtherInitial =
-    initialCurrent !== "" && !OPTIONS.includes(initialCurrentNormalized);
+    initialCurrent !== "" && !OPTIONS.includes(initialCurrentNormalized)
 
-  const [current, setCurrent] = useState<string>(initialCurrent);
-  const [isOtro, setIsOtro] = useState(isOtherInitial);
+  const [current, setCurrent] = useState<string>(initialCurrent)
+  const [isOtro, setIsOtro] = useState(isOtherInitial)
 
   const {
     formState: { isValid },
@@ -128,17 +126,17 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
       id: org.id,
       businessType: org?.businessType || "",
     },
-  });
+  })
 
   useEffect(() => {
-    register("businessType", { required: true });
-  }, []);
+    register("businessType", { required: true })
+  }, [register])
 
   const handleOtroClick = () => {
-    setIsOtro(true);
-    setCurrent("");
-    setValue("businessType", "", { shouldValidate: true });
-  };
+    setIsOtro(true)
+    setCurrent("")
+    setValue("businessType", "", { shouldValidate: true })
+  }
 
   const onSubmit = (values: FieldValues) => {
     fetcher.submit(
@@ -147,24 +145,24 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
         data: JSON.stringify(values),
         next: "/signup/5",
       },
-      { method: "post" }
-    );
-  };
+      { method: "post" },
+    )
+  }
 
   const onCancel = () => {
-    setValue("businessType", "", { shouldValidate: true });
-    setCurrent("");
+    setValue("businessType", "", { shouldValidate: true })
+    setCurrent("")
     setTimeout(() => {
-      setIsOtro(false);
-    }, 300);
-  };
+      setIsOtro(false)
+    }, 300)
+  }
 
   const handleSelection = (option: string) => {
-    setValue("businessType", option, { shouldValidate: true });
-    setCurrent(option);
-  };
+    setValue("businessType", option, { shouldValidate: true })
+    setCurrent(option)
+  }
 
-  const currentNormalized = (current || "").trim().toLowerCase();
+  const currentNormalized = (current || "").trim().toLowerCase()
 
   return (
     <Form
@@ -208,12 +206,12 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
                     onClick={handleOtroClick}
                     register={register}
                   />
-                );
+                )
               }
 
-              if (isOtro) return null;
+              if (isOtro) return null
 
-              const selected = currentNormalized === option.trim().toLowerCase();
+              const selected = currentNormalized === option.trim().toLowerCase()
 
               return (
                 <Option
@@ -221,15 +219,17 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
                   label={option}
                   onClick={() => handleSelection(option)}
                   name="businessType"
-                  icon={getIconByOption(option, selected ? "#5158F6" : "#8391A1")}
+                  icon={getIconByOption(
+                    option,
+                    selected ? "#5158F6" : "#8391A1",
+                  )}
                   capitalize
                   isCurrent={selected}
                   register={register}
                   transition={{ type: "spring", bounce: 0.3 }}
                 />
-              );
+              )
             }}
-            
           />
         </div>
 
@@ -244,5 +244,5 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
         </div>
       </div>
     </Form>
-  );
-};
+  )
+}

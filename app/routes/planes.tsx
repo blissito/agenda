@@ -1,27 +1,27 @@
-import type { MetaFunction } from "react-router";
-import { TopBar } from "~/components/common/topBar";
-import { FinalCta } from "~/components/home/FinalCta";
-import { Footer } from "~/components/common/Footer";
-import { HandShake } from "~/components/icons/handshake";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { type ReactNode, Suspense, useEffect, useState } from "react";
-import { ArrowRight } from "~/components/icons/arrowRight";
-import { Lamp } from "~/components/icons/lamp";
-import { AnimatePresence, easeOut, motion } from "motion/react";
-import { Bubble } from "~/components/icons/Bubble";
-import { ArrowCollapse } from "~/components/icons/arrowCollapse";
-import { HoverEffect } from "~/components/common/CardHoverEffect";
-import { Banner } from "~/components/home/Banner";
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { Arrow } from "~/components/icons/arrow";
-import { DialogButton } from "~/components/common/DialogButton";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react"
+import { AnimatePresence, motion } from "motion/react"
+import { type ReactNode, Suspense, useEffect, useState } from "react"
+import type { MetaFunction } from "react-router"
+import { HoverEffect } from "~/components/common/CardHoverEffect"
+import { DialogButton } from "~/components/common/DialogButton"
+import { Footer } from "~/components/common/Footer"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { TopBar } from "~/components/common/topBar"
+import { Banner } from "~/components/home/Banner"
+import { FinalCta } from "~/components/home/FinalCta"
+import { Arrow } from "~/components/icons/arrow"
+import { ArrowCollapse } from "~/components/icons/arrowCollapse"
+import { ArrowRight } from "~/components/icons/arrowRight"
+import { Bubble } from "~/components/icons/Bubble"
+import { HandShake } from "~/components/icons/handshake"
+import { Lamp } from "~/components/icons/lamp"
 
 export const meta: MetaFunction = () => {
   return [
     { title: "Planes" },
     { name: "description", content: "Escoge tu plan" },
-  ];
-};
+  ]
+}
 
 export default function Index() {
   useEffect(() => {
@@ -29,8 +29,8 @@ export default function Index() {
       top: 0,
       left: 0,
       behavior: "smooth",
-    });
-  }, []);
+    })
+  }, [])
   return (
     <main className="bg-brand_dark">
       <div className="bg-white rounded-b-[40px] overflow-hidden">
@@ -53,7 +53,7 @@ export default function Index() {
       </div>
       <Footer />
     </main>
-  );
+  )
 }
 
 export const Faq = () => (
@@ -133,23 +133,23 @@ export const Faq = () => (
       />
     </div>
   </section>
-);
+)
 
 export const Question = ({
   question,
   answer,
 }: {
-  question: string;
-  answer: ReactNode;
+  question: string
+  answer: ReactNode
 }) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <div className="border-b-brand_pale border-b-[1px]">
       <button
         className="w-full px-6 py-8 text-xl md:text-2xl font-medium text-left flex justify-between"
         onClick={() => {
-          setOpen((o) => !o);
+          setOpen((o) => !o)
         }}
       >
         <p className="w-[90%] font-satoMiddle">{question}</p>
@@ -174,8 +174,8 @@ export const Question = ({
         )}
       </AnimatePresence>
     </div>
-  );
-};
+  )
+}
 
 export const Pricing = () => (
   <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-[200px] lg:pt-[24%] xl:pt-[16%] ">
@@ -223,11 +223,11 @@ export const Pricing = () => (
       </TabGroup>
     </div>
   </section>
-);
+)
 
 export const ListStar = () => {
-  return <img className="w-6 h-6" src="/images/star.svg" />;
-};
+  return <img className="w-6 h-6" src="/images/star.svg" />
+}
 
 export const yearlyItems = [
   {
@@ -315,7 +315,7 @@ export const yearlyItems = [
     ),
     link: "https://stripe.com",
   },
-];
+]
 
 export const monthlyItems = [
   {
@@ -403,4 +403,4 @@ export const monthlyItems = [
     ),
     link: "https://stripe.com",
   },
-];
+]

@@ -1,4 +1,4 @@
-import { cn } from "~/utils/cn";
+import { cn } from "~/utils/cn"
 
 export const BlissmoButton = ({
   mode = "primary",
@@ -7,11 +7,11 @@ export const BlissmoButton = ({
   isLoading,
   ...props
 }: {
-  isDisabled?: boolean;
-  isLoading?: boolean;
-  className?: string;
-  mode: "primary" | "secondary" | "ghost";
-  [x: string]: unknown;
+  isDisabled?: boolean
+  isLoading?: boolean
+  className?: string
+  mode: "primary" | "secondary" | "ghost"
+  [x: string]: unknown
 }) => {
   return (
     <button
@@ -23,9 +23,9 @@ export const BlissmoButton = ({
           "bg-green-500 rounded-lg text-gray-800": mode === "secondary",
           "bg-transparent rounded-full border-2 text-black": mode === "ghost",
         },
-        className
+        className,
       )}
       {...props}
     />
-  );
-};
+  )
+}

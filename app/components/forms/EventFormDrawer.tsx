@@ -1,8 +1,21 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { type ReactNode } from "react";
-import { Drawer } from "../animated/SimpleDrawer";
-import { EventForm } from "./agenda/EventForm";
-import type { Customer, Service, User } from "@prisma/client";
+import type {
+  Customer,
+  Event as PrismaEvent,
+  Service,
+  User,
+} from "@prisma/client"
+import { Drawer } from "../animated/SimpleDrawer"
+import { EventForm } from "./agenda/EventForm"
+
+type EventFormDrawerProps = {
+  employees: User[]
+  services: Service[]
+  customers: Customer[]
+  onNewClientClick: () => void
+  onClose?: () => void
+  isOpen?: boolean
+  event: Partial<PrismaEvent> | null
+}
 
 export const EventFormDrawer = ({
   event,
@@ -12,16 +25,7 @@ export const EventFormDrawer = ({
   customers,
   employees,
   services,
-}: {
-  employees: User[];
-  services: Service[];
-  customers: Customer[];
-  onNewClientClick: () => void;
-  onClose?: () => void;
-  isOpen?: boolean;
-  event: Event;
-  children: ReactNode;
-}) => {
+}: EventFormDrawerProps) => {
   return (
     <Drawer
       title="Agendar cita"
@@ -36,8 +40,8 @@ export const EventFormDrawer = ({
         customers={customers}
         onNewClientClick={onNewClientClick}
         onCancel={onClose}
-        defaultValues={event}
+        defaultValues={event as PrismaEvent}
       />
     </Drawer>
-  );
-};
+  )
+}

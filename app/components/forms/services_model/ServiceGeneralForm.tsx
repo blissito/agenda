@@ -1,24 +1,29 @@
-import { Form } from "react-router";
-import { useForm, type FieldError } from "react-hook-form";
-import { z } from "zod";
-import { BasicInput } from "../BasicInput";
-import { TextAreaInput } from "../TextAreaInput";
-import type { RefObject } from "react";
+import type { RefObject } from "react"
+import {
+  type FieldError,
+  type FieldValues,
+  type UseFormRegister,
+  useForm,
+} from "react-hook-form"
+import { Form } from "react-router"
+import { z } from "zod"
+import { BasicInput } from "../BasicInput"
+import { TextAreaInput } from "../TextAreaInput"
 
 // Type stuff
 export const generalFormSchema = z.object({
   name: z.string().min(1),
-  price: z.coerce.number().min(1), // @TODO: min and implications 🙂
+  price: z.coerce.number().min(0),
   points: z.coerce.number().optional(),
   description: z.string().min(5),
-});
-export type GeneralFormFields = z.infer<typeof generalFormSchema>;
+})
+export type GeneralFormFields = z.infer<typeof generalFormSchema>
 const initialValues: GeneralFormFields = {
   name: "",
   price: Infinity,
   points: 10,
   description: "",
-};
+}
 /**
  * I'm experimenting again with declarative patterns (not using fetcher)
  * @submitButton Footer is required because this form has no submit button.
@@ -30,10 +35,10 @@ export const ServiceGeneralForm = ({
   formRef,
   errors = {},
 }: {
-  errors?: Record<string, FieldError>;
-  formRef?: RefObject<HTMLFormElement | null>;
-  onSubmit?: (values: GeneralFormFields) => {};
-  defaultValues?: GeneralFormFields;
+  errors?: Record<string, FieldError>
+  formRef?: RefObject<HTMLFormElement | null>
+  onSubmit?: (values: GeneralFormFields) => {}
+  defaultValues?: GeneralFormFields
 }) => {
   const {
     handleSubmit,
@@ -41,12 +46,12 @@ export const ServiceGeneralForm = ({
     formState: { isValid },
   } = useForm({
     defaultValues,
-  });
+  })
   const submit = (values: GeneralFormFields) => {
-    const parsedVals = generalFormSchema.parse(values) as GeneralFormFields; // revisit
+    const parsedVals = generalFormSchema.parse(values) as GeneralFormFields // revisit
     // fetcher.submit({ ...values, intent: "general_form" }, { method: "post" });
-    onSubmit?.(parsedVals);
-  };
+    onSubmit?.(parsedVals)
+  }
 
   return (
     <Form
@@ -85,11 +90,11 @@ export const ServiceGeneralForm = ({
       />
       <TextAreaInput
         error={errors.description}
-        register={register}
+        register={register as unknown as UseFormRegister<FieldValues>}
         placeholder="Cuéntale a tus clientes sobre tu servicio"
         label="Descripción"
         name="description"
       />
     </Form>
-  );
-};
+  )
+}

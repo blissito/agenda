@@ -1,5 +1,5 @@
-import { Image } from "~/components/common/Image";
-import { cn } from "~/utils/cn";
+import { Image } from "~/components/common/Image"
+import { cn } from "~/utils/cn"
 
 export const InfoService = ({
   image,
@@ -7,10 +7,10 @@ export const InfoService = ({
   link,
   isActive,
 }: {
-  isActive?: boolean;
-  image?: string;
-  title: string;
-  link?: string;
+  isActive?: boolean
+  image?: string
+  title: string
+  link?: string
 }) => {
   return (
     <a
@@ -28,12 +28,12 @@ export const InfoService = ({
       <span
         className={cn(
           "text-xs py-1 px-2 rounded-full text-brand_gray",
-          isActive ? "bg-green-100" : "bg-gray-100"
+          isActive ? "bg-green-100" : "bg-gray-100",
         )}
       >
         {" "}
         {isActive ? "público" : "oculto"}
       </span>
     </a>
-  );
-};
+  )
+}

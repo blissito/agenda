@@ -1,11 +1,9 @@
-import { twMerge } from "tailwind-merge";
-
 export const Youtube = ({
   fill = "#11151A",
   className = "className",
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -20,4 +18,4 @@ export const Youtube = ({
       fill={fill}
     />
   </svg>
-);
+)

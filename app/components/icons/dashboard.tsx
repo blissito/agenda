@@ -1,8 +1,8 @@
 export const Dashboard = ({
   fill = "#11151A",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -16,4 +16,4 @@ export const Dashboard = ({
       fill={fill}
     />
   </svg>
-);
+)

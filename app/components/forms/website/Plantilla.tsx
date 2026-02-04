@@ -1,21 +1,21 @@
-import type { Org } from "@prisma/client";
-import { twMerge } from "tailwind-merge";
-import { Palomita } from "~/components/common/Palomita";
+import type { Org } from "@prisma/client"
+import { twMerge } from "tailwind-merge"
+import { Palomita } from "~/components/common/Palomita"
 
 export const Plantilla = ({
   value,
   onChange,
 }: {
-  value: string;
-  onChange: (value: string) => void;
+  value: string
+  onChange: (value: string) => void
 }) => {
   return (
     <section>
       <h3 className="text-brand_dark mb-4">Plantilla</h3>
       <PlantillaSelect value={value} onChange={onChange} />
     </section>
-  );
-};
+  )
+}
 
 export const PlantillaSelect = ({
   readOnly,
@@ -23,24 +23,24 @@ export const PlantillaSelect = ({
   value,
   onChange,
 }: {
-  readOnly?: boolean;
-  org?: Org;
-  value?: string;
-  onChange?: (value: string) => void;
+  readOnly?: boolean
+  org?: Org
+  value?: string
+  onChange?: (value: string) => void
 }) => {
-  const selected = value ?? org?.websiteConfig?.template ?? "";
+  const selected = value ?? org?.websiteConfig?.template ?? ""
 
   const handleTemplateSelection = (templateName: string) => () => {
-    onChange?.(templateName);
-  };
+    onChange?.(templateName)
+  }
 
   if (readOnly) {
-    const template = org?.websiteConfig?.template;
+    const template = org?.websiteConfig?.template
     return template === "defaultTemplate" ? (
       <CubeImage src="/images/template1.svg" />
     ) : (
       <CubeImage src="/images/template2.svg" />
-    );
+    )
   }
 
   return (
@@ -57,7 +57,7 @@ export const PlantillaSelect = ({
             "border-[1px] border-brand_stroke rounded-2xl p-3 w-[240px]",
             selected === "defaultTemplate"
               ? " ring-brand_blue rounded-2xl ring"
-              : null
+              : null,
           )}
         >
           <img
@@ -79,7 +79,7 @@ export const PlantillaSelect = ({
             "border-[1px] border-brand_stroke rounded-2xl p-3 w-[240px]",
             selected === "blissmoTemplate"
               ? " ring-brand_blue rounded-md ring"
-              : null
+              : null,
           )}
         >
           <img
@@ -90,14 +90,14 @@ export const PlantillaSelect = ({
         </div>
       </button>
     </div>
-  );
-};
+  )
+}
 
 const CubeImage = ({ src }: { src: string }) => {
   return (
     <div
       className={twMerge(
-        "border-[1px] border-brand_stroke rounded-2xl p-3 w-[240px]"
+        "border-[1px] border-brand_stroke rounded-2xl p-3 w-[240px]",
       )}
     >
       <img
@@ -106,5 +106,5 @@ const CubeImage = ({ src }: { src: string }) => {
         alt="template"
       />
     </div>
-  );
-};
+  )
+}

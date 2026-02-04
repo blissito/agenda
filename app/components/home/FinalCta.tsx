@@ -1,8 +1,8 @@
-import { LineSteak } from "../icons/lineSteak";
-import { ArrowRight } from "../icons/arrowRight";
-import { PrimaryButton } from "../common/primaryButton";
-import { CardLarge, CardSmall } from "./home";
-import type { ReactNode } from "react";
+import type { ReactNode } from "react"
+import { PrimaryButton } from "../common/primaryButton"
+import { ArrowRight } from "../icons/arrowRight"
+import { LineSteak } from "../icons/lineSteak"
+import { CardLarge, CardSmall } from "./home"
 
 export const FinalCta = ({ children }: { children?: ReactNode }) => (
   <section className="w-full h-[640px] md:h-[800px] overflow-hidden">
@@ -46,4 +46,4 @@ export const FinalCta = ({ children }: { children?: ReactNode }) => (
       </div>
     </section>
   </section>
-);
+)

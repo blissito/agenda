@@ -2,8 +2,8 @@ export const Search = ({
   fill = "#5158F6",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="52"
@@ -25,4 +25,4 @@ export const Search = ({
       fill={fill}
     />
   </svg>
-);
+)

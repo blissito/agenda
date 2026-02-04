@@ -1,15 +1,15 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { type ReactNode, useRef, useState } from "react";
-import { Drawer } from "../animated/SimpleDrawer";
-import { ClientForm } from "./agenda/ClientForm";
+import { Drawer } from "../animated/SimpleDrawer"
+import { ClientForm } from "./agenda/ClientForm"
+
+type ClientFormDrawerProps = {
+  onClose?: () => void
+  isOpen?: boolean
+}
 
 export const ClientFormDrawer = ({
   onClose,
   isOpen = false,
-}: {
-  onClose?: () => void;
-  isOpen?: boolean;
-}) => {
+}: ClientFormDrawerProps) => {
   return (
     <Drawer
       title="Agendar cita"
@@ -18,7 +18,7 @@ export const ClientFormDrawer = ({
       size="big"
       footer={<></>}
     >
-      <ClientForm onFetch={onClose} ctaText={"Guardar"} />
+      <ClientForm onFetch={onClose} />
     </Drawer>
-  );
-};
+  )
+}

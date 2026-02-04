@@ -1,8 +1,8 @@
-import { useForm } from "react-hook-form";
-import { Form, useFetcher } from "react-router";
-import { BasicInput } from "../BasicInput";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import type { Customer } from "@prisma/client";
+import type { Customer } from "@prisma/client"
+import { useForm } from "react-hook-form"
+import { Form, useFetcher } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { BasicInput } from "../BasicInput"
 
 export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
   const {
@@ -16,8 +16,8 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
       tel: "",
       comments: "",
     },
-  });
-  const fetcher = useFetcher();
+  })
+  const fetcher = useFetcher()
   const onSubmit = async (values: Partial<Customer>) => {
     // @todo validate
     await fetcher.submit(
@@ -27,20 +27,22 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
       {
         method: "post",
         action: "/api/customers?intent=new",
-      }
-    );
-    onFetch?.();
-  };
+      },
+    )
+    onFetch?.()
+  }
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} className="flex flex-col grow">
-      <h3 className="text-base font-bold mb-8">Completa la información</h3>
+      <h3 className="text-lg font-bold mb-6 text-brand_dark">
+        Cuéntanos sobre ti
+      </h3>
       <BasicInput
         name="displayName"
         label="Nombre"
         placeholder="Nombre completo"
         register={register}
-        error={errors["displayName"]}
+        error={errors.displayName}
       />
       <div className="flex justify-between gap-4 flex-col md:flex-row">
         <BasicInput
@@ -63,7 +65,7 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
         name="comments"
         label="Notas o comentarios"
         as="textarea"
-        placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita"
+        placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
         registerOptions={{ required: false }}
       />
       <PrimaryButton
@@ -75,5 +77,5 @@ export const ClientForm = ({ onFetch }: { onFetch?: () => void }) => {
         Guardar
       </PrimaryButton>
     </Form>
-  );
-};
+  )
+}

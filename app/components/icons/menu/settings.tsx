@@ -2,8 +2,8 @@ export const Settings = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="24"
@@ -21,4 +21,4 @@ export const Settings = ({
       fill={fill}
     />
   </svg>
-);
+)

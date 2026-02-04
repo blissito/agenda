@@ -2,8 +2,8 @@ export const Settings = ({
   fill = "currentColor",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => {
   return (
     <svg
@@ -43,5 +43,5 @@ export const Settings = ({
         fill={fill}
       />
     </svg>
-  );
-};
+  )
+}

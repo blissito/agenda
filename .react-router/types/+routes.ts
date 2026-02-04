@@ -81,6 +81,11 @@ type Pages = {
       "serviceId": string;
     };
   };
+  "/dash/servicios/:serviceId/acciones": {
+    params: {
+      "serviceId": string;
+    };
+  };
   "/dash/website": {
     params: {};
   };
@@ -97,6 +102,11 @@ type Pages = {
   };
   "/dash/evaluaciones": {
     params: {};
+  };
+  "/dash/evaluaciones/:serviceId": {
+    params: {
+      "serviceId": string;
+    };
   };
   "/dash/ajustes": {
     params: {};
@@ -122,10 +132,58 @@ type Pages = {
   "/api/domain": {
     params: {};
   };
+  "/api/loyalty": {
+    params: {};
+  };
   "/stripe": {
     params: {};
   };
+  "/mercadopago/oauth": {
+    params: {};
+  };
+  "/mercadopago/webhook": {
+    params: {};
+  };
+  "/mercadopago/success": {
+    params: {};
+  };
+  "/mercadopago/pending": {
+    params: {};
+  };
+  "/mercadopago/failure": {
+    params: {};
+  };
   "/demo/smatch": {
+    params: {};
+  };
+  "/agenda/:orgSlug/:serviceSlug": {
+    params: {
+      "orgSlug": string;
+      "serviceSlug": string;
+    };
+  };
+  "/error": {
+    params: {};
+  };
+  "/event/action": {
+    params: {};
+  };
+  "/event/:eventId/confirm": {
+    params: {
+      "eventId": string;
+    };
+  };
+  "/event/:eventId/modify": {
+    params: {
+      "eventId": string;
+    };
+  };
+  "/event/:eventId/cancel": {
+    params: {
+      "eventId": string;
+    };
+  };
+  "/survey": {
     params: {};
   };
   "/:serviceSlug": {
@@ -138,7 +196,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/stripe" | "/demo/smatch" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/stripe" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -170,7 +228,7 @@ type RouteFiles = {
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
-    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/ajustes" | "/dash/pagos";
+    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos";
   };
   "routes/dash/dash._index.tsx": {
     id: "routes/dash/dash._index";
@@ -216,6 +274,10 @@ type RouteFiles = {
     id: "routes/dash/servicios/dash.servicios_.$serviceId_.cobros";
     page: "/dash/servicios/:serviceId/cobros";
   };
+  "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx": {
+    id: "routes/dash/servicios/dash.servicios_.$serviceId_.acciones";
+    page: "/dash/servicios/:serviceId/acciones";
+  };
   "routes/dash/website/dash.website.tsx": {
     id: "routes/dash/website/dash.website";
     page: "/dash/website";
@@ -235,6 +297,10 @@ type RouteFiles = {
   "routes/dash/dash.reviews.tsx": {
     id: "routes/dash/dash.reviews";
     page: "/dash/evaluaciones";
+  };
+  "routes/dash/dash.reviews_.$serviceId.tsx": {
+    id: "routes/dash/dash.reviews_.$serviceId";
+    page: "/dash/evaluaciones/:serviceId";
   };
   "routes/dash/dash.ajustes.tsx": {
     id: "routes/dash/dash.ajustes";
@@ -268,13 +334,65 @@ type RouteFiles = {
     id: "routes/api/api.domain";
     page: "/api/domain";
   };
+  "routes/api/loyalty.ts": {
+    id: "routes/api/loyalty";
+    page: "/api/loyalty";
+  };
   "routes/stripe/api.ts": {
     id: "routes/stripe/api";
     page: "/stripe";
   };
+  "routes/mercadopago.oauth.tsx": {
+    id: "routes/mercadopago.oauth";
+    page: "/mercadopago/oauth";
+  };
+  "routes/mercadopago.webhook.ts": {
+    id: "routes/mercadopago.webhook";
+    page: "/mercadopago/webhook";
+  };
+  "routes/mercadopago.success.tsx": {
+    id: "routes/mercadopago.success";
+    page: "/mercadopago/success";
+  };
+  "routes/mercadopago.pending.tsx": {
+    id: "routes/mercadopago.pending";
+    page: "/mercadopago/pending";
+  };
+  "routes/mercadopago.failure.tsx": {
+    id: "routes/mercadopago.failure";
+    page: "/mercadopago/failure";
+  };
   "routes/demo.smatch.tsx": {
     id: "routes/demo.smatch";
     page: "/demo/smatch";
+  };
+  "routes/agenda.$orgSlug.$serviceSlug.tsx": {
+    id: "routes/agenda.$orgSlug.$serviceSlug";
+    page: "/agenda/:orgSlug/:serviceSlug";
+  };
+  "routes/error.tsx": {
+    id: "routes/error";
+    page: "/error";
+  };
+  "routes/event.action.tsx": {
+    id: "routes/event.action";
+    page: "/event/action";
+  };
+  "routes/event.$eventId.confirm.tsx": {
+    id: "routes/event.$eventId.confirm";
+    page: "/event/:eventId/confirm";
+  };
+  "routes/event.$eventId.modify.tsx": {
+    id: "routes/event.$eventId.modify";
+    page: "/event/:eventId/modify";
+  };
+  "routes/event.$eventId.cancel.tsx": {
+    id: "routes/event.$eventId.cancel";
+    page: "/event/:eventId/cancel";
+  };
+  "routes/survey.tsx": {
+    id: "routes/survey";
+    page: "/survey";
   };
   "routes/service.$serviceSlug.tsx": {
     id: "routes/service.$serviceSlug";
@@ -303,11 +421,13 @@ type RouteModules = {
   "routes/dash/servicios/dash.servicios_.$serviceId_.agendamiento": typeof import("./app/routes/dash/servicios/dash.servicios_.$serviceId_.agendamiento.tsx");
   "routes/dash/servicios/dash.servicios_.$serviceId_.horario": typeof import("./app/routes/dash/servicios/dash.servicios_.$serviceId_.horario.tsx");
   "routes/dash/servicios/dash.servicios_.$serviceId_.cobros": typeof import("./app/routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx");
+  "routes/dash/servicios/dash.servicios_.$serviceId_.acciones": typeof import("./app/routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx");
   "routes/dash/website/dash.website": typeof import("./app/routes/dash/website/dash.website.tsx");
   "routes/dash/dash_.clientes_.$email": typeof import("./app/routes/dash/dash_.clientes_.$email.tsx");
   "routes/dash/dash.clientes": typeof import("./app/routes/dash/dash.clientes.tsx");
   "routes/dash/dash.lealtad": typeof import("./app/routes/dash/dash.lealtad.tsx");
   "routes/dash/dash.reviews": typeof import("./app/routes/dash/dash.reviews.tsx");
+  "routes/dash/dash.reviews_.$serviceId": typeof import("./app/routes/dash/dash.reviews_.$serviceId.tsx");
   "routes/dash/dash.ajustes": typeof import("./app/routes/dash/dash.ajustes.tsx");
   "routes/dash/pagos": typeof import("./app/routes/dash/pagos.tsx");
   "routes/api/customers": typeof import("./app/routes/api/customers.ts");
@@ -316,7 +436,20 @@ type RouteModules = {
   "routes/api/events": typeof import("./app/routes/api/events.ts");
   "routes/api/api.org": typeof import("./app/routes/api/api.org.ts");
   "routes/api/api.domain": typeof import("./app/routes/api/api.domain.ts");
+  "routes/api/loyalty": typeof import("./app/routes/api/loyalty.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
+  "routes/mercadopago.oauth": typeof import("./app/routes/mercadopago.oauth.tsx");
+  "routes/mercadopago.webhook": typeof import("./app/routes/mercadopago.webhook.ts");
+  "routes/mercadopago.success": typeof import("./app/routes/mercadopago.success.tsx");
+  "routes/mercadopago.pending": typeof import("./app/routes/mercadopago.pending.tsx");
+  "routes/mercadopago.failure": typeof import("./app/routes/mercadopago.failure.tsx");
   "routes/demo.smatch": typeof import("./app/routes/demo.smatch.tsx");
+  "routes/agenda.$orgSlug.$serviceSlug": typeof import("./app/routes/agenda.$orgSlug.$serviceSlug.tsx");
+  "routes/error": typeof import("./app/routes/error.tsx");
+  "routes/event.action": typeof import("./app/routes/event.action.tsx");
+  "routes/event.$eventId.confirm": typeof import("./app/routes/event.$eventId.confirm.tsx");
+  "routes/event.$eventId.modify": typeof import("./app/routes/event.$eventId.modify.tsx");
+  "routes/event.$eventId.cancel": typeof import("./app/routes/event.$eventId.cancel.tsx");
+  "routes/survey": typeof import("./app/routes/survey.tsx");
   "routes/service.$serviceSlug": typeof import("./app/routes/service.$serviceSlug.tsx");
 };

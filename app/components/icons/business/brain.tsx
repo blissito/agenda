@@ -1,8 +1,8 @@
 export const Brain = ({
   fill = "#8391A1",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -26,4 +26,4 @@ export const Brain = ({
       strokeLinejoin="round"
     />
   </svg>
-);
+)

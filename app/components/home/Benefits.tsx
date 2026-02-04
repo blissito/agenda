@@ -1,4 +1,4 @@
-import { Star } from "../icons/star";
+import { Star } from "../icons/star"
 
 export const Benefits = ({ ...props }: { props?: unknown }) => (
   <section className="overflow-hidden relative">
@@ -67,16 +67,16 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
       </div>
     </div>
   </section>
-);
+)
 
 export const ItemCard = ({
   image,
   title,
   description,
 }: {
-  image?: string;
-  title: string;
-  description: string;
+  image?: string
+  title: string
+  description: string
 }) => (
   <section className="w-[320px] lg:w-[400px] text-center group  transition-all cursor-pointer">
     <img
@@ -87,4 +87,4 @@ export const ItemCard = ({
     <h3 className="text-brand_dark text-2xl font-bold mt-6">{title}</h3>
     <p className="text-brand_gray text-xl font-satoshi mt-4">{description}</p>
   </section>
-);
+)

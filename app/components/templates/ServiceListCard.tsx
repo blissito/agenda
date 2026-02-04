@@ -1,9 +1,6 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { motion } from "motion/react";
-import { Link, useFetcher } from "react-router";
-import { useClickOutside } from "~/utils/hooks/useClickOutside";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Tag } from "~/components/common/Tag";
+import { motion } from "motion/react"
+import { Link } from "react-router"
+import { Tag } from "~/components/common/Tag"
 
 export const ServiceListCard = ({
   title,
@@ -11,38 +8,13 @@ export const ServiceListCard = ({
   duration,
   price,
   link,
-  serviceSlug,
-  slug,
 }: {
-  slug: string;
-  title: string;
-  image?: string;
-  duration: number;
-  price: string;
-  link?: string;
-  serviceSlug?: string;
+  title: string
+  image?: string | null
+  duration: number | bigint
+  price: number | bigint | string
+  link?: string
 }) => {
-  // lets try with an api endpoint...
-  const fetcher = useFetcher();
-  const [show, setShow] = useState(false);
-  const ref = useClickOutside<HTMLDivElement>({
-    onOutsideClick: () => {
-      setShow(false);
-    },
-    isActive: show,
-    includeEscape: true, // captures [Esc] key press
-  });
-  const origin = useRef<string>("");
-
-  useEffect(() => {
-    origin.current = window.location.origin;
-  }, []);
-  const getLink = useCallback(
-    (serviceSlug: string) => `${origin.current}/agenda/${slug}/${serviceSlug}`,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [origin]
-  );
-
   return (
     <motion.section
       initial={{ opacity: 0, y: -5 }}
@@ -50,7 +22,7 @@ export const ServiceListCard = ({
       exit={{ opacity: 0, y: -5 }}
       className="relative group"
     >
-      <Link to={link} className="group ">
+      <Link to={link || "#"} className="group ">
         <section className="bg-white border-[1px] border-[#EFEFEF] flex items-center justify-between rounded-2xl overflow-hidden hover:scale-95 transition-all cursor-pointer">
           <div className="p-3 flex justify-between w-full items-center">
             <div className="flex items-center gap-3">
@@ -76,5 +48,5 @@ export const ServiceListCard = ({
         </section>
       </Link>
     </motion.section>
-  );
-};
+  )
+}

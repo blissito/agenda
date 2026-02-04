@@ -1,74 +1,79 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import type { Route } from "./+types/new";
-import {
-  generalFormSchema,
-  ServiceGeneralForm,
-} from "~/components/forms/services_model/ServiceGeneralForm";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { cn } from "~/utils/cn";
-import { PrimaryButton } from "~/components/common/primaryButton";
-import { FaArrowLeftLong } from "react-icons/fa6";
-import { IoClose } from "react-icons/io5";
-import type { ZodError, ZodIssue } from "zod";
-import { Link, useFetcher } from "react-router";
-import {
-  ServicePhotoForm,
-  servicePhotoFormSchema,
-} from "~/components/forms/services_model/ServicePhotoForm";
-import {
-  ServiceTimesForm,
-  serviceTimesSchema,
-} from "~/components/forms/services_model/ServiceTimesForm";
-import type { WeekSchema } from "~/utils/zod_schemas";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import type { FieldError } from "react-hook-form"
+import { FaArrowLeftLong } from "react-icons/fa6"
+import { IoClose } from "react-icons/io5"
+import { Link, useFetcher } from "react-router"
+import type { ZodError } from "zod"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
 import {
   ServiceConfigForm,
   serviceConfigFormSchema,
-} from "~/components/forms/services_model/ServiceConfigForm";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { db } from "~/utils/db.server";
+} from "~/components/forms/services_model/ServiceConfigForm"
+import {
+  generalFormSchema,
+  ServiceGeneralForm,
+} from "~/components/forms/services_model/ServiceGeneralForm"
+import {
+  ServicePhotoForm,
+  servicePhotoFormSchema,
+} from "~/components/forms/services_model/ServicePhotoForm"
+import {
+  ServiceTimesForm,
+  serviceTimesSchema,
+} from "~/components/forms/services_model/ServiceTimesForm"
+import { cn } from "~/utils/cn"
+import { db } from "~/utils/db.server"
+import type { WeekSchema } from "~/utils/zod_schemas"
+import type { Route } from "./+types/new"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const url = new URL(request.url);
-  const id = url.searchParams.get("id");
-  let service;
-  const { org } = await getUserAndOrgOrRedirect(request);
-  if (id) {
+  const url = new URL(request.url)
+  const id = url.searchParams.get("id")
+  let service
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (id && org) {
     service = await db.service.findUnique({
       where: {
         id,
         orgId: org.id,
       },
-    });
+    })
   }
-  return { id, service };
-};
+  return { id, service }
+}
 
-const formatErrors = (zodError: ZodError) => {
-  return zodError.issues.reduce((acc, err) => {
-    acc[err.path[0]] = err;
-    return acc;
-  }, {}) as Record<string, ZodIssue>;
-};
+const formatErrors = (zodError: ZodError): Record<string, FieldError> => {
+  return zodError.issues.reduce(
+    (acc, err) => {
+      const key = String(err.path[0])
+      acc[key] = { type: err.code, message: err.message }
+      return acc
+    },
+    {} as Record<string, FieldError>,
+  )
+}
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { id, service } = loaderData;
-  const [errors, setErrors] = useState<Record<string, ZodIssue>>({});
-  const formRef = useRef<HTMLFormElement>(null);
-  const [index, setIndex] = useState(id ? 1 : 0);
-  const [times, setTimes] = useState<WeekSchema>({});
-  const fetcher = useFetcher();
+  const { id, service } = loaderData
+  const [errors, setErrors] = useState<Record<string, FieldError>>({})
+  const formRef = useRef<HTMLFormElement>(null)
+  const [index, setIndex] = useState(id ? 1 : 0)
+  const [times, setTimes] = useState<WeekSchema>({})
+  const [serviceId, setServiceId] = useState<string | null>(id)
+  const fetcher = useFetcher()
   const intent = useMemo(() => {
     switch (index) {
       case 3:
-        return "config_form";
+        return "config_form"
       case 2:
-        return "times_form";
+        return "times_form"
       case 1:
-        return "photo_form";
+        return "photo_form"
       default:
-        return "general_form";
+        return "general_form"
     }
-  }, [index]);
+  }, [index])
 
   const parse = (form: any) => {
     if (intent === "config_form") {
@@ -76,47 +81,46 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         confirmation: form.confirmation,
         remiinder: form.remiinder,
         survey: form.survey,
-      };
-      form.config = config; // important!
-      return serviceConfigFormSchema.safeParse(form);
+      }
+      form.config = config // important!
+      return serviceConfigFormSchema.safeParse(form)
     }
     if (intent === "times_form") {
-      form.weekDays = times; // important!
-      return serviceTimesSchema.safeParse(form);
+      form.weekDays = times // important!
+      return serviceTimesSchema.safeParse(form)
     }
     if (intent === "photo_form") {
-      return servicePhotoFormSchema.safeParse(form);
+      return servicePhotoFormSchema.safeParse(form)
     } else {
-      return generalFormSchema.safeParse(form);
+      return generalFormSchema.safeParse(form)
     }
-  };
+  }
 
   const detonateSubmit = () => {
-    let err = {};
-    const fd = new FormData(formRef.current!);
-    const form = Object.fromEntries(fd);
-    const { success, error, data } = parse(form);
+    let err = {}
+    const fd = new FormData(formRef.current!)
+    const form = Object.fromEntries(fd)
+    const { success, error, data } = parse(form)
     if (success) {
       fetcher.submit(
-        { data: JSON.stringify({ ...data, id }), intent },
-        { method: "post", action: "/api/services" }
-      );
-      setErrors(err);
-      return;
+        { data: JSON.stringify({ ...data, id: serviceId }), intent },
+        { method: "post", action: "/api/services" },
+      )
+      setErrors(err)
+      return
     }
-    err = formatErrors(error);
-    setErrors(err);
-  };
-
-  const serviceId = fetcher.data?.id || id;
+    err = formatErrors(error)
+    setErrors(err)
+  }
 
   useEffect(() => {
-    const i = fetcher.data?.nextIndex;
-    if (i) {
-      setIndex(i);
-      fetcher.data = null;
+    if (fetcher.data?.id) {
+      setServiceId(fetcher.data.id)
     }
-  }, [fetcher]);
+    if (fetcher.data?.nextIndex) {
+      setIndex(fetcher.data.nextIndex)
+    }
+  }, [fetcher.data])
 
   return (
     <article className="h-screen bg-white fixed inset-0 pt-10 overflow-y-auto">
@@ -137,20 +141,25 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           )}
           {index === 1 && (
             <ServicePhotoForm
-              defaultValues={{ place: "ONLINE" }}
-              errors={errors}
+              defaultValues={{
+                place: "ONLINE",
+                isActive: true,
+                allowMultiple: false,
+              }}
               formRef={formRef}
             />
           )}
           {index === 2 && (
             <ServiceTimesForm
               onTimesChange={setTimes}
-              errors={errors}
-              formRef={formRef}
+              defaultValues={{ duration: 30, weekDays: null }}
+              formRef={formRef as React.RefObject<HTMLFormElement>}
             />
           )}
           {index === 3 && (
-            <ServiceConfigForm errors={errors} formRef={formRef} />
+            <ServiceConfigForm
+              formRef={formRef as React.RefObject<HTMLFormElement>}
+            />
           )}
           <ServiceFormFooter onClick={detonateSubmit} />
         </section>
@@ -173,7 +182,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </section>
       )}
     </article>
-  );
+  )
 }
 
 const Steper = ({ currentIndex }: { currentIndex: number }) => {
@@ -187,21 +196,21 @@ const Steper = ({ currentIndex }: { currentIndex: number }) => {
       <Dots />
       <Number isActive={currentIndex === 3}>4</Number>
     </nav>
-  );
-};
+  )
+}
 
 const Dots = () => {
   return (
     <hr className="w-20 border-b-0 border-[10px] border-gray-300 border-dotted" />
-  );
-};
+  )
+}
 
 const Number = ({
   isActive,
   children,
 }: {
-  isActive: boolean;
-  children: ReactNode;
+  isActive: boolean
+  children: ReactNode
 }) => {
   return (
     <p
@@ -209,13 +218,13 @@ const Number = ({
         "w-7 h-7 grid place-items-center bg-gray-300 text-gray-400 rounded-full mx-2",
         {
           "bg-brand_blue text-white": isActive,
-        }
+        },
       )}
     >
       {children}
     </p>
-  );
-};
+  )
+}
 
 export const ServiceFormFooter = ({
   isDisabled,
@@ -223,10 +232,10 @@ export const ServiceFormFooter = ({
   isLoading,
   backButtonLink = "/dash/servicios",
 }: {
-  onClick?: () => void;
-  backButtonLink?: string;
-  isLoading?: boolean;
-  isDisabled?: boolean;
+  onClick?: () => void
+  backButtonLink?: string
+  isLoading?: boolean
+  isDisabled?: boolean
 }) => (
   <footer className="items-center pb-4 px-4 w-full max-w-xl justify-between flex mt-auto">
     <PrimaryButton
@@ -247,4 +256,4 @@ export const ServiceFormFooter = ({
       Continuar
     </PrimaryButton>
   </footer>
-);
+)

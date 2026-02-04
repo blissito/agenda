@@ -1,38 +1,40 @@
-import { Stripe } from "stripe";
-import { getUserOrRedirect } from "./userGetters";
-import { db } from "~/utils/db.server";
+import { Stripe } from "stripe"
+import { db } from "~/utils/db.server"
+import { getUserOrRedirect } from "./userGetters"
 
-type StripeData = { id: string } | null;
+type StripeData = { id: string } | null
 
 export const getOrCreateStripeAccount = async (request: Request) => {
-  let account;
-  let error;
-  const user = await getUserOrRedirect(request);
-  const stripeData = user.stripe as StripeData;
+  let account
+  let error
+  const user = await getUserOrRedirect(request)
+  const stripeData = user.stripe as StripeData
   try {
     if (stripeData?.id) {
-      account = await retrieveAccountSafe(stripeData.id);
+      account = await retrieveAccountSafe(stripeData.id)
     } else {
-      account = await createConnectedAccount(user.email);
+      account = await createConnectedAccount(user.email)
+      // Store partial stripe data (just id) until full account is retrieved
       await db.user.update({
         where: { id: user.id },
-        data: { stripe: { id: account.id } },
-      });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        data: { stripe: { id: account.id } as any },
+      })
     }
   } catch (e) {
     if (e instanceof Error) {
-      console.error(e);
-      error = e;
+      console.error(e)
+      error = e
     }
   }
   return { account, error } as {
-    account: { id: string } | null;
-    error: null | Error;
-  };
-};
+    account: { id: string } | null
+    error: null | Error
+  }
+}
 
 const retrieveAccountSafe = async (id: string) =>
-  getClient().accounts.retrieve(id);
+  getClient().accounts.retrieve(id)
 
 export const createAccountLink = (connectedAccountId: string, origin: string) =>
   getClient().accountLinks.create({
@@ -40,13 +42,13 @@ export const createAccountLink = (connectedAccountId: string, origin: string) =>
     return_url: `${origin}/stripe?intent=return&connectedAccountId=${connectedAccountId}`,
     refresh_url: `${origin}/stripe?intent=refresh&connectedAccountId=${connectedAccountId}`,
     type: "account_onboarding",
-  });
+  })
 
-let client: Stripe;
+let client: Stripe
 const getClient = () => {
-  client ??= new Stripe(process.env.STRIPE_SECRET_TEST as string);
-  return client;
-};
+  client ??= new Stripe(process.env.STRIPE_SECRET_TEST as string)
+  return client
+}
 
 export const createConnectedAccount = (email: string) => {
   return getClient().accounts.create({
@@ -63,5 +65,5 @@ export const createConnectedAccount = (email: string) => {
         type: "full",
       },
     },
-  });
-};
+  })
+}

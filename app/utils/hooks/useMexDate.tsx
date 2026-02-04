@@ -6,5 +6,5 @@ export const useMexDate = (date: Date | string, timeZone?: string) => {
     day: "numeric",
     hour: "numeric",
     hour12: true,
-  });
-};
+  })
+}

@@ -1,20 +1,21 @@
 import {
-  S3Client,
+  DeleteObjectCommand,
   // ListBucketsCommand,
   // ListObjectsV2Command,
   GetObjectCommand,
-  PutObjectCommand,
   PutBucketCorsCommand,
-  DeleteObjectCommand,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+
 // import { Upload } from "@aws-sdk/lib-storage";
 // import fs from "fs";
 
 const S3 = new S3Client({
   region: "auto",
   endpoint: `https://fly.storage.tigris.dev`,
-});
+})
 
 // @TODO: confirm production bucket/folder names
 const setCors = async () => {
@@ -43,51 +44,51 @@ const setCors = async () => {
         },
       ],
     },
-  };
-  const command = new PutBucketCorsCommand(input);
-  const response = await S3.send(command);
+  }
+  const command = new PutBucketCorsCommand(input)
+  const response = await S3.send(command)
   // console.log("SETCORS response: ", response);
-  return response;
-};
+  return response
+}
 
 export const getImageURL = async (key: string, expiresIn = 900) =>
   await getSignedUrl(
     S3,
     new GetObjectCommand({
       Bucket: "wild-bird-2039",
-      Key: "testing/" + key, // @TODO: update when prod beta
+      Key: `testing/${key}`, // @TODO: update when prod beta
     }),
-    { expiresIn }
-  );
+    { expiresIn },
+  )
 
 export const getPutFileUrl = async (key: string) => {
-  await setCors();
+  await setCors()
   return await getSignedUrl(
     S3,
     new PutObjectCommand({
       Bucket: "wild-bird-2039",
-      Key: "testing/" + key, // @TODO: update when prod beta
+      Key: `testing/${key}`, // @TODO: update when prod beta
       // ContentType: "image/png",
     }),
-    { expiresIn: 3600 }
-  );
-};
+    { expiresIn: 3600 },
+  )
+}
 
 export const removeFileUrl = async (key: string) => {
-  await setCors();
+  await setCors()
   return await getSignedUrl(
     S3,
     new DeleteObjectCommand({
       Bucket: "wild-bird-2039",
-      Key: "testing/" + key, // @TODO: update when prod beta
+      Key: `testing/${key}`, // @TODO: update when prod beta
     }),
-    { expiresIn: 3600 }
-  );
-};
+    { expiresIn: 3600 },
+  )
+}
 
 export const getPutPair = async (key: string) => {
-  return await Promise.all([getPutFileUrl(key), getImageURL(key)]);
-};
+  return await Promise.all([getPutFileUrl(key), getImageURL(key)])
+}
 
 // Fetch the presigned URL to download an object.
 // console.log(

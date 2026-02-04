@@ -1,19 +1,19 @@
-import { type ReactNode, useEffect } from "react";
-import { useAnimate } from "motion/react";
+import { useAnimate } from "motion/react"
+import { type ReactNode, useEffect } from "react"
 
 export const BorderButton = ({
   children,
   duration = 3,
 }: {
-  duration?: number;
-  children: ReactNode;
+  duration?: number
+  children: ReactNode
 }) => {
-  const [scope, animate] = useAnimate();
+  const [scope, animate] = useAnimate()
 
   const move = async () => {
-    let { width, height } = scope.current.getBoundingClientRect();
-    width -= 8;
-    height -= 8;
+    let { width, height } = scope.current.getBoundingClientRect()
+    width -= 8
+    height -= 8
     animate(
       "#point",
       {
@@ -25,8 +25,8 @@ export const BorderButton = ({
         repeat: Infinity,
         ease: "linear",
         times: [0, 0.4, 0.5, 0.9, 1], // repartición del tiempo
-      }
-    );
+      },
+    )
     animate(
       "#point2",
       {
@@ -39,14 +39,14 @@ export const BorderButton = ({
         ease: "linear",
         times: [0, 0.4, 0.5, 0.9, 1], // repartición del tiempo
         delay: 2.5,
-      }
-    );
-  };
+      },
+    )
+  }
 
   useEffect(() => {
-    move();
+    move()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [move])
 
   return (
     <button
@@ -64,5 +64,5 @@ export const BorderButton = ({
       />
       <div className="bg-gray-900 inset-1 rounded-lg absolute" />
     </button>
-  );
-};
+  )
+}

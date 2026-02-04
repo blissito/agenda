@@ -1,16 +1,14 @@
-
-import { twMerge } from "tailwind-merge";
-import { motion } from "motion/react";
+import { motion } from "motion/react"
+import { cloneElement, isValidElement, type ReactNode, useState } from "react"
 import {
   type FieldError,
   type FieldValues,
   type UseFormRegister,
-} from "react-hook-form";
-import { BasicInput } from "./BasicInput";
-import { type ReactNode, useState, cloneElement, isValidElement } from "react";
+} from "react-hook-form"
+import { twMerge } from "tailwind-merge"
+import { BasicInput } from "./BasicInput"
 
-
-const REQUIRED_MESSAGE = "Este campos es requerido";
+const REQUIRED_MESSAGE = "Este campos es requerido"
 
 export const MultipleOptions = ({
   className,
@@ -23,17 +21,17 @@ export const MultipleOptions = ({
   registerOptions = { required: REQUIRED_MESSAGE },
   register = () => undefined,
 }: {
-  name: string;
-  options: string[];
-  className?: string;
-  defaultValue?: string | null;
-  error?: FieldError;
-  renderFunction?: (arg0: string, arg1: number) => ReactNode;
-  label?: string;
-  registerOptions?: { required: string | boolean };
-  register?: UseFormRegister<FieldValues> | any;
+  name: string
+  options: string[]
+  className?: string
+  defaultValue?: string | null
+  error?: FieldError
+  renderFunction?: (arg0: string, arg1: number) => ReactNode
+  label?: string
+  registerOptions?: { required: string | boolean }
+  register?: UseFormRegister<FieldValues> | any
 }) => {
-  const [current, set] = useState<null | string>(defaultValue);
+  const [current, set] = useState<null | string>(defaultValue)
 
   if (renderFunction) {
     return (
@@ -41,17 +39,16 @@ export const MultipleOptions = ({
         <p className="mb-1">{label}</p>
         <div
           className={twMerge(
-          
             "w-full overflow-visible",
             !!error && "border-red-500 border rounded-2xl p-1 transition-all",
-            className
+            className,
           )}
           style={{ gridTemplateColumns: "1fr 1fr" }}
         >
           {options.map(renderFunction)}
         </div>
       </>
-    );
+    )
   }
   return (
     <>
@@ -67,14 +64,14 @@ export const MultipleOptions = ({
         className={twMerge(
           "grid grid-cols-3 gap-1 ",
           !!error && "border-red-500 border rounded-2xl p-1 transition-all",
-          className
+          className,
         )}
         style={{ gridTemplateRows: "50px 50px" }}
       >
         {options.map((option, index) => {
           return (
             <Option
-              onChange={(val) => set(val)}
+              onChange={(val: string) => set(val)}
               label={option}
               index={index}
               key={option}
@@ -84,13 +81,13 @@ export const MultipleOptions = ({
               register={register}
               registerOptions={registerOptions}
             />
-          );
+          )
         })}
       </motion.div>
       <p className="h-1 text-red-500 text-xs pl-1 mb-10 ">{error?.message}</p>
     </>
-  );
-};
+  )
+}
 
 export const Option = ({
   capitalize,
@@ -105,22 +102,22 @@ export const Option = ({
   icon,
   ...props
 }: {
-  index?: number;
-  capitalize?: boolean;
-  transition?: any;
-  icon?: ReactNode;
-  name: string;
-  label: string;
-  onClick?: () => void;
-  isCurrent?: boolean;
-  register?: UseFormRegister<FieldValues> | any;
-  registerOptions?: { required: string | boolean };
-  [x: string]: unknown;
+  index?: number
+  capitalize?: boolean
+  transition?: any
+  icon?: ReactNode
+  name: string
+  label: string
+  onClick?: () => void
+  isCurrent?: boolean
+  register?: UseFormRegister<FieldValues> | any
+  registerOptions?: { required: string | boolean }
+  [x: string]: unknown
 }) => {
-  const ACTIVE = "#5158F6";
+  const ACTIVE = "#5158F6"
 
   const paintedIcon = (() => {
-    if (!icon) return null;
+    if (!icon) return null
 
     // Si es un componente React (SVG), lo clonamos para forzar fill/stroke
     if (isValidElement(icon)) {
@@ -128,12 +125,12 @@ export const Option = ({
         fill: ACTIVE,
         stroke: ACTIVE,
         color: ACTIVE,
-      });
+      })
     }
 
     // Si NO es elemento válido (string, etc), lo dejamos igual
-    return icon;
-  })();
+    return icon
+  })()
 
   return (
     <button
@@ -147,7 +144,7 @@ export const Option = ({
         "px-4 py-2.5 min-h-[44px]",
         "w-auto max-w-none overflow-visible",
         "hover:bg-neutral-50",
-        isCurrent ? "border-transparent" : "border-gray-200"
+        isCurrent ? "border-transparent" : "border-gray-200",
       )}
     >
       {isCurrent ? (
@@ -156,7 +153,7 @@ export const Option = ({
           layoutId="highlighter"
           className={twMerge(
             "rounded-full absolute inset-0 z-10",
-            "bg-[#5158F6]/10 border border-[#5158F6]"
+            "bg-[#5158F6]/10 border border-[#5158F6]",
           )}
         />
       ) : null}
@@ -169,15 +166,14 @@ export const Option = ({
         className={twMerge(
           "relative z-10 whitespace-nowrap leading-tight",
           isCurrent ? "text-[#5158F6]" : "text-brand_gray",
-          capitalize ? "capitalize" : null
+          capitalize ? "capitalize" : null,
         )}
       >
         {label}
       </span>
     </button>
-  );
-};
-
+  )
+}
 
 export const Otro = ({
   className,
@@ -188,13 +184,13 @@ export const Otro = ({
   isActive,
   onCancel,
 }: {
-  className?: string;
-  onCancel?: () => void;
-  label?: string;
-  name: string;
-  isActive?: boolean;
-  onClick?: () => void;
-  register?: any;
+  className?: string
+  onCancel?: () => void
+  label?: string
+  name: string
+  isActive?: boolean
+  onClick?: () => void
+  register?: any
 }) => {
   if (isActive) {
     return (
@@ -216,15 +212,13 @@ export const Otro = ({
           Cancelar
         </button>
       </motion.div>
-    );
+    )
   }
   return (
-    <>
-      <button onClick={onClick} type="button">
-        <h2 className="shadow rounded-full h-[44px] flex justify-start px-4 items-center text-brand_gray border border-gray-200 bg-white hover:bg-neutral-50">
-          Otro
-        </h2>
-      </button>
-    </>
-  );
-};
+    <button onClick={onClick} type="button">
+      <h2 className="shadow rounded-full h-[44px] flex justify-start px-4 items-center text-brand_gray border border-gray-200 bg-white hover:bg-neutral-50">
+        Otro
+      </h2>
+    </button>
+  )
+}

@@ -1,9 +1,8 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "motion/react"
+import { type ReactNode, useEffect, useRef } from "react"
 // import { createPortal } from "react-dom";
-import { IoClose } from "react-icons/io5";
-import { cn } from "~/utils/cn";
+import { IoClose } from "react-icons/io5"
+import { cn } from "~/utils/cn"
 
 export const Drawer = ({
   children,
@@ -17,46 +16,46 @@ export const Drawer = ({
   isValid,
   footer,
 }: {
-  footer?: ReactNode;
-  onClick?: () => void;
-  isValid?: boolean;
-  size?: "big";
-  cta?: ReactNode;
-  title?: string;
-  subtitle?: string;
-  onClose?: () => void;
-  isOpen?: boolean;
-  children: ReactNode;
+  footer?: ReactNode
+  onClick?: () => void
+  isValid?: boolean
+  size?: "big"
+  cta?: ReactNode
+  title?: string
+  subtitle?: string
+  onClose?: () => void
+  isOpen?: boolean
+  children: ReactNode
 }) => {
-  const body = useRef<HTMLElement>();
+  const body = useRef<HTMLElement | null>(null)
 
   // listeners
-  const handleKeys = (event: unknown) => {
+  const handleKeys = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
-      onClose?.();
+      onClose?.()
     }
-  };
+  }
 
   useEffect(() => {
     if (document.body) {
-      body.current = document.body;
+      body.current = document.body
     }
     // listers
-    addEventListener("keydown", handleKeys);
+    addEventListener("keydown", handleKeys)
 
     // block scroll
     if (document.body && isOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflow = "hidden"
     } else if (document.body && !isOpen) {
-      document.body.style.overflow = "";
+      document.body.style.overflow = ""
     }
     // clean up
     return () => {
-      removeEventListener("keydown", handleKeys);
-      document.body.style.overflow = "";
-    };
+      removeEventListener("keydown", handleKeys)
+      document.body.style.overflow = ""
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, handleKeys])
 
   const jsx = (
     <article>
@@ -76,7 +75,7 @@ export const Drawer = ({
           "bg-white lg:w-[40%] md:w-[60%] w-[90%] z-10 h-screen fixed top-0 right-0 shadow-xl rounded-tl-3xl rounded-bl-3xl p-8 flex flex-col",
           {
             "md:w-[80%] lg:w-[60%]": size === "big",
-          }
+          },
         )}
       >
         <header className="flex items-start justify-between mb-3">
@@ -120,7 +119,7 @@ export const Drawer = ({
                   {
                     "disabled:bg-gray-200": true,
                     "active:bg-brand_blue/90": true,
-                  }
+                  },
                 )}
               >
                 Guardar
@@ -130,8 +129,8 @@ export const Drawer = ({
         )}
       </motion.section>
     </article>
-  );
+  )
 
   /* <>{body.current && createPortal(jsx, body.current)}</> */
-  return <AnimatePresence mode="popLayout">{isOpen && jsx}</AnimatePresence>;
-};
+  return <AnimatePresence mode="popLayout">{isOpen && jsx}</AnimatePresence>
+}

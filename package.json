@@ -9,7 +9,14 @@
     "dev": "react-router dev",
     "prisma": "npx -y prisma generate",
     "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write --unsafe .",
+    "format": "biome format --write .",
+    "check": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.712.0",
@@ -34,6 +41,7 @@
     "js-confetti": "^0.13.1",
     "jsonwebtoken": "^9.0.3",
     "lottie-react": "^2.4.1",
+    "mercadopago": "^2.12.0",
     "motion": "^12.23.24",
     "nanoid": "^5.0.9",
     "node-schedule": "^2.1.1",
@@ -43,6 +51,7 @@
     "react-day-picker": "^9.0.4",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.52.1",
+    "react-hot-toast": "^2.6.0",
     "react-icons": "^5.2.1",
     "react-router": "^7.12.0",
     "react-scroll-parallax": "^3.5.0",
@@ -53,7 +62,10 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.3.14",
     "@react-router/dev": "^7.12.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^24.10.0",
     "@types/nodemailer": "^7.0.3",
@@ -67,6 +79,7 @@
     "tailwindcss": "^3.4.16",
     "typescript": "^5.7.2",
     "vite": "^7.2.2",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^4.0.18"
   }
 }

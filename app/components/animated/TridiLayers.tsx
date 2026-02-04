@@ -1,21 +1,21 @@
-import { useAnimate } from "motion/react";
-import { type ReactNode, useEffect, useState } from "react";
-import { cn } from "~/utils/cn";
+import { useAnimate } from "motion/react"
+import { type ReactNode, useEffect, useState } from "react"
+import { cn } from "~/utils/cn"
 
-const initial = { rotateZ: -50, rotateX: 50, rotateY: 10 };
+const initial = { rotateZ: -50, rotateX: 50, rotateY: 10 }
 
 export const TridiLayers = ({
   images = [],
   title,
 }: {
-  images?: string[];
-  title?: ReactNode;
+  images?: string[]
+  title?: ReactNode
 }) => {
-  const [isHovered, setIsHovered] = useState(true);
+  const [isHovered, setIsHovered] = useState(true)
 
   const handleMouse = (type: string) => () => {
-    type === "enter" ? setIsHovered(true) : setIsHovered(false);
-  };
+    type === "enter" ? setIsHovered(true) : setIsHovered(false)
+  }
 
   return (
     <section
@@ -40,8 +40,8 @@ export const TridiLayers = ({
         </p>
       </div>
     </section>
-  );
-};
+  )
+}
 
 export const LyingCard = ({
   type = "center",
@@ -49,12 +49,12 @@ export const LyingCard = ({
   className,
   isActive = false,
 }: {
-  isActive?: boolean;
-  src: string;
-  type?: string;
-  className?: string;
+  isActive?: boolean
+  src: string
+  type?: string
+  className?: string
 }) => {
-  const [scope, animate] = useAnimate();
+  const [scope, animate] = useAnimate()
 
   const handleLeft = () => {
     isActive
@@ -65,8 +65,8 @@ export const LyingCard = ({
           x: -200,
           y: 100,
         })
-      : animate(scope.current, { ...initial, x: 0, y: 0 });
-  };
+      : animate(scope.current, { ...initial, x: 0, y: 0 })
+  }
 
   const handleRight = () => {
     isActive
@@ -77,8 +77,8 @@ export const LyingCard = ({
           x: 200,
           y: 0,
         })
-      : animate(scope.current, { ...initial, x: 0, y: 0 });
-  };
+      : animate(scope.current, { ...initial, x: 0, y: 0 })
+  }
 
   const handleCenter = () => {
     isActive
@@ -89,19 +89,19 @@ export const LyingCard = ({
           x: 0,
           y: 0,
         })
-      : animate(scope.current, { ...initial, x: 0, y: 0 });
-  };
+      : animate(scope.current, { ...initial, x: 0, y: 0 })
+  }
 
   useEffect(() => {
-    animate(scope.current, initial);
+    animate(scope.current, initial)
     if (type === "left") {
-      handleLeft();
+      handleLeft()
     } else if (type === "right") {
-      handleRight();
+      handleRight()
     } else {
-      handleCenter();
+      handleCenter()
     }
-  }, [isActive]);
+  }, [animate, handleCenter, handleLeft, handleRight, scope.current, type])
 
   return (
     <img
@@ -116,10 +116,10 @@ export const LyingCard = ({
         className,
         {
           "shadow-xl": isActive,
-        }
+        },
       )}
       src={src || "/images/star.svg"}
       alt="lying"
     />
-  );
-};
+  )
+}

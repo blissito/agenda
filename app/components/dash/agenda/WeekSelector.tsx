@@ -1,15 +1,15 @@
-import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
+import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
 
 export function WeekSelector({
   onClick,
   week,
 }: {
-  week: Date[];
-  onClick?: (arg0: -1 | 1) => void;
+  week: Date[]
+  onClick?: (arg0: -1 | 1) => void
 }) {
   const monthString = week[week.length - 1].toLocaleString("es-MX", {
     month: "long",
-  });
+  })
   return (
     <nav className="flex mb-6 ">
       <h3 className="text-base text-brand_gray font-satoMiddle">
@@ -32,5 +32,5 @@ export function WeekSelector({
         <IoChevronForward />
       </button>
     </nav>
-  );
+  )
 }

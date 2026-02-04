@@ -1,14 +1,13 @@
-import { nanoid } from "nanoid";
-import { useState } from "react";
-import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5";
+import { useState } from "react"
+import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
 import {
   convertDayToString,
   getDaysInMonth,
   isToday,
-} from "~/components/dash/agenda/agendaUtils";
-import { cn } from "~/utils/cn";
+} from "~/components/dash/agenda/agendaUtils"
+import { cn } from "~/utils/cn"
 
-type WeekDaysType = Record<string, string[][]>;
+type WeekDaysType = Record<string, string[][]>
 
 const monthNames = [
   "enero",
@@ -23,8 +22,8 @@ const monthNames = [
   "octubre",
   "noviembre",
   "diciembre",
-];
-const dayNames = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
+]
+const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
 
 export const MonthView = ({
   weekDays,
@@ -32,61 +31,61 @@ export const MonthView = ({
   onSelect,
   selected,
 }: {
-  selected?: Date;
-  weekDays: WeekDaysType;
-  maxDate?: Date;
-  onSelect?: (arg0: Date) => void;
+  selected?: Date
+  weekDays: WeekDaysType
+  maxDate?: Date
+  onSelect?: (arg0: Date) => void
 }) => {
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const activatedDays = Object.keys(weekDays);
+  const [currentDate, setCurrentDate] = useState<Date>(new Date())
+  const activatedDays = Object.keys(weekDays)
 
   const getIsDisabled = (_date: Date) => {
-    if (!_date) return false;
+    if (!_date) return false
     const today = new Date(
       new Date().getFullYear(),
       new Date().getMonth(),
-      new Date().getDate()
-    );
+      new Date().getDate(),
+    )
     // is yesterday or before
     if (_date < today) {
-      return true;
+      return true
     }
     // is bigger than max
     if (maxDate && _date > maxDate) {
-      return true;
+      return true
     }
     // is not part of the activated days
     if (!activatedDays.includes(convertDayToString(_date.getDay()))) {
-      return true;
+      return true
     }
-    return false;
-  };
+    return false
+  }
 
   const handleDayClick = (_date: Date) => {
-    onSelect?.(_date);
-  };
+    onSelect?.(_date)
+  }
 
   const getIsSelected = (_date: Date) =>
     selected &&
     selected.getDate() === _date.getDate() &&
     selected.getMonth() === _date.getMonth() &&
-    selected.getDay() === _date.getDay();
+    selected.getDay() === _date.getDay()
 
   const getNodes = (monthDate: Date) =>
     getDaysInMonth(monthDate).map((_date: Date) => {
       const isPartOfTheMonth =
-        new Date(_date).getMonth() == monthDate.getMonth();
+        new Date(_date).getMonth() === monthDate.getMonth()
 
-      const isDisabled = getIsDisabled(_date);
+      const isDisabled = getIsDisabled(_date)
       const isAvailable = activatedDays.includes(
-        convertDayToString(_date.getDay())
-      );
+        convertDayToString(_date.getDay()),
+      )
 
       return (
         <button
           onClick={() => handleDayClick(_date)}
           disabled={isDisabled}
-          key={nanoid()}
+          key={_date.toISOString()}
           className={cn(
             "text-base italic text-neutral-400 rounded-full md:px-2 py-1 m-1 h-9 transition-all flex justify-center items-center hover:bg-brand_blue hover:text-white",
             {
@@ -97,28 +96,28 @@ export const MonthView = ({
               "disabled:text-brand_iron/30 disabled:line-through disabled:pointer-events-none disabled:bg-transparent":
                 isDisabled,
               "bg-brand_blue text-white": getIsSelected(_date),
-            }
+            },
           )}
         >
           {_date.getDate()}
         </button>
-      );
-    });
+      )
+    })
 
   const monthNavigate = (direction = 1) => {
-    const d = new Date(currentDate);
-    d.setMonth(currentDate.getMonth());
+    const d = new Date(currentDate)
+    d.setMonth(currentDate.getMonth())
     if (direction > 0) {
-      d.setMonth(d.getMonth() + 1);
+      d.setMonth(d.getMonth() + 1)
     } else {
-      d.setMonth(d.getMonth() - 1);
+      d.setMonth(d.getMonth() - 1)
     }
-    setCurrentDate(d);
-  };
+    setCurrentDate(d)
+  }
 
   const isCurrentMonth = () =>
     currentDate.getFullYear() === new Date().getFullYear() &&
-    currentDate.getMonth() === new Date().getMonth();
+    currentDate.getMonth() === new Date().getMonth()
 
   return (
     <div className="min-w-60">
@@ -143,7 +142,7 @@ export const MonthView = ({
       </nav>
       <div className="grid grid-cols-7 text-center font-thin italic text-sm">
         {dayNames.map((dayName) => (
-          <span className="text-gray-600 text-base " key={nanoid()}>
+          <span className="text-gray-600 text-base " key={dayName}>
             {dayName}
           </span>
         ))}
@@ -152,5 +151,5 @@ export const MonthView = ({
         {getNodes(currentDate)}
       </div>
     </div>
-  );
-};
+  )
+}

@@ -1,8 +1,7 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { ReactNode, useEffect } from "react";
-import { Footer } from "~/components/common/Footer";
-import { TopBar } from "~/components/common/topBar";
-import { Rocket } from "~/components/icons/rocket";
+import { type ReactNode, useEffect } from "react"
+import { Footer } from "~/components/common/Footer"
+import { TopBar } from "~/components/common/topBar"
+import { Rocket } from "~/components/icons/rocket"
 
 export default function Index() {
   useEffect(() => {
@@ -10,8 +9,8 @@ export default function Index() {
       top: 0,
       left: 0,
       behavior: "smooth",
-    });
-  }, []);
+    })
+  }, [])
   return (
     <main className="bg-brand_dark">
       <div className="bg-white rounded-b-[40px] pb-[120px]">
@@ -24,7 +23,7 @@ export default function Index() {
       </div>
       <Footer />
     </main>
-  );
+  )
 }
 
 const Info = () => {
@@ -109,10 +108,7 @@ const Info = () => {
             </p>
             <p>
               {" "}
-              <strong className="font-satoMiddle">
-                {" "}
-                Cita o reservación:{" "}
-              </strong>{" "}
+              <strong className="font-satoMiddle"> Cita o reservación: </strong>{" "}
               reservación en la agenda virtual del Negocio, consistente en el
               agendamiento de un lapso de tiempo determinado para la prestación
               de un servicio específico y que será prestado o proveído por el
@@ -946,30 +942,30 @@ const Info = () => {
         </Clause>
       </div>
     </section>
-  );
-};
+  )
+}
 
 const Clause = ({
   id,
   name,
   children,
 }: {
-  id: string;
-  name: string;
-  children: ReactNode;
+  id: string
+  name: string
+  children: ReactNode
 }) => {
   return (
     <section id={id} className="py-40">
       <h3 className="font-title text-xl text-brand_dark">{name}</h3>
       <p className="mt-4 text-brand_gray">{children}</p>
     </section>
-  );
-};
+  )
+}
 
 const handleClick = (id: string) => {
-  const node = document.querySelector(id);
-  node?.scrollIntoView({ behavior: "smooth" });
-};
+  const node = document.querySelector(id)
+  node?.scrollIntoView({ behavior: "smooth" })
+}
 
 const Tabs = () => {
   return (
@@ -977,7 +973,7 @@ const Tabs = () => {
       <div className="bg-white rounded-2xl overflow-hidden sticky top-[280px] flex flex-col gap-2 text-brand_dark">
         <div
           onClick={() => {
-            handleClick("#uno");
+            handleClick("#uno")
           }}
         >
           <p className="cursor-pointer font-satoshi">1. Generalidades </p>
@@ -985,7 +981,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#dos");
+            handleClick("#dos")
           }}
         >
           2. Intervinientes y definiciones
@@ -993,7 +989,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#tres");
+            handleClick("#tres")
           }}
         >
           3. Servicios de Deník
@@ -1001,7 +997,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#cuatro");
+            handleClick("#cuatro")
           }}
         >
           4. Condiciones para acceder a los Servicios de Deník por parte del
@@ -1010,7 +1006,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#cinco");
+            handleClick("#cinco")
           }}
         >
           5. Planes y forma de pago
@@ -1018,7 +1014,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#seis");
+            handleClick("#seis")
           }}
         >
           6. Tarifas y Comisiones
@@ -1026,7 +1022,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#siete");
+            handleClick("#siete")
           }}
         >
           7. Funcionalidad de Reserva de citas
@@ -1034,7 +1030,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#ocho");
+            handleClick("#ocho")
           }}
         >
           8. Funcionalidad de Deník Market
@@ -1042,7 +1038,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#nueve");
+            handleClick("#nueve")
           }}
         >
           9. Responsabilidades del Negocio
@@ -1050,7 +1046,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#diez");
+            handleClick("#diez")
           }}
         >
           10. Responsabilidad de Deník por los Servicios
@@ -1058,7 +1054,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#once");
+            handleClick("#once")
           }}
         >
           11. Servicio de intermediación en pagos
@@ -1066,7 +1062,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#doce");
+            handleClick("#doce")
           }}
         >
           12. Auditoría
@@ -1074,7 +1070,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#trece");
+            handleClick("#trece")
           }}
         >
           13. Prohibiciones del Negocio
@@ -1082,7 +1078,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#catorce");
+            handleClick("#catorce")
           }}
         >
           14. Vigencia y terminación del contrato
@@ -1090,7 +1086,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#quince");
+            handleClick("#quince")
           }}
         >
           15. Responsabilidad
@@ -1098,7 +1094,7 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#diezyseis");
+            handleClick("#diezyseis")
           }}
         >
           16. Propiedad Intelectual
@@ -1106,12 +1102,12 @@ const Tabs = () => {
         <p
           className="cursor-pointer"
           onClick={() => {
-            handleClick("#diezysiete");
+            handleClick("#diezysiete")
           }}
         >
           17. Varios
         </p>
       </div>
     </section>
-  );
-};
+  )
+}

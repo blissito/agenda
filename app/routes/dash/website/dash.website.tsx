@@ -1,11 +1,10 @@
-// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
-import { RouteTitle } from "~/components/sideBar/routeTitle";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { db } from "~/utils/db.server";
-import type { Route } from "./+types/dash.website";
-import { Template } from "./Template";
-import { CompanyInfo } from "./CompanyInfo";
-import { getQRImageURL } from "~/utils/getQR";
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { db } from "~/utils/db.server"
+import { getQRImageURL } from "~/utils/getQR"
+import type { Route } from "./+types/dash.website"
+import { CompanyInfo } from "./CompanyInfo"
+import { Template } from "./Template"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
@@ -23,9 +22,12 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       customDomainStatus: true,
       customDomainDns: true,
     },
-  });
-  const agendaUrl = `https://${org.slug}.denik.me`;
-  const qr = await getQRImageURL(agendaUrl);
+  })
+  if (!org) {
+    throw new Response("Org not found", { status: 404 })
+  }
+  const agendaUrl = `https://${org.slug}.denik.me`
+  const qr = await getQRImageURL(agendaUrl)
   const services = await db.service.findMany({
     where: { orgId: org.id, archived: false },
     select: {
@@ -35,12 +37,12 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       slug: true,
       isActive: true,
     },
-  });
-  return { url: agendaUrl, qr, org, services };
-};
+  })
+  return { url: agendaUrl, qr, org, services }
+}
 
 export default function Website({ loaderData }: Route.ComponentProps) {
-  const { url, qr, org, services } = loaderData;
+  const { url, qr, org, services } = loaderData
   return (
     <main className=" ">
       <RouteTitle>Mi sitio web</RouteTitle>
@@ -49,5 +51,5 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         <CompanyInfo org={org} services={services} />
       </section>
     </main>
-  );
+  )
 }

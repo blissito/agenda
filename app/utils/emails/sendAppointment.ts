@@ -1,16 +1,17 @@
-import appointmentCustomerTemplate from "./appointmentCustomerTemplate";
-import type { Customer, Event, Org, Service, User } from "@prisma/client";
-import appointmentOwnerTemplate from "./appointmentOwnerTemplate";
-import { getRemitent, getSesTransport } from "./ses";
-import { formatDateForDisplay } from "~/utils/formatDate";
+import type { Customer, Event, Org, Service, User } from "@prisma/client"
+import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
+import { generateEventActionToken, generateUserToken } from "~/utils/tokens"
+import appointmentCustomerTemplate from "./appointmentCustomerTemplate"
+import appointmentOwnerTemplate from "./appointmentOwnerTemplate"
+import { getRemitent, getSesTransport } from "./ses"
 
 type ServiceWithOrg = Service & {
-  org: Org & { owner?: User };
-};
+  org: Org & { owner?: User }
+}
 type FullEvent = Event & {
-  service: ServiceWithOrg;
-  customer: Customer;
-};
+  service: ServiceWithOrg
+  customer: Customer
+}
 
 export const sendAppointmentToCustomer = async ({
   email,
@@ -18,15 +19,34 @@ export const sendAppointmentToCustomer = async ({
   subject,
   event,
 }: {
-  event: FullEvent;
-  email: string;
-  request?: Request;
-  subject?: string;
+  event: FullEvent
+  email: string
+  request?: Request
+  subject?: string
 }) => {
-  const url = new URL(request?.url || "https://denik.me");
-  url.pathname = "/dash";
+  const baseUrl = process.env.APP_URL || "https://denik.me"
 
-  const sesTransport = getSesTransport();
+  // Generate tokens for event actions
+  const confirmToken = generateEventActionToken({
+    eventId: event.id,
+    customerId: event.customer.id,
+    action: "confirm",
+  })
+  const modifyToken = generateEventActionToken({
+    eventId: event.id,
+    customerId: event.customer.id,
+    action: "modify",
+  })
+
+  const confirmLink = `${baseUrl}/event/action?token=${confirmToken}`
+  const modifyLink = `${baseUrl}/event/action?token=${modifyToken}`
+
+  // Get timezone from org or use default
+  const timezone =
+    (event.service.org as Org & { timezone?: string }).timezone ||
+    DEFAULT_TIMEZONE
+
+  const sesTransport = getSesTransport()
 
   return sesTransport
     .sendMail({
@@ -35,11 +55,12 @@ export const sendAppointmentToCustomer = async ({
       to: email,
       html: appointmentCustomerTemplate({
         displayName: event.service.org.shopKeeper ?? undefined,
-        link: url.toString(),
-        amount: event.service.price,
+        confirmLink,
+        modifyLink,
+        amount: Number(event.service.price),
         address: event.service.org.address ?? undefined,
-        dateString: formatDateForDisplay(event.start),
-        minutes: event.duration ?? undefined,
+        dateString: formatFullDateInTimezone(event.start, timezone),
+        minutes: event.duration ? Number(event.duration) : undefined,
         reservationNumber: event.id,
         serviceName: event.service.name,
         orgName: event.service.org.name,
@@ -47,9 +68,9 @@ export const sendAppointmentToCustomer = async ({
       }),
     })
     .catch((e: unknown) => {
-      console.error("Error sending appointment email to customer:", e);
-    });
-};
+      console.error("Error sending appointment email to customer:", e)
+    })
+}
 
 export const sendAppointmentToOwner = async ({
   request,
@@ -57,19 +78,30 @@ export const sendAppointmentToOwner = async ({
   subject,
   event,
 }: {
-  email: string;
-  event: FullEvent;
-  request?: Request;
-  subject?: string;
+  email: string
+  event: FullEvent
+  request?: Request
+  subject?: string
 }) => {
   if (!email) {
-    console.error("sendAppointmentToOwner: No email provided");
-    return;
+    console.error("sendAppointmentToOwner: No email provided")
+    return
   }
-  const url = new URL(request?.url || "https://denik.me");
-  url.pathname = "/dash";
 
-  const sesTransport = getSesTransport();
+  const baseUrl = process.env.APP_URL || "https://denik.me"
+
+  // Generate magic link for auto-login
+  // Token includes owner email, redirects to event modify page after login
+  const ownerToken = generateUserToken(email)
+  const destination = `/event/${event.id}/modify`
+  const link = `${baseUrl}/login/signin?token=${ownerToken}&next=${encodeURIComponent(destination)}`
+
+  // Get timezone from org or use default
+  const timezone =
+    (event.service.org as Org & { timezone?: string }).timezone ||
+    DEFAULT_TIMEZONE
+
+  const sesTransport = getSesTransport()
 
   return sesTransport
     .sendMail({
@@ -78,11 +110,11 @@ export const sendAppointmentToOwner = async ({
       to: email,
       html: appointmentOwnerTemplate({
         displayName: event.service.org.shopKeeper ?? undefined,
-        link: url.toString(),
-        amount: event.service.price,
+        link,
+        amount: Number(event.service.price),
         address: event.service.org.address ?? undefined,
-        dateString: formatDateForDisplay(event.start),
-        minutes: event.duration ?? undefined,
+        dateString: formatFullDateInTimezone(event.start, timezone),
+        minutes: event.duration ? Number(event.duration) : undefined,
         reservationNumber: event.id,
         serviceName: event.service.name,
         orgName: event.service.org.name,
@@ -90,6 +122,6 @@ export const sendAppointmentToOwner = async ({
       }),
     })
     .catch((e: unknown) => {
-      console.error("Error sending appointment email to owner:", e);
-    });
-};
+      console.error("Error sending appointment email to owner:", e)
+    })
+}

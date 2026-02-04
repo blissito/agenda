@@ -2,8 +2,8 @@ export const Out = ({
   fill = "#11151A",
   className,
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     width="24"
@@ -31,4 +31,4 @@ export const Out = ({
       strokeLinejoin="round"
     />
   </svg>
-);
+)

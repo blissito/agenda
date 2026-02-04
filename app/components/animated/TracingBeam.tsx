@@ -1,34 +1,34 @@
-import { type ReactNode, useEffect, useRef, useState } from "react";
-import { motion, useScroll, useSpring, useTransform } from "motion/react";
+import { motion, useScroll, useSpring, useTransform } from "motion/react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
 
 export const TracingBeam = ({ children }: { children?: ReactNode }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const ref = useRef<HTMLElement>(null);
-  const [svgHeight, setSvgHeight] = useState(1000);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLElement>(null)
+  const [svgHeight, setSvgHeight] = useState(1000)
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
-  });
+  })
 
   const y1 = useSpring(
     useTransform(scrollYProgress, [0, 0.8], [50, svgHeight]),
     {
       bounce: 0.2,
-    }
-  );
+    },
+  )
 
   const y2 = useSpring(
     useTransform(scrollYProgress, [0, 1], [50, svgHeight - 200]),
     {
       bounce: 0.2,
-    }
-  );
+    },
+  )
 
   useEffect(() => {
     if (containerRef.current) {
-      setSvgHeight(containerRef.current.offsetHeight);
+      setSvgHeight(containerRef.current.offsetHeight)
     }
-  }, []);
+  }, [])
 
   return (
     <main ref={ref}>
@@ -72,5 +72,5 @@ export const TracingBeam = ({ children }: { children?: ReactNode }) => {
         {children}
       </section>
     </main>
-  );
-};
+  )
+}

@@ -1,11 +1,9 @@
-import { twMerge } from "tailwind-merge";
-
 export const Plus = ({
   fill = "#4B5563",
   className = "className",
 }: {
-  fill?: string;
-  className?: string;
+  fill?: string
+  className?: string
 }) => (
   <svg
     className={className}
@@ -27,4 +25,4 @@ export const Plus = ({
       </clipPath>
     </defs>
   </svg>
-);
+)

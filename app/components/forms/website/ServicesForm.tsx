@@ -1,16 +1,16 @@
-import type { Service } from "@prisma/client";
-import { useFetcher } from "react-router";
-import { Image } from "~/components/common/Image";
-import { SecondaryButton } from "~/components/common/secondaryButton";
-import { Switch } from "~/components/common/Switch";
-import { cn } from "~/utils/cn";
+import type { Service } from "@prisma/client"
+import { useFetcher } from "react-router"
+import { Image } from "~/components/common/Image"
+import { Switch } from "~/components/common/Switch"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { cn } from "~/utils/cn"
 
 export default function ServicesForm({
   onCancel,
   services,
 }: {
-  services: Service[];
-  onCancel?: () => void;
+  services: Service[]
+  onCancel?: () => void
 }) {
   return (
     <div className="rounded-2xl max-w-3xl mt-6">
@@ -21,12 +21,12 @@ export default function ServicesForm({
         </SecondaryButton>
       </div>
     </div>
-  );
+  )
 }
 
 export const ServiceRows = ({ services = [] }: { services: Service[] }) => {
-  const fetcher = useFetcher();
-  const generalClassName = "col-span-2";
+  const fetcher = useFetcher()
+  const generalClassName = "col-span-2"
 
   const handleChange = (id: string, bool: boolean) => {
     fetcher.submit(
@@ -34,9 +34,9 @@ export const ServiceRows = ({ services = [] }: { services: Service[] }) => {
         data: JSON.stringify({ isActive: bool, id }),
         intent: "service_update",
       },
-      { method: "post", action: "/api/services" }
-    );
-  };
+      { method: "post", action: "/api/services" },
+    )
+  }
 
   return (
     <>
@@ -62,7 +62,7 @@ export const ServiceRows = ({ services = [] }: { services: Service[] }) => {
           </span>
           <span className={generalClassName}>{service.duration} min</span>
           <span className={generalClassName}>${service.price}MXN</span>
-          <span className={generalClassName + " flex justify-start"}>
+          <span className={`${generalClassName} flex justify-start`}>
             <Switch
               defaultChecked={service.isActive}
               onChange={(bool) => handleChange(service.id, bool)}
@@ -72,20 +72,20 @@ export const ServiceRows = ({ services = [] }: { services: Service[] }) => {
         </div>
       ))}
     </>
-  );
-};
+  )
+}
 
 export const ServiceItem = ({
   serviceName,
   img,
 }: {
-  serviceName: string;
-  img?: string;
+  serviceName: string
+  img?: string
 }) => {
   return (
     <div className="flex gap-4 items-center">
       <Image className="w-16 h-10 object-cover rounded-lg" src={img} />
       <h3 className="font-satoMiddle text-brand_dark">{serviceName}</h3>
     </div>
-  );
-};
+  )
+}

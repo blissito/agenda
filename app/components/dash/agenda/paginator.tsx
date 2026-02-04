@@ -1,5 +1,5 @@
-import { twMerge } from "tailwind-merge";
-import { generateWeek } from "./agendaUtils";
+import { twMerge } from "tailwind-merge"
+import { generateWeek } from "./agendaUtils"
 
 export const Paginator = ({
   onNext,
@@ -10,21 +10,21 @@ export const Paginator = ({
   onToday,
   monday,
 }: {
-  month: string;
-  end: number;
-  start: number;
-  onPrev?: () => void;
-  onNext?: () => void;
-  onToday?: () => void;
-  monday: Date;
+  month: string
+  end: number
+  start: number
+  onPrev?: () => void
+  onNext?: () => void
+  onToday?: () => void
+  monday: Date
 }) => {
-  const today = new Date();
+  const today = new Date()
 
   const isTodayInWeek = generateWeek(monday).some(
     (day) =>
       day.date.getDate() === today.getDate() &&
-      day.date.getMonth() === today.getMonth()
-  );
+      day.date.getMonth() === today.getMonth(),
+  )
 
   return (
     <nav className="flex items-center justify-between">
@@ -50,7 +50,7 @@ export const Paginator = ({
             onClick={onToday}
             className={twMerge(
               "px-4 py-2 shadow flex bg-white rounded-xl items-center justify-center",
-              isTodayInWeek && "bg-brand_blue text-white"
+              isTodayInWeek && "bg-brand_blue text-white",
             )}
           >
             Hoy
@@ -62,5 +62,5 @@ export const Paginator = ({
         <option disabled>Mensual</option>
       </select>
     </nav>
-  );
-};
+  )
+}

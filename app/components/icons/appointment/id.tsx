@@ -1,8 +1,8 @@
 export const Id = ({
   fill = "#4B5563",
 }: {
-  fill?: string;
-  props?: unknown;
+  fill?: string
+  props?: unknown
 }) => (
   <svg
     width="24"
@@ -36,4 +36,4 @@ export const Id = ({
       strokeLinejoin="round"
     />
   </svg>
-);
+)
