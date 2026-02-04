@@ -104,24 +104,40 @@ export default function Page() {
   const actionData = useActionData<typeof action>()
 
   if (actionData?.success) {
-    // success screen (magic link)
     return (
-      <section className="flex flex-col items-center justify-center h-screen max-w-4xl mx-auto bg-white ">
-        <img src="/images/signin/sending-email.svg" alt="illustration" />
-        <h1 className="text-center text-2xl font-jakarta text-brand_dark mt-6">
-          ¡Hemos enviado un mail a tu correo! 👋🏻
-        </h1>
-        <p className="text-center mb-4 text-xl mt-6 text-brand_gray">
-          Por favor revisa tu bandeja de entrada y{" "}
-          <strong className="font-satoMedium">da clic en el enlace </strong>del
-          email para iniciar sesión.
-        </p>
-        <p className="text-center text-brand_gray text-xl">
-          ¡A veces el mail puede terminar en SPAM! Esperamos que ese no sea el
-          caso, pero si no llega entre uno y tres minutos, ya sabes donde
-          encontrarlo.
-        </p>
-        <EmojiConfetti repeat={1} />
+      <section className="relative bg-white min-h-screen">
+        <img
+          alt="denik markwater"
+          className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto pointer-events-none select-none opacity-60"
+          src="/images/denik-markwater.png"
+        />
+        <TopBar />
+        <main className="relative z-10 flex min-h-screen items-center justify-center px-6">
+          <section className="w-full max-w-4xl mx-auto flex flex-col items-center text-center pt-24 pb-10">
+        <img
+              src="/images/signin/sending-bell.svg"
+              alt="illustration"
+              className="w-[240px] h-[240px]"
+            />
+            <h1 className="mt-8 font-jakarta-bold text-[24px] text-brand_dark">
+              ¡Hemos enviado un mail a tu correo! 👋🏻
+            </h1>
+            <p className="mt-4 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
+              Por favor revisa tu bandeja de entrada y{" "}
+              <strong className="text-brand_dark font-satoMedium">
+                da clic en el enlace
+              </strong>{" "}
+              del email para iniciar sesión.
+            </p>
+            <p className="mt-3 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
+              ¡A veces el mail puede terminar en SPAM! Esperamos que ese no sea el
+              caso, pero si no llega entre uno y tres minutos, ya sabes donde
+              encontrarlo.
+            </p>
+  
+            <EmojiConfetti repeat={1} />
+          </section>
+        </main>
       </section>
     )
   }
