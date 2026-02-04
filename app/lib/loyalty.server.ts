@@ -211,14 +211,18 @@ export async function adjustPoints(params: {
  * Get active rewards for an org
  */
 export async function getRewards(orgId: string, customerTier?: Tier) {
-  const rewards = await db.loyaltyReward.findMany({
+  const allRewards = await db.loyaltyReward.findMany({
     where: {
       orgId,
       isActive: true,
-      OR: [{ maxRedemptions: null }, { currentRedemptions: { lt: db.loyaltyReward.fields.maxRedemptions } }],
     },
     orderBy: { pointsCost: "asc" },
   });
+
+  // Filter out rewards that reached max redemptions
+  const rewards = allRewards.filter(
+    (r) => r.maxRedemptions === null || r.currentRedemptions < r.maxRedemptions
+  );
 
   if (!customerTier) return rewards;
 
