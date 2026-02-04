@@ -105,7 +105,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         };
       }
 
-      const url = new URL(request.url);
+      // Use main app URL for MP callbacks (subdomains may not be whitelisted in MP)
+      const appUrl = process.env.APP_URL || new URL(request.url).origin;
 
       try {
         const preference = await createPreference(accessToken, {
@@ -115,8 +116,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
           customerId: customer.id,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
-          backUrl: url.origin,
-          webhookUrl: `${url.origin}/mercadopago/webhook`,
+          backUrl: appUrl,
+          webhookUrl: `${appUrl}/mercadopago/webhook`,
         });
 
         if (preference.init_point) {
