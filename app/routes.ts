@@ -75,6 +75,14 @@ export default [
   ]),
   // Stripe
   ...prefix("stripe", [index("routes/stripe/api.ts")]),
+  // MercadoPago
+  ...prefix("mercadopago", [
+    route("oauth", "routes/mercadopago.oauth.tsx"),
+    route("webhook", "routes/mercadopago.webhook.ts"),
+    route("success", "routes/mercadopago.success.tsx"),
+    route("pending", "routes/mercadopago.pending.tsx"),
+    route("failure", "routes/mercadopago.failure.tsx"),
+  ]),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
   // Public booking route (works on localhost): /agenda/:orgSlug/:serviceSlug
