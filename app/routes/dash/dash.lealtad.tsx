@@ -78,10 +78,12 @@ export default function Lealtad() {
       pointsCost: Number((form.elements.namedItem("pointsCost") as HTMLInputElement).value),
     };
 
-    await fetch("/api/loyalty?intent=create-reward", {
+    const res = await fetch("/api/loyalty?intent=create-reward", {
       method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ data: JSON.stringify(payload) }),
     });
+    console.log("create reward response:", await res.json());
 
     form.reset();
     setIsCreating(false);

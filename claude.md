@@ -54,6 +54,102 @@ prisma/
 └── schema.prisma     # 6 modelos: User, Org, Service, Event, Customer, Employee
 ```
 
+## Patrón para Features Fullstack
+
+Para añadir un feature nuevo (ej: loyalty, notifications, analytics):
+
+```
+app/lib/{feature}.server.ts      # TODA la lógica en UN archivo
+app/routes/api/{feature}.ts      # API endpoints (glue code)
+app/routes/dash/dash.{feature}.tsx  # UI del dashboard
+prisma/schema.prisma             # Modelos nuevos
+```
+
+### 1. Crear `app/lib/{feature}.server.ts`
+
+```typescript
+import { db } from "~/utils/db.server";
+
+// ==================== TYPES ====================
+export type MyType = "a" | "b";
+export interface MyConfig { ... }
+
+// ==================== CONFIG ====================
+export const MY_CONFIG: MyConfig = { ... };
+
+// ==================== LOGIC ====================
+export async function doSomething(params: { ... }) {
+  // toda la lógica de negocio aquí
+}
+
+// ==================== QUERIES ====================
+export async function getSomething(orgId: string) { ... }
+
+// ==================== ADMIN ====================
+export async function createSomething(data: { ... }) { ... }
+```
+
+### 2. Crear `app/routes/api/{feature}.ts`
+
+```typescript
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
+import { doSomething, getSomething } from "~/lib/{feature}.server";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { org } = await getUserAndOrgOrRedirect(request);
+  if (!org) throw new Response("Org not found", { status: 404 });
+
+  const url = new URL(request.url);
+  const intent = url.searchParams.get("intent");
+
+  if (intent === "list") return getSomething(org.id);
+  return Response.json({ error: "Unknown intent" }, { status: 400 });
+};
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  // similar pattern con intent para diferentes acciones
+};
+```
+
+### 3. Crear UI en `app/routes/dash/dash.{feature}.tsx`
+
+```typescript
+import { useLoaderData } from "react-router";
+import { getSomething, MY_CONFIG } from "~/lib/{feature}.server";
+import type { Route } from "./+types/dash.{feature}";
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  // cargar datos para el dashboard
+};
+
+export default function Feature() {
+  const data = useLoaderData<typeof loader>();
+  return <main>...</main>;
+}
+```
+
+### 4. Agregar modelos a Prisma
+
+```prisma
+model MyModel {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orgId     String   @db.ObjectId
+  // campos...
+  createdAt DateTime @default(now()) @db.Date
+
+  @@index([orgId])
+}
+```
+
+Después de cambiar el schema: `npx prisma generate`
+
+### Ejemplo real: Loyalty
+
+- `app/lib/loyalty.server.ts` - Types, config, lógica de puntos/tiers/rewards
+- `app/routes/api/loyalty.ts` - Endpoints: award, redeem, create-reward, etc.
+- `app/routes/dash/dash.lealtad.tsx` - Dashboard de lealtad
+
 ## Estado de Features
 
 | Feature | Estado |
@@ -65,6 +161,7 @@ prisma/
 | Stripe Connect | ✅ |
 | Webhooks Stripe | ✅ idempotentes (checkout.session.completed, payment_intent.failed) |
 | MercadoPago | ✅ OAuth, webhooks idempotentes, token refresh |
+| Loyalty (puntos/tiers) | ✅ |
 | Tests | ❌ 0% |
 
 ## Protección contra duplicados
@@ -132,6 +229,7 @@ ADMIN_EMAILS=email1@x.com,email2@x.com
 - **Email**: `app/utils/emails/`
 - **Stripe**: `app/.server/stripe.ts`, `app/routes/stripe/`
 - **MercadoPago**: `app/.server/mercadopago.ts`, `app/routes/mercadopago.*`
+- **Loyalty**: `app/lib/loyalty.server.ts`, `app/routes/api/loyalty.ts`
 - **Validación**: `app/utils/zod_schemas.ts`
 
 ## Herramientas de Desarrollo (DB)
