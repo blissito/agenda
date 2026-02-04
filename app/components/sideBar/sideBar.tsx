@@ -1,5 +1,5 @@
 import { type User as PrismaUser } from "@prisma/client"
-import { motion } from "motion/react"
+import { motion, type Transition } from "motion/react"
 import {
   Children,
   cloneElement,
@@ -11,6 +11,29 @@ import {
 } from "react"
 import { Form, Link, useLocation } from "react-router"
 import { twMerge } from "tailwind-merge"
+
+// Chevron animado con morphing
+const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => {
+  const transition: Transition = {
+    type: "spring",
+    stiffness: 300,
+    damping: 25,
+  }
+  return (
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+      <motion.path
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        animate={{
+          d: isOpen ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7",
+        }}
+        transition={transition}
+      />
+    </svg>
+  )
+}
 import { Dashboard } from "~/components/icons/dashboard"
 import { PrimaryButton } from "../common/primaryButton"
 import { useSidebarState } from "../hooks/useSidebarState"
@@ -73,22 +96,17 @@ export function SideBar({
           hover:bg-gray-50 transition-colors fixed left-[295px] top-1/2 -translate-y-1/2 z-50
           shadow-md border border-gray-200 cursor-pointer group"
       >
-        <svg
-          className={twMerge(
-            "w-5 h-5 text-gray-500 transition-transform duration-200 group-hover:text-brand_blue",
-            sidebar.isOpen ? "rotate-180" : "rotate-0",
-          )}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <span className="text-gray-500 group-hover:text-brand_blue transition-colors">
+          <ChevronIcon isOpen={sidebar.isOpen} />
+        </span>
+        {/* Tooltip */}
+        <span
+          className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded
+            opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
+          {sidebar.isOpen ? "Cerrar menú" : "Abrir menú"}
+          <kbd className="ml-1 px-1 bg-gray-700 rounded text-[10px]">⌘B</kbd>
+        </span>
       </motion.button>
       <motion.section
         style={{ paddingLeft: sidebar.contentPadding }}

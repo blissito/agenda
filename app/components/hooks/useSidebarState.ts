@@ -1,5 +1,5 @@
 import { useAnimate, useMotionValue, useTransform } from "motion/react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { useLocalStorage } from "./useLocalStorage"
 
 // Constantes centralizadas
@@ -13,6 +13,11 @@ const SIDEBAR = {
     close: { type: "spring" as const, bounce: 0.5 },
   },
   padding: { min: 60, mid: 360, max: 660 },
+  swipe: {
+    edgeThreshold: 30, // px desde el borde para detectar swipe
+    minDistance: 50, // distancia mínima del swipe
+    maxVertical: 50, // máximo movimiento vertical permitido
+  },
 } as const
 
 export function useSidebarState() {
@@ -47,6 +52,12 @@ export function useSidebarState() {
     }
   }, [hasVisited, isOpen, setHasVisited, setIsOpen, x, scope, animate])
 
+  // Usar ref para toggle estable en listeners
+  const isOpenRef = useRef(isOpen)
+  useEffect(() => {
+    isOpenRef.current = isOpen
+  }, [isOpen])
+
   const toggle = useCallback(() => {
     const opening = x.get() < SIDEBAR.threshold
     const target = opening ? SIDEBAR.openX : SIDEBAR.closedX
@@ -55,6 +66,64 @@ export function useSidebarState() {
     animate(scope.current, { x: target }, config)
     setIsOpen(opening)
   }, [animate, scope, setIsOpen, x])
+
+  // Keyboard shortcut: Cmd/Ctrl + B
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "b") {
+        e.preventDefault()
+        toggle()
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [toggle])
+
+  // Swipe desde el borde izquierdo para abrir/cerrar
+  useEffect(() => {
+    let startX = 0
+    let startY = 0
+
+    const handleTouchStart = (e: TouchEvent) => {
+      startX = e.touches[0].clientX
+      startY = e.touches[0].clientY
+    }
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      const endX = e.changedTouches[0].clientX
+      const endY = e.changedTouches[0].clientY
+      const deltaX = endX - startX
+      const deltaY = Math.abs(endY - startY)
+      const { edgeThreshold, minDistance, maxVertical } = SIDEBAR.swipe
+
+      // Swipe horizontal desde borde izquierdo para abrir
+      if (
+        startX < edgeThreshold &&
+        deltaX > minDistance &&
+        deltaY < maxVertical &&
+        !isOpenRef.current
+      ) {
+        toggle()
+      }
+      // Swipe hacia izquierda para cerrar (desde el área del sidebar)
+      if (
+        deltaX < -minDistance &&
+        deltaY < maxVertical &&
+        isOpenRef.current &&
+        startX < SIDEBAR.width
+      ) {
+        toggle()
+      }
+    }
+
+    document.addEventListener("touchstart", handleTouchStart, { passive: true })
+    document.addEventListener("touchend", handleTouchEnd, { passive: true })
+
+    return () => {
+      document.removeEventListener("touchstart", handleTouchStart)
+      document.removeEventListener("touchend", handleTouchEnd)
+    }
+  }, [toggle])
 
   const onDragEnd = useCallback(() => {
     const opening = x.get() >= SIDEBAR.threshold
