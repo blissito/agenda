@@ -64,11 +64,13 @@ export default function ConfirmEventPage({
   return (
     <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
-        <img
-          src="https://i.imgur.com/sunNMiV.png"
-          alt="Denik"
-          className="w-28 mx-auto mb-6"
-        />
+        <a href="https://denik.me" target="_blank" rel="noopener noreferrer">
+          <img
+            src="https://i.imgur.com/sunNMiV.png"
+            alt="Denik"
+            className="w-28 mx-auto mb-6"
+          />
+        </a>
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <svg
             className="w-8 h-8 text-green-600"
