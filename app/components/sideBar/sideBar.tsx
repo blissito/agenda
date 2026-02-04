@@ -12,26 +12,43 @@ import {
 import { Form, Link, useLocation } from "react-router"
 import { twMerge } from "tailwind-merge"
 
-// Chevron animado con morphing
+// Chevron animado con dos líneas que rotan desde el vértice
 const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => {
   const transition: Transition = {
     type: "spring",
-    stiffness: 300,
-    damping: 25,
+    stiffness: 260,
+    damping: 20,
   }
+
   return (
-    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-      <motion.path
+    <motion.svg
+      className="w-5 h-5"
+      viewBox="0 0 24 24"
+      fill="none"
+      animate={{ scaleX: isOpen ? 1 : -1 }}
+      transition={transition}
+    >
+      {/* Línea superior: del vértice (10,12) hacia arriba-derecha */}
+      <motion.line
+        x1="10"
+        y1="12"
+        x2="15"
+        y2="7"
         stroke="currentColor"
         strokeWidth={2}
         strokeLinecap="round"
-        strokeLinejoin="round"
-        animate={{
-          d: isOpen ? "M15 19l-7-7 7-7" : "M9 5l7 7-7 7",
-        }}
-        transition={transition}
       />
-    </svg>
+      {/* Línea inferior: del vértice (10,12) hacia abajo-derecha */}
+      <motion.line
+        x1="10"
+        y1="12"
+        x2="15"
+        y2="17"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </motion.svg>
   )
 }
 import { Dashboard } from "~/components/icons/dashboard"

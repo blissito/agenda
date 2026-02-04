@@ -369,6 +369,7 @@ model Org {
   email              String?
   isActive           Boolean
   integrations       OrgIntegrations?
+  loyaltyEnabled     Boolean           @default(false)
   /// Could not determine type: the field only had null or empty values in the sample set.
   location           Json?
   name               String
@@ -529,6 +530,5 @@ model LoyaltyRedemption {
   reward        LoyaltyReward @relation(fields: [rewardId], references: [id])
 
   @@index([customerId, status])
-  @@index([code])
   @@index([orgId, createdAt])
 }
