@@ -1,3 +1,4 @@
+// app/routes/dash.clientes.tsx
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link, useLoaderData } from "react-router";
 import { Avatar } from "~/components/common/Avatar";
@@ -17,6 +18,11 @@ import { Download } from "~/components/icons/download";
 import { Settings } from "~/components/icons/settings";
 import { Upload } from "~/components/icons/upload";
 import type { Route } from "./+types/dash.clientes";
+
+import {
+  useDownloadToast,
+  type ClientForCsv,
+} from "~/components/downloads/downloadToast";
 
 // @TODO: actions, search with searchParams, real user avatars?, row actions (delete)
 
@@ -41,8 +47,6 @@ type Stats = {
 
 // @TODO generate custom model
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  // @TODO: consider the search input working via searchParams
-  // @TODO: upload / download
   const { org } = await getUserAndOrgOrRedirect(request);
   const link = generateLink(request.url, org.slug);
   const services = await getServices(request);
@@ -74,34 +78,54 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       clientsObject[email] = {
         ...e.customer,
         email,
-        points: e.service.points, // @Real sum of points
+        points: e.service.points,
         updatedAt: e.updatedAt,
-        eventCount: counter[email], // @TODO: count while filter
+        eventCount: counter[email],
         nextEventDate: tomorrow,
-        id: e.id, // @TODO: not the right id
+        id: e.id,
       };
     }
   });
   const clients = Object.values(clientsObject) as Client[];
   return {
     orgId: org.id,
+    orgName: org.name,
     clients,
     link,
     stats: {
-      clientsCount: clients.length, // @todo: real data
-      percentage: `${clients.length * 100}%`, // @todo real percentage
-      srcset: [], // @TODO: real user images?
+      clientsCount: clients.length,
+      percentage: `${clients.length * 100}%`,
+      srcset: [],
     } as Stats,
   };
 };
 
 export default function Clients() {
-  const { orgId, stats, clients = [], link } = useLoaderData<typeof loader>();
+  const { orgId, orgName, stats, clients = [], link } =
+    useLoaderData<typeof loader>();
+
+  // Adaptamos al tipo ClientForCsv (por si luego agregan más cosas al modelo)
+  const clientsForCsv: ClientForCsv[] = clients.map((c) => ({
+    displayName: c.displayName,
+    email: c.email,
+    tel: c.tel,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
+    nextEventDate: c.nextEventDate,
+    points: c.points,
+    eventCount: c.eventCount,
+  }));
+
+  const { startDownload, toast, canDownload } = useDownloadToast({
+    clients: clientsForCsv,
+    orgName,
+  });
+
   return (
     <>
       <RouteTitle>Clientes</RouteTitle>
       <Summary stats={stats} />
-      <SearchNav />
+      <SearchNav onDownload={startDownload} canDownload={canDownload} />
       <TableHeader
         titles={[
           ["nombre", "col-span-3"],
@@ -117,10 +141,19 @@ export default function Clients() {
         <Client client={c} key={c.id} orgId={orgId} />
       ))}
       {!clients.length && <EmptyStateClients link={link} />}
+
+      {toast}
     </>
   );
 }
-const SearchNav = () => {
+
+const SearchNav = ({
+  onDownload,
+  canDownload,
+}: {
+  onDownload: () => void;
+  canDownload: boolean;
+}) => {
   return (
     <div className="flex justify-between items-center my-4">
       <BasicInput
@@ -142,11 +175,11 @@ const SearchNav = () => {
             <Upload />
           </ActionButton>
         </Link>
-        <Link to="">
-          <ActionButton isDisabled>
-            <Download />
-          </ActionButton>
-        </Link>
+
+        {/* Botón visible de descarga. Se deshabilita si no hay clientes */}
+        <ActionButton onClick={onDownload} isDisabled={!canDownload}>
+          <Download />
+        </ActionButton>
       </div>
     </div>
   );
@@ -174,7 +207,6 @@ export const ActionButton = ({
 export const TableHeader = ({
   titles,
 }: {
-  // @TODO: class container for main columns number definition
   titles: (string | [string, string])[];
 }) => {
   return (
@@ -202,7 +234,6 @@ export const Client = ({ client }: { client: Client }) => {
   return (
     <div className=" border-slate-100 grid items-center grid-cols-12 py-3 border-b-[1px] bg-white px-8">
       <div className="flex gap-3 items-center col-span-3">
-        {/* <img alt="avatar" src={client.displayName?.charAt(0)} /> */}
         <div className="min-w-8 h-8 flex justify-center items-center rounded-full bg-brand_blue text-white">
           {letters}
         </div>
@@ -232,9 +263,6 @@ export const Client = ({ client }: { client: Client }) => {
             })
           : "---"}
       </p>
-      {/* <button className="text-xl">
-        <BsThreeDots />
-      </button> */}
       <DropdownMenu>
         <MenuButton
           to={`${client.email}`}
@@ -242,7 +270,6 @@ export const Client = ({ client }: { client: Client }) => {
           className="text-brand-gray"
           icon={
             <span>
-              {/* <MdBlock /> */}
               <BiSolidUserDetail />
             </span>
           }

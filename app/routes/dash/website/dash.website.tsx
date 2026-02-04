@@ -43,7 +43,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const { url, qr, org, services } = loaderData;
   return (
     <main className=" ">
-      <RouteTitle>Mi sitio web </RouteTitle>
+      <RouteTitle>Mi sitio web</RouteTitle>
       <section className=" grid grid-cols-6 gap-6">
         <Template org={org} url={url} qr={qr} />
         <CompanyInfo org={org} services={services} />
