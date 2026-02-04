@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { useFetcher, useLoaderData } from "react-router";
+import { useRef, useState } from "react";
+import { useFetcher, useLoaderData, useRevalidator } from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { PrimaryButton } from "~/components/common/primaryButton";
 import { ArrowRight } from "~/components/icons/arrowRight";
@@ -63,13 +63,30 @@ export default function Lealtad() {
 
   const { stats, rewards, transactions, tiers } = data;
   const formRef = useRef<HTMLFormElement>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const revalidator = useRevalidator();
 
-  // Reset form after successful submission
-  useEffect(() => {
-    if (fetcher.state === "idle" && fetcher.data) {
-      formRef.current?.reset();
-    }
-  }, [fetcher.state, fetcher.data]);
+  const handleCreateReward = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsCreating(true);
+    const form = e.currentTarget;
+    const payload = {
+      name: (form.elements.namedItem("rewardName") as HTMLInputElement).value,
+      description: (form.elements.namedItem("rewardDesc") as HTMLInputElement).value,
+      type: (form.elements.namedItem("rewardType") as HTMLSelectElement).value,
+      value: Number((form.elements.namedItem("rewardValue") as HTMLInputElement).value),
+      pointsCost: Number((form.elements.namedItem("pointsCost") as HTMLInputElement).value),
+    };
+
+    await fetch("/api/loyalty?intent=create-reward", {
+      method: "POST",
+      body: new URLSearchParams({ data: JSON.stringify(payload) }),
+    });
+
+    form.reset();
+    setIsCreating(false);
+    revalidator.revalidate();
+  };
 
   return (
     <main className="p-6">
@@ -122,23 +139,10 @@ export default function Lealtad() {
         )}
 
         {/* Create reward form */}
-        <fetcher.Form
+        <form
           ref={formRef}
-          method="post"
-          action="/api/loyalty?intent=create-reward"
+          onSubmit={handleCreateReward}
           className="mt-6 bg-gray-50 p-4 rounded-lg max-w-md"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const form = e.currentTarget;
-            const formData = {
-              name: (form.elements.namedItem("rewardName") as HTMLInputElement).value,
-              description: (form.elements.namedItem("rewardDesc") as HTMLInputElement).value,
-              type: (form.elements.namedItem("rewardType") as HTMLSelectElement).value,
-              value: Number((form.elements.namedItem("rewardValue") as HTMLInputElement).value),
-              pointsCost: Number((form.elements.namedItem("pointsCost") as HTMLInputElement).value),
-            };
-            fetcher.submit({ data: JSON.stringify(formData) }, { method: "POST", action: "/api/loyalty?intent=create-reward" });
-          }}
         >
           <h3 className="font-medium mb-3">Nueva recompensa</h3>
           <div className="space-y-3">
@@ -151,11 +155,11 @@ export default function Lealtad() {
             </select>
             <input name="rewardValue" type="number" placeholder="Valor (ej: 10 para 10%)" required className="w-full border rounded px-3 py-2 text-sm" />
             <input name="pointsCost" type="number" placeholder="Costo en puntos" required className="w-full border rounded px-3 py-2 text-sm" />
-            <button type="submit" className="bg-brand_blue text-white px-4 py-2 rounded text-sm hover:bg-brand_blue/90">
-              {fetcher.state !== "idle" ? "Creando..." : "Crear recompensa"}
+            <button type="submit" disabled={isCreating} className="bg-brand_blue text-white px-4 py-2 rounded text-sm hover:bg-brand_blue/90 disabled:opacity-50">
+              {isCreating ? "Creando..." : "Crear recompensa"}
             </button>
           </div>
-        </fetcher.Form>
+        </form>
       </section>
 
       {/* Recent transactions */}
