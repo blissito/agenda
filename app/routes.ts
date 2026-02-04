@@ -79,6 +79,13 @@ export default [
   route("demo/smatch", "routes/demo.smatch.tsx"),
   // Public booking route (works on localhost): /agenda/:orgSlug/:serviceSlug
   route("agenda/:orgSlug/:serviceSlug", "routes/agenda.$orgSlug.$serviceSlug.tsx"),
+  // Error page
+  route("error", "routes/error.tsx"),
+  // Event actions from email links
+  route("event/action", "routes/event.action.tsx"),
+  route("event/:eventId/confirm", "routes/event.$eventId.confirm.tsx"),
+  route("event/:eventId/modify", "routes/event.$eventId.modify.tsx"),
+  route("event/:eventId/cancel", "routes/event.$eventId.cancel.tsx"),
   // Clean URL for subdomains/custom domains: /:serviceSlug
   route(":serviceSlug", "routes/service.$serviceSlug.tsx"),
 ] satisfies RouteConfig;

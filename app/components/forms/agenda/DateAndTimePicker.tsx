@@ -204,13 +204,16 @@ const TimeButton = ({
   );
 };
 
+type OrgLike = Partial<Org> & Record<string, unknown>;
+type ServiceLike = { duration?: number | bigint; price?: number | bigint; currency?: string; employeeName?: string | null } & Record<string, unknown>;
+
 export const ServiceList = ({
   service,
   date,
   org,
 }: {
-  service: Partial<Service>;
-  org: Org;
+  service: ServiceLike;
+  org: OrgLike;
   date?: Date;
 }) => {
   return (

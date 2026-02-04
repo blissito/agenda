@@ -1,5 +1,5 @@
 import type { Customer, Event, Service } from "@prisma/client";
-import { register } from "./index";
+import { register } from "./index.server";
 import { db } from "~/utils/db.server";
 
 type WebhookConfig = {

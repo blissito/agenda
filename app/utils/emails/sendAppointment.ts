@@ -3,6 +3,8 @@ import type { Customer, Event, Org, Service, User } from "@prisma/client";
 import appointmentOwnerTemplate from "./appointmentOwnerTemplate";
 import { getRemitent, getSesTransport } from "./ses";
 import { formatDateForDisplay } from "~/utils/formatDate";
+import { generateEventActionToken } from "~/utils/tokens";
+import { formatFullDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone";
 
 type ServiceWithOrg = Service & {
   org: Org & { owner?: User };
@@ -23,8 +25,27 @@ export const sendAppointmentToCustomer = async ({
   request?: Request;
   subject?: string;
 }) => {
-  const url = new URL(request?.url || "https://denik.me");
-  url.pathname = "/dash";
+  const baseUrl = process.env.APP_URL || "https://denik.me";
+
+  // Generate tokens for event actions
+  const confirmToken = generateEventActionToken({
+    eventId: event.id,
+    customerId: event.customer.id,
+    action: "confirm",
+  });
+  const modifyToken = generateEventActionToken({
+    eventId: event.id,
+    customerId: event.customer.id,
+    action: "modify",
+  });
+
+  const confirmLink = `${baseUrl}/event/action?token=${confirmToken}`;
+  const modifyLink = `${baseUrl}/event/action?token=${modifyToken}`;
+
+  // Get timezone from org or use default
+  const timezone =
+    (event.service.org as Org & { timezone?: string }).timezone ||
+    DEFAULT_TIMEZONE;
 
   const sesTransport = getSesTransport();
 
@@ -35,10 +56,11 @@ export const sendAppointmentToCustomer = async ({
       to: email,
       html: appointmentCustomerTemplate({
         displayName: event.service.org.shopKeeper ?? undefined,
-        link: url.toString(),
+        confirmLink,
+        modifyLink,
         amount: event.service.price,
         address: event.service.org.address ?? undefined,
-        dateString: formatDateForDisplay(event.start),
+        dateString: formatFullDateInTimezone(event.start, timezone),
         minutes: event.duration ?? undefined,
         reservationNumber: event.id,
         serviceName: event.service.name,

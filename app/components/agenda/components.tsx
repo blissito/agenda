@@ -5,14 +5,17 @@ import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker";
 const example =
   "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg";
 
-export const Header = ({ org }: { org: Org }) => {
-  const orgWithLogo = org as Org & { logo?: string };
+// Partial org type for components that don't need full Prisma type
+type OrgLike = Pick<Org, "name"> & { logo?: string; [key: string]: unknown };
+type ServiceLike = Pick<Service, "name"> & { [key: string]: unknown };
+
+export const Header = ({ org }: { org: OrgLike }) => {
   return (
     <div className="flex gap-3 items-center justify-center py-12">
       <img
         className="w-8 rounded-full"
         alt="org logo"
-        src={orgWithLogo?.logo || example}
+        src={org?.logo || example}
       />
       <h1 className="font-bold text-sm ">{org?.name}</h1>
     </div>
@@ -24,8 +27,8 @@ export const InfoShower = ({
   service,
   date,
 }: {
-  org: Org;
-  service: Service;
+  org: OrgLike;
+  service: ServiceLike;
   date?: Date;
 }) => {
   return (

@@ -22,8 +22,10 @@ import {
   sendAppointmentToOwner,
 } from "~/utils/emails/sendAppointment";
 import { convertWeekDaysToEnglish } from "~/utils/urls";
-import { emit } from "~/plugins/index";
-import "~/plugins/register";
+import {
+  DEFAULT_TIMEZONE,
+  type SupportedTimezone,
+} from "~/utils/timezone";
 
 type WeekDaysType = Record<string, string[][]>;
 
@@ -120,6 +122,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     });
 
     // Emit booking.created event for plugins
+    const { emit } = await import("~/plugins/index.server");
+    await import("~/plugins/register.server");
     await emit("booking.created", { event, service, customer }, org.id);
 
     try {
@@ -190,6 +194,8 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
   const orgWithEnglishDays = {
     ...org,
     weekDays: orgWeekDays,
+    // Include timezone from org or use default
+    timezone: (org.timezone as SupportedTimezone) || DEFAULT_TIMEZONE,
   };
 
   return { org: orgWithEnglishDays, service: serviceWithEnglishDays };
@@ -200,6 +206,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [time, setTime] = useState<string>();
   const [date, setDate] = useState<Date>();
   const [show, setShow] = useState("");
+  const [timezone, setTimezone] = useState<SupportedTimezone>(
+    org.timezone as SupportedTimezone
+  );
   const fetcher = useFetcher<typeof action>();
 
   const onSubmit = (vals: UserInfoForm) => {
@@ -276,7 +285,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <article className=" bg-[#f8f8f8] relative">
+    <article className="bg-[#f8f8f8] min-h-screen relative">
       <Header org={org} />
       <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2">
         <section className={twMerge("flex flex-wrap")}>
@@ -297,6 +306,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   weekDays={(service.weekDays || org.weekDays) as WeekDaysType}
                   selected={date}
                   action={`/agenda/${org.slug}/${service.slug}`}
+                  timezone={timezone}
+                  onTimezoneChange={setTimezone}
                 />
               )}
             </>

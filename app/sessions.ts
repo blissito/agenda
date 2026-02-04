@@ -1,8 +1,16 @@
 // app/sessions.ts
 import { createCookieSessionStorage } from "react-router"; // or cloudflare/deno
 
+type CustomerEventAccess = {
+  eventId: string;
+  customerId: string;
+  action: "confirm" | "modify" | "cancel";
+  expiresAt: number;
+};
+
 type SessionData = {
   userId: string;
+  customerEventAccess?: CustomerEventAccess;
 };
 
 type SessionFlashData = {

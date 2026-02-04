@@ -1,5 +1,6 @@
 export default ({
-  link,
+  confirmLink,
+  modifyLink,
   reservationNumber,
   serviceName,
   dateString,
@@ -10,7 +11,8 @@ export default ({
   orgName,
   customerName,
 }: {
-  link: string;
+  confirmLink: string;
+  modifyLink: string;
   reservationNumber?: string;
   serviceName?: string;
   dateString?: string;
@@ -44,12 +46,12 @@ ${address}
        </p></div>
       
   </div>
-            <a style="text-decoration:none;" href="${link}" target="blank">
+            <a style="text-decoration:none;" href="${confirmLink}" target="blank">
     <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
       Confirmar cita
     </button>
     </a>
-    <a style="text-decoration:none;" href="${link}" target="blank">
+    <a style="text-decoration:none;" href="${modifyLink}" target="blank">
     <button style="background:#F5F5F5; height:40px; border-radius:20px; border:none; color:#11151A; width:160px; margin-top:40px;margin-left:16px; cursor:pointer;">
       Modificar cita
     </button>

@@ -10,6 +10,10 @@ type EventWithRelations = PrismaEvent & {
   service?: (Service & { org: Org }) | null;
 };
 
+// Flexible types for modified org/service objects
+type OrgLike = Pick<Org, "slug" | "name"> & Record<string, unknown>;
+type ServiceLike = { name?: string; duration?: number | bigint; price?: number | bigint; currency?: string } & Record<string, unknown>;
+
 export const Success = ({
   event,
   service,
@@ -17,8 +21,8 @@ export const Success = ({
   org,
 }: {
   onFinish: () => void;
-  org: Org;
-  service: Service;
+  org: OrgLike;
+  service: ServiceLike;
   event?: EventWithRelations;
 }) => {
   const [on, set] = useState(true);

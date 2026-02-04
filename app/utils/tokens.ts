@@ -25,3 +25,35 @@ export const validateUserToken = (token: string) => {
     };
   }
 };
+
+// Event action tokens for email links
+export type EventAction = "confirm" | "modify" | "cancel";
+
+export interface EventActionPayload {
+  eventId: string;
+  customerId: string;
+  action: EventAction;
+}
+
+/**
+ * Generate a JWT token for event actions (confirm, modify, cancel)
+ * Token expires in 7 days
+ */
+export function generateEventActionToken(payload: EventActionPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+}
+
+/**
+ * Verify and decode an event action token
+ * Returns the payload if valid, null if invalid or expired
+ */
+export function verifyEventActionToken(
+  token: string
+): EventActionPayload | null {
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as EventActionPayload;
+    return decoded;
+  } catch {
+    return null;
+  }
+}
