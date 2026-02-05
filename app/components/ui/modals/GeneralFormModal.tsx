@@ -7,7 +7,8 @@ import { Modal } from "../dialog"
 type LogoAction = {
   putUrl: string
   removeUrl: string
-  readUrl: string
+  readUrl?: string
+  logoKey: string
 }
 
 export const GeneralFormModal = ({

@@ -11,7 +11,7 @@ import { InputFile } from "../InputFile"
 type LogoAction = {
   putUrl: string
   removeUrl: string
-  readUrl: string
+  readUrl?: string
   logoKey: string
 }
 

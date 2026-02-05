@@ -7,7 +7,7 @@ const example =
   "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg"
 
 // Partial org type for components that don't need full Prisma type
-type OrgLike = Pick<Org, "name"> & { logo?: string; [key: string]: unknown }
+type OrgLike = Pick<Org, "name"> & { logo?: string | null; [key: string]: unknown }
 type ServiceLike = Pick<Service, "name"> & { [key: string]: unknown }
 
 export const Header = ({ org }: { org: OrgLike }) => {

@@ -15,7 +15,7 @@ import { db } from "~/utils/db.server"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url)
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { user, org } = await getUserAndOrgOrRedirect(request)
   if (!org) throw new Error("Org not found")
   const servicesCount = await db.service.count({
     where: {
@@ -25,7 +25,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   url.pathname = `/${org.slug}/agenda`
 
   // Check if payments are configured (Stripe or MercadoPago)
-  const hasPaymentsConfigured = Boolean(org.stripeAccountId || org.mpAccessToken)
+  const hasPaymentsConfigured = Boolean(user.stripe?.id || user.mercadopago?.access_token)
 
   return { url: url.toString(), org, servicesCount, hasPaymentsConfigured }
 }

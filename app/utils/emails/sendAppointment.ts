@@ -94,7 +94,7 @@ export const sendAppointmentToOwner = async ({
   // Token includes owner email, redirects to event modify page after login
   const ownerToken = generateUserToken(email)
   const destination = `/event/${event.id}/modify`
-  const link = `${baseUrl}/login/signin?token=${ownerToken}&next=${encodeURIComponent(destination)}`
+  const link = `${baseUrl}/signin?token=${ownerToken}&next=${encodeURIComponent(destination)}`
 
   // Get timezone from org or use default
   const timezone =

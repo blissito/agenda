@@ -190,7 +190,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [ ] Drag & drop en galería de servicio para reordenar imágenes y seleccionar la principal
 - [x] ~~La página pública de org no muestra bien los horarios~~ (campos corregidos: logo, email, weekDays)
 - [ ] **UX**: Selección de horarios en booking - actualmente bloquea todos los slots mientras carga. Implementar optimistic UI para respuesta inmediata
-- [ ] **BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod (ej: links de modificar cita)
+- [x] ~~**BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod~~ (corregido en sendAppointment.ts)
 - [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
   - Repetición (cada martes 10am, cada semana, cada mes)
   - Número de repeticiones o fecha fin de recurrencia

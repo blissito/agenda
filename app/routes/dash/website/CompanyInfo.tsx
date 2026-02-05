@@ -37,7 +37,8 @@ const getWeekDays = (org: Org): WeekDaysWithSpanishKeys | null | undefined => {
 type LogoAction = {
   putUrl: string
   removeUrl: string
-  readUrl: string
+  readUrl?: string
+  logoKey: string
 }
 
 export const CompanyInfo = ({

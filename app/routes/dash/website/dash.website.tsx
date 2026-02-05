@@ -66,7 +66,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     )
   }
 
-  return { url: agendaUrl, qr, org, services, logoAction }
+  return { url: agendaUrl, qr, org, services, logoAction: logoAction ?? undefined }
 }
 
 export default function Website({ loaderData }: Route.ComponentProps) {
