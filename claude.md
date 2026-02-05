@@ -188,7 +188,8 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario~~ (función getGreeting() dinámica)
 - [ ] Mejorar UX de selección Stripe vs MercadoPago en onboarding (guiar mejor al usuario)
 - [ ] Drag & drop en galería de servicio para reordenar imágenes y seleccionar la principal
-- [ ] La página pública de org no muestra bien los horarios
+- [x] ~~La página pública de org no muestra bien los horarios~~ (campos corregidos: logo, email, weekDays)
+- [ ] **UX**: Selección de horarios en booking - actualmente bloquea todos los slots mientras carga. Implementar optimistic UI para respuesta inmediata
 - [ ] **BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod (ej: links de modificar cita)
 - [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
   - Repetición (cada martes 10am, cada semana, cada mes)
