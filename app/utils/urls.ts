@@ -91,9 +91,33 @@ export function getServicePublicUrl(
 
 /**
  * Generates the public URL for an org's landing page
- * Always returns production URL since there's no localhost equivalent
- * Format: https://{orgSlug}.denik.me
+ * - Localhost: http://localhost:PORT/agenda/{orgSlug}
+ * - Production: https://{orgSlug}.denik.me
+ *
+ * @param orgSlug - The org's slug
+ * @param requestUrl - Optional request URL for server-side detection
  */
-export function getOrgPublicUrl(orgSlug: string): string {
+export function getOrgPublicUrl(orgSlug: string, requestUrl?: string): string {
+  // Server-side detection via request URL
+  if (requestUrl) {
+    const url = new URL(requestUrl)
+    const isLocalhost =
+      url.hostname === "localhost" || url.hostname === "127.0.0.1"
+    if (isLocalhost) {
+      return `${url.protocol}//${url.host}/agenda/${orgSlug}`
+    }
+  }
+
+  // Client-side detection
+  if (typeof window !== "undefined") {
+    const { hostname, port, protocol } = window.location
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1"
+    if (isLocalhost) {
+      const portPart = port ? `:${port}` : ""
+      return `${protocol}//${hostname}${portPart}/agenda/${orgSlug}`
+    }
+  }
+
+  // Production: use subdomain-based URL
   return `https://${orgSlug}.${PLATFORM_DOMAIN}`
 }

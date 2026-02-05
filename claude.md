@@ -182,11 +182,19 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
 - [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
 - [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)
-- [ ] **SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio: https://www.denik.me/dash/servicios/nuevo?id=6983a008b2667879031dd0fb
-- [ ] **SIGUIENTE**: Leamos buenas practicas de react router v7 y las estrategias de navegacion, actualmente un clic en el link a pagos no da feedback pues tarda en cargar la ruta mucho y el user da varias veces click. Debemos usar patterns por default que eviten la espera del user. Refactorizar.
-- [] **PENULTIMO**: onboarding apunta a rutas que no existen y no se calcula bien los progresos, deja de ser util, puedes nrepararlo y sugerir mejora?
-- [] **ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario, lo dice siempre, en la noche o en la tarde. (dash)
+- [x] ~~**SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio~~ (z-50 agregado al modal)
+- [x] ~~**SIGUIENTE**: Leamos buenas practicas de react router v7~~ (useNavigation + spinner overlay en dash_layout.tsx)
+- [x] ~~**PENULTIMO**: onboarding apunta a rutas que no existen y no se calcula bien los progresos~~ (habilitado paso de pagos, barra de progreso, tracking real)
+- [x] ~~**ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario~~ (función getGreeting() dinámica)
+- [ ] Mejorar UX de selección Stripe vs MercadoPago en onboarding (guiar mejor al usuario)
 - [ ] Drag & drop en galería de servicio para reordenar imágenes y seleccionar la principal
+- [ ] La página pública de org no muestra bien los horarios
+- [ ] **BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod (ej: links de modificar cita)
+- [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
+  - Repetición (cada martes 10am, cada semana, cada mes)
+  - Número de repeticiones o fecha fin de recurrencia
+  - Excepciones (cancelar solo una ocurrencia)
+  - Posiblemente otros features pendientes de evaluar (bloqueo de horarios, eventos todo el día, etc.)
 
 ## Checklist de Producción (Webhooks)
 

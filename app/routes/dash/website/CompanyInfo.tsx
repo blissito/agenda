@@ -34,14 +34,22 @@ const getWeekDays = (org: Org): WeekDaysWithSpanishKeys | null | undefined => {
   return org.weekDays as WeekDaysWithSpanishKeys | null | undefined
 }
 
+type LogoAction = {
+  putUrl: string
+  removeUrl: string
+  readUrl: string
+}
+
 export const CompanyInfo = ({
   services = [],
   isPublic,
   org,
+  logoAction,
 }: {
   isPublic?: boolean
   services?: PartialService[]
   org: Org
+  logoAction?: LogoAction
 }) => {
   const weekDays = getWeekDays(org)
   return (
@@ -50,7 +58,7 @@ export const CompanyInfo = ({
         {" "}
         <h2 className="text-2xl font-bold">{org?.name} </h2>
         {!isPublic && (
-          <GeneralFormModal org={org}>
+          <GeneralFormModal org={org} logoAction={logoAction}>
             <SecondaryButton as="span" className="h-10">
               Editar
             </SecondaryButton>

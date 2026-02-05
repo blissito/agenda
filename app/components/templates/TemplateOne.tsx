@@ -1,7 +1,6 @@
 import type { Service } from "@prisma/client"
 import { CiStopwatch } from "react-icons/ci"
 import { IoLocationOutline, IoMailOutline } from "react-icons/io5"
-import { PiPhone } from "react-icons/pi"
 import { Denik } from "~/components/icons/denik"
 import { Facebook } from "~/components/icons/facebook"
 import { Instagram } from "~/components/icons/insta"
@@ -39,17 +38,19 @@ export default function TemplateOne({
           <div className="bg-white  mx-auto rounded-2xl p-8 w-full border-[1px] border-[#EFEFEF]">
             <img
               alt="company logo"
-              className="w-[120px] h-[120px] rounded-full mb-6 "
-              src="https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+              className="w-[120px] h-[120px] rounded-full mb-6 object-cover"
+              src={
+                org?.logo ||
+                "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+              }
             />
             <h1 className="text-2xl font-title font-bold">{org?.name}</h1>
             <p className="mt-4 text-brand_gray">
               {org?.description ? org.description : null}
             </p>
             <div className="mt-6 block xl:hidden">
-              {org?.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
-              {org?.mail && (
-                <ItemClient icon={<IoMailOutline />} text={org.mail} />
+              {org?.email && (
+                <ItemClient icon={<IoMailOutline />} text={org.email} />
               )}
               <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
               {org?.address && (
@@ -89,6 +90,7 @@ export default function TemplateOne({
               {services.map((service) => (
                 <ServiceCardClient
                   serviceSlug={service.slug}
+                  orgSlug={org?.slug}
                   key={service.id}
                   title={service.name}
                   duration={service.duration}
@@ -100,9 +102,9 @@ export default function TemplateOne({
           </div>
         </div>
         <div className="hidden xl:block xl:col-span-2 mt-[164px]">
-          {org?.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
-
-          {org?.mail && <ItemClient icon={<IoMailOutline />} text={org.mail} />}
+          {org?.email && (
+            <ItemClient icon={<IoMailOutline />} text={org.email} />
+          )}
           <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
           {org?.address && (
             <ItemClient icon={<IoLocationOutline />} text={org.address} />

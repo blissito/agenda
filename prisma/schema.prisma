@@ -367,6 +367,8 @@ model Job {
 model Org {
   id                 String            @id @default(auto()) @map("_id") @db.ObjectId
   address            String?
+  lat                Float?
+  lng                Float?
   businessType       String?
   customDomain       String?
   customDomainStatus String?
@@ -375,6 +377,7 @@ model Org {
   email              String?
   isActive           Boolean
   integrations       OrgIntegrations?
+  logo               String?
   loyaltyEnabled     Boolean           @default(false)
   /// Could not determine type: the field only had null or empty values in the sample set.
   location           Json?
@@ -398,6 +401,8 @@ model Org {
 model Service {
   id            String           @id @default(auto()) @map("_id") @db.ObjectId
   address       String?
+  lat           Float?
+  lng           Float?
   allowMultiple Boolean
   archived      Boolean
   config        ServiceConfig?

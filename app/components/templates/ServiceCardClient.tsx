@@ -2,21 +2,37 @@ import { motion } from "motion/react"
 import { Link } from "react-router"
 import { Tag } from "~/components/common/Tag"
 
+/**
+ * Generate service link that works on both localhost and production
+ */
+function getServiceLink(orgSlug: string | undefined, serviceSlug: string | undefined): string {
+  if (!serviceSlug) return "#"
+  if (typeof window !== "undefined") {
+    const { hostname } = window.location
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1"
+    if (isLocalhost && orgSlug) {
+      return `/agenda/${orgSlug}/${serviceSlug}`
+    }
+  }
+  return `/${serviceSlug}`
+}
+
 export const ServiceCardClient = ({
   title,
   image,
   duration,
   price,
   serviceSlug,
+  orgSlug,
 }: {
   title: string
   image?: string | null
   duration: number | bigint
   price: number | bigint | string
   serviceSlug?: string
+  orgSlug?: string
 }) => {
-  // Use relative path for navigation within subdomain
-  const serviceLink = `/${serviceSlug}`
+  const serviceLink = getServiceLink(orgSlug, serviceSlug)
 
   return (
     <motion.section

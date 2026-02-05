@@ -64,6 +64,8 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "org_update" || intent === "org_update_and_redirect") {
     const result = orgUpdateSchema.safeParse(rawData)
     if (!result.success) {
+      console.log("❌ org_update validation error:", result.error.flatten())
+      console.log("❌ rawData received:", JSON.stringify(rawData, null, 2))
       return Response.json(
         { error: "Datos inválidos", details: result.error.flatten() },
         { status: 400 },

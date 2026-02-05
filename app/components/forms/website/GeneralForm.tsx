@@ -1,17 +1,28 @@
 import type { Org } from "@prisma/client"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Form, useFetcher } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { AddressAutocomplete } from "../AddressAutocomplete"
 import { BasicInput } from "../BasicInput"
 import { InputFile } from "../InputFile"
+
+type LogoAction = {
+  putUrl: string
+  removeUrl: string
+  readUrl: string
+  logoKey: string
+}
 
 export const GeneralForm = ({
   onClose,
   defaultValues,
+  logoAction,
 }: {
   onClose?: () => void
   defaultValues?: Org
+  logoAction?: LogoAction
 }) => {
   const fetcher = useFetcher()
   const {
@@ -20,14 +31,39 @@ export const GeneralForm = ({
     handleSubmit,
   } = useForm({ defaultValues, mode: "onChange" })
 
-  const isDisabled = !isDirty || !isValid
+  const [addressData, setAddressData] = useState<{
+    address: string
+    lat: number | null
+    lng: number | null
+    hasChanged: boolean
+  }>({
+    address: defaultValues?.address ?? "",
+    lat: defaultValues?.lat ?? null,
+    lng: defaultValues?.lng ?? null,
+    hasChanged: false,
+  })
+
+  const [logoKey, setLogoKey] = useState<string | null>(
+    defaultValues?.logo ?? null,
+  )
+  const [logoChanged, setLogoChanged] = useState(false)
+
+  const isDisabled = !isDirty && !addressData.hasChanged && !logoChanged
   const isLoading = fetcher.state !== "idle"
 
   const submit = (values: Record<string, unknown>) => {
+    const dataToSend = {
+      ...values,
+      id: defaultValues?.id,
+      address: addressData.address || values.address,
+      lat: addressData.lat,
+      lng: addressData.lng,
+      logo: logoKey,
+    }
     fetcher.submit(
       {
         intent: "org_update",
-        data: JSON.stringify({ ...values, id: defaultValues?.id }),
+        data: JSON.stringify(dataToSend),
       },
       { method: "post", action: "/api/org" },
     )
@@ -47,7 +83,19 @@ export const GeneralForm = ({
       </h2>
       <input type="hidden" name="id" value={defaultValues?.id} />
       <input type="hidden" name="redirectURL" value={`/dash/website`} />
-      <InputFile name="logo" className="w-[220px]">
+      <InputFile
+        name="logo"
+        className="w-[220px]"
+        action={logoAction}
+        onUploadComplete={(key) => {
+          setLogoKey(key)
+          setLogoChanged(true)
+        }}
+        onDelete={() => {
+          setLogoKey(null)
+          setLogoChanged(true)
+        }}
+      >
         <p className="hover:scale-105 transition-all"> Arrastra tu logo</p>
       </InputFile>
       <BasicInput
@@ -61,13 +109,23 @@ export const GeneralForm = ({
         label="Tu nombre o del profesional que atiende tu negocio"
         name="shopKeeper"
         register={register}
+        registerOptions={{ required: false }}
       />
-      <BasicInput
+      <AddressAutocomplete
         name="address"
         placeholder="Av. Camps Elisés"
         label="Dirección de tu negocio (opcional)"
-        register={register}
-        registerOptions={{ required: false }}
+        defaultValue={defaultValues?.address ?? ""}
+        defaultLat={defaultValues?.lat}
+        defaultLng={defaultValues?.lng}
+        onSelect={(result) => {
+          setAddressData({
+            address: result.address,
+            lat: result.lat,
+            lng: result.lng,
+            hasChanged: true,
+          })
+        }}
       />
       <BasicInput
         as="textarea"
@@ -75,6 +133,7 @@ export const GeneralForm = ({
         placeholder="Cuéntale a tus clientes sobre tu negocio"
         label="Descripción"
         register={register}
+        registerOptions={{ required: false }}
       />
       <div className="flex mt-16 justify-center gap-6 sticky bottom-0 bg-white py-4">
         <SecondaryButton className="w-[120px]" onClick={onClose}>

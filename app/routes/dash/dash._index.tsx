@@ -201,13 +201,20 @@ const _Data = () => {
   )
 }
 
+function getGreeting(): string {
+  const hour = new Date().getHours()
+  if (hour < 12) return "Buenos días"
+  if (hour < 19) return "Buenas tardes"
+  return "Buenas noches"
+}
+
 const Summary = ({ user }: { user: User }) => {
   return (
     <div className="grid grid-cols-6 gap-10">
       <div className="col-span-6 xl:col-span-2 flex items-center">
         <div>
           <h2 className="text-2xl md:text-4xl font-bold leading-normal">
-            Buenos días,
+            {getGreeting()},
           </h2>
           <h2 className="text-2xl md:text-4xl font-bold leading-normal mt-2">
             {" "}
