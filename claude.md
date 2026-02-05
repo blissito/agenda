@@ -179,6 +179,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 
 - [x] ~~Completar webhook Stripe~~ (implementado)
 - [ ] **ELMASURGENTE**: El link de pagos en el menú no funciona, confirmar que todo el sistema de pagos con mercado pago es accesible en produccion y que los enclaces en el app funcionan correctamente, también el agendamiento con cobro.
+- [ ] **CI/CD**: Los checks de GitHub Actions nunca pasan - investigar y arreglar el pipeline
 - [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
 - [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
 - [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)
