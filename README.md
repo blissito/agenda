@@ -11,3 +11,22 @@ Construido con tecnologías de vanguardia —React Router v7, TypeScript, Prisma
 ---
 
 **Stack:** React Router v7 • TypeScript • Prisma • MongoDB • Stripe • MercadoPago • AWS SES
+
+## Estado de Features
+
+| Feature                | Estado |
+| ---------------------- | ------ |
+| Auth (magic link)      | ✅ |
+| Booking publico        | ✅ |
+| Dashboard              | ✅ |
+| Email notifications    | ✅ |
+| MercadoPago            | ✅ OAuth, webhooks idempotentes, token refresh |
+| Loyalty (puntos/tiers) | ✅ |
+| Stripe Connect         | ⚠️ Legacy — se oculta si faltan env vars |
+| Webhooks Stripe        | ⚠️ Legacy — requiere `STRIPE_WEBHOOK_SECRET` en Fly |
+| Tests                  | ❌ 0% |
+
+## URGENTE
+
+- [ ] **Agregar `STRIPE_WEBHOOK_SECRET` en Fly secrets** — sin esta variable el webhook Stripe rechaza todo con 400. Obtener de [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks) y correr: `fly secrets set STRIPE_WEBHOOK_SECRET="whsec_..."`
+- [ ] **CI/CD**: Los checks de GitHub Actions nunca pasan — investigar y arreglar el pipeline

@@ -35,6 +35,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
 
   if (intent === "navigate_to_stripe_account_link") {
+    if (!process.env.STRIPE_SECRET_TEST || !process.env.STRIPE_WEBHOOK_SECRET) {
+      throw new Response("Stripe no configurado", { status: 400 })
+    }
     const { account, error } = await getOrCreateStripeAccount(request)
     if (error) throw new Response(null, { status: 404 })
     invariant(account)
@@ -47,15 +50,18 @@ export const action = async ({ request }: Route.ActionArgs) => {
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const user = await getUserOrRedirect(request)
   const stripeData = user.stripe as { id: string } | null
+  const stripeEnabled =
+    !!process.env.STRIPE_SECRET_TEST && !!process.env.STRIPE_WEBHOOK_SECRET
   return {
     mpConnected: !!user.mercadopago?.access_token,
     mpUserId: user.mercadopago?.user_id,
     stripeAccountId: stripeData?.id || null,
+    stripeEnabled,
   }
 }
 
 export default function Pagos({ loaderData }: Route.ComponentProps) {
-  const { mpConnected, mpUserId, stripeAccountId } = loaderData
+  const { mpConnected, mpUserId, stripeAccountId, stripeEnabled } = loaderData
   const [searchParams] = useSearchParams()
   const fetcher = useFetcher()
 
@@ -147,28 +153,30 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
 
       <hr />
 
-      {/* Stripe — Secundario */}
-      <section className="py-10 opacity-60">
-        <h2 className="text-lg font-semibold mb-2">Stripe</h2>
-        <p className="text-gray-600 mb-4">
-          Opción alternativa para pagos internacionales.
-        </p>
-        <button
-          disabled={isLoading}
-          onClick={navigateToStripeAccountLink}
-          className={cn(
-            "px-8 py-4 rounded-3xl border-2 my-4 flex gap-3",
-            "hover:scale-105 enabled:active:scale-100 transition-all",
-          )}
-        >
-          <span>
-            {stripeAccountId
-              ? `Stripe conectado: ${stripeAccountId}`
-              : "Conectar Stripe"}
-          </span>
-          {isLoading && <Spinner />}
-        </button>
-      </section>
+      {/* Stripe — Secundario (solo si las env vars están configuradas) */}
+      {stripeEnabled && (
+        <section className="py-10 opacity-60">
+          <h2 className="text-lg font-semibold mb-2">Stripe</h2>
+          <p className="text-gray-600 mb-4">
+            Opción alternativa para pagos internacionales.
+          </p>
+          <button
+            disabled={isLoading}
+            onClick={navigateToStripeAccountLink}
+            className={cn(
+              "px-8 py-4 rounded-3xl border-2 my-4 flex gap-3",
+              "hover:scale-105 enabled:active:scale-100 transition-all",
+            )}
+          >
+            <span>
+              {stripeAccountId
+                ? `Stripe conectado: ${stripeAccountId}`
+                : "Conectar Stripe"}
+            </span>
+            {isLoading && <Spinner />}
+          </button>
+        </section>
+      )}
     </article>
   )
 }

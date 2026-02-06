@@ -181,7 +181,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**ELMASURGENTE**: El link de pagos en el menú no funciona~~ (webhook Stripe registrado en routes.ts, loader de pagos ya no auto-crea cuenta Stripe, guard en getClient())
 - [ ] **CI/CD**: Los checks de GitHub Actions nunca pasan - investigar y arreglar el pipeline
 - [x] ~~**BUG PROD - IMÁGENES**: Las imágenes no se muestran en sitio público~~ (helper `getPublicImageUrl()` en urls.ts)
-- [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
+- [ ] **URGENTE**: Agregar `STRIPE_WEBHOOK_SECRET` en Fly secrets — sin esta variable el webhook Stripe rechaza todo con 400. Obtener de [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks) y correr: `fly secrets set STRIPE_WEBHOOK_SECRET="whsec_..."`
 - [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
 - [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)
 - [x] ~~**SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio~~ (z-50 agregado al modal)
