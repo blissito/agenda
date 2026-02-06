@@ -6,9 +6,10 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
-import { Form, useFetcher } from "react-router"
+import { Form, redirect, useFetcher } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
+import { createPreference, getValidAccessToken } from "~/.server/mercadopago"
 import { Footer, Header, InfoShower } from "~/components/agenda/components"
 import { Success } from "~/components/agenda/success"
 import { getMaxDate } from "~/components/agenda/utils"
@@ -108,6 +109,51 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const startDate = new Date(data.start)
     const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000)
 
+    // Si el servicio requiere pago, redirigir a MP
+    if (service.payment && Number(service.price) > 0) {
+      // Obtener owner para tokens de MP
+      const owner = await db.user.findUnique({
+        where: { id: org.ownerId },
+      })
+
+      const accessToken = await getValidAccessToken(owner)
+      if (!accessToken) {
+        return {
+          error:
+            "Este servicio requiere pago pero el negocio no tiene configurado su método de pago. Por favor contacta directamente al negocio.",
+        }
+      }
+
+      // Use main app URL for MP callbacks (subdomains may not be whitelisted in MP)
+      const appUrl = process.env.APP_URL || new URL(request.url).origin
+
+      try {
+        const preference = await createPreference(accessToken, {
+          serviceId: service.id,
+          serviceName: service.name,
+          price: Number(service.price),
+          customerId: customer.id,
+          start: startDate.toISOString(),
+          end: endDate.toISOString(),
+          backUrl: appUrl,
+          webhookUrl: `${appUrl}/mercadopago/webhook`,
+        })
+
+        if (preference.init_point) {
+          // Redirigir a MP, el evento se crea en el webhook
+          throw redirect(preference.init_point)
+        }
+      } catch (e) {
+        // Re-throw redirects
+        if (e instanceof Response) throw e
+        console.error("MercadoPago preference error:", e)
+        return {
+          error: "Error al procesar el pago. Por favor intenta de nuevo.",
+        }
+      }
+    }
+
+    // Servicio gratuito o sin MP configurado: crear evento directamente
     let event
     try {
       event = await db.event.create({
@@ -123,7 +169,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
           allDay: false,
           archived: false,
           createdAt: new Date(),
-          paid: false,
+          paid: !service.payment, // true si es gratuito
           type: "appointment",
           userId: org.ownerId,
           updatedAt: new Date(),

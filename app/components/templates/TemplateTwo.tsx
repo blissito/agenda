@@ -9,7 +9,6 @@ import { type ReactNode, useState } from "react"
 import { CiStopwatch } from "react-icons/ci"
 import { IoIosArrowDown } from "react-icons/io"
 import { IoLocationOutline, IoMailOutline } from "react-icons/io5"
-import { PiPhone } from "react-icons/pi"
 import { twMerge } from "tailwind-merge"
 import { Denik } from "~/components/icons/denik"
 import { Facebook } from "~/components/icons/facebook"
@@ -18,29 +17,45 @@ import { Linkedin } from "~/components/icons/linkedin"
 import { Website } from "~/components/icons/menu/webiste"
 import { Tiktok } from "~/components/icons/tiktok"
 import { Twitter } from "~/components/icons/twitter"
+import { getPublicImageUrl } from "~/utils/urls"
 import { formatRange } from "../common/FormatRange"
 import { ItemClient } from "./ItemClient"
 import { ServiceListCard } from "./ServiceListCard"
 import { SocialMedia } from "./SocialMedia"
 
-// Extended org type for templates (includes legacy props used by templates)
+// Extended org type for templates (aligned with Prisma Org schema)
 export type TemplateOrg = {
   name?: string
+  slug?: string
   description?: string | null
   address?: string | null
   email?: string | null
-  phone?: string
-  mail?: string
-  photoURL?: string
+  logo?: string | null | undefined
   weekDays?: {
     lunes?: unknown
     martes?: unknown
-    mi_rcoles?: unknown
+    miércoles?: unknown
     jueves?: unknown
     viernes?: unknown
-    s_bado?: unknown
+    sábado?: unknown
     domingo?: unknown
   } | null
+}
+
+/**
+ * Generate service link that works on both localhost and production
+ * - Localhost: /agenda/{orgSlug}/{serviceSlug}
+ * - Production: /{serviceSlug} (relative to subdomain)
+ */
+function getServiceLink(orgSlug: string | undefined, serviceSlug: string): string {
+  if (typeof window !== "undefined") {
+    const { hostname } = window.location
+    const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1"
+    if (isLocalhost && orgSlug) {
+      return `/agenda/${orgSlug}/${serviceSlug}`
+    }
+  }
+  return `/${serviceSlug}`
 }
 
 const week = [
@@ -71,11 +86,10 @@ export default function TemplateTwo({
       ></div>
       <img
         alt="company logo"
-        className="w-[160px] h-[160px] rounded-full border-[8px] border-white ml-[5%] -mt-[60px]"
+        className="w-[160px] h-[160px] rounded-full border-[8px] border-white ml-[5%] -mt-[60px] object-cover"
         src={
-          org?.photoURL
-            ? org.photoURL
-            : "https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=800"
+          getPublicImageUrl(org?.logo) ||
+          "https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=800"
         }
       />
       <section className="grid grid-cols-6 px-[5%] mt-6 gap-10 pb-12 md:pb-20   ">
@@ -85,9 +99,8 @@ export default function TemplateTwo({
             {org?.description ? org.description : null}
           </p>
           <div className="mt-6 ">
-            {org?.phone && <ItemClient icon={<PiPhone />} text={org.phone} />}
-            {org?.mail && (
-              <ItemClient icon={<IoMailOutline />} text={org.mail} />
+            {org?.email && (
+              <ItemClient icon={<IoMailOutline />} text={org.email} />
             )}
             <WorkHour status="Abierto" icon={<CiStopwatch />} org={org} />
             {org?.address && (
@@ -109,7 +122,7 @@ export default function TemplateTwo({
             <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-1 mt-6 gap-4 gap-y-6">
               {services.map((service) => (
                 <ServiceListCard
-                  link={`/${service.slug}`}
+                  link={getServiceLink(org?.slug, service.slug)}
                   key={service.id}
                   title={service.name}
                   duration={service.duration}
@@ -198,7 +211,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Mié -{" "}
               <span className="ml-1">
-                {formatRange(org?.weekDays?.mi_rcoles as [string, string][])}
+                {formatRange(org?.weekDays?.miércoles as [string, string][])}
               </span>
             </div>
           </ListboxOption>
@@ -234,7 +247,7 @@ export const WorkHour = ({
             <div className="text-sm/6 text-brand_gray w-full flex">
               Sáb -{" "}
               <span className="ml-1">
-                {formatRange(org?.weekDays?.s_bado as [string, string][])}
+                {formatRange(org?.weekDays?.sábado as [string, string][])}
               </span>
             </div>
           </ListboxOption>

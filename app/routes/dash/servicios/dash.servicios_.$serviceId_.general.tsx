@@ -2,6 +2,7 @@ import { redirect, useFetcher } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Spinner } from "~/components/common/Spinner"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { AddressAutocomplete } from "~/components/forms/AddressAutocomplete"
 import { BasicInput } from "~/components/forms/BasicInput"
 import {
   Breadcrumb,
@@ -19,7 +20,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
   const intent = formData.get("intent")
   if (intent === "update_service") {
     const form = Object.fromEntries(formData)
-    const validData = serviceUpdateSchema.parse(form)
+    // Handle empty string lat/lng as null
+    const processedForm = {
+      ...form,
+      lat: form.lat === "" ? null : form.lat,
+      lng: form.lng === "" ? null : form.lng,
+      address: form.address === "" ? null : form.address,
+    }
+    const validData = serviceUpdateSchema.parse(processedForm)
     const { id, slug, orgId, ...updateData } = validData
     await db.service.update({
       where: { id },
@@ -104,6 +112,14 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             placeholder="Cuéntale a tus clientes sobre tu servicio"
             label="Descripción"
             defaultValue={service.description ?? undefined}
+          />
+          <AddressAutocomplete
+            name="address"
+            label="Dirección del servicio (opcional)"
+            placeholder="Buscar dirección..."
+            defaultValue={service.address ?? ""}
+            defaultLat={service.lat}
+            defaultLng={service.lng}
           />
         </div>
 

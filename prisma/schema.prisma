@@ -317,6 +317,8 @@ model Customer {
   surveyResponses     SurveyResponse[]
   loyaltyTransactions LoyaltyTransaction[]
   loyaltyRedemptions  LoyaltyRedemption[]
+
+  @@index([orgId])
 }
 
 model Event {
@@ -352,6 +354,10 @@ model Event {
 
   // Previene doble reserva del mismo slot
   @@unique([serviceId, start], name: "unique_slot")
+
+  @@index([orgId])
+  @@index([customerId])
+  @@index([status])
 }
 
 model Job {
@@ -361,6 +367,8 @@ model Job {
 model Org {
   id                 String            @id @default(auto()) @map("_id") @db.ObjectId
   address            String?
+  lat                Float?
+  lng                Float?
   businessType       String?
   customDomain       String?
   customDomainStatus String?
@@ -369,6 +377,7 @@ model Org {
   email              String?
   isActive           Boolean
   integrations       OrgIntegrations?
+  logo               String?
   loyaltyEnabled     Boolean           @default(false)
   /// Could not determine type: the field only had null or empty values in the sample set.
   location           Json?
@@ -392,6 +401,8 @@ model Org {
 model Service {
   id            String           @id @default(auto()) @map("_id") @db.ObjectId
   address       String?
+  lat           Float?
+  lng           Float?
   allowMultiple Boolean
   archived      Boolean
   config        ServiceConfig?
@@ -415,6 +426,8 @@ model Service {
   org           Org              @relation(fields: [orgId], references: [id])
   events        Event[]
   actions       ServiceAction[]
+
+  @@index([orgId])
 }
 
 model ServiceAction {
@@ -424,6 +437,8 @@ model ServiceAction {
   config    Json
   enabled   Boolean @default(true)
   service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
 }
 
 model SurveyResponse {
@@ -446,6 +461,9 @@ model SurveyResponse {
   customer   Customer @relation(fields: [customerId], references: [id])
 
   // Note: eventId is unique so only one response per event
+
+  @@index([orgId])
+  @@index([serviceId])
 }
 
 model User {

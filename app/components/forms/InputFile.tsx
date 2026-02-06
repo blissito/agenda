@@ -9,7 +9,12 @@ import { FaRegTrashCan } from "react-icons/fa6"
 import { twMerge } from "tailwind-merge"
 
 type Props = {
-  action?: { readUrl?: string; removeUrl?: string; putUrl?: string }
+  action?: {
+    readUrl?: string
+    removeUrl?: string
+    putUrl?: string
+    logoKey?: string
+  }
   name: string
   children: ReactNode
   title?: string
@@ -19,6 +24,8 @@ type Props = {
   className?: string
   registerOptions?: { required: string | boolean }
   multiple?: boolean
+  onUploadComplete?: (key: string) => void
+  onDelete?: () => void
 }
 // const morras =
 //   "https://media.licdn.com/dms/image/C561BAQE8cwNr6BMj_Q/company-background_10000/0/1612306118493/cover_corp_cover?e=2147483647&v=beta&t=2-D8AuQQLqxb8ML7eEs3AtJbC7jspwH47Z8Ta-B4MpA";
@@ -33,6 +40,8 @@ export const InputFile = ({
   name,
   multiple,
   className,
+  onUploadComplete,
+  onDelete,
   ...props
 }: Props) => {
   const [isOver, setIsOver] = useState(false)
@@ -49,6 +58,7 @@ export const InputFile = ({
     if (file) {
       await putFile(file)
       setPreview(action?.readUrl)
+      if (action?.logoKey) onUploadComplete?.(action.logoKey)
     }
   }
   const handleDelete = async () => {
@@ -58,6 +68,7 @@ export const InputFile = ({
         method: "delete",
       }).catch((e) => console.error(e))
     }
+    onDelete?.()
   }
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -65,6 +76,7 @@ export const InputFile = ({
       const url = URL.createObjectURL(file)
       setPreview(url)
       await putFile(file)
+      if (action?.logoKey) onUploadComplete?.(action.logoKey)
     }
   }
 

@@ -341,7 +341,7 @@ var DayHeader = ({
       "span",
       {
         className: cn(
-          isToday2 && "bg-blue-500 rounded-full p-1 text-white"
+          isToday2 && "bg-blue-500 rounded-full w-7 h-7 flex items-center justify-center text-white"
         ),
         children: date.getDate()
       }
@@ -523,8 +523,6 @@ var Cell = ({
   className,
   dayIndex
 }) => {
-  const isTodayCell = date ? isToday(date) : false;
-  const isThisHour = isTodayCell && hours === (/* @__PURE__ */ new Date()).getHours();
   const { setNodeRef, isOver } = useDroppable({
     id: dayIndex !== void 0 ? `cell-${dayIndex}-${hours}` : `time-${hours}`,
     disabled: dayIndex === void 0
@@ -539,7 +537,6 @@ var Cell = ({
       role: "button",
       className: cn(
         "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
-        isTodayCell && isThisHour && "border-t-2 border-t-blue-500",
         isOver && dayIndex !== void 0 && "bg-blue-100",
         className
       ),
@@ -658,20 +655,25 @@ var Column = ({
   hoursEnd = 24
 }) => {
   const columnRef = useRef(null);
+  const [now, setNow] = useState(/* @__PURE__ */ new Date());
   const eventsWithPositions = calculateOverlapPositions(events);
+  const isColumnToday = isToday(dayOfWeek);
   useEffect(() => {
-    if (!columnRef.current) return;
-    const today = /* @__PURE__ */ new Date();
-    const isColumnToday = dayOfWeek.getDate() === today.getDate() && dayOfWeek.getMonth() === today.getMonth() && dayOfWeek.getFullYear() === today.getFullYear();
     if (!isColumnToday) return;
-    const currentHour = today.getHours();
-    const currentCell = columnRef.current.children[currentHour];
+    const timer = setInterval(() => setNow(/* @__PURE__ */ new Date()), 6e4);
+    return () => clearInterval(timer);
+  }, [isColumnToday]);
+  useEffect(() => {
+    if (!columnRef.current || !isColumnToday) return;
+    const currentHour = (/* @__PURE__ */ new Date()).getHours();
+    const cellIndex = currentHour - hoursStart;
+    const currentCell = columnRef.current.children[cellIndex];
     if (currentCell) {
       setTimeout(() => {
         currentCell.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
     }
-  }, [dayOfWeek]);
+  }, [dayOfWeek, isColumnToday, hoursStart]);
   const findEventsAtHour = (hours) => {
     const eventsStartingHere = eventsWithPositions.filter(
       ({ event }) => new Date(event.start).getHours() === hours
@@ -709,20 +711,35 @@ var Column = ({
       }
     );
   };
-  return /* @__PURE__ */ jsx("div", { ref: columnRef, className: "grid", children: Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
-    const hours = hoursStart + i;
-    return /* @__PURE__ */ jsx(
-      Cell,
+  const nowTop = isColumnToday ? (now.getHours() - hoursStart + now.getMinutes() / 60) * 64 : -1;
+  const showNowLine = isColumnToday && nowTop >= 0 && nowTop <= (hoursEnd - hoursStart) * 64;
+  return /* @__PURE__ */ jsxs("div", { ref: columnRef, className: "grid relative", children: [
+    Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
+      const hours = hoursStart + i;
+      return /* @__PURE__ */ jsx(
+        Cell,
+        {
+          hours,
+          date: dayOfWeek,
+          className: "relative",
+          dayIndex,
+          children: findEventsAtHour(hours)
+        },
+        hours
+      );
+    }),
+    showNowLine && /* @__PURE__ */ jsx(
+      "div",
       {
-        hours,
-        date: dayOfWeek,
-        className: "relative",
-        dayIndex,
-        children: findEventsAtHour(hours)
-      },
-      hours
-    );
-  }) });
+        className: "absolute left-0 right-0 z-20 pointer-events-none",
+        style: { top: nowTop },
+        children: /* @__PURE__ */ jsxs("div", { className: "flex items-center", children: [
+          /* @__PURE__ */ jsx("div", { className: "w-2.5 h-2.5 rounded-full -ml-1", style: { backgroundColor: "#5158F6" } }),
+          /* @__PURE__ */ jsx("div", { className: "h-0.5 flex-1", style: { backgroundColor: "#5158F6" } })
+        ] })
+      }
+    )
+  ] });
 };
 var TimeColumn = ({
   hoursStart = 0,

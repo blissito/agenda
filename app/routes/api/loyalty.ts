@@ -6,6 +6,7 @@ import {
   useRedemption,
   createReward,
   updateReward,
+  deleteReward,
   getRewards,
   getTransactions,
   getOrgLoyaltyStats,
@@ -108,6 +109,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const { rewardId, ...updates } = data;
     if (!rewardId) return Response.json({ error: "rewardId required" }, { status: 400 });
     return updateReward(rewardId, updates);
+  }
+
+  // POST /api/loyalty?intent=delete-reward
+  if (intent === "delete-reward") {
+    const { rewardId } = data;
+    if (!rewardId) return Response.json({ error: "rewardId required" }, { status: 400 });
+    return deleteReward(rewardId);
   }
 
   return Response.json({ error: "Unknown intent" }, { status: 400 });

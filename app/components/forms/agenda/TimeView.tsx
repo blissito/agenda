@@ -63,8 +63,9 @@ export default function TimeView({
         { method: "post", action },
       )
     }
+    // fetcher is intentionally excluded - including it causes infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, action, fetcher, intent])
+  }, [selected, action, intent])
 
   const dayString = convertDayToString(selected.getDay())
   const dayRanges = (weekDays as Record<string, DayTuple>)[dayString]

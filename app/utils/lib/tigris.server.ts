@@ -12,17 +12,39 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 // import { Upload } from "@aws-sdk/lib-storage";
 // import fs from "fs";
 
-const S3 = new S3Client({
-  region: "auto",
-  endpoint: `https://fly.storage.tigris.dev`,
-})
+// Lazy initialization to avoid errors when credentials are missing
+let _s3Client: S3Client | null = null
+const getS3Client = () => {
+  if (!_s3Client) {
+    const endpoint = process.env.AWS_ENDPOINT_URL_S3
+    const accessKey = process.env.AWS_ACCESS_KEY_ID
+    const secretKey = process.env.AWS_SECRET_ACCESS_KEY
+
+    if (!endpoint || !accessKey || !secretKey) {
+      throw new Error(
+        `AWS config missing: endpoint=${!!endpoint}, key=${!!accessKey}, secret=${!!secretKey}`,
+      )
+    }
+    _s3Client = new S3Client({
+      region: process.env.AWS_REGION || "auto",
+      endpoint,
+      credentials: {
+        accessKeyId: accessKey,
+        secretAccessKey: secretKey,
+      },
+    })
+  }
+  return _s3Client
+}
+
+const BUCKET = process.env.AWS_BUCKET || "wild-bird-2039"
 
 // @TODO: confirm production bucket/folder names
 const setCors = async () => {
   // not sure if this worked XD
   const input = {
     // PutBucketCorsRequest
-    Bucket: "wild-bird-2039", // required
+    Bucket: BUCKET, // required
     CORSConfiguration: {
       // CORSConfiguration
       CORSRules: [
@@ -46,17 +68,17 @@ const setCors = async () => {
     },
   }
   const command = new PutBucketCorsCommand(input)
-  const response = await S3.send(command)
+  const response = await getS3Client().send(command)
   // console.log("SETCORS response: ", response);
   return response
 }
 
 export const getImageURL = async (key: string, expiresIn = 900) =>
   await getSignedUrl(
-    S3,
+    getS3Client(),
     new GetObjectCommand({
-      Bucket: "wild-bird-2039",
-      Key: `testing/${key}`, // @TODO: update when prod beta
+      Bucket: BUCKET,
+      Key: `denik/${key}`,
     }),
     { expiresIn },
   )
@@ -64,11 +86,10 @@ export const getImageURL = async (key: string, expiresIn = 900) =>
 export const getPutFileUrl = async (key: string) => {
   await setCors()
   return await getSignedUrl(
-    S3,
+    getS3Client(),
     new PutObjectCommand({
-      Bucket: "wild-bird-2039",
-      Key: `testing/${key}`, // @TODO: update when prod beta
-      // ContentType: "image/png",
+      Bucket: BUCKET,
+      Key: `denik/${key}`,
     }),
     { expiresIn: 3600 },
   )
@@ -77,10 +98,10 @@ export const getPutFileUrl = async (key: string) => {
 export const removeFileUrl = async (key: string) => {
   await setCors()
   return await getSignedUrl(
-    S3,
+    getS3Client(),
     new DeleteObjectCommand({
-      Bucket: "wild-bird-2039",
-      Key: `testing/${key}`, // @TODO: update when prod beta
+      Bucket: BUCKET,
+      Key: `denik/${key}`,
     }),
     { expiresIn: 3600 },
   )

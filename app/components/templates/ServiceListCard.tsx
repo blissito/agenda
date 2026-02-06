@@ -1,6 +1,7 @@
 import { motion } from "motion/react"
 import { Link } from "react-router"
 import { Tag } from "~/components/common/Tag"
+import { getPublicImageUrl } from "~/utils/urls"
 
 export const ServiceListCard = ({
   title,
@@ -29,7 +30,7 @@ export const ServiceListCard = ({
               <img
                 alt="cover"
                 className="w-16 h-12 rounded-lg object-cover"
-                src={image ? image : "/images/serviceDefault.png"}
+                src={getPublicImageUrl(image) || "/images/serviceDefault.png"}
               />
               <article>
                 <h3 className=" text-brand_dark text-lg font-satoMiddle">

@@ -73,9 +73,13 @@ export default [
     route("org", "routes/api/api.org.ts"),
     route("domain", "routes/api/api.domain.ts"),
     route("loyalty", "routes/api/loyalty.ts"),
+    route("images", "routes/api/api.images.ts"),
   ]),
   // Stripe
-  ...prefix("stripe", [index("routes/stripe/api.ts")]),
+  ...prefix("stripe", [
+    index("routes/stripe/api.ts"),
+    route("webhook", "routes/stripe/webhook.ts"),
+  ]),
   // MercadoPago
   ...prefix("mercadopago", [
     route("oauth", "routes/mercadopago.oauth.tsx"),
@@ -86,6 +90,8 @@ export default [
   ]),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
+  // Public org landing (works on localhost): /agenda/:orgSlug
+  route("agenda/:orgSlug", "routes/agenda.$orgSlug._index.tsx"),
   // Public booking route (works on localhost): /agenda/:orgSlug/:serviceSlug
   route(
     "agenda/:orgSlug/:serviceSlug",

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encuestas - Denik Agenda</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand_blue: '#5158F6',
+            brand_dark: '#11151A',
+            brand_gray: '#4B5563',
+            brand_light: '#F8F8F8',
+            brand_pale: '#F0F0F0',
+            brand_stroke: '#F2F2F2',
+            brand_iron: '#8391A1',
+          },
+          fontFamily: {
+            jakarta: ['Plus Jakarta Sans', 'sans-serif'],
+            dm: ['DM Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; }
+    h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-brand_light min-h-screen">
+  <!-- Main Container (simula el área de contenido del dashboard) -->
+  <div class="max-w-[1080px] mx-auto py-10 px-6">
+
+    <!-- Page Title -->
+    <h1 class="text-3xl font-extrabold text-brand_dark mb-8">Encuestas</h1>
+
+    <!-- Services List Card -->
+    <div class="bg-white rounded-2xl p-6">
+
+      <!-- Table Header -->
+      <div class="grid grid-cols-12 gap-4 pb-4 border-b border-brand_stroke text-sm font-medium text-brand_iron">
+        <div class="col-span-5">Servicio</div>
+        <div class="col-span-2">Estado</div>
+        <div class="col-span-3">Preguntas</div>
+        <div class="col-span-2 text-right">Acción</div>
+      </div>
+
+      <!-- Service Row 1 - Con survey activo -->
+      <div class="grid grid-cols-12 gap-4 py-5 border-b border-brand_stroke items-center hover:bg-brand_light/50 transition-colors">
+        <div class="col-span-5">
+          <p class="font-semibold text-brand_dark">Corte de cabello</p>
+          <p class="text-sm text-brand_iron">$250 · 45 min</p>
+        </div>
+        <div class="col-span-2">
+          <span class="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
+            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+            Activo
+          </span>
+        </div>
+        <div class="col-span-3">
+          <p class="text-brand_dark">3 preguntas</p>
+        </div>
+        <div class="col-span-2 text-right">
+          <button onclick="openDrawer()" class="text-brand_blue font-medium hover:underline">
+            Editar
+          </button>
+        </div>
+      </div>
+
+      <!-- Service Row 2 - Sin configurar -->
+      <div class="grid grid-cols-12 gap-4 py-5 border-b border-brand_stroke items-center hover:bg-brand_light/50 transition-colors">
+        <div class="col-span-5">
+          <p class="font-semibold text-brand_dark">Tinte completo</p>
+          <p class="text-sm text-brand_iron">$800 · 2 hrs</p>
+        </div>
+        <div class="col-span-2">
+          <span class="inline-flex items-center gap-1.5 bg-brand_pale text-brand_iron text-sm font-medium px-3 py-1 rounded-full">
+            Sin configurar
+          </span>
+        </div>
+        <div class="col-span-3">
+          <p class="text-brand_iron">—</p>
+        </div>
+        <div class="col-span-2 text-right">
+          <button onclick="openDrawer()" class="text-brand_blue font-medium hover:underline">
+            Configurar
+          </button>
+        </div>
+      </div>
+
+      <!-- Service Row 3 - Con survey activo -->
+      <div class="grid grid-cols-12 gap-4 py-5 border-b border-brand_stroke items-center hover:bg-brand_light/50 transition-colors">
+        <div class="col-span-5">
+          <p class="font-semibold text-brand_dark">Manicure spa</p>
+          <p class="text-sm text-brand_iron">$350 · 1 hr</p>
+        </div>
+        <div class="col-span-2">
+          <span class="inline-flex items-center gap-1.5 bg-green-50 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
+            <span class="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
+            Activo
+          </span>
+        </div>
+        <div class="col-span-3">
+          <p class="text-brand_dark">2 preguntas</p>
+        </div>
+        <div class="col-span-2 text-right">
+          <button onclick="openDrawer()" class="text-brand_blue font-medium hover:underline">
+            Editar
+          </button>
+        </div>
+      </div>
+
+      <!-- Service Row 4 - Sin configurar -->
+      <div class="grid grid-cols-12 gap-4 py-5 items-center hover:bg-brand_light/50 transition-colors">
+        <div class="col-span-5">
+          <p class="font-semibold text-brand_dark">Pedicure express</p>
+          <p class="text-sm text-brand_iron">$200 · 30 min</p>
+        </div>
+        <div class="col-span-2">
+          <span class="inline-flex items-center gap-1.5 bg-brand_pale text-brand_iron text-sm font-medium px-3 py-1 rounded-full">
+            Sin configurar
+          </span>
+        </div>
+        <div class="col-span-3">
+          <p class="text-brand_iron">—</p>
+        </div>
+        <div class="col-span-2 text-right">
+          <button onclick="openDrawer()" class="text-brand_blue font-medium hover:underline">
+            Configurar
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Drawer Overlay -->
+  <div id="drawerOverlay" class="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 hidden" onclick="closeDrawer()"></div>
+
+  <!-- Drawer Panel -->
+  <div id="drawer" class="fixed top-0 right-0 h-full w-[480px] bg-white shadow-2xl z-50 translate-x-full transition-transform duration-300 ease-out flex flex-col">
+
+    <!-- Drawer Header -->
+    <div class="p-6 border-b border-brand_stroke">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-brand_dark">Configurar encuesta</h2>
+          <p class="text-brand_iron mt-1">Corte de cabello</p>
+        </div>
+        <button onclick="closeDrawer()" class="w-10 h-10 flex items-center justify-center rounded-full bg-brand_pale hover:bg-brand_stroke transition-colors">
+          <svg class="w-5 h-5 text-brand_gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Drawer Content -->
+    <div class="flex-1 overflow-y-auto p-6">
+
+      <!-- Questions List -->
+      <div class="space-y-3">
+
+        <!-- Question 1 - Rating -->
+        <div class="bg-brand_light rounded-xl p-4 group">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-medium text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded">Rating</span>
+                <span class="text-xs text-brand_iron">Requerida</span>
+              </div>
+              <p class="text-brand_dark font-medium">¿Cómo calificarías tu experiencia?</p>
+            </div>
+            <button class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white">
+              <svg class="w-4 h-4 text-brand_iron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 2 - Text -->
+        <div class="bg-brand_light rounded-xl p-4 group">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-0.5 rounded">Texto</span>
+                <span class="text-xs text-brand_iron">Opcional</span>
+              </div>
+              <p class="text-brand_dark font-medium">¿Qué podríamos mejorar?</p>
+            </div>
+            <button class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white">
+              <svg class="w-4 h-4 text-brand_iron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Question 3 - Yes/No -->
+        <div class="bg-brand_light rounded-xl p-4 group">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded">Sí/No</span>
+                <span class="text-xs text-brand_iron">Requerida</span>
+              </div>
+              <p class="text-brand_dark font-medium">¿Nos recomendarías con un amigo?</p>
+            </div>
+            <button class="opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white">
+              <svg class="w-4 h-4 text-brand_iron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Add Question Section -->
+      <div class="mt-6">
+        <p class="text-sm font-medium text-brand_dark mb-3">Agregar pregunta</p>
+        <div class="flex gap-2">
+          <button class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed border-brand_stroke hover:border-brand_blue hover:bg-brand_blue/5 transition-colors group">
+            <svg class="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            <span class="text-sm font-medium text-brand_gray group-hover:text-brand_blue">Rating</span>
+          </button>
+          <button class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed border-brand_stroke hover:border-brand_blue hover:bg-brand_blue/5 transition-colors group">
+            <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+            </svg>
+            <span class="text-sm font-medium text-brand_gray group-hover:text-brand_blue">Texto</span>
+          </button>
+          <button class="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed border-brand_stroke hover:border-brand_blue hover:bg-brand_blue/5 transition-colors group">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span class="text-sm font-medium text-brand_gray group-hover:text-brand_blue">Sí/No</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- New Question Input (shown when adding) -->
+      <div class="mt-4 hidden" id="newQuestionInput">
+        <div class="bg-brand_blue/5 border-2 border-brand_blue rounded-xl p-4">
+          <input
+            type="text"
+            placeholder="Escribe tu pregunta..."
+            class="w-full bg-white border border-brand_stroke rounded-xl h-12 px-4 focus:outline-none focus:border-brand_blue transition-colors"
+          >
+          <div class="flex items-center justify-between mt-3">
+            <label class="flex items-center gap-2 text-sm text-brand_gray cursor-pointer">
+              <input type="checkbox" class="w-4 h-4 rounded border-brand_stroke text-brand_blue focus:ring-brand_blue">
+              Requerida
+            </label>
+            <div class="flex gap-2">
+              <button class="px-4 py-2 text-sm font-medium text-brand_gray hover:text-brand_dark">Cancelar</button>
+              <button class="px-4 py-2 text-sm font-medium text-white bg-brand_blue rounded-full hover:bg-brand_blue/90">Agregar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="p-6 border-t border-brand_stroke bg-white">
+      <div class="flex gap-3">
+        <button onclick="closeDrawer()" class="flex-1 h-12 rounded-full bg-brand_pale text-brand_dark font-medium hover:bg-brand_stroke transition-colors">
+          Cancelar
+        </button>
+        <button class="flex-1 h-12 rounded-full bg-brand_blue text-white font-medium hover:bg-brand_blue/90 transition-colors">
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function openDrawer() {
+      document.getElementById('drawer').classList.remove('translate-x-full');
+      document.getElementById('drawerOverlay').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').classList.add('translate-x-full');
+      document.getElementById('drawerOverlay').classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  </script>
+</body>
+</html>

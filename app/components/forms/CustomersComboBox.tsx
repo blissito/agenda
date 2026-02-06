@@ -30,6 +30,13 @@ export const CustomersComboBox = ({
   const [searchableElements, setSearchableElements] = useState(customers)
   const [selected, setSelected] = useState<Customer | null>(null)
 
+  // TODO: 4 bugs en flujo ClientForm→CustomersComboBox:
+  // 1. CRASH: `fetcher` como dep causa loop infinito → cambiar a []
+  // 2. ClientForm cierra drawer antes de que termine submit → usar useEffect con fetcher.data
+  // 3. Lista no refresca tras crear cliente → agregar refreshTrigger prop
+  // 4. API customers.ts:25 retorna Prisma object sin Response.json()
+  // Ver plan completo en transcript 7da41aba
+
   // load customers
   useEffect(() => {
     fetcher.load("/api/customers?search")

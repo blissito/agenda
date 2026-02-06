@@ -1,27 +1,29 @@
 # Denik Agenda
 
-**Stack**: React Router v7, TypeScript, Prisma (MongoDB), Stripe, AWS SES
+**Stack**: React Router v7, TypeScript, Prisma (MongoDB), MercadoPago, AWS SES
 
 ## Qué es esta app
 
 Sistema de agendamiento/citas multi-tenant donde:
+
 - Negocios crean cuenta y servicios
 - Clientes reservan citas via subdominios (ver sección URLs Públicas)
 - Dashboard para gestionar agenda, clientes, servicios
 - Magic link auth (sin password)
-- Pagos con Stripe
+- Pagos con MercadoPago
 - Notificaciones por email (SES)
 
 ## URLs Públicas (Subdominios)
 
 El sistema usa **subdominios** para identificar organizaciones:
 
-| Tipo | Formato (Producción) | Formato (Localhost) |
-|------|---------------------|---------------------|
-| Landing del negocio | `{orgSlug}.denik.me` | N/A (usar producción) |
+| Tipo                | Formato (Producción)               | Formato (Localhost)                             |
+| ------------------- | ---------------------------------- | ----------------------------------------------- |
+| Landing del negocio | `{orgSlug}.denik.me`               | N/A (usar producción)                           |
 | Booking de servicio | `{orgSlug}.denik.me/{serviceSlug}` | `localhost:3000/agenda/{orgSlug}/{serviceSlug}` |
 
 **Archivos clave:**
+
 - `app/routes/service.$serviceSlug.tsx` - Booking público (producción, usa subdominio)
 - `app/routes/agenda.$orgSlug.$serviceSlug.tsx` - Booking público (localhost, ruta path-based)
 - `app/utils/host.server.ts` - Resuelve org desde hostname/subdominio
@@ -31,6 +33,7 @@ El sistema usa **subdominios** para identificar organizaciones:
   - `convertWeekDaysToEnglish(weekDays)` - Convierte días de español (DB) a inglés (UI)
 
 **Notas importantes:**
+
 - En producción, los links de servicios usan rutas relativas (`/{serviceSlug}`) dentro del subdominio
 - En localhost, el helper `getServicePublicUrl()` genera URLs con path `/agenda/:orgSlug/:serviceSlug`
 - Los `weekDays` se guardan en español en la DB pero el UI espera inglés (usa `convertWeekDaysToEnglish`)
@@ -152,21 +155,22 @@ Después de cambiar el schema: `npx prisma generate`
 
 ## Estado de Features
 
-| Feature | Estado |
-|---------|--------|
-| Auth (magic link) | ✅ |
-| Booking público | ✅ |
-| Dashboard | ✅ |
-| Email notifications | ✅ |
-| Stripe Connect | ✅ |
-| Webhooks Stripe | ✅ idempotentes (checkout.session.completed, payment_intent.failed) |
-| MercadoPago | ✅ OAuth, webhooks idempotentes, token refresh |
-| Loyalty (puntos/tiers) | ✅ |
-| Tests | ❌ 0% |
+| Feature                | Estado                                                              |
+| ---------------------- | ------------------------------------------------------------------- |
+| Auth (magic link)      | ✅                                                                  |
+| Booking público        | ✅                                                                  |
+| Dashboard              | ✅                                                                  |
+| Email notifications    | ✅                                                                  |
+| Stripe Connect         | ⚠️ Legacy (no usado en booking, solo backend)                       |
+| Webhooks Stripe        | ⚠️ Legacy (ruta registrada, pero booking usa MP)                    |
+| MercadoPago            | ✅ OAuth, webhooks idempotentes, token refresh                      |
+| Loyalty (puntos/tiers) | ✅                                                                  |
+| Tests                  | ❌ 0%                                                               |
 
 ## Protección contra duplicados
 
 Los webhooks verifican si ya existe un evento antes de crear:
+
 - **Stripe**: busca por `stripe_session_id`
 - **MercadoPago**: busca por `mp_payment_id`
 - **DB**: unique constraint `@@unique([serviceId, start])` en modelo Event
@@ -174,23 +178,45 @@ Los webhooks verifican si ya existe un evento antes de crear:
 ## TODO
 
 - [x] ~~Completar webhook Stripe~~ (implementado)
-- [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
+- [x] ~~**ELMASURGENTE**: El link de pagos en el menú no funciona~~ (webhook Stripe registrado en routes.ts, loader de pagos ya no auto-crea cuenta Stripe, guard en getClient())
+- [ ] **CI/CD**: Los checks de GitHub Actions nunca pasan - investigar y arreglar el pipeline
+- [x] ~~**BUG PROD - IMÁGENES**: Las imágenes no se muestran en sitio público~~ (helper `getPublicImageUrl()` en urls.ts)
+- [ ] **URGENTE**: Agregar `STRIPE_WEBHOOK_SECRET` en Fly secrets — sin esta variable el webhook Stripe rechaza todo con 400. Obtener de [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks) y correr: `fly secrets set STRIPE_WEBHOOK_SECRET="whsec_..."`
+- [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
+- [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)
+- [x] ~~**SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio~~ (z-50 agregado al modal)
+- [x] ~~**SIGUIENTE**: Leamos buenas practicas de react router v7~~ (useNavigation + spinner overlay en dash_layout.tsx)
+- [x] ~~**PENULTIMO**: onboarding apunta a rutas que no existen y no se calcula bien los progresos~~ (habilitado paso de pagos, barra de progreso, tracking real)
+- [x] ~~**ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario~~ (función getGreeting() dinámica)
+- [x] ~~Mejorar UX de selección Stripe vs MercadoPago en onboarding~~ (orientado 100% a MP, Stripe removido del UI)
+- [ ] Drag & drop en galería de servicio para reordenar imágenes y seleccionar la principal
+- [x] ~~La página pública de org no muestra bien los horarios~~ (campos corregidos: logo, email, weekDays)
+- [ ] **UX**: Selección de horarios en booking - actualmente bloquea todos los slots mientras carga. Implementar optimistic UI para respuesta inmediata
+- [x] ~~**BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod~~ (corregido en sendAppointment.ts)
+- [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
+  - Repetición (cada martes 10am, cada semana, cada mes)
+  - Número de repeticiones o fecha fin de recurrencia
+  - Excepciones (cancelar solo una ocurrencia)
+  - Posiblemente otros features pendientes de evaluar (bloqueo de horarios, eventos todo el día, etc.)
 
 ## Checklist de Producción (Webhooks)
 
 ### Stripe
+
 1. Ir a [Stripe Dashboard → Developers → Webhooks](https://dashboard.stripe.com/webhooks)
 2. Crear endpoint: `https://tudominio.com/stripe/webhook`
 3. Seleccionar eventos: `checkout.session.completed`, `payment_intent.payment_failed`, `account.updated`
 4. Copiar "Signing secret" y agregarlo como `STRIPE_WEBHOOK_SECRET` en producción
 
 ### MercadoPago
+
 1. Ir a [Panel MercadoPago → Configuración → Webhooks](https://www.mercadopago.com.mx/developers/panel/app)
 2. Configurar URL: `https://tudominio.com/mercadopago/webhook`
 3. Seleccionar eventos: `payment`
 4. Copiar "Secret key" y agregarla como `MP_WEBHOOK_SECRET` en producción
 
 ### Verificar funcionamiento
+
 ```bash
 # Stripe CLI (desarrollo)
 stripe listen --forward-to localhost:3000/stripe/webhook
@@ -293,6 +319,7 @@ npx prisma studio
 ### Factories
 
 Los generadores de datos fake están en `scripts/dev/factories.ts`:
+
 - `generateUser(overrides?)` - Usuario con email/displayName fake
 - `generateOrg(ownerId, overrides?)` - Org con slug único
 - `generateService(orgId, overrides?)` - Servicio con price/duration

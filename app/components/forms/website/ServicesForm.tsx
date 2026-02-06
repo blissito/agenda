@@ -13,10 +13,10 @@ export default function ServicesForm({
   onCancel?: () => void
 }) {
   return (
-    <div className="rounded-2xl max-w-3xl mt-6">
+    <div className="rounded-2xl max-w-3xl mt-6 flex flex-col gap-6">
       <ServiceRows services={services} />
-      <div className="absolute bottom-10 right-10">
-        <SecondaryButton onClick={onCancel} className="w-[120px] mt-auto">
+      <div className="flex justify-end">
+        <SecondaryButton onClick={onCancel} className="w-[120px]">
           Volver
         </SecondaryButton>
       </div>

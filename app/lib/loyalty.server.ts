@@ -208,7 +208,7 @@ export async function adjustPoints(params: {
 // ==================== REWARDS ====================
 
 /**
- * Get active rewards for an org
+ * Get active rewards for an org (for customers)
  */
 export async function getRewards(orgId: string, customerTier?: Tier) {
   const allRewards = await db.loyaltyReward.findMany({
@@ -233,6 +233,16 @@ export async function getRewards(orgId: string, customerTier?: Tier) {
   return rewards.filter((r: { minTier: string | null }) => {
     if (!r.minTier) return true;
     return tierOrder.indexOf(r.minTier as Tier) <= customerTierIdx;
+  });
+}
+
+/**
+ * Get all rewards for an org (for admin dashboard, includes inactive)
+ */
+export async function getAllRewards(orgId: string) {
+  return db.loyaltyReward.findMany({
+    where: { orgId },
+    orderBy: [{ isActive: "desc" }, { pointsCost: "asc" }],
   });
 }
 
@@ -422,6 +432,7 @@ export async function updateReward(
   data: Partial<{
     name: string;
     description: string;
+    type: "discount_percent" | "discount_fixed" | "free_service";
     value: number;
     pointsCost: number;
     isActive: boolean;
@@ -430,6 +441,22 @@ export async function updateReward(
   }>
 ) {
   return db.loyaltyReward.update({ where: { id: rewardId }, data });
+}
+
+/**
+ * Delete a reward (only if no redemptions exist)
+ */
+export async function deleteReward(rewardId: string) {
+  const redemptions = await db.loyaltyRedemption.count({
+    where: { rewardId },
+  });
+
+  if (redemptions > 0) {
+    return { error: "No se puede eliminar una recompensa con canjes. Desactívala en su lugar." };
+  }
+
+  await db.loyaltyReward.delete({ where: { id: rewardId } });
+  return { success: true };
 }
 
 /**

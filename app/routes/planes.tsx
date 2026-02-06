@@ -272,7 +272,7 @@ export const yearlyItems = [
         </DialogButton>
       </div>
     ),
-    link: "https://stripe.com",
+    link: "/signup",
   },
   {
     plan: "Empresarial",
@@ -313,7 +313,7 @@ export const yearlyItems = [
         </PrimaryButton>
       </div>
     ),
-    link: "https://stripe.com",
+    link: "/signup",
   },
 ]
 
@@ -360,7 +360,7 @@ export const monthlyItems = [
         </DialogButton>
       </div>
     ),
-    link: "https://stripe.com",
+    link: "/signup",
   },
   {
     plan: "Empresarial",
@@ -401,6 +401,6 @@ export const monthlyItems = [
         </PrimaryButton>
       </div>
     ),
-    link: "https://stripe.com",
+    link: "/signup",
   },
 ]

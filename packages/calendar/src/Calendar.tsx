@@ -259,7 +259,7 @@ const DayHeader = ({
       </span>
       <span
         className={cn(
-          isToday && "bg-blue-500 rounded-full p-1 text-white"
+          isToday && "bg-blue-500 rounded-full w-7 h-7 flex items-center justify-center text-white"
         )}
       >
         {date.getDate()}
@@ -485,9 +485,6 @@ const Cell = ({
   children?: ReactNode;
   dayIndex?: number;
 }) => {
-  const isTodayCell = date ? checkIsToday(date) : false;
-  const isThisHour = isTodayCell && hours === new Date().getHours();
-
   const { setNodeRef, isOver } = useDroppable({
     id: dayIndex !== undefined ? `cell-${dayIndex}-${hours}` : `time-${hours}`,
     disabled: dayIndex === undefined,
@@ -502,7 +499,6 @@ const Cell = ({
       role="button"
       className={cn(
         "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
-        isTodayCell && isThisHour && "border-t-2 border-t-blue-500",
         isOver && dayIndex !== undefined && "bg-blue-100",
         className
       )}
@@ -658,30 +654,33 @@ const Column = ({
   hoursEnd?: number;
 }) => {
   const columnRef = useRef<HTMLDivElement>(null);
+  const [now, setNow] = useState(new Date());
 
   // Calculate overlap positions for all events
   const eventsWithPositions = calculateOverlapPositions(events);
 
+  const isColumnToday = checkIsToday(dayOfWeek);
+
+  // Update current time every 60 seconds
   useEffect(() => {
-    if (!columnRef.current) return;
-
-    const today = new Date();
-    const isColumnToday =
-      dayOfWeek.getDate() === today.getDate() &&
-      dayOfWeek.getMonth() === today.getMonth() &&
-      dayOfWeek.getFullYear() === today.getFullYear();
-
     if (!isColumnToday) return;
+    const timer = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(timer);
+  }, [isColumnToday]);
 
-    const currentHour = today.getHours();
-    const currentCell = columnRef.current.children[currentHour] as HTMLElement;
+  useEffect(() => {
+    if (!columnRef.current || !isColumnToday) return;
+
+    const currentHour = new Date().getHours();
+    const cellIndex = currentHour - hoursStart;
+    const currentCell = columnRef.current.children[cellIndex] as HTMLElement;
 
     if (currentCell) {
       setTimeout(() => {
         currentCell.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
     }
-  }, [dayOfWeek]);
+  }, [dayOfWeek, isColumnToday, hoursStart]);
 
   const findEventsAtHour = (hours: number) => {
     // Find all events that START at this hour
@@ -725,8 +724,14 @@ const Column = ({
     );
   };
 
+  // Current time indicator position (pixels from top of column)
+  const nowTop = isColumnToday
+    ? ((now.getHours() - hoursStart) + now.getMinutes() / 60) * 64
+    : -1;
+  const showNowLine = isColumnToday && nowTop >= 0 && nowTop <= (hoursEnd - hoursStart) * 64;
+
   return (
-    <div ref={columnRef} className="grid">
+    <div ref={columnRef} className="grid relative">
       {Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
         const hours = hoursStart + i;
         return (
@@ -741,6 +746,17 @@ const Column = ({
           </Cell>
         );
       })}
+      {showNowLine && (
+        <div
+          className="absolute left-0 right-0 z-20 pointer-events-none"
+          style={{ top: nowTop }}
+        >
+          <div className="flex items-center">
+            <div className="w-2.5 h-2.5 rounded-full -ml-1" style={{ backgroundColor: '#5158F6' }} />
+            <div className="h-0.5 flex-1" style={{ backgroundColor: '#5158F6' }} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -15,7 +15,7 @@ import { db } from "~/utils/db.server"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url)
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { user, org } = await getUserAndOrgOrRedirect(request)
   if (!org) throw new Error("Org not found")
   const servicesCount = await db.service.count({
     where: {
@@ -24,15 +24,28 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   })
   url.pathname = `/${org.slug}/agenda`
 
-  return { url: url.toString(), org, servicesCount }
+  const hasPaymentsConfigured = Boolean(user.mercadopago?.access_token)
+
+  return { url: url.toString(), org, servicesCount, hasPaymentsConfigured }
 }
 
 export default function DashOnboarding() {
-  const { servicesCount, url } = useLoaderData<typeof loader>()
+  const { servicesCount, url, hasPaymentsConfigured } =
+    useLoaderData<typeof loader>()
   const [pop, setPop] = useState(false)
   const [shareLink, setShareLink] = useState("0")
   const [sitioWebDone, setSitioWeb] = useState("0")
   const navigate = useNavigate()
+
+  // Calculate progress
+  const getCompletedCount = () => {
+    let count = 1 // Step 1 (account) is always done
+    if (sitioWebDone === "1") count++
+    if (hasPaymentsConfigured) count++
+    if (servicesCount >= 1) count++
+    if (shareLink === "1") count++
+    return count
+  }
 
   const handleSitioWeb = () => {
     localStorage.setItem("sitioWebDone", "1")
@@ -68,6 +81,24 @@ export default function DashOnboarding() {
           <p className="text-brand_gray mt-1">
             Estás a unos pasos de empezar a recibir a tus clientes
           </p>
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-brand_gray">
+            {getCompletedCount()} de 5 pasos completados
+          </p>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((step) => (
+              <div
+                key={step}
+                className={twMerge(
+                  "w-8 h-2 rounded-full",
+                  step <= getCompletedCount()
+                    ? "bg-brand_blue"
+                    : "bg-gray-200"
+                )}
+              />
+            ))}
+          </div>
         </div>
         <hr className="h-[1px] border-none bg-brand_stroke my-6" />
         <div className="flex flex-col gap-8">
@@ -107,12 +138,34 @@ export default function DashOnboarding() {
           />
           <Step
             icon={<Stripe />}
-            title="Da de alta tu cuenta de pagos (opcional)"
-            description="Crea tu cuenta de Stripe y vincúlala a Deník  "
+            title="Configura tus pagos (opcional)"
+            description="Conecta Mercado Pago para cobrar"
             cta={
-              <PrimaryButton className="h-10" isDisabled>
-                Ir
-              </PrimaryButton>
+              <AnimatePresence>
+                {!hasPaymentsConfigured ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <PrimaryButton
+                      as="Link"
+                      to="/dash/pagos"
+                      className="h-10"
+                    >
+                      Configurar
+                    </PrimaryButton>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <StepCheck />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             }
           />
           <Step
@@ -121,7 +174,7 @@ export default function DashOnboarding() {
             description="Agrega uno o todos tus servicios "
             cta={
               <AnimatePresence>
-                {servicesCount < 2 ? (
+                {servicesCount < 1 ? (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -130,7 +183,6 @@ export default function DashOnboarding() {
                     <PrimaryButton
                       as="Link"
                       to="/dash/servicios"
-                      onClick={handleCopyURL}
                       className="h-10"
                     >
                       Agregar

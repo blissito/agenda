@@ -123,7 +123,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }, [fetcher.data])
 
   return (
-    <article className="h-screen bg-white fixed inset-0 pt-10 overflow-y-auto">
+    <article className="h-screen bg-white fixed inset-0 pt-10 overflow-y-auto z-[600]">
       <Link
         to="/dash/servicios"
         className="top-10 right-10 absolute bg-gray-100 p-1 rounded-full hover:bg-gray-200"
