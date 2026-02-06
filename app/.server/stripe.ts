@@ -46,7 +46,10 @@ export const createAccountLink = (connectedAccountId: string, origin: string) =>
 
 let client: Stripe
 const getClient = () => {
-  client ??= new Stripe(process.env.STRIPE_SECRET_TEST as string)
+  if (!process.env.STRIPE_SECRET_TEST) {
+    throw new Error("STRIPE_SECRET_TEST not configured")
+  }
+  client ??= new Stripe(process.env.STRIPE_SECRET_TEST)
   return client
 }
 

@@ -2,6 +2,7 @@ import type { Org, Service } from "@prisma/client"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker"
 import type { SupportedTimezone } from "~/utils/timezone"
+import { getPublicImageUrl } from "~/utils/urls"
 
 const example =
   "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg"
@@ -16,7 +17,7 @@ export const Header = ({ org }: { org: OrgLike }) => {
       <img
         className="w-10 h-10 rounded-full object-cover"
         alt="org logo"
-        src={org?.logo || example}
+        src={getPublicImageUrl(org?.logo) || example}
       />
       <h1 className="font-bold text-2xl text-brand_dark">{org?.name}</h1>
     </div>

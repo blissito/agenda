@@ -1,6 +1,6 @@
 # Denik Agenda
 
-**Stack**: React Router v7, TypeScript, Prisma (MongoDB), Stripe, AWS SES
+**Stack**: React Router v7, TypeScript, Prisma (MongoDB), MercadoPago, AWS SES
 
 ## Qué es esta app
 
@@ -10,7 +10,7 @@ Sistema de agendamiento/citas multi-tenant donde:
 - Clientes reservan citas via subdominios (ver sección URLs Públicas)
 - Dashboard para gestionar agenda, clientes, servicios
 - Magic link auth (sin password)
-- Pagos con Stripe
+- Pagos con MercadoPago
 - Notificaciones por email (SES)
 
 ## URLs Públicas (Subdominios)
@@ -161,8 +161,8 @@ Después de cambiar el schema: `npx prisma generate`
 | Booking público        | ✅                                                                  |
 | Dashboard              | ✅                                                                  |
 | Email notifications    | ✅                                                                  |
-| Stripe Connect         | ✅                                                                  |
-| Webhooks Stripe        | ✅ idempotentes (checkout.session.completed, payment_intent.failed) |
+| Stripe Connect         | ⚠️ Legacy (no usado en booking, solo backend)                       |
+| Webhooks Stripe        | ⚠️ Legacy (ruta registrada, pero booking usa MP)                    |
 | MercadoPago            | ✅ OAuth, webhooks idempotentes, token refresh                      |
 | Loyalty (puntos/tiers) | ✅                                                                  |
 | Tests                  | ❌ 0%                                                               |
@@ -178,19 +178,9 @@ Los webhooks verifican si ya existe un evento antes de crear:
 ## TODO
 
 - [x] ~~Completar webhook Stripe~~ (implementado)
-- [ ] **ELMASURGENTE**: El link de pagos en el menú no funciona, confirmar que todo el sistema de pagos con mercado pago es accesible en produccion y que los enclaces en el app funcionan correctamente, también el agendamiento con cobro.
+- [x] ~~**ELMASURGENTE**: El link de pagos en el menú no funciona~~ (webhook Stripe registrado en routes.ts, loader de pagos ya no auto-crea cuenta Stripe, guard en getClient())
 - [ ] **CI/CD**: Los checks de GitHub Actions nunca pasan - investigar y arreglar el pipeline
-- [ ] **BUG PROD - IMÁGENES**: Las imágenes no se muestran en sitio público (bucket es público)
-  - **Problema**: Los componentes usan la clave S3 directamente como `src` (ej: `src={org.logo}`)
-  - **Archivos afectados**:
-    - `app/components/agenda/components.tsx:19` - Header logo
-    - `app/components/templates/ServiceListCard.tsx:32` - Service photo
-    - `app/components/templates/TemplateOne.tsx:43,98` - Logo y service photos
-    - `app/components/templates/TemplateTwo.tsx:90,129` - Logo y service photos
-  - **Solución**: Crear helper `getPublicImageUrl(key)` en `urls.ts` que genere URL pública de Tigris
-    - URL formato: `https://{bucket}.fly.storage.tigris.dev/denik/{key}`
-    - Usar este helper en todos los `<img src=...>` de sitio público
-  - **Nota**: El bucket es público, NO necesita URLs firmadas
+- [x] ~~**BUG PROD - IMÁGENES**: Las imágenes no se muestran en sitio público~~ (helper `getPublicImageUrl()` en urls.ts)
 - [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
 - [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
 - [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)
@@ -198,7 +188,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**SIGUIENTE**: Leamos buenas practicas de react router v7~~ (useNavigation + spinner overlay en dash_layout.tsx)
 - [x] ~~**PENULTIMO**: onboarding apunta a rutas que no existen y no se calcula bien los progresos~~ (habilitado paso de pagos, barra de progreso, tracking real)
 - [x] ~~**ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario~~ (función getGreeting() dinámica)
-- [ ] Mejorar UX de selección Stripe vs MercadoPago en onboarding (guiar mejor al usuario)
+- [x] ~~Mejorar UX de selección Stripe vs MercadoPago en onboarding~~ (orientado 100% a MP, Stripe removido del UI)
 - [ ] Drag & drop en galería de servicio para reordenar imágenes y seleccionar la principal
 - [x] ~~La página pública de org no muestra bien los horarios~~ (campos corregidos: logo, email, weekDays)
 - [ ] **UX**: Selección de horarios en booking - actualmente bloquea todos los slots mientras carga. Implementar optimistic UI para respuesta inmediata

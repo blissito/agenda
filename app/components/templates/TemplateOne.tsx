@@ -8,6 +8,7 @@ import { Linkedin } from "~/components/icons/linkedin"
 import { Website } from "~/components/icons/menu/webiste"
 import { Tiktok } from "~/components/icons/tiktok"
 import { Twitter } from "~/components/icons/twitter"
+import { getPublicImageUrl } from "~/utils/urls"
 import { ItemClient } from "./ItemClient"
 import { ServiceCardClient } from "./ServiceCardClient"
 import { SocialMedia } from "./SocialMedia"
@@ -40,7 +41,7 @@ export default function TemplateOne({
               alt="company logo"
               className="w-[120px] h-[120px] rounded-full mb-6 object-cover"
               src={
-                org?.logo ||
+                getPublicImageUrl(org?.logo) ||
                 "https://images.pexels.com/photos/1105666/pexels-photo-1105666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
               }
             />

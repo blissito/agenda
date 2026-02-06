@@ -17,6 +17,7 @@ import { Linkedin } from "~/components/icons/linkedin"
 import { Website } from "~/components/icons/menu/webiste"
 import { Tiktok } from "~/components/icons/tiktok"
 import { Twitter } from "~/components/icons/twitter"
+import { getPublicImageUrl } from "~/utils/urls"
 import { formatRange } from "../common/FormatRange"
 import { ItemClient } from "./ItemClient"
 import { ServiceListCard } from "./ServiceListCard"
@@ -87,7 +88,7 @@ export default function TemplateTwo({
         alt="company logo"
         className="w-[160px] h-[160px] rounded-full border-[8px] border-white ml-[5%] -mt-[60px] object-cover"
         src={
-          org?.logo ||
+          getPublicImageUrl(org?.logo) ||
           "https://images.pexels.com/photos/820735/pexels-photo-820735.jpeg?auto=compress&cs=tinysrgb&w=800"
         }
       />

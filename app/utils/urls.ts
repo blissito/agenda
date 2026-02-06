@@ -3,6 +3,16 @@
  */
 
 const PLATFORM_DOMAIN = "denik.me"
+const TIGRIS_BUCKET = "wild-bird-2039"
+
+/**
+ * Generates the public URL for an image stored in Tigris/S3
+ * The bucket is public, so no signed URLs are needed.
+ */
+export function getPublicImageUrl(key?: string | null): string | undefined {
+  if (!key) return undefined
+  return `https://${TIGRIS_BUCKET}.fly.storage.tigris.dev/denik/${key}`
+}
 
 /**
  * Mapping from Spanish day names to English day names (UI)

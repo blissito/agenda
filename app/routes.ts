@@ -76,7 +76,10 @@ export default [
     route("images", "routes/api/api.images.ts"),
   ]),
   // Stripe
-  ...prefix("stripe", [index("routes/stripe/api.ts")]),
+  ...prefix("stripe", [
+    index("routes/stripe/api.ts"),
+    route("webhook", "routes/stripe/webhook.ts"),
+  ]),
   // MercadoPago
   ...prefix("mercadopago", [
     route("oauth", "routes/mercadopago.oauth.tsx"),

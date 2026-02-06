@@ -24,8 +24,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   })
   url.pathname = `/${org.slug}/agenda`
 
-  // Check if payments are configured (Stripe or MercadoPago)
-  const hasPaymentsConfigured = Boolean(user.stripe?.id || user.mercadopago?.access_token)
+  const hasPaymentsConfigured = Boolean(user.mercadopago?.access_token)
 
   return { url: url.toString(), org, servicesCount, hasPaymentsConfigured }
 }
@@ -140,7 +139,7 @@ export default function DashOnboarding() {
           <Step
             icon={<Stripe />}
             title="Configura tus pagos (opcional)"
-            description="Conecta Stripe o MercadoPago para cobrar"
+            description="Conecta Mercado Pago para cobrar"
             cta={
               <AnimatePresence>
                 {!hasPaymentsConfigured ? (
