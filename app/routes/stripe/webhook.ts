@@ -7,8 +7,14 @@ import {
 } from "~/utils/emails/sendAppointment"
 import { sendPaymentFailedEmail } from "~/utils/emails/sendPaymentFailed"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_TEST as string)
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+let stripeClient: Stripe
+function getStripe() {
+  if (!process.env.STRIPE_SECRET_TEST) {
+    throw new Error("STRIPE_SECRET_TEST not configured")
+  }
+  stripeClient ??= new Stripe(process.env.STRIPE_SECRET_TEST)
+  return stripeClient
+}
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   if (request.method !== "POST") {
@@ -18,6 +24,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const payload = await request.text()
   const signature = request.headers.get("stripe-signature")
 
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   if (!signature || !webhookSecret) {
     console.error("Missing stripe signature or webhook secret")
     return new Response("Missing signature", { status: 400 })
@@ -26,7 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   let event: Stripe.Event
 
   try {
-    event = stripe.webhooks.constructEvent(payload, signature, webhookSecret)
+    event = getStripe().webhooks.constructEvent(payload, signature, webhookSecret)
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error"
     console.error(`Webhook signature verification failed: ${message}`)

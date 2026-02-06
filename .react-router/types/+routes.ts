@@ -141,6 +141,9 @@ type Pages = {
   "/stripe": {
     params: {};
   };
+  "/stripe/webhook": {
+    params: {};
+  };
   "/mercadopago/oauth": {
     params: {};
   };
@@ -204,7 +207,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/stripe" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/website" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -354,6 +357,10 @@ type RouteFiles = {
     id: "routes/stripe/api";
     page: "/stripe";
   };
+  "routes/stripe/webhook.ts": {
+    id: "routes/stripe/webhook";
+    page: "/stripe/webhook";
+  };
   "routes/mercadopago.oauth.tsx": {
     id: "routes/mercadopago.oauth";
     page: "/mercadopago/oauth";
@@ -455,6 +462,7 @@ type RouteModules = {
   "routes/api/loyalty": typeof import("./app/routes/api/loyalty.ts");
   "routes/api/api.images": typeof import("./app/routes/api/api.images.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
+  "routes/stripe/webhook": typeof import("./app/routes/stripe/webhook.ts");
   "routes/mercadopago.oauth": typeof import("./app/routes/mercadopago.oauth.tsx");
   "routes/mercadopago.webhook": typeof import("./app/routes/mercadopago.webhook.ts");
   "routes/mercadopago.success": typeof import("./app/routes/mercadopago.success.tsx");
