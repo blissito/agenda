@@ -5,7 +5,7 @@ import {
 } from "@hectorbliss/denik-calendar"
 import { type Event as PrismaEvent } from "@prisma/client"
 import { useEffect, useMemo, useState } from "react"
-import { redirect, useFetcher } from "react-router"
+import { useFetcher, useNavigate } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Spinner } from "~/components/common/Spinner"
 import { WeekSelector } from "~/components/dash/agenda/WeekSelector"
@@ -19,6 +19,11 @@ import type { Route } from "./+types/dash.agenda"
 type EventWithService = PrismaEvent & {
   service: { name: string } | null
 }
+
+type OptimisticOp =
+  | { type: "add"; event: EventWithService }
+  | { type: "remove"; eventId: string }
+  | { type: "move"; eventId: string; newStart: Date }
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const formData = await request.formData()
@@ -65,9 +70,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!org) {
       return Response.json({ error: "Organization not found" }, { status: 404 })
     }
-    /**
-     * 1. create block event
-     */
     await db.event.create({
       data: {
         type: "BLOCK",
@@ -84,14 +86,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
         duration: 60,
       },
     })
-    throw redirect("/dash/agenda?success=1")
+    return { success: true }
   }
 
   if (intent === "move_event") {
     const eventId = formData.get("eventId") as string
     const newStart = formData.get("newStart") as string
 
-    // Update the event's start time
     await db.event.update({
       where: { id: eventId },
       data: { start: new Date(newStart) },
@@ -100,35 +101,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     return { success: true }
   }
 
-  if (intent === "fetch_week") {
-    const { org } = await getUserAndOrgOrRedirect(request)
-    if (!org) {
-      return Response.json({ error: "Organization not found" }, { status: 404 })
-    }
-    const orgServices = await db.service.findMany({
-      where: {
-        orgId: org.id,
-      },
-    })
-    const serviceIds = orgServices.map((org) => org.id)
-    const monday = new Date(formData.get("monday") as string)
-    const sunday = new Date(formData.get("sunday") as string)
-    const events = await db.event.findMany({
-      where: {
-        serviceId: {
-          in: serviceIds,
-        },
-        start: {
-          gte: monday,
-          lte: sunday,
-        },
-      },
-      include: {
-        service: true,
-      },
-    })
-    return { events }
-  }
   return null
 }
 
@@ -139,51 +111,100 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!org) {
     throw new Response("Organization not found", { status: 404 })
   }
-  const yesterday = new Date()
-  yesterday.setDate(new Date().getDate() - 1)
+
+  const url = new URL(request.url)
+  const mondayParam = url.searchParams.get("monday")
+  const sundayParam = url.searchParams.get("sunday")
+
+  let monday: Date
+  let sunday: Date
+
+  if (mondayParam && sundayParam) {
+    monday = new Date(mondayParam)
+    sunday = new Date(sundayParam)
+  } else {
+    const week = completeWeek(new Date())
+    monday = week[0]
+    sunday = week[6]
+  }
+
+  // Set sunday to end of day to include all events on sunday
+  const sundayEnd = new Date(sunday)
+  sundayEnd.setHours(23, 59, 59, 999)
+
   const events = await db.event.findMany({
     where: {
       orgId: org.id,
       archived: false,
+      start: {
+        gte: monday,
+        lte: sundayEnd,
+      },
     },
     include: { service: true },
   })
+
   const customers = await db.customer.findMany({
     take: 1,
-    where: {
-      orgId: org.id,
-    },
+    where: { orgId: org.id },
   })
 
   const employees = await db.user.findMany({
     take: 1,
-    where: {
-      orgId: org.id,
-    },
+    where: { orgId: org.id },
   })
 
   const services = await db.service.findMany({
     take: 1,
-    where: {
-      orgId: org.id,
-    },
+    where: { orgId: org.id },
   })
 
-  return { events, customers, services, employees }
+  return {
+    events,
+    customers,
+    services,
+    employees,
+    monday: monday.toISOString(),
+    sunday: sunday.toISOString(),
+  }
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { events, customers, services, employees } = loaderData
-  const [week, setWeek] = useState(completeWeek(new Date()))
-  const fetcher = useFetcher<{ events?: EventWithService[] }>()
-  const [weekEvents, setWeekEvents] = useState<EventWithService[]>(events)
+  const { events, customers, services, employees, monday } = loaderData
+  const navigate = useNavigate()
+  const mutationFetcher = useFetcher()
   const [editableEvent, setEditableEvent] =
     useState<Partial<PrismaEvent> | null>(null)
+  const [optimisticOps, setOptimisticOps] = useState<OptimisticOp[]>([])
 
-  // Map Prisma events to CalendarEvent format
+  // Derive week from loader's monday
+  const week = useMemo(() => completeWeek(new Date(monday)), [monday])
+
+  // Clear optimistic ops when mutation completes (loader revalidates automatically)
+  useEffect(() => {
+    if (mutationFetcher.state === "idle") {
+      setOptimisticOps([])
+    }
+  }, [mutationFetcher.state])
+
+  // Apply optimistic operations on top of loader data
+  const displayEvents = useMemo(() => {
+    let result = [...events] as EventWithService[]
+    for (const op of optimisticOps) {
+      if (op.type === "add") result.push(op.event)
+      if (op.type === "remove") result = result.filter((e) => e.id !== op.eventId)
+      if (op.type === "move")
+        result = result.map((e) =>
+          e.id === op.eventId ? { ...e, start: op.newStart } : e,
+        )
+    }
+    return result
+  }, [events, optimisticOps])
+
+  // Map to CalendarEvent format
   const calendarEvents: CalendarEvent[] = useMemo(
     () =>
-      weekEvents.map((e) => ({
+      displayEvents.map((e) => ({
         id: e.id,
         start: new Date(e.start),
         duration: Number(e.duration),
@@ -191,7 +212,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         type: e.type as "BLOCK" | "EVENT",
         service: e.service ? { name: e.service.name } : null,
       })),
-    [weekEvents],
+    [displayEvents],
   )
 
   const handleWeekNavigation = (direction: -1 | 1) => {
@@ -204,32 +225,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       d.setDate(d.getDate() + 1)
     }
     const w = completeWeek(d)
-    setWeek(w)
-    fetcher.submit(
-      {
-        intent: "fetch_week",
-        monday: (w[0] as Date).toISOString(),
-        sunday: (w[w.length - 1] as Date).toISOString(),
-      },
-      {
-        method: "post",
-      },
+    navigate(
+      `/dash/agenda?monday=${w[0].toISOString()}&sunday=${w[6].toISOString()}`,
     )
   }
 
-  useEffect(() => {
-    if (fetcher.data?.events && fetcher.data.events.length > 0) {
-      setWeekEvents(fetcher.data.events)
-    }
-  }, [fetcher])
-
-  useEffect(() => {
-    setWeekEvents(events)
-  }, [events])
-
   const handleEventClick = (event: CalendarEvent) => {
-    // Find the full event from weekEvents
-    const fullEvent = weekEvents.find((e) => e.id === event.id)
+    const fullEvent = displayEvents.find((e) => e.id === event.id)
     if (fullEvent) {
       setEditableEvent(fullEvent)
     }
@@ -239,35 +241,53 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setEditableEvent({ start: date })
   }
 
-  // Optimistic update when moving events via drag & drop
   const handleEventMove = (eventId: string, newStart: Date) => {
-    // Optimistic update
-    setWeekEvents((prevEvents) =>
-      prevEvents.map((event) =>
-        event.id === eventId ? { ...event, start: newStart } : event,
-      ),
-    )
-    // Persist to server
-    fetcher.submit(
+    setOptimisticOps((prev) => [...prev, { type: "move", eventId, newStart }])
+    mutationFetcher.submit(
       { intent: "move_event", eventId, newStart: newStart.toISOString() },
       { method: "POST" },
     )
   }
 
   const handleAddBlock = (start: Date) => {
-    fetcher.submit(
+    const tempBlock = {
+      id: `temp-${Date.now()}`,
+      start,
+      duration: BigInt(60),
+      type: "BLOCK",
+      title: "Bloqueo",
+      status: "confirmed",
+      allDay: false,
+      archived: false,
+      paid: false,
+      orgId: "",
+      userId: "",
+      serviceId: null,
+      customerId: null,
+      employeeId: null,
+      end: null,
+      stripe_session_id: null,
+      stripe_payment_intent_id: null,
+      mp_preference_id: null,
+      mp_payment_id: null,
+      payment_method: null,
+      notes: null,
+      reminderSentAt: null,
+      surveySentAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      service: null,
+    } as EventWithService
+    setOptimisticOps((prev) => [...prev, { type: "add", event: tempBlock }])
+    mutationFetcher.submit(
       { intent: "add_block", start: start.toISOString() },
       { method: "POST" },
     )
   }
 
   const handleRemoveBlock = (eventId: string) => {
-    // Optimistic update
-    setWeekEvents((prevEvents) =>
-      prevEvents.filter((event) => event.id !== eventId),
-    )
-    // Persist to server
-    fetcher.submit({ intent: "remove_block", eventId }, { method: "POST" })
+    setOptimisticOps((prev) => [...prev, { type: "remove", eventId }])
+    mutationFetcher.submit({ intent: "remove_block", eventId }, { method: "POST" })
   }
 
   const [showNewClientDrawer, setShowNewClientDrawer] = useState(false)
@@ -278,7 +298,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <RouteTitle>Mi agenda {week[0].getFullYear()}</RouteTitle>
-      {fetcher.state !== "idle" && <Spinner />}
+      {mutationFetcher.state !== "idle" && <Spinner />}
       <WeekSelector onClick={handleWeekNavigation} week={week} />
       <SimpleBigWeekView
         onNewEvent={handleNewEvent}

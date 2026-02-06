@@ -180,7 +180,17 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~Completar webhook Stripe~~ (implementado)
 - [ ] **ELMASURGENTE**: El link de pagos en el menú no funciona, confirmar que todo el sistema de pagos con mercado pago es accesible en produccion y que los enclaces en el app funcionan correctamente, también el agendamiento con cobro.
 - [ ] **CI/CD**: Los checks de GitHub Actions nunca pasan - investigar y arreglar el pipeline
-- [ ] **BUG PROD**: Las imágenes no suben en producción - probablemente faltan las keys de AWS/Tigris
+- [ ] **BUG PROD - IMÁGENES**: Las imágenes no se muestran en sitio público (bucket es público)
+  - **Problema**: Los componentes usan la clave S3 directamente como `src` (ej: `src={org.logo}`)
+  - **Archivos afectados**:
+    - `app/components/agenda/components.tsx:19` - Header logo
+    - `app/components/templates/ServiceListCard.tsx:32` - Service photo
+    - `app/components/templates/TemplateOne.tsx:43,98` - Logo y service photos
+    - `app/components/templates/TemplateTwo.tsx:90,129` - Logo y service photos
+  - **Solución**: Crear helper `getPublicImageUrl(key)` en `urls.ts` que genere URL pública de Tigris
+    - URL formato: `https://{bucket}.fly.storage.tigris.dev/denik/{key}`
+    - Usar este helper en todos los `<img src=...>` de sitio público
+  - **Nota**: El bucket es público, NO necesita URLs firmadas
 - [ ] Configurar variables de webhook en producción (ver Checklist de Producción)
 - [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
 - [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)

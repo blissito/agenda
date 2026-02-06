@@ -11,26 +11,24 @@ export function WeekSelector({
     month: "long",
   })
   return (
-    <nav className="flex mb-6 ">
+    <nav className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onClick?.(-1)}
+          className="hover:bg-gray-100 rounded-full p-1"
+        >
+          <IoChevronBackOutline />
+        </button>
+        <button
+          onClick={() => onClick?.(1)}
+          className="hover:bg-gray-100 rounded-full p-1"
+        >
+          <IoChevronForward />
+        </button>
+      </div>
       <h3 className="text-base text-brand_gray font-satoMiddle">
-        {/* {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()} */}
         {week[0].getDate()} - {week[week.length - 1].getDate()} de {monthString}
       </h3>
-      <button
-        // disabled={isCurrentMonth()}
-        onClick={() => onClick?.(-1)}
-        className="disabled:text-gray-500 ml-2"
-      >
-        <IoChevronBackOutline />
-      </button>
-
-      <button
-        // disabled={maxDate && currentDate > maxDate}
-        className="disabled:text-gray-500 ml-2"
-        onClick={() => onClick?.(1)}
-      >
-        <IoChevronForward />
-      </button>
     </nav>
   )
 }
