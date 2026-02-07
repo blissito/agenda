@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
+import { DAY_LABELS_MIN, WEEK_DAYS } from "~/utils/weekDays"
 import {
   convertDayToString,
   getDaysInMonth,
@@ -23,7 +24,7 @@ const monthNames = [
   "noviembre",
   "diciembre",
 ]
-const dayNames = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
+const dayNames = WEEK_DAYS.map((d) => DAY_LABELS_MIN[d])
 
 export const MonthView = ({
   weekDays,

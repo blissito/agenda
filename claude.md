@@ -30,13 +30,16 @@ El sistema usa **subdominios** para identificar organizaciones:
 - `app/utils/urls.ts` - Helpers para generar URLs:
   - `getServicePublicUrl(orgSlug, serviceSlug)` - URL del servicio (detecta localhost vs prod)
   - `getOrgPublicUrl(orgSlug)` - URL de la landing de la org (siempre producción)
-  - `convertWeekDaysToEnglish(weekDays)` - Convierte días de español (DB) a inglés (UI)
+- `app/utils/weekDays.ts` - Diccionario i18n de días de la semana:
+  - `WEEK_DAYS`, `DAY_LABELS`, `DAY_LABELS_SHORT` - Constantes
+  - `DEFAULT_WEEK_DAYS` - Lun-Vie 9:00-18:00
+  - `normalizeWeekDays(weekDays)` - Normaliza cualquier formato a inglés (idempotente)
 
 **Notas importantes:**
 
 - En producción, los links de servicios usan rutas relativas (`/{serviceSlug}`) dentro del subdominio
 - En localhost, el helper `getServicePublicUrl()` genera URLs con path `/agenda/:orgSlug/:serviceSlug`
-- Los `weekDays` se guardan en español en la DB pero el UI espera inglés (usa `convertWeekDaysToEnglish`)
+- Los `weekDays` se guardan en inglés en la DB (`monday`, `tuesday`, etc.). Español solo en la capa UI via `DAY_LABELS`
 
 ## Estructura
 

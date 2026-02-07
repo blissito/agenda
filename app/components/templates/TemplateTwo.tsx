@@ -18,6 +18,7 @@ import { Website } from "~/components/icons/menu/webiste"
 import { Tiktok } from "~/components/icons/tiktok"
 import { Twitter } from "~/components/icons/twitter"
 import { getPublicImageUrl } from "~/utils/urls"
+import { DAY_LABELS_SHORT, WEEK_DAYS } from "~/utils/weekDays"
 import { formatRange } from "../common/FormatRange"
 import { ItemClient } from "./ItemClient"
 import { ServiceListCard } from "./ServiceListCard"
@@ -32,13 +33,13 @@ export type TemplateOrg = {
   email?: string | null
   logo?: string | null | undefined
   weekDays?: {
-    lunes?: unknown
-    martes?: unknown
-    miércoles?: unknown
-    jueves?: unknown
-    viernes?: unknown
-    sábado?: unknown
-    domingo?: unknown
+    monday?: unknown
+    tuesday?: unknown
+    wednesday?: unknown
+    thursday?: unknown
+    friday?: unknown
+    saturday?: unknown
+    sunday?: unknown
   } | null
 }
 
@@ -178,91 +179,20 @@ export const WorkHour = ({
             "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0",
           )}
         >
-          <ListboxOption
-            key="lunes"
-            value="lunes"
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-          >
-            <div className="text-sm/6 text-brand_gray w-full flex">
-              Lun -{" "}
-              <span className="ml-1">
-                {" "}
-                {formatRange(org?.weekDays?.lunes as [string, string][])}
-              </span>
-            </div>
-          </ListboxOption>
-          <ListboxOption
-            key="martes"
-            value="martes"
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-          >
-            <div className="text-sm/6 text-brand_gray w-full flex">
-              Mar -{" "}
-              <span className="ml-1">
-                {formatRange(org?.weekDays?.martes as [string, string][])}
-              </span>
-            </div>
-          </ListboxOption>
-          <ListboxOption
-            key="miércoles"
-            value="miércoles"
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-          >
-            <div className="text-sm/6 text-brand_gray w-full flex">
-              Mié -{" "}
-              <span className="ml-1">
-                {formatRange(org?.weekDays?.miércoles as [string, string][])}
-              </span>
-            </div>
-          </ListboxOption>
-          <ListboxOption
-            key="jueves"
-            value="jueves"
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-          >
-            <div className="text-sm/6 text-brand_gray w-full flex">
-              Jue -{" "}
-              <span className="ml-1">
-                {formatRange(org?.weekDays?.jueves as [string, string][])}
-              </span>
-            </div>
-          </ListboxOption>
-          <ListboxOption
-            key="viernes"
-            value="viernes"
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-          >
-            <div className="text-sm/6 text-brand_gray w-full flex">
-              Vie -{" "}
-              <span className="ml-1">
-                {formatRange(org?.weekDays?.viernes as [string, string][])}
-              </span>
-            </div>
-          </ListboxOption>
-          <ListboxOption
-            key="sábado"
-            value="sábado"
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-          >
-            <div className="text-sm/6 text-brand_gray w-full flex">
-              Sáb -{" "}
-              <span className="ml-1">
-                {formatRange(org?.weekDays?.sábado as [string, string][])}
-              </span>
-            </div>
-          </ListboxOption>
-          <ListboxOption
-            key="domingo"
-            value="domingo"
-            className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
-          >
-            <div className="text-sm/6 text-brand_gray w-full flex">
-              Dom -{" "}
-              <span className="ml-1">
-                {formatRange(org?.weekDays?.domingo as [string, string][])}
-              </span>
-            </div>
-          </ListboxOption>
+          {WEEK_DAYS.map((day) => (
+            <ListboxOption
+              key={day}
+              value={day}
+              className="group flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-white/10"
+            >
+              <div className="text-sm/6 text-brand_gray w-full flex">
+                {DAY_LABELS_SHORT[day]} -{" "}
+                <span className="ml-1">
+                  {formatRange((org?.weekDays as any)?.[day] as [string, string][])}
+                </span>
+              </div>
+            </ListboxOption>
+          ))}
         </ListboxOptions>
       </Listbox>
     </section>

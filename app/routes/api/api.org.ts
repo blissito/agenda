@@ -1,7 +1,6 @@
 import { redirect } from "react-router"
 import { z } from "zod"
 import { db } from "~/utils/db.server"
-import { spanishToEnglish } from "~/utils/weekDaysTransform"
 import { orgUpdateSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/api.org"
 
@@ -93,11 +92,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
       restData.slug = normalized
     }
 
-    // Transform Spanish day names to English for Prisma
-    const transformedWeekDays = weekDays
-      ? spanishToEnglish(weekDays)
-      : undefined
-
     // Build Prisma update data, wrapping embedded types in `set`
     // For social, ensure all fields are strings (Prisma embedded type requires non-null)
     const normalizedSocial = social
@@ -114,7 +108,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
     const prismaData = {
       ...restData,
-      ...(transformedWeekDays && { weekDays: { set: transformedWeekDays } }),
+      ...(weekDays && { weekDays: { set: weekDays } }),
       ...(normalizedSocial && { social: { set: normalizedSocial } }),
     }
 

@@ -12,7 +12,6 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump"
 import { db } from "~/utils/db.server"
-import { spanishToEnglish } from "~/utils/weekDaysTransform"
 import type { WeekSchema } from "~/utils/zod_schemas"
 import { weekDaysOrgSchema } from "~/utils/zod_schemas"
 
@@ -43,11 +42,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       )
     }
 
-    const transformedWeekDays = spanishToEnglish(result.data.weekDays)
-
     await db.org.update({
       where: { id: org.id },
-      data: { weekDays: { set: transformedWeekDays } },
+      data: { weekDays: { set: result.data.weekDays } },
     })
 
     return redirect("/dash/website")

@@ -1,5 +1,6 @@
-import type { Org, OrgWeekDays, Service } from "@prisma/client"
+import type { Org, Service } from "@prisma/client"
 import { formatRange } from "~/components/common/FormatRange"
+import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { Facebook } from "~/components/icons/facebook"
 import { Instagram } from "~/components/icons/insta"
@@ -17,22 +18,10 @@ import { InfoBox } from "./InfoBox"
 import { InfoService } from "./InfoService"
 import { MediaBox } from "./MediaBox"
 
-// Extended weekDays type with Spanish keys (as used in UI)
-// The DB uses mi_rcoles and s_bado but UI uses miércoles and sábado
-type WeekDaysWithSpanishKeys = OrgWeekDays & {
-  miércoles?: unknown
-  sábado?: unknown
-}
-
 type PartialService = Pick<
   Service,
   "id" | "name" | "photoURL" | "slug" | "isActive"
 >
-
-// Helper to get weekDays with Spanish keys support
-const getWeekDays = (org: Org): WeekDaysWithSpanishKeys | null | undefined => {
-  return org.weekDays as WeekDaysWithSpanishKeys | null | undefined
-}
 
 type LogoAction = {
   putUrl: string
@@ -52,7 +41,7 @@ export const CompanyInfo = ({
   org: Org
   logoAction?: LogoAction
 }) => {
-  const weekDays = getWeekDays(org)
+  const weekDays = org.weekDays
   return (
     <div className="bg-white rounded-2xl p-6 md:p-8 col-span-6 xl:col-span-4 order-last xl:order-first">
       <div className="flex justify-between items-center">
@@ -85,34 +74,13 @@ export const CompanyInfo = ({
         )}
       </div>
       {/* times */}
-      <InfoBox
-        title="Lunes"
-        value={formatRange(weekDays?.lunes as [string, string][])}
-      />
-      <InfoBox
-        title="Martes"
-        value={formatRange(weekDays?.martes as [string, string][])}
-      />
-      <InfoBox
-        title="Miércoles"
-        value={formatRange(weekDays?.miércoles as [string, string][])}
-      />
-      <InfoBox
-        title="Jueves"
-        value={formatRange(weekDays?.jueves as [string, string][])}
-      />
-      <InfoBox
-        title="Viernes"
-        value={formatRange(weekDays?.viernes as [string, string][])}
-      />
-      <InfoBox
-        title="Sábado"
-        value={formatRange(weekDays?.sábado as [string, string][])}
-      />
-      <InfoBox
-        title="Domingo"
-        value={formatRange(weekDays?.domingo as [string, string][])}
-      />
+      {WEEK_DAYS.map((day) => (
+        <InfoBox
+          key={day}
+          title={DAY_LABELS[day]}
+          value={formatRange((weekDays as any)?.[day] as [string, string][])}
+        />
+      ))}
       <hr className="bg-brand_stroke my-6" />
 
       <div className="flex justify-between items-center">
