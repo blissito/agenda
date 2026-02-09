@@ -359,25 +359,33 @@ export const updateOrg = async (formData: FormData, stepSlug: string) => {
     )
   }
   const validData = result.data as ORG
-  const isLastCall = next === "/signup/4"
+  const isLastCall = next === "/signup/6"
 
   // Build update data based on step
   const updateData: Record<string, unknown> = {
     isActive: !!isLastCall,
   }
 
-  if ("name" in validData) {
+  if ("name" in validData && validData.name) {
     updateData.name = validData.name
     updateData.slug = `${slugify(validData.name, { lower: true })}-${nanoid(4)}`
+  }
+  if ("shopKeeper" in validData && validData.shopKeeper) {
     updateData.shopKeeper = validData.shopKeeper
+  }
+  if ("address" in validData) {
     updateData.address = validData.address
+  }
+  if ("numberOfEmployees" in validData && validData.numberOfEmployees) {
     updateData.numberOfEmployees = validData.numberOfEmployees
   }
   if ("businessType" in validData) {
     updateData.businessType = validData.businessType
   }
   if ("weekDays" in validData) {
-    updateData.weekDays = validData.weekDays
+    updateData.weekDays = normalizeWeekDays(
+      validData.weekDays as Record<string, any>,
+    )
   }
 
   const actualOrg = await db.org.update({

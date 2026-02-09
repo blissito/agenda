@@ -1,6 +1,7 @@
 import { Link, useLoaderData } from "react-router"
 import { getServicefromSearchParams } from "~/.server/userGetters"
 import { ServiceTimesForm } from "~/components/forms/services_model/ServiceTimesForm"
+import { normalizeWeekDays } from "~/utils/weekDays"
 
 type ServiceTimesData = {
   id: string
@@ -18,6 +19,9 @@ export const loader = async ({ request }: { request: Request }) => {
     },
   })
   const service = serviceData as unknown as ServiceTimesData
+  if (service.weekDays) {
+    service.weekDays = normalizeWeekDays(service.weekDays as Record<string, any>)
+  }
   return {
     service,
   }

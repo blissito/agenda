@@ -46,10 +46,10 @@ export type Signup2SchemaType = z.infer<typeof signup2Schema>
 
 export const signup1Schema = z.object({
   id: z.string().min(3),
-  name: z.string().min(3),
-  shopKeeper: z.string().min(3),
+  name: z.string().min(3).optional(),
+  shopKeeper: z.string().min(3).optional(),
   address: z.string().optional().nullable(),
-  numberOfEmployees: z.string().min(1),
+  numberOfEmployees: z.string().min(1).optional(),
 })
 export type Signup1SchemaType = z.infer<typeof signup1Schema>
 

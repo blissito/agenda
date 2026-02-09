@@ -19,9 +19,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "connect_mercadopago") {
     const url = new URL(request.url)
     const origin =
-      process.env.NODE_ENV === "production"
+      process.env.APP_URL ||
+      (process.env.NODE_ENV === "production"
         ? url.origin.replace("http://", "https://")
-        : url.origin
+        : url.origin)
     const redirectUri = `${origin}/mercadopago/oauth`
     throw redirect(getMPAuthUrl(redirectUri))
   }

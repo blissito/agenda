@@ -4,6 +4,9 @@ import { HiOutlineArrowNarrowLeft } from "react-icons/hi"
 import { useNavigate, useSearchParams } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getOrCreateOrgOrRedirect, updateOrg } from "~/.server/userGetters"
+import { db } from "~/utils/db.server"
+import slugify from "slugify"
+import { nanoid } from "nanoid"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm"
@@ -18,6 +21,24 @@ export const REQUIRED_MESSAGE = "Este campo es requerido"
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const formData = await request.formData()
   const intent = formData.get("intent")
+
+  if (intent === "save_field") {
+    const org = await getOrCreateOrgOrRedirect(request)
+    const raw = JSON.parse(formData.get("data") as string)
+    const updateData: Record<string, unknown> = {}
+    if (raw.name) {
+      updateData.name = raw.name
+      updateData.slug = `${slugify(raw.name, { lower: true })}-${nanoid(4)}`
+    }
+    if (raw.shopKeeper) updateData.shopKeeper = raw.shopKeeper
+    if (raw.address) updateData.address = raw.address
+    if (raw.numberOfEmployees) updateData.numberOfEmployees = raw.numberOfEmployees
+    if (Object.keys(updateData).length > 0) {
+      await db.org.update({ where: { id: org.id }, data: updateData })
+    }
+    return { success: true }
+  }
+
   if (intent === "update_org") {
     return await updateOrg(formData, params.stepSlug)
   }

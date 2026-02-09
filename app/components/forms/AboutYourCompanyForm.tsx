@@ -22,11 +22,13 @@ export const AboutYourCompanyForm = ({
   const [searchParams, setSearchParams] = useSearchParams()
 
   const initialScreen = useMemo<0 | 1 | 2>(() => {
+    if (!org?.name || org.name === "New Denik Org") return 0
+    if (!org?.shopKeeper) return 1
     const s = searchParams.get("screen")
     if (s === "2") return 2
     if (s === "1") return 1
     return 0
-  }, [searchParams])
+  }, [searchParams, org])
 
   const [screen, setScreen] = useState<0 | 1 | 2>(initialScreen)
 
@@ -49,6 +51,7 @@ export const AboutYourCompanyForm = ({
     setValue,
     trigger,
     watch,
+    getValues,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -66,18 +69,32 @@ export const AboutYourCompanyForm = ({
   }
 
   useEffect(() => {
-    setValue("numberOfEmployees", "Solo yo", { shouldValidate: true })
-  }, [setValue])
+    if (!org?.numberOfEmployees) {
+      setValue("numberOfEmployees", "Solo yo", { shouldValidate: true })
+    }
+  }, [setValue, org?.numberOfEmployees])
 
   const goNext = async () => {
     if (screen === 0) {
       const ok = await trigger("name")
-      if (ok) setScreenAndUrl(1)
+      if (ok) {
+        fetcher.submit(
+          { intent: "save_field", data: JSON.stringify({ name: getValues("name") }) },
+          { method: "post" },
+        )
+        setScreenAndUrl(1)
+      }
       return
     }
     if (screen === 1) {
       const ok = await trigger("shopKeeper")
-      if (ok) setScreenAndUrl(2)
+      if (ok) {
+        fetcher.submit(
+          { intent: "save_field", data: JSON.stringify({ shopKeeper: getValues("shopKeeper") }) },
+          { method: "post" },
+        )
+        setScreenAndUrl(2)
+      }
       return
     }
   }
