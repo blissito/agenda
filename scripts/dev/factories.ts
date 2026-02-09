@@ -5,15 +5,14 @@
 import { faker } from "@faker-js/faker/locale/es_MX"
 
 // Default week days configuration (Mon-Fri 9-18)
-// Uses Spanish day names to match Prisma schema (ServiceWeekDays/OrgWeekDays types)
 const defaultWeekDays = {
-  lunes: [{ start: "09:00", end: "18:00" }],
-  martes: [{ start: "09:00", end: "18:00" }],
-  mi_rcoles: [{ start: "09:00", end: "18:00" }],
-  jueves: [{ start: "09:00", end: "18:00" }],
-  viernes: [{ start: "09:00", end: "18:00" }],
-  s_bado: null,
-  domingo: null,
+  monday: [{ start: "09:00", end: "18:00" }],
+  tuesday: [{ start: "09:00", end: "18:00" }],
+  wednesday: [{ start: "09:00", end: "18:00" }],
+  thursday: [{ start: "09:00", end: "18:00" }],
+  friday: [{ start: "09:00", end: "18:00" }],
+  saturday: null,
+  sunday: null,
 }
 
 const defaultServiceConfig = {

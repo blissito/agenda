@@ -43,33 +43,11 @@ export const action = async ({ request }: Route.ActionArgs) => {
     } = serviceTimesSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
-    // Convertir días de inglés a español para el schema de Prisma
-    const dayMapping: Record<string, string> = {
-      monday: "lunes",
-      tuesday: "martes",
-      wednesday: "mi_rcoles",
-      thursday: "jueves",
-      friday: "viernes",
-      saturday: "s_bado",
-      sunday: "domingo",
-    }
-
-    let weekDaysSpanish: Record<string, any> | null = null
-    if (parsedData.weekDays && typeof parsedData.weekDays === "object") {
-      weekDaysSpanish = {}
-      for (const [engDay, value] of Object.entries(parsedData.weekDays)) {
-        const spanishDay = dayMapping[engDay]
-        if (spanishDay && value) {
-          weekDaysSpanish[spanishDay] = value
-        }
-      }
-    }
-
     await db.service.update({
       where: { id: data.id },
       data: {
         duration: parsedData.duration,
-        weekDays: weekDaysSpanish ? { set: weekDaysSpanish } : undefined,
+        weekDays: parsedData.weekDays ? { set: parsedData.weekDays } : undefined,
       },
     })
     return { id: data.id, nextIndex: 3 }

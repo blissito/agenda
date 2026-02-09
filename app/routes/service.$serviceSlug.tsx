@@ -30,7 +30,7 @@ import {
   formatTimeOnly,
   type SupportedTimezone,
 } from "~/utils/timezone"
-import { convertWeekDaysToEnglish } from "~/utils/urls"
+import { DEFAULT_WEEK_DAYS, normalizeWeekDays } from "~/utils/weekDays"
 import type { Route } from "./+types/service.$serviceSlug"
 
 type WeekDaysType = Record<string, string[][]>
@@ -257,16 +257,14 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   // Verify service belongs to org
   if (service.orgId !== org.id) throw new Response(null, { status: 404 })
 
-  // Convert weekDays from Spanish (DB) to English (UI)
-  // Service weekDays: don't use default, fallback to org's schedule
-  const serviceWeekDays = convertWeekDaysToEnglish(
+  // Normalize weekDays (idempotent: handles both legacy Spanish and English keys)
+  const serviceWeekDays = normalizeWeekDays(
     service.weekDays as Record<string, any>,
-    false, // Don't use default, let component fallback to org.weekDays
+    false,
   )
-  // Org weekDays: use default if none configured
-  const orgWeekDays = convertWeekDaysToEnglish(
+  const orgWeekDays = normalizeWeekDays(
     org.weekDays as Record<string, any>,
-    true, // Use default schedule if org has none
+    true,
   )
 
   const serviceWithEnglishDays = {
@@ -278,14 +276,14 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     points: Number(service.points),
     seats: Number(service.seats),
   }
-  const orgWithEnglishDays = {
+  const orgWithNormalizedDays = {
     ...org,
     weekDays: orgWeekDays,
     // Include timezone from org or use default
     timezone: (org.timezone as SupportedTimezone) || DEFAULT_TIMEZONE,
   }
 
-  return { org: orgWithEnglishDays, service: serviceWithEnglishDays }
+  return { org: orgWithNormalizedDays, service: serviceWithEnglishDays }
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {

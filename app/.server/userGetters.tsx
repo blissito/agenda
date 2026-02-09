@@ -1,4 +1,4 @@
-import { type Event, type Org, Prisma, type User } from "@prisma/client"
+import { type Event, type Org, type Prisma, type User } from "@prisma/client"
 import { nanoid } from "nanoid"
 import { redirect } from "react-router"
 import slugify from "slugify"
@@ -6,7 +6,7 @@ import type { ZodSchema } from "zod"
 import { commitSession, getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
 import { validateUserToken } from "~/utils/tokens"
-import { englishToSpanish } from "~/utils/weekDaysTransform"
+import { normalizeWeekDays } from "~/utils/weekDays"
 import {
   type Signup1SchemaType,
   type Signup2SchemaType,
@@ -106,9 +106,8 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
   if (user.orgId) {
     const found = await db.org.findUnique({ where: { id: user.orgId } })
     if (found) {
-      // Transform weekDays from English to Spanish
       if (found.weekDays) {
-        found.weekDays = englishToSpanish(found.weekDays as any) as any
+        found.weekDays = normalizeWeekDays(found.weekDays as any) as any
       }
       return found
     }
@@ -133,9 +132,8 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
   if (exists.isActive) {
     throw redirect("/dash")
   }
-  // Transform weekDays from English to Spanish
   if (exists.weekDays) {
-    exists.weekDays = englishToSpanish(exists.weekDays as any) as any
+    exists.weekDays = normalizeWeekDays(exists.weekDays as any) as any
   }
   return exists
 }
@@ -163,9 +161,8 @@ export const getUserAndOrgOrRedirect = async (
   })
   if (!org || !org.weekDays) throw redirect(rurl) // @TODO: why week days?
 
-  // Transform weekDays from English to Spanish
   if (org.weekDays) {
-    org.weekDays = englishToSpanish(org.weekDays as any) as any
+    org.weekDays = normalizeWeekDays(org.weekDays as any) as any
   }
 
   return { user, org }

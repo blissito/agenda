@@ -28,6 +28,7 @@
         "noUnusedVariables": "warn",
         "noUnusedFunctionParameters": "off",
         "useExhaustiveDependencies": "off",
+        "useHookAtTopLevel": "off",
         "useJsxKeyInIterable": "warn",
         "noChildrenProp": "off",
         "noInvalidUseBeforeDeclaration": "off"

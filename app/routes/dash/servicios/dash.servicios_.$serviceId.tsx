@@ -2,6 +2,7 @@ import type { Service } from "@prisma/client"
 import * as React from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { formatRange } from "~/components/common/FormatRange"
+import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { Edit } from "~/components/icons/edit"
 import {
@@ -325,15 +326,10 @@ const EditButton = ({ to, label }: { to: string; label: string }) => (
   </SecondaryButton>
 )
 
-const WEEK_DAYS = [
-  { key: "lunes", label: "Lunes" },
-  { key: "martes", label: "Martes" },
-  { key: "miércoles", label: "Miércoles" },
-  { key: "jueves", label: "Jueves" },
-  { key: "viernes", label: "Viernes" },
-  { key: "sábado", label: "Sábado" },
-  { key: "domingo", label: "Domingo" },
-] as const
+const WEEK_DAYS_LIST = WEEK_DAYS.map((key) => ({
+  key,
+  label: DAY_LABELS[key],
+}))
 
 export const ServiceDetail = ({
   service,
@@ -424,7 +420,7 @@ export const ServiceDetail = ({
           </p>
 
           <div className="mt-5 space-y-4">
-            {WEEK_DAYS.map(({ key, label }) => (
+            {WEEK_DAYS_LIST.map(({ key, label }) => (
               <WeekDayRow
                 key={key}
                 day={label}

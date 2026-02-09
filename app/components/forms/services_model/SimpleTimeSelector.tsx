@@ -3,28 +3,29 @@ import { type ChangeEvent, useEffect, useRef, useState } from "react"
 import { FaRegTrashAlt } from "react-icons/fa"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { cn } from "~/utils/cn"
+import { DAY_LABELS } from "~/utils/weekDays"
 import { SelectInput } from "../SelectInput"
 
 type Gap = [string, string]
 type Gaps = Gap[]
 export type Week = {
-  lunes?: Gaps
-  martes?: Gaps
-  miércoles?: Gaps
-  jueves?: Gaps
-  viernes?: Gaps
-  sábado?: Gaps
-  domingo?: Gaps
+  monday?: Gaps
+  tuesday?: Gaps
+  wednesday?: Gaps
+  thursday?: Gaps
+  friday?: Gaps
+  saturday?: Gaps
+  sunday?: Gaps
   [key: string]: Gaps | undefined
 }
 type DayName =
-  | "lunes"
-  | "martes"
-  | "miércoles"
-  | "jueves"
-  | "viernes"
-  | "sábado"
-  | "domingo"
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday"
 
 export const SimpleTimeSelector = ({
   onSubmit,
@@ -63,13 +64,13 @@ export const SimpleTimeSelector = ({
       <h3>Actualiza los días y horarios en los que ofreces servicio</h3>
       <section>
         {[
-          "lunes",
-          "martes",
-          "miércoles",
-          "jueves",
-          "viernes",
-          "sábado",
-          "domingo",
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday",
         ].map((dayName) => (
           <DaySelector
             defaultValue={week[dayName]}
@@ -148,7 +149,7 @@ const DaySelector = ({
   return (
     <section className="flex items-start gap-8 py-4">
       <header className="flex gap-4 py-3">
-        <h4 className="capitalize w-20">{dayName}</h4>
+        <h4 className="w-20">{DAY_LABELS[dayName as keyof typeof DAY_LABELS] || dayName}</h4>
         <SimpleSwitch value={isActive} onChange={handleActivation} />
       </header>
       {isActive && (

@@ -7,6 +7,7 @@ import { FaRegTrashCan } from "react-icons/fa6"
 import { Form, useFetcher } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { ArrowRight } from "~/components/icons/arrowRight"
+import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import type { WeekSchema } from "~/utils/zod_schemas"
 import { PrimaryButton } from "../common/primaryButton"
 import { Switch } from "./Switch"
@@ -19,28 +20,8 @@ import {
 export type DayTuple = [string, string][]
 export type WeekTuples = Record<string, DayTuple | undefined>
 
-const ENTIRE_WEEK = [
-  "lunes",
-  "martes",
-  "miércoles",
-  "jueves",
-  "viernes",
-  "sábado",
-  "domingo",
-]
-
-const DAY_LABELS: Record<string, string> = {
-  lunes: "Lunes",
-  martes: "Martes",
-  miércoles: "Miércoles",
-  jueves: "Jueves",
-  viernes: "Viernes",
-  sábado: "Sábado",
-  domingo: "Domingo",
-}
-
 const initialValues: WeekSchema = {
-  lunes: [["09:00", "16:00"]],
+  monday: [["09:00", "16:00"]],
 }
 
 const RANGE_TEMPLATE = ["09:00", "14:00"]
@@ -195,7 +176,7 @@ export const TimesForm = ({
       )}
     >
       {/* Switches */}
-      {ENTIRE_WEEK.map((dayString: string) => (
+      {WEEK_DAYS.map((dayString) => (
         <DayTimesSelector
           key={dayString}
           ranges={data[dayString] || []}
