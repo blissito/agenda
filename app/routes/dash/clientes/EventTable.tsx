@@ -49,16 +49,17 @@ export const EventTable = ({ events }: { events: EventWithService[] }) => {
   return (
     <section className="w-full">
       <TableHeader
-        titles={[
-          "fecha",
-          "servicio",
-          "encargado",
-          ["puntos", "col-span-1"],
-          ["precio", "col-span-1"],
-          ["estatus", "col-span-3 pl-4"],
-          ["", "col-span-1"], // No header for actions column per Figma
-        ]}
-      />
+  titles={[
+    ["fecha", "col-span-2 text-left"],
+    ["servicio", "col-span-2 text-center"],
+    ["encargado", "col-span-2 text-center"],
+    ["puntos", "col-span-1 text-center"],
+    ["precio", "col-span-1 text-center"],
+    ["estatus", "col-span-3 text-center"],
+    ["", "col-span-1 text-right"], // acciones
+  ]}
+/>
+
 
       {events.map((event) => (
         <EventRow event={event} key={event.id} />
@@ -85,17 +86,16 @@ export const EventRow = ({ event }: { event: EventWithService }) => {
     return `${hour12}:${minutes} ${period}`
   }
 
-  const formatPrice = (price: number) => {
-    return `$${price.toFixed(2)}`
-  }
+  const formatPrice = (price: number) => `$${price.toFixed(2)}`
 
   return (
-    <div className="grid grid-cols-12 px-6 py-4 bg-white border-b border-[#f2f2f2]">
-      <div className="flex items-center gap-2 col-span-2 pl-0">
+    <div className="grid grid-cols-12 px-6 py-4 bg-white border-b border-[#f2f2f2] items-center">
+      {/* Fecha (izquierda) */}
+      <div className="flex items-center gap-2 col-span-2">
         <span className="text-[#8391a1]">
           <FaRegClock />
         </span>
-        <div className="flex flex-col">
+        <div className="flex flex-col leading-tight">
           <span className="text-[12px] font-satoMedium text-[#4b5563]">
             {getEventDate()}
           </span>
@@ -104,24 +104,44 @@ export const EventRow = ({ event }: { event: EventWithService }) => {
           </span>
         </div>
       </div>
-      <p className="col-span-2 font-satoBold text-[12px] text-[#11151a] flex items-center">
-        {event.service.name}
-      </p>
-      <p className="col-span-2 font-satoMedium text-[12px] text-[#4b5563] flex items-center">
-        {event.service.employeeName || "s/n"}
-      </p>
-      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">
-        {String(event.service.points)}
-      </p>
-      <p className="col-span-1 font-satoMedium text-[12px] text-[#4b5563] flex items-center">
-        {formatPrice(Number(event.service.price))}
-      </p>
-      <div className="col-span-3 flex gap-2 items-center pl-4">
+
+      {/* Servicio (centrado) */}
+      <div className="col-span-2 flex items-center justify-center">
+        <p className="font-satoBold text-[12px] text-[#11151a] text-center truncate">
+          {event.service.name}
+        </p>
+      </div>
+
+      {/* Encargado (centrado) */}
+      <div className="col-span-2 flex items-center justify-center">
+        <p className="font-satoMedium text-[12px] text-[#4b5563] text-center truncate">
+          {event.service.employeeName || "s/n"}
+        </p>
+      </div>
+
+      {/* Puntos (centrado) */}
+      <div className="col-span-1 flex items-center justify-center">
+        <p className="font-satoMedium text-[12px] text-[#4b5563] tabular-nums">
+          {String(event.service.points)}
+        </p>
+      </div>
+
+      {/* Precio (centrado) */}
+      <div className="col-span-1 flex items-center justify-center">
+        <p className="font-satoMedium text-[12px] text-[#4b5563] tabular-nums">
+          {formatPrice(Number(event.service.price))}
+        </p>
+      </div>
+
+      {/* Estatus (centrado) */}
+      <div className="col-span-3 flex items-center justify-center gap-2">
         <StatusTag
           variant={event.status === "ACTIVE" ? "confirmed" : "canceled"}
         />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
       </div>
+
+      {/* Acciones (derecha) */}
       <div className="col-span-1 flex items-center justify-end">
         <DropdownMenu />
       </div>
