@@ -201,6 +201,19 @@ const _Data = () => {
   )
 }
 
+const DAILY_QUOTES = [
+  "\u201CEl que no tiene tiempo para su salud, tendr\u00e1 que tener tiempo para su enfermedad.\u201D \u2013 Jos\u00e9 Mart\u00ed",
+  "\u201CLa vida no es la que uno vivi\u00f3, sino la que uno recuerda y c\u00f3mo la recuerda para contarla.\u201D \u2013 Gabriel Garc\u00eda M\u00e1rquez",
+  "\u201CEl tiempo es la cosa m\u00e1s valiosa que un hombre puede gastar.\u201D \u2013 Sor Juana In\u00e9s de la Cruz",
+  "\u201CHay un tiempo para todo, y todo lo que es hermoso tiene su instante.\u201D \u2013 Octavio Paz",
+  "\u201CEl futuro pertenece a quienes creen en la belleza de sus sue\u00f1os.\u201D \u2013 Gabriela Mistral",
+  "\u201CNo dejes que termine el d\u00eda sin haber crecido un poco.\u201D \u2013 Walt Whitman",
+  "\u201CLa disciplina es el puente entre las metas y los logros.\u201D \u2013 Paulo Coelho",
+  "\u201CUno no es lo que es por lo que escribe, sino por lo que ha le\u00eddo.\u201D \u2013 Jorge Luis Borges",
+  "\u201CEl verdadero viaje de descubrimiento no consiste en buscar nuevos paisajes, sino en tener nuevos ojos.\u201D \u2013 Marcel Proust",
+  "\u201CSiempre es temprano para rendirse.\u201D \u2013 Mario Benedetti",
+]
+
 function getGreeting(): string {
   const hour = new Date().getHours()
   if (hour < 12) return "Buenos días"
@@ -221,8 +234,7 @@ const Summary = ({ user }: { user: User }) => {
             {user.displayName}
           </h2>
           <p className="mt-4 text-brand_gray">
-            “La falta de dirección, no la falta de tiempo, es el problema. Todos
-            tenemos días de 24 horas”. – Zig Ziglar
+            {DAILY_QUOTES[new Date().getDate() % DAILY_QUOTES.length]}
           </p>
         </div>
       </div>

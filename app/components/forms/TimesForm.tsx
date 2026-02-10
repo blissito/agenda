@@ -40,6 +40,7 @@ export const TimesForm = ({
   children,
   onClose,
   noSubmit,
+  actionUrl,
 }: {
   noSubmit?: boolean
   cta?: string
@@ -48,6 +49,7 @@ export const TimesForm = ({
   onChange?: (data: WeekSchema) => void
   onSubmit?: (data: WeekSchema) => void
   org: Org
+  actionUrl?: string
 }) => {
   const fetcher = useFetcher()
   const [data, setData] = useState<WeekTuples>(
@@ -76,11 +78,11 @@ export const TimesForm = ({
     onSubmit?.(data as WeekSchema)
     fetcher.submit(
       {
-        intent: "update_org",
+        intent: actionUrl ? "org_update" : "update_org",
         data: JSON.stringify({ weekDays: data, id: org.id }),
-        next: "/signup/6",
+        ...(actionUrl ? {} : { next: "/signup/6" }),
       },
-      { method: "post" },
+      { method: "post", ...(actionUrl ? { action: actionUrl } : {}) },
     )
     onClose?.()
   }

@@ -20,7 +20,7 @@ export const TimesFormModal = ({
       onOpen={open}
       open={isOpen}
     >
-      <TimesForm cta="Actualizar" onClose={close} org={org} />
+      <TimesForm cta="Actualizar" onClose={close} org={org} actionUrl="/api/org" />
     </Modal>
   )
 }
