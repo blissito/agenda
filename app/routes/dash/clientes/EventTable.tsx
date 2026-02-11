@@ -1,44 +1,37 @@
 import type { Event, Service } from "@prisma/client"
 import { FaRegClock } from "react-icons/fa6"
 import { DropdownMenu } from "~/components/common/DropDownMenu"
-import { TableHeader } from "../dash.clientes"
 
 export type EventWithService = Event & { service: Service }
 
-// Status Tag component matching Figma design
+// Misma grilla para header y rows (como tabla)
+const GRID =
+  "grid grid-cols-[220px_1.2fr_1fr_90px_110px_1fr_44px]"
+
 const StatusTag = ({
   variant,
 }: {
   variant: "confirmed" | "canceled" | "paid" | "unpaid"
 }) => {
   const styles = {
-    confirmed: {
-      bg: "bg-[#effbd0]",
+    confirmed: { bg: "bg-[#effbd0]", 
       text: "text-[#4f7222]",
-      label: "🔔 Confirmada",
-    },
-    canceled: {
-      bg: "bg-[#f9e7eb]",
-      text: "text-[#ab4265]",
-      label: "🚫 Cancelada",
-    },
-    paid: {
-      bg: "bg-[#d5faf1]",
-      text: "text-[#2a645f]",
-      label: "💸 Pagada",
-    },
-    unpaid: {
-      bg: "bg-[#eef9fd]",
-      text: "text-[#276297]",
-      label: "🎫 Sin pagar",
-    },
+       label: "🔔 Confirmada" },
+    canceled: { bg: "bg-[#f9e7eb]",
+       text: "text-[#ab4265]", 
+       label: "🚫 Cancelada" },
+    paid: { bg: "bg-[#d5faf1]",
+       text: "text-[#2a645f]", 
+       label: "💸 Pagada" },
+    unpaid: { bg: "bg-[#eef9fd]",
+       text: "text-[#276297]", 
+       label: "🎫 Sin pagar" },
   }
-
   const style = styles[variant]
 
   return (
     <span
-      className={`${style.bg} ${style.text} inline-flex items-center justify-center px-[6px] py-[3px] rounded text-[10px] font-satoMedium text-center whitespace-nowrap`}
+      className={`${style.bg} ${style.text} inline-flex items-center justify-center px-[6px] py-[3px] rounded text-[10px] font-satoMedium whitespace-nowrap`}
     >
       {style.label}
     </span>
@@ -48,22 +41,24 @@ const StatusTag = ({
 export const EventTable = ({ events }: { events: EventWithService[] }) => {
   return (
     <section className="w-full">
-      <TableHeader
-  titles={[
-    ["fecha", "col-span-2 text-left"],
-    ["servicio", "col-span-2 text-center"],
-    ["encargado", "col-span-2 text-center"],
-    ["puntos", "col-span-1 text-center"],
-    ["precio", "col-span-1 text-center"],
-    ["estatus", "col-span-3 text-center"],
-    ["", "col-span-1 text-right"], // acciones
-  ]}
-/>
+      <div
+        className={`${GRID} mt-4 rounded-t-2xl border border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_iron`}
+      >
+        <div className="text-left">Fecha</div>
+        <div className="text-left">Servicio</div>
+        <div className="text-left">Encargado</div>
+        <div className="text-left">Puntos</div>
+        <div className="text-left">Precio</div>
+        <div className="text-left">Estatus</div>
+        <div className="text-right" />
+      </div>
 
-
-      {events.map((event) => (
-        <EventRow event={event} key={event.id} />
-      ))}
+      {/* Rows */}
+      <div className="rounded-b-2xl border-x border-b border-brand_stroke bg-white">
+        {events.map((event) => (
+          <EventRow event={event} key={event.id} />
+        ))}
+      </div>
     </section>
   )
 }
@@ -89,60 +84,62 @@ export const EventRow = ({ event }: { event: EventWithService }) => {
   const formatPrice = (price: number) => `$${price.toFixed(2)}`
 
   return (
-    <div className="grid grid-cols-12 px-6 py-4 bg-white border-b border-[#f2f2f2] items-center">
-      {/* Fecha (izquierda) */}
-      <div className="flex items-center gap-2 col-span-2">
-        <span className="text-[#8391a1]">
+    <div
+      className={`${GRID} items-center px-6 py-4 border-t border-brand_stroke`}
+    >
+      {/* Fecha */}
+      <div className="flex items-center gap-2">
+        <span className="text-brand_iron">
           <FaRegClock />
         </span>
         <div className="flex flex-col leading-tight">
-          <span className="text-[12px] font-satoMedium text-[#4b5563]">
+          <span className="text-[12px] font-satoMedium text-brand_gray">
             {getEventDate()}
           </span>
-          <span className="text-[10px] font-satoMedium text-[#8391a1]">
+          <span className="text-[10px] font-satoMedium text-brand_iron">
             {getEventTime()}
           </span>
         </div>
       </div>
 
-      {/* Servicio (centrado) */}
-      <div className="col-span-2 flex items-center justify-center">
-        <p className="font-satoBold text-[12px] text-[#11151a] text-center truncate">
+      {/* Servicio */}
+      <div className="min-w-0">
+        <p className="font-satoBold text-[12px] text-brand_dark truncate">
           {event.service.name}
         </p>
       </div>
 
-      {/* Encargado (centrado) */}
-      <div className="col-span-2 flex items-center justify-center">
-        <p className="font-satoMedium text-[12px] text-[#4b5563] text-center truncate">
+      {/* Encargado */}
+      <div className="min-w-0">
+        <p className="font-satoMedium text-[12px] text-brand_gray truncate">
           {event.service.employeeName || "s/n"}
         </p>
       </div>
 
-      {/* Puntos (centrado) */}
-      <div className="col-span-1 flex items-center justify-center">
-        <p className="font-satoMedium text-[12px] text-[#4b5563] tabular-nums">
+      {/* Puntos */}
+      <div>
+        <p className="font-satoMedium text-[12px] text-brand_gray tabular-nums">
           {String(event.service.points)}
         </p>
       </div>
 
-      {/* Precio (centrado) */}
-      <div className="col-span-1 flex items-center justify-center">
-        <p className="font-satoMedium text-[12px] text-[#4b5563] tabular-nums">
+      {/* Precio */}
+      <div>
+        <p className="font-satoMedium text-[12px] text-brand_gray tabular-nums">
           {formatPrice(Number(event.service.price))}
         </p>
       </div>
 
-      {/* Estatus (centrado) */}
-      <div className="col-span-3 flex items-center justify-center gap-2">
+      {/* Estatus */}
+      <div className="flex items-center gap-2">
         <StatusTag
           variant={event.status === "ACTIVE" ? "confirmed" : "canceled"}
         />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
       </div>
 
-      {/* Acciones (derecha) */}
-      <div className="col-span-1 flex items-center justify-end">
+      {/* Acciones */}
+      <div className="flex items-center justify-end">
         <DropdownMenu />
       </div>
     </div>
