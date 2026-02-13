@@ -7,6 +7,9 @@ export type EventWithService = Event & { service: Service }
 // Grid base para desktop
 const GRID = "grid grid-cols-[220px_1.2fr_1fr_90px_110px_1fr_44px]"
 
+// Ajusta este ancho si cambiaste el max-w del nombre del servicio en mobile
+const SERVICE_HEADER_W = "w-[170px]"
+
 const StatusTag = ({
   variant,
 }: {
@@ -74,24 +77,37 @@ export const EventTable = ({ events }: { events: EventWithService[] }) => {
 
       {/* Vista Mobile / Tablet */}
       <div className="lg:hidden">
-
-        <div className="bg-white rounded-2xl border border-brand_stroke px-4 py-3 mb-4">
-          <div className="grid grid-cols-2 gap-x-6 items-start">
-            <p className="text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide whitespace-nowrap">
-              Fecha
-            </p>
-            <div className="flex justify-end">
-              <p className="w-[170px] text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide whitespace-nowrap text-left">
-                Servicio
+        {/* Header + registros juntos (sin separación) */}
+        <div className="rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+          {/* Header pegado */}
+          <div className="px-4 py-3">
+            <div className="grid grid-cols-2 gap-x-6 items-start">
+              <p className="text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide whitespace-nowrap">
+                Fecha
               </p>
+
+              {/* "SERVICIO" inicia donde inicia el texto del servicio */}
+              <div className="flex justify-end">
+                <p
+                  className={`${SERVICE_HEADER_W} text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide whitespace-nowrap text-left`}
+                >
+                  Servicio
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="space-y-4">
-          {events.map((event) => (
-            <EventCardMobile event={event} key={event.id} />
-          ))}
+          {/* Separador */}
+          <div className="h-px bg-brand_stroke" />
+
+          {/* Registros */}
+          <div className="divide-y divide-brand_stroke">
+            {events.map((event) => (
+              <div key={event.id} className="p-4">
+                <EventCardMobile event={event} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -177,7 +193,7 @@ export const EventRow = ({ event }: { event: EventWithService }) => {
   )
 }
 
-// Mobile/Tablet card (sin repetir headers dentro de cada fila)
+// Mobile/Tablet row (sin chips; menú a la derecha)
 const EventCardMobile = ({ event }: { event: EventWithService }) => {
   const getEventDate = () => {
     const date = new Date(event.start)
@@ -197,8 +213,7 @@ const EventCardMobile = ({ event }: { event: EventWithService }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-brand_stroke p-4">
-
+    <div className="bg-white">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="grid grid-cols-2 gap-x-6 items-start">
@@ -216,6 +231,8 @@ const EventCardMobile = ({ event }: { event: EventWithService }) => {
                 </span>
               </div>
             </div>
+
+            {/* Servicio (valor) alineado con el header */}
             <div className="min-w-0 flex justify-end">
               <p className="max-w-[170px] font-satoBold text-[15px] text-brand_dark text-left whitespace-normal break-words leading-[18px]">
                 {event.service.name}
@@ -229,14 +246,12 @@ const EventCardMobile = ({ event }: { event: EventWithService }) => {
         </div>
       </div>
 
-      {/*<div className="mt-3 flex items-center gap-2 flex-wrap">
-        <StatusTag variant={event.status === "ACTIVE" ? "confirmed" : "canceled"} />
-        <StatusTag variant={event.paid ? "paid" : "unpaid"} />
-      </div>*/}
-      <div className="mt-3 hidden lg:flex items-center gap-2 flex-wrap">
+      
+      <div className="mt-3 flex items-center gap-2 flex-wrap">
         <StatusTag variant={event.status === "ACTIVE" ? "confirmed" : "canceled"} />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
       </div>
+      
     </div>
   )
 }

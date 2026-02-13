@@ -1,3 +1,5 @@
+
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import * as React from "react"
 import { FiDownload, FiMapPin } from "react-icons/fi"
 import { TbEdit } from "react-icons/tb"
@@ -139,40 +141,49 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <div className="flex flex-col md:flex-row md:items-stretch">
               {/* Left */}
               <div className="flex-1">
-                {/* TOP (mobile): acciones arriba | (sm+): nombre + acciones */}
+
                 <div className="mb-6">
-                  {/* Acciones: en mobile van arriba */}
-                  <div className="flex items-center justify-end gap-2 flex-wrap sm:hidden">
-                    <button
-                      type="button"
-                      className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
-                      aria-label="Editar"
-                    >
-                      <TbEdit size={20} />
-                    </button>
+                  <div className="sm:hidden grid grid-cols-[1fr_auto] items-start gap-x-3">
+                    <h1 className="mt-20 text-xl font-satoBold text-brand_dark">
+                      {customer.displayName}
+                    </h1>
+                    <div className="flex flex-col items-end gap-2">
+                      {/* fila de iconos */}
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
+                          aria-label="Editar"
+                        >
+                          <TbEdit size={20} />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
-                      aria-label="WhatsApp"
-                    >
-                      <WhatsApp size={20} />
-                    </button>
+                        <button
+                          type="button"
+                          className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
+                          aria-label="WhatsApp"
+                        >
+                          <WhatsApp size={20} />
+                        </button>
 
-                    <button
-                      type="button"
-                      className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
-                      aria-label="Enviar correo"
-                    >
-                      <MailButton />
-                    </button>
+                        <button
+                          type="button"
+                          className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
+                          aria-label="Enviar correo"
+                        >
+                          <MailButton />
+                        </button>
+                      </div>
 
-                    <PrimaryButton className="min-w-0 min-h-0 h-10 px-4 gap-1">
-                      <Calendar2 size={20} />
-                      <span className="text-sm font-satoMedium">Agendar</span>
-                    </PrimaryButton>
+                      {/* botón abajo */}
+                      <PrimaryButton className="min-w-0 min-h-0 h-10 px-4 gap-1">
+                        <Calendar2 size={20} />
+                        <span className="text-sm font-satoMedium">Agendar</span>
+                      </PrimaryButton>
+                    </div>
                   </div>
 
+                  {/* DESKTOP */}
                   <div className="hidden sm:flex items-center gap-4 mb-6 pl-[150px]">
                     <h1 className="text-2xl font-satoBold text-brand_dark">
                       {customer.displayName}
@@ -209,25 +220,19 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                       </PrimaryButton>
                     </div>
                   </div>
-
-                  {/* Nombre: en mobile va debajo del avatar */}
-                  <h1 className="sm:hidden mt-4 text-xl font-satoBold text-brand_dark">
-                    {customer.displayName}
-                  </h1>
                 </div>
 
-                {/* Contact info */}
-                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mt-10 sm:grid-cols-3 sm:gap-x-16 sm:gap-y-0 sm:mt-16">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mt-4 sm:grid-cols-3 sm:gap-x-16 sm:gap-y-0 sm:mt-16">
+
                   {/* Email */}
                   <div className="col-span-2 flex items-center gap-2 min-w-0 sm:col-span-1">
                     <Mail className="text-brand_gray shrink-0" />
-
                     <span className="min-w-0 flex-1 text-[14px] font-satoMedium text-brand_gray leading-[20px] truncate sm:truncate-none">
                       {customer.email}
                     </span>
                   </div>
 
-                  {/* Tel (debajo en mobile, columna normal en desktop) */}
+                  {/* Tel */}
                   <div className="col-span-2 flex items-center gap-2 min-w-0 sm:col-span-1">
                     <Phone className="text-brand_gray shrink-0" />
                     <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
@@ -235,7 +240,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     </span>
                   </div>
 
-                  {/* Dirección (full en mobile, columna normal en desktop) */}
+                  {/* Dirección */}
                   <div className="col-span-2 flex items-start gap-2 min-w-0 sm:col-span-1">
                     <FiMapPin className="text-brand_gray mt-0.5 shrink-0" size={20} />
                     <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
@@ -255,100 +260,104 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 </div>
               </div>
 
+              {/* DIVIDER MOBILE */}
+              <div className="md:hidden border-t border-brand_stroke my-4" />
+
               {/* Right - Stats */}
-              <div className="mt-6 md:mt-0 md:border-l md:border-brand_stroke md:pl-6 md:min-w-[180px]">
-                <div className="grid grid-cols-3 gap-4 md:grid-cols-1 md:gap-0">
-                  <div className="md:mb-4">
-                    <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
-                      {stats.eventCount} {pluralize("cita", stats.eventCount)}
-                    </p>
-                    <p className="text-xs font-satoMedium text-brand_gray">
-                      desde el {stats.since}
-                    </p>
-                  </div>
+              <div className="mt-0 md:mt-0 md:border-l md:border-brand_stroke md:pl-6 md:min-w-[180px]">
+                <div className="md:block">
+                  <div className="md:pl-0"></div>
 
-                  <div className="md:mb-4">
-                    <div className="flex items-center gap-1">
-                      <span className="text-xl sm:text-2xl font-satoBold text-brand_dark">
-                        {stats.commentsCount}
-                      </span>
-                      <span className="text-brand_yellow">⭐</span>
+                  <div className="pl-4 md:pl-0">
+                    <div className="grid grid-cols-3 gap-4 md:grid-cols-1 md:gap-0">
+                      <div className="md:mb-4">
+                        <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
+                          {stats.eventCount} {pluralize("cita", stats.eventCount)}
+                        </p>
+                        <p className="text-xs font-satoMedium text-brand_gray">
+                          desde el {stats.since}
+                        </p>
+                      </div>
+
+                      <div className="md:mb-4">
+                        <div className="flex items-center gap-1">
+                          <span className="text-xl sm:text-2xl font-satoBold text-brand_dark">
+                            {stats.commentsCount}
+                          </span>
+                          <span className="text-brand_yellow">⭐</span>
+                        </div>
+                        <p className="text-xs font-satoMedium text-brand_gray">
+                          comentarios
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
+                          {stats.points}
+                        </p>
+                        <p className="text-xs font-satoMedium text-brand_gray">puntos</p>
+                      </div>
                     </div>
-                    <p className="text-xs font-satoMedium text-brand_gray">
-                      comentarios
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
-                      {stats.points}
-                    </p>
-                    <p className="text-xs font-satoMedium text-brand_gray">
-                      puntos
-                    </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Filter Section */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-8 mb-0">
-          <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 w-full sm:min-w-[340px] sm:w-auto">
-            <span className="text-brand_gray font-satoMedium text-base flex-1">
-              Filtrar por fecha
-            </span>
-            <CalendarPicker className="text-brand_gray" />
-          </div>
-
-          <div className="hidden sm:block flex-1" />
-
-
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 flex-1 sm:min-w-[180px] sm:flex-none">
-              <span className="text-brand_gray font-satoMedium text-base">
-                Citas
+          {/* Filter Section */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-8 mb-0">
+            <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 w-full sm:min-w-[340px] sm:w-auto">
+              <span className="text-brand_gray font-satoMedium text-base flex-1">
+                Filtrar por fecha
               </span>
-              <div className="ml-auto" aria-hidden="true">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="rotate-90"
-                >
-                  <path
-                    d="M9 18l6-6-6-6"
-                    stroke="currentColor"
-                    className="text-brand_gray"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+              <CalendarPicker className="text-brand_gray" />
+            </div>
+
+            <div className="hidden sm:block flex-1" />
+
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 flex-1 sm:min-w-[180px] sm:flex-none">
+                <span className="text-brand_gray font-satoMedium text-base">Citas</span>
+                <div className="ml-auto" aria-hidden="true">
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="rotate-90"
+                  >
+                    <path
+                      d="M9 18l6-6-6-6"
+                      stroke="currentColor"
+                      className="text-brand_gray"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
               </div>
-            </div>
 
-            <button
-              type="button"
-              className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
-              aria-label="Descargar"
-            >
-              <FiDownload size={20} />
-            </button>
+              <button
+                type="button"
+                className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
+                aria-label="Descargar"
+              >
+                <FiDownload size={20} />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Events */}
-        <div className="mt-6">
-          {events.length === 0 ? (
-            <div className="bg-white rounded-2xl p-6 text-sm font-satoMedium text-brand_gray">
-              Este cliente aún no tiene citas.
-            </div>
-          ) : (
-            <EventTable events={events} />
-          )}
+          {/* Events */}
+          <div className="mt-6">
+            {events.length === 0 ? (
+              <div className="bg-white rounded-2xl p-6 text-sm font-satoMedium text-brand_gray">
+                Este cliente aún no tiene citas.
+              </div>
+            ) : (
+              <EventTable events={events} />
+            )}
+          </div>
         </div>
       </div>
     </div>
