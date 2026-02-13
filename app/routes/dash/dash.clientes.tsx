@@ -1,54 +1,54 @@
-import { BiSolidUserDetail } from "react-icons/bi"
-import { Link, useLoaderData } from "react-router"
-import { twMerge } from "tailwind-merge"
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { Avatar } from "~/components/common/Avatar"
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
-import { SecondaryButton } from "~/components/common/secondaryButton"
-import { BasicInput } from "~/components/forms/BasicInput"
-import { useCopyLink } from "~/components/hooks/useCopyLink"
-import { usePluralize } from "~/components/hooks/usePluralize"
-import { Download } from "~/components/icons/download"
-import { Anchor } from "~/components/icons/link"
-import { Settings } from "~/components/icons/settings"
-import { Upload } from "~/components/icons/upload"
-import { RouteTitle } from "~/components/sideBar/routeTitle"
-import { db } from "~/utils/db.server"
-import { generateLink } from "~/utils/generateSlug"
-import type { Route } from "./+types/dash.clientes"
+// app/routes/dash.clientes.tsx
+// @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
+import { Link, useLoaderData } from "react-router";
+import { Avatar } from "~/components/common/Avatar";
+import { SecondaryButton } from "~/components/common/secondaryButton";
+import { useCopyLink } from "~/components/hooks/useCopyLink";
+import { Anchor } from "~/components/icons/link";
+import { RouteTitle } from "~/components/sideBar/routeTitle";
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters";
+import { db } from "~/utils/db.server";
+import { generateLink } from "~/utils/generateSlug";
+import { BasicInput } from "~/components/forms/BasicInput";
+import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu";
+import { twMerge } from "tailwind-merge";
+import { usePluralize } from "~/components/hooks/usePluralize";
+import { Download } from "~/components/icons/download";
+import { Settings } from "~/components/icons/settings";
+import { Upload } from "~/components/icons/upload";
+import type { Route } from "./+types/dash.clientes";
+import { useDownloadToast } from "~/components/downloads/downloadToast";
+
+import { MdBlock } from "react-icons/md";
 
 // @TODO: actions, search with searchParams, real user avatars?, row actions (delete)
 
 export type Client = {
-  points: number
-  updatedAt: Date | string
-  createdAt?: Date | string
-  eventCount: number
-  nextEventDate: Date | string
-  loggedUserId?: string | null
-  displayName?: string | null
-  email: string
-  tel?: string | null
-  comments?: string | null
-  id: string
-  orgId?: string
-}
+  points: number;
+  updatedAt: Date | string;
+  createdAt: Date | string;
+  eventCount: number;
+  nextEventDate: Date | string;
+  loggedUserId?: string | null;
+  displayName: string | null;
+  email: string;
+  tel: string | null;
+  comments: string | null;
+  id: string;
+};
 
 type Stats = {
-  clientsCount: number
-  percentage: string
-}
+  clientsCount: number;
+  percentage: string;
+};
+
+type HeaderTitle = string | [string, string];
 
 // @TODO generate custom model
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  // @TODO: consider the search input working via searchParams
-  // @TODO: upload / download
-  const { org } = await getUserAndOrgOrRedirect(request)
-  if (!org) {
-    throw new Response("Organization not found", { status: 404 })
-  }
-  const link = generateLink(request.url, org.slug)
-  const services = await getServices(request)
+  const { org } = await getUserAndOrgOrRedirect(request);
+  const link = generateLink(request.url, org.slug);
+  const services = await getServices(request);
   const events = await db.event.findMany({
     where: {
       service: {
@@ -59,151 +59,60 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       service: true,
       customer: true,
     },
-  })
+  });
 
-  const clientsObject: { [x: string]: Client } = {}
+  const clientsObject: { [x: string]: Client } = {};
 
-  const counter: Record<string, number> = {}
+  const counter: Record<string, number> = {};
   events.forEach((e) => {
-    const tomorrow = new Date()
-    const { email } = e.customer || {}
-    if (!email) return
+    const tomorrow = new Date();
+    const { email } = e.customer || {};
+    if (!email) return;
     counter[email] =
       counter[email] && typeof counter[email] === "number"
         ? counter[email] + 1
-        : 1
-    tomorrow.setDate(tomorrow.getDate() + 1)
+        : 1;
+    tomorrow.setDate(tomorrow.getDate() + 1);
     if (email) {
       clientsObject[email] = {
         ...e.customer,
         email,
-        points: e.service ? Number(e.service.points) : 0, // @Real sum of points
+        points: e.service.points,
         updatedAt: e.updatedAt,
-        eventCount: counter[email], // @TODO: count while filter
+        eventCount: counter[email],
         nextEventDate: tomorrow,
-        id: e.id, // @TODO: not the right id
-      }
+        id: e.id,
+      };
     }
-  })
-  let clients = Object.values(clientsObject) as Client[]
-
-  // Mock data si no hay clientes reales
-  if (clients.length === 0) {
-    const mockClients: Client[] = [
-      {
-        id: "mock-1",
-        displayName: "Isabela Lozano",
-        email: "isabela_lozano@gmail.com",
-        tel: "+52 55 1234 5678",
-        points: 150,
-        eventCount: 8,
-        nextEventDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), // 2 días
-        createdAt: new Date("2024-10-15"),
-        updatedAt: new Date(),
-        comments: null,
-        loggedUserId: null,
-      },
-      {
-        id: "mock-2",
-        displayName: "Carlos Méndez",
-        email: "carlos.mendez@hotmail.com",
-        tel: "+52 55 9876 5432",
-        points: 280,
-        eventCount: 12,
-        nextEventDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 días
-        createdAt: new Date("2024-09-20"),
-        updatedAt: new Date(),
-        comments: null,
-        loggedUserId: null,
-      },
-      {
-        id: "mock-3",
-        displayName: "María García",
-        email: "maria.garcia@outlook.com",
-        tel: "+52 33 5555 1234",
-        points: 95,
-        eventCount: 4,
-        nextEventDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // mañana
-        createdAt: new Date("2024-11-01"),
-        updatedAt: new Date(),
-        comments: null,
-        loggedUserId: null,
-      },
-      {
-        id: "mock-4",
-        displayName: "Roberto Hernández",
-        email: "roberto.hdz@gmail.com",
-        tel: "+52 81 4444 9999",
-        points: 320,
-        eventCount: 15,
-        nextEventDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1 semana
-        createdAt: new Date("2024-08-10"),
-        updatedAt: new Date(),
-        comments: null,
-        loggedUserId: null,
-      },
-      {
-        id: "mock-5",
-        displayName: "Ana Sofía Ramírez",
-        email: "ana.ramirez@yahoo.com",
-        tel: "+52 55 7777 8888",
-        points: 180,
-        eventCount: 6,
-        nextEventDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 días
-        createdAt: new Date("2024-10-28"),
-        updatedAt: new Date(),
-        comments: null,
-        loggedUserId: null,
-      },
-      {
-        id: "mock-6",
-        displayName: "Fernando Torres",
-        email: "fernando.torres@gmail.com",
-        tel: "+52 55 2222 3333",
-        points: 450,
-        eventCount: 22,
-        nextEventDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 días
-        createdAt: new Date("2024-06-15"),
-        updatedAt: new Date(),
-        comments: null,
-        loggedUserId: null,
-      },
-      {
-        id: "mock-7",
-        displayName: "Lucía Martínez",
-        email: "lucia.mtz@hotmail.com",
-        tel: "+52 33 1111 2222",
-        points: 75,
-        eventCount: 3,
-        nextEventDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 días
-        createdAt: new Date("2024-11-10"),
-        updatedAt: new Date(),
-        comments: null,
-        loggedUserId: null,
-      },
-    ]
-    clients = mockClients
-  }
-
+  });
+  const clients = Object.values(clientsObject) as Client[];
   return {
     orgId: org.id,
+    orgName: org.name,
     clients,
     link,
     stats: {
-      clientsCount: clients.length, // @todo: real data
-      percentage: `${clients.length * 100}%`, // @todo real percentage
-      srcset: [], // @TODO: real user images?
+      clientsCount: clients.length,
+      percentage: `${clients.length * 100}%`,
+      srcset: [],
     } as Stats,
-  }
-}
+  };
+};
 
 export default function Clients() {
-  const { orgId, stats, clients = [], link } = useLoaderData<typeof loader>()
+  const { orgId, orgName, stats, clients = [], link } =
+    useLoaderData<typeof loader>();
+
+  const { startDownload, toast, canDownload } = useDownloadToast({
+    clients,
+    orgName,
+  });
+
   return (
     <>
       <RouteTitle>Clientes</RouteTitle>
       <Summary stats={stats} />
-      <SearchNav />
+      <SearchNav onDownload={startDownload} canDownload={canDownload} />
       <TableHeader
         titles={[
           ["nombre", "col-span-3"],
@@ -216,17 +125,25 @@ export default function Clients() {
       />
 
       {clients.map((c) => (
-        <Client client={c} key={c.id} orgId={orgId} />
+        <Client client={c} key={c.id} />
       ))}
       {!clients.length && <EmptyStateClients link={link} />}
+
+      {toast}
     </>
-  )
+  );
 }
-const SearchNav = () => {
+
+const SearchNav = ({
+  onDownload,
+  canDownload,
+}: {
+  onDownload: () => void;
+  canDownload: boolean;
+}) => {
   return (
     <div className="flex justify-between items-center my-4">
       <BasicInput
-        name="search"
         isDisabled // @TODO: make it work
         icon={<span>🔍</span>}
         type="search"
@@ -245,24 +162,24 @@ const SearchNav = () => {
             <Upload />
           </ActionButton>
         </Link>
-        <Link to="">
-          <ActionButton isDisabled>
-            <Download />
-          </ActionButton>
-        </Link>
+
+        {/* Botón visible de descarga (se deshabilita si no hay clientes) */}
+        <ActionButton onClick={onDownload} isDisabled={!canDownload}>
+          <Download />
+        </ActionButton>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export const ActionButton = ({
   className,
   isDisabled,
   ...props
 }: {
-  className?: string
-  isDisabled?: boolean
-  [x: string]: unknown
+  className?: string;
+  isDisabled?: boolean;
+  [x: string]: unknown;
 }) => (
   <button
     className={twMerge(
@@ -272,93 +189,114 @@ export const ActionButton = ({
     disabled={isDisabled}
     {...props}
   />
-)
+);
 
-export const TableHeader = ({
-  titles,
-}: {
-  // @TODO: class container for main columns number definition
-  titles: (string | [string, string])[]
-}) => {
+export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
   return (
-    <div className="grid grid-cols-12 text-[12px] font-satoMedium rounded-t-2xl border-t text-[#4b5563] py-3 px-6 bg-white border-slate-100 border mt-4">
-      {titles.map((tuple: string | [string, string]) => {
-        const title = Array.isArray(tuple) ? tuple[0] : tuple
-        const span = Array.isArray(tuple) ? tuple[1] : "col-span-2"
+    <div className="grid grid-cols-12 rounded-t-2xl border-t border-slate-100 bg-white mt-4 px-6 py-4 text-[12px] font-satoMedium text-[#8391a1] items-center">
+      {titles.map((t) => {
+        const title = Array.isArray(t) ? t[0] : t;
+        const classes = Array.isArray(t) ? t[1] : "col-span-2 text-center";
+
         return (
-          <h3 className={twMerge("capitalize", span)} key={title}>
+          <h3
+            className={twMerge("capitalize", classes)}
+            key={`${title}-${classes}`}
+          >
             {title}
           </h3>
-        )
+        );
       })}
     </div>
-  )
-}
+  );
+};
 
-export const Client = ({ client }: { client: Client; orgId?: string }) => {
+export const Client = ({ client }: { client: Client }) => {
   const letters =
     client.displayName && client.displayName.length > 1
       ? (
           client.displayName.charAt(0) + client.displayName.charAt(1)
         ).toUpperCase()
-      : "DE"
+      : "DE";
+
   return (
-    <div className=" border-slate-100 grid items-center grid-cols-12 py-3 border-b-[1px] bg-white px-8">
-      <div className="flex gap-3 items-center col-span-3">
-        {/* <img alt="avatar" src={client.displayName?.charAt(0)} /> */}
-        <div className="min-w-8 h-8 flex justify-center items-center rounded-full bg-brand_blue text-white">
-          {letters}
+    <div className="grid grid-cols-12 border-b-[1px] border-slate-100 bg-white">
+      {/* 🔹 Zona clickeable: desde avatar hasta "Próxima cita" */}
+      <Link
+        to={`${client.email}`}
+        state={{ client }}
+        className="col-span-10 grid grid-cols-10 items-center px-8 py-3 hover:bg-slate-50 cursor-pointer"
+      >
+        {/* Nombre */}
+        <div className="flex gap-3 items-center col-span-3">
+          <div className="min-w-8 h-8 flex justify-center items-center rounded-full bg-brand_blue text-white">
+            {letters}
+          </div>
+          <div>
+            <p className="font-bold">{client.displayName}</p>
+            <p className="text-xs font-thin text-brand_gray">
+              {client.email}
+            </p>
+          </div>
         </div>
-        <div>
-          <p className="font-bold">{client.displayName}</p>
-          <p className="text-xs font-thin text-brand_gray">{client.email}</p>
-        </div>
-      </div>
-      <p className="w-max text-xs col-span-2">
-        {new Date(client.createdAt || client.updatedAt).toLocaleDateString(
-          "es-MX",
-          {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          },
-        )}
-      </p>
-      <p className="font-bold text-xs col-span-2">{client.points} puntos</p>
-      <p className="text-xs font-thin col-span-1">{client.eventCount} citas</p>
-      <p className="w-max col-span-2 text-green-600 text-xs">
-        {client.nextEventDate
-          ? new Date(client.nextEventDate).toLocaleDateString("es-MX", {
+
+        {/* Registro */}
+        <p className="text-xs col-span-2 text-center">
+          {new Date(client.createdAt || client.updatedAt).toLocaleDateString(
+            "es-MX",
+            {
               day: "numeric",
               month: "short",
               year: "numeric",
-            })
-          : "---"}
-      </p>
-      {/* <button className="text-xl">
-        <BsThreeDots />
-      </button> */}
-      <DropdownMenu>
-        <MenuButton
-          to={`${client.email}`}
-          state={{ client: JSON.stringify(client) }}
-          className="text-brand-gray"
-          icon={
-            <span>
-              {/* <MdBlock /> */}
-              <BiSolidUserDetail />
-            </span>
-          }
-        >
-          Detalle del cliente
-        </MenuButton>
-      </DropdownMenu>
+            },
+          )}
+        </p>
+
+        {/* Puntos */}
+        <p className="font-bold text-xs col-span-2 text-center">
+          {client.points} puntos
+        </p>
+
+        {/* Citas */}
+        <p className="text-xs font-thin col-span-1 text-center">
+          {client.eventCount} citas
+        </p>
+
+        {/* Próxima cita */}
+        <p className="col-span-2 text-green-600 text-xs text-center">
+          {client.nextEventDate
+            ? new Date(client.nextEventDate).toLocaleDateString("es-MX", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })
+            : "---"}
+        </p>
+      </Link>
+
+      {/* 🔹 Columna de acciones (fuera del Link para que no navegue) */}
+      <div
+        className="col-span-2 flex justify-center pr-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <DropdownMenu>
+          {/* 👇 Solo agregamos la opción de Bloquear cliente.
+              El "Eliminar" que trae DropDownMenu por defecto se queda tal cual. */}
+          <MenuButton
+            to=""
+            className="text-[#374151]"
+            icon={<MdBlock className="text-[#6B7280]" />}
+          >
+            Bloquear cliente
+          </MenuButton>
+        </DropdownMenu>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export const Summary = ({ stats }: { stats: Stats }) => {
-  const pluralize = usePluralize()
+  const pluralize = usePluralize();
   return (
     <section className="bg-white rounded-2xl p-6 flex justify-between items-center">
       <div>
@@ -378,18 +316,18 @@ export const Summary = ({ stats }: { stats: Stats }) => {
         <Avatar />
         <Avatar />
         <Avatar />
-        <div className="bg-brand_blue/20 text-brand_blue w-12 h-12 rounded-full grid content-center text-center -ml-3  border-[2px] border-white">
+        <div className="bg-brand_blue/20 text-brand_blue w-12 h-12 rounded-full grid content-center text-center -ml-3 border-[2px] border-white">
           <span>+ {stats.clientsCount}</span>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
 const EmptyStateClients = ({ link }: { link: string }) => {
-  const { setLink, ref } = useCopyLink(link)
+  const { setLink, ref } = useCopyLink(link);
   return (
-    <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
+    <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center">
       <div className="text-center">
         <img
           className="mx-auto mb-4"
@@ -411,5 +349,5 @@ const EmptyStateClients = ({ link }: { link: string }) => {
         </SecondaryButton>
       </div>
     </div>
-  )
-}
+  );
+};

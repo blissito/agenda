@@ -1,4 +1,4 @@
-import { Outlet, useNavigation } from "react-router"
+import { Outlet, useMatches, useNavigation } from "react-router"
 import { getUserOrRedirect } from "~/.server/userGetters"
 import { SideBar } from "~/components/sideBar/sideBar"
 import { Spinner } from "~/components/common/Spinner"
@@ -15,16 +15,22 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
   const navigation = useNavigation()
   const isNavigating = Boolean(navigation.location)
 
-  return (
-    <SideBar user={user}>
-      <div className="relative h-full">
-        {isNavigating && (
-          <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-40">
-            <Spinner className="w-10" />
-          </div>
-        )}
-        <Outlet />
-      </div>
-    </SideBar>
+  const matches = useMatches()
+  const hideSidebar = matches.some(
+    (m) => (m.handle as any)?.hideSidebar === true,
   )
+
+  const content = (
+    <div className="relative h-full">
+      {isNavigating && (
+        <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-40">
+          <Spinner className="w-10" />
+        </div>
+      )}
+      <Outlet />
+    </div>
+  )
+  if (hideSidebar) return content
+
+  return <SideBar user={user}>{content}</SideBar>
 }
