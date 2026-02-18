@@ -12,7 +12,6 @@ export const Avatar = ({
 }) => {
   const [src, setSrc] = React.useState<string>(image || fallbackSrc)
 
-  // Si cambias de cliente, actualiza el src
   React.useEffect(() => {
     setSrc(image || fallbackSrc)
   }, [image, fallbackSrc])
@@ -21,12 +20,12 @@ export const Avatar = ({
     <img
       alt="avatar"
       className={twMerge(
-        "w-12 h-12 rounded-full object-cover border-[2px] border-white -ml-3",
+        // Base neutra (sin márgenes negativos)
+        "rounded-full object-cover border-2 border-white shrink-0",
         className,
       )}
       src={src}
       onError={() => {
-        // Si la imagen de Google falla, usa el avatar local
         if (src !== fallbackSrc) setSrc(fallbackSrc)
       }}
     />
