@@ -1,4 +1,3 @@
-
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import { Link, useLoaderData } from "react-router"
 import { Avatar } from "~/components/common/Avatar"
@@ -146,8 +145,8 @@ export default function Clients() {
         ]}
       />
 
-      {filteredClients.map((c) => (
-        <ClientRow client={c} key={c.id} />
+      {filteredClients.map((c, index) => (
+        <ClientRow client={c} key={c.id} isLast={index === filteredClients.length - 1} />
       ))}
 
       {!filteredClients.length && search && (
@@ -174,16 +173,17 @@ const SearchNav = ({
 }) => {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center my-4">
-      <BasicInput
-        value={search}
-        onChange={(e) => onSearch(e.target.value)}
-        icon={<MagnifyingGlass className="w-6 h-6 text-brand_gray" />}
-        type="search"
-        placeholder="Busca por nombre, email,teléfono"
-        containerClassName="w-full sm:max-w-80"
-        inputClassName="!rounded-full"
-      />
-
+     <div className="relative w-full sm:max-w-80">
+        <BasicInput
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
+          type="search"
+          placeholder="Busca por nombre,email,teléfono"
+          containerClassName="w-full"
+          inputClassName="!rounded-full pr-12 "
+        />
+        <MagnifyingGlass className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-brand_iron" />
+      </div>
       <div className="flex flex-wrap pt-2 gap-3 justify-start sm:justify-end">
         <Link to="">
           <ActionButton isDisabled>
@@ -224,7 +224,7 @@ export const ActionButton = ({
 
 export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
   return (
-    <div className="grid grid-cols-12 rounded-t-2xl border-t border-slate-100 bg-white mt-4 px-2 sm:px-4 py-3 text-[11px] font-satoMedium uppercase tracking-wide text-brand_gray items-center">
+    <div className="grid grid-cols-12 rounded-t-2xl border-t border-x border-b border-slate-200 bg-white mt-4 px-2 sm:px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 items-center">
       {titles.map((t) => {
         const title = Array.isArray(t) ? t[0] : t
         const classes = Array.isArray(t) ? t[1] : "col-span-2 text-center"
@@ -250,12 +250,14 @@ export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
   )
 }
 
-export const ClientRow = ({ client }: { client: Client }) => {
+export const ClientRow = ({ client, isLast }: { client: Client, isLast?: boolean }) => {
   const initials = getInitials2(client.displayName, client.email)
 
   return (
-   
-    <div className="grid grid-cols-12 border-b border-slate-100 bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4 ">
+    <div className={twMerge(
+      "grid grid-cols-12 border-b border-x border-slate-200 bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4",
+      isLast && "rounded-b-2xl"
+    )}>
       <Link
         to={`${client.email}`}
         state={{ client }}
@@ -269,30 +271,30 @@ export const ClientRow = ({ client }: { client: Client }) => {
           />
 
           <div className="min-w-0">
-            <p className="font-semibold text-sm truncate leading-tight ">
+            <p className="font-semibold text-brand_dark text-sm truncate leading-tight ">
               {client.displayName || "—"}
             </p>
-            <p className="text-xs text-brand_gray truncate">{client.email}</p>
+            <p className="text-xs font-satoMedium text-brand_gray truncate">{client.email}</p>
           </div>
         </div>
 
-        <p className="hidden sm:block text-xs col-span-2 text-center text-brand_gray whitespace-nowrap pl-4">
+        <p className="hidden font-satoMedium sm:block text-sm col-span-2 text-center text-brand_gray whitespace-nowrap pl-4">
           {new Date(client.createdAt || client.updatedAt).toLocaleDateString(
             "es-MX",
             { day: "numeric", month: "short", year: "numeric" },
           )}
         </p>
 
-        <p className="hidden sm:block text-xs col-span-2 text-center font-semibold text-brand_gray whitespace-nowrap -ml-2">
+        <p className="hidden sm:block text-sm col-span-2 text-center font-semibold text-brand_gray whitespace-nowrap -ml-1">
           {client.points}
           <span className="font-semibold text-brand_gray ml-1">pts</span>
         </p>
 
-        <p className="hidden sm:block text-xs col-span-1 text-center text-brand_gray whitespace-nowrap -ml-5">
+        <p className="hidden sm:block text-sm col-span-1 text-center text-brand_gray whitespace-nowrap -ml-6">
           {client.eventCount}
         </p>
 
-        <p className="hidden sm:block col-span-2 text-xs text-center text-brand_green whitespace-nowrap -ml-1">
+        <p className="hidden sm:block col-span-2 text-sm text-center text-brand_green whitespace-nowrap -ml-1">
           {client.nextEventDate
             ? new Date(client.nextEventDate).toLocaleDateString("es-MX", {
                 day: "numeric",
@@ -335,6 +337,7 @@ function getInitials2(displayName: string | null, email: string) {
   }
   return (email.slice(0, 2) || "DE").toUpperCase()
 }
+
 export const ClientAvatar = ({
   photoUrl,
   initials,
@@ -383,9 +386,15 @@ export const Summary = ({
 }) => {
   const pluralize = usePluralize()
 
-  // Límite 5 y el + solo si sobran
-  const maxVisible = 5
-  const previewClients = clients.slice(0, maxVisible)
+  const maxVisible = 4
+  // Ordenar por fecha de creación descendente (más recientes primero)
+  const sortedClients = [...clients].sort((a, b) => {
+    const dateA = new Date(a.createdAt || a.updatedAt).getTime()
+    const dateB = new Date(b.createdAt || b.updatedAt).getTime()
+    return dateB - dateA // Más reciente primero
+  })
+  
+  const previewClients = sortedClients.slice(0, maxVisible)
   const overflow = Math.max(0, clients.length - previewClients.length)
 
   return (
@@ -409,27 +418,38 @@ export const Summary = ({
       <div className="flex items-center">
         {previewClients.length === 0 ? (
           <>
-            <Avatar/>
-            <Avatar/>
-            <Avatar/>
-            <Avatar/>
+            <div className="bg-brand_blue text-white w-12 h-12 rounded-full grid place-items-center border-2 border-white text-sm font-semibold shrink-0">
+              --
+            </div>
+            <div className="bg-brand_blue text-white w-12 h-12 rounded-full grid place-items-center -ml-3 border-2 border-white text-sm font-semibold shrink-0">
+              --
+            </div>
+            <div className="bg-brand_blue text-white w-12 h-12 rounded-full grid place-items-center -ml-3 border-2 border-white text-sm font-semibold shrink-0">
+              --
+            </div>
+            <div className="bg-brand_blue text-white w-12 h-12 rounded-full grid place-items-center -ml-3 border-2 border-white text-sm font-semibold shrink-0">
+              --
+            </div>
           </>
         ) : (
-          previewClients.map((c, i) => (
-            <Avatar
-              key={c.id}
-              image={c.photoUrl}
-              className={twMerge(
-                // summary: avatar 40px
-                "w-12 h-12 rounded-full object-cover border-2 border-white shrink-0",
-                i > 0 ? "-ml-3" : "",
-              )}
-            />
-          ))
+          previewClients.map((c, i) => {
+            const initials = getInitials2(c.displayName, c.email)
+            return (
+              <div
+                key={c.id}
+                className={twMerge(
+                  "bg-brand_blue text-white w-12 h-12 rounded-full grid place-items-center border-2 border-white text-sm font-semibold shrink-0",
+                  i > 0 ? "-ml-3" : ""
+                )}
+              >
+                {initials}
+              </div>
+            )
+          })
         )}
 
         {overflow > 0 && (
-          <div className="bg-brand_blue/20 text-brand_blue w-12 h-12 rounded-full grid content-center text-center -ml-3 border-2 border-white text-sm font-semibold">
+          <div className="bg-[#F8F8F8] text-brand_blue w-12 h-12 rounded-full grid place-items-center -ml-3 border-2 border-white text-sm font-semibold shrink-0">
             +{overflow}
           </div>
         )}

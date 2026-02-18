@@ -1,5 +1,5 @@
 export const MagnifyingGlass = ({
-  fill = "#8391A1",
+  fill = "#A8A8A8",
   className,
 }: {
   className?: string
