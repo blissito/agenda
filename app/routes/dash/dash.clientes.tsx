@@ -180,7 +180,7 @@ const SearchNav = ({
           type="search"
           placeholder="Busca por nombre,email,teléfono"
           containerClassName="w-full"
-          inputClassName="!rounded-full pr-12 "
+          inputClassName="!rounded-full pr-12 border-white"
         />
         <MagnifyingGlass className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-brand_iron" />
       </div>

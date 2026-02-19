@@ -97,7 +97,7 @@ export const BasicInput = ({
             className={twMerge(
               "placeholder:text-brand_BlueLight text-brand_dark font-satoMedium",
                 "focus:border-brand_blue",
-                "rounded-xl border-white w-full h-12",
+                "rounded-xl border-gray-200 w-full h-12",
                 "disabled:bg-brand_stroke disabled:cursor-not-allowed",
               !!error && "border-red-full",
               icon && "pl-12",
