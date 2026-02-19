@@ -1,7 +1,7 @@
 import { motion } from "motion/react"
 import { Link } from "react-router"
+import { Image } from "~/components/common/Image"
 import { Tag } from "~/components/common/Tag"
-import { getPublicImageUrl } from "~/utils/urls"
 
 /**
  * Generate service link that works on both localhost and production
@@ -44,10 +44,10 @@ export const ServiceCardClient = ({
     >
       <Link to={serviceLink} className="group ">
         <section className="bg-white border-[1px] border-[#EFEFEF] rounded-2xl overflow-hidden hover:scale-95 transition-all cursor-pointer">
-          <img
+          <Image
             alt="cover"
             className="w-full h-[160px] object-cover"
-            src={getPublicImageUrl(image) || "/images/serviceDefault.png"}
+            src={image ?? undefined}
           />
 
           <div className="p-4 flex justify-between items-center">

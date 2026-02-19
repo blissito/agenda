@@ -15,6 +15,7 @@ import {
   ServiceGeneralForm,
 } from "~/components/forms/services_model/ServiceGeneralForm"
 import {
+  type PhotoAction,
   ServicePhotoForm,
   servicePhotoFormSchema,
 } from "~/components/forms/services_model/ServicePhotoForm"
@@ -61,7 +62,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [index, setIndex] = useState(id ? 1 : 0)
   const [times, setTimes] = useState<WeekSchema>({})
   const [serviceId, setServiceId] = useState<string | null>(id)
+  const [photoAction, setPhotoAction] = useState<PhotoAction | undefined>()
   const fetcher = useFetcher()
+  const photoUrlsFetcher = useFetcher<{ photoAction?: PhotoAction }>()
   const intent = useMemo(() => {
     switch (index) {
       case 3:
@@ -122,6 +125,20 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     }
   }, [fetcher.data])
 
+  // Fetch photo upload URLs when we have serviceId and move to step 1
+  useEffect(() => {
+    if (serviceId && index === 1 && !photoAction) {
+      photoUrlsFetcher.load(`/api/services?intent=get_photo_urls&serviceId=${serviceId}`)
+    }
+  }, [serviceId, index, photoAction])
+
+  // Update photoAction when fetcher returns data
+  useEffect(() => {
+    if (photoUrlsFetcher.data?.photoAction) {
+      setPhotoAction(photoUrlsFetcher.data.photoAction)
+    }
+  }, [photoUrlsFetcher.data])
+
   return (
     <article className="h-screen bg-white fixed inset-0 pt-10 overflow-y-auto z-[600]">
       <Link
@@ -141,6 +158,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           )}
           {index === 1 && (
             <ServicePhotoForm
+              photoAction={photoAction}
               defaultValues={{
                 place: "ONLINE",
                 isActive: true,

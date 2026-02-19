@@ -2,9 +2,13 @@ import type { Prisma, Service } from "@prisma/client"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { ServerServiceConfigFormSchema } from "~/components/forms/services_model/ServiceConfigForm"
 import { generalFormSchema } from "~/components/forms/services_model/ServiceGeneralForm"
-import { serverServicePhotoFormSchema } from "~/components/forms/services_model/ServicePhotoForm"
+import {
+  type PhotoAction,
+  serverServicePhotoFormSchema,
+} from "~/components/forms/services_model/ServicePhotoForm"
 import { serviceTimesSchema } from "~/components/forms/services_model/ServiceTimesForm"
 import { db } from "~/utils/db.server"
+import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server"
 import { generateUniqueServiceSlug } from "~/utils/slugs.server"
 import type { Route } from "./+types/services"
 
@@ -110,6 +114,49 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!org) {
     throw new Response("Organization not found", { status: 404 })
   }
+
+  const url = new URL(request.url)
+  const intent = url.searchParams.get("intent")
+
+  // Get upload URLs for a specific service
+  if (intent === "get_photo_urls") {
+    const serviceId = url.searchParams.get("serviceId")
+    if (!serviceId) {
+      return Response.json({ error: "serviceId required" }, { status: 400 })
+    }
+
+    // Verify service belongs to org
+    const service = await db.service.findFirst({
+      where: { id: serviceId, orgId: org.id },
+      select: { id: true, photoURL: true },
+    })
+    if (!service) {
+      return Response.json({ error: "Service not found" }, { status: 404 })
+    }
+
+    let photoAction: PhotoAction | undefined
+    try {
+      const photoKey = `services/${service.id}/${Date.now()}`
+      const putUrl = await getPutFileUrl(photoKey)
+      const removeUrl = await removeFileUrl(photoKey)
+      photoAction = {
+        putUrl,
+        removeUrl,
+        readUrl: service.photoURL
+          ? `/api/images?key=${service.photoURL}`
+          : undefined,
+        logoKey: photoKey,
+      }
+    } catch (error) {
+      console.warn(
+        "Service photo upload error:",
+        error instanceof Error ? error.message : error
+      )
+    }
+
+    return Response.json({ photoAction })
+  }
+
   return {
     services: await db.service.findMany({
       where: {

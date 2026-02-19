@@ -40,37 +40,39 @@ const getS3Client = () => {
 const BUCKET = process.env.AWS_BUCKET || "wild-bird-2039"
 
 // @TODO: confirm production bucket/folder names
+let corsConfigured = false
 const setCors = async () => {
-  // not sure if this worked XD
+  // Only configure CORS once per server lifecycle
+  if (corsConfigured) return
+
   const input = {
-    // PutBucketCorsRequest
-    Bucket: BUCKET, // required
+    Bucket: BUCKET,
     CORSConfiguration: {
-      // CORSConfiguration
       CORSRules: [
-        // CORSRules // required
         {
-          // CORSRule
-          // ID: "STRING_VALUE",
           AllowedHeaders: ["*"],
-          AllowedMethods: [
-            // AllowedMethods // required
-            "PUT",
-            "DELETE",
+          AllowedMethods: ["PUT", "DELETE", "GET"],
+          AllowedOrigins: [
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "https://*.denik.me",
+            "https://denik.me",
           ],
-          AllowedOrigins: ["http://localhost:3000"],
-          // ExposeHeaders: [ // ExposeHeaders
-          //   "STRING_VALUE",
-          // ],
+          ExposeHeaders: ["ETag"],
           MaxAgeSeconds: 3600,
         },
       ],
     },
   }
-  const command = new PutBucketCorsCommand(input)
-  const response = await getS3Client().send(command)
-  // console.log("SETCORS response: ", response);
-  return response
+
+  try {
+    const command = new PutBucketCorsCommand(input)
+    await getS3Client().send(command)
+    corsConfigured = true
+    console.log("[Tigris] CORS configured successfully")
+  } catch (e) {
+    console.error("[Tigris] CORS configuration failed:", e)
+  }
 }
 
 export const getImageURL = async (key: string, expiresIn = 900) =>

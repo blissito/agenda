@@ -15,6 +15,15 @@ export function getPublicImageUrl(key?: string | null): string | undefined {
 }
 
 /**
+ * Generates the API URL for an image stored in Tigris/S3
+ * Uses signed URLs via the /api/images endpoint
+ */
+export function getImageApiUrl(key?: string | null): string | undefined {
+  if (!key) return undefined
+  return `/api/images?key=${key}`
+}
+
+/**
  * Generates the public URL for a service booking page
  * - Localhost: http://localhost:PORT/agenda/{orgSlug}/{serviceSlug}
  * - Production: https://{orgSlug}.denik.me/{serviceSlug}

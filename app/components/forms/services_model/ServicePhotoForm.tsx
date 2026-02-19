@@ -13,6 +13,13 @@ import { cn } from "~/utils/cn"
 import { InputFile } from "../InputFile"
 import { type Option, SelectInput } from "../SelectInput"
 
+export type PhotoAction = {
+  putUrl?: string
+  readUrl?: string
+  removeUrl?: string
+  logoKey?: string // Key used for upload (reusing InputFile's expected prop name)
+}
+
 export const serverServicePhotoFormSchema = z.object({
   photoURL: z.string().optional(),
   place: z.string(),
@@ -60,17 +67,18 @@ const initialPhotoValues = {
   photoURL: "",
 }
 export const ServicePhotoForm = ({
-  action,
+  photoAction,
   formRef,
   defaultValues = initialPhotoValues,
   errors = {} as Record<string, { message?: string }>,
 }: {
   formRef?: RefObject<HTMLFormElement | null>
-  action?: string
+  photoAction?: PhotoAction
   errors?: Record<string, { message?: string }>
   defaultValues?: ServicePhotoFormFields
 }) => {
   const fetcher = useFetcher()
+  const [photoURL, setPhotoURL] = useState(defaultValues?.photoURL || "")
   const {
     handleSubmit,
     register,
@@ -79,6 +87,16 @@ export const ServicePhotoForm = ({
   } = useForm({
     defaultValues: { ...defaultValues, photoURL: defaultValues?.photoURL },
   })
+
+  const handleUploadComplete = (key: string) => {
+    setPhotoURL(key)
+    setValue("photoURL", key)
+  }
+
+  const handlePhotoDelete = () => {
+    setPhotoURL("")
+    setValue("photoURL", "")
+  }
 
   const _onSubmit = (values: ServicePhotoFormFields) => {
     fetcher.submit(
@@ -90,19 +108,29 @@ export const ServicePhotoForm = ({
     )
   }
 
+  const isUploadReady = Boolean(photoAction?.putUrl)
+
   return (
     <Form ref={formRef} method="post">
-      <InputFile // @TODO: this should contain an input with string value coming from upload
-        // action={action}
-        name="photoURL"
+      {/* Hidden input to ensure photoURL is included in FormData */}
+      <input type="hidden" name="photoURL" value={photoURL} />
+      <InputFile
+        action={photoAction}
+        name="photoURL_file"
         title="Foto de portada"
-        description="  Carga 1 imagen de tu servicio. Te recomendamos que tenga un aspect ratio 16:9 y un peso máximo de 1MB."
-        register={register as unknown as UseFormRegister<FieldValues>}
-        registerOptions={{ required: false }}
+        description={
+          isUploadReady
+            ? "Carga 1 imagen de tu servicio. Te recomendamos que tenga un aspect ratio 16:9 y un peso máximo de 1MB."
+            : "Cargando configuración de subida..."
+        }
+        onUploadComplete={handleUploadComplete}
+        onDelete={handlePhotoDelete}
       >
         <AddImage className="mx-auto mb-3" />
         <span className="font-satoshi">
-          Arrastra o selecciona tu foto de portada
+          {isUploadReady
+            ? "Arrastra o selecciona tu foto de portada"
+            : "Espera un momento..."}
         </span>
       </InputFile>
 

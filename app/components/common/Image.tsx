@@ -1,6 +1,21 @@
 import { type ChangeEvent, type SyntheticEvent, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
+/**
+ * Transforms an image source to the correct URL format
+ * - If it's already a URL (starts with http, https, /, or data:), return as-is
+ * - If it's a storage key (like "services/xxx/photo"), transform to API URL
+ */
+function resolveImageSrc(src?: string): string | undefined {
+  if (!src) return undefined
+  // Already a URL or data URI
+  if (src.startsWith("http") || src.startsWith("/") || src.startsWith("data:")) {
+    return src
+  }
+  // It's a storage key - transform to API URL
+  return `/api/images?key=${src}`
+}
+
 export const ImageInput = ({ src }: { src?: string }) => {
   const [imageSrc, setImageSrc] = useState(src)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -45,12 +60,14 @@ export const Image = ({
   alt?: string
 }) => {
   const defaultSrc = "/images/serviceDefault.png"
+  const resolvedSrc = resolveImageSrc(src) || defaultSrc
+
   return (
     <img
       alt={alt}
       {...props}
       className={twMerge("w-full h-full object-cover object-top", className)}
-      src={src || defaultSrc}
+      src={resolvedSrc}
       onError={(e: SyntheticEvent<HTMLImageElement, Event>) => {
         ;(e.target as HTMLInputElement).onerror = null // previene el loop
         ;(e.target as HTMLInputElement).src = defaultSrc

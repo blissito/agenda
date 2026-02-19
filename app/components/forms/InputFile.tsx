@@ -81,16 +81,31 @@ export const InputFile = ({
   }
 
   const putFile = async (file: File) => {
-    if (!action?.putUrl) return
+    if (!action?.putUrl) {
+      console.warn("[InputFile] No putUrl provided - upload skipped")
+      return
+    }
 
-    await fetch(action.putUrl, {
-      method: "put",
-      body: file,
-      headers: {
-        "Content-Length": String(file.size),
-        "Content-Type": file.type,
-      },
-    }).catch((e) => console.error(e))
+    console.log("[InputFile] Uploading to:", action.putUrl.substring(0, 80) + "...")
+    console.log("[InputFile] File:", file.name, file.size, "bytes", file.type)
+
+    try {
+      const response = await fetch(action.putUrl, {
+        method: "put",
+        body: file,
+        headers: {
+          "Content-Length": String(file.size),
+          "Content-Type": file.type,
+        },
+      })
+      if (response.ok) {
+        console.log("[InputFile] Upload SUCCESS")
+      } else {
+        console.error("[InputFile] Upload FAILED:", response.status, response.statusText)
+      }
+    } catch (e) {
+      console.error("[InputFile] Upload error:", e)
+    }
   }
 
   return (
