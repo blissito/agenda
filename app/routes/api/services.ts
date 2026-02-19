@@ -65,9 +65,21 @@ export const action = async ({ request }: Route.ActionArgs) => {
     } = serverServicePhotoFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
+    // Build update data, handling gallery as array
+    const updateData: Prisma.ServiceUpdateInput = {
+      place: parsedData.place,
+      allowMultiple: parsedData.allowMultiple,
+      isActive: parsedData.isActive,
+    }
+
+    // If a new photo key was provided, set it as the first gallery item
+    if (parsedData.gallery) {
+      updateData.gallery = [parsedData.gallery]
+    }
+
     await db.service.update({
       where: { id: data.id },
-      data: parsedData as Prisma.ServiceUpdateInput,
+      data: updateData,
     })
     return { id: data.id, nextIndex: 2 }
   }
@@ -128,7 +140,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     // Verify service belongs to org
     const service = await db.service.findFirst({
       where: { id: serviceId, orgId: org.id },
-      select: { id: true, photoURL: true },
+      select: { id: true, gallery: true },
     })
     if (!service) {
       return Response.json({ error: "Service not found" }, { status: 404 })
@@ -136,15 +148,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
     let photoAction: PhotoAction | undefined
     try {
-      const photoKey = `services/${service.id}/${Date.now()}`
+      const photoKey = `services/${service.id}/gallery/${Date.now()}`
       const putUrl = await getPutFileUrl(photoKey)
       const removeUrl = await removeFileUrl(photoKey)
+      const currentPhoto = service.gallery?.[0]
       photoAction = {
         putUrl,
         removeUrl,
-        readUrl: service.photoURL
-          ? `/api/images?key=${service.photoURL}`
-          : undefined,
+        readUrl: currentPhoto ? `/api/images?key=${currentPhoto}` : undefined,
         logoKey: photoKey,
       }
     } catch (error) {

@@ -20,7 +20,7 @@ import { MediaBox } from "./MediaBox"
 
 type PartialService = Pick<
   Service,
-  "id" | "name" | "photoURL" | "slug" | "isActive"
+  "id" | "name" | "gallery" | "slug" | "isActive"
 >
 
 type LogoAction = {
@@ -100,7 +100,7 @@ export const CompanyInfo = ({
             link={
               s.isActive ? getServicePublicUrl(org.slug, s.slug) : undefined
             }
-            image={s.photoURL ?? undefined}
+            image={s.gallery?.[0] ?? undefined}
             key={s.id}
             isActive={s.isActive}
           />

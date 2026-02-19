@@ -37,7 +37,7 @@ const getS3Client = () => {
   return _s3Client
 }
 
-const BUCKET = process.env.AWS_BUCKET || "wild-bird-2039"
+const BUCKET = process.env.AWS_BUCKET || "easybits-public"
 
 // @TODO: confirm production bucket/folder names
 let corsConfigured = false
@@ -70,8 +70,11 @@ const setCors = async () => {
     await getS3Client().send(command)
     corsConfigured = true
     console.log("[Tigris] CORS configured successfully")
-  } catch (e) {
-    console.error("[Tigris] CORS configuration failed:", e)
+  } catch (e: any) {
+    // CORS config may fail if credentials don't have bucket policy permissions
+    // This is OK - CORS should be configured in Tigris dashboard instead
+    corsConfigured = true // Don't retry
+    console.warn("[Tigris] CORS config skipped:", e.Code || e.message)
   }
 }
 
@@ -92,6 +95,7 @@ export const getPutFileUrl = async (key: string) => {
     new PutObjectCommand({
       Bucket: BUCKET,
       Key: `denik/${key}`,
+      ACL: "public-read",
     }),
     { expiresIn: 3600 },
   )

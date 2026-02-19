@@ -119,7 +119,7 @@ const ServiceHeaderCard = ({
   service: {
     name: string
     description?: string | null
-    photoURL?: string | null
+    gallery?: string[] | null
   }
   stats: {
     averageRating: number
@@ -135,9 +135,9 @@ const ServiceHeaderCard = ({
       <div className="flex gap-6">
         {/* Service Image */}
         <div className="w-[193px] h-[120px] rounded-2xl overflow-hidden bg-gray-200 flex-shrink-0">
-          {service.photoURL ? (
+          {service.gallery?.[0] ? (
             <img
-              src={service.photoURL}
+              src={service.gallery[0]}
               alt={service.name}
               className="w-full h-full object-cover"
             />

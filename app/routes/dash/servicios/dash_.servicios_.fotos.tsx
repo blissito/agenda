@@ -12,7 +12,7 @@ type ServicePhotoData = {
   place: string
   allowMultiple: boolean
   isActive: boolean
-  photoURL?: string | null
+  gallery: string[]
 }
 
 export const loader = async ({ request }: { request: Request }) => {
@@ -22,7 +22,7 @@ export const loader = async ({ request }: { request: Request }) => {
       place: true,
       allowMultiple: true,
       isActive: true,
-      photoURL: true,
+      gallery: true,
     },
   })
   const service = serviceData as unknown as ServicePhotoData
@@ -31,15 +31,14 @@ export const loader = async ({ request }: { request: Request }) => {
   // Generate upload URLs for service photo
   let photoAction: PhotoAction | undefined
   try {
-    const photoKey = `services/${service.id}/${Date.now()}`
+    const photoKey = `services/${service.id}/gallery/${Date.now()}`
     const putUrl = await getPutFileUrl(photoKey)
     const removeUrl = await removeFileUrl(photoKey)
+    const currentPhoto = service.gallery?.[0]
     photoAction = {
       putUrl,
       removeUrl,
-      readUrl: service.photoURL
-        ? `/api/images?key=${service.photoURL}`
-        : undefined,
+      readUrl: currentPhoto ? `/api/images?key=${currentPhoto}` : undefined,
       logoKey: photoKey,
     }
   } catch (error) {
@@ -66,7 +65,7 @@ export default function NewServicePhotos() {
           place: service.place,
           allowMultiple: service.allowMultiple,
           isActive: service.isActive,
-          photoURL: service.photoURL ?? undefined,
+          gallery: service.gallery?.[0] ?? "",
         }}
       />
     </main>

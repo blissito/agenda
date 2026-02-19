@@ -39,7 +39,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     select: {
       id: true,
       name: true,
-      photoURL: true,
+      gallery: true,
       slug: true,
       isActive: true,
     },

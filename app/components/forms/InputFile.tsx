@@ -96,6 +96,7 @@ export const InputFile = ({
         headers: {
           "Content-Length": String(file.size),
           "Content-Type": file.type,
+          "x-amz-acl": "public-read",
         },
       })
       if (response.ok) {

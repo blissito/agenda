@@ -416,7 +416,7 @@ model Service {
   orgId         String           @db.ObjectId
   paid          Boolean
   payment       Boolean
-  photoURL      String?
+  gallery       String[]
   place         String
   points        BigInt
   price         BigInt

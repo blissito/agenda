@@ -90,7 +90,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
               service={service}
               isActive={service.isActive}
               id={service.id}
-              image={service.photoURL ?? undefined}
+              image={service.gallery?.[0]}
               key={service.id}
               title={service.name}
               duration={Number(service.duration)} // @TODO: format function this is minutes for now

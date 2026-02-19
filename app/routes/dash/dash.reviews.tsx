@@ -47,7 +47,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     return {
       id: service.id,
       name: service.name,
-      image: service.photoURL,
+      image: service.gallery?.[0] ?? null,
       reviewCount: stats?.count ?? 0,
       averageRating: stats?.avg ?? 0,
     }

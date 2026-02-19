@@ -17,7 +17,7 @@ export const serviceSchema = z.object({
   price: z.number(),
   config: notifyConfigSchema,
   employeeName: z.string().min(1),
-  photoURL: z.string().min(11),
+  gallery: z.array(z.string()).optional(),
 })
 
 const defaultConfig = {
@@ -36,8 +36,9 @@ const templates = [
     slug: "limpieza-dental-para-dragon",
     price: 1999,
     employeeName: "Daenerys Targaryen",
-    photoURL:
+    gallery: [
       "https://upload.wikimedia.org/wikipedia/en/0/0d/Daenerys_Targaryen_with_Dragon-Emilia_Clarke.jpg",
+    ],
   },
   {
     config: defaultConfig,
@@ -45,8 +46,9 @@ const templates = [
     slug: generateSlug("Clase de escritura literaria"),
     price: 2890,
     employeeName: "Julio Cortazar",
-    photoURL:
+    gallery: [
       "https://media.admagazine.com/photos/618a63bca8ad6c5249a74efa/16:9/w_2656,h_1494,c_limit/74842.jpg",
+    ],
   },
   {
     config: defaultConfig,
@@ -56,8 +58,9 @@ const templates = [
     ),
     price: 199,
     employeeName: "Jimi Hendrix",
-    photoURL:
+    gallery: [
       "https://raulsandoval.mx/wp-content/uploads/2024/05/Como-tocar-la-guitarra-como-Jimi-Hendrix.jpg",
+    ],
   },
   {
     config: defaultConfig,
@@ -65,8 +68,9 @@ const templates = [
     slug: generateSlug("Experiencia Culinaria"),
     price: 500,
     employeeName: "Cheff Gordon Ramsay",
-    photoURL:
+    gallery: [
       "https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+    ],
   },
 ]
 

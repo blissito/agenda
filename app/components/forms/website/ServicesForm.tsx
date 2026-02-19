@@ -54,7 +54,7 @@ export const ServiceRows = ({ services = [] }: { services: Service[] }) => {
           className="grid grid-cols-12 text-xs gap-3 items-center mt-3"
         >
           <Image
-            src={service.photoURL ?? undefined}
+            src={service.gallery?.[0] ?? undefined}
             className="col-span-2 h-12 rounded"
           />
           <span className={cn(generalClassName, "col-span-4")}>

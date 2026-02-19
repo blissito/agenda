@@ -96,7 +96,7 @@ export default function TemplateOne({
                   title={service.name}
                   duration={service.duration}
                   price={service.price}
-                  image={service.photoURL}
+                  image={service.gallery?.[0]}
                 />
               ))}
             </div>

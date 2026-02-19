@@ -3,7 +3,7 @@
  */
 
 const PLATFORM_DOMAIN = "denik.me"
-const TIGRIS_BUCKET = "wild-bird-2039"
+const TIGRIS_BUCKET = "easybits-public"
 
 /**
  * Generates the public URL for an image stored in Tigris/S3
@@ -12,15 +12,6 @@ const TIGRIS_BUCKET = "wild-bird-2039"
 export function getPublicImageUrl(key?: string | null): string | undefined {
   if (!key) return undefined
   return `https://${TIGRIS_BUCKET}.fly.storage.tigris.dev/denik/${key}`
-}
-
-/**
- * Generates the API URL for an image stored in Tigris/S3
- * Uses signed URLs via the /api/images endpoint
- */
-export function getImageApiUrl(key?: string | null): string | undefined {
-  if (!key) return undefined
-  return `/api/images?key=${key}`
 }
 
 /**

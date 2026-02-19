@@ -21,15 +21,14 @@ export type PhotoAction = {
 }
 
 export const serverServicePhotoFormSchema = z.object({
-  photoURL: z.string().optional(),
+  gallery: z.string().optional(), // Single new photo key to add to gallery
   place: z.string(),
   allowMultiple: z.boolean().optional(),
   isActive: z.boolean().optional(),
-  // seats: z.coerce.number(), // @TODO update in other place?
 })
 
 export const servicePhotoFormSchema = z.object({
-  photoURL: z.string().optional(),
+  gallery: z.string().optional(), // Single new photo key to add to gallery
   place: z.string(),
   allowMultiple: z
     .enum(["true", "false", "on"])
@@ -39,7 +38,6 @@ export const servicePhotoFormSchema = z.object({
     .enum(["true", "false", "on"])
     .optional()
     .transform((value) => value === "true" || value === "on"),
-  // seats: z.coerce.number(), // @TODO update in other place?
 })
 
 type ServicePhotoFormFields = z.infer<typeof servicePhotoFormSchema>
@@ -61,10 +59,9 @@ const OPTIONS: Option[] = [
 
 const initialPhotoValues = {
   place: "",
-  seats: 0,
   isActive: true,
   allowMultiple: false,
-  photoURL: "",
+  gallery: "",
 }
 export const ServicePhotoForm = ({
   photoAction,
@@ -78,45 +75,33 @@ export const ServicePhotoForm = ({
   defaultValues?: ServicePhotoFormFields
 }) => {
   const fetcher = useFetcher()
-  const [photoURL, setPhotoURL] = useState(defaultValues?.photoURL || "")
+  const [newPhoto, setNewPhoto] = useState(defaultValues?.gallery || "")
   const {
-    handleSubmit,
     register,
-    // formState: { errors },
     setValue,
   } = useForm({
-    defaultValues: { ...defaultValues, photoURL: defaultValues?.photoURL },
+    defaultValues,
   })
 
   const handleUploadComplete = (key: string) => {
-    setPhotoURL(key)
-    setValue("photoURL", key)
+    setNewPhoto(key)
+    setValue("gallery", key)
   }
 
   const handlePhotoDelete = () => {
-    setPhotoURL("")
-    setValue("photoURL", "")
-  }
-
-  const _onSubmit = (values: ServicePhotoFormFields) => {
-    fetcher.submit(
-      {
-        ...values,
-        intent: "update_service",
-      },
-      { method: "post" },
-    )
+    setNewPhoto("")
+    setValue("gallery", "")
   }
 
   const isUploadReady = Boolean(photoAction?.putUrl)
 
   return (
     <Form ref={formRef} method="post">
-      {/* Hidden input to ensure photoURL is included in FormData */}
-      <input type="hidden" name="photoURL" value={photoURL} />
+      {/* Hidden input for the new photo key to add to gallery */}
+      <input type="hidden" name="gallery" value={newPhoto} />
       <InputFile
         action={photoAction}
-        name="photoURL_file"
+        name="gallery_file"
         title="Foto de portada"
         description={
           isUploadReady
