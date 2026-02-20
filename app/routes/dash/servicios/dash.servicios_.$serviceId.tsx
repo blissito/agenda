@@ -27,11 +27,11 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!service) throw new Response(null, { status: 404 })
   // Provide default config if none exists
   const defaultConfig = {
-    confirmation: true,
-    reminder: true,
-    survey: true,
-    whatsapp_confirmation: null,
-    whatsapp_reminder: null,
+    confirmation: false,
+    reminder: false,
+    survey: false,
+    whatsapp_confirmation: false,
+    whatsapp_reminder: false,
     reminderHours: 4,
   }
   return {
@@ -442,40 +442,58 @@ export const ServiceDetail = ({
           </div>
 
           <div className="mt-4 space-y-4">
-            <DetailItem label="Pago" value="Al agendar" />
+            <DetailItem
+              label="Pago"
+              value={service.payment ? "Despues de la cita" : "Al agendar"}
+            />
+
             <DetailItem
               label="Mail de confirmación"
               value={
                 service.config?.confirmation
-                  ? "Lo enviamos en cuanto se completa la reservación"
+                  ? "Lo enviaremos en cuanto se complete la reservación"
                   : "Desactivado"
               }
             />
+
+            {/*  AGREGADO:*/}
+            <DetailItem
+              label="Whatsapp de confirmación"
+              value={
+                service.config?.whatsapp_confirmation
+                  ? "Lo enviaremos en cuanto se complete la reservación"
+                  : "Desactivado"
+              }
+            />
+
             <DetailItem
               label="Mail de recordatorio"
               value={
-                service.config?.confirmation
+                service.config?.reminder
                   ? "Lo enviaremos 24 hrs antes de la sesión"
                   : "Desactivado"
               }
             />
+
             <DetailItem
-              label="Whats app de recordatorio"
+              label="Whatsapp de recordatorio"
               value={
-                service.config?.survey
-                  ? "Lo enviamos 4hrs antes de la sesión"
+                service.config?.whatsapp_reminder
+                  ? "Lo enviaremos 24 hrs antes de la sesión"
                   : "Desactivado"
               }
             />
+
             <DetailItem
               label="Mail de evaluación"
               value={
-                service.config?.confirmation
-                  ? "Lo enviamos 10 min después de terminar la sesión"
+                service.config?.survey
+                  ? "Lo enviaremos 10 min después de terminar la sesión"
                   : "Desactivado"
               }
             />
           </div>
+
         </div>
       </div>
 
