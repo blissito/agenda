@@ -437,7 +437,7 @@ export const ServiceDetail = ({
           <div className="mt-4 space-y-4">
             <DetailItem
               label="Pago"
-              value={service.payment ? "Despues de la cita" : "Al agendar"}
+              value={service.payment ? "Al agendar" : "Despues de la cita"}
             />
 
             <DetailItem
