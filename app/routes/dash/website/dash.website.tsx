@@ -1,12 +1,14 @@
+import * as React from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
-import { db } from "~/utils/db.server"
-import { getQRImageURL } from "~/utils/getQR"
-import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server"
 import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website"
-import { CompanyInfo } from "./CompanyInfo"
-import { Template } from "./Template"
+import { TemplateFormModal } from "~/components/ui/dialog"
+
+import { Website as WebsiteIcon } from "~/components/icons/Website"
+import { Share } from "~/components/icons/Share"
+import { Edit } from "~/components/icons/edit"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
@@ -18,9 +20,6 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       shopKeeper: true,
       description: true,
       address: true,
-      lat: true,
-      lng: true,
-      logo: true,
       social: true,
       websiteConfig: true,
       weekDays: true,
@@ -29,55 +28,197 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       customDomainDns: true,
     },
   })
-  if (!org) {
-    throw new Response("Org not found", { status: 404 })
-  }
-  const agendaUrl = getOrgPublicUrl(org.slug, request.url)
-  const qr = await getQRImageURL(agendaUrl)
-  const services = await db.service.findMany({
-    where: { orgId: org.id, archived: false },
-    select: {
-      id: true,
-      name: true,
-      gallery: true,
-      slug: true,
-      isActive: true,
-    },
-  })
 
-  // Logo upload URLs (optional - requires AWS credentials)
-  let logoAction = null
-  try {
-    const logoKey = `logos/${org.id}`
-    const putUrl = await getPutFileUrl(logoKey)
-    const removeUrl = await removeFileUrl(logoKey)
-    // Use saved logo from DB if exists, otherwise use the expected key
-    const savedLogoKey = org.logo || logoKey
-    logoAction = {
-      putUrl,
-      removeUrl,
-      readUrl: org.logo ? `/api/images?key=${savedLogoKey}` : undefined,
-      logoKey,
+  if (!org) throw new Response("Org not found", { status: 404 })
+
+  const url = getOrgPublicUrl(org.slug, request.url)
+
+  //  preview: template 1 + modo embed
+  const previewUrlObj = new URL(url)
+  previewUrlObj.searchParams.set("template", "defaultTemplate")
+  previewUrlObj.searchParams.set("embed", "1")
+  const previewUrl = previewUrlObj.toString()
+
+  return { org, url, previewUrl }
+}
+
+type RoundActionProps =
+  | {
+      as?: "button"
+      onClick?: () => void
+      href?: never
+      label: string
+      title?: string
+      children: React.ReactNode
+      className?: string
     }
-  } catch (error) {
-    console.warn(
-      "Logo upload error:",
-      error instanceof Error ? error.message : error,
+  | {
+      as: "a"
+      href: string
+      onClick?: never
+      label: string
+      title?: string
+      children: React.ReactNode
+      className?: string
+    }
+
+const RoundAction = (props: RoundActionProps) => {
+  const base =
+    "w-12 h-12 rounded-full bg-white/90 hover:bg-white shadow-sm border border-brand_stroke flex items-center justify-center transition"
+
+  const common = {
+    className: props.className ? `${base} ${props.className}` : base,
+    "aria-label": props.label,
+    title: props.title ?? props.label,
+  }
+
+  if (props.as === "a") {
+    return (
+      <a {...common} href={props.href} target="_blank" rel="noreferrer">
+        {props.children}
+      </a>
     )
   }
 
-  return { url: agendaUrl, qr, org, services, logoAction: logoAction ?? undefined }
+  return (
+    <button {...common} type="button" onClick={props.onClick}>
+      {props.children}
+    </button>
+  )
 }
 
 export default function Website({ loaderData }: Route.ComponentProps) {
-  const { url, qr, org, services, logoAction } = loaderData
+  const { org, url, previewUrl } = loaderData
+
+  const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  const roRef = useRef<ResizeObserver | null>(null)
+
+  const [shared, setShared] = useState(false)
+  const [iframeHeight, setIframeHeight] = useState<number>(900)
+
+  const iframeSrc = useMemo(() => {
+    const u = (previewUrl ?? "").trim()
+    if (!u) return ""
+    if (/^https?:\/\//i.test(u)) return u
+    if (/localhost|127\.0\.0\.1/i.test(u)) return `http://${u}`
+    return `https://${u}`
+  }, [previewUrl])
+
+  const onShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: org.name ?? "Sitio web", url })
+        return
+      }
+      await navigator.clipboard.writeText(url)
+      setShared(true)
+      window.setTimeout(() => setShared(false), 1200)
+    } catch {
+      // no rompemos navegación
+    }
+  }
+
+  const syncIframeHeight = () => {
+    try {
+      const doc = iframeRef.current?.contentDocument
+      if (!doc) return
+
+      const h =
+        Math.max(
+          doc.documentElement?.scrollHeight ?? 0,
+          doc.body?.scrollHeight ?? 0,
+        ) || 0
+
+        const min = 700
+        const max = 1800 // 👈 AJUSTA ESTE NÚMERO
+        const clamped = Math.min(Math.max(h, min), max)
+        
+        setIframeHeight(clamped)
+    } catch {
+      // cross-origin: no se puede medir altura, se queda con el alto fallback
+    }
+  }
+
+  const onIframeLoad = () => {
+    roRef.current?.disconnect()
+    roRef.current = null
+
+    syncIframeHeight()
+
+    //  observa cambios (imágenes / listas) y ajusta altura
+    try {
+      const doc = iframeRef.current?.contentDocument
+      if (!doc) return
+
+      const ro = new ResizeObserver(() => syncIframeHeight())
+      ro.observe(doc.documentElement)
+      if (doc.body) ro.observe(doc.body)
+      roRef.current = ro
+    } catch {
+      // cross-origin
+    }
+  }
+
+  useEffect(() => {
+    const min = Math.max(window.innerHeight - 220, 700)
+    setIframeHeight(min)
+  }, [])
+
+  useEffect(() => {
+    const min = Math.max(window.innerHeight - 220, 700)
+    setIframeHeight(min)
+  }, [iframeSrc])
+
+  useEffect(() => {
+    return () => roRef.current?.disconnect()
+  }, [])
+
   return (
-    <main className=" ">
-      <RouteTitle>Mi sitio web</RouteTitle>
-      <section className=" grid grid-cols-6 gap-6">
-        <Template org={org} url={url} qr={qr} />
-        <CompanyInfo org={org} services={services} logoAction={logoAction} />
-      </section>
+    <main className="w-full pb-10">
+      {/* puedes dejar tu container si quieres que no sea full width */}
+      <div className="mx-auto w-full px-4 md:px-6 lg:px-8">
+        <div className="flex items-start justify-between gap-4">
+          <RouteTitle>Mi sitio web</RouteTitle>
+
+          {/*  TUS BOTONES (tal cual) */}
+          <div className="flex gap-2 mt-15">
+            <RoundAction as="a" href={url} label="Abrir sitio web">
+              <WebsiteIcon size={20} />
+            </RoundAction>
+
+            <RoundAction label="Compartir" onClick={onShare}>
+              {/* si quieres feedback visual cuando copia */}
+              <span className={shared ? "text-green-600" : undefined}>
+                <Share size={20} />
+              </span>
+            </RoundAction>
+
+            <TemplateFormModal
+              org={org}
+              trigger={
+                <RoundAction label="Editar sitio web">
+                  <Edit size={20} />
+                </RoundAction>
+              }
+            />
+          </div>
+        </div>
+
+        {/*  PREVIEW auto-height (se baja, no se queda chico) */}
+        <section className="mt-5 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+          <iframe
+            ref={iframeRef}
+            title="Preview del sitio"
+            src={iframeSrc}
+            className="w-full border-0 block"
+            style={{ height: iframeHeight }}
+            loading="lazy"
+            onLoad={onIframeLoad}
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </section>
+      </div>
     </main>
   )
 }
