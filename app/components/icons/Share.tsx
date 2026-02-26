@@ -1,5 +1,5 @@
 export const Share = ({
-    fill = "currentColor",
+    fill = "#4B5563",
     className,
   }: {
     className?: string

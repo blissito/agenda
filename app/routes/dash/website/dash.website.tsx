@@ -1,3 +1,4 @@
+// app/routes/dash.website.tsx
 import * as React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
@@ -9,6 +10,7 @@ import { TemplateFormModal } from "~/components/ui/dialog"
 import { Website as WebsiteIcon } from "~/components/icons/Website"
 import { Share } from "~/components/icons/Share"
 import { Edit } from "~/components/icons/edit"
+import { Edit2 } from "~/components/icons/Edit2"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
@@ -33,7 +35,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const url = getOrgPublicUrl(org.slug, request.url)
 
-  //  preview: template 1 + modo embed
+  // ✅ preview: template 1 + modo embed
   const previewUrlObj = new URL(url)
   previewUrlObj.searchParams.set("template", "defaultTemplate")
   previewUrlObj.searchParams.set("embed", "1")
@@ -145,7 +147,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
 
     syncIframeHeight()
 
-    //  observa cambios (imágenes / listas) y ajusta altura
+    // observa cambios (imágenes / listas) y ajusta altura
     try {
       const doc = iframeRef.current?.contentDocument
       if (!doc) return
@@ -176,36 +178,33 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   return (
     <main className="w-full pb-10">
       {/* puedes dejar tu container si quieres que no sea full width */}
-      <div className="mx-auto w-full px-4 md:px-6 lg:px-8">
+      <div className="mx-auto w-full">
         <div className="flex items-start justify-between gap-4">
           <RouteTitle>Mi sitio web</RouteTitle>
 
-          {/*  TUS BOTONES (tal cual) */}
-          <div className="flex gap-2 mt-15">
+          {/* TUS BOTONES (tal cual) */}
+          <div className="flex gap-3 mt-15">
             <RoundAction as="a" href={url} label="Abrir sitio web">
               <WebsiteIcon size={20} />
             </RoundAction>
 
             <RoundAction label="Compartir" onClick={onShare}>
-              {/* si quieres feedback visual cuando copia */}
-              <span className={shared ? "text-green-600" : undefined}>
-                <Share size={20} />
-              </span>
+              <Share size={20} />
             </RoundAction>
 
             <TemplateFormModal
               org={org}
               trigger={
                 <RoundAction label="Editar sitio web">
-                  <Edit size={20} />
+                  <Edit2 size={20} />
                 </RoundAction>
               }
             />
           </div>
         </div>
 
-        {/*  PREVIEW auto-height (se baja, no se queda chico) */}
-        <section className="mt-5 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+        {/* REVIEW auto-height (se baja, no se queda chico) */}
+        <section className="mt-2 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
