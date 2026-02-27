@@ -9,7 +9,6 @@ import { TemplateFormModal } from "~/components/ui/dialog"
 
 import { Website as WebsiteIcon } from "~/components/icons/Website"
 import { Share } from "~/components/icons/Share"
-import { Edit } from "~/components/icons/edit"
 import { Edit2 } from "~/components/icons/Edit2"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -35,7 +34,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const url = getOrgPublicUrl(org.slug, request.url)
 
-  // ✅ preview: template 1 + modo embed
+  // preview: template 1 + modo embed
   const previewUrlObj = new URL(url)
   previewUrlObj.searchParams.set("template", "defaultTemplate")
   previewUrlObj.searchParams.set("embed", "1")
@@ -130,12 +129,11 @@ export default function Website({ loaderData }: Route.ComponentProps) {
           doc.documentElement?.scrollHeight ?? 0,
           doc.body?.scrollHeight ?? 0,
         ) || 0
+      const min = 700
+      const max = 1800
+      const clamped = Math.min(Math.max(h, min), max)
 
-        const min = 700
-        const max = 1800 // 👈 AJUSTA ESTE NÚMERO
-        const clamped = Math.min(Math.max(h, min), max)
-        
-        setIframeHeight(clamped)
+      setIframeHeight(clamped)
     } catch {
       // cross-origin: no se puede medir altura, se queda con el alto fallback
     }
@@ -147,7 +145,6 @@ export default function Website({ loaderData }: Route.ComponentProps) {
 
     syncIframeHeight()
 
-    // observa cambios (imágenes / listas) y ajusta altura
     try {
       const doc = iframeRef.current?.contentDocument
       if (!doc) return
@@ -176,14 +173,14 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   }, [])
 
   return (
-    <main className="w-full pb-10">
-      {/* puedes dejar tu container si quieres que no sea full width */}
+    <main className="w-full">
       <div className="mx-auto w-full">
-        <div className="flex items-start justify-between gap-4">
-          <RouteTitle>Mi sitio web</RouteTitle>
+        <div className="flex items-center justify-between gap-4">
+          {/*margen del TÍTULO*/}
+          <RouteTitle className="mb-6">Sitio web</RouteTitle>
 
-          {/* TUS BOTONES (tal cual) */}
-          <div className="flex gap-3 mt-15">
+          {/*eparación ENTRE botones*/}
+          <div className="flex gap-3">
             <RoundAction as="a" href={url} label="Abrir sitio web">
               <WebsiteIcon size={20} />
             </RoundAction>
@@ -202,8 +199,6 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
-
-        {/* REVIEW auto-height (se baja, no se queda chico) */}
         <section className="mt-2 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
           <iframe
             ref={iframeRef}
