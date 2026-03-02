@@ -175,9 +175,9 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   return (
     <main className="w-full">
       <div className="mx-auto w-full">
-        <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4 pb-6">
           {/*margen del TÍTULO*/}
-          <RouteTitle className="mb-6">Sitio web</RouteTitle>
+          <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
           {/*eparación ENTRE botones*/}
           <div className="flex gap-3">
@@ -199,7 +199,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
-        <section className="mt-2 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+        <section className=" rounded-2xl border border-brand_stroke bg-white overflow-hidden">
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
