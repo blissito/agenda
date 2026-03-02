@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/breadcrump"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.servicios_.$serviceId"
+import { Image } from "~/components/common/Image"
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   // @TODO ensure is the owner
@@ -21,10 +22,12 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   if (!org) {
     throw new Response("Organization not found", { status: 404 })
   }
+
   const service = await db.service.findUnique({
     where: { id: params.serviceId, orgId: org.id }, // @TODO: this can vary if multiple orgs
   })
   if (!service) throw new Response(null, { status: 404 })
+
   // Provide default config if none exists
   const defaultConfig = {
     confirmation: false,
@@ -34,6 +37,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
     whatsapp_reminder: false,
     reminderHours: 4,
   }
+
   return {
     service: {
       ...service,
@@ -82,12 +86,11 @@ export const convertToMeridian = (hourString: string) => {
 
 /**
  * ✅ Uploader LOCAL (sin BD / sin storage)
- * - Predeterminada mientras no subas nada
  * - NO duplica imágenes
  * - Animación en cada imagen nueva
  * - Scroll SOLO cuando ya hay 3 o más, y se mueve a la nueva
  */
-function LocalFloatingGallery() {
+function LocalFloatingGallery({ coverSrc }: { coverSrc?: string | null }) {
   const inputRef = React.useRef<HTMLInputElement | null>(null)
 
   const [images, setImages] = React.useState<
@@ -96,14 +99,6 @@ function LocalFloatingGallery() {
   const [activeId, setActiveId] = React.useState<string | null>(null)
   const [newIds, setNewIds] = React.useState<string[]>([])
 
-  const DEFAULT_MAIN_SRC = "/images/signin/Serve.png"
-
-  // 2 predeterminadas abajo (solo antes de subir)
-  const DEFAULT_THUMBS = [
-    "/images/signin/Serve.png",
-    "/images/signin/Serve.png",
-  ]
-
   const getFileKey = (file: File) =>
     `${file.name}-${file.size}-${file.lastModified}`
 
@@ -111,7 +106,6 @@ function LocalFloatingGallery() {
     return () => {
       images.forEach((img) => URL.revokeObjectURL(img.url))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images])
 
   const openPicker = () => inputRef.current?.click()
@@ -172,15 +166,14 @@ function LocalFloatingGallery() {
 
   const hasUploads = images.length > 0
 
-  const main = hasUploads
+  const mainLocal = hasUploads
     ? (images.find((x) => x.id === activeId) ?? images[0])
     : null
 
-  const mainUrl = hasUploads ? main?.url : DEFAULT_MAIN_SRC
-
+  const hasCover = Boolean(coverSrc)
+  const showLocalMain = !hasCover && Boolean(mainLocal?.url)
   return (
     <div className="flex flex-col">
-      {/* solo para ocultar scrollbar (solo aquí) */}
       <style>{`
         .lg-scrollbar-hide { -ms-overflow-style:none; scrollbar-width:none; }
         .lg-scrollbar-hide::-webkit-scrollbar{ display:none; }
@@ -192,63 +185,64 @@ function LocalFloatingGallery() {
         }
         .lg-thumb-pop { animation: lg-thumb-pop 700ms cubic-bezier(.2,.9,.2,1) both; }
       `}</style>
-
-      {/* Principal */}
       <div className="overflow-hidden rounded-2xl bg-neutral-100 border border-brand_stroke/50">
         <div className="relative w-full h-[280px] sm:h-[320px] lg:h-[340px]">
-          <img
-            src={mainUrl}
-            alt="Imagen principal del servicio"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          {showLocalMain ? (
+            <img
+              src={mainLocal?.url}
+              alt="Imagen principal del servicio"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 [&_img]:h-full [&_img]:w-full [&_img]:object-cover">
+              <Image alt="Imagen principal del servicio" src={coverSrc ?? ""} />
+            </div>
+          )}
         </div>
       </div>
-
       <div className="mt-3">
         <div className="relative overflow-x-auto lg-scrollbar-hide">
-          <div className="flex items-stretch gap-3 pr-2">
-            {/* Miniaturas */}
-            {!hasUploads
-              ? DEFAULT_THUMBS.map((src, idx) => (
-                  <div
-                    key={`default-${idx}`}
-                    className="h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border border-brand_stroke/40 shrink-0 bg-neutral-50"
+          <div className="flex items-stretch gap-3 pr-2 w-full">
+            {!hasUploads && (
+              <>
+                <div
+                  aria-hidden="true"
+                  className="h-24 sm:h-28 w-40 shrink-0 rounded-2xl invisible"
+                />
+                <div
+                  aria-hidden="true"
+                  className="h-24 sm:h-28 w-40 shrink-0 rounded-2xl invisible"
+                />
+              </>
+            )}
+            {hasUploads &&
+              images.map((img) => {
+                const isActive = img.id === (mainLocal?.id ?? "")
+                const isNew = newIds.includes(img.id)
+
+                return (
+                  <button
+                    key={img.id}
+                    data-thumb-id={img.id}
+                    type="button"
+                    onClick={() => setActiveId(img.id)}
+                    className={[
+                      "h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border shrink-0",
+                      isActive
+                        ? "border-neutral-900/40"
+                        : "border-brand_stroke/50",
+                      isNew ? "lg-thumb-pop" : "",
+                    ].join(" ")}
+                    aria-label="Seleccionar imagen"
                   >
                     <img
-                      src={src}
-                      alt="Imagen predeterminada"
-                      className="h-full w-full object-cover opacity-90"
+                      src={img.url}
+                      alt="Miniatura"
+                      className="h-full w-full object-cover"
                     />
-                  </div>
-                ))
-              : images.map((img) => {
-                  const isActive = img.id === (main?.id ?? "")
-                  const isNew = newIds.includes(img.id)
-
-                  return (
-                    <button
-                      key={img.id}
-                      data-thumb-id={img.id}
-                      type="button"
-                      onClick={() => setActiveId(img.id)}
-                      className={[
-                        "h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border shrink-0",
-                        isActive
-                          ? "border-neutral-900/40"
-                          : "border-brand_stroke/50",
-                        isNew ? "lg-thumb-pop" : "",
-                      ].join(" ")}
-                      aria-label="Seleccionar imagen"
-                    >
-                      <img
-                        src={img.url}
-                        alt="Miniatura"
-                        className="h-full w-full object-cover"
-                      />
-                    </button>
-                  )
-                })}
-
+                  </button>
+                )
+              })}
             <div className="sticky right-0 shrink-0 flex items-stretch">
               <div className="pl-3 bg-white flex items-stretch">
                 <button
@@ -272,7 +266,7 @@ function LocalFloatingGallery() {
                         />
                       </svg>
                     </div>
-                    <p className="font-satoMedium text-sm  text-brand_gray leading-tight">
+                    <p className="font-satoMedium text-sm text-brand_gray leading-tight">
                       Agregar o editar fotos
                     </p>
                   </div>
@@ -344,11 +338,6 @@ export const ServiceDetail = ({
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-5 border border-brand_stroke/60 h-full flex flex-col">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
-              {/*{service.category ?(<-- Nombre de la categoria   
-            <span className="inline-flex items-center gap-2 rounded-[4px] bg-[#D5FAF1] px-3 py-1 text-[14px] font-satoMedium text-[#2A645F]">
-             
-              </span>
-               ):null */}
               <h2 className="font-satoBold text-[24px]  text-brand_dark">
                 {service.name}
               </h2>
@@ -359,9 +348,11 @@ export const ServiceDetail = ({
               label="Editar"
             />
           </div>
+
           <p className="mt-4 max-w-[46ch] font-satoMedium text-brand_gray">
             {service.description}
           </p>
+
           <div className="mt-8 space-y-6grid grid-cols-2 gap-10">
             <DetailItem label="Servicio" value={service.place || ""} />
             <DetailItem
@@ -377,6 +368,7 @@ export const ServiceDetail = ({
               }
             />
           </div>
+
           <div className="mt-auto pt-10">
             <div className="grid grid-cols-2 gap-10 items-end">
               <div className="space-y-2">
@@ -398,8 +390,9 @@ export const ServiceDetail = ({
             </div>
           </div>
         </div>
+
         <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-7 border border-brand_stroke/60">
-          <LocalFloatingGallery />
+          <LocalFloatingGallery coverSrc={(service as any)?.gallery?.[0]} />
         </div>
       </div>
 
@@ -444,23 +437,22 @@ export const ServiceDetail = ({
           <div className="mt-4 space-y-4">
             <DetailItem
               label="Pago"
-              value={service.payment ? "Despues de la cita" : "Al agendar"}
+              value={service.payment ? "Al agendar" : "Despues de la cita"}
             />
 
             <DetailItem
               label="Mail de confirmación"
               value={
-                service.config?.confirmation
+                (service as any).config?.confirmation
                   ? "Lo enviaremos en cuanto se complete la reservación"
                   : "Desactivado"
               }
             />
 
-            {/*  AGREGADO:*/}
             <DetailItem
               label="Whatsapp de confirmación"
               value={
-                service.config?.whatsapp_confirmation
+                (service as any).config?.whatsapp_confirmation
                   ? "Lo enviaremos en cuanto se complete la reservación"
                   : "Desactivado"
               }
@@ -469,7 +461,7 @@ export const ServiceDetail = ({
             <DetailItem
               label="Mail de recordatorio"
               value={
-                service.config?.reminder
+                (service as any).config?.reminder
                   ? "Lo enviaremos 24 hrs antes de la sesión"
                   : "Desactivado"
               }
@@ -478,7 +470,7 @@ export const ServiceDetail = ({
             <DetailItem
               label="Whatsapp de recordatorio"
               value={
-                service.config?.whatsapp_reminder
+                (service as any).config?.whatsapp_reminder
                   ? "Lo enviaremos 24 hrs antes de la sesión"
                   : "Desactivado"
               }
@@ -487,13 +479,12 @@ export const ServiceDetail = ({
             <DetailItem
               label="Mail de evaluación"
               value={
-                service.config?.survey
+                (service as any).config?.survey
                   ? "Lo enviaremos 10 min después de terminar la sesión"
                   : "Desactivado"
               }
             />
           </div>
-
         </div>
       </div>
 

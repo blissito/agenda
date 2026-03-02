@@ -1,13 +1,15 @@
 import { type ReactNode } from "react"
+import { twMerge } from "tailwind-merge"
 
 export const RouteTitle = ({
   children,
+  className,
   ...props
 }: {
-  props?: unknown
   children: ReactNode
-}) => (
-  <h1 className="text-3xl font-semibold mb-8" {...props}>
+  className?: string
+} & React.HTMLAttributes<HTMLHeadingElement>) => (
+  <h1 className={twMerge("text-3xl font-semibold mb-8", className)} {...props}>
     {children}
   </h1>
 )
