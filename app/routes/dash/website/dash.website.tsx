@@ -11,6 +11,8 @@ import { Website as WebsiteIcon } from "~/components/icons/Website"
 import { Share } from "~/components/icons/Share"
 import { Edit2 } from "~/components/icons/Edit2"
 
+import { ShareWebsiteModal } from "~/routes/dash/website/ShareWebsiteModal"
+
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
     select: {
@@ -94,8 +96,8 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   const roRef = useRef<ResizeObserver | null>(null)
 
-  const [shared, setShared] = useState(false)
   const [iframeHeight, setIframeHeight] = useState<number>(900)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const iframeSrc = useMemo(() => {
     const u = (previewUrl ?? "").trim()
@@ -105,19 +107,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
     return `https://${u}`
   }, [previewUrl])
 
-  const onShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: org.name ?? "Sitio web", url })
-        return
-      }
-      await navigator.clipboard.writeText(url)
-      setShared(true)
-      window.setTimeout(() => setShared(false), 1200)
-    } catch {
-      // no rompemos navegación
-    }
-  }
+  const onShare = () => setShareOpen(true)
 
   const syncIframeHeight = () => {
     try {
@@ -135,7 +125,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
 
       setIframeHeight(clamped)
     } catch {
-      // cross-origin: no se puede medir altura, se queda con el alto fallback
+      // cross-origin
     }
   }
 
@@ -175,11 +165,9 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   return (
     <main className="w-full">
       <div className="mx-auto w-full">
-      <div className="flex items-center justify-between gap-4 pb-6">
-          {/*margen del TÍTULO*/}
+        <div className="flex items-center justify-between gap-4 pb-6">
           <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
-          {/*eparación ENTRE botones*/}
           <div className="flex gap-3">
             <RoundAction as="a" href={url} label="Abrir sitio web">
               <WebsiteIcon className="w-5 h-5" />
@@ -199,7 +187,8 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
-        <section className=" rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+
+        <section className="rounded-2xl border border-brand_stroke bg-white overflow-hidden">
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
@@ -213,6 +202,14 @@ export default function Website({ loaderData }: Route.ComponentProps) {
           />
         </section>
       </div>
+
+      <ShareWebsiteModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={url}
+        orgName={org?.name}
+        orgSlug={org?.slug}
+      />
     </main>
   )
 }

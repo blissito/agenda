@@ -1,5 +1,5 @@
 export const Linkedin = ({
-  fill = "#11151A",
+  fill = "currentColor",
   className = "className",
 }: {
   fill?: string

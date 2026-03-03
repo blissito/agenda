@@ -1,5 +1,5 @@
 export const Facebook = ({
-  fill = "#11151A",
+  fill = "currentColor",
   className,
 }: {
   fill?: string
