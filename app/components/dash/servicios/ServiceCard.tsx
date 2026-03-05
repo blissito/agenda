@@ -158,7 +158,7 @@ export const ServiceCard = ({
         isOpen={showDelete}
         onClose={() => setShowDelete(false)}
         onConfirm={handleDeleteConfirm}
-        title="¿Seguro que quieres eliminar este servicio? 🫣"
+        title="¿Seguro que quieres eliminar este servicio?"
         description="Al eliminarlo también eliminaremos todas las citas agendadas del servicio. Enviaremos una notificación a cada client@."
         confirmText="Sí, eliminar"
         cancelText="Cancelar"

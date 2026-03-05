@@ -150,7 +150,7 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
           >
             <svg
               viewBox="0 0 24 24"
-              className="h-[13px] w-[13px] text-brand_gray"
+              className="h-[19px] w-[19px] text-brand_gray"
               fill="none"
               aria-hidden="true"
             >
