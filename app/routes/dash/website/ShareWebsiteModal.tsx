@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { Facebook } from "~/components/icons/facebook"
-import { WhatsApp } from "~/components/icons/WhatsApp" 
+import { WhatsApp } from "~/components/icons/WhatsApp"
 import { Linkedin } from "~/components/icons/linkedin"
 import { Twitter } from "~/components/icons/twitter"
 import { Copy } from "~/components/icons/Copy"
@@ -18,6 +18,59 @@ function clampXText(text: string) {
   const MAX = 220
   if (text.length <= MAX) return text
   return text.slice(0, MAX - 1).trimEnd() + "…"
+}
+
+/** Reusable share button (para no repetir) */
+type ShareButtonProps =
+  | {
+      label: string
+      href: string
+      onClick?: never
+      bgClassName: string
+      icon: React.ReactNode
+      onAfterClick?: () => void
+    }
+  | {
+      label: string
+      href?: never
+      onClick: () => void
+      bgClassName: string
+      icon: React.ReactNode
+      disabled?: boolean
+      title?: string
+    }
+
+const ShareButton = (props: ShareButtonProps) => {
+  const base = "h-10 w-10 rounded-full flex items-center justify-center shadow-sm"
+
+  if ("href" in props) {
+    return (
+      <a
+        href={props.href}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={props.label}
+        title={props.label}
+        className={`${base} ${props.bgClassName}`}
+        onClick={() => props.onAfterClick?.()}
+      >
+        {props.icon}
+      </a>
+    )
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={props.onClick}
+      disabled={props.disabled}
+      aria-label={props.label}
+      title={props.title ?? props.label}
+      className={`${base} ${props.bgClassName} disabled:opacity-60`}
+    >
+      {props.icon}
+    </button>
+  )
 }
 
 export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Props) => {
@@ -50,7 +103,6 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`,
     }
   }, [url, waText, twText])
-  
 
   const copyToClipboard = async () => {
     try {
@@ -81,6 +133,7 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
     try {
       if (!url) return
       setDownloadingQr(true)
+
       const mod: any = await import("qrcode")
       const QR = mod?.default ?? mod
 
@@ -124,12 +177,13 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-brand_dark/20 backdrop-blur-sm px-4"
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-brand_gray/15 backdrop-blur-sm"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       <div className="relative w-full max-w-[608px]">
+        {/* Badge */}
         <div className="absolute left-1/2 -top-14 -translate-x-1/2 z-20">
           <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
             <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
@@ -141,16 +195,17 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
         </div>
 
         <div className="relative rounded-2xl bg-white shadow-xl pt-20 border border-brand_stroke">
+          {/* Close */}
           <button
             type="button"
-            className="absolute right-5 top-5 h-9 w-9 rounded-full border border-brand_stroke bg-white hover:bg-brand_light_gray flex items-center justify-center"
+            className="absolute right-5 top-5 h-8 w-8 rounded-full border border-brand_stroke bg-white hover:bg-brand_light_gray flex items-center justify-center"
             onClick={onClose}
             aria-label="Cerrar"
             title="Cerrar"
           >
             <svg
               viewBox="0 0 24 24"
-              className="h-[19px] w-[19px] text-brand_gray"
+              className="h-[13px] w-[13px] text-brand_gray"
               fill="none"
               aria-hidden="true"
             >
@@ -164,15 +219,13 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
           </button>
 
           <div className="px-8 pb-8">
-            <h3 className="text-center text-2xl font-bold text-brand_dark">
-              ¡Comparte con tus clientes!
-            </h3>
-            <p className="mt-3 mx-auto max-w-[540px] text-center text-base font-satoMedium text-brand_gray">
+            <h3 className="text-center text-2xl font-title">¡Comparte con tus clientes!</h3>
+            <p className="mt-4 mx-auto max-w-[540px] text-center text-base font-satoMedium text-brand_gray">
               Es hora de que tus clientes se enteren de que tus servicios ya están disponibles.
               Comparte ya en tus redes sociales.
             </p>
             <div className="mt-8">
-              <div className="h-14 flex items-center gap-3 rounded-xl bg-brand_sky border border-brand_stroke px-6">
+              <div className="mx-auto w-[544px] h-12 flex items-center gap-3 rounded-xl bg-brand_sky px-6">
                 <p className="flex-1 truncate text-center text-sm font-satoMedium text-brand_gray">
                   {url}
                 </p>
@@ -188,18 +241,14 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
                 </button>
               </div>
             </div>
-            <div className="mt-6 flex items-center justify-center gap-4">
-              <a
+            <div className="mx-auto mt-6 w-[544px] flex items-center justify-center gap-4">
+              <ShareButton
+                label="Facebook"
                 href={shareLinks.facebook}
-                target="_blank"
-                rel="noreferrer"
-                className="h-10 w-10 rounded-full bg-[#1877F2] text-white flex items-center justify-center shadow-sm"
-                title="Facebook"
-                aria-label="Facebook"
-                onClick={onClose}
-              >
-                <Facebook  />
-              </a>
+                bgClassName="bg-[#1877F2] text-white"
+                icon={<Facebook />}
+                onAfterClick={onClose}
+              />
               <a
                 href={shareLinks.twitter}
                 target="_blank"
@@ -211,40 +260,30 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
               >
                 <Twitter />
               </a>
-              <a
+
+              <ShareButton
+                label="WhatsApp"
                 href={shareLinks.whatsapp}
-                target="_blank"
-                rel="noreferrer"
-                className="h-10 w-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-sm"
-                title="WhatsApp"
-                aria-label="WhatsApp"
-                onClick={onClose}
-              >
-                <WhatsApp />
-              </a>
-              <a
+                bgClassName="bg-[#25D366] text-white"
+                icon={<WhatsApp />}
+                onAfterClick={onClose}
+              />
+
+              <ShareButton
+                label="Linkedin"
                 href={shareLinks.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="h-10 w-10 rounded-full bg-[#0A66C2] text-white flex items-center justify-center shadow-sm"
-                title="Linkedin"
-                aria-label="Linkedin"
-                onClick={onClose}
-              >
-                <Linkedin className="fill-white text-white" />
-              </a>
-              <button
-                type="button"
+                bgClassName="bg-[#0A66C2] text-white"
+                icon={<Linkedin className="fill-white text-white" />}
+                onAfterClick={onClose}
+              />
+
+              <ShareButton
+                label={downloadingQr ? "Generando…" : "Descargar QR"}
                 onClick={downloadQr}
                 disabled={downloadingQr}
-                className="h-10 w-10 rounded-full flex items-center justify-center disabled:opacity-60"
-                title={downloadingQr ? "Generando…" : "Descargar QR"}
-                aria-label="Descargar QR"
-              >
-                <div className="h-10 w-10 rounded-full bg-brand_yellow flex items-center justify-center">
-                  <QrCode className="h-5 w-5 text-brand_dark" />
-                </div>
-              </button>
+                bgClassName="bg-brand_yellow text-brand_dark"
+                icon={<QrCode className="h-5 w-5 text-brand_dark" />}
+              />
             </div>
           </div>
         </div>
