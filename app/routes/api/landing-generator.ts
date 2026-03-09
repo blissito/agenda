@@ -85,6 +85,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const theme = formData.get("theme") as string | null
     const publish = formData.get("publish") === "true"
 
+    console.log("[landing-generator] save intent — publish:", publish, "orgId:", org.id, "sectionsLength:", sectionsRaw?.length)
+
     if (!sectionsRaw) {
       return Response.json({ error: "Missing sections" }, { status: 400 })
     }
@@ -96,14 +98,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return Response.json({ error: "Invalid sections JSON" }, { status: 400 })
     }
 
-    await db.org.update({
-      where: { id: org.id },
-      data: {
-        landingSections: Array.isArray(sections) ? (sections as any) : [],
-        landingTheme: theme || undefined,
-        landingPublished: publish,
-      },
-    })
+    try {
+      await db.org.update({
+        where: { id: org.id },
+        data: {
+          landingSections: Array.isArray(sections) ? (sections as any) : [],
+          landingTheme: theme || undefined,
+          landingPublished: publish,
+        },
+      })
+      console.log("[landing-generator] save OK — published:", publish)
+    } catch (e) {
+      console.error("[landing-generator] save FAILED:", e)
+      return Response.json({ error: "DB update failed" }, { status: 500 })
+    }
 
     return Response.json({ ok: true })
   }
