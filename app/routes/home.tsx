@@ -28,11 +28,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
       const sections = raw as unknown as Section3[]
       const html = buildDeployHtml(sections, resolution.org.landingTheme || undefined)
-      throw new Response(html, {
+      return new Response(html, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       })
     } catch (err) {
-      if (err instanceof Response) throw err
       console.error("Failed to build landing HTML:", err)
       // Fall through to normal rendering
     }
