@@ -35,9 +35,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const url = getOrgPublicUrl(org.slug, request.url)
 
-  // preview: template 1 + modo embed
+  // preview: just embed mode (AI landing or template, whichever is active)
   const previewUrlObj = new URL(url)
-  previewUrlObj.searchParams.set("template", "defaultTemplate")
   previewUrlObj.searchParams.set("embed", "1")
   const previewUrl = previewUrlObj.toString()
 
