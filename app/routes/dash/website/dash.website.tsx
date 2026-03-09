@@ -189,18 +189,18 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             </Link>
 
             <RoundAction as="a" href={url} label="Abrir sitio web">
-              <WebsiteIcon size={20} />
+              <WebsiteIcon className="w-5 h-5" />
             </RoundAction>
 
             <RoundAction label="Compartir" onClick={onShare}>
-              <Share size={20} />
+              <Share className="w-5 h-5" />
             </RoundAction>
 
             <TemplateFormModal
               org={org}
               trigger={
                 <RoundAction label="Editar sitio web">
-                  <Edit2 size={20} />
+                  <Edit2 className="w-5 h-5" />
                 </RoundAction>
               }
             />
