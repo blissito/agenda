@@ -74,15 +74,19 @@ function buildOrgPrompt(org: Org, services: Service[]): string {
 
 // ==================== AI CONFIG ====================
 
-function getAIKeys(): { openaiApiKey?: string; anthropicApiKey?: string } {
+function getAIKeys(): { openaiApiKey?: string; anthropicApiKey?: string; pexelsApiKey?: string } {
+  const keys: { openaiApiKey?: string; anthropicApiKey?: string; pexelsApiKey?: string } = {}
   if (process.env.OPENAI_API_KEY) {
-    return { openaiApiKey: process.env.OPENAI_API_KEY }
+    keys.openaiApiKey = process.env.OPENAI_API_KEY
   }
   // Anthropic SDK auto-reads ANTHROPIC_API_KEY from env — no need to pass explicitly
   if (process.env.ANTHROPIC_API_KEY) {
-    return { anthropicApiKey: process.env.ANTHROPIC_API_KEY }
+    keys.anthropicApiKey = process.env.ANTHROPIC_API_KEY
   }
-  return {}
+  if (process.env.PEXELS_API_KEY) {
+    keys.pexelsApiKey = process.env.PEXELS_API_KEY
+  }
+  return keys
 }
 
 // ==================== GENERATION ====================

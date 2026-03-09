@@ -7,10 +7,12 @@ import {
   SectionList,
   FloatingToolbar,
   CodeEditor,
+  ViewportToggle,
   LANDING_THEMES,
   type CanvasHandle,
   type Section3,
   type IframeMessage,
+  type Viewport,
 } from "@easybits.cloud/html-tailwind-generator"
 import type { Route } from "./+types/dash.website_.ai"
 
@@ -57,6 +59,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [viewport, setViewport] = useState<Viewport>("desktop")
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
@@ -429,9 +432,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         </div>
 
         {/* Canvas */}
-        <div className="flex-1 bg-gray-100 relative overflow-hidden">
+        <div className="flex-1 bg-gray-100 relative overflow-hidden flex flex-col">
+          {sections.length > 0 && (
+            <ViewportToggle value={viewport} onChange={setViewport} />
+          )}
           {sections.length > 0 ? (
-            <>
+            <div className={`flex-1 overflow-auto relative ${viewport !== "desktop" ? "flex justify-center" : ""}`}>
+              <div
+                className={`transition-all duration-300 h-full ${viewport !== "desktop" ? "shrink-0" : ""}`}
+                style={{ width: viewport === "tablet" ? 768 : viewport === "mobile" ? 375 : "100%" }}
+              >
               <Canvas
                 ref={canvasRef}
                 sections={sections}
@@ -440,7 +450,8 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 iframeRectRef={iframeRectRef}
               />
               <div ref={streamEndRef} />
-            </>
+              </div>
+            </div>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
               {isGenerating ? (
