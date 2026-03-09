@@ -13,7 +13,7 @@ import TemplateTwo from "~/components/templates/TemplateTwo"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
-import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
+import type { Section3 } from  "@easybits.cloud/html-tailwind-generator"
 import type { Route } from "./+types/home"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -21,19 +21,16 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (resolution.type === "not_found") {
     throw new Response("Empresa no encontrada", { status: 404 })
   }
-  // Serve AI-generated landing as raw HTML if published
+  // Build AI landing HTML if published
   if (resolution.type === "org" && resolution.org.landingPublished && resolution.org.landingSections) {
     try {
       const raw = resolution.org.landingSections
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
       const sections = raw as unknown as Section3[]
       const html = buildDeployHtml(sections, resolution.org.landingTheme || undefined)
-      return new Response(html, {
-        headers: { "Content-Type": "text/html; charset=utf-8" },
-      })
+      return { ...resolution, aiLandingHtml: html }
     } catch (err) {
       console.error("Failed to build landing HTML:", err)
-      // Fall through to normal rendering
     }
   }
   return resolution
@@ -55,6 +52,16 @@ export const meta = ({ data }: Route.MetaArgs) => {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   if (loaderData.type === "org") {
+    // AI-generated landing takes priority
+    if ("aiLandingHtml" in loaderData && loaderData.aiLandingHtml) {
+      return (
+        <iframe
+          srcDoc={loaderData.aiLandingHtml as string}
+          style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
+          title="Landing"
+        />
+      )
+    }
     const { org } = loaderData
     return org.websiteConfig?.template === "defaultTemplate" ? (
       <TemplateOne org={org} services={org.services} link="" />
