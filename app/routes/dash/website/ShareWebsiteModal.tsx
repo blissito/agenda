@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
+import type { ReactNode } from "react"
+
+import { X } from "~/components/icons/x"
 import { Facebook } from "~/components/icons/facebook"
 import { WhatsApp } from "~/components/icons/WhatsApp"
 import { Linkedin } from "~/components/icons/linkedin"
@@ -27,7 +30,7 @@ type ShareButtonProps =
       href: string
       onClick?: never
       bgClassName: string
-      icon: React.ReactNode
+      icon: ReactNode
       onAfterClick?: () => void
     }
   | {
@@ -35,7 +38,7 @@ type ShareButtonProps =
       href?: never
       onClick: () => void
       bgClassName: string
-      icon: React.ReactNode
+      icon: ReactNode
       disabled?: boolean
       title?: string
     }
@@ -72,6 +75,20 @@ const ShareButton = (props: ShareButtonProps) => {
     </button>
   )
 }
+
+/** Close button encapsulado (círculo + icono X) */
+const CloseButton = ({ onClick }: { onClick: () => void }) => (
+  <button
+    type="button"
+    className="absolute right-5 top-5 h-8 w-8 rounded-full border border-brand_stroke bg-white hover:bg-brand_light_gray flex items-center justify-center"
+    onClick={onClick}
+    aria-label="Cerrar"
+    title="Cerrar"
+  >
+    {/* No le pasamos className: tu x.tsx ya define el tamaño/estilo */}
+    <X />
+  </button>
+)
 
 export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Props) => {
   const [copied, setCopied] = useState(false)
@@ -195,35 +212,16 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
         </div>
 
         <div className="relative rounded-2xl bg-white shadow-xl pt-20 border border-brand_stroke">
-          {/* Close */}
-          <button
-            type="button"
-            className="absolute right-5 top-5 h-8 w-8 rounded-full border border-brand_stroke bg-white hover:bg-brand_light_gray flex items-center justify-center"
-            onClick={onClose}
-            aria-label="Cerrar"
-            title="Cerrar"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="h-[13px] w-[13px] text-brand_gray"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M18 6L6 18M6 6l12 12"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
+          <CloseButton onClick={onClose} />
 
           <div className="px-8 pb-8">
-            <h3 className="text-center text-2xl font-title">¡Comparte con tus clientes!</h3>
+            <h3 className="text-center text-2xl font-satoBold">¡Comparte con tus clientes!</h3>
+
             <p className="mt-4 mx-auto max-w-[540px] text-center text-base font-satoMedium text-brand_gray">
               Es hora de que tus clientes se enteren de que tus servicios ya están disponibles.
               Comparte ya en tus redes sociales.
             </p>
+
             <div className="mt-8">
               <div className="mx-auto w-[544px] h-12 flex items-center gap-3 rounded-xl bg-brand_sky px-6">
                 <p className="flex-1 truncate text-center text-sm font-satoMedium text-brand_gray">
@@ -241,6 +239,7 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
                 </button>
               </div>
             </div>
+
             <div className="mx-auto mt-6 w-[544px] flex items-center justify-center gap-4">
               <ShareButton
                 label="Facebook"

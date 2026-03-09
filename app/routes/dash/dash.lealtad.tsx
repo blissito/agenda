@@ -432,12 +432,12 @@ function EmptyStateLoyalty({ fetcher }: { fetcher: ReturnType<typeof useFetcher>
   return (
     <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center">
       <div className="text-center">
-        <img className="mx-auto mb-4" src="/images/no-result.svg" alt="" />
-        <p className="font-satoMedium text-xl font-bold">
-          Activa el programa de lealtad <span className="text-2xl">🧧</span>
+        <img className="mx-auto mb-4" src="/images/empty state/loyalty.png" alt="" />
+        <p className=" text-xl font-satoBold">
+        ¡Convierte visitas en clientes frecuentes! 
         </p>
-        <p className="mt-2 text-brand_gray">
-          Ofrece tarjetas de regalo y descuentos a tus clientes más fieles
+        <p className="mt-2 mx-auto max-w-[620px] text-brand_gray text-center">
+        Activa el programa de lealtad y ofrece descuentos permanentes a tus clientes más fieles, además de promociones para temporadas especiales
         </p>
         <fetcher.Form method="post">
           <input type="hidden" name="intent" value="enable-loyalty" />
