@@ -342,6 +342,14 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             <>
               <button
                 type="button"
+                onClick={handleGenerate}
+                disabled={isGenerating || isLoading}
+                className="px-3 py-1.5 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 disabled:opacity-50"
+              >
+                {isGenerating ? "Regenerando..." : "Regenerar"}
+              </button>
+              <button
+                type="button"
                 onClick={() => handleSave(false)}
                 disabled={isSaving}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
@@ -417,18 +425,6 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             </div>
           )}
 
-          {hasExistingSections && (
-            <div className="p-4 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={handleGenerate}
-                disabled={isGenerating || isLoading}
-                className="w-full px-3 py-2 text-sm bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 disabled:opacity-50"
-              >
-                {isGenerating ? "Regenerando..." : "Regenerar todo"}
-              </button>
-            </div>
-          )}
         </div>
 
         {/* Canvas */}
