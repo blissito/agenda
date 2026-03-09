@@ -275,6 +275,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             s.id === msg.sectionId ? { ...s, html: msg.sectionHtml || s.html } : s,
           ),
         )
+      } else if (msg.type === "section-html-updated" && msg.sectionId && msg.sectionHtml) {
+        setSections((prev) =>
+          prev.map((s) =>
+            s.id === msg.sectionId ? { ...s, html: msg.sectionHtml } : s,
+          ),
+        )
       }
     },
     [],
@@ -348,6 +354,15 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           )}
           {saveMessage && (
             <span className="text-sm text-green-600 font-medium">{saveMessage}</span>
+          )}
+          {isGenerating && (
+            <button
+              type="button"
+              onClick={() => { abortRef.current?.abort(); setIsGenerating(false) }}
+              className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50"
+            >
+              Detener
+            </button>
           )}
           {hasExistingSections && (
             <>
@@ -433,6 +448,15 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               >
                 {isGenerating ? "Generando..." : "Generar landing"}
               </button>
+              {isGenerating && (
+                <button
+                  type="button"
+                  onClick={() => { abortRef.current?.abort(); setIsGenerating(false) }}
+                  className="w-full px-4 py-2 mt-2 border border-red-300 text-red-700 rounded-xl hover:bg-red-50 text-sm font-medium"
+                >
+                  Detener
+                </button>
+              )}
             </div>
           )}
 
