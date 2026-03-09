@@ -14,6 +14,8 @@ import {
 } from "@easybits.cloud/html-tailwind-generator"
 import type { Route } from "./+types/dash.website_.ai"
 
+export const handle = { hideSidebar: true }
+
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
     select: {

@@ -32,6 +32,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       })
     } catch (err) {
+      if (err instanceof Response) throw err
       console.error("Failed to build landing HTML:", err)
       // Fall through to normal rendering
     }
