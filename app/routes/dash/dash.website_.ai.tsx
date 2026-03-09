@@ -136,20 +136,37 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     }
   }, [])
 
-  // Handle fetcher data for refine/save
-  if (fetcher.data && isRefining) {
-    const data = fetcher.data as { html?: string; error?: string }
-    if (data.error) {
-      setErrorMessage(data.error)
+  // Handle fetcher responses (refine + save)
+  const lastFetcherDataRef = useRef<unknown>(null)
+  useEffect(() => {
+    if (fetcher.state !== "idle" || !fetcher.data || fetcher.data === lastFetcherDataRef.current) return
+    lastFetcherDataRef.current = fetcher.data
+    const data = fetcher.data as { html?: string; ok?: boolean; error?: string }
+
+    if (isRefining) {
+      if (data.error) {
+        setErrorMessage(data.error)
+      } else if (data.html && selectedSectionId) {
+        setSections((prev) =>
+          prev.map((s) => (s.id === selectedSectionId ? { ...s, html: data.html as string } : s)),
+        )
+        setErrorMessage(null)
+      }
       setIsRefining(false)
-    } else if (data.html && selectedSectionId) {
-      setSections((prev) =>
-        prev.map((s) => (s.id === selectedSectionId ? { ...s, html: data.html as string } : s)),
-      )
-      setIsRefining(false)
-      setErrorMessage(null)
     }
-  }
+
+    if (isSaving && pendingSaveRef.current) {
+      if (data.error) {
+        setErrorMessage(data.error)
+      } else if (data.ok) {
+        const msg = pendingSaveRef.current.publish ? "Landing publicada" : "Borrador guardado"
+        setSaveMessage(msg)
+        setTimeout(() => setSaveMessage(null), 3000)
+      }
+      setIsSaving(false)
+      pendingSaveRef.current = null
+    }
+  }, [fetcher.state, fetcher.data])
 
   // Refine section
   const handleRefine = useCallback(
@@ -190,19 +207,6 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     [sections, theme, fetcher],
   )
 
-  // Handle save response
-  if (fetcher.data && isSaving && pendingSaveRef.current) {
-    const data = fetcher.data as { ok?: boolean; error?: string }
-    if (data.error) {
-      setErrorMessage(data.error)
-    } else if (data.ok) {
-      const msg = pendingSaveRef.current.publish ? "Landing publicada" : "Borrador guardado"
-      setSaveMessage(msg)
-      setTimeout(() => setSaveMessage(null), 3000)
-    }
-    setIsSaving(false)
-    pendingSaveRef.current = null
-  }
 
   // Section operations
   const handleReorder = useCallback((from: number, to: number) => {
@@ -258,6 +262,20 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       }
     },
     [],
+  )
+
+  const handleUpdateAttribute = useCallback(
+    (sectionId: string, elementPath: string, attr: string, value: string) => {
+      canvasRef.current?.postMessage({
+        action: "update-attribute",
+        sectionId,
+        elementPath,
+        tagName: selection?.tagName || "*",
+        attr,
+        value,
+      })
+    },
+    [selection?.tagName],
   )
 
   const handleMoveUp = useCallback(() => {
@@ -323,7 +341,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 disabled={isSaving}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
               >
-                Guardar borrador
+                {isSaving && !pendingSaveRef.current?.publish ? "Guardando..." : "Guardar borrador"}
               </button>
               <button
                 type="button"
@@ -331,7 +349,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 disabled={isSaving}
                 className="px-3 py-1.5 text-sm bg-brand_blue text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                Publicar
+                {isSaving && pendingSaveRef.current?.publish ? "Publicando..." : "Publicar"}
               </button>
             </>
           )}
@@ -468,6 +486,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 setSelection(null)
                 setSelectedSectionId(null)
               }}
+              onUpdateAttribute={handleUpdateAttribute}
               onViewCode={() => {
                 const s = sections.find((sec) => sec.id === selectedSectionId)
                 if (s) setCodeEditorSection(s)
