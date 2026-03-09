@@ -8,6 +8,8 @@ import TemplateTwo from "~/components/templates/TemplateTwo"
 import { db } from "~/utils/db.server"
 import { getMetaTags } from "~/utils/getMetaTags"
 import type { Route } from "./+types/agenda.$orgSlug._index"
+import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
+import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const { orgSlug } = params
@@ -18,6 +20,15 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
   if (!org) {
     throw new Response("Organización no encontrada", { status: 404 })
+  }
+
+  // If org has a published AI landing, serve it directly as HTML
+  if (org.landingPublished && org.landingSections) {
+    const sections = org.landingSections as unknown as Section3[]
+    const html = buildDeployHtml(sections, org.landingTheme || undefined)
+    return new Response(html, {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    })
   }
 
   const services = await db.service.findMany({

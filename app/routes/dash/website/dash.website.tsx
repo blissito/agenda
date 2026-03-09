@@ -2,6 +2,7 @@
 import * as React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Link } from "react-router"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website"
@@ -176,11 +177,17 @@ export default function Website({ loaderData }: Route.ComponentProps) {
     <main className="w-full">
       <div className="mx-auto w-full">
       <div className="flex items-center justify-between gap-4 pb-6">
-          {/*margen del TÍTULO*/}
           <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
-          {/*eparación ENTRE botones*/}
           <div className="flex gap-3">
+            <Link
+              to="/dash/website/ai"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm"
+            >
+              <span>&#10024;</span>
+              Generar con IA
+            </Link>
+
             <RoundAction as="a" href={url} label="Abrir sitio web">
               <WebsiteIcon size={20} />
             </RoundAction>

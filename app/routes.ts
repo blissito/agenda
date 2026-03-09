@@ -52,6 +52,7 @@ export default [
         ),
       ]),
       route("website", "routes/dash/website/dash.website.tsx"),
+      route("website/ai", "routes/dash/dash.website_.ai.tsx"),
       route("clientes/:email", "routes/dash/dash_.clientes_.$email.tsx"),
       route("clientes", "routes/dash/dash.clientes.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),
@@ -74,6 +75,7 @@ export default [
     route("domain", "routes/api/api.domain.ts"),
     route("loyalty", "routes/api/loyalty.ts"),
     route("images", "routes/api/api.images.ts"),
+    route("landing-generator", "routes/api/landing-generator.ts"),
   ]),
   // Stripe
   ...prefix("stripe", [

@@ -393,6 +393,9 @@ model Org {
   /// Could not determine type: the field only had null or empty values in the sample set.
   week               Json?
   weekDays           OrgWeekDays?
+  landingSections    Json?
+  landingTheme       String?
+  landingPublished   Boolean           @default(false)
   customers          Customer[]
   events             Event[]
   services           Service[]

@@ -12,12 +12,22 @@ import TemplateOne from "~/components/templates/TemplateOne"
 import TemplateTwo from "~/components/templates/TemplateTwo"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
+import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
+import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import type { Route } from "./+types/home"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const resolution = await resolveHostForIndex(request)
   if (resolution.type === "not_found") {
     throw new Response("Empresa no encontrada", { status: 404 })
+  }
+  // Serve AI-generated landing as raw HTML if published
+  if (resolution.type === "org" && resolution.org.landingPublished && resolution.org.landingSections) {
+    const sections = resolution.org.landingSections as unknown as Section3[]
+    const html = buildDeployHtml(sections, resolution.org.landingTheme || undefined)
+    return new Response(html, {
+      headers: { "Content-Type": "text/html; charset=utf-8" },
+    })
   }
   return resolution
 }
