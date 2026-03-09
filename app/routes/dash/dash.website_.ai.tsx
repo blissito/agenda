@@ -64,8 +64,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
   const abortRef = useRef<AbortController | null>(null)
+  const isSavingRef = useRef(false)
+  const isRefiningRef = useRef(false)
+  const selectedSectionIdRef = useRef<string | null>(null)
   const streamEndRef = useRef<HTMLDivElement>(null)
   const [streamCount, setStreamCount] = useState(0)
+
+  // Keep refs in sync
+  isSavingRef.current = isSaving
+  isRefiningRef.current = isRefining
+  selectedSectionIdRef.current = selectedSectionId
 
   // Generate landing (streaming SSE)
   const handleGenerate = useCallback(async () => {
@@ -76,6 +84,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     setIsGenerating(true)
     setSaveMessage(null)
     setErrorMessage(null)
+    const backup = sections
     setSections([])
     setStreamCount(0)
 
@@ -134,6 +143,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       if (err instanceof DOMException && err.name === "AbortError") return
       const message = err instanceof Error ? err.message : "Error al generar"
       setErrorMessage(message)
+      setSections((current) => current.length > 0 ? current : backup)
     } finally {
       if (abortRef.current === controller) {
         setIsGenerating(false)
@@ -148,19 +158,20 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     lastFetcherDataRef.current = fetcher.data
     const data = fetcher.data as { html?: string; ok?: boolean; error?: string }
 
-    if (isRefining) {
+    if (isRefiningRef.current) {
       if (data.error) {
         setErrorMessage(data.error)
-      } else if (data.html && selectedSectionId) {
+      } else if (data.html && selectedSectionIdRef.current) {
+        const sectionId = selectedSectionIdRef.current
         setSections((prev) =>
-          prev.map((s) => (s.id === selectedSectionId ? { ...s, html: data.html as string } : s)),
+          prev.map((s) => (s.id === sectionId ? { ...s, html: data.html as string } : s)),
         )
         setErrorMessage(null)
       }
       setIsRefining(false)
     }
 
-    if (isSaving && pendingSaveRef.current) {
+    if (isSavingRef.current && pendingSaveRef.current) {
       if (data.error) {
         setErrorMessage(data.error)
       } else if (data.ok) {
