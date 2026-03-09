@@ -58,27 +58,85 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
+  const abortRef = useRef<AbortController | null>(null)
+  const streamEndRef = useRef<HTMLDivElement>(null)
+  const [streamCount, setStreamCount] = useState(0)
 
-  // Generate landing
+  // Generate landing (streaming SSE)
   const handleGenerate = useCallback(async () => {
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
     setIsGenerating(true)
     setSaveMessage(null)
-    fetcher.submit({ intent: "generate" }, { method: "post", action: "/api/landing-generator" })
-  }, [fetcher])
+    setErrorMessage(null)
+    setSections([])
+    setStreamCount(0)
 
-  // Handle fetcher data
-  if (fetcher.data && isGenerating) {
-    const data = fetcher.data as { sections?: Section3[]; error?: string }
-    if (data.error) {
-      setErrorMessage(data.error)
-      setIsGenerating(false)
-    } else if (data.sections) {
-      setSections(data.sections)
-      setIsGenerating(false)
-      setErrorMessage(null)
+    try {
+      const formData = new FormData()
+      formData.append("intent", "generate")
+
+      const res = await fetch("/api/landing-generator", {
+        method: "POST",
+        body: formData,
+        signal: controller.signal,
+      })
+      if (!res.ok) throw new Error("Generation failed")
+
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error("No stream")
+
+      const decoder = new TextDecoder()
+      let buf = ""
+      let eventType = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+
+        const lines = buf.split("\n")
+        buf = lines.pop() || ""
+
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            eventType = line.slice(7).trim()
+          } else if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (eventType === "section") {
+                setSections((prev) => [...prev, data])
+                setStreamCount((c) => c + 1)
+                requestAnimationFrame(() => {
+                  streamEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+                })
+              } else if (eventType === "section-update") {
+                setSections((prev) =>
+                  prev.map((s) => (s.id === data.id ? { ...s, html: data.html } : s)),
+                )
+              } else if (eventType === "done") {
+                // generation complete
+              } else if (eventType === "error") {
+                setErrorMessage(data.message)
+              }
+            } catch { /* skip malformed */ }
+          }
+        }
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return
+      const message = err instanceof Error ? err.message : "Error al generar"
+      setErrorMessage(message)
+    } finally {
+      if (abortRef.current === controller) {
+        setIsGenerating(false)
+      }
     }
-  }
+  }, [])
 
+  // Handle fetcher data for refine/save
   if (fetcher.data && isRefining) {
     const data = fetcher.data as { html?: string; error?: string }
     if (data.error) {
@@ -214,6 +272,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     if (idx < sections.length - 1) handleReorder(idx, idx + 1)
   }, [selectedSectionId, sections, handleReorder])
 
+  // Abort streaming on unmount
+  useEffect(() => {
+    return () => { abortRef.current?.abort() }
+  }, [])
+
   // ESC to close modals
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -348,20 +411,47 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         {/* Canvas */}
         <div className="flex-1 bg-gray-100 relative overflow-hidden">
           {sections.length > 0 ? (
-            <Canvas
-              ref={canvasRef}
-              sections={sections}
-              theme={theme}
-              onMessage={handleIframeMessage}
-              iframeRectRef={iframeRectRef}
-            />
+            <>
+              <Canvas
+                ref={canvasRef}
+                sections={sections}
+                theme={theme}
+                onMessage={handleIframeMessage}
+                iframeRectRef={iframeRectRef}
+              />
+              <div ref={streamEndRef} />
+            </>
           ) : (
             <div className="flex items-center justify-center h-full text-gray-400">
-              <p className="text-lg">
-                {isGenerating
-                  ? "Generando tu landing page..."
-                  : "Genera una landing para ver la preview"}
-              </p>
+              {isGenerating ? (
+                <div className="flex flex-col items-center gap-6 animate-fade-in">
+                  <img
+                    src="/images/Rocket.gif"
+                    alt="Generando"
+                    className="w-32 h-32 object-contain"
+                  />
+                  <div className="text-center">
+                    <p className="text-lg font-medium text-gray-600">
+                      Generando tu landing page...
+                    </p>
+                    <p className="text-sm text-gray-400 mt-2 max-w-xs">
+                      La IA está diseñando secciones con tus servicios y datos de negocio.
+                    </p>
+                    {streamCount > 0 && (
+                      <p className="text-sm text-purple-500 mt-2 font-medium">
+                        Sección {streamCount} generada...
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex gap-1.5">
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              ) : (
+                <p className="text-lg">Genera una landing para ver la preview</p>
+              )}
             </div>
           )}
 

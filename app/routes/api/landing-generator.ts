@@ -12,18 +12,51 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const intent = formData.get("intent") as string
 
   if (intent === "generate") {
-    try {
-      const services = await db.service.findMany({
-        where: { orgId: org.id, isActive: true, archived: false },
-      })
+    const services = await db.service.findMany({
+      where: { orgId: org.id, isActive: true, archived: false },
+    })
 
-      const sections = await generateOrgLanding(org, services)
-      return Response.json({ sections })
-    } catch (err) {
-      console.error("Landing generation failed:", err)
-      const message = err instanceof Error ? err.message : "Error al generar landing"
-      return Response.json({ error: message }, { status: 500 })
-    }
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder()
+        const send = (event: string, data: unknown) => {
+          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`))
+        }
+
+        try {
+          const allSections = await generateOrgLanding(org, services, {
+            onSection: (section) => send("section", section),
+            onImageUpdate: (id, html) => send("section-update", { id, html }),
+            onDone: async (sections) => {
+              send("done", { total: sections.length })
+              // Auto-save to DB
+              try {
+                await db.org.update({
+                  where: { id: org.id },
+                  data: { landingSections: sections as any },
+                })
+              } catch (e) {
+                console.error("Failed to auto-save sections:", e)
+              }
+            },
+            onError: (error) => send("error", { message: error.message }),
+          })
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Error al generar landing"
+          send("error", { message })
+        } finally {
+          controller.close()
+        }
+      },
+    })
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
+    })
   }
 
   if (intent === "refine") {
