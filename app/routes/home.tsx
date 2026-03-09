@@ -23,11 +23,18 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   }
   // Serve AI-generated landing as raw HTML if published
   if (resolution.type === "org" && resolution.org.landingPublished && resolution.org.landingSections) {
-    const sections = resolution.org.landingSections as unknown as Section3[]
-    const html = buildDeployHtml(sections, resolution.org.landingTheme || undefined)
-    return new Response(html, {
-      headers: { "Content-Type": "text/html; charset=utf-8" },
-    })
+    try {
+      const raw = resolution.org.landingSections
+      if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
+      const sections = raw as unknown as Section3[]
+      const html = buildDeployHtml(sections, resolution.org.landingTheme || undefined)
+      return new Response(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      })
+    } catch (err) {
+      console.error("Failed to build landing HTML:", err)
+      // Fall through to normal rendering
+    }
   }
   return resolution
 }

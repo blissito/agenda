@@ -24,11 +24,18 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 
   // If org has a published AI landing, serve it directly as HTML
   if (org.landingPublished && org.landingSections) {
-    const sections = org.landingSections as unknown as Section3[]
-    const html = buildDeployHtml(sections, org.landingTheme || undefined)
-    return new Response(html, {
-      headers: { "Content-Type": "text/html; charset=utf-8" },
-    })
+    try {
+      const raw = org.landingSections
+      if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
+      const sections = raw as unknown as Section3[]
+      const html = buildDeployHtml(sections, org.landingTheme || undefined)
+      return new Response(html, {
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      })
+    } catch (err) {
+      console.error("Failed to build landing HTML:", err)
+      // Fall through to normal template rendering
+    }
   }
 
   const services = await db.service.findMany({

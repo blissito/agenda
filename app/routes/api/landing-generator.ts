@@ -12,12 +12,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const intent = formData.get("intent") as string
 
   if (intent === "generate") {
-    const services = await db.service.findMany({
-      where: { orgId: org.id, isActive: true, archived: false },
-    })
+    try {
+      const services = await db.service.findMany({
+        where: { orgId: org.id, isActive: true, archived: false },
+      })
 
-    const sections = await generateOrgLanding(org, services)
-    return Response.json({ sections })
+      const sections = await generateOrgLanding(org, services)
+      return Response.json({ sections })
+    } catch (err) {
+      console.error("Landing generation failed:", err)
+      const message = err instanceof Error ? err.message : "Error al generar landing"
+      return Response.json({ error: message }, { status: 500 })
+    }
   }
 
   if (intent === "refine") {
@@ -29,10 +35,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return Response.json({ error: "Missing currentHtml or instruction" }, { status: 400 })
     }
 
-    const html = await refineOrgLanding(currentHtml, instruction, {
-      referenceImage: referenceImage || undefined,
-    })
-    return Response.json({ html })
+    try {
+      const html = await refineOrgLanding(currentHtml, instruction, {
+        referenceImage: referenceImage || undefined,
+      })
+      return Response.json({ html })
+    } catch (err) {
+      console.error("Landing refine failed:", err)
+      const message = err instanceof Error ? err.message : "Error al refinar sección"
+      return Response.json({ error: message }, { status: 500 })
+    }
   }
 
   if (intent === "save") {
@@ -54,7 +66,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     await db.org.update({
       where: { id: org.id },
       data: {
-        landingSections: sections as unknown as any,
+        landingSections: Array.isArray(sections) ? (sections as any) : [],
         landingTheme: theme || undefined,
         landingPublished: publish,
       },

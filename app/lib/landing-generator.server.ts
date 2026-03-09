@@ -78,6 +78,10 @@ function getAIKeys(): { openaiApiKey?: string; anthropicApiKey?: string } {
   if (process.env.OPENAI_API_KEY) {
     return { openaiApiKey: process.env.OPENAI_API_KEY }
   }
+  // Anthropic SDK auto-reads ANTHROPIC_API_KEY from env — no need to pass explicitly
+  if (process.env.ANTHROPIC_API_KEY) {
+    return { anthropicApiKey: process.env.ANTHROPIC_API_KEY }
+  }
   return {}
 }
 

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useFetcher, useLoaderData, Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
@@ -7,7 +7,6 @@ import {
   SectionList,
   FloatingToolbar,
   CodeEditor,
-  buildPreviewHtml,
   LANDING_THEMES,
   type CanvasHandle,
   type Section3,
@@ -55,6 +54,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [isRefining, setIsRefining] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
@@ -68,20 +68,28 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
 
   // Handle fetcher data
   if (fetcher.data && isGenerating) {
-    const data = fetcher.data as { sections?: Section3[] }
-    if (data.sections) {
+    const data = fetcher.data as { sections?: Section3[]; error?: string }
+    if (data.error) {
+      setErrorMessage(data.error)
+      setIsGenerating(false)
+    } else if (data.sections) {
       setSections(data.sections)
       setIsGenerating(false)
+      setErrorMessage(null)
     }
   }
 
   if (fetcher.data && isRefining) {
-    const data = fetcher.data as { html?: string }
-    if (data.html && selectedSectionId) {
+    const data = fetcher.data as { html?: string; error?: string }
+    if (data.error) {
+      setErrorMessage(data.error)
+      setIsRefining(false)
+    } else if (data.html && selectedSectionId) {
       setSections((prev) =>
         prev.map((s) => (s.id === selectedSectionId ? { ...s, html: data.html as string } : s)),
       )
       setIsRefining(false)
+      setErrorMessage(null)
     }
   }
 
@@ -104,10 +112,13 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   )
 
   // Save/Publish
+  const pendingSaveRef = useRef<{ publish: boolean } | null>(null)
   const handleSave = useCallback(
-    async (publish: boolean) => {
+    (publish: boolean) => {
       setIsSaving(true)
       setSaveMessage(null)
+      setErrorMessage(null)
+      pendingSaveRef.current = { publish }
       fetcher.submit(
         {
           intent: "save",
@@ -117,15 +128,23 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         },
         { method: "post", action: "/api/landing-generator" },
       )
-      // Optimistic message
-      setTimeout(() => {
-        setIsSaving(false)
-        setSaveMessage(publish ? "Landing publicada" : "Borrador guardado")
-        setTimeout(() => setSaveMessage(null), 3000)
-      }, 1000)
     },
     [sections, theme, fetcher],
   )
+
+  // Handle save response
+  if (fetcher.data && isSaving && pendingSaveRef.current) {
+    const data = fetcher.data as { ok?: boolean; error?: string }
+    if (data.error) {
+      setErrorMessage(data.error)
+    } else if (data.ok) {
+      const msg = pendingSaveRef.current.publish ? "Landing publicada" : "Borrador guardado"
+      setSaveMessage(msg)
+      setTimeout(() => setSaveMessage(null), 3000)
+    }
+    setIsSaving(false)
+    pendingSaveRef.current = null
+  }
 
   // Section operations
   const handleReorder = useCallback((from: number, to: number) => {
@@ -195,6 +214,22 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     if (idx < sections.length - 1) handleReorder(idx, idx + 1)
   }, [selectedSectionId, sections, handleReorder])
 
+  // ESC to close modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (codeEditorSection) {
+          setCodeEditorSection(null)
+        } else if (selection) {
+          setSelection(null)
+          setSelectedSectionId(null)
+        }
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [codeEditorSection, selection])
+
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
       {/* Header */}
@@ -211,6 +246,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           </h1>
         </div>
         <div className="flex items-center gap-2">
+          {errorMessage && (
+            <span className="text-sm text-red-600 font-medium">{errorMessage}</span>
+          )}
           {saveMessage && (
             <span className="text-sm text-green-600 font-medium">{saveMessage}</span>
           )}
