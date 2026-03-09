@@ -498,7 +498,7 @@ const EmptyStateClients = ({ link }: { link: string }) => {
       <div className="text-center">
         <img
           className="mx-auto mb-4 max-w-full"
-          src="/images/empty state/clients-empty.png"
+          src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />
         <p className="font-satoBold text-xl ">

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
 
-import { X } from "~/components/icons/x"
+import { X } from "~/components/icons/X"
 import { Facebook } from "~/components/icons/facebook"
 import { WhatsApp } from "~/components/icons/WhatsApp"
 import { Linkedin } from "~/components/icons/linkedin"

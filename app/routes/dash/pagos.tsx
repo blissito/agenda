@@ -41,9 +41,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!process.env.STRIPE_SECRET_TEST || !process.env.STRIPE_WEBHOOK_SECRET) {
       throw new Response("Stripe no configurado", { status: 400 })
     }
+
     const { account, error } = await getOrCreateStripeAccount(request)
     if (error) throw new Response(null, { status: 404 })
+
     invariant(account)
+
     const url = new URL(request.url)
     const link = await createAccountLink(account.id, url.origin)
     throw redirect(link.url)
@@ -65,15 +68,34 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 }
 
 export default function Pagos({ loaderData }: Route.ComponentProps) {
-  const { mpConnected, stripeAccountId } = loaderData
+  const { mpConnected, mpUserId, stripeAccountId, stripeEnabled } = loaderData
   const [searchParams, setSearchParams] = useSearchParams()
   const fetcher = useFetcher()
 
+  const mpSuccess = searchParams.get("mp_success")
+  const mpError = searchParams.get("mp_error")
   const activeTab =
     searchParams.get("tab") === "deposits" ? "deposits" : "sales"
 
   const connectMercadoPago = () => {
     fetcher.submit({ intent: "connect_mercadopago" }, { method: "post" })
+  }
+
+  const disconnectMercadoPago = () => {
+    if (
+      confirm(
+        "¿Estás seguro de que quieres desconectar tu cuenta de Mercado Pago?",
+      )
+    ) {
+      fetcher.submit({ intent: "disconnect_mercadopago" }, { method: "post" })
+    }
+  }
+
+  const navigateToStripeAccountLink = () => {
+    fetcher.submit(
+      { intent: "navigate_to_stripe_account_link" },
+      { method: "post" },
+    )
   }
 
   const changeTab = (tab: "sales" | "deposits") => {
@@ -88,7 +110,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
   return (
     <article className="w-full">
       <div className="mb-8">
-        <h1 className="text-[32px] font-satoBold ">
+        <h1 className="text-[32px] font-semibold leading-[40px] text-[#20242D]">
           Ventas
         </h1>
 
@@ -124,7 +146,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
       {showEmptyState ? (
         <section className="flex min-h-[560px] flex-col items-center justify-center px-4 py-10 text-center md:min-h-[640px]">
           <img
-            src="/images/empty state/payments.png"
+            src="/images/emptyState/payments.webp"
             alt=""
             className="mb-8 w-full max-w-[240px] md:max-w-[240px]"
           />
@@ -159,6 +181,79 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
           </div>
         </section>
       ) : null}
+
+      {/*
+        / CONFIGURACIÓN DE PAGOS
+        <>
+          <section className="py-10">
+            <h2 className="text-lg font-semibold mb-2">
+              Mercado Pago (Recomendado)
+            </h2>
+            <p className="text-gray-600 mb-4">
+              Recibe pagos con tarjeta, OXXO, SPEI y más métodos populares en
+              México.
+            </p>
+
+            {mpSuccess && mpConnected && (
+              <p className="text-green-600 mb-4">
+                ¡Cuenta de Mercado Pago conectada exitosamente!
+              </p>
+            )}
+            {mpError && (
+              <p className="text-red-500 mb-4">
+                Error al conectar Mercado Pago. Intenta de nuevo.
+              </p>
+            )}
+
+            {mpConnected ? (
+              <div className="flex items-center gap-4 my-4">
+                <div className="px-8 py-4 rounded-3xl border-2 flex gap-3 bg-green-50 border-green-500">
+                  <span>MP conectado (ID: {mpUserId})</span>
+                </div>
+                <button
+                  disabled={isLoading}
+                  onClick={disconnectMercadoPago}
+                  className="text-red-500 text-sm hover:underline disabled:opacity-50"
+                >
+                  {isLoading ? <Spinner /> : "Desconectar"}
+                </button>
+              </div>
+            ) : (
+              <button
+                disabled={isLoading}
+                onClick={connectMercadoPago}
+                className="px-8 py-4 rounded-3xl border-2 my-4 flex gap-3 hover:scale-105 enabled:active:scale-100 transition-all bg-blue-50 border-blue-500"
+              >
+                <span>Conectar Mercado Pago</span>
+                {isLoading && <Spinner />}
+              </button>
+            )}
+          </section>
+
+          <hr />
+
+          {stripeEnabled && (
+            <section className="py-10 opacity-60">
+              <h2 className="text-lg font-semibold mb-2">Stripe</h2>
+              <p className="text-gray-600 mb-4">
+                Opción alternativa para pagos internacionales.
+              </p>
+              <button
+                disabled={isLoading}
+                onClick={navigateToStripeAccountLink}
+                className="px-8 py-4 rounded-3xl border-2 my-4 flex gap-3 hover:scale-105 enabled:active:scale-100 transition-all"
+              >
+                <span>
+                  {stripeAccountId
+                    ? `Stripe conectado: ${stripeAccountId}`
+                    : "Conectar Stripe"}
+                </span>
+                {isLoading && <Spinner />}
+              </button>
+            </section>
+          )}
+        </>
+      */}
     </article>
   )
 }

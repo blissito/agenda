@@ -432,7 +432,7 @@ function EmptyStateLoyalty({ fetcher }: { fetcher: ReturnType<typeof useFetcher>
   return (
     <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center">
       <div className="text-center">
-        <img className="mx-auto mb-4" src="/images/empty state/loyalty.png" alt="" />
+        <img className="mx-auto mb-4" src="/images/emptyState/loyalty.webp" alt="" />
         <p className=" text-xl font-satoBold">
         ¡Convierte visitas en clientes frecuentes! 
         </p>
