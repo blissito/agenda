@@ -276,9 +276,10 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           ),
         )
       } else if (msg.type === "section-html-updated" && msg.sectionId && msg.sectionHtml) {
+        const html = msg.sectionHtml;
         setSections((prev) =>
           prev.map((s) =>
-            s.id === msg.sectionId ? { ...s, html: msg.sectionHtml } : s,
+            s.id === msg.sectionId ? { ...s, html } : s,
           ),
         )
       }
