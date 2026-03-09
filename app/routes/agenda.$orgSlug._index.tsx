@@ -29,7 +29,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
       const sections = raw as unknown as Section3[]
       const html = buildDeployHtml(sections, org.landingTheme || undefined)
-      return new Response(html, {
+      throw new Response(html, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       })
     } catch (err) {
