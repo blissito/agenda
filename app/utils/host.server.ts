@@ -94,8 +94,9 @@ export async function resolveHostForIndex(
   // Subdomain: orgslug.denik.me
   const subdomain = getSubdomain(host)
   if (subdomain) {
-    const org = await db.org.findUnique({
-      where: { slug: subdomain },
+    // Case-insensitive lookup: hostnames are lowercased but slugs may have mixed case (nanoid)
+    const org = await db.org.findFirst({
+      where: { slug: { equals: subdomain, mode: "insensitive" } },
       include: { services: { where: { isActive: true, archived: false } } },
     })
     return org ? { type: "org", org } : { type: "not_found" }
@@ -176,7 +177,7 @@ export async function resolveOrgFromRequest(
   // 2. Subdomain: orgslug.denik.me
   const subdomain = getSubdomain(host)
   if (subdomain) {
-    return db.org.findUnique({ where: { slug: subdomain } })
+    return db.org.findFirst({ where: { slug: { equals: subdomain, mode: "insensitive" } } })
   }
 
   // 3. Fallback: use orgSlug from URL path
