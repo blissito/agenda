@@ -10,9 +10,56 @@ import type { GenerateOptions } from "@easybits.cloud/html-tailwind-generator/ge
 import type { RefineOptions } from "@easybits.cloud/html-tailwind-generator/refine"
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { getPublicImageUrl } from "~/utils/urls"
+import { db } from "~/utils/db.server"
 
 // ==================== TYPES ====================
 export type { Section3 }
+
+// ==================== USAGE LIMITS ====================
+const LIMITS = { gen: 5, refine: 20 } // Profesional tier default
+
+export async function getLandingUsage(orgId: string) {
+  const org = await db.org.findUniqueOrThrow({
+    where: { id: orgId },
+    select: { landingGenCount: true, landingRefineCount: true, landingUsageMonth: true },
+  })
+  const currentMonth = new Date().toISOString().slice(0, 7)
+  const isCurrentMonth = org.landingUsageMonth === currentMonth
+  return {
+    genUsed: isCurrentMonth ? org.landingGenCount : 0,
+    refineUsed: isCurrentMonth ? org.landingRefineCount : 0,
+    genLimit: LIMITS.gen,
+    refineLimit: LIMITS.refine,
+  }
+}
+
+export async function incrementLandingUsage(orgId: string, type: "gen" | "refine") {
+  const currentMonth = new Date().toISOString().slice(0, 7)
+  const org = await db.org.findUniqueOrThrow({
+    where: { id: orgId },
+    select: { landingUsageMonth: true },
+  })
+  const reset = org.landingUsageMonth !== currentMonth
+  if (type === "gen") {
+    await db.org.update({
+      where: { id: orgId },
+      data: {
+        landingUsageMonth: currentMonth,
+        landingGenCount: reset ? 1 : { increment: 1 },
+        ...(reset ? { landingRefineCount: 0 } : {}),
+      },
+    })
+  } else {
+    await db.org.update({
+      where: { id: orgId },
+      data: {
+        landingUsageMonth: currentMonth,
+        landingRefineCount: reset ? 1 : { increment: 1 },
+        ...(reset ? { landingGenCount: 0 } : {}),
+      },
+    })
+  }
+}
 
 // ==================== HELPERS ====================
 

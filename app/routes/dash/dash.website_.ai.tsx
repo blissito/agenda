@@ -3,6 +3,7 @@ import { useFetcher, useLoaderData, Link, useRouteLoaderData } from "react-route
 import { getOrgPublicUrl } from "~/utils/urls"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
+import { getLandingUsage } from "~/lib/landing-generator.server"
 import {
   Canvas,
   SectionList,
@@ -41,11 +42,13 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     where: { orgId: org.id, isActive: true, archived: false },
   })
 
-  return { org, serviceCount }
+  const usage = await getLandingUsage(org.id)
+  return { org, serviceCount, usage }
 }
 
 export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
-  const { org, serviceCount } = loaderData
+  const { org, serviceCount, usage: initialUsage } = loaderData
+  const [usage, setUsage] = useState(initialUsage)
   const fetcher = useFetcher()
   const canvasRef = useRef<CanvasHandle>(null)
   const iframeRectRef = useRef<DOMRect | null>(null)
@@ -102,6 +105,13 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         body: formData,
         signal: controller.signal,
       })
+      if (res.status === 429) {
+        const data = await res.json()
+        setErrorMessage(data.error || "Límite alcanzado")
+        setSections(backup)
+        setIsGenerating(false)
+        return
+      }
       if (!res.ok) throw new Error("Generation failed")
 
       const reader = res.body?.getReader()
@@ -147,7 +157,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 pendingUpdates.set(data.id, data.html)
                 if (!genRafId) genRafId = requestAnimationFrame(flushGenUpdates)
               } else if (eventType === "done") {
-                // generation complete
+                setUsage((u) => ({ ...u, genUsed: u.genUsed + 1 }))
               } else if (eventType === "error") {
                 setErrorMessage(data.message)
               }
@@ -220,6 +230,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           method: "POST",
           body: formData,
         })
+        if (res.status === 429) {
+          const data = await res.json()
+          setErrorMessage(data.error || "Límite de refinamientos alcanzado")
+          setIsRefining(false)
+          return
+        }
         if (!res.ok) throw new Error("Refine failed")
 
         const reader = res.body?.getReader()
@@ -255,9 +271,13 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             } else if (line.startsWith("data: ")) {
               try {
                 const data = JSON.parse(line.slice(6))
-                if ((eventType === "chunk" || eventType === "done") && data.html) {
+                if (eventType === "chunk" && data.html) {
                   pendingHtml = data.html
                   if (!rafId) rafId = requestAnimationFrame(flushUpdate)
+                } else if (eventType === "done" && data.html) {
+                  pendingHtml = data.html
+                  if (!rafId) rafId = requestAnimationFrame(flushUpdate)
+                  setUsage((u) => ({ ...u, refineUsed: u.refineUsed + 1 }))
                 } else if (eventType === "error") {
                   setErrorMessage(data.message)
                 }
@@ -494,10 +514,14 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               <button
                 type="button"
                 onClick={handleGenerate}
-                disabled={isGenerating || isLoading}
-                className="px-2.5 py-1 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 disabled:opacity-50"
+                disabled={isGenerating || isLoading || usage.genUsed >= usage.genLimit}
+                className="px-2.5 py-1 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 disabled:opacity-50 inline-flex items-center gap-1.5"
+                title={usage.genUsed >= usage.genLimit ? "Límite de generaciones alcanzado este mes" : `${usage.genLimit - usage.genUsed} generaciones restantes`}
               >
                 {isGenerating ? "Regenerando..." : "Regenerar"}
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.genUsed >= usage.genLimit ? "bg-red-100 text-red-700" : "bg-purple-100 text-purple-700"}`}>
+                  {usage.genLimit - usage.genUsed}/{usage.genLimit}
+                </span>
               </button>
               {org.landingPublished && (
                 <a
@@ -539,6 +563,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                       : "Publicada"}
               </button>
             </>
+          )}
+          {hasExistingSections && (
+            <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.refineUsed >= usage.refineLimit ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-500"}`} title="Refinamientos restantes este mes">
+              Refine {usage.refineLimit - usage.refineUsed}/{usage.refineLimit}
+            </span>
           )}
         </div>
       </div>
@@ -613,10 +642,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               <button
                 type="button"
                 onClick={handleGenerate}
-                disabled={isGenerating || isLoading}
+                disabled={isGenerating || isLoading || usage.genUsed >= usage.genLimit}
                 className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 transition-all"
               >
                 {isGenerating ? "Generando..." : "Generar landing"}
+                <span className="ml-2 text-xs opacity-80">({usage.genLimit - usage.genUsed}/{usage.genLimit})</span>
               </button>
               {isGenerating && (
                 <button
@@ -638,7 +668,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             <ViewportToggle value={viewport} onChange={setViewport} />
           )}
           {sections.length > 0 ? (
-            <div className={`flex-1 overflow-auto relative ${viewport !== "desktop" ? "flex justify-center" : ""}`}>
+            <div className={`flex-1 overflow-hidden relative ${viewport !== "desktop" ? "flex justify-center" : ""}`}>
               <div
                 className={`transition-all duration-300 h-full ${viewport !== "desktop" ? "shrink-0" : ""}`}
                 style={{ width: viewport === "tablet" ? 768 : viewport === "mobile" ? 375 : "100%" }}

@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { generateOrgLanding, refineOrgLanding } from "~/lib/landing-generator.server"
+import { generateOrgLanding, refineOrgLanding, getLandingUsage, incrementLandingUsage } from "~/lib/landing-generator.server"
 import { db } from "~/utils/db.server"
 import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 
@@ -12,6 +12,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const intent = formData.get("intent") as string
 
   if (intent === "generate") {
+    const usage = await getLandingUsage(org.id)
+    if (usage.genUsed >= usage.genLimit) {
+      return Response.json({ error: "Límite de generaciones alcanzado", code: "LIMIT_REACHED" }, { status: 429 })
+    }
+
     const services = await db.service.findMany({
       where: { orgId: org.id, isActive: true, archived: false },
     })
@@ -28,6 +33,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             onSection: (section) => send("section", section),
             onImageUpdate: (id, html) => send("section-update", { id, html }),
             onDone: async (sections) => {
+              await incrementLandingUsage(org.id, "gen")
               send("done", { total: sections.length })
               // Auto-save to DB
               try {
@@ -60,6 +66,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (intent === "refine") {
+    const usage = await getLandingUsage(org.id)
+    if (usage.refineUsed >= usage.refineLimit) {
+      return Response.json({ error: "Límite de refinamientos alcanzado", code: "LIMIT_REACHED" }, { status: 429 })
+    }
+
     const currentHtml = formData.get("currentHtml") as string
     const instruction = formData.get("instruction") as string
     const referenceImage = formData.get("referenceImage") as string | undefined
@@ -78,7 +89,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           await refineOrgLanding(org.id, currentHtml, instruction, {
             referenceImage: referenceImage || undefined,
             onChunk: (html) => send("chunk", { html }),
-            onDone: (html) => send("done", { html }),
+            onDone: async (html) => { await incrementLandingUsage(org.id, "refine"); send("done", { html }) },
             onError: (err) => send("error", { message: err.message }),
           })
         } catch (err) {

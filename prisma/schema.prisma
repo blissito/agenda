@@ -398,6 +398,9 @@ model Org {
   landingTheme          String?
   landingCustomColors   Json?
   landingPublished      Boolean           @default(false)
+  landingGenCount       Int               @default(0)
+  landingRefineCount    Int               @default(0)
+  landingUsageMonth     String?
   customers          Customer[]
   events             Event[]
   services           Service[]
