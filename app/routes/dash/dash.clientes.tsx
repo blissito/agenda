@@ -126,35 +126,44 @@ export default function Clients() {
   return (
     <>
       <RouteTitle>Clientes</RouteTitle>
-      <Summary stats={stats} clients={clients} />
-      <SearchNav
-        onDownload={startDownload}
-        canDownload={canDownload}
-        search={search}
-        onSearch={setSearch}
-      />
-
-      <TableHeader
-        titles={[
-          ["Cliente", "col-span-4 pl-2"],
-          ["Registro", "col-span-2 text-center"],
-          ["Puntos", "col-span-2 text-center"],
-          ["Citas", "col-span-1 text-center"],
-          ["Próxima cita", "col-span-2 text-center"],
-          ["Acciones", "col-span-1 text-center"],
-        ]}
-      />
-
-      {filteredClients.map((c, index) => (
-        <ClientRow client={c} key={c.id} isLast={index === filteredClients.length - 1} />
-      ))}
-
-      {!filteredClients.length && search && (
-        <EmptySearch query={search} onClear={() => setSearch("")} />
+  
+      {clients.length > 0 ? (
+        <>
+          <Summary stats={stats} clients={clients} />
+          <SearchNav
+            onDownload={startDownload}
+            canDownload={canDownload}
+            search={search}
+            onSearch={setSearch}
+          />
+  
+          <TableHeader
+            titles={[
+              ["Cliente", "col-span-4 pl-2"],
+              ["Registro", "col-span-2 text-center"],
+              ["Puntos", "col-span-2 text-center"],
+              ["Citas", "col-span-1 text-center"],
+              ["Próxima cita", "col-span-2 text-center"],
+              ["Acciones", "col-span-1 text-center"],
+            ]}
+          />
+  
+          {filteredClients.map((c, index) => (
+            <ClientRow
+              client={c}
+              key={c.id}
+              isLast={index === filteredClients.length - 1}
+            />
+          ))}
+  
+          {!filteredClients.length && search && (
+            <EmptySearch query={search} onClear={() => setSearch("")} />
+          )}
+        </>
+      ) : (
+        <EmptyStateClients link={link} />
       )}
-
-      {!clients.length && !search && <EmptyStateClients link={link} />}
-
+  
       {toast}
     </>
   )
@@ -489,14 +498,14 @@ const EmptyStateClients = ({ link }: { link: string }) => {
       <div className="text-center">
         <img
           className="mx-auto mb-4 max-w-full"
-          src="/images/clients-empty.svg"
+          src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoMedium text-xl font-bold">
-          ¡Nada por aquí! <span className="text-2xl">👀</span>
+        <p className="font-satoBold text-xl ">
+        ¡No hay clientes por aquí!
         </p>
         <p className="mt-2 text-brand_gray">
-          Comparte tu agenda y empieza a recibir a tus clientes
+        Comparte tu website y deja que lleguen las reservas  <span className="text-2xl">🚀</span>
         </p>
         <SecondaryButton
           ref={ref}

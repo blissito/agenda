@@ -1,5 +1,3 @@
-import * as React from "react"
-
 export const WhatsApp = ({
   className,
   size = 20,

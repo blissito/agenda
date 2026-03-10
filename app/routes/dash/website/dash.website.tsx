@@ -1,6 +1,6 @@
 // app/routes/dash.website.tsx
 import * as React from "react"
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState, useEffect } from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Link } from "react-router"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
@@ -11,6 +11,8 @@ import { TemplateFormModal } from "~/components/ui/dialog"
 import { Website as WebsiteIcon } from "~/components/icons/Website"
 import { Share } from "~/components/icons/Share"
 import { Edit2 } from "~/components/icons/Edit2"
+
+import { ShareWebsiteModal } from "~/routes/dash/website/ShareWebsiteModal"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
@@ -93,7 +95,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
-  const [shared, setShared] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   const iframeSrc = useMemo(() => {
     const u = (previewUrl ?? "").trim()
@@ -103,26 +105,14 @@ export default function Website({ loaderData }: Route.ComponentProps) {
     return `https://${u}`
   }, [previewUrl])
 
-  const onShare = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: org.name ?? "Sitio web", url })
-        return
-      }
-      await navigator.clipboard.writeText(url)
-      setShared(true)
-      window.setTimeout(() => setShared(false), 1200)
-    } catch {
-      // no rompemos navegación
-    }
-  }
+  const onShare = () => setShareOpen(true)
 
   return (
     <main className="w-full h-[calc(100vh-8rem)] flex flex-col">
       <div className="flex items-center justify-between gap-4 pb-4">
-          <RouteTitle className="mb-0">Sitio web</RouteTitle>
+        <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
-          <div className="flex gap-3">
+        <div className="flex gap-3">
             <Link
               to="/dash/website/ai"
               className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm"
@@ -147,19 +137,28 @@ export default function Website({ loaderData }: Route.ComponentProps) {
                 </RoundAction>
               }
             />
-          </div>
         </div>
-        <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
-          <iframe
-            ref={iframeRef}
-            title="Preview del sitio"
-            src={iframeSrc}
-            className="w-full h-full border-0 block"
-            loading="lazy"
-            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
-        </section>
+      </div>
+
+      <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+        <iframe
+          ref={iframeRef}
+          title="Preview del sitio"
+          src={iframeSrc}
+          className="w-full h-full border-0 block"
+          loading="lazy"
+          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      </section>
+
+      <ShareWebsiteModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={url}
+        orgName={org?.name}
+        orgSlug={org?.slug}
+      />
     </main>
   )
 }
