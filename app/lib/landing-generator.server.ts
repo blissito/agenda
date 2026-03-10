@@ -8,6 +8,8 @@ import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import type { GenerateOptions } from "@easybits.cloud/html-tailwind-generator/generate"
 import type { RefineOptions } from "@easybits.cloud/html-tailwind-generator/refine"
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { getPublicImageUrl } from "~/utils/urls"
 
 // ==================== TYPES ====================
 export type { Section3 }
@@ -91,15 +93,46 @@ RESPONSIVE DESIGN — CRITICAL:
 
 // ==================== AI CONFIG ====================
 
-function getAIKeys(): { anthropicApiKey?: string; pexelsApiKey?: string } {
-  const keys: { anthropicApiKey?: string; pexelsApiKey?: string } = {}
-  if (process.env.ANTHROPIC_API_KEY) {
-    keys.anthropicApiKey = process.env.ANTHROPIC_API_KEY
-  }
-  if (process.env.PEXELS_API_KEY) {
-    keys.pexelsApiKey = process.env.PEXELS_API_KEY
-  }
+function getAIKeys() {
+  const keys: { anthropicApiKey?: string; pexelsApiKey?: string; openaiApiKey?: string } = {}
+  if (process.env.ANTHROPIC_API_KEY) keys.anthropicApiKey = process.env.ANTHROPIC_API_KEY
+  if (process.env.PEXELS_API_KEY) keys.pexelsApiKey = process.env.PEXELS_API_KEY
+  if (process.env.OPENAI_API_KEY) keys.openaiApiKey = process.env.OPENAI_API_KEY
   return keys
+}
+
+/** Download a DALL-E temp image and persist it to S3/Tigris. Returns permanent URL. */
+function makePersistImage(orgId: string) {
+  let _s3: S3Client | null = null
+  const getS3 = () => {
+    if (!_s3) {
+      _s3 = new S3Client({
+        region: process.env.AWS_REGION || "auto",
+        endpoint: process.env.AWS_ENDPOINT_URL_S3!,
+        credentials: {
+          accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+          secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+        },
+      })
+    }
+    return _s3
+  }
+
+  return async (tempUrl: string, _query: string): Promise<string> => {
+    const key = `landings/${orgId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`
+    const response = await fetch(tempUrl)
+    const buffer = Buffer.from(await response.arrayBuffer())
+
+    await getS3().send(new PutObjectCommand({
+      Bucket: process.env.AWS_BUCKET || "easybits-public",
+      Key: `denik/${key}`,
+      Body: buffer,
+      ContentType: "image/png",
+      ACL: "public-read",
+    }))
+
+    return getPublicImageUrl(key)!
+  }
 }
 
 // ==================== GENERATION ====================
@@ -110,23 +143,28 @@ export async function generateOrgLanding(
   options?: Partial<GenerateOptions>,
 ): Promise<Section3[]> {
   const prompt = buildOrgPrompt(org, services)
+  const keys = getAIKeys()
   return generateLanding({
     prompt,
-    ...getAIKeys(),
+    ...keys,
+    persistImage: keys.openaiApiKey ? makePersistImage(org.id) : undefined,
     ...options,
   })
 }
 
 export async function refineOrgLanding(
+  orgId: string,
   currentHtml: string,
   instruction: string,
   options?: Partial<RefineOptions>,
 ): Promise<string> {
+  const keys = getAIKeys()
   return refineLanding({
     currentHtml,
     instruction,
     systemPrompt: RESPONSIVE_REFINE_SYSTEM,
-    ...getAIKeys(),
+    ...keys,
+    persistImage: keys.openaiApiKey ? makePersistImage(orgId) : undefined,
     ...options,
   })
 }

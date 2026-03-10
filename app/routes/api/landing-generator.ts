@@ -75,7 +75,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`))
         }
         try {
-          await refineOrgLanding(currentHtml, instruction, {
+          await refineOrgLanding(org.id, currentHtml, instruction, {
             referenceImage: referenceImage || undefined,
             onChunk: (html) => send("chunk", { html }),
             onDone: (html) => send("done", { html }),
