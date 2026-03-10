@@ -1,16 +1,14 @@
 import type { Service } from "@prisma/client"
 import { AnimatePresence } from "motion/react"
 import { useCallback } from "react"
-import { Outlet, redirect, useFetcher } from "react-router"
+import { Link, Outlet } from "react-router"
 import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { PrimaryButton } from "~/components/common/primaryButton"
 import {
   AddService,
   ServiceCard,
 } from "~/components/dash/servicios/ServiceCard"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { db } from "~/utils/db.server"
-import { generateUniqueServiceSlug } from "~/utils/slugs.server"
 import { getServicePublicUrl } from "~/utils/urls"
 import type { Route } from "./+types"
 
@@ -32,32 +30,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     })
   }
 
-  if (intent === "create_dummy_service") {
-    const { org } = await getUserAndOrgOrRedirect(request)
-    if (!org) {
-      return Response.json({ error: "Organization not found" }, { status: 404 })
-    }
-    const dummy = await db.service.create({
-      data: {
-        name: "Fancy Service",
-        slug: await generateUniqueServiceSlug("Fancy Service", org.id),
-        orgId: org.id,
-        // Valores por defecto para campos requeridos
-        allowMultiple: false,
-        archived: false,
-        currency: "MXN",
-        duration: 30,
-        isActive: false,
-        paid: false,
-        payment: false,
-        place: "INPLACE",
-        points: 0,
-        price: 0,
-        seats: 1,
-      },
-    })
-    return redirect(`/dash/servicios/${dummy.id}`)
-  }
 }
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -113,7 +85,6 @@ export default function Services({ loaderData }: Route.ComponentProps) {
 }
 
 const EmptyStateServices = () => {
-  const fetcher = useFetcher()
   return (
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
@@ -129,18 +100,12 @@ const EmptyStateServices = () => {
           Crea tu primer servicio y empieza a recibir a tus clientes
         </p>
 
-        <PrimaryButton
-          className="mx-auto mt-12"
-          type="button"
-          onClick={() => {
-            fetcher.submit(
-              { intent: "create_dummy_service" },
-              { method: "post" },
-            )
-          }}
+        <Link
+          to="/dash/servicios/nuevo"
+          className="mx-auto mt-12 inline-flex items-center justify-center rounded-full bg-brand_dark text-white px-8 py-3 font-satoMedium hover:opacity-90 transition-opacity"
         >
           + Agregar servicio
-        </PrimaryButton>
+        </Link>
       </div>
     </div>
   )
