@@ -198,7 +198,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod~~ (corregido en sendAppointment.ts)
 - [ ] **AI Landing en S3**: Subir HTML generado a S3/CloudFront en vez de servirlo via iframe srcDoc (mejor SEO, carga directa, sin limitaciones de iframe). Actualmente se usa `<iframe srcDoc>` fullscreen en `home.tsx` como workaround porque React Router v7 no permite devolver raw HTML desde loaders.
 - [x] ~~**DALL-E + S3 para landings**: Imágenes generadas con DALL-E 3, persistidas en Tigris~~ (SDK 0.2.11 con `persistImage` callback, Denik sube a `landings/{orgId}/`)
-- [x] ~~**Opus para landings**: `generateOrgLanding` usa `claude-opus-4-6` para texto más creativo~~ (refine se queda en Haiku default, más rápido para ediciones)
+- [x] ~~**Opus para landings**: `generateOrgLanding` ahora usa `claude-sonnet-4-6`~~ (refine usa Haiku 4.5 sin imagen, Sonnet 4.6 con imagen de referencia)
 - [ ] **AI Landing — Referencias visuales**: El editor ya acepta imagen de referencia (base64 upload → vision model replica el diseño). Extender para aceptar también **links de Figma** via MCP (`figma-to-code`), donde el usuario pega un share link y el sistema extrae el diseño como referencia para generar/refinar secciones. La biblioteca SDK debe exponer esto como opción (`referenceUrl?: string` además de `referenceImage?: string`).
 - [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
   - Repetición (cada martes 10am, cada semana, cada mes)
@@ -232,6 +232,22 @@ stripe trigger checkout.session.completed
 # Probar webhook manualmente
 curl -X POST https://tudominio.com/stripe/webhook -d '{}'  # Debe dar 400 (sin firma)
 ```
+
+## Costos de AI Landing Generation (ACTUALIZAR si cambian modelos)
+
+Config en `app/lib/landing-generator.server.ts` + SDK `@easybits.cloud/html-tailwind-generator`.
+
+| Operación | Modelo | Costo USD | Costo MXN (~$20.50) |
+|---|---|---|---|
+| **Generar landing** (6-8 secciones) | Sonnet 4.6 | ~$0.15-0.25 | ~$3-5 |
+| **Refine** (sin imagen) | Haiku 4.5 | ~$0.01-0.03 | ~$0.20-0.60 |
+| **Refine** (con imagen referencia) | Sonnet 4.6 | ~$0.05-0.10 | ~$1-2 |
+| **Imágenes Pexels** | — | Gratis | Gratis |
+| **Sesión típica** (1 gen + 3-4 refines) | — | ~$0.20-0.40 | ~$5-10 |
+
+- Generación usa ~2-4K input + 8-15K output tokens
+- Refine usa ~1-3K input + 2-5K output tokens
+- Imágenes: Pexels (gratis) es el default. DALL-E ($0.04-0.08/imagen) solo si `OPENAI_API_KEY` está configurado
 
 ## Variables de Entorno
 
