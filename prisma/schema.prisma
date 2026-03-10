@@ -394,8 +394,9 @@ model Org {
   week               Json?
   weekDays           OrgWeekDays?
   landingSections    Json?
-  landingTheme       String?
-  landingPublished   Boolean           @default(false)
+  landingTheme          String?
+  landingCustomColors   Json?
+  landingPublished      Boolean           @default(false)
   customers          Customer[]
   events             Event[]
   services           Service[]

@@ -10,10 +10,12 @@ import {
   CodeEditor,
   ViewportToggle,
   LANDING_THEMES,
+  buildCustomThemeCss,
   type CanvasHandle,
   type Section3,
   type IframeMessage,
   type Viewport,
+  type CustomColors,
 } from "@easybits.cloud/html-tailwind-generator"
 import type { Route } from "./+types/dash.website_.ai"
 
@@ -29,6 +31,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       businessType: true,
       landingSections: true,
       landingTheme: true,
+      landingCustomColors: true,
       landingPublished: true,
     },
   })
@@ -61,6 +64,10 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [viewport, setViewport] = useState<Viewport>("desktop")
+  const [customColors, setCustomColors] = useState<CustomColors>(
+    () => (org.landingCustomColors as CustomColors | null) || { primary: "#6366f1" },
+  )
+  const colorSaveTimer = useRef<ReturnType<typeof setTimeout>>(null)
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
@@ -294,6 +301,32 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     [codeEditorSection],
   )
 
+  const handleCustomColorChange = useCallback(
+    (partial: Partial<CustomColors>) => {
+      const merged = { ...customColors, ...partial }
+      setCustomColors(merged)
+      setTheme("custom")
+      canvasRef.current?.postMessage({
+        action: "set-custom-css",
+        css: buildCustomThemeCss(merged),
+      })
+      if (colorSaveTimer.current) clearTimeout(colorSaveTimer.current)
+      colorSaveTimer.current = setTimeout(() => {
+        fetcher.submit(
+          {
+            intent: "save",
+            sections: JSON.stringify(sections),
+            theme: "custom",
+            customColors: JSON.stringify(merged),
+            publish: "false",
+          },
+          { method: "post", action: "/api/landing-generator" },
+        )
+      }, 400)
+    },
+    [customColors, sections, fetcher],
+  )
+
   const handleIframeMessage = useCallback(
     (msg: IframeMessage) => {
       if (msg.type === "element-selected" && msg.sectionId) {
@@ -452,6 +485,8 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               selectedSectionId={selectedSectionId}
               theme={theme}
               onThemeChange={setTheme}
+              customColors={customColors}
+              onCustomColorChange={handleCustomColorChange}
               onSelect={(id) => {
                 setSelectedSectionId(id)
                 canvasRef.current?.scrollToSection(id)

@@ -98,6 +98,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (intent === "save") {
     const sectionsRaw = formData.get("sections") as string
     const theme = formData.get("theme") as string | null
+    const customColorsRaw = formData.get("customColors") as string | null
     const publish = formData.get("publish") === "true"
 
     console.log("[landing-generator] save intent — publish:", publish, "orgId:", org.id, "sectionsLength:", sectionsRaw?.length)
@@ -119,6 +120,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         data: {
           landingSections: Array.isArray(sections) ? (sections as any) : [],
           landingTheme: theme || undefined,
+          ...(customColorsRaw ? { landingCustomColors: JSON.parse(customColorsRaw) } : {}),
           landingPublished: publish,
         },
       })
