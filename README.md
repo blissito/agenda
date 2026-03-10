@@ -10,7 +10,7 @@ Construido con tecnologías de vanguardia —React Router v7, TypeScript, Prisma
 
 ---
 
-**Stack:** React Router v7 • TypeScript • Prisma • MongoDB • Stripe • MercadoPago • AWS SES
+**Stack:** React Router v7 • TypeScript • Prisma • MongoDB • Stripe • MercadoPago • AWS SES • Claude AI (Sonnet/Haiku) • DALL-E 3
 
 ## Estado de Features
 
@@ -21,6 +21,7 @@ Construido con tecnologías de vanguardia —React Router v7, TypeScript, Prisma
 | Dashboard              | ✅ |
 | Email notifications    | ✅ |
 | MercadoPago            | ✅ OAuth, webhooks idempotentes, token refresh |
+| AI Landing pages       | ✅ Generación con Claude AI + DALL-E, editor canvas, deploy a subdominio. Usa [`@easybits.cloud/html-tailwind-generator`](https://www.npmjs.com/package/@easybits.cloud/html-tailwind-generator) |
 | Loyalty (puntos/tiers) | ✅ |
 | Stripe Connect         | ⚠️ Legacy — se oculta si faltan env vars |
 | Webhooks Stripe        | ⚠️ Legacy — requiere `STRIPE_WEBHOOK_SECRET` en Fly |
