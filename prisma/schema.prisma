@@ -307,10 +307,11 @@ model Customer {
   tel                 String
   updatedAt           DateTime             @db.Date
   userId              String?              @db.ObjectId
-  // Loyalty program fields
-  loyaltyPoints       Int                  @default(0) // Available points to redeem
-  loyaltyTotalEarned  Int                  @default(0) // Lifetime points (for tier calculation)
-  loyaltyTier         String               @default("bronze")
+  // Loyalty program fields (optional — org may not activate loyalty)
+  loyaltyPoints       Int?                 @default(0)
+  loyaltyTotalEarned  Int?                 @default(0)
+  loyaltyTier         String?              @default("bronze") // deprecated — kept for backward compat
+  loyaltyLevelId      String?              @db.ObjectId        // references LoyaltyLevel
   org                 Org                  @relation(fields: [orgId], references: [id])
   user                User?                @relation(fields: [userId], references: [id])
   events              Event[]
@@ -490,6 +491,23 @@ model User {
 }
 
 // ==================== LOYALTY SYSTEM ====================
+
+// Custom loyalty levels defined per-org
+model LoyaltyLevel {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  orgId           String   @db.ObjectId
+  name            String
+  image           String?
+  minPoints       Int
+  discountPercent Float
+  serviceIds      String[] @db.ObjectId
+  order           Int      @default(0)
+  createdAt       DateTime @default(now()) @db.Date
+  updatedAt       DateTime @updatedAt @db.Date
+
+  @@index([orgId])
+  @@index([orgId, minPoints])
+}
 
 // Audit trail for all point changes
 model LoyaltyTransaction {
