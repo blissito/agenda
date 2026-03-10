@@ -1,6 +1,6 @@
 // app/routes/dash.website.tsx
 import * as React from "react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Link } from "react-router"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
@@ -92,10 +92,8 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const { org, url, previewUrl } = loaderData
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
-  const roRef = useRef<ResizeObserver | null>(null)
 
   const [shared, setShared] = useState(false)
-  const [iframeHeight, setIframeHeight] = useState<number>(900)
 
   const iframeSrc = useMemo(() => {
     const u = (previewUrl ?? "").trim()
@@ -119,63 +117,9 @@ export default function Website({ loaderData }: Route.ComponentProps) {
     }
   }
 
-  const syncIframeHeight = () => {
-    try {
-      const doc = iframeRef.current?.contentDocument
-      if (!doc) return
-
-      const h =
-        Math.max(
-          doc.documentElement?.scrollHeight ?? 0,
-          doc.body?.scrollHeight ?? 0,
-        ) || 0
-      const min = 700
-      const max = 1800
-      const clamped = Math.min(Math.max(h, min), max)
-
-      setIframeHeight(clamped)
-    } catch {
-      // cross-origin: no se puede medir altura, se queda con el alto fallback
-    }
-  }
-
-  const onIframeLoad = () => {
-    roRef.current?.disconnect()
-    roRef.current = null
-
-    syncIframeHeight()
-
-    try {
-      const doc = iframeRef.current?.contentDocument
-      if (!doc) return
-
-      const ro = new ResizeObserver(() => syncIframeHeight())
-      ro.observe(doc.documentElement)
-      if (doc.body) ro.observe(doc.body)
-      roRef.current = ro
-    } catch {
-      // cross-origin
-    }
-  }
-
-  useEffect(() => {
-    const min = Math.max(window.innerHeight - 220, 700)
-    setIframeHeight(min)
-  }, [])
-
-  useEffect(() => {
-    const min = Math.max(window.innerHeight - 220, 700)
-    setIframeHeight(min)
-  }, [iframeSrc])
-
-  useEffect(() => {
-    return () => roRef.current?.disconnect()
-  }, [])
-
   return (
-    <main className="w-full">
-      <div className="mx-auto w-full">
-      <div className="flex items-center justify-between gap-4 pb-6">
+    <main className="w-full h-[calc(100vh-8rem)] flex flex-col">
+      <div className="flex items-center justify-between gap-4 pb-4">
           <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
           <div className="flex gap-3">
@@ -205,20 +149,17 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
-        <section className=" rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+        <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
             src={iframeSrc}
-            className="w-full border-0 block"
-            style={{ height: iframeHeight }}
+            className="w-full h-full border-0 block"
             loading="lazy"
-            onLoad={onIframeLoad}
             sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
             referrerPolicy="strict-origin-when-cross-origin"
           />
         </section>
-      </div>
     </main>
   )
 }
