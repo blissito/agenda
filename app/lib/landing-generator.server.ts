@@ -146,6 +146,7 @@ export async function generateOrgLanding(
   const keys = getAIKeys()
   return generateLanding({
     prompt,
+    model: "claude-opus-4-6",
     ...keys,
     persistImage: keys.openaiApiKey ? makePersistImage(org.id) : undefined,
     ...options,
