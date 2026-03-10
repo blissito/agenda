@@ -552,7 +552,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-72 border-r border-gray-200 bg-white overflow-y-auto flex-shrink-0">
+        <div className="w-72 bg-white flex-shrink-0 flex flex-col shadow-[2px_0_8px_-2px_rgba(0,0,0,0.08)]">
           {hasExistingSections ? (<>
             <SectionList
               sections={sections}
