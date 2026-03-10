@@ -9,7 +9,7 @@ import { db } from "~/utils/db.server"
 import { getMetaTags } from "~/utils/getMetaTags"
 import type { Route } from "./+types/agenda.$orgSlug._index"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
-import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
+import type { Section3, CustomColors } from "@easybits.cloud/html-tailwind-generator"
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const { orgSlug } = params
@@ -28,7 +28,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
       const raw = org.landingSections
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
       const sections = raw as unknown as Section3[]
-      const html = buildDeployHtml(sections, org.landingTheme || undefined)
+      const html = buildDeployHtml(sections, org.landingTheme || undefined, org.landingCustomColors as unknown as CustomColors | undefined)
       throw new Response(html, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       })

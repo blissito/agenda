@@ -13,7 +13,7 @@ import TemplateTwo from "~/components/templates/TemplateTwo"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
-import type { Section3 } from  "@easybits.cloud/html-tailwind-generator"
+import type { Section3, CustomColors } from  "@easybits.cloud/html-tailwind-generator"
 import type { Route } from "./+types/home"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -27,7 +27,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       const raw = resolution.org.landingSections
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
       const sections = raw as unknown as Section3[]
-      const html = buildDeployHtml(sections, resolution.org.landingTheme || undefined)
+      const html = buildDeployHtml(sections, resolution.org.landingTheme || undefined, resolution.org.landingCustomColors as unknown as CustomColors | undefined)
       return { ...resolution, aiLandingHtml: html }
     } catch (err) {
       console.error("Failed to build landing HTML:", err)

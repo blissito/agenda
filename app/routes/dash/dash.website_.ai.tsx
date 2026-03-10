@@ -655,6 +655,14 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 theme={theme}
                 onMessage={handleIframeMessage}
                 iframeRectRef={iframeRectRef}
+                onReady={() => {
+                  if (theme === "custom") {
+                    canvasRef.current?.postMessage({
+                      action: "set-custom-css",
+                      css: buildCustomThemeCss(customColors),
+                    })
+                  }
+                }}
               />
               <div ref={streamEndRef} />
               </div>
