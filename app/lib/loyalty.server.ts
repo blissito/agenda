@@ -1,52 +1,95 @@
 import { db } from "~/utils/db.server";
 import { nanoid } from "nanoid";
 
-// ==================== TYPES ====================
-
-export type Tier = "bronze" | "silver" | "gold" | "platinum";
-
-export interface TierConfig {
-  name: Tier;
-  minPoints: number;
-  multiplier: number; // Point earning multiplier
-}
-
-export interface LoyaltyConfig {
-  tiers: TierConfig[];
-  firstVisitBonus: number;
-  redemptionExpiryDays: number;
-}
-
 // ==================== CONFIG ====================
 
-export const LOYALTY_CONFIG: LoyaltyConfig = {
-  tiers: [
-    { name: "bronze", minPoints: 0, multiplier: 1 },
-    { name: "silver", minPoints: 500, multiplier: 1.25 },
-    { name: "gold", minPoints: 2000, multiplier: 1.5 },
-    { name: "platinum", minPoints: 5000, multiplier: 2 },
-  ],
-  firstVisitBonus: 50,
-  redemptionExpiryDays: 30,
-};
+const FIRST_VISIT_BONUS = 50;
+const REDEMPTION_EXPIRY_DAYS = 30;
 
-// ==================== TIER LOGIC ====================
+// ==================== LEVEL CRUD ====================
 
-export function getTierForPoints(totalEarned: number): Tier {
-  const tiers = [...LOYALTY_CONFIG.tiers].reverse();
-  for (const tier of tiers) {
-    if (totalEarned >= tier.minPoints) return tier.name;
+export async function getLevels(orgId: string) {
+  return db.loyaltyLevel.findMany({
+    where: { orgId },
+    orderBy: { minPoints: "asc" },
+  });
+}
+
+export async function createLevel(data: {
+  orgId: string;
+  name: string;
+  image?: string;
+  minPoints: number;
+  discountPercent: number;
+  serviceIds: string[];
+}) {
+  // Auto-set order based on existing count
+  const count = await db.loyaltyLevel.count({ where: { orgId: data.orgId } });
+  return db.loyaltyLevel.create({
+    data: { ...data, order: count },
+  });
+}
+
+export async function updateLevel(
+  levelId: string,
+  data: Partial<{
+    name: string;
+    image: string | null;
+    minPoints: number;
+    discountPercent: number;
+    serviceIds: string[];
+    order: number;
+  }>
+) {
+  return db.loyaltyLevel.update({ where: { id: levelId }, data });
+}
+
+export async function deleteLevel(levelId: string) {
+  // Check if customers are at this level
+  const customers = await db.customer.count({ where: { loyaltyLevelId: levelId } });
+  if (customers > 0) {
+    return { error: `No se puede eliminar: ${customers} cliente(s) tienen este nivel. Reasígnalos primero.` };
   }
-  return "bronze";
+  await db.loyaltyLevel.delete({ where: { id: levelId } });
+  return { success: true };
 }
 
-export function getTierConfig(tier: Tier): TierConfig {
-  return LOYALTY_CONFIG.tiers.find((t) => t.name === tier) ?? LOYALTY_CONFIG.tiers[0];
+// ==================== LEVEL LOGIC ====================
+
+/**
+ * Determine which level a customer qualifies for based on totalEarned points.
+ * Returns the highest level whose minPoints <= totalEarned, or null if no levels exist.
+ */
+export async function getLevelForPoints(orgId: string, totalEarned: number) {
+  const levels = await db.loyaltyLevel.findMany({
+    where: { orgId },
+    orderBy: { minPoints: "desc" },
+  });
+  return levels.find((l) => totalEarned >= l.minPoints) ?? null;
 }
 
-export function getNextTier(currentTier: Tier): TierConfig | null {
-  const idx = LOYALTY_CONFIG.tiers.findIndex((t) => t.name === currentTier);
-  return LOYALTY_CONFIG.tiers[idx + 1] ?? null;
+/**
+ * Get the discount applicable for a customer's level on a specific service.
+ * Returns { discountPercent, levelName } or null.
+ */
+export async function getLevelDiscount(params: { customerId: string; serviceId: string }) {
+  const customer = await db.customer.findUnique({
+    where: { id: params.customerId },
+    select: { loyaltyLevelId: true },
+  });
+  if (!customer?.loyaltyLevelId) return null;
+
+  const level = await db.loyaltyLevel.findUnique({
+    where: { id: customer.loyaltyLevelId },
+  });
+  if (!level) return null;
+
+  // Empty serviceIds = applies to all services
+  if (level.serviceIds.length > 0 && !level.serviceIds.includes(params.serviceId)) {
+    return null;
+  }
+
+  return { discountPercent: level.discountPercent, levelName: level.name };
 }
 
 // ==================== POINT OPERATIONS ====================
@@ -64,7 +107,7 @@ export async function awardPoints(params: {
 
   const customer = await db.customer.findUnique({
     where: { id: customerId },
-    select: { loyaltyPoints: true, loyaltyTotalEarned: true, loyaltyTier: true },
+    select: { loyaltyPoints: true, loyaltyTotalEarned: true, loyaltyLevelId: true },
   });
   if (!customer) throw new Error("Customer not found");
 
@@ -74,27 +117,27 @@ export async function awardPoints(params: {
   });
   const isFirstVisit = !prevTx;
 
-  // Calculate points with tier multiplier
-  const tierConfig = getTierConfig(customer.loyaltyTier as Tier);
-  let earnedPoints = Math.floor(basePoints * tierConfig.multiplier);
+  let earnedPoints = basePoints;
 
   // Add first visit bonus
   if (isFirstVisit) {
-    earnedPoints += LOYALTY_CONFIG.firstVisitBonus;
+    earnedPoints += FIRST_VISIT_BONUS;
   }
 
-  const newBalance = customer.loyaltyPoints + earnedPoints;
-  const newTotalEarned = customer.loyaltyTotalEarned + earnedPoints;
-  const newTier = getTierForPoints(newTotalEarned);
+  const newBalance = (customer.loyaltyPoints ?? 0) + earnedPoints;
+  const newTotalEarned = (customer.loyaltyTotalEarned ?? 0) + earnedPoints;
 
-  // Update customer and create transaction atomically
+  // Recalculate level
+  const newLevel = await getLevelForPoints(orgId, newTotalEarned);
+  const levelUpgrade = newLevel?.id !== customer.loyaltyLevelId;
+
   const [updatedCustomer, transaction] = await db.$transaction([
     db.customer.update({
       where: { id: customerId },
       data: {
         loyaltyPoints: newBalance,
         loyaltyTotalEarned: newTotalEarned,
-        loyaltyTier: newTier,
+        loyaltyLevelId: newLevel?.id ?? null,
       },
     }),
     db.loyaltyTransaction.create({
@@ -106,16 +149,12 @@ export async function awardPoints(params: {
         points: earnedPoints,
         balance: newBalance,
         reason: isFirstVisit ? "first_visit_bonus" : "booking_completed",
-        metadata: {
-          basePoints,
-          multiplier: tierConfig.multiplier,
-          isFirstVisit,
-        },
+        metadata: { basePoints, isFirstVisit },
       },
     }),
   ]);
 
-  return { customer: updatedCustomer, transaction, tierUpgrade: newTier !== customer.loyaltyTier };
+  return { customer: updatedCustomer, transaction, levelUpgrade };
 }
 
 /**
@@ -134,9 +173,9 @@ export async function deductPoints(params: {
     select: { loyaltyPoints: true },
   });
   if (!customer) throw new Error("Customer not found");
-  if (customer.loyaltyPoints < points) throw new Error("Insufficient points");
+  if ((customer.loyaltyPoints ?? 0) < points) throw new Error("Insufficient points");
 
-  const newBalance = customer.loyaltyPoints - points;
+  const newBalance = (customer.loyaltyPoints ?? 0) - points;
 
   const [updatedCustomer, transaction] = await db.$transaction([
     db.customer.update({
@@ -175,11 +214,14 @@ export async function adjustPoints(params: {
   });
   if (!customer) throw new Error("Customer not found");
 
-  const newBalance = customer.loyaltyPoints + points;
+  const newBalance = (customer.loyaltyPoints ?? 0) + points;
   if (newBalance < 0) throw new Error("Adjustment would result in negative balance");
 
-  const newTotalEarned = points > 0 ? customer.loyaltyTotalEarned + points : customer.loyaltyTotalEarned;
-  const newTier = getTierForPoints(newTotalEarned);
+  const newTotalEarned = points > 0
+    ? (customer.loyaltyTotalEarned ?? 0) + points
+    : (customer.loyaltyTotalEarned ?? 0);
+
+  const newLevel = await getLevelForPoints(orgId, newTotalEarned);
 
   const [updatedCustomer, transaction] = await db.$transaction([
     db.customer.update({
@@ -187,7 +229,7 @@ export async function adjustPoints(params: {
       data: {
         loyaltyPoints: newBalance,
         loyaltyTotalEarned: newTotalEarned,
-        loyaltyTier: newTier,
+        loyaltyLevelId: newLevel?.id ?? null,
       },
     }),
     db.loyaltyTransaction.create({
@@ -210,30 +252,15 @@ export async function adjustPoints(params: {
 /**
  * Get active rewards for an org (for customers)
  */
-export async function getRewards(orgId: string, customerTier?: Tier) {
+export async function getRewards(orgId: string) {
   const allRewards = await db.loyaltyReward.findMany({
-    where: {
-      orgId,
-      isActive: true,
-    },
+    where: { orgId, isActive: true },
     orderBy: { pointsCost: "asc" },
   });
 
-  // Filter out rewards that reached max redemptions
-  const rewards = allRewards.filter(
+  return allRewards.filter(
     (r) => r.maxRedemptions === null || r.currentRedemptions < r.maxRedemptions
   );
-
-  if (!customerTier) return rewards;
-
-  // Filter by tier
-  const tierOrder: Tier[] = ["bronze", "silver", "gold", "platinum"];
-  const customerTierIdx = tierOrder.indexOf(customerTier);
-
-  return rewards.filter((r: { minTier: string | null }) => {
-    if (!r.minTier) return true;
-    return tierOrder.indexOf(r.minTier as Tier) <= customerTierIdx;
-  });
 }
 
 /**
@@ -255,7 +282,7 @@ export async function redeemReward(params: { customerId: string; orgId: string; 
   const [customer, reward] = await Promise.all([
     db.customer.findUnique({
       where: { id: customerId },
-      select: { loyaltyPoints: true, loyaltyTier: true },
+      select: { loyaltyPoints: true },
     }),
     db.loyaltyReward.findUnique({ where: { id: rewardId } }),
   ]);
@@ -264,25 +291,16 @@ export async function redeemReward(params: { customerId: string; orgId: string; 
   if (!reward) throw new Error("Reward not found");
   if (!reward.isActive) throw new Error("Reward not active");
   if (reward.orgId !== orgId) throw new Error("Reward not available for this org");
-  if (customer.loyaltyPoints < reward.pointsCost) throw new Error("Insufficient points");
+  if ((customer.loyaltyPoints ?? 0) < reward.pointsCost) throw new Error("Insufficient points");
 
-  // Check tier requirement
-  if (reward.minTier) {
-    const tierOrder: Tier[] = ["bronze", "silver", "gold", "platinum"];
-    if (tierOrder.indexOf(customer.loyaltyTier as Tier) < tierOrder.indexOf(reward.minTier as Tier)) {
-      throw new Error("Tier requirement not met");
-    }
-  }
-
-  // Check max redemptions
   if (reward.maxRedemptions && reward.currentRedemptions >= reward.maxRedemptions) {
     throw new Error("Reward no longer available");
   }
 
-  const newBalance = customer.loyaltyPoints - reward.pointsCost;
+  const newBalance = (customer.loyaltyPoints ?? 0) - reward.pointsCost;
   const code = nanoid(8).toUpperCase();
   const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + LOYALTY_CONFIG.redemptionExpiryDays);
+  expiresAt.setDate(expiresAt.getDate() + REDEMPTION_EXPIRY_DAYS);
 
   const [updatedCustomer, transaction, redemption] = await db.$transaction([
     db.customer.update({
@@ -305,7 +323,7 @@ export async function redeemReward(params: { customerId: string; orgId: string; 
         customerId,
         orgId,
         rewardId,
-        transactionId: "", // Will be updated
+        transactionId: "",
         code,
         status: "pending",
         expiresAt,
@@ -317,7 +335,6 @@ export async function redeemReward(params: { customerId: string; orgId: string; 
     }),
   ]);
 
-  // Update transactionId
   await db.loyaltyRedemption.update({
     where: { id: redemption.id },
     data: { transactionId: transaction.id },
@@ -355,22 +372,33 @@ export async function getCustomerLoyalty(customerId: string) {
     select: {
       loyaltyPoints: true,
       loyaltyTotalEarned: true,
-      loyaltyTier: true,
+      loyaltyLevelId: true,
+      orgId: true,
     },
   });
   if (!customer) return null;
 
-  const tier = customer.loyaltyTier as Tier;
-  const nextTier = getNextTier(tier);
-  const tierConfig = getTierConfig(tier);
+  const [currentLevel, levels] = await Promise.all([
+    customer.loyaltyLevelId
+      ? db.loyaltyLevel.findUnique({ where: { id: customer.loyaltyLevelId } })
+      : null,
+    db.loyaltyLevel.findMany({
+      where: { orgId: customer.orgId },
+      orderBy: { minPoints: "asc" },
+    }),
+  ]);
+
+  const currentMinPoints = currentLevel?.minPoints ?? -1;
+  const nextLevel = levels.find((l) => l.minPoints > currentMinPoints) ?? null;
 
   return {
-    points: customer.loyaltyPoints,
-    totalEarned: customer.loyaltyTotalEarned,
-    tier,
-    tierConfig,
-    nextTier,
-    pointsToNextTier: nextTier ? nextTier.minPoints - customer.loyaltyTotalEarned : null,
+    points: customer.loyaltyPoints ?? 0,
+    totalEarned: customer.loyaltyTotalEarned ?? 0,
+    currentLevel,
+    nextLevel,
+    pointsToNextLevel: nextLevel
+      ? nextLevel.minPoints - (customer.loyaltyTotalEarned ?? 0)
+      : null,
   };
 }
 
@@ -418,7 +446,6 @@ export async function createReward(data: {
   type: "discount_percent" | "discount_fixed" | "free_service";
   value: number;
   pointsCost: number;
-  minTier?: Tier;
   maxRedemptions?: number;
 }) {
   return db.loyaltyReward.create({ data });
@@ -436,7 +463,6 @@ export async function updateReward(
     value: number;
     pointsCost: number;
     isActive: boolean;
-    minTier: Tier | null;
     maxRedemptions: number | null;
   }>
 ) {
@@ -452,7 +478,7 @@ export async function deleteReward(rewardId: string) {
   });
 
   if (redemptions > 0) {
-    return { error: "No se puede eliminar una recompensa con canjes. Desactívala en su lugar." };
+    return { error: "No se puede eliminar una recompensa con canjes. Desactivala en su lugar." };
   }
 
   await db.loyaltyReward.delete({ where: { id: rewardId } });
@@ -463,10 +489,10 @@ export async function deleteReward(rewardId: string) {
  * Get org loyalty stats
  */
 export async function getOrgLoyaltyStats(orgId: string) {
-  const [totalCustomers, tierCounts, recentTransactions, activeRewards] = await Promise.all([
+  const [totalCustomers, levelCounts, recentTransactions, activeRewards, levels] = await Promise.all([
     db.customer.count({ where: { orgId, loyaltyTotalEarned: { gt: 0 } } }),
     db.customer.groupBy({
-      by: ["loyaltyTier"],
+      by: ["loyaltyLevelId"],
       where: { orgId },
       _count: true,
     }),
@@ -474,11 +500,20 @@ export async function getOrgLoyaltyStats(orgId: string) {
       where: { orgId, createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
     }),
     db.loyaltyReward.count({ where: { orgId, isActive: true } }),
+    db.loyaltyLevel.findMany({ where: { orgId }, orderBy: { minPoints: "asc" } }),
   ]);
+
+  // Build level breakdown: { levelId: count, ... }
+  const levelBreakdown: Record<string, number> = {};
+  for (const entry of levelCounts) {
+    const key = entry.loyaltyLevelId ?? "sin_nivel";
+    levelBreakdown[key] = entry._count;
+  }
 
   return {
     totalCustomers,
-    tierBreakdown: Object.fromEntries(tierCounts.map((t: { loyaltyTier: string; _count: number }) => [t.loyaltyTier, t._count])),
+    levelBreakdown,
+    levels,
     transactionsLast30Days: recentTransactions,
     activeRewards,
   };

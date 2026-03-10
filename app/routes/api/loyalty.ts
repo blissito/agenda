@@ -12,7 +12,12 @@ import {
   getOrgLoyaltyStats,
   getCustomerLoyalty,
   getCustomerRedemptions,
+  getLevels,
+  createLevel,
+  updateLevel,
+  deleteLevel,
 } from "~/lib/loyalty.server";
+import { getPutFileUrl } from "~/utils/lib/tigris.server";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -22,23 +27,29 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const intent = url.searchParams.get("intent");
 
-  // GET /api/loyalty?intent=stats
   if (intent === "stats") {
     return getOrgLoyaltyStats(org.id);
   }
 
-  // GET /api/loyalty?intent=rewards
+  if (intent === "levels") {
+    return getLevels(org.id);
+  }
+
+  if (intent === "level-upload-url") {
+    const key = `loyalty-levels/${org.id}/${Date.now()}`;
+    const putUrl = await getPutFileUrl(key);
+    return { putUrl, key };
+  }
+
   if (intent === "rewards") {
     return getRewards(org.id);
   }
 
-  // GET /api/loyalty?intent=transactions&limit=50
   if (intent === "transactions") {
     const limit = Number(url.searchParams.get("limit")) || 50;
     return getTransactions({ orgId: org.id, limit });
   }
 
-  // GET /api/loyalty?intent=customer&customerId=xxx
   if (intent === "customer") {
     const customerId = url.searchParams.get("customerId");
     if (!customerId) return Response.json({ error: "customerId required" }, { status: 400 });
@@ -61,7 +72,37 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const data = JSON.parse((formData.get("data") as string) || "{}");
 
-  // POST /api/loyalty?intent=award
+  // ==================== LEVELS ====================
+
+  if (intent === "create-level") {
+    const { name, image, minPoints, discountPercent, serviceIds } = data;
+    if (!name || minPoints == null || discountPercent == null) {
+      return Response.json({ error: "name, minPoints, discountPercent required" }, { status: 400 });
+    }
+    return createLevel({
+      orgId: org.id,
+      name,
+      image,
+      minPoints: Number(minPoints),
+      discountPercent: Number(discountPercent),
+      serviceIds: serviceIds ?? [],
+    });
+  }
+
+  if (intent === "update-level") {
+    const { levelId, ...updates } = data;
+    if (!levelId) return Response.json({ error: "levelId required" }, { status: 400 });
+    return updateLevel(levelId, updates);
+  }
+
+  if (intent === "delete-level") {
+    const { levelId } = data;
+    if (!levelId) return Response.json({ error: "levelId required" }, { status: 400 });
+    return deleteLevel(levelId);
+  }
+
+  // ==================== POINTS ====================
+
   if (intent === "award") {
     const { customerId, eventId, basePoints } = data;
     if (!customerId || !eventId || basePoints == null) {
@@ -70,7 +111,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return awardPoints({ customerId, orgId: org.id, eventId, basePoints });
   }
 
-  // POST /api/loyalty?intent=adjust
   if (intent === "adjust") {
     const { customerId, points, reason } = data;
     if (!customerId || points == null || !reason) {
@@ -79,7 +119,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return adjustPoints({ customerId, orgId: org.id, points, reason });
   }
 
-  // POST /api/loyalty?intent=redeem
+  // ==================== REWARDS ====================
+
   if (intent === "redeem") {
     const { customerId, rewardId } = data;
     if (!customerId || !rewardId) {
@@ -88,30 +129,26 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return redeemReward({ customerId, orgId: org.id, rewardId });
   }
 
-  // POST /api/loyalty?intent=use-code
   if (intent === "use-code") {
     const { code } = data;
     if (!code) return Response.json({ error: "code required" }, { status: 400 });
     return useRedemption(code);
   }
 
-  // POST /api/loyalty?intent=create-reward
   if (intent === "create-reward") {
-    const { name, description, type, value, pointsCost, minTier, maxRedemptions } = data;
+    const { name, description, type, value, pointsCost, maxRedemptions } = data;
     if (!name || !type || value == null || pointsCost == null) {
       return Response.json({ error: "name, type, value, pointsCost required" }, { status: 400 });
     }
-    return createReward({ orgId: org.id, name, description, type, value, pointsCost, minTier, maxRedemptions });
+    return createReward({ orgId: org.id, name, description, type, value, pointsCost, maxRedemptions });
   }
 
-  // POST /api/loyalty?intent=update-reward
   if (intent === "update-reward") {
     const { rewardId, ...updates } = data;
     if (!rewardId) return Response.json({ error: "rewardId required" }, { status: 400 });
     return updateReward(rewardId, updates);
   }
 
-  // POST /api/loyalty?intent=delete-reward
   if (intent === "delete-reward") {
     const { rewardId } = data;
     if (!rewardId) return Response.json({ error: "rewardId required" }, { status: 400 });
