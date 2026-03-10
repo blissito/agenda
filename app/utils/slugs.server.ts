@@ -11,9 +11,9 @@ export async function generateUniqueServiceSlug(
 ): Promise<string> {
   const baseSlug = slugify(name, { lower: true, strict: true })
 
-  // Check if base slug is available
+  // Check if base slug is available (globally unique constraint)
   const existing = await db.service.findFirst({
-    where: { orgId, slug: baseSlug },
+    where: { slug: baseSlug },
   })
 
   if (!existing) return baseSlug
@@ -23,7 +23,7 @@ export async function generateUniqueServiceSlug(
   while (true) {
     const candidateSlug = `${baseSlug}-${counter}`
     const exists = await db.service.findFirst({
-      where: { orgId, slug: candidateSlug },
+      where: { slug: candidateSlug },
     })
     if (!exists) return candidateSlug
     counter++

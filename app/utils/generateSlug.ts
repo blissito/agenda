@@ -10,7 +10,7 @@ export const generateSlug = (string: string, addDate: boolean = true) => {
       .trim() // Remove whitespace from both sides of a string
       .replace(/\s+/g, "-") // Replace spaces with -
       .replace(/[^\w-]+/g, "") // Remove all non-word chars
-      .replace(/--+/g, "-") + (addDate ? `-${nanoid(6)}` : "")
+      .replace(/--+/g, "-") + (addDate ? `-${nanoid(6).toLowerCase()}` : "")
   )
 }
 

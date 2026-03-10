@@ -1,7 +1,8 @@
 // app/routes/dash.website.tsx
 import * as React from "react"
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Link } from "react-router"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website"
@@ -36,9 +37,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const url = getOrgPublicUrl(org.slug, request.url)
 
-  // preview: template 1 + modo embed
+  // preview: just embed mode (AI landing or template, whichever is active)
   const previewUrlObj = new URL(url)
-  previewUrlObj.searchParams.set("template", "defaultTemplate")
   previewUrlObj.searchParams.set("embed", "1")
   const previewUrl = previewUrlObj.toString()
 
@@ -94,10 +94,8 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const { org, url, previewUrl } = loaderData
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
-  const roRef = useRef<ResizeObserver | null>(null)
 
-  const [iframeHeight, setIframeHeight] = useState<number>(900)
-  const [shareOpen, setShareOpen] = useState(false)
+  const [shared, setShared] = useState(false)
 
   const iframeSrc = useMemo(() => {
     const u = (previewUrl ?? "").trim()
@@ -109,66 +107,20 @@ export default function Website({ loaderData }: Route.ComponentProps) {
 
   const onShare = () => setShareOpen(true)
 
-  const syncIframeHeight = () => {
-    try {
-      const doc = iframeRef.current?.contentDocument
-      if (!doc) return
-
-      const h =
-        Math.max(
-          doc.documentElement?.scrollHeight ?? 0,
-          doc.body?.scrollHeight ?? 0,
-        ) || 0
-      const min = 700
-      const max = 1800
-      const clamped = Math.min(Math.max(h, min), max)
-
-      setIframeHeight(clamped)
-    } catch {
-      // cross-origin
-    }
-  }
-
-  const onIframeLoad = () => {
-    roRef.current?.disconnect()
-    roRef.current = null
-
-    syncIframeHeight()
-
-    try {
-      const doc = iframeRef.current?.contentDocument
-      if (!doc) return
-
-      const ro = new ResizeObserver(() => syncIframeHeight())
-      ro.observe(doc.documentElement)
-      if (doc.body) ro.observe(doc.body)
-      roRef.current = ro
-    } catch {
-      // cross-origin
-    }
-  }
-
-  useEffect(() => {
-    const min = Math.max(window.innerHeight - 220, 700)
-    setIframeHeight(min)
-  }, [])
-
-  useEffect(() => {
-    const min = Math.max(window.innerHeight - 220, 700)
-    setIframeHeight(min)
-  }, [iframeSrc])
-
-  useEffect(() => {
-    return () => roRef.current?.disconnect()
-  }, [])
-
   return (
-    <main className="w-full">
-      <div className="mx-auto w-full">
-        <div className="flex items-center justify-between gap-4 pb-6">
+    <main className="w-full h-[calc(100vh-8rem)] flex flex-col">
+      <div className="flex items-center justify-between gap-4 pb-4">
           <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
           <div className="flex gap-3">
+            <Link
+              to="/dash/website/ai"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm"
+            >
+              <span>&#10024;</span>
+              Generar con IA
+            </Link>
+
             <RoundAction as="a" href={url} label="Abrir sitio web">
               <WebsiteIcon className="w-5 h-5" />
             </RoundAction>
@@ -187,29 +139,17 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             />
           </div>
         </div>
-
-        <section className="rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+        <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
             src={iframeSrc}
-            className="w-full border-0 block"
-            style={{ height: iframeHeight }}
+            className="w-full h-full border-0 block"
             loading="lazy"
-            onLoad={onIframeLoad}
             sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
             referrerPolicy="strict-origin-when-cross-origin"
           />
         </section>
-      </div>
-
-      <ShareWebsiteModal
-        open={shareOpen}
-        onClose={() => setShareOpen(false)}
-        url={url}
-        orgName={org?.name}
-        orgSlug={org?.slug}
-      />
     </main>
   )
 }

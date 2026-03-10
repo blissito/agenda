@@ -83,7 +83,7 @@ export const getImageURL = async (key: string, expiresIn = 900) =>
     getS3Client(),
     new GetObjectCommand({
       Bucket: BUCKET,
-      Key: `denik/${key}`,
+      Key: key.startsWith("denik/") ? key : `denik/${key}`,
     }),
     { expiresIn },
   )
@@ -94,7 +94,7 @@ export const getPutFileUrl = async (key: string) => {
     getS3Client(),
     new PutObjectCommand({
       Bucket: BUCKET,
-      Key: `denik/${key}`,
+      Key: key.startsWith("denik/") ? key : `denik/${key}`,
       ACL: "public-read",
     }),
     { expiresIn: 3600 },
@@ -107,7 +107,7 @@ export const removeFileUrl = async (key: string) => {
     getS3Client(),
     new DeleteObjectCommand({
       Bucket: BUCKET,
-      Key: `denik/${key}`,
+      Key: key.startsWith("denik/") ? key : `denik/${key}`,
     }),
     { expiresIn: 3600 },
   )

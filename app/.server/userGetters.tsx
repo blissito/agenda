@@ -159,7 +159,7 @@ export const getUserAndOrgOrRedirect = async (
     where: { id: user.orgId },
     select: options?.select ? options.select : undefined,
   })
-  if (!org || !org.weekDays) throw redirect(rurl) // @TODO: why week days?
+  if (!org) throw redirect(rurl)
 
   if (org.weekDays) {
     org.weekDays = normalizeWeekDays(org.weekDays as any) as any
