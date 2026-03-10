@@ -41,6 +41,7 @@ type ShareButtonProps =
       icon: ReactNode
       disabled?: boolean
       title?: string
+      onAfterClick?: never
     }
 
 const ShareButton = (props: ShareButtonProps) => {
@@ -125,19 +126,7 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
     try {
       if (typeof window === "undefined") return
 
-      if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(clipboardText)
-      } else {
-        const input = document.createElement("textarea")
-        input.value = clipboardText
-        input.setAttribute("readonly", "true")
-        input.style.position = "fixed"
-        input.style.left = "-9999px"
-        document.body.appendChild(input)
-        input.select()
-        document.execCommand("copy")
-        document.body.removeChild(input)
-      }
+      await navigator.clipboard.writeText(clipboardText)
 
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1200)
