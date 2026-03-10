@@ -4,6 +4,7 @@ export default {
   content: [
     "./app/**/*.{js,jsx,ts,tsx}",
     "./packages/calendar/src/**/*.tsx",
+    "./node_modules/@easybits.cloud/html-tailwind-generator/dist/**/*.js",
   ],
   theme: {
     extend: {
