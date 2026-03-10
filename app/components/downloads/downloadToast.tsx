@@ -279,3 +279,236 @@ export function useDownloadToast({
 
   return { startDownload, toast, canDownload };
 }
+export type EventForXls = {
+  start: Date | string
+  status: string
+  paid?: boolean | null
+  service?: {
+    name?: string | null
+    employeeName?: string | null
+    points?: number | string | null
+    price?: number | string | null
+  } | null
+}
+
+function sanitizeFileName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+    .replace(/\s+/g, "_")
+    .replace(/-+/g, "-")
+    .replace(/_+/g, "_")
+    .replace(/[. ]+$/g, "")
+    .slice(0, 150)
+}
+
+function formatFileDate(date = new Date()) {
+  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const year = date.getFullYear()
+  return `${day}-${month}-${year}`
+}
+
+function formatHumanDate(value?: Date | string | null) {
+  const d = ensureDate(value)
+  if (!d) return ""
+  return d.toLocaleDateString("es-MX", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  })
+}
+
+function formatHumanTime(value?: Date | string | null) {
+  const d = ensureDate(value)
+  if (!d) return ""
+  return d.toLocaleTimeString("es-MX", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  })
+}
+
+function escapeHtml(value: unknown) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+}
+
+function formatMoney(value: unknown) {
+  const num = Number(value ?? 0)
+  return `$${num.toFixed(2)}`
+}
+
+function buildEventsXls(events: EventForXls[], clientName: string) {
+  const rows =
+    events.length > 0
+      ? events
+          .map((event) => {
+            const serviceName = event.service?.name ?? ""
+            const employeeName = event.service?.employeeName ?? "s/n"
+            const points = event.service?.points ?? ""
+            const price = formatMoney(event.service?.price)
+            const eventStatus =
+              event.status === "ACTIVE" ? "Confirmada" : "Cancelada"
+            const paymentStatus = event.paid ? "Pagada" : "Sin pagar"
+
+            return `
+              <tr>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  formatHumanDate(event.start),
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  formatHumanTime(event.start),
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  serviceName,
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  employeeName,
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  points,
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  price,
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  eventStatus,
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  paymentStatus,
+                )}</td>
+              </tr>
+            `
+          })
+          .join("")
+      : `
+        <tr>
+          <td colspan="8" style="padding:12px; border:1px solid #d9d9d9;">
+            Este cliente no tiene citas registradas.
+          </td>
+        </tr>
+      `
+
+  return `
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+          xmlns:x="urn:schemas-microsoft-com:office:excel"
+          xmlns="http://www.w3.org/TR/REC-html40">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="ProgId" content="Excel.Sheet" />
+      </head>
+      <body>
+        <table>
+          <tr>
+            <td colspan="8" style="font-size:18px; font-weight:bold; padding:12px;">
+              Historial de citas - ${escapeHtml(clientName)}
+            </td>
+          </tr>
+          <tr>
+            <td colspan="8" style="padding:0 12px 12px 12px;">
+              Generado el ${escapeHtml(formatHumanDate(new Date()))}
+            </td>
+          </tr>
+        </table>
+
+        <table style="border-collapse:collapse; width:100%;">
+          <thead>
+            <tr>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Fecha</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Hora</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Servicio</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Encargado</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Puntos</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Precio</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Estatus cita</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Pago</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `
+}
+
+export function useEventDownloadToast({
+  events,
+  clientName,
+}: {
+  events: EventForXls[]
+  clientName?: string
+}) {
+  const [open, setOpen] = React.useState(false)
+  const [status, setStatus] = React.useState<DownloadStatus>("preparing")
+  const [fileName, setFileName] = React.useState("cliente.xls")
+
+  const startDownload = React.useCallback(() => {
+    try {
+      const safeClientName = sanitizeFileName(
+        (clientName || "cliente").trim() || "cliente",
+      )
+
+      const dynamicName = `${safeClientName}_${formatFileDate()}.xls`
+
+      setFileName(dynamicName)
+      setOpen(true)
+      setStatus("preparing")
+
+      setTimeout(() => {
+        setStatus("generating")
+
+        setTimeout(() => {
+          const xls = buildEventsXls(events || [], clientName || "Cliente")
+
+          const blob = new Blob(["\ufeff", xls], {
+            type: "application/vnd.ms-excel;charset=utf-8;",
+          })
+
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement("a")
+          a.href = url
+          a.download = dynamicName
+          document.body.appendChild(a)
+          a.click()
+          a.remove()
+          URL.revokeObjectURL(url)
+
+          setStatus("downloading")
+
+          setTimeout(() => {
+            setStatus("done")
+            setTimeout(() => {
+              setOpen(false)
+              setStatus("preparing")
+            }, 900)
+          }, 700)
+        }, 700)
+      }, 400)
+    } catch (error) {
+      console.error("Error generando XLS de citas", error)
+      setStatus("error")
+    }
+  }, [events, clientName])
+
+  const dynamicTitle = `${clientName || "Cliente"} — Descargando archivos 0/1`
+
+  const toast = (
+    <DownloadToast
+      open={open}
+      fileName={fileName}
+      status={status}
+      onClose={() => setOpen(false)}
+      title={dynamicTitle}
+    />
+  )
+
+  return { startDownload, toast }
+}
