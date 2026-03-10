@@ -480,12 +480,6 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {errorMessage && (
-            <span className="text-xs text-red-600 font-medium max-w-[200px] truncate">{errorMessage}</span>
-          )}
-          {saveMessage && (
-            <span className="text-xs text-green-600 font-medium">{saveMessage}</span>
-          )}
           {isGenerating && (
             <button
               type="button"
@@ -736,6 +730,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               onClose={() => setCodeEditorSection(null)}
             />
           </div>
+        </div>
+      )}
+
+      {/* Toast notification */}
+      {saveMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-green-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
+          {saveMessage}
+        </div>
+      )}
+      {errorMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-red-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
+          {errorMessage}
         </div>
       )}
     </div>
