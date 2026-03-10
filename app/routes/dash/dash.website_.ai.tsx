@@ -65,15 +65,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const hasExistingSections = sections.length > 0
   const abortRef = useRef<AbortController | null>(null)
   const isSavingRef = useRef(false)
-  const isRefiningRef = useRef(false)
-  const selectedSectionIdRef = useRef<string | null>(null)
   const streamEndRef = useRef<HTMLDivElement>(null)
   const [streamCount, setStreamCount] = useState(0)
 
   // Keep refs in sync
   isSavingRef.current = isSaving
-  isRefiningRef.current = isRefining
-  selectedSectionIdRef.current = selectedSectionId
 
   // Generate landing (streaming SSE)
   const handleGenerate = useCallback(async () => {
@@ -156,20 +152,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     if (fetcher.state !== "idle" || !fetcher.data || fetcher.data === lastFetcherDataRef.current) return
     lastFetcherDataRef.current = fetcher.data
-    const data = fetcher.data as { html?: string; ok?: boolean; error?: string }
-
-    if (isRefiningRef.current) {
-      if (data.error) {
-        setErrorMessage(data.error)
-      } else if (data.html && selectedSectionIdRef.current) {
-        const sectionId = selectedSectionIdRef.current
-        setSections((prev) =>
-          prev.map((s) => (s.id === sectionId ? { ...s, html: data.html as string } : s)),
-        )
-        setErrorMessage(null)
-      }
-      setIsRefining(false)
-    }
+    const data = fetcher.data as { ok?: boolean; error?: string }
 
     if (isSavingRef.current && pendingSaveRef.current) {
       if (data.error) {
@@ -184,22 +167,70 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     }
   }, [fetcher.state, fetcher.data])
 
-  // Refine section
+  // Refine section (streaming SSE)
   const handleRefine = useCallback(
-    (instruction: string, referenceImage?: string) => {
+    async (instruction: string, referenceImage?: string) => {
       if (!selectedSectionId) return
       const section = sections.find((s) => s.id === selectedSectionId)
       if (!section) return
+      const sectionId = selectedSectionId
+
       setIsRefining(true)
-      const formData: Record<string, string> = {
-        intent: "refine",
-        currentHtml: section.html,
-        instruction,
+      setErrorMessage(null)
+
+      try {
+        const formData = new FormData()
+        formData.append("intent", "refine")
+        formData.append("currentHtml", section.html)
+        formData.append("instruction", instruction)
+        if (referenceImage) formData.append("referenceImage", referenceImage)
+
+        const res = await fetch("/api/landing-generator", {
+          method: "POST",
+          body: formData,
+        })
+        if (!res.ok) throw new Error("Refine failed")
+
+        const reader = res.body?.getReader()
+        if (!reader) throw new Error("No stream")
+
+        const decoder = new TextDecoder()
+        let buf = ""
+        let eventType = ""
+
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buf += decoder.decode(value, { stream: true })
+
+          const lines = buf.split("\n")
+          buf = lines.pop() || ""
+
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7).trim()
+            } else if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6))
+                if ((eventType === "chunk" || eventType === "done") && data.html) {
+                  setSections((prev) =>
+                    prev.map((s) => (s.id === sectionId ? { ...s, html: data.html } : s))
+                  )
+                } else if (eventType === "error") {
+                  setErrorMessage(data.message)
+                }
+              } catch {}
+            }
+          }
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Error al refinar"
+        setErrorMessage(message)
+      } finally {
+        setIsRefining(false)
       }
-      if (referenceImage) formData.referenceImage = referenceImage
-      fetcher.submit(formData, { method: "post", action: "/api/landing-generator" })
     },
-    [selectedSectionId, sections, fetcher],
+    [selectedSectionId, sections],
   )
 
   // Save/Publish
@@ -400,7 +431,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <div className="w-72 border-r border-gray-200 bg-white overflow-y-auto flex-shrink-0">
-          {hasExistingSections ? (
+          {hasExistingSections ? (<>
             <SectionList
               sections={sections}
               selectedSectionId={selectedSectionId}
@@ -427,7 +458,26 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 setSections((prev) => [...prev, newSection])
               }}
             />
-          ) : (
+          {isGenerating && (
+            <div className="flex items-center gap-3 py-4 px-6 border-t border-gray-200">
+              <div className="flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-bounce" style={{ animationDelay: "300ms" }} />
+              </div>
+              <p className="text-sm font-bold text-gray-500">
+                Sección {streamCount + 1} de ~8...
+              </p>
+              <button
+                type="button"
+                onClick={() => { abortRef.current?.abort(); setIsGenerating(false) }}
+                className="ml-auto text-xs text-red-600 hover:text-red-800 font-medium"
+              >
+                Detener
+              </button>
+            </div>
+          )}
+          </>) : (
             <div className="p-6 text-center">
               <div className="text-6xl mb-4">&#10024;</div>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">

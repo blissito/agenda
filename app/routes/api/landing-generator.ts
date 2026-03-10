@@ -68,16 +68,31 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return Response.json({ error: "Missing currentHtml or instruction" }, { status: 400 })
     }
 
-    try {
-      const html = await refineOrgLanding(currentHtml, instruction, {
-        referenceImage: referenceImage || undefined,
-      })
-      return Response.json({ html })
-    } catch (err) {
-      console.error("Landing refine failed:", err)
-      const message = err instanceof Error ? err.message : "Error al refinar sección"
-      return Response.json({ error: message }, { status: 500 })
-    }
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder()
+        const send = (event: string, data: unknown) => {
+          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`))
+        }
+        try {
+          await refineOrgLanding(currentHtml, instruction, {
+            referenceImage: referenceImage || undefined,
+            onChunk: (html) => send("chunk", { html }),
+            onDone: (html) => send("done", { html }),
+            onError: (err) => send("error", { message: err.message }),
+          })
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Error al refinar"
+          send("error", { message })
+        } finally {
+          controller.close()
+        }
+      },
+    })
+
+    return new Response(stream, {
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+    })
   }
 
   if (intent === "save") {

@@ -1,6 +1,9 @@
 import type { Org, Service } from "@prisma/client"
 import { generateLanding } from "@easybits.cloud/html-tailwind-generator/generate"
-import { refineLanding } from "@easybits.cloud/html-tailwind-generator/refine"
+import {
+  refineLanding,
+  REFINE_SYSTEM,
+} from "@easybits.cloud/html-tailwind-generator/refine"
 import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import type { GenerateOptions } from "@easybits.cloud/html-tailwind-generator/generate"
@@ -72,6 +75,20 @@ function buildOrgPrompt(org: Org, services: Service[]): string {
   return parts.join(".\n")
 }
 
+// ==================== RESPONSIVE REFINE PROMPT ====================
+
+const RESPONSIVE_REFINE_SYSTEM =
+  REFINE_SYSTEM +
+  `
+
+RESPONSIVE DESIGN — CRITICAL:
+- All sections MUST work at 375px (mobile), 768px (tablet), and 1280px+ (desktop)
+- Use Tailwind responsive prefixes: base for mobile, md: for tablet, lg: for desktop
+- NEVER use fixed widths on interactive elements — buttons must use px/py padding, not w-*/h-* circles
+- Grid: grid-cols-1 base, md:grid-cols-2, lg:grid-cols-3
+- Images: w-full h-auto object-cover, never fixed dimensions
+- Text: text-2xl md:text-4xl for headings, text-base for body`
+
 // ==================== AI CONFIG ====================
 
 function getAIKeys(): { anthropicApiKey?: string; pexelsApiKey?: string } {
@@ -108,6 +125,7 @@ export async function refineOrgLanding(
   return refineLanding({
     currentHtml,
     instruction,
+    systemPrompt: RESPONSIVE_REFINE_SYSTEM,
     ...getAIKeys(),
     ...options,
   })
