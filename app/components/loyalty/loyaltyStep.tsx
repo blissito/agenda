@@ -1,0 +1,1335 @@
+// loyaltySteps.tsx
+import { useRef, useState } from "react"
+import type {
+  ChangeEvent,
+  FormEvent,
+  InputHTMLAttributes,
+  ReactNode,
+} from "react"
+import { useRevalidator } from "react-router"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
+import { ArrowRight } from "~/components/icons/arrowRight"
+import { X } from "~/components/icons/X"
+import { Settings } from "~/components/icons/settings"
+import type { Level, Reward, ServiceOption, Transaction } from "~/routes/dash/dash.lealtad"
+
+// ==================== SHARED: LEVEL IMAGE UPLOAD ====================
+
+async function uploadLevelImage(file: File): Promise<string | null> {
+  try {
+    const res = await fetch("/api/loyalty?intent=level-upload-url")
+    const { putUrl, key } = await res.json()
+
+    const upload = await fetch(putUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Length": String(file.size),
+        "Content-Type": file.type,
+        "x-amz-acl": "public-read",
+      },
+    })
+
+    return upload.ok ? key : null
+  } catch {
+    return null
+  }
+}
+
+// ==================== SHARED COMPONENTS ====================
+
+const FormLabel = ({ 
+  children, 
+  className = "" 
+}: { 
+  children: ReactNode
+  className?: string 
+}) => (
+  <label className={`mb-1 block font-satoMedium text-[14px] text-brand_gray ${className}`}>
+    {children}
+  </label>
+)
+
+const FormInput = ({ 
+  className = "",
+  ...props 
+}: InputHTMLAttributes<HTMLInputElement>) => (
+  <input
+    {...props}
+    className={`w-full rounded border px-3 py-2 text-sm ${className}`}
+  />
+)
+
+const FormSelect = ({ 
+  children,
+  className = "",
+  ...props 
+}: React.SelectHTMLAttributes<HTMLSelectElement>) => (
+  <select
+    {...props}
+    className={`w-full rounded border px-3 py-2 text-sm ${className}`}
+  >
+    {children}
+  </select>
+)
+
+const ActionButton = ({
+  onClick,
+  icon: Icon,
+  title,
+  variant = "default"
+}: {
+  onClick: () => void
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  variant?: "default" | "danger" | "warning" | "success"
+}) => {
+  const variantStyles = {
+    default: "text-gray-500 hover:bg-gray-100 hover:text-brand_blue",
+    danger: "text-gray-500 hover:bg-red-50 hover:text-red-600",
+    warning: "text-gray-500 hover:bg-orange-50 hover:text-orange-600",
+    success: "text-green-600 hover:bg-green-50"
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`rounded p-1.5 ${variantStyles[variant]}`}
+      title={title}
+    >
+      <Icon className="h-4 w-4" />
+    </button>
+  )
+}
+
+const CardActionButton = ({
+  onClick,
+  icon: Icon,
+  title,
+}: {
+  onClick: () => void
+  icon: React.ComponentType
+  title: string
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#6B7280] shadow-sm"
+    title={title}
+  >
+    <Icon />
+  </button>
+)
+
+export function Modal({
+  onClose,
+  children,
+}: {
+  onClose: () => void
+  children: ReactNode
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="mx-4 w-full max-w-lg rounded-xl bg-white p-6">
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// ==================== TAB: NIVELES ====================
+
+export function NivelesTab({
+  levels,
+  services,
+  onCreateClick,
+}: {
+  levels: Level[]
+  services: ServiceOption[]
+  onCreateClick: () => void
+}) {
+  const revalidator = useRevalidator()
+  const [editingLevel, setEditingLevel] = useState<Level | null>(null)
+
+  const apiCall = async (intent: string, payload: Record<string, unknown>) => {
+    await fetch(`/api/loyalty?intent=${intent}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ data: JSON.stringify(payload) }),
+    })
+    revalidator.revalidate()
+  }
+
+  const handleDelete = async (level: Level) => {
+    const res = await fetch("/api/loyalty?intent=delete-level", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ data: JSON.stringify({ levelId: level.id }) }),
+    })
+    const result = await res.json()
+
+    if (result.error) {
+      alert(result.error)
+    } else {
+      revalidator.revalidate()
+    }
+  }
+
+  const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!editingLevel) return
+
+    const form = e.currentTarget
+    const selectedServices = Array.from(
+      form.querySelectorAll<HTMLInputElement>(
+        'input[name="editServiceId"]:checked',
+      ),
+    ).map((el) => el.value)
+
+    const fileInput = form.elements.namedItem("editLevelImage") as HTMLInputElement
+    let imageKey: string | null = editingLevel.image
+
+    if (fileInput?.files?.[0]) {
+      imageKey = await uploadLevelImage(fileInput.files[0])
+    }
+
+    await apiCall("update-level", {
+      levelId: editingLevel.id,
+      name: (form.elements.namedItem("editLevelName") as HTMLInputElement).value,
+      minPoints: Number((form.elements.namedItem("editMinPoints") as HTMLInputElement).value),
+      discountPercent: Number((form.elements.namedItem("editDiscountPercent") as HTMLInputElement).value),
+      serviceIds: selectedServices,
+      image: imageKey,
+    })
+
+    setEditingLevel(null)
+  }
+
+
+  return (
+    <>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {levels.map((level) => (
+          <LoyaltyLevelCard
+            key={level.id}
+            level={level}
+            onEdit={() => setEditingLevel(level)}
+            onDelete={() => handleDelete(level)}
+          />
+        ))}
+      </div>
+
+      {editingLevel && (
+        <Modal onClose={() => setEditingLevel(null)}>
+          <LevelForm
+            title="Editar nivel"
+            services={services}
+            onSubmit={handleUpdate}
+            isLoading={false}
+            onCancel={() => setEditingLevel(null)}
+            namePrefix="edit"
+            serviceCheckboxName="editServiceId"
+            defaultValues={editingLevel}
+          />
+        </Modal>
+      )}
+    </>
+  )
+}
+
+function LoyaltyLevelCard({
+  level,
+  onEdit,
+  onDelete,
+}: {
+  level: Level
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  const imageSrc = level.image ? `/api/images?key=${level.image}` : null
+
+  return (
+    <div className="group overflow-hidden rounded-[18px] bg-white">
+      <div className="relative overflow-hidden rounded-[16px] bg-[#F5F5F5]">
+        <div className="aspect-[1.55/1] w-full">
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt={level.name}
+              className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EEEAFE] to-[#F8F7FF] text-[28px] font-semibold text-[#615FFF]">
+              {level.name.charAt(0).toUpperCase()}
+            </div>
+          )}
+        </div>
+
+        <div className="absolute right-3 top-3 flex gap-2 opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
+          <CardActionButton onClick={onEdit} icon={PencilIcon} title="Editar" />
+          <CardActionButton onClick={onDelete} icon={TrashIcon} title="Eliminar" />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-1 py-3">
+        <p className="min-w-0 truncate pr-3 text-[14px] font-satoMiddle text-brand_dark">
+          {level.name}
+        </p>
+        <div className="text-[13px] font-satoMiddle text-brand_gray">
+          +{level.minPoints} puntos
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ==================== TAB: DESCUENTOS ====================
+
+export function DescuentosTab({
+  rewards,
+  transactions,
+}: {
+  rewards: Reward[]
+  transactions: Transaction[]
+}) {
+  const revalidator = useRevalidator()
+  const formRef = useRef<HTMLFormElement>(null)
+  const [isCreating, setIsCreating] = useState(false)
+  const [editingReward, setEditingReward] = useState<Reward | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const apiCall = async (intent: string, payload: Record<string, unknown>) => {
+    const res = await fetch(`/api/loyalty?intent=${intent}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ data: JSON.stringify(payload) }),
+    })
+    return res.json()
+  }
+
+  const handleCreateReward = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsCreating(true)
+
+    const form = e.currentTarget
+    await apiCall("create-reward", {
+      name: (form.elements.namedItem("rewardName") as HTMLInputElement).value,
+      description: (form.elements.namedItem("rewardDesc") as HTMLInputElement).value,
+      type: (form.elements.namedItem("rewardType") as HTMLSelectElement).value,
+      value: Number((form.elements.namedItem("rewardValue") as HTMLInputElement).value),
+      pointsCost: Number((form.elements.namedItem("pointsCost") as HTMLInputElement).value),
+    })
+
+    form.reset()
+    setIsCreating(false)
+    revalidator.revalidate()
+  }
+
+  const handleToggleActive = async (reward: Reward) => {
+    await apiCall("update-reward", {
+      rewardId: reward.id,
+      isActive: !reward.isActive,
+    })
+    revalidator.revalidate()
+  }
+
+  const handleDelete = async (reward: Reward) => {
+    const result = await apiCall("delete-reward", { rewardId: reward.id })
+    if (result.error) {
+      alert(result.error)
+    } else {
+      revalidator.revalidate()
+    }
+  }
+
+  const handleUpdateReward = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!editingReward) return
+
+    setIsUpdating(true)
+    const form = e.currentTarget
+    
+    await apiCall("update-reward", {
+      rewardId: editingReward.id,
+      name: (form.elements.namedItem("editName") as HTMLInputElement).value,
+      description: (form.elements.namedItem("editDesc") as HTMLInputElement).value || null,
+      type: (form.elements.namedItem("editType") as HTMLSelectElement).value,
+      value: Number((form.elements.namedItem("editValue") as HTMLInputElement).value),
+      pointsCost: Number((form.elements.namedItem("editPointsCost") as HTMLInputElement).value),
+    })
+
+    setEditingReward(null)
+    setIsUpdating(false)
+    revalidator.revalidate()
+  }
+
+  const getRewardTypeLabel = (type: string, value: number) => {
+    if (type === "discount_percent") return `${value}% descuento`
+    if (type === "discount_fixed") return `$${value / 100} descuento`
+    return "Servicio gratis"
+  }
+
+  return (
+    <div>
+      <h2 className="mb-3 text-lg font-semibold">Recompensas</h2>
+
+      {rewards.length === 0 ? (
+        <p className="text-gray-500">No hay recompensas configuradas.</p>
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {rewards.map((r) => (
+            <div
+              key={r.id}
+              className={`rounded-lg border bg-white p-4 ${!r.isActive ? "opacity-60" : ""}`}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 font-medium">
+                    {r.name}
+                    {!r.isActive && (
+                      <span className="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-600">
+                        Inactiva
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-500">{r.description}</div>
+                  <div className="mt-2 text-sm">
+                    <span className="font-semibold">{r.pointsCost} pts</span>
+                    {" · "}
+                    {getRewardTypeLabel(r.type, r.value)}
+                  </div>
+                  {r.currentRedemptions > 0 && (
+                    <div className="mt-1 text-xs text-gray-400">
+                      {r.currentRedemptions} canjes
+                      {r.maxRedemptions && ` / ${r.maxRedemptions} max`}
+                    </div>
+                  )}
+                </div>
+
+                <div className="ml-2 flex gap-1">
+                  <ActionButton
+                    onClick={() => setEditingReward(r)}
+                    icon={PencilIcon}
+                    title="Editar"
+                    variant="default"
+                  />
+                  <ActionButton
+                    onClick={() => handleToggleActive(r)}
+                    icon={r.isActive ? PauseIcon : PlayIcon}
+                    title={r.isActive ? "Desactivar" : "Activar"}
+                    variant={r.isActive ? "warning" : "success"}
+                  />
+                  <ActionButton
+                    onClick={() => handleDelete(r)}
+                    icon={TrashIcon}
+                    title="Eliminar"
+                    variant="danger"
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {editingReward && (
+        <RewardFormModal
+          reward={editingReward}
+          isUpdating={isUpdating}
+          onSubmit={handleUpdateReward}
+          onClose={() => setEditingReward(null)}
+        />
+      )}
+
+      <RewardCreateForm
+        formRef={formRef}
+        isCreating={isCreating}
+        onSubmit={handleCreateReward}
+      />
+
+      <TransactionsTable transactions={transactions} />
+    </div>
+  )
+}
+
+// Sub-componentes de Descuentos
+function RewardFormModal({
+  reward,
+  isUpdating,
+  onSubmit,
+  onClose,
+}: {
+  reward: Reward
+  isUpdating: boolean
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void
+  onClose: () => void
+}) {
+  return (
+    <Modal onClose={onClose}>
+      <h3 className="mb-4 text-lg font-semibold">Editar recompensa</h3>
+      <form onSubmit={onSubmit} className="space-y-3">
+        <RewardFormFields 
+          namePrefix="edit" 
+          defaultValues={{
+            name: reward.name,
+            description: reward.description || "",
+            type: reward.type,
+            value: reward.value,
+            pointsCost: reward.pointsCost,
+          }}
+        />
+        <div className="flex gap-3 pt-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded border px-4 py-2 text-sm hover:bg-gray-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            disabled={isUpdating}
+            className="flex-1 rounded bg-brand_blue px-4 py-2 text-sm text-white hover:bg-brand_blue/90 disabled:opacity-50"
+          >
+            {isUpdating ? "Guardando..." : "Guardar"}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+function RewardFormFields({
+  namePrefix = "",
+  defaultValues,
+}: {
+  namePrefix?: string
+  defaultValues?: {
+    name?: string
+    description?: string
+    type?: string
+    value?: number
+    pointsCost?: number
+  }
+}) {
+  const n = (base: string) => namePrefix ? `${namePrefix}${base.charAt(0).toUpperCase() + base.slice(1)}` : base
+
+  return (
+    <>
+      <div>
+        <FormLabel>Nombre</FormLabel>
+        <FormInput
+          name={n("name")}
+          defaultValue={defaultValues?.name}
+          placeholder="Nombre"
+          required
+        />
+      </div>
+      <div>
+        <FormLabel>Descripcion</FormLabel>
+        <FormInput
+          name={n("desc")}
+          defaultValue={defaultValues?.description}
+          placeholder="Descripcion (opcional)"
+        />
+      </div>
+      <div>
+        <FormLabel>Tipo</FormLabel>
+        <FormSelect name={n("type")} defaultValue={defaultValues?.type} required>
+          <option value="discount_percent">% Descuento</option>
+          <option value="discount_fixed">$ Descuento fijo</option>
+          <option value="free_service">Servicio gratis</option>
+        </FormSelect>
+      </div>
+      <div>
+        <FormLabel>Valor</FormLabel>
+        <FormInput
+          name={n("value")}
+          type="number"
+          defaultValue={defaultValues?.value}
+          placeholder="Valor (ej: 10 para 10%)"
+          required
+        />
+      </div>
+      <div>
+        <FormLabel>Costo en puntos</FormLabel>
+        <FormInput
+          name={n("pointsCost")}
+          type="number"
+          defaultValue={defaultValues?.pointsCost}
+          placeholder="Costo en puntos"
+          required
+        />
+      </div>
+    </>
+  )
+}
+
+function RewardCreateForm({
+  formRef,
+  isCreating,
+  onSubmit,
+}: {
+  formRef: React.RefObject<HTMLFormElement>
+  isCreating: boolean
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void
+}) {
+  return (
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      className="mt-6 max-w-md rounded-lg bg-gray-50 p-4"
+    >
+      <h3 className="mb-3 font-medium">Nueva recompensa</h3>
+      <div className="space-y-3">
+        <RewardFormFields namePrefix="reward" />
+        <button
+          type="submit"
+          disabled={isCreating}
+          className="rounded bg-brand_blue px-4 py-2 text-sm text-white hover:bg-brand_blue/90 disabled:opacity-50"
+        >
+          {isCreating ? "Creando..." : "Crear recompensa"}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
+  return (
+    <section className="mt-8">
+      <h2 className="mb-3 text-lg font-semibold">Transacciones recientes</h2>
+      {transactions.length === 0 ? (
+        <p className="text-gray-500">Sin transacciones aun.</p>
+      ) : (
+        <div className="overflow-hidden rounded-lg border bg-white">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left">Cliente</th>
+                <th className="px-4 py-2 text-left">Tipo</th>
+                <th className="px-4 py-2 text-right">Puntos</th>
+                <th className="px-4 py-2 text-right">Balance</th>
+                <th className="px-4 py-2 text-left">Razon</th>
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((tx) => (
+                <tr key={tx.id} className="border-t">
+                  <td className="px-4 py-2">{tx.customer.displayName}</td>
+                  <td className="px-4 py-2">{tx.type}</td>
+                  <td className={`px-4 py-2 text-right ${tx.points >= 0 ? "text-green-600" : "text-red-600"}`}>
+                    {tx.points >= 0 ? "+" : ""}{tx.points}
+                  </td>
+                  <td className="px-4 py-2 text-right">{tx.balance}</td>
+                  <td className="px-4 py-2 text-gray-500">{tx.reason}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  )
+}
+
+// ==================== CREATE LEVEL WIZARD ====================
+
+export function CreateLevelWizard({
+  services,
+  isOrgEnabled,
+  onClose,
+  onCreated,
+}: {
+  services: ServiceOption[]
+  isOrgEnabled: boolean
+  onClose: () => void
+  onCreated: () => void
+}) {
+  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [levelName, setLevelName] = useState("")
+  const [minPoints, setMinPoints] = useState("")
+  const [discountPercent, setDiscountPercent] = useState("")
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [applyAllServices, setApplyAllServices] = useState(true)
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const parsedMinPoints = Number(minPoints)
+  const parsedDiscount = Number(discountPercent)
+
+  const isStepOneValid =
+    levelName.trim().length > 0 &&
+    minPoints !== "" &&
+    discountPercent !== "" &&
+    Number.isFinite(parsedMinPoints) &&
+    Number.isFinite(parsedDiscount) &&
+    parsedMinPoints >= 0 &&
+    parsedDiscount > 0 &&
+    parsedDiscount <= 100
+
+  const isStepTwoValid =
+    applyAllServices || selectedServiceIds.length > 0 || services.length === 0
+
+  const toggleService = (serviceId: string) => {
+    setSelectedServiceIds((prev) =>
+      prev.includes(serviceId)
+        ? prev.filter((id) => id !== serviceId)
+        : [...prev, serviceId],
+    )
+  }
+
+  const handleImageChange = (file?: File | null) => {
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
+  const handleBack = () => {
+    if (isSubmitting) return
+    if (step === 1) {
+      onClose()
+    } else if (step === 2) {
+      setStep(1)
+    } else {
+      onClose()
+    }
+  }
+
+  const handleEnableProgram = async () => {
+    const response = await fetch(window.location.pathname + window.location.search, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ intent: "enable-loyalty" }),
+    })
+
+    const result = await response.json().catch(() => null)
+    if (!response.ok || result?.error) {
+      throw new Error(result?.error || "No se pudo activar el programa.")
+    }
+  }
+
+  const handleCreateLevel = async () => {
+    let imageKey: string | null = null
+
+    if (imageFile) {
+      imageKey = await uploadLevelImage(imageFile)
+      if (!imageKey) {
+        throw new Error("No se pudo subir la imagen del nivel.")
+      }
+    }
+
+    const response = await fetch("/api/loyalty?intent=create-level", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        data: JSON.stringify({
+          name: levelName.trim(),
+          minPoints: parsedMinPoints,
+          discountPercent: parsedDiscount,
+          serviceIds: applyAllServices ? [] : selectedServiceIds,
+          ...(imageKey && { image: imageKey }),
+        }),
+      }),
+    })
+
+    const result = await response.json().catch(() => null)
+    if (!response.ok || result?.error) {
+      throw new Error(result?.error || "No se pudo crear el nivel.")
+    }
+  }
+
+  const handleSubmit = async () => {
+    if (!isStepTwoValid || isSubmitting) return
+
+    setError(null)
+    setIsSubmitting(true)
+
+    try {
+      if (!isOrgEnabled) {
+        await handleEnableProgram()
+      }
+      await handleCreateLevel()
+      onCreated()
+      setStep(3)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ocurrió un error al crear el nivel.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (step === 3) {
+    return (
+      <WizardSuccessScreen onClose={onClose} />
+    )
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-white">
+      <div className="relative flex min-h-[100dvh] w-full flex-col overflow-y-auto bg-white px-4 py-5 sm:px-8 sm:py-6">
+        <button
+          type="button"
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="absolute right-4 top-4 z-20 flex items-center justify-center text-[#8A90A2] disabled:opacity-50"
+          aria-label="Cerrar"
+        >
+          <X />
+        </button>
+
+        <WizardHeader currentStep={step} />
+
+        {step === 1 && (
+          <WizardStepOne
+            levelName={levelName}
+            setLevelName={setLevelName}
+            minPoints={minPoints}
+            setMinPoints={setMinPoints}
+            discountPercent={discountPercent}
+            setDiscountPercent={setDiscountPercent}
+            imagePreview={imagePreview}
+            handleImageChange={handleImageChange}
+            error={error}
+          />
+        )}
+
+        {step === 2 && (
+          <WizardStepTwo
+            services={services}
+            applyAllServices={applyAllServices}
+            setApplyAllServices={setApplyAllServices}
+            selectedServiceIds={selectedServiceIds}
+            toggleService={toggleService}
+            error={error}
+          />
+        )}
+
+        <WizardFooter
+          onBack={handleBack}
+          onNext={step === 1 ? () => setStep(2) : handleSubmit}
+          canContinue={step === 1 ? isStepOneValid : isStepTwoValid}
+          isSubmitting={isSubmitting}
+          nextText={step === 1 ? "Continuar" : "Guardar"}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ==================== WIZARD SUB-COMPONENTS ====================
+
+function WizardHeader({ currentStep }: { currentStep: 1 | 2 }) {
+  return (
+    <div className="mx-auto w-full pt-10 text-center sm:pt-8">
+      <h2 className="text-[24px] font-satoMiddle text-brand_dark">
+        ¡Empecemos! Crea un nuevo nivel para tus clientes
+      </h2>
+      <div className="mt-5 flex justify-center">
+        <WizardStepper currentStep={currentStep} />
+      </div>
+    </div>
+  )
+}
+
+function WizardStepOne({
+  levelName,
+  setLevelName,
+  minPoints,
+  setMinPoints,
+  discountPercent,
+  setDiscountPercent,
+  imagePreview,
+  handleImageChange,
+  error,
+}: {
+  levelName: string
+  setLevelName: (value: string) => void
+  minPoints: string
+  setMinPoints: (value: string) => void
+  discountPercent: string
+  setDiscountPercent: (value: string) => void
+  imagePreview: string | null
+  handleImageChange: (file?: File | null) => void
+  error: string | null
+}) {
+  return (
+    <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
+      <div>
+        <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
+          Nombre del nivel <span className="text-[#615FFF]">*</span>
+        </label>
+        <input
+          value={levelName}
+          onChange={(e) => setLevelName(e.target.value)}
+          placeholder="Ej. VIP, Premium, Gold"
+          className="h-[44px] w-full rounded-[16px] border border-[#E5E7EB] px-4 text-[14px] text-[#20242D] outline-none placeholder:text-[#B3B8C7] focus:border-[#615FFF]"
+        />
+      </div>
+
+      <div className="mt-5">
+        <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">Imagen</label>
+        <p className="mt-2 font-satoMedium text-[14px] text-brand_gray">
+          Carga 1 imagen de portada para el nivel de lealtad de tus clientes. Te recomendamos un tamaño mínimo de 200 × 200 px y un peso máximo de 1 MB.
+        </p>
+
+        <label className="mt-3 block cursor-pointer">
+          {imagePreview ? (
+            <div className="overflow-hidden rounded-[18px] border border-dashed border-[#D1D5DB]">
+              <img
+                src={imagePreview}
+                alt="Preview del nivel"
+                className="h-[112px] w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex h-[112px] w-full flex-col items-center justify-center rounded-[18px] border border-dashed border-[#D1D5DB] text-center">
+              <UploadLevelIcon />
+              <span className="mt-3 text-[14px] leading-[22px] text-[#6B7280]">
+                Arrastra o selecciona<br />una foto
+              </span>
+            </div>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleImageChange(e.target.files?.[0] || null)}
+          />
+        </label>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-4">
+        <div>
+          <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
+            Puntos requeridos <span className="text-[#615FFF]">*</span>
+          </label>
+          <input
+            type="number"
+            min={0}
+            value={minPoints}
+            onChange={(e) => setMinPoints(e.target.value)}
+            placeholder="00"
+            className="h-[44px] w-full rounded-[16px] border border-[#E5E7EB] px-4 text-[14px] text-[#20242D] outline-none placeholder:text-[#B3B8C7] focus:border-[#615FFF]"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
+            Porcentaje de descuento <span className="text-[#615FFF]">*</span>
+          </label>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            step={0.1}
+            value={discountPercent}
+            onChange={(e) => setDiscountPercent(e.target.value)}
+            placeholder="10%"
+            className="h-[44px] w-full rounded-[16px] border border-[#E5E7EB] px-4 text-[14px] text-[#20242D] outline-none placeholder:text-[#B3B8C7] focus:border-[#615FFF]"
+          />
+        </div>
+      </div>
+
+      {error && (
+        <div className="mt-4 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-600">
+          {error}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WizardStepTwo({
+  services,
+  applyAllServices,
+  setApplyAllServices,
+  selectedServiceIds,
+  toggleService,
+  error,
+}: {
+  services: ServiceOption[]
+  applyAllServices: boolean
+  setApplyAllServices: (value: boolean) => void
+  selectedServiceIds: string[]
+  toggleService: (id: string) => void
+  error: string | null
+}) {
+  return (
+    <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
+      <div className="space-y-4">
+        <ServiceToggleRow
+          label="Aplicable para todos los servicios"
+          checked={applyAllServices}
+          onChange={(checked) => {
+            setApplyAllServices(checked)
+          }}
+        />
+
+        {services.map((service) => (
+          <ServiceToggleRow
+            key={service.id}
+            label={service.name}
+            checked={applyAllServices ? true : selectedServiceIds.includes(service.id)}
+            disabled={applyAllServices}
+            onChange={() => toggleService(service.id)}
+          />
+        ))}
+
+        {services.length === 0 && (
+          <p className="text-[13px] text-[#6B7280]">
+            No hay servicios creados. El nivel aplicará a todos cuando existan servicios disponibles.
+          </p>
+        )}
+      </div>
+
+      {error && (
+        <div className="mt-4 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-600">
+          {error}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WizardSuccessScreen({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 bg-white">
+      <div className="relative flex min-h-[100dvh] flex-1 items-center justify-center overflow-hidden px-4">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[220px] overflow-hidden">
+          <EmojiConfetti />
+        </div>
+        <div className="relative z-10 text-center">
+          <img
+            src="/images/dancing-tag.webp"
+            alt="Nivel creado exitosamente"
+            className="mx-auto mb-5 w-[150px] sm:w-[190px] md:w-[220px]"
+          />
+          <h3 className="text-[24px] font-semibold leading-[32px] text-[#20242D] sm:text-[28px] sm:leading-[36px]">
+            ¡Eso sí es consentir clientes!
+          </h3>
+          <p className="mx-auto mt-3 max-w-[360px] text-[14px] leading-[22px] text-[#6B7280] sm:text-[15px]">
+            Ahora tus clientes pueden disfrutar de descuentos y beneficios ✨
+          </p>
+          <div className="mt-7">
+            <SecondaryButton
+              type="button"
+              onClick={onClose}
+              className="mx-auto min-w-[148px]"
+            >
+              Volver
+            </SecondaryButton>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function WizardFooter({
+  onBack,
+  onNext,
+  canContinue,
+  isSubmitting,
+  nextText,
+}: {
+  onBack: () => void
+  onNext: () => void
+  canContinue: boolean
+  isSubmitting: boolean
+  nextText: string
+}) {
+  return (
+    <div className="mx-auto mt-auto flex w-full max-w-[440px] items-center justify-between pb-3 pt-6">
+      <SecondaryButton
+        type="button"
+        onClick={onBack}
+        isDisabled={isSubmitting}
+        className="min-w-[120px]"
+      >
+        ← Volver
+      </SecondaryButton>
+      <PrimaryButton
+        type="button"
+        onClick={onNext}
+        isDisabled={!canContinue || isSubmitting}
+        className="min-w-[132px]"
+      >
+        {isSubmitting ? "Guardando..." : nextText}
+      </PrimaryButton>
+    </div>
+  )
+}
+
+function WizardStepper({ currentStep }: { currentStep: 1 | 2 }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-medium ${
+          currentStep >= 1 ? "bg-[#615FFF] text-white" : "bg-[#E5E7EB] text-[#8A90A2]"
+        }`}
+      >
+        1
+      </div>
+      <div className="flex items-center gap-1">
+        {Array.from({ length: 5 }).map((_, index) => (
+          <span
+            key={index}
+            className={`block h-[4px] w-[4px] rounded-full ${
+              currentStep === 2 ? "bg-[#615FFF]" : "bg-[#D4D4D8]"
+            }`}
+          />
+        ))}
+      </div>
+      <div
+        className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-medium ${
+          currentStep >= 2 ? "bg-[#615FFF] text-white" : "bg-[#E5E7EB] text-[#8A90A2]"
+        }`}
+      >
+        2
+      </div>
+    </div>
+  )
+}
+
+function ServiceToggleRow({
+  label,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: string
+  checked: boolean
+  disabled?: boolean
+  onChange: (checked: boolean) => void
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span className="font-satoMedium text-[14px] text-brand_dark">{label}</span>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => onChange(!checked)}
+        className={`relative h-6 w-12 rounded-full transition ${
+          checked ? "bg-[#615FFF]" : "bg-[#E5E7EB]"
+        } ${disabled ? "opacity-100" : ""}`}
+        aria-pressed={checked}
+      >
+        <span
+          className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${
+            checked ? "left-7" : "left-1"
+          }`}
+        />
+      </button>
+    </div>
+  )
+}
+
+// ==================== LEVEL FORM ====================
+
+function LevelForm({
+  title,
+  services,
+  onSubmit,
+  isLoading,
+  onCancel,
+  namePrefix,
+  serviceCheckboxName,
+  defaultValues,
+}: {
+  title: string
+  services: ServiceOption[]
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void
+  isLoading: boolean
+  onCancel: () => void
+  namePrefix: string
+  serviceCheckboxName: string
+  defaultValues?: Level
+}) {
+  const n = (name: string) =>
+    namePrefix ? `${namePrefix}${name.charAt(0).toUpperCase() + name.slice(1)}` : name
+
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    defaultValues?.image ? `/api/images?key=${defaultValues.image}` : null,
+  )
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImagePreview(URL.createObjectURL(file))
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="mt-4 max-w-lg space-y-4 rounded-xl bg-gray-50 p-5">
+      <h3 className="text-lg font-semibold">{title}</h3>
+
+      <div>
+        <FormLabel>Imagen del nivel</FormLabel>
+        <div className="flex items-center gap-4">
+          {imagePreview ? (
+            <img src={imagePreview} alt="Preview" className="h-16 w-16 rounded-full border object-cover" />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-400">
+              Sin imagen
+            </div>
+          )}
+          <label className="cursor-pointer rounded-lg border border-brand_stroke bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
+            {imagePreview ? "Cambiar" : "Subir imagen"}
+            <input type="file" name={n("levelImage")} accept="image/*" className="hidden" onChange={handleImageChange} />
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <FormLabel>Nombre del nivel</FormLabel>
+        <FormInput name={n("levelName")} defaultValue={defaultValues?.name} required placeholder="Ej. VIP, Premium, Gold" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <FormLabel>Puntos requeridos</FormLabel>
+          <FormInput name={n("minPoints")} type="number" min={0} defaultValue={defaultValues?.minPoints} required placeholder="500" />
+        </div>
+        <div>
+          <FormLabel>% de descuento</FormLabel>
+          <FormInput name={n("discountPercent")} type="number" min={0} max={100} step={0.1} defaultValue={defaultValues?.discountPercent} required placeholder="15" />
+        </div>
+      </div>
+
+      <div>
+        <FormLabel>Servicios donde aplica el descuento</FormLabel>
+        <p className="mb-2 text-xs text-gray-400">Si no seleccionas ninguno, aplica a todos.</p>
+        <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border bg-white p-3">
+          {services.length === 0 ? (
+            <p className="text-xs text-gray-400">No hay servicios creados.</p>
+          ) : (
+            services.map((s) => (
+              <label key={s.id} className="flex cursor-pointer items-center gap-2 py-0.5 text-sm">
+                <input
+                  type="checkbox"
+                  name={serviceCheckboxName}
+                  value={s.id}
+                  defaultChecked={defaultValues?.serviceIds.includes(s.id)}
+                  className="rounded border-gray-300"
+                />
+                {s.name}
+              </label>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="flex gap-3 pt-2">
+        <SecondaryButton type="button" onClick={onCancel} className="flex-1">
+          Cancelar
+        </SecondaryButton>
+        <PrimaryButton type="submit" isDisabled={isLoading} className="flex-1">
+          {isLoading ? "Guardando..." : "Guardar"}
+        </PrimaryButton>
+      </div>
+    </form>
+  )
+}
+
+// ==================== SHARED EXPORTS ====================
+
+export function TabButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`relative pb-2 text-sm font-medium leading-5 ${
+        active ? "text-[#20242D]" : "text-[#8A90A2]"
+      }`}
+    >
+      {label}
+      {active && (
+        <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-[#615FFF]" />
+      )}
+    </button>
+  )
+}
+
+export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="mt-10 flex h-[80vh] w-full items-center justify-center bg-cover">
+      <div className="text-center">
+        <img className="mx-auto mb-4" src="/images/emptyState/loyalty.webp" alt="" />
+        <p className="text-xl font-satoBold">Convierte visitas en clientes frecuentes!</p>
+        <p className="mx-auto mt-2 max-w-[620px] text-center text-brand_gray">
+          Activa el programa de lealtad y ofrece descuentos permanentes a tus
+          clientes mas fieles, ademas de promociones para temporadas especiales
+        </p>
+        <PrimaryButton type="button" onClick={onStart} className="mx-auto mt-12">
+          Activar programa <ArrowRight />
+        </PrimaryButton>
+      </div>
+    </div>
+  )
+}
+
+export function FilterAdjustIcon() {
+  return <Settings className="h-[18px] w-[18px]" />
+}
+
+// ==================== ICONS ====================
+
+function PencilIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+    </svg>
+  )
+}
+
+function TrashIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+  )
+}
+
+function PauseIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+      <circle cx="12" cy="12" r="9" strokeWidth={2} />
+    </svg>
+  )
+}
+
+function PlayIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+      <circle cx="12" cy="12" r="9" strokeWidth={2} />
+    </svg>
+  )
+}
+
+function UploadLevelIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M4 4C2.90694 4 2 4.90694 2 6V18C2 19.0931 2.90694 20 4 20H12V18H4V6H20V12H22V6C22 4.90694 21.0931 4 20 4H4ZM14.5 11L11 15L8.5 12.5L5.77734 16H16V13L14.5 11ZM18 14V18H14V20H18V24H20V20H24V18H20V14H18Z" fill="#4B5563" />
+    </svg>
+  )
+}
