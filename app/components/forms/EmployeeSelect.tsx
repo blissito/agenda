@@ -17,7 +17,7 @@ export const EmployeeSelect = ({
   useEffect(() => {
     fetcher.load("/api/employees")
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetcher])
+  }, [])
 
   const employees: User[] = fetcher.data?.employees || []
 

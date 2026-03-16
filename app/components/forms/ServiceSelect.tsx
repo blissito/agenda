@@ -14,7 +14,8 @@ export const ServiceSelect = ({
   const fetcher = useFetcher()
   useEffect(() => {
     fetcher.load("/api/services")
-  }, [fetcher])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const services: Service[] = fetcher.data?.services || []
 

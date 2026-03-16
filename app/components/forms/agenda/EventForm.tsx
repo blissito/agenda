@@ -193,7 +193,7 @@ export const EventForm = ({
   useEffect(() => {
     handleHoursChange()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handleHoursChange])
+  }, [_startHour, _endHour])
 
   const registerVirtualFields = () => {
     // virtual fields
@@ -204,7 +204,8 @@ export const EventForm = ({
 
   useEffect(() => {
     registerVirtualFields()
-  }, [registerVirtualFields])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleServiceSelect = (event: ChangeEvent<HTMLSelectElement>) => {
     setValue("serviceId", event.currentTarget.value, {
