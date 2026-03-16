@@ -55,6 +55,7 @@ export default [
       route("website/ai", "routes/dash/dash.website_.ai.tsx"),
       route("clientes/:email", "routes/dash/dash_.clientes_.$email.tsx"),
       route("clientes", "routes/dash/dash.clientes.tsx"),
+      route("colaboradores", "routes/dash/dash.colaboradores.tsx"),
       route("lealtad", "routes/dash/dash.lealtad.tsx"),
       route("evaluaciones", "routes/dash/dash.reviews.tsx"),
       route(

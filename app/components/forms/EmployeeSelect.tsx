@@ -35,7 +35,7 @@ export const EmployeeSelect = ({
         label="Profesional"
       />
       <Link
-        to="/dash/employees"
+        to="/dash/colaboradores"
         className="bg-brand_blue/10 rounded-xl w-12 h-12 flex justify-center items-center"
       >
         <span className="text-brand_blue">
