@@ -11,6 +11,7 @@ const TIGRIS_BUCKET = "easybits-public"
  */
 export function getPublicImageUrl(key?: string | null): string | undefined {
   if (!key) return undefined
+  if (key.startsWith("http://") || key.startsWith("https://")) return key
   const path = key.startsWith("denik/") ? key : `denik/${key}`
   return `https://${TIGRIS_BUCKET}.fly.storage.tigris.dev/${path}`
 }
