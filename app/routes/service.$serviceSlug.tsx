@@ -68,7 +68,34 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     return { events }
   }
   if (intent === "create_event") {
-    const data = JSON.parse(formData.get("data") as string)
+    // Rate limit
+    const { checkRateLimit, getClientIP, rateLimitPresets, rateLimitResponse } =
+      await import("~/.server/rateLimit")
+    const ip = getClientIP(request)
+    const rl = checkRateLimit(`booking:${ip}`, rateLimitPresets.booking)
+    if (!rl.success) return rateLimitResponse(rl.resetAt)
+
+    // Server-side validation
+    const rawData = formData.get("data")
+    if (!rawData || typeof rawData !== "string")
+      return { success: false, error: "Datos inválidos" }
+    let data: any
+    try {
+      data = JSON.parse(rawData)
+    } catch {
+      return { success: false, error: "Datos inválidos" }
+    }
+
+    // Honeypot
+    if (data.customer?.website)
+      return { success: false, error: "Datos inválidos" }
+
+    // Validate customer fields server-side
+    const customerResult = userInfoSchema.safeParse(data.customer)
+    if (!customerResult.success)
+      return { success: false, error: "Datos del cliente inválidos" }
+
+    const validatedCustomer = customerResult.data
 
     // Org is resolved from hostname (subdomain or custom domain)
     const org = await resolveOrgFromRequest(request, undefined)
@@ -82,15 +109,15 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
     // Check if User with this email already exists
     const existingUser = await db.user.findUnique({
-      where: { email: data.customer.email },
+      where: { email: validatedCustomer.email },
     })
 
     const customer = await db.customer.create({
       data: {
-        displayName: data.customer.displayName,
-        email: data.customer.email,
-        tel: data.customer.tel || "",
-        comments: data.customer.comments || "",
+        displayName: validatedCustomer.displayName,
+        email: validatedCustomer.email,
+        tel: validatedCustomer.tel || "",
+        comments: validatedCustomer.comments || "",
         org: { connect: { id: org.id } },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -305,7 +332,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       return
     }
     if (!date) return
-    const customer = result.data
+    const customer = { ...result.data, website: (vals as any).website }
     fetcher.submit(
       {
         intent: "create_event",
@@ -490,6 +517,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 name="comments"
                 placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
                 registerOptions={{ required: false }}
+              />
+              <input
+                type="text"
+                {...register("website" as any)}
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
               />
             </Form>
           )}

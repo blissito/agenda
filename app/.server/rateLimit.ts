@@ -124,6 +124,11 @@ export const rateLimitPresets = {
     limit: 100,
     windowSeconds: 60,
   },
+  /** Booking requests: 5 per 15 minutes per IP */
+  booking: {
+    limit: 5,
+    windowSeconds: 15 * 60,
+  },
 } as const
 
 /**
