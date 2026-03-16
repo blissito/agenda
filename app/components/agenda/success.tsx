@@ -37,7 +37,7 @@ export const Success = ({
 }) => {
   const [showGif, setShowGif] = useState(true)
   useEffect(() => {
-    setTimeout(() => setShowGif(false), 3000)
+    setTimeout(() => setShowGif(false), 18000)
   }, [])
 
   // Link to org's landing page
