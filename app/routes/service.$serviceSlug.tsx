@@ -407,14 +407,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   // Show loading state while submitting
   if (show === "loading") {
     return (
-      <article className="bg-[#f8f8f8] min-h-screen relative">
+      <article className="bg-[#f8f8f8] min-h-screen relative flex flex-col items-center">
         <Header org={org} />
-        <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand_blue mx-auto mb-4"></div>
-            <p className="text-brand_gray">Reservando tu cita...</p>
-          </div>
-        </main>
+        <div className="flex flex-col items-center justify-center flex-1 -mt-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand_blue mb-4"></div>
+          <p className="text-brand_gray text-lg">Reservando tu cita...</p>
+        </div>
       </article>
     )
   }

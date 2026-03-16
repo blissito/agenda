@@ -96,10 +96,10 @@ export const Success = ({
         Agendar otra cita
       </PrimaryButton>
       <p className="text-neutral-400 text-xs mt-24 max-w-[600px] mx-auto">
-        Recuerda que tu compra es válida para el servicio y horario en el que
-        reservaste. Para cambios o cancelación ponte en contacto con Estudio
-        Milán. Deník solo actúa como intermediario en la gestión y procesamiento
-        de reservas.
+        Recuerda que tu reserva es válida para el servicio y horario en el que
+        agendaste. Para cambios o cancelación ponte en contacto con{" "}
+        {org.name}. Deník solo actúa como intermediario en la gestión y
+        procesamiento de reservas.
       </p>
       <EmojiConfetti />
     </div>
