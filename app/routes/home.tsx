@@ -17,6 +17,13 @@ import type { Section3, CustomColors } from  "@easybits.cloud/html-tailwind-gene
 import type { Route } from "./+types/home"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
+  const { checkRateLimit, getClientIP, rateLimitPresets } = await import("~/.server/rateLimit")
+  const ip = getClientIP(request)
+  const rl = checkRateLimit(`page:${ip}`, rateLimitPresets.pageLoad)
+  if (!rl.success) {
+    throw new Response("Too many requests", { status: 429, headers: { "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } })
+  }
+
   const resolution = await resolveHostForIndex(request)
   if (resolution.type === "not_found") {
     throw new Response("Empresa no encontrada", { status: 404 })
@@ -38,15 +45,20 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
 export const meta = ({ data }: Route.MetaArgs) => {
   if (data?.type === "org") {
+    const org = data.org
+    const slug = org.customDomain || `${org.slug}.denik.me`
     return getMetaTags({
-      title: `${data.org.name} | Agenda tu cita`,
-      description: data.org.description || `Reserva con ${data.org.name}`,
+      title: `${org.name} | Agenda tu cita`,
+      description: org.description || `Reserva con ${org.name}`,
+      url: `https://${slug}`,
+      image: org.logo || "/cover.png",
     })
   }
   return getMetaTags({
     title: "Deník | Tu agenda en un solo lugar",
     description: "Administra la agenda de tu negocio en un solo lugar",
     image: "https://i.imgur.com/zlnq8Jd.png",
+    url: "https://denik.me",
   })
 }
 

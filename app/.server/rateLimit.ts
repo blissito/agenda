@@ -129,6 +129,11 @@ export const rateLimitPresets = {
     limit: 5,
     windowSeconds: 15 * 60,
   },
+  /** Public page loads: 60 per minute per IP */
+  pageLoad: {
+    limit: 60,
+    windowSeconds: 60,
+  },
 } as const
 
 /**
