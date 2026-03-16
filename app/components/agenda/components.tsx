@@ -15,11 +15,10 @@ export const Header = ({ org }: { org: OrgLike }) => {
   return (
     <div className="flex gap-3 items-center justify-center py-12">
       <img
-        className="h-10 max-w-[120px] object-contain"
+        className="h-12 max-w-[180px] object-contain"
         alt="org logo"
         src={getPublicImageUrl(org?.logo) || example}
       />
-      <h1 className="font-bold text-2xl text-brand_dark">{org?.name}</h1>
     </div>
   )
 }
