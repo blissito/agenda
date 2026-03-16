@@ -469,7 +469,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {show === "user_info" && (
             <Form onSubmit={handleSubmit(onSubmit)} className="flex-1">
               <h3 className="text-lg font-bold mb-6 text-brand_dark">
-                Cuéntanos sobre ti
+                Cuéntame sobre ti
               </h3>
               <BasicInput
                 register={register}
