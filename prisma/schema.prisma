@@ -401,6 +401,8 @@ model Org {
   landingGenCount       Int               @default(0)
   landingRefineCount    Int               @default(0)
   landingUsageMonth     String?
+  chatbotAgentId        String?
+  chatbotConfig         Json?
   customers          Customer[]
   events             Event[]
   services           Service[]
