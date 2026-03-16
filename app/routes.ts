@@ -51,6 +51,7 @@ export default [
           "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx",
         ),
       ]),
+      route("chatbot", "routes/dash/dash.chatbot.tsx"),
       route("website", "routes/dash/website/dash.website.tsx"),
       route("website/ai", "routes/dash/dash.website_.ai.tsx"),
       route("clientes/:email", "routes/dash/dash_.clientes_.$email.tsx"),

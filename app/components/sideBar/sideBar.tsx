@@ -66,6 +66,7 @@ import { Rank } from "../icons/menu/rank"
 import { Services } from "../icons/menu/services"
 import { Settings } from "../icons/menu/settings"
 import { People } from "../icons/people"
+import { Chatbot } from "../icons/menu/chatbot"
 import { Website } from "../icons/menu/webiste"
 
 export function SideBar({
@@ -300,6 +301,14 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("website")}>
             Sitio web
+          </MenuButton.Title>
+        </MenuButton>
+        <MenuButton to="/dash/chatbot" isActive={match("chatbot")}>
+          <MenuButton.Icon isActive={match("chatbot")}>
+            <Chatbot />
+          </MenuButton.Icon>
+          <MenuButton.Title isActive={match("chatbot")}>
+            Chatbot IA
           </MenuButton.Title>
         </MenuButton>
         <MenuButton to="/dash/servicios" isActive={match("servicios")}>
