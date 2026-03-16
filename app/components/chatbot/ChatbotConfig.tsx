@@ -81,7 +81,7 @@ export function ChatbotConfig({ initialConfig, onSave, isSaving, avatarPutUrl, a
   };
 
   return (
-    <div className="grid grid-cols-[1fr,380px] gap-8 min-h-[calc(100vh-220px)]">
+    <div className="grid grid-cols-[40%,1fr] gap-8 min-h-[calc(100vh-220px)]">
       {/* Left column — Form */}
       <div className="flex flex-col bg-white rounded-2xl p-6 shadow-sm">
         <h2 className="text-2xl font-satoBold text-brand_dark mb-5">Estilo de tu chat</h2>
@@ -204,31 +204,35 @@ export function ChatbotConfig({ initialConfig, onSave, isSaving, avatarPutUrl, a
 
       {/* Right column — Live preview */}
       <div
-        className="bg-[#f0f2f8] rounded-2xl flex items-center justify-center p-6"
-        style={{ backgroundImage: "radial-gradient(circle, #c8ccd8 1px, transparent 1px)", backgroundSize: "20px 20px" }}
+        className="bg-[#f0f2f8] rounded-2xl flex items-center justify-center p-3"
+        style={{ backgroundImage: "radial-gradient(circle, #c8ccd8 1.5px, transparent 1.5px), radial-gradient(circle, transparent 3px, #c8ccd8 3px, #c8ccd8 4px, transparent 4px)", backgroundSize: "40px 40px" }}
       >
-        <div className="w-full max-w-[360px]">
+        <div className="w-full max-w-[360px] px-3">
           {/* Chat window */}
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-[560px]">
+          <div className="bg-white rounded-2xl shadow-[0px_8px_32px_0px_rgba(0,0,0,0.05)] border border-[#e1e3e7] overflow-hidden flex flex-col h-[560px]">
             {/* Header */}
-            <div className="px-5 py-4 flex items-center gap-3" style={{ backgroundColor: primaryColor }}>
-              <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+            <div className="px-4 py-4 flex items-center gap-3 bg-[rgba(240,240,240,0.24)] border-b border-[#e1e3e7]">
+              <div className="w-10 h-10 rounded-full bg-[#f0f0f0] flex items-center justify-center overflow-hidden">
                 {(previewUrl || avatarUrl) ? (
                   <img src={previewUrl || avatarUrl} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-white font-satoMedium text-sm">{name[0]?.toUpperCase() || "G"}</span>
+                  <img src="/images/chatbot-default-avatar.svg" alt="" className="w-full h-full object-cover" />
                 )}
               </div>
-              <p className="text-white font-satoMedium text-sm">{name || "Chatbot"}</p>
+              <p className="text-brand_dark font-satoBold text-base">{name || "Chatbot"}</p>
             </div>
 
             {/* Messages */}
             <div className="p-4 space-y-3 flex-1 bg-white">
               <div className="flex gap-2">
-                <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: `${primaryColor}20` }}>
-                  <span className="text-xs" style={{ color: primaryColor }}>{name[0]?.toUpperCase() || "G"}</span>
+                <div className="w-8 h-8 rounded-full flex-shrink-0 bg-[#f0f0f0] flex items-center justify-center overflow-hidden">
+                  {(previewUrl || avatarUrl) ? (
+                    <img src={previewUrl || avatarUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <img src="/images/chatbot-default-avatar.svg" alt="" className="w-full h-full object-cover" />
+                  )}
                 </div>
-                <div className="bg-gray-100 rounded-2xl rounded-bl-md px-3.5 py-2 text-sm text-brand_dark max-w-[250px]">
+                <div className="border border-[#f0f0f0] rounded-xl p-3 text-sm text-brand_dark max-w-[250px]">
                   {greeting || "¡Hola!"}
                 </div>
               </div>
@@ -236,19 +240,15 @@ export function ChatbotConfig({ initialConfig, onSave, isSaving, avatarPutUrl, a
 
             {/* Powered by */}
             <div className="text-center py-1.5">
-              <span className="text-[10px] text-gray-400">Powered by Formmy.app</span>
+              <span className="text-xs text-[#81838e]">Powered by Formmy.app</span>
             </div>
 
             {/* Input bar */}
-            <div className="px-4 py-3 border-t border-gray-100 flex items-center gap-2">
-              <div className="flex-1 px-3 py-2 bg-gray-50 rounded-xl text-xs text-gray-400">
+            <div className="px-4 py-3 flex items-center gap-2">
+              <div className="flex-1 px-3 py-3 border border-[#e1e3e7] rounded-xl text-sm text-[#b6b6ba]">
                 Escribe un mensaje...
               </div>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-              </div>
+              <img src="/images/send.svg" alt="Enviar" className="w-6 h-6 flex-shrink-0" />
             </div>
           </div>
         </div>
