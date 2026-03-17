@@ -21,8 +21,10 @@ export default {
         brand_switch_inactive: "#EFEFF0",
         brand_red: "#CA5757",
         brand_green:"#76AD5F",
-        brand_BlueLight:"#8391A1",
-        brand_sky:"#F5F7FD"
+        brand_blueLight:"#8391A1",
+        brand_sky:"#F5F7FD",
+        brand_silver:"#B3B4B6",
+        
       },
       backgroundImage: {
         calendar: "url(/images/calendarPattern.svg)",

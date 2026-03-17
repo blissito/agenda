@@ -40,6 +40,37 @@ async function uploadLevelImage(file: File): Promise<string | null> {
 
 // ==================== SHARED COMPONENTS ====================
 
+const WizardInput = ({
+  label,
+  required = false,
+  error,
+  showError = false,
+  ...props
+}: {
+  label: string
+  required?: boolean
+  error?: string
+  showError?: boolean
+} & InputHTMLAttributes<HTMLInputElement>) => (
+  <div>
+    <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
+      {label}
+      {required }
+    </label>
+    <input
+      {...props}
+      className={`h-[44px] w-full rounded-[16px] border px-4 text-[14px] outline-none placeholder:text-brand_silver focus:border-[#615FFF] ${
+        showError && error
+          ? "border-brand_red text-brand_gray"
+          : "border-brand_ash text-brand_gray"
+      } ${props.className || ""}`}
+    />
+    {showError && error && (
+      <p className="mt-1 text-[12px] text-red-500">{error}</p>
+    )}
+  </div>
+)
+
 const FormLabel = ({ 
   children, 
   className = "" 
@@ -116,7 +147,7 @@ const CardActionButton = ({
   <button
     type="button"
     onClick={onClick}
-    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-[#6B7280] shadow-sm"
+    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-brand_gray shadow-sm"
     title={title}
   >
     <Icon />
@@ -212,7 +243,6 @@ export function NivelesTab({
     setEditingLevel(null)
   }
 
-
   return (
     <>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -257,7 +287,7 @@ function LoyaltyLevelCard({
 
   return (
     <div className="group overflow-hidden rounded-[18px] bg-white">
-      <div className="relative overflow-hidden rounded-[16px] bg-[#F5F5F5]">
+      <div className="relative overflow-hidden rounded-t-[16px] bg-[#F5F5F5]">
         <div className="aspect-[1.55/1] w-full">
           {imageSrc ? (
             <img
@@ -663,6 +693,7 @@ export function CreateLevelWizard({
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showValidation, setShowValidation] = useState(false)
 
   const parsedMinPoints = Number(minPoints)
   const parsedDiscount = Number(discountPercent)
@@ -696,12 +727,28 @@ export function CreateLevelWizard({
 
   const handleBack = () => {
     if (isSubmitting) return
+    setShowValidation(false)
     if (step === 1) {
       onClose()
     } else if (step === 2) {
       setStep(1)
     } else {
       onClose()
+    }
+  }
+
+  const handleNext = () => {
+    if (step === 1) {
+      if (!isStepOneValid) {
+        setShowValidation(true)
+        
+        return
+      }
+      setShowValidation(false)
+      setError(null)
+      setStep(2)
+    } else if (step === 2) {
+      handleSubmit()
     }
   }
 
@@ -750,28 +797,31 @@ export function CreateLevelWizard({
 
   const handleSubmit = async () => {
     if (!isStepTwoValid || isSubmitting) return
-
+  
     setError(null)
     setIsSubmitting(true)
-
+  
     try {
       if (!isOrgEnabled) {
         await handleEnableProgram()
       }
+  
       await handleCreateLevel()
-      onCreated()
       setStep(3)
+      onCreated()
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Ocurrió un error al crear el nivel.")
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Ocurrió un error al crear el nivel.",
+      )
     } finally {
       setIsSubmitting(false)
     }
   }
 
   if (step === 3) {
-    return (
-      <WizardSuccessScreen onClose={onClose} />
-    )
+    return <WizardSuccessScreen onClose={onClose} />
   }
 
   return (
@@ -800,6 +850,7 @@ export function CreateLevelWizard({
             imagePreview={imagePreview}
             handleImageChange={handleImageChange}
             error={error}
+            showValidation={showValidation}
           />
         )}
 
@@ -816,8 +867,8 @@ export function CreateLevelWizard({
 
         <WizardFooter
           onBack={handleBack}
-          onNext={step === 1 ? () => setStep(2) : handleSubmit}
-          canContinue={step === 1 ? isStepOneValid : isStepTwoValid}
+          onNext={handleNext}
+          canContinue={true}
           isSubmitting={isSubmitting}
           nextText={step === 1 ? "Continuar" : "Guardar"}
         />
@@ -831,7 +882,7 @@ export function CreateLevelWizard({
 function WizardHeader({ currentStep }: { currentStep: 1 | 2 }) {
   return (
     <div className="mx-auto w-full pt-10 text-center sm:pt-8">
-      <h2 className="text-[24px] font-satoMiddle text-brand_dark">
+      <h2 className="text-2xl  font-satoBold text-brand_dark">
         ¡Empecemos! Crea un nuevo nivel para tus clientes
       </h2>
       <div className="mt-5 flex justify-center">
@@ -851,6 +902,7 @@ function WizardStepOne({
   imagePreview,
   handleImageChange,
   error,
+  showValidation = false,
 }: {
   levelName: string
   setLevelName: (value: string) => void
@@ -861,20 +913,33 @@ function WizardStepOne({
   imagePreview: string | null
   handleImageChange: (file?: File | null) => void
   error: string | null
+  showValidation?: boolean
 }) {
+  const getMinPointsError = () => {
+    if (!minPoints) return "Este campo es obligatorio"
+    if (Number(minPoints) < 0) return "Debe ser mayor o igual a 0"
+    return ""
+  }
+
+  const getDiscountError = () => {
+    if (!discountPercent) return "Este campo es obligatorio"
+    const num = Number(discountPercent)
+    if (num <= 0) return "Debe ser mayor a 0"
+    if (num > 100) return "Debe ser menor o igual a 100"
+    return ""
+  }
+
   return (
     <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
-      <div>
-        <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
-          Nombre del nivel <span className="text-[#615FFF]">*</span>
-        </label>
-        <input
-          value={levelName}
-          onChange={(e) => setLevelName(e.target.value)}
-          placeholder="Ej. VIP, Premium, Gold"
-          className="h-[44px] w-full rounded-[16px] border border-[#E5E7EB] px-4 text-[14px] text-[#20242D] outline-none placeholder:text-[#B3B8C7] focus:border-[#615FFF]"
-        />
-      </div>
+      <WizardInput
+        label="Nombre del nivel"
+        required
+        value={levelName}
+        onChange={(e) => setLevelName(e.target.value)}
+        placeholder="Ej. VIP, Premium, Gold"
+        error={!levelName.trim() ? "Este campo es obligatorio" : ""}
+        showError={showValidation}
+      />
 
       <div className="mt-5">
         <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">Imagen</label>
@@ -884,7 +949,7 @@ function WizardStepOne({
 
         <label className="mt-3 block cursor-pointer">
           {imagePreview ? (
-            <div className="overflow-hidden rounded-[18px] border border-dashed border-[#D1D5DB]">
+            <div className="overflow-hidden rounded-[18px] border border-dashed border-brand_ash">
               <img
                 src={imagePreview}
                 alt="Preview del nivel"
@@ -894,7 +959,7 @@ function WizardStepOne({
           ) : (
             <div className="flex h-[112px] w-full flex-col items-center justify-center rounded-[18px] border border-dashed border-[#D1D5DB] text-center">
               <UploadLevelIcon />
-              <span className="mt-3 text-[14px] leading-[22px] text-[#6B7280]">
+              <span className="mt-3 text-[14px] font-satoMedium text-brand_gray">
                 Arrastra o selecciona<br />una foto
               </span>
             </div>
@@ -909,42 +974,32 @@ function WizardStepOne({
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
-        <div>
-          <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
-            Puntos requeridos <span className="text-[#615FFF]">*</span>
-          </label>
-          <input
-            type="number"
-            min={0}
-            value={minPoints}
-            onChange={(e) => setMinPoints(e.target.value)}
-            placeholder="00"
-            className="h-[44px] w-full rounded-[16px] border border-[#E5E7EB] px-4 text-[14px] text-[#20242D] outline-none placeholder:text-[#B3B8C7] focus:border-[#615FFF]"
-          />
-        </div>
+        <WizardInput
+          label="Puntos requeridos"
+          required
+          type="number"
+          min={0}
+          value={minPoints}
+          onChange={(e) => setMinPoints(e.target.value)}
+          placeholder="00"
+          error={getMinPointsError()}
+          showError={showValidation}
+        />
 
-        <div>
-          <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
-            Porcentaje de descuento <span className="text-[#615FFF]">*</span>
-          </label>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            step={0.1}
-            value={discountPercent}
-            onChange={(e) => setDiscountPercent(e.target.value)}
-            placeholder="10%"
-            className="h-[44px] w-full rounded-[16px] border border-[#E5E7EB] px-4 text-[14px] text-[#20242D] outline-none placeholder:text-[#B3B8C7] focus:border-[#615FFF]"
-          />
-        </div>
+        <WizardInput
+          label="Porcentaje de descuento"
+          required
+          type="number"
+          min={0}
+          max={100}
+          step={0.1}
+          value={discountPercent}
+          onChange={(e) => setDiscountPercent(e.target.value)}
+          placeholder="10%"
+          error={getDiscountError()}
+          showError={showValidation}
+        />
       </div>
-
-      {error && (
-        <div className="mt-4 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-600">
-          {error}
-        </div>
-      )}
     </div>
   )
 }
@@ -986,7 +1041,7 @@ function WizardStepTwo({
         ))}
 
         {services.length === 0 && (
-          <p className="text-[13px] text-[#6B7280]">
+          <p className="text-[13px] text-brand_gray">
             No hay servicios creados. El nivel aplicará a todos cuando existan servicios disponibles.
           </p>
         )}
@@ -1014,10 +1069,10 @@ function WizardSuccessScreen({ onClose }: { onClose: () => void }) {
             alt="Nivel creado exitosamente"
             className="mx-auto mb-5 w-[150px] sm:w-[190px] md:w-[220px]"
           />
-          <h3 className="text-[24px] font-semibold leading-[32px] text-[#20242D] sm:text-[28px] sm:leading-[36px]">
+          <h3 className="text-2xl font-satoBold text-brand_dark sm:text-[28px]">
             ¡Eso sí es consentir clientes!
           </h3>
-          <p className="mx-auto mt-3 max-w-[360px] text-[14px] leading-[22px] text-[#6B7280] sm:text-[15px]">
+          <p className="mx-auto mt-3 max-w-[360px] text-[18px] text-brand_gray sm:text-[15px]">
             Ahora tus clientes pueden disfrutar de descuentos y beneficios ✨
           </p>
           <div className="mt-7">
@@ -1054,14 +1109,14 @@ function WizardFooter({
         type="button"
         onClick={onBack}
         isDisabled={isSubmitting}
-        className="min-w-[120px]"
+        className="min-w-[120px] bg-white"
       >
         ← Volver
       </SecondaryButton>
       <PrimaryButton
         type="button"
         onClick={onNext}
-        isDisabled={!canContinue || isSubmitting}
+        isDisabled={isSubmitting}
         className="min-w-[132px]"
       >
         {isSubmitting ? "Guardando..." : nextText}
@@ -1085,7 +1140,7 @@ function WizardStepper({ currentStep }: { currentStep: 1 | 2 }) {
           <span
             key={index}
             className={`block h-[4px] w-[4px] rounded-full ${
-              currentStep === 2 ? "bg-[#615FFF]" : "bg-[#D4D4D8]"
+              currentStep === 2 ? "bg-[#615FFF]" : "bg-brand_iron"
             }`}
           />
         ))}
@@ -1183,7 +1238,7 @@ function LevelForm({
               Sin imagen
             </div>
           )}
-          <label className="cursor-pointer rounded-lg border border-brand_stroke bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">
+          <label className="cursor-pointer rounded-lg border border-brand_stroke bg-white px-3 py-2 text-sm text-brand_gray hover:bg-gray-50">
             {imagePreview ? "Cambiar" : "Subir imagen"}
             <input type="file" name={n("levelImage")} accept="image/*" className="hidden" onChange={handleImageChange} />
           </label>
@@ -1208,10 +1263,10 @@ function LevelForm({
 
       <div>
         <FormLabel>Servicios donde aplica el descuento</FormLabel>
-        <p className="mb-2 text-xs text-gray-400">Si no seleccionas ninguno, aplica a todos.</p>
+        <p className="mb-2 text-xs text-brand_gray">Si no seleccionas ninguno, aplica a todos.</p>
         <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border bg-white p-3">
           {services.length === 0 ? (
-            <p className="text-xs text-gray-400">No hay servicios creados.</p>
+            <p className="text-xs text-brand_gray">No hay servicios creados.</p>
           ) : (
             services.map((s) => (
               <label key={s.id} className="flex cursor-pointer items-center gap-2 py-0.5 text-sm">
@@ -1256,7 +1311,7 @@ export function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`relative pb-2 text-sm font-medium leading-5 ${
+      className={`relative pb-2 text-sm font-medium ${
         active ? "text-[#20242D]" : "text-[#8A90A2]"
       }`}
     >

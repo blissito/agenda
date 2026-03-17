@@ -121,7 +121,10 @@ export default function Lealtad() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
 
-  if (!data.enabled) {
+  // Mostrar estado vacío si no está habilitado O si no hay niveles
+  const shouldShowEmptyState = !data.enabled || (data.enabled && data.levels.length === 0)
+
+  if (shouldShowEmptyState) {
     return (
       <main>
         <RouteTitle>Lealtad</RouteTitle>
@@ -129,14 +132,15 @@ export default function Lealtad() {
         <EmptyStateLoyalty onStart={() => setIsCreateWizardOpen(true)} />
 
         {isCreateWizardOpen && (
-          <CreateLevelWizard
-            services={data.services}
-            isOrgEnabled={false}
-            onClose={() => setIsCreateWizardOpen(false)}
-            onCreated={() => {
-              revalidator.revalidate()
-            }}
-          />
+         <CreateLevelWizard
+         services={data.services}
+         isOrgEnabled={data.enabled}
+         onClose={() => {
+           setIsCreateWizardOpen(false)
+           revalidator.revalidate()
+         }}
+         onCreated={() => {}}
+       />
         )}
       </main>
     )
@@ -204,15 +208,16 @@ export default function Lealtad() {
       </div>
 
       {isCreateWizardOpen && (
-        <CreateLevelWizard
-          services={services}
-          isOrgEnabled
-          onClose={() => setIsCreateWizardOpen(false)}
-          onCreated={() => {
-            revalidator.revalidate()
-          }}
-        />
+      <CreateLevelWizard
+      services={services}
+      isOrgEnabled
+      onClose={() => {
+        setIsCreateWizardOpen(false)
+        revalidator.revalidate()
+      }}
+      onCreated={() => {}}
+    />
       )}
     </main>
   )
-} 
+}
