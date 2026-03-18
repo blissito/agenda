@@ -1,4 +1,3 @@
-
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import * as React from "react"
 import { FiDownload, FiMapPin } from "react-icons/fi"
@@ -18,6 +17,7 @@ import { EventTable, type EventWithService } from "./clientes/EventTable"
 import { Notes } from "~/components/icons/notes"
 import { Calendar2 } from "~/components/icons/calendar2"
 import { WhatsApp } from "~/components/icons/WhatsApp"
+import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 
 export const handle = { hideSidebar: true }
 
@@ -77,6 +77,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const navigation = useNavigation()
 
   const [showDelayedSkeleton, setShowDelayedSkeleton] = React.useState(false)
+
+  const { startDownload, toast } = useEventDownloadToast({
+    events,
+    clientName: customer.displayName,
+  })
 
   React.useEffect(() => {
     if (navigation.state === "loading") {
@@ -141,7 +146,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <div className="flex flex-col md:flex-row md:items-stretch">
               {/* Left */}
               <div className="flex-1">
-
                 <div className="mb-6">
                   <div className="sm:hidden grid grid-cols-[1fr_auto] items-start gap-x-3">
                     <h1 className="mt-20 text-xl font-satoBold text-brand_dark">
@@ -223,7 +227,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mt-4 sm:grid-cols-3 sm:gap-x-16 sm:gap-y-0 sm:mt-16">
-
                   {/* Email */}
                   <div className="col-span-2 flex items-center gap-2 min-w-0 sm:col-span-1">
                     <Mail className="text-brand_gray shrink-0" />
@@ -242,7 +245,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
                   {/* Dirección */}
                   <div className="col-span-2 flex items-start gap-2 min-w-0 sm:col-span-1">
-                    <FiMapPin className="text-brand_gray mt-0.5 shrink-0" size={20} />
+                    <FiMapPin
+                      className="text-brand_gray mt-0.5 shrink-0"
+                      size={20}
+                    />
                     <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
                       {"address" in customer && (customer as any).address
                         ? (customer as any).address
@@ -295,7 +301,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                         <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
                           {stats.points}
                         </p>
-                        <p className="text-xs font-satoMedium text-brand_gray">puntos</p>
+                        <p className="text-xs font-satoMedium text-brand_gray">
+                          puntos
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -317,7 +325,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 flex-1 sm:min-w-[180px] sm:flex-none">
-                <span className="text-brand_gray font-satoMedium text-base">Citas</span>
+                <span className="text-brand_gray font-satoMedium text-base">
+                  Citas
+                </span>
                 <div className="ml-auto" aria-hidden="true">
                   <svg
                     width="24"
@@ -340,6 +350,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
               <button
                 type="button"
+                onClick={startDownload}
                 className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
                 aria-label="Descargar"
               >
@@ -360,6 +371,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
       </div>
+
+      {toast}
     </div>
   )
 }
