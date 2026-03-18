@@ -263,13 +263,12 @@ const EmptyStateReviews = ({ link }: { link: string }) => {
   return (
     <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center">
       <div className="text-center">
-        <img className="mx-auto mb-4" src="/images/clients-empty.svg" />
-        <p className="font-satoMedium text-xl font-bold">
-          ¡Nada por aquí! <span className="text-2xl">📝</span>
+        <img className="mx-auto mb-4" src="/images/emptyState/clients-empty.webp" />
+        <p className=" text-2xl font-bold">
+        Las reseñas empiezan con una buena experiencia 
         </p>
-        <p className="mt-2 text-brand_gray">
-          La confianza de tus clientes es muy valiosa, sigue compartiendo tu
-          agenda
+        <p className="mt-2 text-brand_gray text-[18px] font-satoMedium">
+        Brinda un gran servicio y deja que tus clientes cuenten cómo les fue ⭐
         </p>
         <SecondaryButton
           ref={ref}

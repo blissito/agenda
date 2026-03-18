@@ -168,7 +168,7 @@ export default function Lealtad() {
             onClick={() => changeTab("niveles")}
           />
           <TabButton
-            label="Descuentos"
+            label="Cupones"
             active={activeTab === "descuentos"}
             onClick={() => changeTab("descuentos")}
           />
@@ -179,7 +179,7 @@ export default function Lealtad() {
             <button
               type="button"
               aria-label="Filtros"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#6B7280] shadow-sm ring-1 ring-[#E5E7EB]"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand_gray "
             >
               <FilterAdjustIcon />
             </button>

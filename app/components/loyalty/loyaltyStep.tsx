@@ -312,7 +312,7 @@ function LoyaltyLevelCard({
         <p className="min-w-0 truncate pr-3 text-[14px] font-satoMiddle text-brand_dark">
           {level.name}
         </p>
-        <div className="text-[13px] font-satoMiddle text-brand_gray">
+        <div className="text-[12px] font-satoMiddle text-brand_gray">
           +{level.minPoints} puntos
         </div>
       </div>
@@ -699,14 +699,14 @@ export function CreateLevelWizard({
   const parsedDiscount = Number(discountPercent)
 
   const isStepOneValid =
-    levelName.trim().length > 0 &&
-    minPoints !== "" &&
-    discountPercent !== "" &&
-    Number.isFinite(parsedMinPoints) &&
-    Number.isFinite(parsedDiscount) &&
-    parsedMinPoints >= 0 &&
-    parsedDiscount > 0 &&
-    parsedDiscount <= 100
+  levelName.trim().length > 0 &&
+  minPoints !== "" &&
+  discountPercent !== "" &&
+  Number.isFinite(parsedMinPoints) &&
+  Number.isFinite(parsedDiscount) &&
+  parsedMinPoints >= 1 &&
+  parsedDiscount > 0 &&
+  parsedDiscount <= 100
 
   const isStepTwoValid =
     applyAllServices || selectedServiceIds.length > 0 || services.length === 0
@@ -917,14 +917,14 @@ function WizardStepOne({
 }) {
   const getMinPointsError = () => {
     if (!minPoints) return "Este campo es obligatorio"
-    if (Number(minPoints) < 0) return "Debe ser mayor o igual a 0"
+    if (Number(minPoints) < 1) return "Debe ser mayor o igual a 1"
     return ""
   }
 
   const getDiscountError = () => {
     if (!discountPercent) return "Este campo es obligatorio"
     const num = Number(discountPercent)
-    if (num <= 0) return "Debe ser mayor a 0"
+    if (num < 1) return "Debe ser mayor o igual a 1"
     if (num > 100) return "Debe ser menor o igual a 100"
     return ""
   }
@@ -974,31 +974,35 @@ function WizardStepOne({
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
-        <WizardInput
+      <WizardInput
           label="Puntos requeridos"
           required
-          type="number"
-          min={0}
+          type="text"
+          inputMode="numeric"
           value={minPoints}
-          onChange={(e) => setMinPoints(e.target.value)}
+          onChange={(e) => {
+            const onlyDigits = e.target.value.replace(/\D/g, "")
+            setMinPoints(onlyDigits)
+          }}
           placeholder="00"
           error={getMinPointsError()}
           showError={showValidation}
         />
 
-        <WizardInput
-          label="Porcentaje de descuento"
-          required
-          type="number"
-          min={0}
-          max={100}
-          step={0.1}
-          value={discountPercent}
-          onChange={(e) => setDiscountPercent(e.target.value)}
-          placeholder="10%"
-          error={getDiscountError()}
-          showError={showValidation}
-        />
+          <WizardInput
+            label="Porcentaje de descuento"
+            required
+            type="text"
+            inputMode="numeric"
+            value={discountPercent}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "")
+              setDiscountPercent(onlyDigits)
+            }}
+            placeholder="10%"
+            error={getDiscountError()}
+            showError={showValidation}
+          />
       </div>
     </div>
   )
@@ -1067,19 +1071,19 @@ function WizardSuccessScreen({ onClose }: { onClose: () => void }) {
           <img
             src="/images/dancing-tag.webp"
             alt="Nivel creado exitosamente"
-            className="mx-auto mb-5 w-[150px] sm:w-[190px] md:w-[220px]"
+            className="mx-auto mb-6 w-[150px] sm:w-[190px] md:w-[220px]"
           />
-          <h3 className="text-2xl font-satoBold text-brand_dark sm:text-[28px]">
+          <h3 className="text-2xl font-satoBold text-brand_dark ">
             ¡Eso sí es consentir clientes!
           </h3>
-          <p className="mx-auto mt-3 max-w-[360px] text-[18px] text-brand_gray sm:text-[15px]">
+          <p className="mx-auto mt-3 max-w-[420px] text-[18px] text-brand_gray ">
             Ahora tus clientes pueden disfrutar de descuentos y beneficios ✨
           </p>
-          <div className="mt-7">
+          <div className="mt-12">
             <SecondaryButton
               type="button"
               onClick={onClose}
-              className="mx-auto min-w-[148px]"
+              className="mx-auto min-w-[180px] h-10 text-brand_dark"
             >
               Volver
             </SecondaryButton>
@@ -1311,8 +1315,8 @@ export function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`relative pb-2 text-sm font-medium ${
-        active ? "text-[#20242D]" : "text-[#8A90A2]"
+      className={`relative pb-2 text-base font-satoMedium  ${
+        active ? "text-brand_dark" : "text-brand_gray"
       }`}
     >
       {label}
@@ -1328,8 +1332,8 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
     <div className="mt-10 flex h-[80vh] w-full items-center justify-center bg-cover">
       <div className="text-center">
         <img className="mx-auto mb-4" src="/images/emptyState/loyalty.webp" alt="" />
-        <p className="text-xl font-satoBold">Convierte visitas en clientes frecuentes!</p>
-        <p className="mx-auto mt-2 max-w-[620px] text-center text-brand_gray">
+        <p className="text-2xl font-satoBold">¡Convierte visitas en clientes frecuentes!</p>
+        <p className="mx-auto mt-2 max-w-[780px] text-center text-brand_gray text-[18px]">
           Activa el programa de lealtad y ofrece descuentos permanentes a tus
           clientes mas fieles, ademas de promociones para temporadas especiales
         </p>
