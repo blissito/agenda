@@ -74,14 +74,26 @@ function formatFixedAmount(value: number) {
 }
 
 function getCouponDiscountLabel(reward: Reward) {
-  if (reward.type === "discount_percent") return `${reward.value}%`
-  if (reward.type === "discount_fixed") return formatFixedAmount(reward.value)
+  if (reward.type === "discount_fixed") {
+    return formatFixedAmount(reward.value)
+  }
+
+  if (reward.type === "discount_percent") {
+    return `${reward.value}%`
+  }
+
   return "—"
 }
 
 function getCouponBadgeLabel(reward: Reward) {
-  if (reward.type === "discount_percent") return `${reward.value}%`
-  if (reward.type === "discount_fixed") return `$${Math.round(reward.value / 100)}`
+  if (reward.type === "discount_fixed") {
+    return `$${Math.round(reward.value / 100)}`
+  }
+
+  if (reward.type === "discount_percent") {
+    return `${reward.value}%`
+  }
+
   return "—"
 }
 
@@ -115,7 +127,7 @@ function Modal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray/40 backdrop-blur-[2px]"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#D3D3D3]/40 backdrop-blur-[2px]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -367,30 +379,30 @@ export function CuponesTab({
         />
       )}
 
-{editingReward && (
-  <CouponEditModal
-    reward={editingReward}
-    services={services}
-    isUpdating={isUpdating}
-    onClose={() => setEditingReward(null)}
-    onDelete={() => {
-      setDeleteTarget(editingReward);
-      setEditingReward(null);
-    }}
-    onSubmit={handleUpdateReward}
-  />
-)}
-
-        <ConfirmModal
-          isOpen={Boolean(deleteTarget)}
-          onClose={() => setDeleteTarget(null)}
-          onConfirm={handleDeleteConfirm}
-          title="¿Seguro que quieres eliminar este cupón?"
-          description="Al eliminarlo, el cupón dejará de estar disponible para tus clientes."
-          confirmText="Sí, eliminar"
-          cancelText="Cancelar"
-          variant="danger"
+      {editingReward && (
+        <CouponEditModal
+          reward={editingReward}
+          services={services}
+          isUpdating={isUpdating}
+          onClose={() => setEditingReward(null)}
+          onDelete={() => {
+            setDeleteTarget(editingReward)
+            setEditingReward(null)
+          }}
+          onSubmit={handleUpdateReward}
         />
+      )}
+
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="¿Seguro que quieres eliminar este cupón?"
+        description="Al eliminarlo, el cupón dejará de estar disponible para tus clientes."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+      />
 
       {items.length > 0 && (
         <div className="mx-auto w-full ">
@@ -432,7 +444,7 @@ function CouponTableHeader() {
   ]
 
   return (
-    <div className="grid grid-cols-12 rounded-t-2xl border-t border-x border-b border-slate-200 bg-white mt-4 px-2 sm:px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 items-center">
+    <div className="mt-4 grid grid-cols-12 items-center rounded-t-2xl border-x border-b border-t border-slate-200 bg-white px-2 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 sm:px-4">
       {titles.map(([title, classes]) => (
         <h3
           key={`${title}-${classes}`}
@@ -471,49 +483,49 @@ function CouponRow({
   return (
     <div
       className={twMerge(
-        "grid grid-cols-12 border-b border-x border-slate-200 bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4",
+        "grid grid-cols-12 items-center border-x border-b border-slate-200 bg-white px-2 transition-colors hover:bg-slate-50 sm:px-4",
         isLast && "rounded-b-2xl",
       )}
     >
       <button
         type="button"
         onClick={onOpenEdit}
-        className="col-span-10 sm:col-span-11 grid grid-cols-10 sm:grid-cols-11 items-center py-3 min-w-0 text-left"
+        className="col-span-10 grid min-w-0 grid-cols-10 items-center py-3 text-left sm:col-span-11 sm:grid-cols-11"
       >
-        <div className="flex gap-3 items-center col-span-10 sm:col-span-4 min-w-0">
+        <div className="col-span-10 flex min-w-0 items-center gap-3 sm:col-span-4">
           <div className="flex h-[32px] min-w-[40px] items-center justify-center rounded-[8px] bg-[#121212] px-2 text-[12px] font-satoBold text-white">
             {getCouponBadgeLabel(reward)}
           </div>
 
           <div className="min-w-0">
-            <p className="font-semibold text-brand_dark text-sm truncate leading-tight">
+            <p className="truncate text-sm font-semibold leading-tight text-brand_dark">
               {reward.name}
             </p>
-            <p className="text-xs font-satoMedium text-brand_gray truncate">
+            <p className="truncate text-xs font-satoMedium text-brand_gray">
               {meta?.code || getCouponDiscountLabel(reward)}
             </p>
-            <div className="mt-1 sm:hidden text-[12px] text-brand_gray truncate">
+            <div className="mt-1 truncate text-[12px] text-brand_gray sm:hidden">
               {getCouponDiscountLabel(reward)} · {getDurationLabel(meta)} ·{" "}
               {getServicesLabel(meta, services)}
             </div>
           </div>
         </div>
 
-        <p className="hidden sm:block text-sm col-span-2 text-center text-brand_gray whitespace-nowrap">
+        <p className="hidden whitespace-nowrap text-center text-sm text-brand_gray sm:col-span-2 sm:block">
           {getCouponDiscountLabel(reward)}
         </p>
 
-        <p className="hidden sm:block text-sm col-span-2 text-center text-brand_gray whitespace-nowrap">
+        <p className="hidden whitespace-nowrap text-center text-sm text-brand_gray sm:col-span-2 sm:block">
           {getDurationLabel(meta)}
         </p>
 
-        <p className="hidden sm:block text-sm col-span-3 text-center text-brand_gray whitespace-nowrap truncate">
+        <p className="hidden truncate whitespace-nowrap text-center text-sm text-brand_gray sm:col-span-3 sm:block">
           {getServicesLabel(meta, services)}
         </p>
       </button>
 
       <div
-        className="col-span-2 sm:col-span-1 relative flex items-center justify-center py-3"
+        className="relative col-span-2 flex items-center justify-center py-3 sm:col-span-1"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -534,9 +546,9 @@ function CouponRow({
               <button
                 type="button"
                 onClick={onToggleActive}
-                className="flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_dark transition hover:bg-[#F8F7FF]"
+                className="group flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_dark transition hover:bg-[#F8F7FF]"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F4F4F5] text-brand_gray">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F4F4F5] text-brand_gray transition group-hover:bg-[#ECEBFF] group-hover:text-[#615FFF]">
                   <PauseSmallIcon />
                 </span>
                 <span className="text-[14px] font-satoMedium">
@@ -547,9 +559,9 @@ function CouponRow({
               <button
                 type="button"
                 onClick={onDelete}
-                className="flex h-[52px] w-full items-center gap-3 rounded-[14px] border border-[#F7DDDD] bg-[#FDF3F3] px-4 text-left text-[#D65B5B] transition hover:bg-[#FBEAEA]"
+                className="group flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_dark transition hover:bg-[#FDF3F3] hover:text-[#D65B5B]"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#D65B5B]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F4F4F5] text-brand_gray transition group-hover:bg-white group-hover:text-[#D65B5B]">
                   <TrashSmallIcon />
                 </span>
                 <span className="text-[14px] font-satoMedium">Eliminar</span>
@@ -1139,6 +1151,7 @@ function CouponEditModal({
   const [applyAllServices, setApplyAllServices] = useState(
     currentMeta.applyAllServices,
   )
+
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(
     currentMeta.serviceIds,
   )
@@ -1164,32 +1177,26 @@ function CouponEditModal({
               selectedServiceIds,
             )
           }
-          className="relative h-[min(760px,calc(100dvh-32px))] overflow-hidden rounded-[20px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+          className="flex max-h-[min(760px,calc(100dvh-32px))] min-h-[520px] flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
         >
-          {/* Header fijo con backdrop blur */}
-          <div className="absolute inset-x-0 top-0 z-20">
-            <div className="bg-white/95 backdrop-blur-md px-6 pb-3 pt-6 rounded-t-[20px]">
-              <div className="flex items-start justify-between gap-4">
-                <h3 className="text-[18px] font-satoBold leading-[24px] text-brand_dark">
-                  Editar cupón
-                </h3>
+          <div className="shrink-0 px-6 pb-4 pt-6">
+            <div className="flex items-start justify-between gap-4">
+              <h3 className="text-[18px] font-satoBold leading-[24px] text-brand_dark">
+                Editar cupón
+              </h3>
 
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="shrink-0"
-                  aria-label="Cerrar"
-                >
-                  <X />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="shrink-0"
+                aria-label="Cerrar"
+              >
+                <X />
+              </button>
             </div>
-            {/* Gradiente que simula el blur difuminándose */}
-            <div className="h-4 bg-gradient-to-b from-white/95 to-transparent backdrop-blur-md" />
           </div>
 
-          {/* Contenido scrolleable */}
-          <div className="h-full overflow-y-auto px-6 pt-[88px] pb-[88px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex-1 overflow-y-auto px-6 pb-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="space-y-5">
               <div>
                 <FormLabel className="mb-2 text-[12px] leading-[16px]">
@@ -1217,7 +1224,7 @@ function CouponEditModal({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
                   <FormLabel className="mb-2 text-[12px] leading-[16px]">
                     Tipo de descuento
@@ -1260,7 +1267,7 @@ function CouponEditModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-6">
                 <div>
                   <FormLabel className="mb-2 text-[12px] leading-[16px]">
                     Duración
@@ -1332,17 +1339,13 @@ function CouponEditModal({
             </div>
           </div>
 
-          {/* Footer fijo con backdrop blur */}
-          <div className="absolute inset-x-0 bottom-0 z-20">
-            {/* Gradiente que simula el blur difuminándose */}
-            <div className="h-4 bg-gradient-to-t from-white/95 to-transparent backdrop-blur-md" />
-            
-            <div className="bg-white/95 backdrop-blur-md px-6 pb-5 pt-2 rounded-b-[20px]">
-              <div className="flex items-center justify-between gap-3">
+          <div className="shrink-0 px-[32px] pb-[32px] pt-[20px]">
+            <div className="flex justify-end">
+              <div className="flex items-center gap-[24px]">
                 <button
                   type="button"
                   onClick={onDelete}
-                  className="text-[12px] font-satoMedium text-[#E26767] transition hover:opacity-80"
+                  className="flex h-[32px] w-[140px] items-center justify-center whitespace-nowrap text-[16px] font-satoMedium text-brand_red"
                 >
                   Eliminar cupón
                 </button>
@@ -1350,7 +1353,7 @@ function CouponEditModal({
                 <PrimaryButton
                   type="submit"
                   isDisabled={isUpdating}
-                  className="h-9 min-w-[88px] rounded-full px-5 text-[12px]"
+                  className="flex h-[52px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
                 >
                   {isUpdating ? "Guardando..." : "Guardar"}
                 </PrimaryButton>
@@ -1361,7 +1364,8 @@ function CouponEditModal({
       </div>
     </Modal>
   )
-} 
+}
+
 function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
   return (
     <section className="mt-8">
