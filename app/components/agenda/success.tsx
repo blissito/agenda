@@ -60,10 +60,26 @@ export const Success = ({
             src={`/images/confetti.gif?t=${Date.now()}`}
           />
         ) : (
-          <svg className="w-24 h-24 text-brand_blue" viewBox="0 0 24 24" fill="none">
+          <svg
+            className="w-24 h-24 text-brand_blue"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
             <circle cx="12" cy="12" r="11" fill="currentColor" opacity="0.15" />
-            <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M7 12.5l3 3 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <circle
+              cx="12"
+              cy="12"
+              r="11"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M7 12.5l3 3 7-7"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         )}
       </div>
@@ -97,9 +113,9 @@ export const Success = ({
       </PrimaryButton>
       <p className="text-neutral-400 text-xs mt-24 max-w-[600px] mx-auto">
         Recuerda que tu reserva es válida para el servicio y horario en el que
-        agendaste. Para cambios o cancelación ponte en contacto con{" "}
-        {org.name}. Deník solo actúa como intermediario en la gestión y
-        procesamiento de reservas.
+        agendaste. Para cambios o cancelación ponte en contacto con {org.name}.
+        Deník solo actúa como intermediario en la gestión y procesamiento de
+        reservas.
       </p>
       <EmojiConfetti />
     </div>

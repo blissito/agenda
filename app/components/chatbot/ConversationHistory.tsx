@@ -1,47 +1,47 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react"
 import {
-  formatMessageTime,
   formatDateSeparator,
-  groupMessagesByDate,
+  formatMessageTime,
   formatRelativeTime,
-} from "./utils";
+  groupMessagesByDate,
+} from "./utils"
 
 // Types matching the Formmy SDK shape
 interface ConversationSummary {
-  id: string;
-  sessionId: string;
-  name?: string;
-  status: string;
-  messageCount: number;
-  isFavorite: boolean;
-  createdAt: string;
-  updatedAt: string;
+  id: string
+  sessionId: string
+  name?: string
+  status: string
+  messageCount: number
+  isFavorite: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 interface ConversationMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  createdAt: string;
+  id: string
+  role: "user" | "assistant"
+  content: string
+  createdAt: string
 }
 
 interface ConversationDetail extends ConversationSummary {
-  messages: ConversationMessage[];
+  messages: ConversationMessage[]
 }
 
 interface ConversationHistoryProps {
-  conversations: ConversationSummary[];
-  isLoading: boolean;
-  hasMore: boolean;
-  onLoadMore: () => void;
-  selectedConversation: ConversationDetail | null;
-  onSelectConversation: (id: string | null) => void;
-  messages: ConversationMessage[];
-  isLoadingMessages: boolean;
-  onDelete: (id: string) => Promise<void>;
-  onToggleFavorite: (id: string) => Promise<void>;
-  onSearch: (query: string) => void;
-  searchQuery: string;
+  conversations: ConversationSummary[]
+  isLoading: boolean
+  hasMore: boolean
+  onLoadMore: () => void
+  selectedConversation: ConversationDetail | null
+  onSelectConversation: (id: string | null) => void
+  messages: ConversationMessage[]
+  isLoadingMessages: boolean
+  onDelete: (id: string) => Promise<void>
+  onToggleFavorite: (id: string) => Promise<void>
+  onSearch: (query: string) => void
+  searchQuery: string
 }
 
 function RobotIcon({ className = "w-5 h-5" }: { className?: string }) {
@@ -59,14 +59,14 @@ function RobotIcon({ className = "w-5 h-5" }: { className?: string }) {
         d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h0m6 0h0m-5 4h4"
       />
     </svg>
-  );
+  )
 }
 
 // Chat wallpaper pattern as inline SVG background
 const chatPatternBg = {
   backgroundColor: "#f0f2f5",
   backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d1d5db' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-};
+}
 
 export function ConversationHistory({
   conversations,
@@ -82,40 +82,40 @@ export function ConversationHistory({
   onSearch,
   searchQuery,
 }: ConversationHistoryProps) {
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const listEndRef = useRef<HTMLDivElement>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const listEndRef = useRef<HTMLDivElement>(null)
 
   // Infinite scroll observer
   useEffect(() => {
-    if (!listEndRef.current || !hasMore) return;
+    if (!listEndRef.current || !hasMore) return
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) onLoadMore();
+        if (entries[0].isIntersecting) onLoadMore()
       },
-      { threshold: 0.1 }
-    );
-    observer.observe(listEndRef.current);
-    return () => observer.disconnect();
-  }, [hasMore, onLoadMore]);
+      { threshold: 0.1 },
+    )
+    observer.observe(listEndRef.current)
+    return () => observer.disconnect()
+  }, [hasMore, onLoadMore])
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
   const handleDelete = async (id: string) => {
     if (confirmDelete === id) {
-      await onDelete(id);
-      setConfirmDelete(null);
+      await onDelete(id)
+      setConfirmDelete(null)
     } else {
-      setConfirmDelete(id);
-      setTimeout(() => setConfirmDelete(null), 3000);
+      setConfirmDelete(id)
+      setTimeout(() => setConfirmDelete(null), 3000)
     }
-  };
+  }
 
   const messageGroups =
-    messages.length > 0 ? groupMessagesByDate(messages) : new Map();
+    messages.length > 0 ? groupMessagesByDate(messages) : new Map()
 
   return (
     <div className="flex h-[calc(100vh-180px)] bg-white rounded-2xl border border-gray-100 overflow-hidden">
@@ -243,23 +243,21 @@ export function ConversationHistory({
                       `Usuario web ${selectedConversation.sessionId.slice(-3)}`}
                   </h3>
                   <p className="text-xs text-brand_gray">
-                    {new Date(selectedConversation.createdAt).toLocaleDateString(
-                      "es-MX",
-                      {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }
-                    )}
+                    {new Date(
+                      selectedConversation.createdAt,
+                    ).toLocaleDateString("es-MX", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
                     ,{" "}
-                    {new Date(selectedConversation.createdAt).toLocaleTimeString(
-                      "es-MX",
-                      {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      }
-                    )}
+                    {new Date(
+                      selectedConversation.createdAt,
+                    ).toLocaleTimeString("es-MX", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: true,
+                    })}
                   </p>
                 </div>
               </div>
@@ -282,16 +280,16 @@ export function ConversationHistory({
                     const data = messages
                       .map(
                         (m) =>
-                          `[${formatMessageTime(m.createdAt)}] ${m.role}: ${m.content}`
+                          `[${formatMessageTime(m.createdAt)}] ${m.role}: ${m.content}`,
                       )
-                      .join("\n");
-                    const blob = new Blob([data], { type: "text/plain" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `conversacion-${selectedConversation.id.slice(-6)}.txt`;
-                    a.click();
-                    URL.revokeObjectURL(url);
+                      .join("\n")
+                    const blob = new Blob([data], { type: "text/plain" })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement("a")
+                    a.href = url
+                    a.download = `conversacion-${selectedConversation.id.slice(-6)}.txt`
+                    a.click()
+                    URL.revokeObjectURL(url)
                   }}
                   className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
                   title="Descargar conversacion"
@@ -359,7 +357,7 @@ export function ConversationHistory({
                         <div className="flex items-center justify-center my-4">
                           <span className="px-3 py-1 bg-white/80 rounded-lg text-xs text-brand_gray shadow-sm font-satoMedium">
                             {formatDateSeparator(
-                              (msgs as ConversationMessage[])[0].createdAt
+                              (msgs as ConversationMessage[])[0].createdAt,
                             )}
                           </span>
                         </div>
@@ -387,7 +385,7 @@ export function ConversationHistory({
                           </div>
                         ))}
                       </div>
-                    )
+                    ),
                   )}
                   <div ref={messagesEndRef} />
                 </>
@@ -397,5 +395,5 @@ export function ConversationHistory({
         )}
       </div>
     </div>
-  );
+  )
 }

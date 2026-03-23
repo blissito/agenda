@@ -29,7 +29,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
       },
     })
   }
-
 }
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -93,9 +92,7 @@ const EmptyStateServices = () => {
           src="/images/emptyState/access-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoBold text-xl ">
-          ¡Nada por aquí! 
-        </p>
+        <p className="font-satoBold text-xl ">¡Nada por aquí!</p>
         <p className="mt-2 text-brand_gray">
           Crea tu primer servicio y empieza a recibir a tus clientes
         </p>

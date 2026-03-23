@@ -1,12 +1,11 @@
 import { AnimatePresence, motion } from "motion/react"
+import { nanoid } from "nanoid"
 import { type ReactNode, useEffect, useMemo, useState } from "react"
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi"
 import { useNavigate, useSearchParams } from "react-router"
+import slugify from "slugify"
 import { twMerge } from "tailwind-merge"
 import { getOrCreateOrgOrRedirect, updateOrg } from "~/.server/userGetters"
-import { db } from "~/utils/db.server"
-import slugify from "slugify"
-import { nanoid } from "nanoid"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { AboutYourCompanyForm } from "~/components/forms/AboutYourCompanyForm"
@@ -14,6 +13,7 @@ import { BussinesTypeForm } from "~/components/forms/BussinesTypeForm"
 import { TimesForm } from "~/components/forms/TimesForm"
 import { ArrowRight } from "~/components/icons/arrowRight"
 import { Denik } from "~/components/icons/denik"
+import { db } from "~/utils/db.server"
 import type { Route } from "./+types/signup.$stepSlug"
 
 export const REQUIRED_MESSAGE = "Este campo es requerido"
@@ -32,7 +32,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     }
     if (raw.shopKeeper) updateData.shopKeeper = raw.shopKeeper
     if (raw.address) updateData.address = raw.address
-    if (raw.numberOfEmployees) updateData.numberOfEmployees = raw.numberOfEmployees
+    if (raw.numberOfEmployees)
+      updateData.numberOfEmployees = raw.numberOfEmployees
     if (Object.keys(updateData).length > 0) {
       await db.org.update({ where: { id: org.id }, data: updateData })
     }

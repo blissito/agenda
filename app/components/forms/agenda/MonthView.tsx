@@ -1,12 +1,12 @@
 import { useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
-import { DAY_LABELS_MIN, WEEK_DAYS } from "~/utils/weekDays"
 import {
   convertDayToString,
   getDaysInMonth,
   isToday,
 } from "~/components/dash/agenda/agendaUtils"
 import { cn } from "~/utils/cn"
+import { DAY_LABELS_MIN, WEEK_DAYS } from "~/utils/weekDays"
 
 type WeekDaysType = Record<string, string[][]>
 

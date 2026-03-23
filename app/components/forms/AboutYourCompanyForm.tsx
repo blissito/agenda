@@ -79,7 +79,10 @@ export const AboutYourCompanyForm = ({
       const ok = await trigger("name")
       if (ok) {
         fetcher.submit(
-          { intent: "save_field", data: JSON.stringify({ name: getValues("name") }) },
+          {
+            intent: "save_field",
+            data: JSON.stringify({ name: getValues("name") }),
+          },
           { method: "post" },
         )
         setScreenAndUrl(1)
@@ -90,7 +93,10 @@ export const AboutYourCompanyForm = ({
       const ok = await trigger("shopKeeper")
       if (ok) {
         fetcher.submit(
-          { intent: "save_field", data: JSON.stringify({ shopKeeper: getValues("shopKeeper") }) },
+          {
+            intent: "save_field",
+            data: JSON.stringify({ shopKeeper: getValues("shopKeeper") }),
+          },
           { method: "post" },
         )
         setScreenAndUrl(2)

@@ -1,30 +1,33 @@
-import { useState } from "react";
+import { type ReactElement, useState } from "react"
 
-export type WidgetStyle = "bubble" | "sidebar" | "bar";
+export type WidgetStyle = "bubble" | "sidebar" | "bar"
 
 interface WidgetTemplate {
-  id: WidgetStyle;
-  name: string;
-  description: string;
+  id: WidgetStyle
+  name: string
+  description: string
 }
 
 const WIDGET_TEMPLATES: WidgetTemplate[] = [
   {
     id: "bubble",
     name: "Bubble Clásico",
-    description: "Botón flotante circular con chat desplegable. Ideal para sitios modernos.",
+    description:
+      "Botón flotante circular con chat desplegable. Ideal para sitios modernos.",
   },
   {
     id: "sidebar",
     name: "Sidebar Push",
-    description: "Panel lateral que empuja el contenido del sitio. Perfecto para aplicaciones empresariales.",
+    description:
+      "Panel lateral que empuja el contenido del sitio. Perfecto para aplicaciones empresariales.",
   },
   {
     id: "bar",
     name: "Barra empresarial",
-    description: "Barra inferior con acciones rápidas y chat integrado. Para portales corporativos.",
+    description:
+      "Barra inferior con acciones rápidas y chat integrado. Para portales corporativos.",
   },
-];
+]
 
 function BubbleThumbnail() {
   return (
@@ -35,12 +38,15 @@ function BubbleThumbnail() {
       <rect x="12" y="52" width="50" height="6" rx="3" fill="#D1D5DB" />
       <rect x="12" y="64" width="65" height="6" rx="3" fill="#D1D5DB" />
       <circle cx="130" cy="74" r="16" fill="#E5E7EB" />
-      <path d="M124 74a6 6 0 016-6h0a6 6 0 016 6v2a2 2 0 01-2 2h-8a2 2 0 01-2-2v-2z" fill="#9CA3AF" />
+      <path
+        d="M124 74a6 6 0 016-6h0a6 6 0 016 6v2a2 2 0 01-2 2h-8a2 2 0 01-2-2v-2z"
+        fill="#9CA3AF"
+      />
       <circle cx="127" cy="74" r="1" fill="#6B7280" />
       <circle cx="130" cy="74" r="1" fill="#6B7280" />
       <circle cx="133" cy="74" r="1" fill="#6B7280" />
     </svg>
-  );
+  )
 }
 
 function SidebarThumbnail() {
@@ -57,7 +63,7 @@ function SidebarThumbnail() {
       <rect x="111" y="28" width="24" height="4" rx="2" fill="#9CA3AF" />
       <rect x="111" y="38" width="28" height="4" rx="2" fill="#9CA3AF" />
     </svg>
-  );
+  )
 }
 
 function BarThumbnail() {
@@ -72,26 +78,31 @@ function BarThumbnail() {
       <rect x="62" y="80" width="40" height="8" rx="4" fill="#9CA3AF" />
       <rect x="110" y="80" width="36" height="8" rx="4" fill="#9CA3AF" />
     </svg>
-  );
+  )
 }
 
-const THUMBNAILS: Record<WidgetStyle, () => JSX.Element> = {
+const THUMBNAILS: Record<WidgetStyle, () => ReactElement> = {
   bubble: BubbleThumbnail,
   sidebar: SidebarThumbnail,
   bar: BarThumbnail,
-};
-
-interface WidgetSelectorModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelect: (style: WidgetStyle) => void;
-  currentStyle: WidgetStyle;
 }
 
-export function WidgetSelectorModal({ isOpen, onClose, onSelect, currentStyle }: WidgetSelectorModalProps) {
-  const [selected, setSelected] = useState<WidgetStyle>(currentStyle);
+interface WidgetSelectorModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSelect: (style: WidgetStyle) => void
+  currentStyle: WidgetStyle
+}
 
-  if (!isOpen) return null;
+export function WidgetSelectorModal({
+  isOpen,
+  onClose,
+  onSelect,
+  currentStyle,
+}: WidgetSelectorModalProps) {
+  const [selected, setSelected] = useState<WidgetStyle>(currentStyle)
+
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -102,13 +113,25 @@ export function WidgetSelectorModal({ isOpen, onClose, onSelect, currentStyle }:
       <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl mx-4 p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-satoBold text-brand_dark">Elige cómo se verá tu chat</h2>
+          <h2 className="text-lg font-satoBold text-brand_dark">
+            Elige cómo se verá tu chat
+          </h2>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -116,8 +139,8 @@ export function WidgetSelectorModal({ isOpen, onClose, onSelect, currentStyle }:
         {/* Cards - horizontal row */}
         <div className="flex gap-4">
           {WIDGET_TEMPLATES.map((template) => {
-            const isSelected = selected === template.id;
-            const Thumb = THUMBNAILS[template.id];
+            const isSelected = selected === template.id
+            const Thumb = THUMBNAILS[template.id]
             return (
               <button
                 key={template.id}
@@ -131,8 +154,18 @@ export function WidgetSelectorModal({ isOpen, onClose, onSelect, currentStyle }:
                 {/* Check indicator */}
                 {isSelected && (
                   <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-brand_blue flex items-center justify-center z-10">
-                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-3.5 h-3.5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   </div>
                 )}
@@ -144,11 +177,15 @@ export function WidgetSelectorModal({ isOpen, onClose, onSelect, currentStyle }:
 
                 {/* Text */}
                 <div className="p-4">
-                  <h3 className="font-satoBold text-sm text-brand_dark">{template.name}</h3>
-                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">{template.description}</p>
+                  <h3 className="font-satoBold text-sm text-brand_dark">
+                    {template.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                    {template.description}
+                  </p>
                 </div>
               </button>
-            );
+            )
           })}
         </div>
 
@@ -161,7 +198,10 @@ export function WidgetSelectorModal({ isOpen, onClose, onSelect, currentStyle }:
             Cancelar
           </button>
           <button
-            onClick={() => { onSelect(selected); onClose(); }}
+            onClick={() => {
+              onSelect(selected)
+              onClose()
+            }}
             className="px-6 py-2.5 text-sm text-white bg-brand_blue rounded-full hover:opacity-90 transition-opacity font-satoMedium"
           >
             Seleccionar
@@ -169,5 +209,5 @@ export function WidgetSelectorModal({ isOpen, onClose, onSelect, currentStyle }:
         </div>
       </div>
     </div>
-  );
+  )
 }

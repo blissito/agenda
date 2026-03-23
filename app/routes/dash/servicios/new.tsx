@@ -128,7 +128,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   // Fetch photo upload URLs when we have serviceId and move to step 1
   useEffect(() => {
     if (serviceId && index === 1 && !photoAction) {
-      photoUrlsFetcher.load(`/api/services?intent=get_photo_urls&serviceId=${serviceId}`)
+      photoUrlsFetcher.load(
+        `/api/services?intent=get_photo_urls&serviceId=${serviceId}`,
+      )
     }
   }, [serviceId, index, photoAction])
 

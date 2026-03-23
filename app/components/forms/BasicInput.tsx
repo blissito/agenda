@@ -16,7 +16,7 @@ type Props = {
   type?: "text" | "number" | "email" | "date" | "search"
   isDisabled?: boolean
   containerClassName?: string
-  inputClassName?: string 
+  inputClassName?: string
   icon?: ReactNode
   onFocus?: () => void
   onBlur?: () => void
@@ -96,9 +96,9 @@ export const BasicInput = ({
             placeholder={placeholder}
             className={twMerge(
               "placeholder:text-brand_blueLight text-brand_dark font-satoMedium",
-                "focus:border-brand_blue",
-                "rounded-xl border-gray-200 w-full h-12",
-                "disabled:bg-brand_stroke disabled:cursor-not-allowed",
+              "focus:border-brand_blue",
+              "rounded-xl border-gray-200 w-full h-12",
+              "disabled:bg-brand_stroke disabled:cursor-not-allowed",
               !!error && "border-red-full",
               icon && "pl-12",
               inputClassName,

@@ -1,13 +1,12 @@
-import { useEffect, useMemo, useState } from "react"
 import type { ReactNode } from "react"
-
-import { X } from "~/components/icons/X"
-import { Facebook } from "~/components/icons/facebook"
-import { WhatsApp } from "~/components/icons/WhatsApp"
-import { Linkedin } from "~/components/icons/linkedin"
-import { Twitter } from "~/components/icons/twitter"
+import { useEffect, useMemo, useState } from "react"
 import { Copy } from "~/components/icons/Copy"
+import { Facebook } from "~/components/icons/facebook"
+import { Linkedin } from "~/components/icons/linkedin"
 import { QrCode } from "~/components/icons/QrCode"
+import { Twitter } from "~/components/icons/twitter"
+import { WhatsApp } from "~/components/icons/WhatsApp"
+import { X } from "~/components/icons/X"
 
 type Props = {
   open: boolean
@@ -45,7 +44,8 @@ type ShareButtonProps =
     }
 
 const ShareButton = (props: ShareButtonProps) => {
-  const base = "h-10 w-10 rounded-full flex items-center justify-center shadow-sm"
+  const base =
+    "h-10 w-10 rounded-full flex items-center justify-center shadow-sm"
 
   if ("href" in props) {
     return (
@@ -91,13 +91,20 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => (
   </button>
 )
 
-export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Props) => {
+export const ShareWebsiteModal = ({
+  open,
+  onClose,
+  url,
+  orgName,
+  orgSlug,
+}: Props) => {
   const [copied, setCopied] = useState(false)
   const [downloadingQr, setDownloadingQr] = useState(false)
 
   const baseCopy = useMemo(() => {
     const name = (orgName ?? "").trim()
-    if (name) return `Agenda tu cita con ${name} de forma rápida y sencilla aquí 👇`
+    if (name)
+      return `Agenda tu cita con ${name} de forma rápida y sencilla aquí 👇`
     return `Agenda tu cita conmigo de forma rápida y sencilla aquí 👇`
   }, [orgName])
 
@@ -107,7 +114,9 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
   const waText = useMemo(() => `${baseCopy} ${url}`, [baseCopy, url])
   const twText = useMemo(() => {
     const name = (orgName ?? "").trim()
-    const t = name ? `Agenda tu cita con ${name} aquí 👇` : `Agenda tu cita aquí 👇`
+    const t = name
+      ? `Agenda tu cita con ${name} aquí 👇`
+      : `Agenda tu cita aquí 👇`
     return clampXText(t)
   }, [orgName])
 
@@ -193,7 +202,11 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
         <div className="absolute left-1/2 -top-14 -translate-x-1/2 z-20">
           <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
             <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
-              <span role="img" aria-label="link" className="text-6xl leading-none">
+              <span
+                role="img"
+                aria-label="link"
+                className="text-6xl leading-none"
+              >
                 🔗
               </span>
             </div>
@@ -204,11 +217,13 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
           <CloseButton onClick={onClose} />
 
           <div className="px-8 pb-8">
-            <h3 className="text-center text-2xl font-satoBold">¡Comparte con tus clientes!</h3>
+            <h3 className="text-center text-2xl font-satoBold">
+              ¡Comparte con tus clientes!
+            </h3>
 
             <p className="mt-4 mx-auto max-w-[540px] text-center text-base font-satoMedium text-brand_gray">
-              Es hora de que tus clientes se enteren de que tus servicios ya están disponibles.
-              Comparte ya en tus redes sociales.
+              Es hora de que tus clientes se enteren de que tus servicios ya
+              están disponibles. Comparte ya en tus redes sociales.
             </p>
 
             <div className="mt-8">
@@ -224,7 +239,9 @@ export const ShareWebsiteModal = ({ open, onClose, url, orgName, orgSlug }: Prop
                   title={copied ? "Copiado" : "Copiar"}
                   aria-label={copied ? "Copiado" : "Copiar"}
                 >
-                  <Copy className={copied ? "text-green-600" : "text-brand_gray"} />
+                  <Copy
+                    className={copied ? "text-green-600" : "text-brand_gray"}
+                  />
                 </button>
               </div>
             </div>

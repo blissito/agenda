@@ -92,9 +92,10 @@ export const generateSecuense = (
 
   const slotCount = Math.floor((lastValidStart - fromMins) / duration) + 1
 
-  return Array.from({ length: slotCount }, (_, i) => fromMins + i * duration).filter(
-    (slot) => slot > minTime,
-  )
+  return Array.from(
+    { length: slotCount },
+    (_, i) => fromMins + i * duration,
+  ).filter((slot) => slot > minTime)
 }
 
 export const getMonday = (today: Date = new Date()) => {

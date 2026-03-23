@@ -32,7 +32,7 @@ export const EventFormDrawer = ({
       isOpen={isOpen}
       onClose={onClose}
       size="big"
-      footer={<></>}
+      footer={null}
     >
       <EventForm
         services={services}

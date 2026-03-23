@@ -2,7 +2,7 @@ import type { Service } from "@prisma/client"
 import * as React from "react"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { formatRange } from "~/components/common/FormatRange"
-import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
+import { Image } from "~/components/common/Image"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { Edit } from "~/components/icons/edit"
 import {
@@ -13,8 +13,8 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump"
 import { db } from "~/utils/db.server"
+import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import type { Route } from "./+types/dash.servicios_.$serviceId"
-import { Image } from "~/components/common/Image"
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
   // @TODO ensure is the owner

@@ -33,7 +33,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   let event: Stripe.Event
 
   try {
-    event = getStripe().webhooks.constructEvent(payload, signature, webhookSecret)
+    event = getStripe().webhooks.constructEvent(
+      payload,
+      signature,
+      webhookSecret,
+    )
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error"
     console.error(`Webhook signature verification failed: ${message}`)

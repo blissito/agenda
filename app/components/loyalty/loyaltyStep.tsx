@@ -1,19 +1,25 @@
 // loyaltySteps.tsx
-import { useRef, useState } from "react"
+
 import type {
   ChangeEvent,
   FormEvent,
   InputHTMLAttributes,
   ReactNode,
 } from "react"
+import { useRef, useState } from "react"
 import { useRevalidator } from "react-router"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
-import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { ArrowRight } from "~/components/icons/arrowRight"
-import { X } from "~/components/icons/X"
 import { Settings } from "~/components/icons/settings"
-import type { Level, Reward, ServiceOption, Transaction } from "~/routes/dash/dash.lealtad"
+import { X } from "~/components/icons/X"
+import type {
+  Level,
+  Reward,
+  ServiceOption,
+  Transaction,
+} from "~/routes/dash/dash.lealtad"
 
 // ==================== SHARED: LEVEL IMAGE UPLOAD ====================
 
@@ -55,7 +61,7 @@ const WizardInput = ({
   <div>
     <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
       {label}
-      {required }
+      {required}
     </label>
     <input
       {...props}
@@ -71,21 +77,23 @@ const WizardInput = ({
   </div>
 )
 
-const FormLabel = ({ 
-  children, 
-  className = "" 
-}: { 
+const FormLabel = ({
+  children,
+  className = "",
+}: {
   children: ReactNode
-  className?: string 
+  className?: string
 }) => (
-  <label className={`mb-1 block font-satoMedium text-[14px] text-brand_gray ${className}`}>
+  <label
+    className={`mb-1 block font-satoMedium text-[14px] text-brand_gray ${className}`}
+  >
     {children}
   </label>
 )
 
-const FormInput = ({ 
+const FormInput = ({
   className = "",
-  ...props 
+  ...props
 }: InputHTMLAttributes<HTMLInputElement>) => (
   <input
     {...props}
@@ -93,10 +101,10 @@ const FormInput = ({
   />
 )
 
-const FormSelect = ({ 
+const FormSelect = ({
   children,
   className = "",
-  ...props 
+  ...props
 }: React.SelectHTMLAttributes<HTMLSelectElement>) => (
   <select
     {...props}
@@ -110,7 +118,7 @@ const ActionButton = ({
   onClick,
   icon: Icon,
   title,
-  variant = "default"
+  variant = "default",
 }: {
   onClick: () => void
   icon: React.ComponentType<{ className?: string }>
@@ -121,7 +129,7 @@ const ActionButton = ({
     default: "text-gray-500 hover:bg-gray-100 hover:text-brand_blue",
     danger: "text-gray-500 hover:bg-red-50 hover:text-red-600",
     warning: "text-gray-500 hover:bg-orange-50 hover:text-orange-600",
-    success: "text-green-600 hover:bg-green-50"
+    success: "text-green-600 hover:bg-green-50",
   }
 
   return (
@@ -202,7 +210,9 @@ export function NivelesTab({
     const res = await fetch("/api/loyalty?intent=delete-level", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ data: JSON.stringify({ levelId: level.id }) }),
+      body: new URLSearchParams({
+        data: JSON.stringify({ levelId: level.id }),
+      }),
     })
     const result = await res.json()
 
@@ -224,7 +234,9 @@ export function NivelesTab({
       ),
     ).map((el) => el.value)
 
-    const fileInput = form.elements.namedItem("editLevelImage") as HTMLInputElement
+    const fileInput = form.elements.namedItem(
+      "editLevelImage",
+    ) as HTMLInputElement
     let imageKey: string | null = editingLevel.image
 
     if (fileInput?.files?.[0]) {
@@ -233,9 +245,15 @@ export function NivelesTab({
 
     await apiCall("update-level", {
       levelId: editingLevel.id,
-      name: (form.elements.namedItem("editLevelName") as HTMLInputElement).value,
-      minPoints: Number((form.elements.namedItem("editMinPoints") as HTMLInputElement).value),
-      discountPercent: Number((form.elements.namedItem("editDiscountPercent") as HTMLInputElement).value),
+      name: (form.elements.namedItem("editLevelName") as HTMLInputElement)
+        .value,
+      minPoints: Number(
+        (form.elements.namedItem("editMinPoints") as HTMLInputElement).value,
+      ),
+      discountPercent: Number(
+        (form.elements.namedItem("editDiscountPercent") as HTMLInputElement)
+          .value,
+      ),
       serviceIds: selectedServices,
       image: imageKey,
     })
@@ -304,7 +322,11 @@ function LoyaltyLevelCard({
 
         <div className="absolute right-3 top-3 flex gap-2 opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
           <CardActionButton onClick={onEdit} icon={PencilIcon} title="Editar" />
-          <CardActionButton onClick={onDelete} icon={TrashIcon} title="Eliminar" />
+          <CardActionButton
+            onClick={onDelete}
+            icon={TrashIcon}
+            title="Eliminar"
+          />
         </div>
       </div>
 
@@ -351,10 +373,15 @@ export function DescuentosTab({
     const form = e.currentTarget
     await apiCall("create-reward", {
       name: (form.elements.namedItem("rewardName") as HTMLInputElement).value,
-      description: (form.elements.namedItem("rewardDesc") as HTMLInputElement).value,
+      description: (form.elements.namedItem("rewardDesc") as HTMLInputElement)
+        .value,
       type: (form.elements.namedItem("rewardType") as HTMLSelectElement).value,
-      value: Number((form.elements.namedItem("rewardValue") as HTMLInputElement).value),
-      pointsCost: Number((form.elements.namedItem("pointsCost") as HTMLInputElement).value),
+      value: Number(
+        (form.elements.namedItem("rewardValue") as HTMLInputElement).value,
+      ),
+      pointsCost: Number(
+        (form.elements.namedItem("pointsCost") as HTMLInputElement).value,
+      ),
     })
 
     form.reset()
@@ -385,14 +412,19 @@ export function DescuentosTab({
 
     setIsUpdating(true)
     const form = e.currentTarget
-    
+
     await apiCall("update-reward", {
       rewardId: editingReward.id,
       name: (form.elements.namedItem("editName") as HTMLInputElement).value,
-      description: (form.elements.namedItem("editDesc") as HTMLInputElement).value || null,
+      description:
+        (form.elements.namedItem("editDesc") as HTMLInputElement).value || null,
       type: (form.elements.namedItem("editType") as HTMLSelectElement).value,
-      value: Number((form.elements.namedItem("editValue") as HTMLInputElement).value),
-      pointsCost: Number((form.elements.namedItem("editPointsCost") as HTMLInputElement).value),
+      value: Number(
+        (form.elements.namedItem("editValue") as HTMLInputElement).value,
+      ),
+      pointsCost: Number(
+        (form.elements.namedItem("editPointsCost") as HTMLInputElement).value,
+      ),
     })
 
     setEditingReward(null)
@@ -505,8 +537,8 @@ function RewardFormModal({
     <Modal onClose={onClose}>
       <h3 className="mb-4 text-lg font-semibold">Editar recompensa</h3>
       <form onSubmit={onSubmit} className="space-y-3">
-        <RewardFormFields 
-          namePrefix="edit" 
+        <RewardFormFields
+          namePrefix="edit"
           defaultValues={{
             name: reward.name,
             description: reward.description || "",
@@ -549,7 +581,10 @@ function RewardFormFields({
     pointsCost?: number
   }
 }) {
-  const n = (base: string) => namePrefix ? `${namePrefix}${base.charAt(0).toUpperCase() + base.slice(1)}` : base
+  const n = (base: string) =>
+    namePrefix
+      ? `${namePrefix}${base.charAt(0).toUpperCase() + base.slice(1)}`
+      : base
 
   return (
     <>
@@ -572,7 +607,11 @@ function RewardFormFields({
       </div>
       <div>
         <FormLabel>Tipo</FormLabel>
-        <FormSelect name={n("type")} defaultValue={defaultValues?.type} required>
+        <FormSelect
+          name={n("type")}
+          defaultValue={defaultValues?.type}
+          required
+        >
           <option value="discount_percent">% Descuento</option>
           <option value="discount_fixed">$ Descuento fijo</option>
           <option value="free_service">Servicio gratis</option>
@@ -607,7 +646,7 @@ function RewardCreateForm({
   isCreating,
   onSubmit,
 }: {
-  formRef: React.RefObject<HTMLFormElement>
+  formRef: React.RefObject<HTMLFormElement | null>
   isCreating: boolean
   onSubmit: (e: FormEvent<HTMLFormElement>) => void
 }) {
@@ -655,8 +694,11 @@ function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
                 <tr key={tx.id} className="border-t">
                   <td className="px-4 py-2">{tx.customer.displayName}</td>
                   <td className="px-4 py-2">{tx.type}</td>
-                  <td className={`px-4 py-2 text-right ${tx.points >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {tx.points >= 0 ? "+" : ""}{tx.points}
+                  <td
+                    className={`px-4 py-2 text-right ${tx.points >= 0 ? "text-green-600" : "text-red-600"}`}
+                  >
+                    {tx.points >= 0 ? "+" : ""}
+                    {tx.points}
                   </td>
                   <td className="px-4 py-2 text-right">{tx.balance}</td>
                   <td className="px-4 py-2 text-gray-500">{tx.reason}</td>
@@ -741,7 +783,7 @@ export function CreateLevelWizard({
     if (step === 1) {
       if (!isStepOneValid) {
         setShowValidation(true)
-        
+
         return
       }
       setShowValidation(false)
@@ -753,11 +795,14 @@ export function CreateLevelWizard({
   }
 
   const handleEnableProgram = async () => {
-    const response = await fetch(window.location.pathname + window.location.search, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ intent: "enable-loyalty" }),
-    })
+    const response = await fetch(
+      window.location.pathname + window.location.search,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ intent: "enable-loyalty" }),
+      },
+    )
 
     const result = await response.json().catch(() => null)
     if (!response.ok || result?.error) {
@@ -797,15 +842,15 @@ export function CreateLevelWizard({
 
   const handleSubmit = async () => {
     if (!isStepTwoValid || isSubmitting) return
-  
+
     setError(null)
     setIsSubmitting(true)
-  
+
     try {
       if (!isOrgEnabled) {
         await handleEnableProgram()
       }
-  
+
       await handleCreateLevel()
       setStep(3)
       onCreated()
@@ -942,9 +987,13 @@ function WizardStepOne({
       />
 
       <div className="mt-5">
-        <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">Imagen</label>
+        <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
+          Imagen
+        </label>
         <p className="mt-2 font-satoMedium text-[14px] text-brand_gray">
-          Carga 1 imagen de portada para el nivel de lealtad de tus clientes. Te recomendamos un tamaño mínimo de 200 × 200 px y un peso máximo de 1 MB.
+          Carga 1 imagen de portada para el nivel de lealtad de tus clientes. Te
+          recomendamos un tamaño mínimo de 200 × 200 px y un peso máximo de 1
+          MB.
         </p>
 
         <label className="mt-3 block cursor-pointer">
@@ -960,7 +1009,9 @@ function WizardStepOne({
             <div className="flex h-[112px] w-full flex-col items-center justify-center rounded-[18px] border border-dashed border-[#D1D5DB] text-center">
               <UploadLevelIcon />
               <span className="mt-3 text-[14px] font-satoMedium text-brand_gray">
-                Arrastra o selecciona<br />una foto
+                Arrastra o selecciona
+                <br />
+                una foto
               </span>
             </div>
           )}
@@ -1034,7 +1085,9 @@ function WizardStepTwo({
           <ServiceToggleRow
             key={service.id}
             label={service.name}
-            checked={applyAllServices ? true : selectedServiceIds.includes(service.id)}
+            checked={
+              applyAllServices ? true : selectedServiceIds.includes(service.id)
+            }
             disabled={applyAllServices}
             onChange={() => toggleService(service.id)}
           />
@@ -1042,7 +1095,8 @@ function WizardStepTwo({
 
         {services.length === 0 && (
           <p className="text-[13px] text-brand_gray">
-            No hay servicios creados. El nivel aplicará a todos cuando existan servicios disponibles.
+            No hay servicios creados. El nivel aplicará a todos cuando existan
+            servicios disponibles.
           </p>
         )}
       </div>
@@ -1130,7 +1184,9 @@ function WizardStepper({ currentStep }: { currentStep: 1 | 2 }) {
     <div className="flex items-center gap-2">
       <div
         className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-medium ${
-          currentStep >= 1 ? "bg-[#615FFF] text-white" : "bg-[#E5E7EB] text-[#8A90A2]"
+          currentStep >= 1
+            ? "bg-[#615FFF] text-white"
+            : "bg-[#E5E7EB] text-[#8A90A2]"
         }`}
       >
         1
@@ -1147,7 +1203,9 @@ function WizardStepper({ currentStep }: { currentStep: 1 | 2 }) {
       </div>
       <div
         className={`flex h-7 w-7 items-center justify-center rounded-full text-[12px] font-medium ${
-          currentStep >= 2 ? "bg-[#615FFF] text-white" : "bg-[#E5E7EB] text-[#8A90A2]"
+          currentStep >= 2
+            ? "bg-[#615FFF] text-white"
+            : "bg-[#E5E7EB] text-[#8A90A2]"
         }`}
       >
         2
@@ -1169,7 +1227,9 @@ function ServiceToggleRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <span className="font-satoMedium text-[14px] text-brand_dark">{label}</span>
+      <span className="font-satoMedium text-[14px] text-brand_dark">
+        {label}
+      </span>
       <button
         type="button"
         disabled={disabled}
@@ -1211,7 +1271,9 @@ function LevelForm({
   defaultValues?: Level
 }) {
   const n = (name: string) =>
-    namePrefix ? `${namePrefix}${name.charAt(0).toUpperCase() + name.slice(1)}` : name
+    namePrefix
+      ? `${namePrefix}${name.charAt(0).toUpperCase() + name.slice(1)}`
+      : name
 
   const [imagePreview, setImagePreview] = useState<string | null>(
     defaultValues?.image ? `/api/images?key=${defaultValues.image}` : null,
@@ -1225,14 +1287,21 @@ function LevelForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-4 max-w-lg space-y-4 rounded-xl bg-gray-50 p-5">
+    <form
+      onSubmit={onSubmit}
+      className="mt-4 max-w-lg space-y-4 rounded-xl bg-gray-50 p-5"
+    >
       <h3 className="text-lg font-semibold">{title}</h3>
 
       <div>
         <FormLabel>Imagen del nivel</FormLabel>
         <div className="flex items-center gap-4">
           {imagePreview ? (
-            <img src={imagePreview} alt="Preview" className="h-16 w-16 rounded-full border object-cover" />
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="h-16 w-16 rounded-full border object-cover"
+            />
           ) : (
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-400">
               Sin imagen
@@ -1240,36 +1309,68 @@ function LevelForm({
           )}
           <label className="cursor-pointer rounded-lg border border-brand_stroke bg-white px-3 py-2 text-sm text-brand_gray hover:bg-gray-50">
             {imagePreview ? "Cambiar" : "Subir imagen"}
-            <input type="file" name={n("levelImage")} accept="image/*" className="hidden" onChange={handleImageChange} />
+            <input
+              type="file"
+              name={n("levelImage")}
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
           </label>
         </div>
       </div>
 
       <div>
         <FormLabel>Nombre del nivel</FormLabel>
-        <FormInput name={n("levelName")} defaultValue={defaultValues?.name} required placeholder="Ej. VIP, Premium, Gold" />
+        <FormInput
+          name={n("levelName")}
+          defaultValue={defaultValues?.name}
+          required
+          placeholder="Ej. VIP, Premium, Gold"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
           <FormLabel>Puntos requeridos</FormLabel>
-          <FormInput name={n("minPoints")} type="number" min={0} defaultValue={defaultValues?.minPoints} required placeholder="500" />
+          <FormInput
+            name={n("minPoints")}
+            type="number"
+            min={0}
+            defaultValue={defaultValues?.minPoints}
+            required
+            placeholder="500"
+          />
         </div>
         <div>
           <FormLabel>% de descuento</FormLabel>
-          <FormInput name={n("discountPercent")} type="number" min={0} max={100} step={0.1} defaultValue={defaultValues?.discountPercent} required placeholder="15" />
+          <FormInput
+            name={n("discountPercent")}
+            type="number"
+            min={0}
+            max={100}
+            step={0.1}
+            defaultValue={defaultValues?.discountPercent}
+            required
+            placeholder="15"
+          />
         </div>
       </div>
 
       <div>
         <FormLabel>Servicios donde aplica el descuento</FormLabel>
-        <p className="mb-2 text-xs text-brand_gray">Si no seleccionas ninguno, aplica a todos.</p>
+        <p className="mb-2 text-xs text-brand_gray">
+          Si no seleccionas ninguno, aplica a todos.
+        </p>
         <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border bg-white p-3">
           {services.length === 0 ? (
             <p className="text-xs text-brand_gray">No hay servicios creados.</p>
           ) : (
             services.map((s) => (
-              <label key={s.id} className="flex cursor-pointer items-center gap-2 py-0.5 text-sm">
+              <label
+                key={s.id}
+                className="flex cursor-pointer items-center gap-2 py-0.5 text-sm"
+              >
                 <input
                   type="checkbox"
                   name={serviceCheckboxName}
@@ -1327,13 +1428,23 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
   return (
     <div className="mt-10 flex h-[80vh] w-full items-center justify-center bg-cover">
       <div className="text-center">
-        <img className="mx-auto mb-4" src="/images/emptyState/loyalty.webp" alt="" />
-        <p className="text-xl font-satoBold">Convierte visitas en clientes frecuentes!</p>
+        <img
+          className="mx-auto mb-4"
+          src="/images/emptyState/loyalty.webp"
+          alt=""
+        />
+        <p className="text-xl font-satoBold">
+          Convierte visitas en clientes frecuentes!
+        </p>
         <p className="mx-auto mt-2 max-w-[620px] text-center text-brand_gray">
           Activa el programa de lealtad y ofrece descuentos permanentes a tus
           clientes mas fieles, ademas de promociones para temporadas especiales
         </p>
-        <PrimaryButton type="button" onClick={onStart} className="mx-auto mt-12">
+        <PrimaryButton
+          type="button"
+          onClick={onStart}
+          className="mx-auto mt-12"
+        >
           Activar programa <ArrowRight />
         </PrimaryButton>
       </div>
@@ -1349,24 +1460,54 @@ export function FilterAdjustIcon() {
 
 function PencilIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+    <svg
+      className={className || "h-4 w-4"}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+      />
     </svg>
   )
 }
 
 function TrashIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    <svg
+      className={className || "h-4 w-4"}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+      />
     </svg>
   )
 }
 
 function PauseIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6" />
+    <svg
+      className={className || "h-4 w-4"}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M10 9v6m4-6v6"
+      />
       <circle cx="12" cy="12" r="9" strokeWidth={2} />
     </svg>
   )
@@ -1374,8 +1515,18 @@ function PauseIcon({ className = "" }: { className?: string }) {
 
 function PlayIcon({ className = "" }: { className?: string }) {
   return (
-    <svg className={className || "h-4 w-4"} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+    <svg
+      className={className || "h-4 w-4"}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+      />
       <circle cx="12" cy="12" r="9" strokeWidth={2} />
     </svg>
   )
@@ -1383,8 +1534,18 @@ function PlayIcon({ className = "" }: { className?: string }) {
 
 function UploadLevelIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M4 4C2.90694 4 2 4.90694 2 6V18C2 19.0931 2.90694 20 4 20H12V18H4V6H20V12H22V6C22 4.90694 21.0931 4 20 4H4ZM14.5 11L11 15L8.5 12.5L5.77734 16H16V13L14.5 11ZM18 14V18H14V20H18V24H20V20H24V18H20V14H18Z" fill="#4B5563" />
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 4C2.90694 4 2 4.90694 2 6V18C2 19.0931 2.90694 20 4 20H12V18H4V6H20V12H22V6C22 4.90694 21.0931 4 20 4H4ZM14.5 11L11 15L8.5 12.5L5.77734 16H16V13L14.5 11ZM18 14V18H14V20H18V24H20V20H24V18H20V14H18Z"
+        fill="#4B5563"
+      />
     </svg>
   )
 }

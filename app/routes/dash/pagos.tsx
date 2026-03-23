@@ -1,17 +1,14 @@
 import { redirect, useFetcher, useSearchParams } from "react-router"
 import invariant from "tiny-invariant"
 import { getMPAuthUrl } from "~/.server/mercadopago"
-import {
-  createAccountLink,
-  getOrCreateStripeAccount,
-} from "~/.server/stripe"
+import { createAccountLink, getOrCreateStripeAccount } from "~/.server/stripe"
 import { getUserOrRedirect } from "~/.server/userGetters"
-import { Spinner } from "~/components/common/Spinner"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { Spinner } from "~/components/common/Spinner"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { ArrowRight } from "~/components/icons/arrowRight"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/pagos"
-import { ArrowRight } from "~/components/icons/arrowRight"
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const user = await getUserOrRedirect(request)

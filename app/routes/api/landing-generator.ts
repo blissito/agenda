@@ -1,8 +1,13 @@
+import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import type { ActionFunctionArgs } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { generateOrgLanding, refineOrgLanding, getLandingUsage, incrementLandingUsage } from "~/lib/landing-generator.server"
+import {
+  generateOrgLanding,
+  getLandingUsage,
+  incrementLandingUsage,
+  refineOrgLanding,
+} from "~/lib/landing-generator.server"
 import { db } from "~/utils/db.server"
-import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request)
@@ -14,7 +19,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (intent === "generate") {
     const usage = await getLandingUsage(org.id)
     if (usage.genUsed >= usage.genLimit) {
-      return Response.json({ error: "Límite de generaciones alcanzado", code: "LIMIT_REACHED" }, { status: 429 })
+      return Response.json(
+        { error: "Límite de generaciones alcanzado", code: "LIMIT_REACHED" },
+        { status: 429 },
+      )
     }
 
     const services = await db.service.findMany({
@@ -25,7 +33,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       async start(controller) {
         const encoder = new TextEncoder()
         const send = (event: string, data: unknown) => {
-          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`))
+          controller.enqueue(
+            encoder.encode(
+              `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
+            ),
+          )
         }
 
         try {
@@ -48,7 +60,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             onError: (error) => send("error", { message: error.message }),
           })
         } catch (err) {
-          const message = err instanceof Error ? err.message : "Error al generar landing"
+          const message =
+            err instanceof Error ? err.message : "Error al generar landing"
           send("error", { message })
         } finally {
           controller.close()
@@ -68,7 +81,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (intent === "refine") {
     const usage = await getLandingUsage(org.id)
     if (usage.refineUsed >= usage.refineLimit) {
-      return Response.json({ error: "Límite de refinamientos alcanzado", code: "LIMIT_REACHED" }, { status: 429 })
+      return Response.json(
+        { error: "Límite de refinamientos alcanzado", code: "LIMIT_REACHED" },
+        { status: 429 },
+      )
     }
 
     const currentHtml = formData.get("currentHtml") as string
@@ -76,24 +92,35 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const referenceImage = formData.get("referenceImage") as string | undefined
 
     if (!currentHtml || !instruction) {
-      return Response.json({ error: "Missing currentHtml or instruction" }, { status: 400 })
+      return Response.json(
+        { error: "Missing currentHtml or instruction" },
+        { status: 400 },
+      )
     }
 
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder()
         const send = (event: string, data: unknown) => {
-          controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`))
+          controller.enqueue(
+            encoder.encode(
+              `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
+            ),
+          )
         }
         try {
           await refineOrgLanding(org.id, currentHtml, instruction, {
             referenceImage: referenceImage || undefined,
             onChunk: (html) => send("chunk", { html }),
-            onDone: async (html) => { await incrementLandingUsage(org.id, "refine"); send("done", { html }) },
+            onDone: async (html) => {
+              await incrementLandingUsage(org.id, "refine")
+              send("done", { html })
+            },
             onError: (err) => send("error", { message: err.message }),
           })
         } catch (err) {
-          const message = err instanceof Error ? err.message : "Error al refinar"
+          const message =
+            err instanceof Error ? err.message : "Error al refinar"
           send("error", { message })
         } finally {
           controller.close()
@@ -102,7 +129,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     })
 
     return new Response(stream, {
-      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+      },
     })
   }
 
@@ -112,7 +143,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const customColorsRaw = formData.get("customColors") as string | null
     const publish = formData.get("publish") === "true"
 
-    console.log("[landing-generator] save intent — publish:", publish, "orgId:", org.id, "sectionsLength:", sectionsRaw?.length)
+    console.log(
+      "[landing-generator] save intent — publish:",
+      publish,
+      "orgId:",
+      org.id,
+      "sectionsLength:",
+      sectionsRaw?.length,
+    )
 
     if (!sectionsRaw) {
       return Response.json({ error: "Missing sections" }, { status: 400 })
@@ -131,7 +169,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         data: {
           landingSections: Array.isArray(sections) ? (sections as any) : [],
           landingTheme: theme || undefined,
-          ...(customColorsRaw ? { landingCustomColors: JSON.parse(customColorsRaw) } : {}),
+          ...(customColorsRaw
+            ? { landingCustomColors: JSON.parse(customColorsRaw) }
+            : {}),
           landingPublished: publish,
         },
       })

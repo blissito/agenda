@@ -149,7 +149,9 @@ const DaySelector = ({
   return (
     <section className="flex items-start gap-8 py-4">
       <header className="flex gap-4 py-3">
-        <h4 className="w-20">{DAY_LABELS[dayName as keyof typeof DAY_LABELS] || dayName}</h4>
+        <h4 className="w-20">
+          {DAY_LABELS[dayName as keyof typeof DAY_LABELS] || dayName}
+        </h4>
         <SimpleSwitch value={isActive} onChange={handleActivation} />
       </header>
       {isActive && (

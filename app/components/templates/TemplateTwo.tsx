@@ -48,7 +48,10 @@ export type TemplateOrg = {
  * - Localhost: /agenda/{orgSlug}/{serviceSlug}
  * - Production: /{serviceSlug} (relative to subdomain)
  */
-function getServiceLink(orgSlug: string | undefined, serviceSlug: string): string {
+function getServiceLink(
+  orgSlug: string | undefined,
+  serviceSlug: string,
+): string {
   if (typeof window !== "undefined") {
     const { hostname } = window.location
     const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1"
@@ -188,7 +191,9 @@ export const WorkHour = ({
               <div className="text-sm/6 text-brand_gray w-full flex">
                 {DAY_LABELS_SHORT[day]} -{" "}
                 <span className="ml-1">
-                  {formatRange((org?.weekDays as any)?.[day] as [string, string][])}
+                  {formatRange(
+                    (org?.weekDays as any)?.[day] as [string, string][],
+                  )}
                 </span>
               </div>
             </ListboxOption>

@@ -2,24 +2,24 @@
 import { useState } from "react"
 import { useLoaderData, useRevalidator, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import {
+  CreateLevelWizard,
+  DescuentosTab,
+  EmptyStateLoyalty,
+  FilterAdjustIcon,
+  NivelesTab,
+  TabButton,
+} from "~/components/loyalty/loyaltyStep"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import {
-  getOrgLoyaltyStats,
   getAllRewards,
-  getTransactions,
   getLevels,
+  getOrgLoyaltyStats,
+  getTransactions,
 } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.lealtad"
-import {
-  EmptyStateLoyalty,
-  CreateLevelWizard,
-  TabButton,
-  NivelesTab,
-  DescuentosTab,
-  FilterAdjustIcon,
-} from "~/components/loyalty/loyaltyStep"
-import { PrimaryButton } from "~/components/common/primaryButton"
 
 // ==================== TYPES ====================
 
@@ -122,7 +122,8 @@ export default function Lealtad() {
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
 
   // Mostrar estado vacío si no está habilitado O si no hay niveles
-  const shouldShowEmptyState = !data.enabled || (data.enabled && data.levels.length === 0)
+  const shouldShowEmptyState =
+    !data.enabled || (data.enabled && data.levels.length === 0)
 
   if (shouldShowEmptyState) {
     return (
@@ -132,15 +133,15 @@ export default function Lealtad() {
         <EmptyStateLoyalty onStart={() => setIsCreateWizardOpen(true)} />
 
         {isCreateWizardOpen && (
-         <CreateLevelWizard
-         services={data.services}
-         isOrgEnabled={data.enabled}
-         onClose={() => {
-           setIsCreateWizardOpen(false)
-           revalidator.revalidate()
-         }}
-         onCreated={() => {}}
-       />
+          <CreateLevelWizard
+            services={data.services}
+            isOrgEnabled={data.enabled}
+            onClose={() => {
+              setIsCreateWizardOpen(false)
+              revalidator.revalidate()
+            }}
+            onCreated={() => {}}
+          />
         )}
       </main>
     )
@@ -208,15 +209,15 @@ export default function Lealtad() {
       </div>
 
       {isCreateWizardOpen && (
-      <CreateLevelWizard
-      services={services}
-      isOrgEnabled
-      onClose={() => {
-        setIsCreateWizardOpen(false)
-        revalidator.revalidate()
-      }}
-      onCreated={() => {}}
-    />
+        <CreateLevelWizard
+          services={services}
+          isOrgEnabled
+          onClose={() => {
+            setIsCreateWizardOpen(false)
+            revalidator.revalidate()
+          }}
+          onCreated={() => {}}
+        />
       )}
     </main>
   )

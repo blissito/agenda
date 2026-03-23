@@ -3,13 +3,17 @@
  * This route works on localhost where subdomains don't work.
  * Shows the org's public landing page with services list.
  */
+
+import type {
+  CustomColors,
+  Section3,
+} from "@easybits.cloud/html-tailwind-generator"
+import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import TemplateOne from "~/components/templates/TemplateOne"
 import TemplateTwo from "~/components/templates/TemplateTwo"
 import { db } from "~/utils/db.server"
 import { getMetaTags } from "~/utils/getMetaTags"
 import type { Route } from "./+types/agenda.$orgSlug._index"
-import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
-import type { Section3, CustomColors } from "@easybits.cloud/html-tailwind-generator"
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const { orgSlug } = params
@@ -28,7 +32,11 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
       const raw = org.landingSections
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
       const sections = raw as unknown as Section3[]
-      const html = buildDeployHtml(sections, org.landingTheme || undefined, org.landingCustomColors as unknown as CustomColors | undefined)
+      const html = buildDeployHtml(
+        sections,
+        org.landingTheme || undefined,
+        org.landingCustomColors as unknown as CustomColors | undefined,
+      )
       throw new Response(html, {
         headers: { "Content-Type": "text/html; charset=utf-8" },
       })

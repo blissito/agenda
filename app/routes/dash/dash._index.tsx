@@ -1,13 +1,13 @@
 import type { User } from "@prisma/client"
 import { useRef, useState } from "react"
 import {
-  ResponsiveContainer,
-  LineChart,
+  CartesianGrid,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
 } from "recharts"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
@@ -116,7 +116,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   ])
 
   const scheduledCount = monthlyEvents.filter(
-    (e) => e.status !== "CANCELLED"
+    (e) => e.status !== "CANCELLED",
   ).length
 
   const monthlySales = monthlyEvents
@@ -274,14 +274,21 @@ type SalesPoint = { date: string; total: number }
 type SalesFilter = "semana" | "mes" | "trimestre" | "anual"
 
 const MONTH_LABELS = [
-  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic",
+  "Ene",
+  "Feb",
+  "Mar",
+  "Abr",
+  "May",
+  "Jun",
+  "Jul",
+  "Ago",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dic",
 ]
 
-function buildChartData(
-  data: SalesPoint[],
-  filter: SalesFilter
-): SalesPoint[] {
+function buildChartData(data: SalesPoint[], filter: SalesFilter): SalesPoint[] {
   const now = new Date()
   const buckets: Record<string, number> = {}
 
@@ -300,7 +307,7 @@ function buildChartData(
       const d = new Date(
         now.getFullYear(),
         now.getMonth(),
-        now.getDate() - i * 7
+        now.getDate() - i * 7,
       )
       buckets[d.toISOString().slice(0, 10)] = 0
     }
@@ -372,7 +379,10 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
     <div className="bg-white rounded-2xl p-6 mt-6 flex-1 min-h-0 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-satoBold">Ventas</h3>
-        <div ref={containerRef} className="relative flex bg-brand_ash/25 rounded-full p-1">
+        <div
+          ref={containerRef}
+          className="relative flex bg-brand_ash/25 rounded-full p-1"
+        >
           <div
             className="absolute top-1 bottom-1 rounded-full bg-white shadow-sm transition-all duration-300 ease-in-out"
             style={{
@@ -386,7 +396,8 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
               key={f.key}
               ref={(el) => {
                 if (el && f.key === filter && !pill.width) {
-                  const containerRect = containerRef.current?.getBoundingClientRect()
+                  const containerRect =
+                    containerRef.current?.getBoundingClientRect()
                   if (containerRect) {
                     const btnRect = el.getBoundingClientRect()
                     setPill({
@@ -444,7 +455,12 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
               stroke="#615FFF"
               strokeWidth={2.5}
               dot={{ r: 4, fill: "#615FFF", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, fill: "#615FFF", strokeWidth: 2, stroke: "#fff" }}
+              activeDot={{
+                r: 6,
+                fill: "#615FFF",
+                strokeWidth: 2,
+                stroke: "#fff",
+              }}
               animationDuration={800}
               animationEasing="ease-in-out"
             />
@@ -493,7 +509,9 @@ const DashboardData = ({
       </div>
       <div className="bg-white rounded-2xl overflow-y-scroll h-full col-span-6 xl:col-span-2 pb-6">
         <div className="bg-white/80 z-10 backdrop-blur py-4 sticky top-0 px-6">
-          <h3 className="text-lg font-satoBold">Servicios agendados recientemente</h3>
+          <h3 className="text-lg font-satoBold">
+            Servicios agendados recientemente
+          </h3>
         </div>
         <div className="mt-0 overflow-y-scroll px-6">
           {recentEvents.length > 0 ? (
@@ -545,13 +563,7 @@ type Stats = {
   cancelledEvents: number
 }
 
-const Summary = ({
-  user,
-  stats,
-}: {
-  user: User
-  stats: Stats | null
-}) => {
+const Summary = ({ user, stats }: { user: User; stats: Stats | null }) => {
   const formatCurrency = (cents: number) => {
     return `$${(cents / 100).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
   }
@@ -597,7 +609,6 @@ const Summary = ({
     </div>
   )
 }
-
 
 const SummaryCard = ({
   img,
