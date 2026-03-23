@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { type ReactElement, useState } from "react"
 
 export type WidgetStyle = "bubble" | "sidebar" | "bar"
 
@@ -81,7 +81,7 @@ function BarThumbnail() {
   )
 }
 
-const THUMBNAILS: Record<WidgetStyle, () => JSX.Element> = {
+const THUMBNAILS: Record<WidgetStyle, () => ReactElement> = {
   bubble: BubbleThumbnail,
   sidebar: SidebarThumbnail,
   bar: BarThumbnail,

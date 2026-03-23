@@ -646,7 +646,7 @@ function RewardCreateForm({
   isCreating,
   onSubmit,
 }: {
-  formRef: React.RefObject<HTMLFormElement>
+  formRef: React.RefObject<HTMLFormElement | null>
   isCreating: boolean
   onSubmit: (e: FormEvent<HTMLFormElement>) => void
 }) {
