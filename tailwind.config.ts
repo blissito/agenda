@@ -13,6 +13,7 @@ export default {
         brand_blue: "#5158F6",
         brand_dark: "#11151A",
         brand_yellow: "#FFD75E",
+        brand_mostaza: "#EFBD23",
         brand_gray: "#4B5563",
         brand_pale: "#F0F0F0",
         brand_ash: "#E3E2E2",
@@ -24,6 +25,10 @@ export default {
         brand_blueLight:"#8391A1",
         brand_sky:"#F5F7FD",
         brand_silver:"#B3B4B6",
+        brand_cloud:"#64D0C5",
+        brand_orange:"#FFAB61",
+        brand_lime:"#BFDD78",
+        brand_purple:"#B4B3E4",
         
       },
       backgroundImage: {

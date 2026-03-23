@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { CustomerDashboard } from "~/components/dash/CustomerDashboard"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash._index"
@@ -371,7 +372,7 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
     <div className="bg-white rounded-2xl p-6 mt-6 flex-1 min-h-0 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-satoBold">Ventas</h3>
-        <div ref={containerRef} className="relative flex bg-brand_ash/20 rounded-full p-1">
+        <div ref={containerRef} className="relative flex bg-brand_ash/25 rounded-full p-1">
           <div
             className="absolute top-1 bottom-1 rounded-full bg-white shadow-sm transition-all duration-300 ease-in-out"
             style={{
@@ -466,7 +467,7 @@ const DashboardData = ({
   const totalEvents = topServices.reduce((sum, s) => sum + s.eventCount, 0)
 
   return (
-    <div className="grid grid-cols-6 gap-6 mt-6 lg:mt-8 flex-1 min-h-0 overflow-hidden">
+    <div className="grid grid-cols-6 gap-6 mt-6  flex-1 min-h-0 overflow-hidden">
       <div className="col-span-6 xl:col-span-4 flex flex-col">
         {topServices.length > 0 && (
           <div className="bg-white rounded-2xl p-4 lg:p-6">
@@ -497,13 +498,12 @@ const DashboardData = ({
         <div className="mt-0 overflow-y-scroll px-6">
           {recentEvents.length > 0 ? (
             recentEvents.map((e) => (
-              <Appointment
+              <AppointmentItem
                 key={e.id}
                 img={e.serviceImage ?? undefined}
                 service={e.serviceName}
                 client={e.customerName}
                 date={formatEventDate(e.start)}
-                hour={formatEventHour(e.start)}
                 time={timeAgo(e.createdAt)}
               />
             ))
@@ -560,7 +560,7 @@ const Summary = ({
     <div className="grid grid-cols-6 gap-6 lg:gap-10">
       <div className="col-span-6 xl:col-span-2 flex items-center">
         <div>
-          <h2 className="text-2xl md:text-4xl font-bold leading-normal">
+          <h2 className="text-2xl md:text-4xl font-satoBold leading-normal">
             {getGreeting()}, {user.displayName}
           </h2>
           <p className="mt-4 text-brand_gray">
@@ -598,40 +598,6 @@ const Summary = ({
   )
 }
 
-const Appointment = ({
-  img,
-  service,
-  client,
-  date,
-  hour,
-  time,
-}: {
-  img?: string
-  service: string
-  client: string
-  date: string
-  hour: string
-  time: string
-}) => {
-  return (
-    <section className="flex  items-center gap-2 py-4 border-b-[1px] border-brand_stroke justify-between hover:scale-95 transition-all">
-      <div className="flex gap-2">
-        <img
-          className="h-12 w-12 rounded-full object-cover"
-          src={img ? img : "/images/serviceDefault.png"}
-        />
-        <div>
-          <h3 className="text-brand_dark">{service}</h3>
-          <p className="text-sm text-brand_gray">
-            {client} | {date} | {hour}
-          </p>
-        </div>
-      </div>
-
-      <span className="text-brand_iron text-xs text-left">{time}</span>
-    </section>
-  )
-}
 
 const SummaryCard = ({
   img,
