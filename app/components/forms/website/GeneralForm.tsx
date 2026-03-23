@@ -27,7 +27,7 @@ export const GeneralForm = ({
   const fetcher = useFetcher()
   const {
     register,
-    formState: { isDirty, isValid },
+    formState: { isDirty },
     handleSubmit,
   } = useForm({ defaultValues, mode: "onChange" })
 

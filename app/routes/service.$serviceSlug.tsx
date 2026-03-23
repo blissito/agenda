@@ -72,7 +72,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const { validateCsrf } = await import("~/.server/csrf")
     const csrfToken = formData.get("_csrf") as string | null
     if (!validateCsrf(request, csrfToken)) {
-      return { success: false, error: "Sesión expirada. Recarga la página e intenta de nuevo." }
+      return {
+        success: false,
+        error: "Sesión expirada. Recarga la página e intenta de nuevo.",
+      }
     }
 
     // Rate limit
@@ -270,11 +273,18 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 }
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  const { checkRateLimit, getClientIP, rateLimitPresets } = await import("~/.server/rateLimit")
+  const { checkRateLimit, getClientIP, rateLimitPresets } = await import(
+    "~/.server/rateLimit"
+  )
   const ip = getClientIP(request)
   const rl = checkRateLimit(`page:${ip}`, rateLimitPresets.pageLoad)
   if (!rl.success) {
-    throw new Response("Too many requests", { status: 429, headers: { "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } })
+    throw new Response("Too many requests", {
+      status: 429,
+      headers: {
+        "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+      },
+    })
   }
 
   // Org is resolved from hostname (subdomain or custom domain)

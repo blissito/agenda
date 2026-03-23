@@ -86,7 +86,10 @@ export const InputFile = ({
       return
     }
 
-    console.log("[InputFile] Uploading to:", action.putUrl.substring(0, 80) + "...")
+    console.log(
+      "[InputFile] Uploading to:",
+      `${action.putUrl.substring(0, 80)}...`,
+    )
     console.log("[InputFile] File:", file.name, file.size, "bytes", file.type)
 
     try {
@@ -102,7 +105,11 @@ export const InputFile = ({
       if (response.ok) {
         console.log("[InputFile] Upload SUCCESS")
       } else {
-        console.error("[InputFile] Upload FAILED:", response.status, response.statusText)
+        console.error(
+          "[InputFile] Upload FAILED:",
+          response.status,
+          response.statusText,
+        )
       }
     } catch (e) {
       console.error("[InputFile] Upload error:", e)

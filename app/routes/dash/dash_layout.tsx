@@ -1,7 +1,7 @@
 import { Outlet, useMatches, useNavigation } from "react-router"
 import { getUserOrRedirect } from "~/.server/userGetters"
-import { SideBar } from "~/components/sideBar/sideBar"
 import { Spinner } from "~/components/common/Spinner"
+import { SideBar } from "~/components/sideBar/sideBar"
 import type { Route } from "./+types/dash_layout"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {

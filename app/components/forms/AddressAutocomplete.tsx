@@ -70,10 +70,10 @@ export function AddressAutocomplete({
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [selectedLat, setSelectedLat] = useState<number | null>(
-    defaultLat ?? null
+    defaultLat ?? null,
   )
   const [selectedLng, setSelectedLng] = useState<number | null>(
-    defaultLng ?? null
+    defaultLng ?? null,
   )
 
   const containerRef = useRef<HTMLDivElement>(null)
@@ -103,7 +103,7 @@ export function AddressAutocomplete({
     setIsLoading(true)
     try {
       const response = await fetch(
-        `https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}&limit=5`
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}&limit=5`,
       )
       const data = await response.json()
       setResults(data.features || [])
@@ -171,7 +171,7 @@ export function AddressAutocomplete({
             "placeholder:text-brand_iron text-brand_dark font-satoMedium",
             "focus:border-brand_blue",
             "rounded-xl border-gray-200 h-12 w-full mt-1",
-            "disabled:bg-brand_stroke disabled:cursor-not-allowed"
+            "disabled:bg-brand_stroke disabled:cursor-not-allowed",
           )}
         />
 

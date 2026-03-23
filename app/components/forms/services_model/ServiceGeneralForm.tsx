@@ -37,14 +37,10 @@ export const ServiceGeneralForm = ({
 }: {
   errors?: Record<string, FieldError>
   formRef?: RefObject<HTMLFormElement | null>
-  onSubmit?: (values: GeneralFormFields) => {}
+  onSubmit?: (values: GeneralFormFields) => void
   defaultValues?: GeneralFormFields
 }) => {
-  const {
-    handleSubmit,
-    register,
-    formState: { isValid },
-  } = useForm({
+  const { handleSubmit, register } = useForm({
     defaultValues,
   })
   const submit = (values: GeneralFormFields) => {

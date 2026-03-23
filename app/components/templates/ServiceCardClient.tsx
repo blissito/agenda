@@ -6,7 +6,10 @@ import { Tag } from "~/components/common/Tag"
 /**
  * Generate service link that works on both localhost and production
  */
-function getServiceLink(orgSlug: string | undefined, serviceSlug: string | undefined): string {
+function getServiceLink(
+  orgSlug: string | undefined,
+  serviceSlug: string | undefined,
+): string {
   if (!serviceSlug) return "#"
   if (typeof window !== "undefined") {
     const { hostname } = window.location

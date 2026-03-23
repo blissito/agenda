@@ -1,27 +1,27 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
+
+import { useMemo, useState } from "react"
+import { MdBlock } from "react-icons/md"
 import { Link, useLoaderData } from "react-router"
-import { Avatar } from "~/components/common/Avatar"
-import { SecondaryButton } from "~/components/common/secondaryButton"
-import { useCopyLink } from "~/components/hooks/useCopyLink"
-import { Anchor } from "~/components/icons/link"
-import { RouteTitle } from "~/components/sideBar/routeTitle"
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { db } from "~/utils/db.server"
-import { generateLink } from "~/utils/generateSlug"
-import { BasicInput } from "~/components/forms/BasicInput"
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { twMerge } from "tailwind-merge"
+import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Avatar } from "~/components/common/Avatar"
+import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { SecondaryButton } from "~/components/common/secondaryButton"
+import { useDownloadToast } from "~/components/downloads/downloadToast"
+import { BasicInput } from "~/components/forms/BasicInput"
+import { useCopyLink } from "~/components/hooks/useCopyLink"
 import { usePluralize } from "~/components/hooks/usePluralize"
 import { Download } from "~/components/icons/download"
+import { Graph } from "~/components/icons/Graph"
+import { Anchor } from "~/components/icons/link"
+import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { Settings } from "~/components/icons/settings"
 import { Upload } from "~/components/icons/upload"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { db } from "~/utils/db.server"
+import { generateLink } from "~/utils/generateSlug"
 import type { Route } from "./+types/dash.clientes"
-import { useDownloadToast } from "~/components/downloads/downloadToast"
-import { useState, useMemo } from "react"
-
-import { MdBlock } from "react-icons/md"
-import { Graph } from "~/components/icons/Graph"
-import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 
 export type Client = {
   points: number
@@ -101,8 +101,13 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 }
 
 export default function Clients() {
-  const { orgId, orgName, stats, clients = [], link } =
-    useLoaderData<typeof loader>()
+  const {
+    orgId,
+    orgName,
+    stats,
+    clients = [],
+    link,
+  } = useLoaderData<typeof loader>()
 
   const [search, setSearch] = useState("")
 
@@ -126,7 +131,7 @@ export default function Clients() {
   return (
     <>
       <RouteTitle>Clientes</RouteTitle>
-  
+
       {clients.length > 0 ? (
         <>
           <Summary stats={stats} clients={clients} />
@@ -136,7 +141,7 @@ export default function Clients() {
             search={search}
             onSearch={setSearch}
           />
-  
+
           <TableHeader
             titles={[
               ["Cliente", "col-span-4 pl-2"],
@@ -147,7 +152,7 @@ export default function Clients() {
               ["Acciones", "col-span-1 text-center"],
             ]}
           />
-  
+
           {filteredClients.map((c, index) => (
             <ClientRow
               client={c}
@@ -155,7 +160,7 @@ export default function Clients() {
               isLast={index === filteredClients.length - 1}
             />
           ))}
-  
+
           {!filteredClients.length && search && (
             <EmptySearch query={search} onClear={() => setSearch("")} />
           )}
@@ -163,7 +168,7 @@ export default function Clients() {
       ) : (
         <EmptyStateClients link={link} />
       )}
-  
+
       {toast}
     </>
   )
@@ -182,7 +187,7 @@ const SearchNav = ({
 }) => {
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center my-4">
-     <div className="relative w-full sm:max-w-80">
+      <div className="relative w-full sm:max-w-80">
         <BasicInput
           value={search}
           onChange={(e) => onSearch(e.target.value)}
@@ -259,14 +264,22 @@ export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
   )
 }
 
-export const ClientRow = ({ client, isLast }: { client: Client, isLast?: boolean }) => {
+export const ClientRow = ({
+  client,
+  isLast,
+}: {
+  client: Client
+  isLast?: boolean
+}) => {
   const initials = getInitials2(client.displayName, client.email)
 
   return (
-    <div className={twMerge(
-      "grid grid-cols-12 border-b border-x border-slate-200 bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4",
-      isLast && "rounded-b-2xl"
-    )}>
+    <div
+      className={twMerge(
+        "grid grid-cols-12 border-b border-x border-slate-200 bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4",
+        isLast && "rounded-b-2xl",
+      )}
+    >
       <Link
         to={`${client.email}`}
         state={{ client }}
@@ -283,7 +296,9 @@ export const ClientRow = ({ client, isLast }: { client: Client, isLast?: boolean
             <p className="font-semibold text-brand_dark text-sm truncate leading-tight ">
               {client.displayName || "—"}
             </p>
-            <p className="text-xs font-satoMedium text-brand_gray truncate">{client.email}</p>
+            <p className="text-xs font-satoMedium text-brand_gray truncate">
+              {client.email}
+            </p>
           </div>
         </div>
 
@@ -402,7 +417,7 @@ export const Summary = ({
     const dateB = new Date(b.createdAt || b.updatedAt).getTime()
     return dateB - dateA // Más reciente primero
   })
-  
+
   const previewClients = sortedClients.slice(0, maxVisible)
   const overflow = Math.max(0, clients.length - previewClients.length)
 
@@ -448,7 +463,7 @@ export const Summary = ({
                 key={c.id}
                 className={twMerge(
                   "bg-brand_blue text-white w-12 h-12 rounded-full grid place-items-center border-2 border-white text-sm font-semibold shrink-0",
-                  i > 0 ? "-ml-3" : ""
+                  i > 0 ? "-ml-3" : "",
                 )}
               >
                 {initials}
@@ -501,11 +516,10 @@ const EmptyStateClients = ({ link }: { link: string }) => {
           src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoBold text-xl ">
-        ¡No hay clientes por aquí!
-        </p>
+        <p className="font-satoBold text-xl ">¡No hay clientes por aquí!</p>
         <p className="mt-2 text-brand_gray">
-        Comparte tu website y deja que lleguen las reservas  <span className="text-2xl">🚀</span>
+          Comparte tu website y deja que lleguen las reservas{" "}
+          <span className="text-2xl">🚀</span>
         </p>
         <SecondaryButton
           ref={ref}

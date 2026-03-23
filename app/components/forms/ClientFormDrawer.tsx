@@ -16,7 +16,7 @@ export const ClientFormDrawer = ({
       isOpen={isOpen}
       onClose={onClose}
       size="big"
-      footer={<></>}
+      footer={null}
     >
       <ClientForm onFetch={onClose} />
     </Drawer>

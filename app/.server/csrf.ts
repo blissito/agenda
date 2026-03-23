@@ -15,7 +15,10 @@ export function setCsrfCookie(headers: Headers, token: string) {
   )
 }
 
-export function validateCsrf(request: Request, formToken: string | null): boolean {
+export function validateCsrf(
+  request: Request,
+  formToken: string | null,
+): boolean {
   const cookieHeader = request.headers.get("cookie") || ""
   const match = cookieHeader.match(/(?:^|;\s*)_csrf=([a-f0-9]{64})/)
   const cookieToken = match?.[1]

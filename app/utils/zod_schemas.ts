@@ -3,7 +3,7 @@ import { z } from "zod"
 // Helper for optional number fields that can be empty strings
 const optionalNumber = z.preprocess(
   (val) => (val === "" || val === null || val === undefined ? null : val),
-  z.coerce.number().nullable()
+  z.coerce.number().nullable(),
 )
 
 export const serviceUpdateSchema = z.object({
@@ -124,7 +124,10 @@ export const orgUpdateSchema = z.object({
   description: z.string().optional().nullable(),
   businessType: z.string().optional().nullable(),
   weekDays: weekTuples.optional(),
-  email: z.union([z.string().email(), z.literal("")]).optional().nullable(),
+  email: z
+    .union([z.string().email(), z.literal("")])
+    .optional()
+    .nullable(),
   tel: z.string().optional().nullable(),
   logo: z.string().optional().nullable(),
   social: orgSocialSchema.optional().nullable(),

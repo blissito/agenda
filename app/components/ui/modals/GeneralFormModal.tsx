@@ -23,7 +23,11 @@ export const GeneralFormModal = ({
   const { isOpen, close, open } = useDisclosure()
   return (
     <Modal trigger={children} onClose={close} onOpen={open} open={isOpen}>
-      <GeneralForm onClose={close} defaultValues={org} logoAction={logoAction} />
+      <GeneralForm
+        onClose={close}
+        defaultValues={org}
+        logoAction={logoAction}
+      />
     </Modal>
   )
 }

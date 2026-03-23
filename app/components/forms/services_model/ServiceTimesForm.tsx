@@ -74,9 +74,7 @@ export const ServiceTimesForm = ({
     // getValues,
     watch,
     register,
-    handleSubmit,
     setValue,
-    formState: { errors },
   } = useForm({
     defaultValues: {
       ...defaultValues,

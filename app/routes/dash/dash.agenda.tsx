@@ -1,18 +1,18 @@
 import {
-  type CalendarEvent,
-  completeWeek,
   Calendar,
-  useCalendarControls,
+  type CalendarEvent,
   type CalendarView,
+  completeWeek,
   isToday as isTodayFn,
+  useCalendarControls,
 } from "@hectorbliss/denik-calendar"
 import { type Event as PrismaEvent } from "@prisma/client"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
 import { Link, useFetcher, useNavigate } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { Spinner } from "~/components/common/Spinner"
+import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer"
 import { EventFormDrawer } from "~/components/forms/EventFormDrawer"
 import { db } from "~/utils/db.server"
@@ -184,8 +184,18 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
 const MINI_DAY_LABELS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
 const MONTH_NAMES = [
-  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
 ]
 
 function MiniCalendar({
@@ -196,7 +206,7 @@ function MiniCalendar({
   onDateClick: (date: Date) => void
 }) {
   const [viewMonth, setViewMonth] = useState(
-    () => new Date(week[0].getFullYear(), week[0].getMonth(), 1)
+    () => new Date(week[0].getFullYear(), week[0].getMonth(), 1),
   )
   // Build days grid starting from Monday
   const days = useMemo(() => {
@@ -230,13 +240,21 @@ function MiniCalendar({
         </span>
         <div className="flex gap-1">
           <button
-            onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+            onClick={() =>
+              setViewMonth(
+                new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1),
+              )
+            }
             className="p-1 hover:bg-gray-100 rounded-full"
           >
             <IoChevronBackOutline className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+            onClick={() =>
+              setViewMonth(
+                new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1),
+              )
+            }
             className="p-1 hover:bg-gray-100 rounded-full"
           >
             <IoChevronForward className="w-3.5 h-3.5" />
@@ -245,7 +263,9 @@ function MiniCalendar({
       </div>
       <div className="grid grid-cols-7 gap-y-1 text-center text-xs">
         {MINI_DAY_LABELS.map((d) => (
-          <span key={d} className="text-brand_gray py-1">{d}</span>
+          <span key={d} className="text-brand_gray py-1">
+            {d}
+          </span>
         ))}
         {days.map((d, i) => {
           const isCurrentMonth = d.getMonth() === currentMonth
@@ -278,7 +298,13 @@ function UpcomingAppointments({
   events,
   orgSlug,
 }: {
-  events: { id: string; customerName: string; serviceName: string; start: string; duration: number }[]
+  events: {
+    id: string
+    customerName: string
+    serviceName: string
+    start: string
+    duration: number
+  }[]
   orgSlug: string
 }) {
   const formatTime = (iso: string) => {
@@ -293,7 +319,9 @@ function UpcomingAppointments({
   return (
     <div className="bg-white rounded-2xl p-5 flex-1 flex flex-col min-h-0">
       <div className="flex items-center justify-between mb-4">
-        <span className="font-satoMedium text-brand_dark text-sm">Citas agendadas</span>
+        <span className="font-satoMedium text-brand_dark text-sm">
+          Citas agendadas
+        </span>
         <Link to="/dash/clientes" className="text-xs text-[#615FFF] underline">
           Ver todas
         </Link>
@@ -311,7 +339,11 @@ function UpcomingAppointments({
         </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-center">
-          <img    src="/images/emptyState/clients-empty.webp" className="w-full mb-4 " alt="" />
+          <img
+            src="/images/emptyState/clients-empty.webp"
+            className="w-full mb-4 "
+            alt=""
+          />
           <p className="font-satoBold text-brand_dark text-base">
             Aún no tienes citas agendadas
           </p>
@@ -324,8 +356,18 @@ function UpcomingAppointments({
             }}
             className="mt-4 flex items-center gap-2 border border-brand_stroke rounded-full px-4 py-2 text-sm text-brand_dark hover:bg-gray-50 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+              />
             </svg>
             Copiar link
           </button>
@@ -353,7 +395,10 @@ function AgendaControls({
   useEffect(() => {
     if (!open) return
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false)
       }
     }
@@ -361,7 +406,8 @@ function AgendaControls({
     return () => document.removeEventListener("mousedown", handler)
   }, [open])
 
-  const currentLabel = VIEW_OPTIONS.find((o) => o.value === controls.view)?.label ?? "Semanal"
+  const currentLabel =
+    VIEW_OPTIONS.find((o) => o.value === controls.view)?.label ?? "Semanal"
 
   return (
     <div className="flex items-center justify-between py-3">
@@ -389,7 +435,9 @@ function AgendaControls({
         >
           <IoChevronForward className="w-4 h-4" />
         </button>
-        <span className="text-lg font-medium capitalize ml-2">{controls.label}</span>
+        <span className="text-lg font-medium capitalize ml-2">
+          {controls.label}
+        </span>
       </div>
       <div ref={dropdownRef} className="relative">
         <button
@@ -403,7 +451,12 @@ function AgendaControls({
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9l6 6 6-6" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 9l6 6 6-6"
+            />
           </svg>
         </button>
         {open && (
@@ -434,7 +487,15 @@ function AgendaControls({
 // ==================== MAIN PAGE ====================
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { events, customers, services, employees, monday, upcomingEvents, orgSlug } = loaderData
+  const {
+    events,
+    customers,
+    services,
+    employees,
+    monday,
+    upcomingEvents,
+    orgSlug,
+  } = loaderData
   const navigate = useNavigate()
   const mutationFetcher = useFetcher()
   const [editableEvent, setEditableEvent] =
@@ -471,7 +532,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     let result = [...events] as EventWithService[]
     for (const op of optimisticOps) {
       if (op.type === "add") result.push(op.event)
-      if (op.type === "remove") result = result.filter((e) => e.id !== op.eventId)
+      if (op.type === "remove")
+        result = result.filter((e) => e.id !== op.eventId)
       if (op.type === "move")
         result = result.map((e) =>
           e.id === op.eventId ? { ...e, start: op.newStart } : e,
@@ -552,7 +614,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   const handleRemoveBlock = (eventId: string) => {
     setOptimisticOps((prev) => [...prev, { type: "remove", eventId }])
-    mutationFetcher.submit({ intent: "remove_block", eventId }, { method: "POST" })
+    mutationFetcher.submit(
+      { intent: "remove_block", eventId },
+      { method: "POST" },
+    )
   }
 
   const [showNewClientDrawer, setShowNewClientDrawer] = useState(false)

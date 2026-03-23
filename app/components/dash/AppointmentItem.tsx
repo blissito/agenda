@@ -39,10 +39,7 @@ export const AppointmentItem = ({
     <section className="flex items-center gap-2 py-4 border-b border-brand_stroke justify-between hover:scale-95 transition-all">
       <div className="flex gap-2 items-center">
         {img ? (
-          <img
-            className="h-10 w-10 rounded-full object-cover"
-            src={img}
-          />
+          <img className="h-10 w-10 rounded-full object-cover" src={img} />
         ) : (
           <div
             className={`h-10 w-10 rounded-full flex items-center justify-center text-white text-sm font-medium shrink-0 ${getAvatarColor(client)}`}
@@ -57,7 +54,9 @@ export const AppointmentItem = ({
           </p>
         </div>
       </div>
-      {time && <span className="text-brand_iron text-xs text-left">{time}</span>}
+      {time && (
+        <span className="text-brand_iron text-xs text-left">{time}</span>
+      )}
     </section>
   )
 }

@@ -1,65 +1,74 @@
-import { useState, useEffect } from "react";
-import { useFetcher } from "react-router";
-import { data as json } from "react-router";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { ConversationHistory } from "~/components/chatbot/ConversationHistory";
-import { ChatbotConfig } from "~/components/chatbot/ChatbotConfig";
-import { db } from "~/utils/db.server";
-import { getPutFileUrl } from "~/utils/lib/tigris.server";
-import { Formmy } from "@formmy.app/chat";
-import type { Route } from "./+types/dash.chatbot";
+import { Formmy } from "@formmy.app/chat"
+import { useEffect, useState } from "react"
+import { data as json, useFetcher } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { ChatbotConfig } from "~/components/chatbot/ChatbotConfig"
+import { ConversationHistory } from "~/components/chatbot/ConversationHistory"
+import { db } from "~/utils/db.server"
+import { getPutFileUrl } from "~/utils/lib/tigris.server"
+import type { Route } from "./+types/dash.chatbot"
 
 function getFormmyClient() {
-  const key = process.env.FORMMY_SECRET_KEY;
-  if (!key) throw new Error("FORMMY_SECRET_KEY not set");
-  return new Formmy({ secretKey: key });
+  const key = process.env.FORMMY_SECRET_KEY
+  if (!key) throw new Error("FORMMY_SECRET_KEY not set")
+  return new Formmy({ secretKey: key })
 }
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { user, org } = await getUserAndOrgOrRedirect(request);
-  if (!org) throw new Response("Org not found", { status: 404 });
+  const { user, org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Response("Org not found", { status: 404 })
 
-  const agentId = org.chatbotAgentId || null;
-  const chatbotConfig = (org.chatbotConfig as {
-    name: string;
-    avatarUrl: string;
-    primaryColor: string;
-    greeting: string;
-    farewell: string;
-    widgetStyle: "bubble" | "sidebar" | "bar";
-  }) || null;
+  const agentId = org.chatbotAgentId || null
+  const chatbotConfig =
+    (org.chatbotConfig as {
+      name: string
+      avatarUrl: string
+      primaryColor: string
+      greeting: string
+      farewell: string
+      widgetStyle: "bubble" | "sidebar" | "bar"
+    }) || null
 
   // If agent exists, fetch conversations server-side
-  let conversations: any[] = [];
-  let hasMore = false;
-  let avatarPutUrl: string | null = null;
-  const avatarKey = `${org.id}/${Date.now()}`;
+  let conversations: any[] = []
+  let hasMore = false
+  let avatarPutUrl: string | null = null
+  const avatarKey = `${org.id}/${Date.now()}`
   if (agentId) {
     try {
-      const formmy = getFormmyClient();
+      const formmy = getFormmyClient()
       const [result, putUrl] = await Promise.all([
         formmy.conversations.list(agentId, { limit: 20 }),
         getPutFileUrl(`chatbot-avatars/${avatarKey}`),
-      ]);
-      conversations = result.conversations;
-      hasMore = result.pagination.hasMore;
-      avatarPutUrl = putUrl;
+      ])
+      conversations = result.conversations
+      hasMore = result.pagination.hasMore
+      avatarPutUrl = putUrl
     } catch (e) {
-      console.error("Error fetching conversations:", e);
+      console.error("Error fetching conversations:", e)
     }
   }
 
-  return { user, org, agentId, chatbotConfig, conversations, hasMore, avatarPutUrl, avatarKey };
-};
+  return {
+    user,
+    org,
+    agentId,
+    chatbotConfig,
+    conversations,
+    hasMore,
+    avatarPutUrl,
+    avatarKey,
+  }
+}
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const { user, org } = await getUserAndOrgOrRedirect(request);
-  if (!org) throw new Response("Org not found", { status: 404 });
+  const { user, org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Response("Org not found", { status: 404 })
 
-  const formData = await request.formData();
-  const intent = formData.get("intent") as string;
+  const formData = await request.formData()
+  const intent = formData.get("intent") as string
 
-  const formmy = getFormmyClient();
+  const formmy = getFormmyClient()
 
   switch (intent) {
     case "activate": {
@@ -68,7 +77,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         name: `Ghosty - ${org.name}`,
         welcomeMessage: `¡Hola! Soy el asistente de ${org.name}. ¿En qué puedo ayudarte?`,
         instructions: `Eres Ghosty, el asistente inteligente de agendamiento de ${org.name}. Ayudas a los clientes a agendar citas, resolver dudas sobre servicios y horarios.`,
-      });
+      })
 
       // Save agentId to org
       await db.org.update({
@@ -84,17 +93,17 @@ export const action = async ({ request }: Route.ActionArgs) => {
             widgetStyle: "bubble",
           },
         },
-      });
+      })
 
-      return json({ success: true });
+      return json({ success: true })
     }
 
     case "save_config": {
-      const config = JSON.parse(formData.get("config") as string);
+      const config = JSON.parse(formData.get("config") as string)
       await db.org.update({
         where: { id: org.id },
         data: { chatbotConfig: config },
-      });
+      })
 
       // Also update agent name/welcome in Formmy
       if (org.chatbotAgentId) {
@@ -102,65 +111,81 @@ export const action = async ({ request }: Route.ActionArgs) => {
           await formmy.agents.update(org.chatbotAgentId, {
             name: config.name,
             welcomeMessage: config.greeting,
-          });
+          })
         } catch (e) {
-          console.error("Error updating Formmy agent:", e);
+          console.error("Error updating Formmy agent:", e)
         }
       }
 
-      return json({ success: true });
+      return json({ success: true })
     }
 
     case "delete_conversation": {
-      const conversationId = formData.get("conversationId") as string;
+      const conversationId = formData.get("conversationId") as string
       if (org.chatbotAgentId) {
-        await formmy.conversations.delete(org.chatbotAgentId, conversationId);
+        await formmy.conversations.delete(org.chatbotAgentId, conversationId)
       }
-      return json({ success: true });
+      return json({ success: true })
     }
 
     case "toggle_favorite": {
-      const conversationId = formData.get("conversationId") as string;
+      const conversationId = formData.get("conversationId") as string
       if (org.chatbotAgentId) {
-        const result = await formmy.conversations.toggleFavorite(org.chatbotAgentId, conversationId);
-        return json({ success: true, isFavorite: result.isFavorite });
+        const result = await formmy.conversations.toggleFavorite(
+          org.chatbotAgentId,
+          conversationId,
+        )
+        return json({ success: true, isFavorite: result.isFavorite })
       }
-      return json({ success: false });
+      return json({ success: false })
     }
 
     case "get_messages": {
-      const conversationId = formData.get("conversationId") as string;
+      const conversationId = formData.get("conversationId") as string
       if (org.chatbotAgentId) {
-        const result = await formmy.conversations.get(org.chatbotAgentId, conversationId);
-        return json({ conversation: result.conversation });
+        const result = await formmy.conversations.get(
+          org.chatbotAgentId,
+          conversationId,
+        )
+        return json({ conversation: result.conversation })
       }
-      return json({ conversation: null });
+      return json({ conversation: null })
     }
 
     default:
-      return json({ error: "Unknown intent" }, { status: 400 });
+      return json({ error: "Unknown intent" }, { status: 400 })
   }
-};
+}
 
-type Tab = "conversations" | "config";
+type Tab = "conversations" | "config"
 
 export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
-  const { agentId, chatbotConfig, conversations: initialConversations, hasMore: initialHasMore, avatarPutUrl, avatarKey } = loaderData;
-  const [activeTab, setActiveTab] = useState<Tab>("conversations");
-  const fetcher = useFetcher();
-  const saveFetcher = useFetcher();
-  const messageFetcher = useFetcher();
+  const {
+    agentId,
+    chatbotConfig,
+    conversations: initialConversations,
+    hasMore: initialHasMore,
+    avatarPutUrl,
+    avatarKey,
+  } = loaderData
+  const [activeTab, setActiveTab] = useState<Tab>("conversations")
+  const fetcher = useFetcher()
+  const saveFetcher = useFetcher()
+  const messageFetcher = useFetcher()
 
-  const isSaving = saveFetcher.state !== "idle";
+  const isSaving = saveFetcher.state !== "idle"
 
-  const [conversations, setConversations] = useState(initialConversations);
-  useEffect(() => { setConversations(initialConversations); }, [initialConversations]);
-  const [selectedConversation, setSelectedConversation] = useState<any>(null);
-  const [messages, setMessages] = useState<any[]>([]);
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [conversations, setConversations] = useState(initialConversations)
+  useEffect(() => {
+    setConversations(initialConversations)
+  }, [initialConversations])
+  const [selectedConversation, setSelectedConversation] = useState<any>(null)
+  const [messages, setMessages] = useState<any[]>([])
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
 
-  const isActivating = fetcher.state !== "idle" && fetcher.formData?.get("intent") === "activate";
+  const isActivating =
+    fetcher.state !== "idle" && fetcher.formData?.get("intent") === "activate"
 
   // If no agentId, show activation screen
   if (!agentId) {
@@ -189,20 +214,22 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
           </button>
         </fetcher.Form>
       </section>
-    );
+    )
   }
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "conversations", label: "Conversaciones" },
     { id: "config", label: "Configuración" },
-  ];
+  ]
 
   return (
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-xl font-satoBold text-brand_dark">Chatbot</h1>
-        <p className="text-sm text-brand_gray mt-1">Gestiona las conversaciones y configura tu asistente.</p>
+        <p className="text-sm text-brand_gray mt-1">
+          Gestiona las conversaciones y configura tu asistente.
+        </p>
       </div>
 
       {/* Tabs */}
@@ -228,7 +255,9 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
           conversations={
             searchQuery
               ? conversations.filter((c: any) =>
-                  (c.name || c.sessionId || "").toLowerCase().includes(searchQuery.toLowerCase())
+                  (c.name || c.sessionId || "")
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()),
                 )
               : conversations
           }
@@ -238,54 +267,61 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
           selectedConversation={selectedConversation}
           onSelectConversation={async (id) => {
             if (!id) {
-              setSelectedConversation(null);
-              setMessages([]);
-              return;
+              setSelectedConversation(null)
+              setMessages([])
+              return
             }
-            setIsLoadingMessages(true);
+            setIsLoadingMessages(true)
             try {
-              const formData = new FormData();
-              formData.set("intent", "get_messages");
-              formData.set("conversationId", id);
+              const formData = new FormData()
+              formData.set("intent", "get_messages")
+              formData.set("conversationId", id)
               const response = await fetch("/dash/chatbot", {
                 method: "POST",
                 body: formData,
-              });
-              const data = await response.json();
+              })
+              const data = await response.json()
               if (data.conversation) {
-                setSelectedConversation(data.conversation);
-                setMessages(data.conversation.messages || []);
+                setSelectedConversation(data.conversation)
+                setMessages(data.conversation.messages || [])
               }
             } catch (e) {
-              console.error("Error fetching messages:", e);
+              console.error("Error fetching messages:", e)
             } finally {
-              setIsLoadingMessages(false);
+              setIsLoadingMessages(false)
             }
           }}
           messages={messages}
           isLoadingMessages={isLoadingMessages}
           onDelete={async (id) => {
-            const formData = new FormData();
-            formData.set("intent", "delete_conversation");
-            formData.set("conversationId", id);
-            await fetch("/dash/chatbot", { method: "POST", body: formData });
-            setConversations((prev: any[]) => prev.filter((c) => c.id !== id));
+            const formData = new FormData()
+            formData.set("intent", "delete_conversation")
+            formData.set("conversationId", id)
+            await fetch("/dash/chatbot", { method: "POST", body: formData })
+            setConversations((prev: any[]) => prev.filter((c) => c.id !== id))
             if (selectedConversation?.id === id) {
-              setSelectedConversation(null);
-              setMessages([]);
+              setSelectedConversation(null)
+              setMessages([])
             }
           }}
           onToggleFavorite={async (id) => {
-            const formData = new FormData();
-            formData.set("intent", "toggle_favorite");
-            formData.set("conversationId", id);
-            const response = await fetch("/dash/chatbot", { method: "POST", body: formData });
-            const data = await response.json();
+            const formData = new FormData()
+            formData.set("intent", "toggle_favorite")
+            formData.set("conversationId", id)
+            const response = await fetch("/dash/chatbot", {
+              method: "POST",
+              body: formData,
+            })
+            const data = await response.json()
             setConversations((prev: any[]) =>
-              prev.map((c) => c.id === id ? { ...c, isFavorite: data.isFavorite } : c)
-            );
+              prev.map((c) =>
+                c.id === id ? { ...c, isFavorite: data.isFavorite } : c,
+              ),
+            )
             if (selectedConversation?.id === id) {
-              setSelectedConversation((prev: any) => prev ? { ...prev, isFavorite: data.isFavorite } : null);
+              setSelectedConversation((prev: any) =>
+                prev ? { ...prev, isFavorite: data.isFavorite } : null,
+              )
             }
           }}
           onSearch={setSearchQuery}
@@ -299,8 +335,8 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
           onSave={(config) => {
             saveFetcher.submit(
               { intent: "save_config", config: JSON.stringify(config) },
-              { method: "post" }
-            );
+              { method: "post" },
+            )
           }}
           isSaving={isSaving}
           avatarPutUrl={avatarPutUrl || undefined}
@@ -308,5 +344,5 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
         />
       )}
     </div>
-  );
+  )
 }

@@ -114,7 +114,7 @@ export default function Page() {
         <TopBar />
         <main className="relative z-10 flex min-h-screen items-center justify-center px-6">
           <section className="w-full max-w-4xl mx-auto flex flex-col items-center text-center pt-24 pb-10">
-        <img
+            <img
               src="/images/signin/sending-bell.svg"
               alt="illustration"
               className="w-[240px] h-[240px]"
@@ -130,11 +130,11 @@ export default function Page() {
               del email para iniciar sesión.
             </p>
             <p className="mt-3 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
-              ¡A veces el mail puede terminar en SPAM! Esperamos que ese no sea el
-              caso, pero si no llega entre uno y tres minutos, ya sabes donde
+              ¡A veces el mail puede terminar en SPAM! Esperamos que ese no sea
+              el caso, pero si no llega entre uno y tres minutos, ya sabes donde
               encontrarlo.
             </p>
-  
+
             <EmojiConfetti repeat={1} />
           </section>
         </main>

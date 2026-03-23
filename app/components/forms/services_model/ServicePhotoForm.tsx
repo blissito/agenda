@@ -74,12 +74,9 @@ export const ServicePhotoForm = ({
   errors?: Record<string, { message?: string }>
   defaultValues?: ServicePhotoFormFields
 }) => {
-  const fetcher = useFetcher()
+  const _fetcher = useFetcher()
   const [newPhoto, setNewPhoto] = useState(defaultValues?.gallery || "")
-  const {
-    register,
-    setValue,
-  } = useForm({
+  const { register, setValue } = useForm({
     defaultValues,
   })
 
