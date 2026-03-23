@@ -16,9 +16,9 @@ import {
   CreateLevelWizard,
   TabButton,
   NivelesTab,
-  DescuentosTab,
   FilterAdjustIcon,
 } from "~/components/loyalty/loyaltyStep"
+import { CuponesTab } from "~/components/loyalty/loyaltycupones"
 import { PrimaryButton } from "~/components/common/primaryButton"
 
 // ==================== TYPES ====================
@@ -120,9 +120,10 @@ export default function Lealtad() {
   const revalidator = useRevalidator()
   const [searchParams, setSearchParams] = useSearchParams()
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
+  const [isCreateCouponOpen, setIsCreateCouponOpen] = useState(false)
 
-  // Mostrar estado vacío si no está habilitado O si no hay niveles
-  const shouldShowEmptyState = !data.enabled || (data.enabled && data.levels.length === 0)
+  const shouldShowEmptyState =
+    !data.enabled || (data.enabled && data.levels.length === 0)
 
   if (shouldShowEmptyState) {
     return (
@@ -132,25 +133,29 @@ export default function Lealtad() {
         <EmptyStateLoyalty onStart={() => setIsCreateWizardOpen(true)} />
 
         {isCreateWizardOpen && (
-         <CreateLevelWizard
-         services={data.services}
-         isOrgEnabled={data.enabled}
-         onClose={() => {
-           setIsCreateWizardOpen(false)
-           revalidator.revalidate()
-         }}
-         onCreated={() => {}}
-       />
+          <CreateLevelWizard
+            services={data.services}
+            isOrgEnabled={data.enabled}
+            onClose={() => {
+              setIsCreateWizardOpen(false)
+              revalidator.revalidate()
+            }}
+            onCreated={() => {}}
+          />
         )}
       </main>
     )
   }
 
   const { levels, rewards, transactions, services } = data
-  const activeTab =
-    searchParams.get("tab") === "descuentos" ? "descuentos" : "niveles"
 
-  const changeTab = (tab: "niveles" | "descuentos") => {
+  const currentTabParam = searchParams.get("tab")
+  const activeTab =
+    currentTabParam === "cupones" || currentTabParam === "descuentos"
+      ? "cupones"
+      : "niveles"
+
+  const changeTab = (tab: "niveles" | "cupones") => {
     const next = new URLSearchParams(searchParams)
     next.set("tab", tab)
     setSearchParams(next)
@@ -169,8 +174,8 @@ export default function Lealtad() {
           />
           <TabButton
             label="Cupones"
-            active={activeTab === "descuentos"}
-            onClick={() => changeTab("descuentos")}
+            active={activeTab === "cupones"}
+            onClick={() => changeTab("cupones")}
           />
         </div>
 
@@ -179,7 +184,7 @@ export default function Lealtad() {
             <button
               type="button"
               aria-label="Filtros"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand_gray "
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand_gray"
             >
               <FilterAdjustIcon />
             </button>
@@ -193,6 +198,17 @@ export default function Lealtad() {
             </PrimaryButton>
           </div>
         )}
+        {activeTab === "cupones" && rewards.length > 0 && (
+          <div className="flex items-center gap-3">
+            <PrimaryButton
+              type="button"
+              onClick={() => setIsCreateCouponOpen(true)}
+              className="h-10 px-5 text-sm"
+            >
+              + Agregar cupón
+            </PrimaryButton>
+          </div>
+        )}
       </div>
 
       <div className="mt-6">
@@ -203,20 +219,30 @@ export default function Lealtad() {
             onCreateClick={() => setIsCreateWizardOpen(true)}
           />
         ) : (
-          <DescuentosTab rewards={rewards} transactions={transactions} />
+          <CuponesTab
+            rewards={rewards}
+            transactions={transactions}
+            services={services}
+            isCreateOpen={isCreateCouponOpen}
+            onOpenCreate={() => setIsCreateCouponOpen(true)}
+            onCloseCreate={() => {
+              setIsCreateCouponOpen(false)
+              revalidator.revalidate()
+            }}
+          />
         )}
       </div>
 
       {isCreateWizardOpen && (
-      <CreateLevelWizard
-      services={services}
-      isOrgEnabled
-      onClose={() => {
-        setIsCreateWizardOpen(false)
-        revalidator.revalidate()
-      }}
-      onCreated={() => {}}
-    />
+        <CreateLevelWizard
+          services={services}
+          isOrgEnabled
+          onClose={() => {
+            setIsCreateWizardOpen(false)
+            revalidator.revalidate()
+          }}
+          onCreated={() => {}}
+        />
       )}
     </main>
   )
