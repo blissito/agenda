@@ -36,6 +36,7 @@ html {
   font-family: "JakarBold";
   src: url("/fonts/PlusJakartaMedium.ttf");
 }
+
 @font-face {
   font-family: "Denik bold ";
   src: url("/fonts/Satoshi-Bold.ttf");
@@ -60,20 +61,7 @@ html {
   font-weight: normal;
   font-style: normal;
 }
-.font-balloon {
-  font-family: "Balloon";
-}
-.font-grotesk {
-  font-family: "Space Grotesk";
-}
-.font-jakarta-bold {
-  font-family: "JakarBold";
-  font-weight: 800;
-}
-.font-jakarta {
-  font-family: "Jakarta";
-  font-weight: 500;
-}
+
 html {
   --bg-mask-color: red;
 }
@@ -82,7 +70,9 @@ html {
 h1,
 h2,
 h3 {
-  font-family: "JakarBold";
+ /* font-family: "Denik bold "; */
+   font-family: "Medium Font ";
+
 }
 p {
   font-family: "Satoshi ";
