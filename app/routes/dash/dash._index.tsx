@@ -270,7 +270,7 @@ function formatEventHour(isoString: string) {
 }
 
 type SalesPoint = { date: string; total: number }
-type SalesFilter = "semana" | "mes" | "trimestre"
+type SalesFilter = "semana" | "mes" | "trimestre" | "anual"
 
 const MONTH_LABELS = [
   "Ene", "Feb", "Mar", "Abr", "May", "Jun",
@@ -310,8 +310,9 @@ function buildChartData(
       if (key) buckets[key] += d.total
     }
   } else {
-    // Trimestre: un punto por cada mes (3 meses)
-    for (let i = 2; i >= 0; i--) {
+    // Trimestre (3 meses) o Anual (12 meses)
+    const monthCount = filter === "anual" ? 11 : 2
+    for (let i = monthCount; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
       buckets[d.toISOString().slice(0, 10)] = 0
     }
@@ -342,7 +343,7 @@ function formatChartLabel(dateStr: string, filter: SalesFilter) {
 }
 
 const SalesChart = ({ data }: { data: SalesPoint[] }) => {
-  const [filter, setFilter] = useState<SalesFilter>("trimestre")
+  const [filter, setFilter] = useState<SalesFilter>("anual")
   const chartData = buildChartData(data, filter)
   const containerRef = useRef<HTMLDivElement>(null)
   const [pill, setPill] = useState({ left: 0, width: 0 })
@@ -351,6 +352,7 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
     { key: "semana", label: "Semana" },
     { key: "mes", label: "Mes" },
     { key: "trimestre", label: "Trimestre" },
+    { key: "anual", label: "Anual" },
   ]
 
   const handleFilter = (key: SalesFilter, el: HTMLButtonElement) => {
@@ -464,10 +466,10 @@ const DashboardData = ({
   const totalEvents = topServices.reduce((sum, s) => sum + s.eventCount, 0)
 
   return (
-    <div className="grid grid-cols-6 gap-6 mt-10 flex-1 min-h-0 overflow-hidden">
+    <div className="grid grid-cols-6 gap-6 mt-6 lg:mt-8 flex-1 min-h-0 overflow-hidden">
       <div className="col-span-6 xl:col-span-4 flex flex-col">
         {topServices.length > 0 && (
-          <div className="bg-white rounded-2xl p-6">
+          <div className="bg-white rounded-2xl p-4 lg:p-6">
             <h3 className="text-lg font-satoBold">Servicios</h3>
             <div className="flex gap-6 mt-6 overflow-x-auto">
               {topServices.map((s) => (
@@ -555,15 +557,11 @@ const Summary = ({
   }
 
   return (
-    <div className="grid grid-cols-6 gap-10">
+    <div className="grid grid-cols-6 gap-6 lg:gap-10">
       <div className="col-span-6 xl:col-span-2 flex items-center">
         <div>
           <h2 className="text-2xl md:text-4xl font-bold leading-normal">
-            {getGreeting()},
-          </h2>
-          <h2 className="text-2xl md:text-4xl font-bold leading-normal mt-2">
-            {" "}
-            {user.displayName}
+            {getGreeting()}, {user.displayName}
           </h2>
           <p className="mt-4 text-brand_gray">
             {DAILY_QUOTES[new Date().getDate() % DAILY_QUOTES.length]}
