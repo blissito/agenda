@@ -58,7 +58,7 @@ export const SelectInput = ({
           name="pets"
           id="pet-select"
           className={cn(
-            "rounded-lg border-gray-200 h-12 w-full mt-1 text-brand_gray ",
+            "rounded-2xl border-gray-200 h-12 w-full mt-1 text-brand_gray ",
             {
               "disabled:cursor-not-allowed": isDisabled,
               "pl-14 relative": icon,
@@ -80,7 +80,7 @@ export const SelectInput = ({
         </select>
       </div>
       {error?.message && (
-        <p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>
+        <p className="text-xs text-red-500 h-1 pl-1">{error?.message}</p>
       )}
     </section>
   )

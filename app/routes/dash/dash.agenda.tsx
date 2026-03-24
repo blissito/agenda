@@ -1,7 +1,6 @@
 import {
   Calendar,
   type CalendarEvent,
-  type CalendarView,
   completeWeek,
   isToday as isTodayFn,
   useCalendarControls,
@@ -18,6 +17,8 @@ import { EventFormDrawer } from "~/components/forms/EventFormDrawer"
 import { db } from "~/utils/db.server"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/dash.agenda"
+
+type AgendaView = "week" | "day" | "month"
 
 type EventWithService = PrismaEvent & {
   service: { name: string } | null
@@ -135,7 +136,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const sundayEnd = new Date(sunday)
   sundayEnd.setHours(23, 59, 59, 999)
 
-  const [events, customers, employees, services, upcomingEvents] =
+  // Month range for mini calendar dots
+  const monthStart = new Date(monday.getFullYear(), monday.getMonth(), 1)
+  const monthEnd = new Date(monday.getFullYear(), monday.getMonth() + 1, 0, 23, 59, 59, 999)
+
+  const [events, customers, employees, services, upcomingEvents, monthEvents] =
     await Promise.all([
       db.event.findMany({
         where: {
@@ -159,6 +164,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         orderBy: { start: "asc" },
         take: 5,
       }),
+      db.event.findMany({
+        where: {
+          orgId: org.id,
+          archived: false,
+          type: { not: "BLOCK" },
+          start: { gte: monthStart, lte: monthEnd },
+        },
+        select: { start: true },
+      }),
     ])
 
   return {
@@ -169,6 +183,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     monday: monday.toISOString(),
     sunday: sunday.toISOString(),
     orgSlug: org.slug,
+    monthEventDates: monthEvents.map((e) => e.start.toISOString()),
     upcomingEvents: upcomingEvents.map((e) => ({
       id: e.id,
       title: e.title,
@@ -201,9 +216,11 @@ const MONTH_NAMES = [
 function MiniCalendar({
   week,
   onDateClick,
+  eventDates,
 }: {
   week: Date[]
   onDateClick: (date: Date) => void
+  eventDates: Set<string>
 }) {
   const [viewMonth, setViewMonth] = useState(
     () => new Date(week[0].getFullYear(), week[0].getMonth(), 1),
@@ -275,7 +292,7 @@ function MiniCalendar({
             <button
               key={i}
               onClick={() => onDateClick(d)}
-              className={`w-7 h-7 mx-auto rounded-full text-xs flex items-center justify-center transition-colors ${
+              className={`relative w-7 h-7 mx-auto rounded-full text-xs flex items-center justify-center transition-colors ${
                 today
                   ? "bg-brand_blue text-white"
                   : inWeek
@@ -286,6 +303,9 @@ function MiniCalendar({
               }`}
             >
               {d.getDate()}
+              {eventDates.has(toDateKey(d)) && (
+                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-[5px] h-[5px] rounded-full bg-[#FFD75E]" />
+              )}
             </button>
           )
         })}
@@ -379,15 +399,20 @@ function UpcomingAppointments({
 
 // ==================== CALENDAR CONTROLS ====================
 
-const VIEW_OPTIONS: { value: CalendarView; label: string }[] = [
+const VIEW_OPTIONS: { value: AgendaView; label: string }[] = [
   { value: "week", label: "Semanal" },
   { value: "day", label: "Diario" },
+  { value: "month", label: "Mensual" },
 ]
 
 function AgendaControls({
   controls,
+  viewMode,
+  onViewChange,
 }: {
   controls: ReturnType<typeof useCalendarControls>
+  viewMode: AgendaView
+  onViewChange: (view: AgendaView) => void
 }) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -407,7 +432,32 @@ function AgendaControls({
   }, [open])
 
   const currentLabel =
-    VIEW_OPTIONS.find((o) => o.value === controls.view)?.label ?? "Semanal"
+    VIEW_OPTIONS.find((o) => o.value === viewMode)?.label ?? "Semanal"
+
+  const handlePrev = () => {
+    if (viewMode === "month") {
+      const d = new Date(controls.date)
+      d.setMonth(d.getMonth() - 1)
+      controls.setDate(d)
+    } else {
+      controls.goToPrev()
+    }
+  }
+
+  const handleNext = () => {
+    if (viewMode === "month") {
+      const d = new Date(controls.date)
+      d.setMonth(d.getMonth() + 1)
+      controls.setDate(d)
+    } else {
+      controls.goToNext()
+    }
+  }
+
+  const label =
+    viewMode === "month"
+      ? `${MONTH_NAMES[controls.date.getMonth()]} ${controls.date.getFullYear()}`
+      : controls.label
 
   return (
     <div className="flex items-center justify-between py-3">
@@ -424,19 +474,19 @@ function AgendaControls({
           Hoy
         </button>
         <button
-          onClick={controls.goToPrev}
+          onClick={handlePrev}
           className="p-2 rounded-full hover:bg-gray-100 transition-colors"
         >
           <IoChevronBackOutline className="w-4 h-4" />
         </button>
         <button
-          onClick={controls.goToNext}
+          onClick={handleNext}
           className="p-2 rounded-full hover:bg-gray-100 transition-colors"
         >
           <IoChevronForward className="w-4 h-4" />
         </button>
         <span className="text-lg font-medium capitalize ml-2">
-          {controls.label}
+          {label}
         </span>
       </div>
       <div ref={dropdownRef} className="relative">
@@ -465,11 +515,11 @@ function AgendaControls({
               <button
                 key={opt.value}
                 onClick={() => {
-                  controls.toggleView(opt.value)
+                  onViewChange(opt.value)
                   setOpen(false)
                 }}
                 className={`w-full text-left px-3 py-2 text-sm rounded-xl transition-colors ${
-                  controls.view === opt.value
+                  viewMode === opt.value
                     ? "bg-brand_blue/10 font-medium"
                     : "hover:bg-brand_blue/5"
                 }`}
@@ -484,6 +534,136 @@ function AgendaControls({
   )
 }
 
+// ==================== MONTH CALENDAR ====================
+
+const MONTH_DAY_LABELS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
+
+function MonthCalendar({
+  date,
+  events,
+  onEventClick,
+  onDayClick,
+}: {
+  date: Date
+  events: EventWithService[]
+  onEventClick: (event: EventWithService) => void
+  onDayClick: (date: Date) => void
+}) {
+  const days = useMemo(() => {
+    const first = new Date(date.getFullYear(), date.getMonth(), 1)
+    const last = new Date(date.getFullYear(), date.getMonth() + 1, 0)
+    const leftOffset = (first.getDay() + 6) % 7
+    const start = new Date(first)
+    start.setDate(start.getDate() - leftOffset)
+    const result: Date[] = []
+    const d = new Date(start)
+    while (result.length < 35 || (result.length < 42 && d <= last)) {
+      result.push(new Date(d))
+      d.setDate(d.getDate() + 1)
+    }
+    return result
+  }, [date])
+
+  const currentMonth = date.getMonth()
+
+  const eventsByDay = useMemo(() => {
+    const map = new Map<string, EventWithService[]>()
+    for (const e of events) {
+      const d = new Date(e.start)
+      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(e)
+    }
+    for (const [, dayEvents] of map) {
+      dayEvents.sort(
+        (a, b) => new Date(a.start).getTime() - new Date(b.start).getTime(),
+      )
+    }
+    return map
+  }, [events])
+
+  const toKey = (d: Date) =>
+    `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+
+  const MAX_VISIBLE = 3
+
+  return (
+    <div className="bg-white shadow rounded-xl overflow-hidden flex flex-col min-h-[calc(100vh-13rem)]">
+      <div className="grid grid-cols-7 border-b">
+        {MONTH_DAY_LABELS.map((label) => (
+          <div
+            key={label}
+            className="py-3 text-center text-sm font-medium text-brand_gray"
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+      <div
+        className="grid grid-cols-7 flex-1"
+        style={{ gridAutoRows: "1fr" }}
+      >
+        {days.map((d, i) => {
+          const isCurrentMonth = d.getMonth() === currentMonth
+          const today = isTodayFn(d)
+          const dayEvents = eventsByDay.get(toKey(d)) || []
+          const visible = dayEvents.slice(0, MAX_VISIBLE)
+          const overflow = dayEvents.length - MAX_VISIBLE
+
+          return (
+            <div
+              key={i}
+              className={`border-b border-r p-1.5 ${
+                !isCurrentMonth ? "bg-gray-50" : ""
+              }`}
+            >
+              <button
+                onClick={() => onDayClick(d)}
+                className={`text-sm w-7 h-7 rounded-full flex items-center justify-center mb-1 ${
+                  today
+                    ? "bg-brand_blue text-white font-bold"
+                    : isCurrentMonth
+                      ? "text-brand_dark hover:bg-gray-100"
+                      : "text-brand_gray/40"
+                }`}
+              >
+                {d.getDate()}
+              </button>
+              <div className="space-y-0.5">
+                {visible.map((e) => (
+                  <button
+                    key={e.id}
+                    onClick={() => onEventClick(e)}
+                    className={`w-full text-left text-[11px] leading-tight px-1.5 py-0.5 rounded truncate ${
+                      e.type === "BLOCK"
+                        ? "bg-gray-200 text-gray-600"
+                        : "bg-[#FFD75E]/30 text-brand_dark"
+                    }`}
+                  >
+                    {new Date(e.start).toLocaleTimeString("es-MX", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                    {e.service?.name || e.title}
+                  </button>
+                ))}
+                {overflow > 0 && (
+                  <button
+                    onClick={() => onDayClick(d)}
+                    className="text-[11px] text-brand_blue px-1.5"
+                  >
+                    +{overflow} más
+                  </button>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 // ==================== MAIN PAGE ====================
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -492,9 +672,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     customers,
     services,
     employees,
-    monday,
     upcomingEvents,
     orgSlug,
+    monthEventDates,
   } = loaderData
   const navigate = useNavigate()
   const mutationFetcher = useFetcher()
@@ -503,22 +683,47 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [optimisticOps, setOptimisticOps] = useState<OptimisticOp[]>([])
 
   const controls = useCalendarControls({
-    initialDate: new Date(monday),
+    initialDate: new Date(),
     initialView: "week",
     locale: "es-MX",
   })
+  const [viewMode, setViewMode] = useState<AgendaView>("week")
+
+  const handleViewChange = (view: AgendaView) => {
+    setViewMode(view)
+    if (view === "week" || view === "day") {
+      controls.setView(view)
+    }
+  }
 
   // Derive week from controls
   const week = controls.week
 
-  // Sync navigation when controls date changes
+  // Sync navigation when controls date or viewMode changes
   useEffect(() => {
-    const w = completeWeek(controls.date)
-    navigate(
-      `/dash/agenda?monday=${w[0].toISOString()}&sunday=${w[6].toISOString()}`,
-      { replace: true },
-    )
-  }, [controls.date])
+    if (viewMode === "month") {
+      const monthStart = new Date(
+        controls.date.getFullYear(),
+        controls.date.getMonth(),
+        1,
+      )
+      const monthEnd = new Date(
+        controls.date.getFullYear(),
+        controls.date.getMonth() + 1,
+        0,
+      )
+      navigate(
+        `/dash/agenda?monday=${monthStart.toISOString()}&sunday=${monthEnd.toISOString()}`,
+        { replace: true },
+      )
+    } else {
+      const w = completeWeek(controls.date)
+      navigate(
+        `/dash/agenda?monday=${w[0].toISOString()}&sunday=${w[6].toISOString()}`,
+        { replace: true },
+      )
+    }
+  }, [controls.date, viewMode])
 
   // Clear optimistic ops when mutation completes (loader revalidates automatically)
   useEffect(() => {
@@ -542,6 +747,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     return result
   }, [events, optimisticOps])
 
+  // Day view: single resource so Calendar renders one column
+  const isDayView = viewMode === "day"
+  const dayResources = isDayView
+    ? [{ id: "day", name: "" }]
+    : undefined
+
   // Map to CalendarEvent format
   const calendarEvents: CalendarEvent[] = useMemo(
     () =>
@@ -553,8 +764,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         type: e.type as "BLOCK" | "EVENT",
         service: e.service ? { name: e.service.name } : null,
         color: e.type === "BLOCK" ? undefined : "#FFD75E",
+        ...(isDayView ? { resourceId: "day" } : {}),
       })),
-    [displayEvents],
+    [displayEvents, isDayView],
   )
 
   const handleEventClick = (event: CalendarEvent) => {
@@ -634,36 +846,192 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         .find((p) => p.type === "timeZoneName")?.value
       el.textContent = short ?? ""
     }
-  }, [controls.date])
+    // 1. Make article + inner containers fill available height
+    const article = calendarRef.current?.querySelector("article") as HTMLElement | null
+    if (article) {
+      article.style.flex = "1"
+      article.style.display = "flex"
+      article.style.flexDirection = "column"
+      const innerDiv = article.firstElementChild as HTMLElement | null
+      if (innerDiv) {
+        innerDiv.style.flex = "1"
+        innerDiv.style.display = "flex"
+        innerDiv.style.flexDirection = "column"
+      }
+    }
+
+    const scrollSection = calendarRef.current?.querySelector(
+      "article section:last-child",
+    ) as HTMLElement | null
+    if (!scrollSection) return
+
+    scrollSection.style.maxHeight = "none"
+    scrollSection.style.flex = "1"
+    scrollSection.style.overflow = "visible"
+
+    // 2. Fix doubled borders
+    const headerSection = scrollSection.previousElementSibling as HTMLElement | null
+    if (headerSection) {
+      headerSection.style.borderBottomWidth = "0px"
+    }
+    scrollSection.querySelectorAll<HTMLElement>(".border-dashed").forEach((cell) => {
+      cell.style.borderRightWidth = "0px"
+      cell.style.borderBottomWidth = "0px"
+    })
+
+    // 3. Scale cells to fill available height
+    const ORIGINAL_CELL_H = 64
+    const totalHours = 21 - 8
+    const headerH = headerSection?.offsetHeight || 0
+    const articleH = article?.clientHeight || 0
+    const availableH = articleH - headerH
+    const targetCellH = Math.max(ORIGINAL_CELL_H, availableH / totalHours)
+
+    if (targetCellH > ORIGINAL_CELL_H) {
+      const scale = targetCellH / ORIGINAL_CELL_H
+
+      // Scale cell heights
+      scrollSection.querySelectorAll<HTMLElement>(".border-dashed").forEach((cell) => {
+        cell.style.height = `${targetCellH}px`
+      })
+
+      // Scale event top offsets and heights
+      scrollSection.querySelectorAll<HTMLElement>(".absolute.z-10").forEach((el) => {
+        const top = parseFloat(el.style.top)
+        const height = parseFloat(el.style.height)
+        if (!isNaN(top)) el.style.top = `${top * scale}px`
+        if (!isNaN(height)) el.style.height = `${height * scale}px`
+      })
+
+      // Scale current-time indicator
+      scrollSection.querySelectorAll<HTMLElement>(".absolute.z-20").forEach((el) => {
+        const top = parseFloat(el.style.top)
+        if (!isNaN(top)) el.style.top = `${top * scale}px`
+      })
+    }
+
+    // 4. Fix block Options popup + EmptyButton popup on click
+    const container = calendarRef.current!
+    const handleClick = () => {
+      setTimeout(() => {
+        container.querySelectorAll<HTMLElement>(".absolute.shadow-lg").forEach((popup) => {
+          const h3 = popup.querySelector("h3")
+          if (h3) {
+            // Block Options popup
+            popup.style.top = "-80px"
+            popup.style.left = "0"
+            popup.style.paddingLeft = "16px"
+            popup.style.paddingRight = "16px"
+            h3.textContent = "Horario bloqueado"
+            // Actions → top right
+            const actionsDiv = popup.querySelector(
+              "header + div",
+            ) as HTMLElement | null
+            if (actionsDiv) {
+              actionsDiv.style.top = "4px"
+              actionsDiv.style.right = "4px"
+              actionsDiv.style.left = "auto"
+              actionsDiv.style.justifyContent = "flex-end"
+            }
+            const p = popup.querySelector("header > p") as HTMLElement | null
+            if (p) {
+              p.style.fontSize = "12px"
+              const timeMatch = (p.textContent || "").match(/\d{1,2}:\d{2}/)
+              if (timeMatch) p.textContent = timeMatch[0]
+            }
+          } else {
+            // EmptyButton popup (Reserve / Block) — hide "Block" button
+            popup.querySelectorAll("button").forEach((btn) => {
+              const text = btn.textContent?.trim().toLowerCase() || ""
+              if (text === "block" || text === "bloquear") {
+                btn.style.display = "none"
+              }
+              if (text === "reserve" || text === "reservar") {
+                btn.textContent = "Reservar"
+              }
+            })
+          }
+        })
+      }, 50)
+    }
+    container.addEventListener("click", handleClick)
+    return () => container.removeEventListener("click", handleClick)
+  }, [controls.date, viewMode])
+
+  const eventDateKeys = useMemo(() => {
+    const keys = new Set<string>()
+    for (const iso of monthEventDates) {
+      const d = new Date(iso)
+      keys.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`)
+    }
+    return keys
+  }, [monthEventDates])
 
   const handleMiniDateClick = (date: Date) => {
     controls.setDate(date)
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-[calc(100vh-8rem)]">
       <h1 className="text-3xl font-satoBold mb-2">Mi agenda</h1>
       {mutationFetcher.state !== "idle" && <Spinner />}
-      <div className="flex gap-6">
-        <div ref={calendarRef} className="flex-1 min-w-0">
-          <AgendaControls controls={controls} />
-          <Calendar
-            onNewEvent={handleNewEvent}
-            events={calendarEvents}
-            date={controls.date}
-            onEventClick={handleEventClick}
-            onEventMove={handleEventMove}
-            onAddBlock={handleAddBlock}
-            onRemoveBlock={handleRemoveBlock}
-            config={{
-              hoursStart: 8,
-              hoursEnd: 21,
-              locale: "es-MX",
-            }}
+      <div className="flex gap-6 flex-1">
+        <div ref={calendarRef} className="flex-1 min-w-0 flex flex-col">
+          <AgendaControls
+            controls={controls}
+            viewMode={viewMode}
+            onViewChange={handleViewChange}
           />
+          {viewMode === "month" ? (
+            <MonthCalendar
+              date={controls.date}
+              events={displayEvents}
+              onEventClick={(e) => setEditableEvent(e)}
+              onDayClick={(d) => {
+                controls.setDate(d)
+                handleViewChange("day")
+              }}
+            />
+          ) : (
+            <Calendar
+              onNewEvent={handleNewEvent}
+              events={calendarEvents}
+              date={controls.date}
+              resources={dayResources}
+              onEventClick={handleEventClick}
+              onEventMove={handleEventMove}
+              onAddBlock={handleAddBlock}
+              onRemoveBlock={handleRemoveBlock}
+              config={{
+                hoursStart: 8,
+                hoursEnd: 21,
+                locale: "es-MX",
+                renderColumnHeader: isDayView
+                  ? ({ date, isToday, locale }) => (
+                      <p className="grid place-items-center">
+                        <span className="text-sm text-gray-500">
+                          {date.toLocaleDateString(locale, {
+                            weekday: "short",
+                          })}
+                        </span>
+                        <span
+                          className={`text-2xl font-bold ${
+                            isToday
+                              ? "bg-brand_blue text-white rounded-full w-10 h-10 flex items-center justify-center"
+                              : ""
+                          }`}
+                        >
+                          {date.getDate()}
+                        </span>
+                      </p>
+                    )
+                  : undefined,
+              }}
+            />
+          )}
         </div>
         <aside className="hidden xl:flex flex-col gap-6 w-[300px] shrink-0">
-          <MiniCalendar week={week} onDateClick={handleMiniDateClick} />
+          <MiniCalendar week={week} onDateClick={handleMiniDateClick} eventDates={eventDateKeys} />
           <UpcomingAppointments events={upcomingEvents} orgSlug={orgSlug} />
         </aside>
       </div>
@@ -680,6 +1048,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         onClose={() => setShowNewClientDrawer(false)}
         isOpen={showNewClientDrawer}
       />
-    </>
+    </div>
   )
 }

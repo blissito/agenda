@@ -75,7 +75,7 @@ export const BasicInput = ({
               "min-h-40 text-dark",
               "placeholder:text-brand_iron font-satoMedium placeholder:font-satoshi",
               "focus:border-brand_blue",
-              "rounded-xl border-gray-200 w-full h-12",
+              "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
               !!error && "border-red-500",
               icon && "pl-12",
@@ -97,7 +97,7 @@ export const BasicInput = ({
             className={twMerge(
               "placeholder:text-brand_blueLight text-brand_dark font-satoMedium",
               "focus:border-brand_blue",
-              "rounded-xl border-gray-200 w-full h-12",
+              "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
               !!error && "border-red-full",
               icon && "pl-12",
