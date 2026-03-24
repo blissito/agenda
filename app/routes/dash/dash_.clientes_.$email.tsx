@@ -19,6 +19,7 @@ import { Calendar2 } from "~/components/icons/calendar2"
 import { WhatsApp } from "~/components/icons/WhatsApp"
 import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 
+
 export const handle = { hideSidebar: true }
 
 const MOCK_AVATAR =

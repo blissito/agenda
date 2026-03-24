@@ -110,7 +110,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
   return (
     <article className="w-full">
       <div className="mb-8">
-        <h1 className="text-[32px] font-semibold leading-[40px] text-[#20242D]">
+        <h1 className="text-[32px] font-satoBold">
           Ventas
         </h1>
 
