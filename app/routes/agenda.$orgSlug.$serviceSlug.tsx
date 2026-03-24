@@ -78,7 +78,34 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   }
 
   if (intent === "create_event") {
-    const data = JSON.parse(formData.get("data") as string)
+    // Rate limit
+    const { checkRateLimit, getClientIP, rateLimitPresets, rateLimitResponse } =
+      await import("~/.server/rateLimit")
+    const ip = getClientIP(request)
+    const rl = checkRateLimit(`booking:${ip}`, rateLimitPresets.booking)
+    if (!rl.success) return rateLimitResponse(rl.resetAt)
+
+    // Server-side validation
+    const rawData = formData.get("data")
+    if (!rawData || typeof rawData !== "string")
+      return { success: false, error: "Datos inválidos" }
+    let data: any
+    try {
+      data = JSON.parse(rawData)
+    } catch {
+      return { success: false, error: "Datos inválidos" }
+    }
+
+    // Honeypot
+    if (data.customer?.website)
+      return { success: false, error: "Datos inválidos" }
+
+    // Validate customer fields server-side
+    const customerResult = userInfoSchema.safeParse(data.customer)
+    if (!customerResult.success)
+      return { success: false, error: "Datos del cliente inválidos" }
+
+    const validatedCustomer = customerResult.data
 
     const service = await db.service.findUnique({
       where: { id: data.serviceId },
@@ -89,15 +116,15 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
     // Check if User with this email already exists
     const existingUser = await db.user.findUnique({
-      where: { email: data.customer.email },
+      where: { email: validatedCustomer.email },
     })
 
     const customer = await db.customer.create({
       data: {
-        displayName: data.customer.displayName,
-        email: data.customer.email,
-        tel: data.customer.tel || "",
-        comments: data.customer.comments || "",
+        displayName: validatedCustomer.displayName,
+        email: validatedCustomer.email,
+        tel: validatedCustomer.tel || "",
+        comments: validatedCustomer.comments || "",
         org: { connect: { id: org.id } },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -316,7 +343,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       return
     }
     if (!date) return
-    const customer = result.data
+    const customer = { ...result.data, website: (vals as any).website }
     fetcher.submit(
       {
         intent: "create_event",
@@ -417,14 +444,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   // Show loading state while submitting
   if (show === "loading") {
     return (
-      <article className="bg-[#f8f8f8] min-h-screen relative">
+      <article className="bg-[#f8f8f8] min-h-screen relative flex flex-col items-center">
         <Header org={org} />
-        <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand_blue mx-auto mb-4"></div>
-            <p className="text-brand_gray">Reservando tu cita...</p>
-          </div>
-        </main>
+        <div className="flex flex-col items-center justify-center flex-1 -mt-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand_blue mb-4"></div>
+          <p className="text-brand_gray text-lg">Reservando tu cita...</p>
+        </div>
       </article>
     )
   }
@@ -469,7 +494,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {show === "user_info" && (
             <Form onSubmit={handleSubmit(onSubmit)} className="flex-1">
               <h3 className="text-lg font-bold mb-6 text-brand_dark">
-                Cuéntanos sobre ti
+                Cuéntame sobre ti
               </h3>
               <BasicInput
                 register={register}
@@ -502,6 +527,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 name="comments"
                 placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
                 registerOptions={{ required: false }}
+              />
+              <input
+                type="text"
+                {...register("website" as any)}
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
               />
             </Form>
           )}

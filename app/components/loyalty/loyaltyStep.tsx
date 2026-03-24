@@ -1,19 +1,20 @@
 // loyaltyStep.tsx
-import { useState } from "react"
+
 import type {
   ChangeEvent,
   FormEvent,
   InputHTMLAttributes,
   ReactNode,
 } from "react"
+import { useRef, useState } from "react"
 import { useRevalidator } from "react-router"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
-import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { ArrowRight } from "~/components/icons/arrowRight"
-import { X } from "~/components/icons/X"
 import { Settings } from "~/components/icons/settings"
 import type { Level, ServiceOption } from "~/routes/dash/dash.lealtad"
+import{X} from "~/components/icons/X"
 
 // ==================== SHARED: LEVEL IMAGE UPLOAD ====================
 
@@ -161,7 +162,9 @@ export function NivelesTab({
     const res = await fetch("/api/loyalty?intent=delete-level", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ data: JSON.stringify({ levelId: level.id }) }),
+      body: new URLSearchParams({
+        data: JSON.stringify({ levelId: level.id }),
+      }),
     })
     const result = await res.json()
 
@@ -183,7 +186,9 @@ export function NivelesTab({
       ),
     ).map((el) => el.value)
 
-    const fileInput = form.elements.namedItem("editLevelImage") as HTMLInputElement
+    const fileInput = form.elements.namedItem(
+      "editLevelImage",
+    ) as HTMLInputElement
     let imageKey: string | null = editingLevel.image
 
     if (fileInput?.files?.[0]) {
@@ -662,7 +667,9 @@ function WizardStepTwo({
           <ServiceToggleRow
             key={service.id}
             label={service.name}
-            checked={applyAllServices ? true : selectedServiceIds.includes(service.id)}
+            checked={
+              applyAllServices ? true : selectedServiceIds.includes(service.id)
+            }
             disabled={applyAllServices}
             onChange={() => toggleService(service.id)}
           />

@@ -4,10 +4,10 @@ import { useLoaderData, useRevalidator, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import {
-  getOrgLoyaltyStats,
   getAllRewards,
-  getTransactions,
   getLevels,
+  getOrgLoyaltyStats,
+  getTransactions,
 } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.lealtad"

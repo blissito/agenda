@@ -35,9 +35,9 @@ export const Success = ({
   service: ServiceLike
   event?: EventWithRelations
 }) => {
-  const [_on, set] = useState(true)
+  const [showGif, setShowGif] = useState(true)
   useEffect(() => {
-    setTimeout(() => set(false), 4000)
+    setTimeout(() => setShowGif(false), 18000)
   }, [])
 
   // Link to org's landing page
@@ -52,19 +52,36 @@ export const Success = ({
         className="absolute right-0 bottom-0 z-0 w-[45%] lg:w-auto"
         src="/images/denik-markwater.png"
       />
-      <div className="relative">
-        <img
-          className="w-[240px] h-[240px]"
-          alt="illustration"
-          src="/images/confetti.gif"
-        />
-        {/* {on && (
-            <img
-              className="absolute inset-0 animate-ping"
-              alt="illustration"
-              src={"/images/illustrations/success_check.svg"}
+      <div className="relative w-[240px] h-[240px] flex items-center justify-center">
+        {showGif ? (
+          <img
+            className="w-[240px] h-[240px]"
+            alt="illustration"
+            src={`/images/confetti.gif?t=${Date.now()}`}
+          />
+        ) : (
+          <svg
+            className="w-24 h-24 text-brand_blue"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle cx="12" cy="12" r="11" fill="currentColor" opacity="0.15" />
+            <circle
+              cx="12"
+              cy="12"
+              r="11"
+              stroke="currentColor"
+              strokeWidth="1.5"
             />
-          )} */}
+            <path
+              d="M7 12.5l3 3 7-7"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
       </div>
       <h1 className="text-2xl font-bold mb-4 text-brand_dark text-center">
         ¡{event?.customer?.displayName} tu cita ha sido agendada!
@@ -95,10 +112,10 @@ export const Success = ({
         Agendar otra cita
       </PrimaryButton>
       <p className="text-neutral-400 text-xs mt-24 max-w-[600px] mx-auto">
-        Recuerda que tu compra es válida para el servicio y horario en el que
-        reservaste. Para cambios o cancelación ponte en contacto con Estudio
-        Milán. Deník solo actúa como intermediario en la gestión y procesamiento
-        de reservas.
+        Recuerda que tu reserva es válida para el servicio y horario en el que
+        agendaste. Para cambios o cancelación ponte en contacto con {org.name}.
+        Deník solo actúa como intermediario en la gestión y procesamiento de
+        reservas.
       </p>
       <EmojiConfetti />
     </div>

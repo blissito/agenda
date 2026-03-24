@@ -51,7 +51,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
       where: { id: data.id },
       data: {
         duration: parsedData.duration,
-        weekDays: parsedData.weekDays ? { set: parsedData.weekDays } : undefined,
+        weekDays: parsedData.weekDays
+          ? { set: parsedData.weekDays }
+          : undefined,
       },
     })
     return { id: data.id, nextIndex: 3 }
@@ -161,7 +163,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     } catch (error) {
       console.warn(
         "Service photo upload error:",
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       )
     }
 

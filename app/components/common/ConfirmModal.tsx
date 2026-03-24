@@ -1,4 +1,3 @@
-import type { ReactNode } from "react"
 import { AnimatePresence, motion } from "motion/react"
 import { IoClose } from "react-icons/io5"
 import { useClickOutside } from "~/utils/hooks/useClickOutside"
@@ -25,7 +24,6 @@ export const ConfirmModal = ({
   confirmText = "Confirmar",
   cancelText = "Cancelar",
   variant = "default",
- 
 }: ConfirmModalProps) => {
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: onClose,
@@ -68,8 +66,12 @@ export const ConfirmModal = ({
             <div className="absolute left-1/2 -top-16 -translate-x-1/2 z-20">
               <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
                 <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
-                <span role="img" aria-label="link" className="text-6xl leading-none">
-                🗑️
+                  <span
+                    role="img"
+                    aria-label="link"
+                    className="text-6xl leading-none"
+                  >
+                    🗑️
                   </span>
                 </div>
               </div>

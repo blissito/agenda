@@ -11,6 +11,14 @@ primary_region = 'dfw'
   min_machines_running = 1
   processes = ['app']
 
+[http_service.headers]
+  X-Content-Type-Options = "nosniff"
+  X-Frame-Options = "SAMEORIGIN"
+  Referrer-Policy = "strict-origin-when-cross-origin"
+  Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+  X-DNS-Prefetch-Control = "on"
+  Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
 [[vm]]
   size = 'shared-cpu-1x'
   memory = "512mb"

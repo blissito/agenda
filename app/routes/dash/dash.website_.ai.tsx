@@ -1,23 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useFetcher, useLoaderData, Link, useRouteLoaderData } from "react-router"
+import { useFetcher, useLoaderData, Link } from "react-router"
 import { getOrgPublicUrl } from "~/utils/urls"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
 import { getLandingUsage } from "~/lib/landing-generator.server"
 import {
-  Canvas,
-  SectionList,
-  FloatingToolbar,
-  CodeEditor,
-  ViewportToggle,
   LANDING_THEMES,
-  buildCustomThemeCss,
-  type CanvasHandle,
+  buildPreviewHtml,
   type Section3,
-  type IframeMessage,
-  type Viewport,
   type CustomColors,
+  grapesToSections,
 } from "@easybits.cloud/html-tailwind-generator"
+import { GrapesEditor, type GrapesEditorHandle, type AiAction } from "@easybits.cloud/html-tailwind-generator/components4"
 import type { Route } from "./+types/dash.website_.ai"
 
 export const handle = { hideSidebar: true }
@@ -46,42 +40,49 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   return { org, serviceCount, usage }
 }
 
+/** Convert Section3[] to a single HTML string for GrapesEditor */
+function sectionsToHtml(sections: Section3[]): string {
+  return sections
+    .filter((s) => s.id !== "__grapes_css__")
+    .sort((a, b) => a.order - b.order)
+    .map((s) => s.html)
+    .join("\n")
+}
+
 export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const { org, serviceCount, usage: initialUsage } = loaderData
   const [usage, setUsage] = useState(initialUsage)
   const fetcher = useFetcher()
-  const canvasRef = useRef<CanvasHandle>(null)
-  const iframeRectRef = useRef<DOMRect | null>(null)
+  const editorRef = useRef<GrapesEditorHandle>(null)
 
   // State
   const [sections, setSections] = useState<Section3[]>(
     (org.landingSections as Section3[] | null) || [],
   )
   const [theme, setTheme] = useState(org.landingTheme || "default")
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null)
-  const [selection, setSelection] = useState<IframeMessage | null>(null)
-  const [codeEditorSection, setCodeEditorSection] = useState<Section3 | null>(null)
+  const [customColors, setCustomColors] = useState<Record<string, string>>(
+    () => (org.landingCustomColors as Record<string, string> | null) || {},
+  )
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRefining, setIsRefining] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [viewport, setViewport] = useState<Viewport>("desktop")
-  const [customColors, setCustomColors] = useState<CustomColors>(
-    () => (org.landingCustomColors as CustomColors | null) || { primary: "#6366f1" },
-  )
-  const colorSaveTimer = useRef<ReturnType<typeof setTimeout>>(null)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false)
+  // During generation, we stream sections into a lightweight preview
+  const [streamingSections, setStreamingSections] = useState<Section3[]>([])
+  const [streamCount, setStreamCount] = useState(0)
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
   const abortRef = useRef<AbortController | null>(null)
   const isSavingRef = useRef(false)
   const streamEndRef = useRef<HTMLDivElement>(null)
-  const [streamCount, setStreamCount] = useState(0)
 
-  // Keep refs in sync
   isSavingRef.current = isSaving
+
+  // Show GrapesEditor only when NOT generating and has sections
+  const showEditor = hasExistingSections && !isGenerating
 
   // Generate landing (streaming SSE)
   const handleGenerate = useCallback(async () => {
@@ -94,6 +95,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     setErrorMessage(null)
     const backup = sections
     setSections([])
+    setStreamingSections([])
     setStreamCount(0)
 
     try {
@@ -107,7 +109,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       })
       if (res.status === 429) {
         const data = await res.json()
-        setErrorMessage(data.error || "Límite alcanzado")
+        setErrorMessage(data.error || "Limite alcanzado")
         setSections(backup)
         setIsGenerating(false)
         return
@@ -126,7 +128,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         if (pendingUpdates.size > 0) {
           const updates = new Map(pendingUpdates)
           pendingUpdates.clear()
-          setSections((prev) =>
+          setStreamingSections((prev) =>
             prev.map((s) => updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s),
           )
         }
@@ -148,7 +150,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             try {
               const data = JSON.parse(line.slice(6))
               if (eventType === "section") {
-                setSections((prev) => [...prev, data])
+                setStreamingSections((prev) => [...prev, data])
                 setStreamCount((c) => c + 1)
                 requestAnimationFrame(() => {
                   streamEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
@@ -170,7 +172,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       if (pendingUpdates.size > 0) {
         const updates = new Map(pendingUpdates)
         pendingUpdates.clear()
-        setSections((prev) =>
+        setStreamingSections((prev) =>
           prev.map((s) => updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s),
         )
       }
@@ -181,13 +183,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       setSections((current) => current.length > 0 ? current : backup)
     } finally {
       if (abortRef.current === controller) {
+        // Move streaming sections to real sections, ending the generation
+        setStreamingSections((final) => {
+          if (final.length > 0) setSections(final)
+          return []
+        })
         setIsGenerating(false)
         setHasUnpublishedChanges(true)
       }
     }
   }, [])
 
-  // Handle fetcher responses (refine + save)
+  // Handle fetcher responses (save)
   const lastFetcherDataRef = useRef<unknown>(null)
   useEffect(() => {
     if (fetcher.state !== "idle" || !fetcher.data || fetcher.data === lastFetcherDataRef.current) return
@@ -208,105 +215,99 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     }
   }, [fetcher.state, fetcher.data])
 
-  // Refine section (streaming SSE)
-  const handleRefine = useCallback(
-    async (instruction: string, referenceImage?: string) => {
-      if (!selectedSectionId) return
-      const section = sections.find((s) => s.id === selectedSectionId)
-      if (!section) return
-      const sectionId = selectedSectionId
+  // AI refine handler (called from GrapesEditor toolbar)
+  const handleAiAction = useCallback(async (action: AiAction) => {
+    if (action.type !== "refine-element") return
 
-      setIsRefining(true)
-      setErrorMessage(null)
+    const instruction = prompt("Instruccion para refinar:")
+    if (!instruction) return
 
-      try {
-        const formData = new FormData()
-        formData.append("intent", "refine")
-        formData.append("currentHtml", section.html)
-        formData.append("instruction", instruction)
-        if (referenceImage) formData.append("referenceImage", referenceImage)
+    setIsRefining(true)
+    setErrorMessage(null)
 
-        const res = await fetch("/api/landing-generator", {
-          method: "POST",
-          body: formData,
-        })
-        if (res.status === 429) {
-          const data = await res.json()
-          setErrorMessage(data.error || "Límite de refinamientos alcanzado")
-          setIsRefining(false)
-          return
-        }
-        if (!res.ok) throw new Error("Refine failed")
+    try {
+      const formData = new FormData()
+      formData.append("intent", "refine")
+      formData.append("currentHtml", action.isSection ? action.html : (action.sectionHtml || action.html))
+      formData.append("instruction", instruction)
 
-        const reader = res.body?.getReader()
-        if (!reader) throw new Error("No stream")
-
-        const decoder = new TextDecoder()
-        let buf = ""
-        let eventType = ""
-        let pendingHtml: string | null = null
-        let rafId: number | null = null
-        const flushUpdate = () => {
-          if (pendingHtml !== null) {
-            const html = pendingHtml
-            pendingHtml = null
-            setSections((prev) =>
-              prev.map((s) => (s.id === sectionId ? { ...s, html } : s)),
-            )
-          }
-          rafId = null
-        }
-
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-          buf += decoder.decode(value, { stream: true })
-
-          const lines = buf.split("\n")
-          buf = lines.pop() || ""
-
-          for (const line of lines) {
-            if (line.startsWith("event: ")) {
-              eventType = line.slice(7).trim()
-            } else if (line.startsWith("data: ")) {
-              try {
-                const data = JSON.parse(line.slice(6))
-                if (eventType === "chunk" && data.html) {
-                  pendingHtml = data.html
-                  if (!rafId) rafId = requestAnimationFrame(flushUpdate)
-                } else if (eventType === "done" && data.html) {
-                  pendingHtml = data.html
-                  if (!rafId) rafId = requestAnimationFrame(flushUpdate)
-                  setUsage((u) => ({ ...u, refineUsed: u.refineUsed + 1 }))
-                } else if (eventType === "error") {
-                  setErrorMessage(data.message)
-                }
-              } catch {}
-            }
-          }
-        }
-        // Flush any remaining update
-        if (rafId) cancelAnimationFrame(rafId)
-        if (pendingHtml !== null) {
-          setSections((prev) =>
-            prev.map((s) => (s.id === sectionId ? { ...s, html: pendingHtml! } : s)),
-          )
-        }
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Error al refinar"
-        setErrorMessage(message)
-      } finally {
+      const res = await fetch("/api/landing-generator", {
+        method: "POST",
+        body: formData,
+      })
+      if (res.status === 429) {
+        const data = await res.json()
+        setErrorMessage(data.error || "Limite de refinamientos alcanzado")
         setIsRefining(false)
+        return
+      }
+      if (!res.ok) throw new Error("Refine failed")
+
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error("No stream")
+
+      const decoder = new TextDecoder()
+      let buf = ""
+      let eventType = ""
+      let finalHtml = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+
+        const lines = buf.split("\n")
+        buf = lines.pop() || ""
+
+        for (const line of lines) {
+          if (line.startsWith("event: ")) {
+            eventType = line.slice(7).trim()
+          } else if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6))
+              if (eventType === "done" && data.html) {
+                finalHtml = data.html
+                setUsage((u) => ({ ...u, refineUsed: u.refineUsed + 1 }))
+              } else if (eventType === "chunk" && data.html) {
+                finalHtml = data.html
+              } else if (eventType === "error") {
+                setErrorMessage(data.message)
+              }
+            } catch {}
+          }
+        }
+      }
+
+      // Apply the refined HTML back to GrapesEditor
+      if (finalHtml && editorRef.current) {
+        if (action.isSection || !action.sectionComponentId) {
+          // Replaced the whole section
+          editorRef.current.replaceComponent(action.componentId, finalHtml)
+        } else {
+          // Replaced the parent section with the refined version
+          editorRef.current.replaceComponent(action.sectionComponentId, finalHtml)
+        }
         setHasUnpublishedChanges(true)
       }
-    },
-    [selectedSectionId, sections],
-  )
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al refinar"
+      setErrorMessage(message)
+    } finally {
+      setIsRefining(false)
+    }
+  }, [])
 
   // Save/Publish
   const pendingSaveRef = useRef<{ publish: boolean } | null>(null)
   const handleSave = useCallback(
     (publish: boolean) => {
+      // Get latest HTML from editor
+      let currentSections = sections
+      if (editorRef.current) {
+        const html = editorRef.current.getHtml()
+        if (html) currentSections = grapesToSections(html)
+      }
+
       setIsSaving(true)
       setSaveMessage(null)
       setErrorMessage(null)
@@ -314,7 +315,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       fetcher.submit(
         {
           intent: "save",
-          sections: JSON.stringify(sections),
+          sections: JSON.stringify(currentSections),
           theme,
           customColors: JSON.stringify(customColors),
           publish: publish ? "true" : "false",
@@ -325,149 +326,29 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     [sections, theme, customColors, fetcher],
   )
 
-
-  // Section operations
-  const handleReorder = useCallback((from: number, to: number) => {
+  // GrapesEditor onChange — sync sections state
+  const handleEditorChange = useCallback((html: string) => {
+    const newSections = grapesToSections(html)
+    setSections(newSections)
     setHasUnpublishedChanges(true)
-    setSections((prev) => {
-      const next = [...prev]
-      const [moved] = next.splice(from, 1)
-      next.splice(to, 0, moved)
-      return next.map((s, i) => ({ ...s, order: i }))
-    })
   }, [])
 
-  const handleDelete = useCallback(
-    (id?: string) => {
-      const targetId = id || selectedSectionId
-      if (!targetId) return
-      setHasUnpublishedChanges(true)
-      setSections((prev) => prev.filter((s) => s.id !== targetId))
-      if (selectedSectionId === targetId) {
-        setSelectedSectionId(null)
-        setSelection(null)
-      }
-    },
-    [selectedSectionId],
-  )
-
-  const handleRename = useCallback((id: string, label: string) => {
+  // Theme change from GrapesEditor sidebar
+  const handleThemeChange = useCallback((themeId: string, colors?: Record<string, string>) => {
+    setTheme(themeId)
+    if (colors) setCustomColors(colors)
     setHasUnpublishedChanges(true)
-    setSections((prev) => prev.map((s) => (s.id === id ? { ...s, label } : s)))
   }, [])
-
-  const handleCodeSave = useCallback(
-    (code: string) => {
-      if (!codeEditorSection) return
-      setHasUnpublishedChanges(true)
-      setSections((prev) =>
-        prev.map((s) => (s.id === codeEditorSection.id ? { ...s, html: code } : s)),
-      )
-      setCodeEditorSection(null)
-    },
-    [codeEditorSection],
-  )
-
-  const handleCustomColorChange = useCallback(
-    (partial: Partial<CustomColors>) => {
-      const merged = { ...customColors, ...partial }
-      setCustomColors(merged)
-      setTheme("custom")
-      setHasUnpublishedChanges(true)
-      canvasRef.current?.postMessage({
-        action: "set-custom-css",
-        css: buildCustomThemeCss(merged),
-      })
-      if (colorSaveTimer.current) clearTimeout(colorSaveTimer.current)
-      colorSaveTimer.current = setTimeout(() => {
-        fetcher.submit(
-          {
-            intent: "save",
-            sections: JSON.stringify(sections),
-            theme: "custom",
-            customColors: JSON.stringify(merged),
-            publish: "false",
-          },
-          { method: "post", action: "/api/landing-generator" },
-        )
-      }, 400)
-    },
-    [customColors, sections, fetcher],
-  )
-
-  const handleIframeMessage = useCallback(
-    (msg: IframeMessage) => {
-      if (msg.type === "element-selected" && msg.sectionId) {
-        setSelectedSectionId(msg.sectionId)
-        setSelection(msg)
-      } else if (msg.type === "element-deselected") {
-        setSelection(null)
-      } else if (msg.type === "text-edited" && msg.sectionId && msg.newText !== undefined) {
-        setHasUnpublishedChanges(true)
-        setSections((prev) =>
-          prev.map((s) =>
-            s.id === msg.sectionId ? { ...s, html: msg.sectionHtml || s.html } : s,
-          ),
-        )
-      } else if (msg.type === "section-html-updated" && msg.sectionId && msg.sectionHtml) {
-        setHasUnpublishedChanges(true)
-        const html = msg.sectionHtml;
-        setSections((prev) =>
-          prev.map((s) =>
-            s.id === msg.sectionId ? { ...s, html } : s,
-          ),
-        )
-      }
-    },
-    [],
-  )
-
-  const handleUpdateAttribute = useCallback(
-    (sectionId: string, elementPath: string, attr: string, value: string) => {
-      canvasRef.current?.postMessage({
-        action: "update-attribute",
-        sectionId,
-        elementPath,
-        tagName: selection?.tagName || "*",
-        attr,
-        value,
-      })
-    },
-    [selection?.tagName],
-  )
-
-  const handleMoveUp = useCallback(() => {
-    if (!selectedSectionId) return
-    const idx = sections.findIndex((s) => s.id === selectedSectionId)
-    if (idx > 0) handleReorder(idx, idx - 1)
-  }, [selectedSectionId, sections, handleReorder])
-
-  const handleMoveDown = useCallback(() => {
-    if (!selectedSectionId) return
-    const idx = sections.findIndex((s) => s.id === selectedSectionId)
-    if (idx < sections.length - 1) handleReorder(idx, idx + 1)
-  }, [selectedSectionId, sections, handleReorder])
 
   // Abort streaming on unmount
   useEffect(() => {
     return () => { abortRef.current?.abort() }
   }, [])
 
-  // ESC to close modals
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (codeEditorSection) {
-          setCodeEditorSection(null)
-        } else if (selection) {
-          setSelection(null)
-          setSelectedSectionId(null)
-        }
-      }
-    }
-    document.addEventListener("keydown", handleKeyDown)
-    return () => document.removeEventListener("keydown", handleKeyDown)
-  }, [codeEditorSection, selection])
+  // Build streaming preview HTML
+  const streamingHtml = isGenerating && streamingSections.length > 0
+    ? buildPreviewHtml(streamingSections, theme)
+    : null
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
@@ -483,7 +364,6 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           <h1 className="text-base font-semibold text-gray-900 truncate">
             Editor IA
           </h1>
-          {/* Status badge */}
           {hasExistingSections && (
             isSaving ? (
               <span className="text-xs text-gray-500 shrink-0">Guardando...</span>
@@ -497,6 +377,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 Publicada
               </span>
             )
+          )}
+          {isRefining && (
+            <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full shrink-0 animate-pulse">
+              Refinando...
+            </span>
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -516,7 +401,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 onClick={handleGenerate}
                 disabled={isGenerating || isLoading || usage.genUsed >= usage.genLimit}
                 className="px-2.5 py-1 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 disabled:opacity-50 inline-flex items-center gap-1.5"
-                title={usage.genUsed >= usage.genLimit ? "Límite de generaciones alcanzado este mes" : `${usage.genLimit - usage.genUsed} generaciones restantes`}
+                title={usage.genUsed >= usage.genLimit ? "Limite de generaciones alcanzado este mes" : `${usage.genLimit - usage.genUsed} generaciones restantes`}
               >
                 {isGenerating ? "Regenerando..." : "Regenerar"}
                 <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.genUsed >= usage.genLimit ? "bg-red-100 text-red-700" : "bg-purple-100 text-purple-700"}`}>
@@ -539,14 +424,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               )}
               <button
                 type="button"
-                onClick={() => {
-                  // Cancel any pending debounced color save — handleSave already includes customColors
-                  if (colorSaveTimer.current) {
-                    clearTimeout(colorSaveTimer.current)
-                    colorSaveTimer.current = null
-                  }
-                  handleSave(true)
-                }}
+                onClick={() => handleSave(true)}
                 disabled={isSaving || (!hasUnpublishedChanges && org.landingPublished)}
                 className={`px-3 py-1 text-sm rounded-lg disabled:opacity-50 ${
                   !hasUnpublishedChanges && org.landingPublished
@@ -573,48 +451,63 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       </div>
 
       {/* Main content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-72 bg-white flex-shrink-0 flex flex-col shadow-[2px_0_8px_-2px_rgba(0,0,0,0.08)]">
-          {hasExistingSections ? (<>
-            <SectionList
-              sections={sections}
-              selectedSectionId={selectedSectionId}
-              theme={theme}
-              onThemeChange={(t: string) => { setTheme(t); setHasUnpublishedChanges(true) }}
-              customColors={customColors}
-              onCustomColorChange={handleCustomColorChange}
-              onSelect={(id) => {
-                setSelectedSectionId(id)
-                canvasRef.current?.scrollToSection(id)
-              }}
-              onOpenCode={(id) => {
-                const s = sections.find((sec) => sec.id === id)
-                if (s) setCodeEditorSection(s)
-              }}
-              onReorder={handleReorder}
-              onDelete={handleDelete}
-              onRename={handleRename}
-              onAdd={() => {
-                setHasUnpublishedChanges(true)
-                const newSection: Section3 = {
-                  id: crypto.randomUUID().slice(0, 8),
-                  order: sections.length,
-                  html: '<section class="bg-surface py-24 px-8 text-center"><h2 class="text-3xl font-bold text-on-surface">Nueva sección</h2><p class="text-on-surface-muted mt-4">Edita esta sección o usa AI para refinarla</p></section>',
-                  label: "Nueva sección",
-                }
-                setSections((prev) => [...prev, newSection])
-              }}
-            />
-          {isGenerating && (
-            <div className="flex items-center gap-3 py-4 px-6 border-t border-gray-200">
+      <div className="flex-1 overflow-hidden">
+        {showEditor ? (
+          /* GrapesJS Editor */
+          <GrapesEditor
+            ref={editorRef}
+            initialHtml={sectionsToHtml(sections)}
+            theme={theme}
+            customColors={customColors}
+            onChange={handleEditorChange}
+            onAiAction={handleAiAction}
+            onThemeChange={handleThemeChange}
+            panelSide="left"
+          />
+        ) : isGenerating ? (
+          /* Streaming preview during generation */
+          <div className="h-full flex flex-col">
+            {streamingHtml ? (
+              <div className="flex-1 overflow-auto bg-white">
+                <iframe
+                  srcDoc={streamingHtml}
+                  className="w-full h-full border-none"
+                  title="Preview"
+                />
+                <div ref={streamEndRef} />
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <div className="flex flex-col items-center gap-6 animate-fade-in">
+                  <img
+                    src="/images/Rocket.gif"
+                    alt="Generando"
+                    className="w-32 h-32 object-contain"
+                  />
+                  <div className="text-center">
+                    <p className="text-lg font-medium text-gray-600">
+                      Generando tu landing page...
+                    </p>
+                    <p className="text-sm text-gray-400 mt-2 max-w-xs">
+                      La IA esta disenando secciones con tus servicios y datos de negocio.
+                    </p>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center gap-3 py-3 px-6 border-t border-gray-200 bg-white">
               <div className="flex gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: "0ms" }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "150ms" }} />
                 <span className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-bounce" style={{ animationDelay: "300ms" }} />
               </div>
               <p className="text-sm font-bold text-gray-500">
-                Sección {streamCount + 1} de ~8...
+                Seccion {streamCount + 1} de ~8...
               </p>
               <button
                 type="button"
@@ -624,9 +517,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 Detener
               </button>
             </div>
-          )}
-          </>) : (
-            <div className="p-6 text-center">
+          </div>
+        ) : (
+          /* Empty state — no sections yet */
+          <div className="flex items-center justify-center h-full">
+            <div className="p-6 text-center max-w-sm">
               <div className="text-6xl mb-4">&#10024;</div>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">
                 Genera tu landing con IA
@@ -648,122 +543,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 {isGenerating ? "Generando..." : "Generar landing"}
                 <span className="ml-2 text-xs opacity-80">({usage.genLimit - usage.genUsed}/{usage.genLimit})</span>
               </button>
-              {isGenerating && (
-                <button
-                  type="button"
-                  onClick={() => { abortRef.current?.abort(); setIsGenerating(false) }}
-                  className="w-full px-4 py-2 mt-2 border border-red-300 text-red-700 rounded-xl hover:bg-red-50 text-sm font-medium"
-                >
-                  Detener
-                </button>
-              )}
             </div>
-          )}
-
-        </div>
-
-        {/* Canvas */}
-        <div className="flex-1 bg-gray-100 relative overflow-hidden flex flex-col">
-          {sections.length > 0 && (
-            <ViewportToggle value={viewport} onChange={setViewport} />
-          )}
-          {sections.length > 0 ? (
-            <div className={`flex-1 overflow-hidden relative ${viewport !== "desktop" ? "flex justify-center" : ""}`}>
-              <div
-                className={`transition-all duration-300 h-full ${viewport !== "desktop" ? "shrink-0" : ""}`}
-                style={{ width: viewport === "tablet" ? 768 : viewport === "mobile" ? 375 : "100%" }}
-              >
-              <Canvas
-                ref={canvasRef}
-                sections={sections}
-                theme={theme}
-                onMessage={handleIframeMessage}
-                iframeRectRef={iframeRectRef}
-                onReady={() => {
-                  if (theme === "custom") {
-                    canvasRef.current?.postMessage({
-                      action: "set-custom-css",
-                      css: buildCustomThemeCss(customColors),
-                    })
-                  }
-                }}
-              />
-              <div ref={streamEndRef} />
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              {isGenerating ? (
-                <div className="flex flex-col items-center gap-6 animate-fade-in">
-                  <img
-                    src="/images/Rocket.gif"
-                    alt="Generando"
-                    className="w-32 h-32 object-contain"
-                  />
-                  <div className="text-center">
-                    <p className="text-lg font-medium text-gray-600">
-                      Generando tu landing page...
-                    </p>
-                    <p className="text-sm text-gray-400 mt-2 max-w-xs">
-                      La IA está diseñando secciones con tus servicios y datos de negocio.
-                    </p>
-                    {streamCount > 0 && (
-                      <p className="text-sm text-purple-500 mt-2 font-medium">
-                        Sección {streamCount} generada...
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </div>
-                </div>
-              ) : (
-                <p className="text-lg">Genera una landing para ver la preview</p>
-              )}
-            </div>
-          )}
-
-          {/* Floating toolbar */}
-          {selection && selectedSectionId && (
-            <FloatingToolbar
-              selection={selection}
-              iframeRect={iframeRectRef.current}
-              onRefine={handleRefine}
-              onMoveUp={handleMoveUp}
-              onMoveDown={handleMoveDown}
-              onDelete={() => handleDelete()}
-              onClose={() => {
-                setSelection(null)
-                setSelectedSectionId(null)
-              }}
-              onUpdateAttribute={handleUpdateAttribute}
-              onViewCode={() => {
-                const s = sections.find((sec) => sec.id === selectedSectionId)
-                if (s) setCodeEditorSection(s)
-              }}
-              isRefining={isRefining}
-            />
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Code editor modal */}
-      {codeEditorSection && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden">
-            <CodeEditor
-              code={codeEditorSection.html}
-              label={codeEditorSection.label}
-              onSave={handleCodeSave}
-              onClose={() => setCodeEditorSection(null)}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Toast notification */}
+      {/* Toast notifications */}
       {saveMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-green-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
           {saveMessage}

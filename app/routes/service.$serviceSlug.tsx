@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
-import { Form, redirect, useFetcher } from "react-router"
+import { data, Form, redirect, useFetcher } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { createPreference, getValidAccessToken } from "~/.server/mercadopago"
@@ -68,7 +68,44 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     return { events }
   }
   if (intent === "create_event") {
-    const data = JSON.parse(formData.get("data") as string)
+    // CSRF validation
+    const { validateCsrf } = await import("~/.server/csrf")
+    const csrfToken = formData.get("_csrf") as string | null
+    if (!validateCsrf(request, csrfToken)) {
+      return {
+        success: false,
+        error: "Sesión expirada. Recarga la página e intenta de nuevo.",
+      }
+    }
+
+    // Rate limit
+    const { checkRateLimit, getClientIP, rateLimitPresets, rateLimitResponse } =
+      await import("~/.server/rateLimit")
+    const ip = getClientIP(request)
+    const rl = checkRateLimit(`booking:${ip}`, rateLimitPresets.booking)
+    if (!rl.success) return rateLimitResponse(rl.resetAt)
+
+    // Server-side validation
+    const rawData = formData.get("data")
+    if (!rawData || typeof rawData !== "string")
+      return { success: false, error: "Datos inválidos" }
+    let data: any
+    try {
+      data = JSON.parse(rawData)
+    } catch {
+      return { success: false, error: "Datos inválidos" }
+    }
+
+    // Honeypot
+    if (data.customer?.website)
+      return { success: false, error: "Datos inválidos" }
+
+    // Validate customer fields server-side
+    const customerResult = userInfoSchema.safeParse(data.customer)
+    if (!customerResult.success)
+      return { success: false, error: "Datos del cliente inválidos" }
+
+    const validatedCustomer = customerResult.data
 
     // Org is resolved from hostname (subdomain or custom domain)
     const org = await resolveOrgFromRequest(request, undefined)
@@ -82,15 +119,15 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
     // Check if User with this email already exists
     const existingUser = await db.user.findUnique({
-      where: { email: data.customer.email },
+      where: { email: validatedCustomer.email },
     })
 
     const customer = await db.customer.create({
       data: {
-        displayName: data.customer.displayName,
-        email: data.customer.email,
-        tel: data.customer.tel || "",
-        comments: data.customer.comments || "",
+        displayName: validatedCustomer.displayName,
+        email: validatedCustomer.email,
+        tel: validatedCustomer.tel || "",
+        comments: validatedCustomer.comments || "",
         org: { connect: { id: org.id } },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -236,6 +273,20 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 }
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
+  const { checkRateLimit, getClientIP, rateLimitPresets } = await import(
+    "~/.server/rateLimit"
+  )
+  const ip = getClientIP(request)
+  const rl = checkRateLimit(`page:${ip}`, rateLimitPresets.pageLoad)
+  if (!rl.success) {
+    throw new Response("Too many requests", {
+      status: 429,
+      headers: {
+        "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+      },
+    })
+  }
+
   // Org is resolved from hostname (subdomain or custom domain)
   const org = await resolveOrgFromRequest(request, undefined)
   if (!org) throw new Response("Org not found", { status: 404 })
@@ -283,7 +334,16 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     timezone: (org.timezone as SupportedTimezone) || DEFAULT_TIMEZONE,
   }
 
-  return { org: orgWithNormalizedDays, service: serviceWithEnglishDays }
+  // CSRF token for booking form
+  const { generateCsrfToken, setCsrfCookie } = await import("~/.server/csrf")
+  const csrfToken = generateCsrfToken()
+  const headers = new Headers()
+  setCsrfCookie(headers, csrfToken)
+
+  return data(
+    { org: orgWithNormalizedDays, service: serviceWithEnglishDays, csrfToken },
+    { headers },
+  )
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
@@ -305,9 +365,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       return
     }
     if (!date) return
-    const customer = result.data
+    const customer = { ...result.data, website: (vals as any).website }
     fetcher.submit(
       {
+        _csrf: loaderData.csrfToken,
         intent: "create_event",
         data: JSON.stringify({
           start: date.toISOString(),
@@ -407,14 +468,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   // Show loading state while submitting
   if (show === "loading") {
     return (
-      <article className="bg-[#f8f8f8] min-h-screen relative">
+      <article className="bg-[#f8f8f8] min-h-screen relative flex flex-col items-center">
         <Header org={org} />
-        <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand_blue mx-auto mb-4"></div>
-            <p className="text-brand_gray">Reservando tu cita...</p>
-          </div>
-        </main>
+        <div className="flex flex-col items-center justify-center flex-1 -mt-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand_blue mb-4"></div>
+          <p className="text-brand_gray text-lg">Reservando tu cita...</p>
+        </div>
       </article>
     )
   }
@@ -459,7 +518,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {show === "user_info" && (
             <Form onSubmit={handleSubmit(onSubmit)} className="flex-1">
               <h3 className="text-lg font-bold mb-6 text-brand_dark">
-                Cuéntanos sobre ti
+                Cuéntame sobre ti
               </h3>
               <BasicInput
                 register={register}
@@ -492,6 +551,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 name="comments"
                 placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
                 registerOptions={{ required: false }}
+              />
+              <input
+                type="text"
+                {...register("website" as any)}
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
               />
             </Form>
           )}

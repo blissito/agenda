@@ -1,18 +1,16 @@
 // app/routes/dash.website.tsx
 import * as React from "react"
-import { useMemo, useRef, useState, useEffect } from "react"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Edit2 } from "~/components/icons/Edit2"
+import { Share } from "~/components/icons/Share"
+import { Website as WebsiteIcon } from "~/components/icons/Website"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { TemplateFormModal } from "~/components/ui/dialog"
+import { ShareWebsiteModal } from "~/routes/dash/website/ShareWebsiteModal"
 import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website"
-import { TemplateFormModal } from "~/components/ui/dialog"
-
-import { Website as WebsiteIcon } from "~/components/icons/Website"
-import { Share } from "~/components/icons/Share"
-import { Edit2 } from "~/components/icons/Edit2"
-
-import { ShareWebsiteModal } from "~/routes/dash/website/ShareWebsiteModal"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request, {
@@ -113,30 +111,30 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
         <div className="flex gap-3">
-            <Link
-              to="/dash/website/ai"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm"
-            >
-              <span>&#10024;</span>
-              Generar con IA
-            </Link>
+          <Link
+            to="/dash/website/ai"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm"
+          >
+            <span>&#10024;</span>
+            Generar con IA
+          </Link>
 
-            <RoundAction as="a" href={url} label="Abrir sitio web">
-              <WebsiteIcon className="w-5 h-5" />
-            </RoundAction>
+          <RoundAction as="a" href={url} label="Abrir sitio web">
+            <WebsiteIcon className="w-5 h-5" />
+          </RoundAction>
 
-            <RoundAction label="Compartir" onClick={onShare}>
-              <Share className="w-5 h-5" />
-            </RoundAction>
+          <RoundAction label="Compartir" onClick={onShare}>
+            <Share className="w-5 h-5" />
+          </RoundAction>
 
-            <TemplateFormModal
-              org={org}
-              trigger={
-                <RoundAction label="Editar sitio web">
-                  <Edit2 className="w-5 h-5" />
-                </RoundAction>
-              }
-            />
+          <TemplateFormModal
+            org={org}
+            trigger={
+              <RoundAction label="Editar sitio web">
+                <Edit2 className="w-5 h-5" />
+              </RoundAction>
+            }
+          />
         </div>
       </div>
 

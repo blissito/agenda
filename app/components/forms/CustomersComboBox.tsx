@@ -40,7 +40,8 @@ export const CustomersComboBox = ({
   // load customers
   useEffect(() => {
     fetcher.load("/api/customers?search")
-  }, [fetcher])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const renders = useRef(0)
   useEffect(() => {
@@ -53,7 +54,8 @@ export const CustomersComboBox = ({
         renders.current = renders.current + 1
       }
     }
-  }, [fetcher, defaultValue])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetcher.data, defaultValue])
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     timeout.current && clearTimeout(timeout.current)
@@ -99,7 +101,7 @@ export const CustomersComboBox = ({
         />
       )}
       {showClientList && (
-        <div className="rounded-2xl bg-white w-full absolute z-20 top-[90%] grid border py-2 px-2 shadow-xl">
+        <div className="rounded-2xl bg-white w-full absolute z-20 top-full mt-2 grid border py-2 px-2 shadow-xl">
           <CustomerList
             onClick={handleCustomerSelection}
             customers={searchableElements}
@@ -119,20 +121,21 @@ const SelectedCustomer = ({
   customer: Customer
 }) => {
   return (
-    <section className="mb-6">
-      <h3 className="mb-2">Cliente</h3>
-      <div className={cn("border rounded-xl p-2 flex items-center gap-4 px-3")}>
-        <span>
+    <section>
+      <label className="text-brand_gray font-satoMedium">Cliente</label>
+      <div className={cn("border rounded-2xl h-12 mt-1 flex items-center gap-4 px-3")}>
+        <span className="text-gray-500">
           <RiUserSearchLine />
         </span>
         <div className="bg-gray-200 rounded-lg py-1 px-3 w-max flex items-center gap-3">
           <span>{customer.displayName}</span>
-          <span className="text-gray-400">{customer.email}</span>
+          <span className="text-gray-400 font-satoshi">{customer.email}</span>
           <button onClick={onClear} className="text-gray-400 hover:text-black">
             <CgRemove />
           </button>
         </div>
       </div>
+      <p className="text-xs h-1 pl-1"></p>
     </section>
   )
 }
@@ -145,7 +148,7 @@ const CustomerList = ({
   customers: Customer[]
 }) => {
   return (
-    <div className="max-h-[200px] overflow-scroll">
+    <div className="max-h-[260px] overflow-scroll">
       {customers.map((customer) => (
         <button
           onClick={() => onClick?.(customer)}
@@ -153,13 +156,13 @@ const CustomerList = ({
           key={customer.id}
           className={cn(
             "py-3 px-3",
-            "hover:bg-gray-100 w-full text-left rounded-lg",
+            "hover:bg-brand_blue/5 w-full text-left rounded-2xl",
             "my-1",
             "flex items-center gap-3",
           )}
         >
           <span>{customer.displayName}</span>
-          <span className="text-gray-400">{customer.email}</span>
+          <span className="text-gray-400 font-satoshi">{customer.email}</span>
         </button>
       ))}
     </div>
@@ -172,8 +175,8 @@ const AddCustomerButton = ({ onClick }: { onClick?: () => void }) => {
       type="button"
       onClick={onClick}
       className={cn(
-        "flex items-center gap-4 bg-brand_blue/10 rounded-full py-2 px-2",
-        "text-brand_blue/80 hover:text-brand_blue",
+        "flex items-center gap-4 rounded-2xl py-2 px-3",
+        "text-brand_blue hover:bg-brand_blue/5",
       )}
     >
       <span>

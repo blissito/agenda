@@ -20,7 +20,9 @@ export const loader = async ({ request }: { request: Request }) => {
   })
   const service = serviceData as unknown as ServiceTimesData
   if (service.weekDays) {
-    service.weekDays = normalizeWeekDays(service.weekDays as Record<string, any>)
+    service.weekDays = normalizeWeekDays(
+      service.weekDays as Record<string, any>,
+    )
   }
   return {
     service,

@@ -11,7 +11,11 @@ const TIGRIS_BUCKET = "easybits-public"
 function resolveImageSrc(src?: string): string | undefined {
   if (!src) return undefined
   // Already a URL or data URI
-  if (src.startsWith("http") || src.startsWith("/") || src.startsWith("data:")) {
+  if (
+    src.startsWith("http") ||
+    src.startsWith("/") ||
+    src.startsWith("data:")
+  ) {
     return src
   }
   // It's a storage key - transform to public Tigris URL

@@ -177,7 +177,9 @@ export async function resolveOrgFromRequest(
   // 2. Subdomain: orgslug.denik.me
   const subdomain = getSubdomain(host)
   if (subdomain) {
-    return db.org.findFirst({ where: { slug: { equals: subdomain, mode: "insensitive" } } })
+    return db.org.findFirst({
+      where: { slug: { equals: subdomain, mode: "insensitive" } },
+    })
   }
 
   // 3. Fallback: use orgSlug from URL path

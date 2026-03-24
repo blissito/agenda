@@ -1,16 +1,16 @@
-import type { Org, Service } from "@prisma/client"
-import { generateLanding } from "@easybits.cloud/html-tailwind-generator/generate"
-import {
-  refineLanding,
-  REFINE_SYSTEM,
-} from "@easybits.cloud/html-tailwind-generator/refine"
-import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import type { GenerateOptions } from "@easybits.cloud/html-tailwind-generator/generate"
+import { generateLanding } from "@easybits.cloud/html-tailwind-generator/generate"
 import type { RefineOptions } from "@easybits.cloud/html-tailwind-generator/refine"
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
-import { getPublicImageUrl } from "~/utils/urls"
+import {
+  REFINE_SYSTEM,
+  refineLanding,
+} from "@easybits.cloud/html-tailwind-generator/refine"
+import type { Org, Service } from "@prisma/client"
 import { db } from "~/utils/db.server"
+import { getPublicImageUrl } from "~/utils/urls"
+import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 
 // ==================== TYPES ====================
 export type { Section3 }
@@ -21,7 +21,11 @@ const LIMITS = { gen: 5, refine: 20 } // Profesional tier default
 export async function getLandingUsage(orgId: string) {
   const org = await db.org.findUniqueOrThrow({
     where: { id: orgId },
-    select: { landingGenCount: true, landingRefineCount: true, landingUsageMonth: true },
+    select: {
+      landingGenCount: true,
+      landingRefineCount: true,
+      landingUsageMonth: true,
+    },
   })
   const currentMonth = new Date().toISOString().slice(0, 7)
   const isCurrentMonth = org.landingUsageMonth === currentMonth
@@ -33,7 +37,10 @@ export async function getLandingUsage(orgId: string) {
   }
 }
 
-export async function incrementLandingUsage(orgId: string, type: "gen" | "refine") {
+export async function incrementLandingUsage(
+  orgId: string,
+  type: "gen" | "refine",
+) {
   const currentMonth = new Date().toISOString().slice(0, 7)
   const org = await db.org.findUniqueOrThrow({
     where: { id: orgId },
@@ -92,9 +99,7 @@ function formatSocialLinks(social: Org["social"]): string {
 }
 
 function buildOrgPrompt(org: Org, services: Service[]): string {
-  const parts: string[] = [
-    `Landing page para "${org.name}"`,
-  ]
+  const parts: string[] = [`Landing page para "${org.name}"`]
 
   if (org.businessType) parts.push(`un negocio de ${org.businessType}`)
   if (org.description) parts.push(`Descripción: ${org.description}`)
@@ -141,8 +146,13 @@ RESPONSIVE DESIGN — CRITICAL:
 // ==================== AI CONFIG ====================
 
 function getAIKeys() {
-  const keys: { anthropicApiKey?: string; pexelsApiKey?: string; openaiApiKey?: string } = {}
-  if (process.env.ANTHROPIC_API_KEY) keys.anthropicApiKey = process.env.ANTHROPIC_API_KEY
+  const keys: {
+    anthropicApiKey?: string
+    pexelsApiKey?: string
+    openaiApiKey?: string
+  } = {}
+  if (process.env.ANTHROPIC_API_KEY)
+    keys.anthropicApiKey = process.env.ANTHROPIC_API_KEY
   if (process.env.PEXELS_API_KEY) keys.pexelsApiKey = process.env.PEXELS_API_KEY
   if (process.env.OPENAI_API_KEY) keys.openaiApiKey = process.env.OPENAI_API_KEY
   return keys
@@ -170,13 +180,15 @@ function makePersistImage(orgId: string) {
     const response = await fetch(tempUrl)
     const buffer = Buffer.from(await response.arrayBuffer())
 
-    await getS3().send(new PutObjectCommand({
-      Bucket: process.env.AWS_BUCKET || "easybits-public",
-      Key: `denik/${key}`,
-      Body: buffer,
-      ContentType: "image/png",
-      ACL: "public-read",
-    }))
+    await getS3().send(
+      new PutObjectCommand({
+        Bucket: process.env.AWS_BUCKET || "easybits-public",
+        Key: `denik/${key}`,
+        Body: buffer,
+        ContentType: "image/png",
+        ACL: "public-read",
+      }),
+    )
 
     return getPublicImageUrl(key)!
   }

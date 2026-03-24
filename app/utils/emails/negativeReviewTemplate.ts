@@ -35,7 +35,7 @@ export default ({
   </div>
   <div style="text-align:center; margin-top:32px; margin-bottom:16px">
     <a href="https://www.denik.me" target="blank" style="text-decoration:none;">
-      <p style="color:#5158F6;font-size:10px;cursor:pointer;">Derechos reservados Deník© 2024</p>
+      <p style="color:#5158F6;font-size:10px;cursor:pointer;">Derechos reservados Deník.me® ${new Date().getFullYear()}</p>
     </a>
   </div>
 </div>

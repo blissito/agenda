@@ -1,8 +1,8 @@
 export const getMetaTags = ({
-  title = "Fixtergeek.com",
-  description = "Cursos y recursos de programación y diseño web",
+  title = "Deník | Tu agenda en un solo lugar",
+  description = "Administra la agenda de tu negocio en un solo lugar",
   image = "/cover.png",
-  url = "https://fixtergeek.com",
+  url = "https://denik.me",
   video,
   audio,
 }: {
@@ -28,16 +28,15 @@ export const getMetaTags = ({
   },
   {
     property: "og:site_name",
-    content: title,
+    content: "Deník",
   },
   {
     property: "og:url",
     content: url,
   },
-
   {
     property: "og:type",
-    content: "video.courses",
+    content: "website",
   },
   {
     property: "og:image",
@@ -45,20 +44,14 @@ export const getMetaTags = ({
   },
   {
     property: "og:image:alt",
-    content: "fixtergeek.com logo",
+    content: title,
   },
   {
     property: "og:locale",
     content: "es_MX",
   },
-  {
-    property: "og:video",
-    content: video,
-  },
-  {
-    property: "og:audio",
-    content: audio,
-  },
+  ...(video ? [{ property: "og:video", content: video }] : []),
+  ...(audio ? [{ property: "og:audio", content: audio }] : []),
   {
     property: "twitter:card",
     content: "summary_large_image",

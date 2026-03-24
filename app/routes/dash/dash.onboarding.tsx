@@ -92,9 +92,7 @@ export default function DashOnboarding() {
                 key={step}
                 className={twMerge(
                   "w-8 h-2 rounded-full",
-                  step <= getCompletedCount()
-                    ? "bg-brand_blue"
-                    : "bg-gray-200"
+                  step <= getCompletedCount() ? "bg-brand_blue" : "bg-gray-200",
                 )}
               />
             ))}
@@ -148,11 +146,7 @@ export default function DashOnboarding() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                   >
-                    <PrimaryButton
-                      as="Link"
-                      to="/dash/pagos"
-                      className="h-10"
-                    >
+                    <PrimaryButton as="Link" to="/dash/pagos" className="h-10">
                       Configurar
                     </PrimaryButton>
                   </motion.div>

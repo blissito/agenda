@@ -1,6 +1,9 @@
 import { type ChangeEvent, useState } from "react"
 
-export const generateTimesFromRange = (range: string[], slotDuration: number) => {
+export const generateTimesFromRange = (
+  range: string[],
+  slotDuration: number,
+) => {
   const startMins = getMinutesFromString(range[0])
   const endMins = getMinutesFromString(range[1])
   const lastValidStart = endMins - slotDuration
@@ -10,7 +13,7 @@ export const generateTimesFromRange = (range: string[], slotDuration: number) =>
   const slotCount = Math.floor((lastValidStart - startMins) / slotDuration) + 1
 
   return Array.from({ length: slotCount }, (_, i) =>
-    getStringFromMinutes(startMins + i * slotDuration)
+    getStringFromMinutes(startMins + i * slotDuration),
   )
 }
 
@@ -85,11 +88,4 @@ export const TimePicker = ({
       ))}
     </select>
   )
-}
-
-{
-  /* <input
-type="time"
-className="border border-gray-200 rounded-xl text-gray-600"
-/> */
 }

@@ -51,11 +51,13 @@ const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => {
     </motion.svg>
   )
 }
+
 import { Dashboard } from "~/components/icons/dashboard"
 import { PrimaryButton } from "../common/primaryButton"
 import { useSidebarState } from "../hooks/useSidebarState"
 import { Denik } from "../icons/denik"
 import { Agenda } from "../icons/menu/agenda"
+import { Chatbot } from "../icons/menu/chatbot"
 import { Clients } from "../icons/menu/clients"
 import { Financial } from "../icons/menu/financial"
 import { Help } from "../icons/menu/help"
@@ -66,6 +68,7 @@ import { Rank } from "../icons/menu/rank"
 import { Services } from "../icons/menu/services"
 import { Settings } from "../icons/menu/settings"
 import { Website } from "../icons/menu/webiste"
+import { People } from "../icons/people"
 
 export function SideBar({
   user,
@@ -301,6 +304,14 @@ const MainMenu = ({ className }: { className?: string }) => {
             Sitio web
           </MenuButton.Title>
         </MenuButton>
+        <MenuButton to="/dash/chatbot" isActive={match("chatbot")}>
+          <MenuButton.Icon isActive={match("chatbot")}>
+            <Chatbot />
+          </MenuButton.Icon>
+          <MenuButton.Title isActive={match("chatbot")}>
+            Chatbot IA
+          </MenuButton.Title>
+        </MenuButton>
         <MenuButton to="/dash/servicios" isActive={match("servicios")}>
           <MenuButton.Icon isActive={match("servicios")}>
             <Services />
@@ -311,6 +322,7 @@ const MainMenu = ({ className }: { className?: string }) => {
         </MenuButton>
         <NavButton pathname="pagos" icon={<Financial />} />
         <NavButton pathname="clientes" />
+        <NavButton pathname="colaboradores" icon={<People />} />
         <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
           <MenuButton.Icon isActive={match("lealtad")}>
             <Loyalty />

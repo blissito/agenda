@@ -135,7 +135,9 @@ export const EventRow = ({ event }: { event: EventWithService }) => {
   const formatPrice = (price: number) => `$${price.toFixed(2)}`
 
   return (
-    <div className={`${GRID} items-center px-6 py-4 border-t border-brand_stroke`}>
+    <div
+      className={`${GRID} items-center px-6 py-4 border-t border-brand_stroke`}
+    >
       {/* Fecha */}
       <div className="flex items-center gap-2">
         <span className="text-brand_gray">
@@ -181,7 +183,9 @@ export const EventRow = ({ event }: { event: EventWithService }) => {
 
       {/* Estatus */}
       <div className="flex items-center gap-2">
-        <StatusTag variant={event.status === "ACTIVE" ? "confirmed" : "canceled"} />
+        <StatusTag
+          variant={event.status === "ACTIVE" ? "confirmed" : "canceled"}
+        />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
       </div>
 
@@ -246,12 +250,12 @@ const EventCardMobile = ({ event }: { event: EventWithService }) => {
         </div>
       </div>
 
-      
       <div className="mt-3 flex items-center gap-2 flex-wrap">
-        <StatusTag variant={event.status === "ACTIVE" ? "confirmed" : "canceled"} />
+        <StatusTag
+          variant={event.status === "ACTIVE" ? "confirmed" : "canceled"}
+        />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
       </div>
-      
     </div>
   )
 }

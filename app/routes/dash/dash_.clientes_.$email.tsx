@@ -6,18 +6,18 @@ import { Link, useNavigation } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Avatar } from "~/components/common/Avatar"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 import { usePluralize } from "~/components/hooks/usePluralize"
+import { Calendar2 } from "~/components/icons/calendar2"
 import { CalendarPicker } from "~/components/icons/calendarPicker"
 import { Mail } from "~/components/icons/mail"
 import { MailButton } from "~/components/icons/mailButton"
+import { Notes } from "~/components/icons/notes"
 import { Phone } from "~/components/icons/phone"
+import { WhatsApp } from "~/components/icons/WhatsApp"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash_.clientes_.$email"
 import { EventTable, type EventWithService } from "./clientes/EventTable"
-import { Notes } from "~/components/icons/notes"
-import { Calendar2 } from "~/components/icons/calendar2"
-import { WhatsApp } from "~/components/icons/WhatsApp"
-import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 
 
 export const handle = { hideSidebar: true }
@@ -279,7 +279,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     <div className="grid grid-cols-3 gap-4 md:grid-cols-1 md:gap-0">
                       <div className="md:mb-4">
                         <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
-                          {stats.eventCount} {pluralize("cita", stats.eventCount)}
+                          {stats.eventCount}{" "}
+                          {pluralize("cita", stats.eventCount)}
                         </p>
                         <p className="text-xs font-satoMedium text-brand_gray">
                           desde el {stats.since}

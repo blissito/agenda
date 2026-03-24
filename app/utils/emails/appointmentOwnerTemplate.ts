@@ -38,10 +38,8 @@ export default ({
        </p></div>
               <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/sM63nU1.png"/><p style="padding-top:4px; ">Sesión de ${minutes} minutos</p></div>
               <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/jua9FtD.png"/><p style="padding-top:4px;" >${Number(amount) > 0 ? `$${amount} mxn` : "Gratuito"}</p></div>
-              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>
-       <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >
-${address}
-       </p></div>
+              ${displayName ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>` : ""}
+       ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
       
   </div>
             <a style="text-decoration:none;" href="${link}" target="blank">
@@ -57,12 +55,12 @@ ${address}
 
   </div>
   <div>
-    <p style="font-size:12px; color:#8391A1; margin-top:64px;">Recuerda que tu compra es válida para el servicio y horario en el que reservaste. Para cambios en tu reserva tienes hasta 3 horas antes del servicio contratado un máximo de 2 veces. Para cancelaciones tienes hasta 24 hrs antes de la reserva, si tienes problemas con la devolución ponte en contacto directo con Estudio Milán. Deník solo actúa como intermediario en la gestión y procesamiento de reservas.</p>
+    <p style="font-size:12px; color:#8391A1; margin-top:64px;">Recuerda que tu compra es válida para el servicio y horario en el que reservaste. Para cambios en tu reserva tienes hasta 3 horas antes del servicio contratado un máximo de 2 veces. Para cancelaciones tienes hasta 24 hrs antes de la reserva, si tienes problemas con la devolución ponte en contacto directo con ${orgName}. Deník solo actúa como intermediario en la gestión y procesamiento de reservas.</p>
   </div>
   <div style="text-align:center; margin-top:32px; margin-bottom:16px">
  
    <a href="https://www.denik.me" target="blank" style="text-decoration:none"> 
-     <p style="color:#5158F6;font-size:10px;cursor:pointer;">Derechos reservados Deník© 2024</p>
+     <p style="color:#5158F6;font-size:10px;cursor:pointer;">Derechos reservados Deník.me® ${new Date().getFullYear()}</p>
     </a>
     
 

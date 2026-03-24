@@ -1,7 +1,6 @@
 import type { Service } from "@prisma/client"
 import { type ChangeEvent, useEffect } from "react"
-import { FaPlus } from "react-icons/fa6"
-import { Link, useFetcher } from "react-router"
+import { useFetcher } from "react-router"
 import { SelectInput } from "./SelectInput"
 
 export const ServiceSelect = ({
@@ -14,28 +13,18 @@ export const ServiceSelect = ({
   const fetcher = useFetcher()
   useEffect(() => {
     fetcher.load("/api/services")
-  }, [fetcher])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const services: Service[] = fetcher.data?.services || []
 
   return (
-    <div className="flex items-center gap-2">
-      <SelectInput
-        defaultValue={defaultValue}
-        className="flex-grow"
-        options={services.map((s) => ({ title: s.name, value: s.id }))}
-        onChange={onChange}
-        placeholder="Selecciona un servicio"
-        label="Servicio"
-      />
-      <Link
-        to="/dash/servicios"
-        className="bg-brand_blue/10 rounded-xl w-12 h-12 flex justify-center items-center"
-      >
-        <span className="text-brand_blue">
-          <FaPlus />
-        </span>
-      </Link>
-    </div>
+    <SelectInput
+      defaultValue={defaultValue}
+      options={services.map((s) => ({ title: s.name, value: s.id }))}
+      onChange={onChange}
+      placeholder="Selecciona un servicio"
+      label="Servicio"
+    />
   )
 }

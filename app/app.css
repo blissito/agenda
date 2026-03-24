@@ -1,14 +1,19 @@
 /* // google fonts */
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Pixelify+Sans:wght@400..700&family=Space+Grotesk:wght@300..700&display=swap");
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-in {
   animation: fade-in-up 0.4s ease-out;
@@ -36,6 +41,7 @@ html {
   font-family: "JakarBold";
   src: url("/fonts/PlusJakartaMedium.ttf");
 }
+
 @font-face {
   font-family: "Denik bold ";
   src: url("/fonts/Satoshi-Bold.ttf");
@@ -60,20 +66,7 @@ html {
   font-weight: normal;
   font-style: normal;
 }
-.font-balloon {
-  font-family: "Balloon";
-}
-.font-grotesk {
-  font-family: "Space Grotesk";
-}
-.font-jakarta-bold {
-  font-family: "JakarBold";
-  font-weight: 800;
-}
-.font-jakarta {
-  font-family: "Jakarta";
-  font-weight: 500;
-}
+
 html {
   --bg-mask-color: red;
 }
@@ -82,7 +75,8 @@ html {
 h1,
 h2,
 h3 {
-  font-family: "JakarBold";
+  /* font-family: "Denik bold "; */
+  font-family: "Medium Font ";
 }
 p {
   font-family: "Satoshi ";
@@ -263,4 +257,91 @@ input[type="color"].custom {
   display: none;
 }
 
-
+/* Calendar overrides: white bg, brand_stroke borders, horizontal dashed */
+.bg-slate-50 {
+  background-color: white !important;
+  border-color: #f2f2f2 !important;
+  border-style: solid !important;
+  border-top-style: dashed !important;
+  border-bottom-style: dashed !important;
+}
+/* Calendar wrapper: padding */
+article.rounded-xl.shadow {
+  padding: 1rem;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+}
+@media (min-width: 1024px) {
+  article.rounded-xl.shadow {
+    padding: 1.5rem;
+  }
+}
+/* Calendar event: mustard side line */
+article.rounded-xl .bg-black\/20.rounded-l-lg {
+  background-color: #efbd23 !important;
+}
+/* Calendar event: client name (title) */
+article.rounded-xl .cursor-grab > .font-medium.truncate {
+  color: #11151a !important;
+  font-size: 14px !important;
+}
+/* Calendar event: service name */
+article.rounded-xl .cursor-grab > .text-\[10px\].truncate {
+  color: #4b5563 !important;
+  font-size: 12px !important;
+  margin-top: 4px;
+  opacity: 1 !important;
+}
+/* Calendar: scroll horizontal synced (header + body together) */
+article.rounded-xl > div {
+  overflow-x: auto !important;
+}
+article.rounded-xl > div > section {
+  min-width: 1040px;
+}
+/* Calendar: "Hoy" button brand_dark */
+div .bg-blue-500.text-white.rounded-full.border {
+  background-color: #11151a !important;
+}
+div .bg-blue-500.text-white.rounded-full.border:hover {
+  background-color: #2a2f36 !important;
+}
+/* Calendar: today circle brand_blue */
+article.rounded-xl .bg-blue-500.rounded-full {
+  background-color: #5158f6 !important;
+}
+/* Calendar cell popup: translate Reserve/Block to Spanish + brand hover */
+article.rounded-xl .shadow-lg.rounded-lg {
+  padding: 4px !important;
+  border-radius: 16px !important;
+  border-color: #f2f2f2 !important;
+}
+article.rounded-xl .shadow-lg.rounded-lg button.rounded-lg {
+  font-size: 0 !important;
+  border-radius: 12px !important;
+}
+article.rounded-xl .shadow-lg.rounded-lg button.rounded-lg:hover {
+  background-color: rgba(81, 88, 246, 0.05) !important;
+}
+article.rounded-xl .shadow-lg.rounded-lg button.rounded-lg:first-child::after {
+  content: "Reservar";
+  font-size: 0.875rem;
+}
+article.rounded-xl .shadow-lg.rounded-lg button.rounded-lg:last-child::after {
+  content: "Bloquear";
+  font-size: 0.875rem;
+}
+/* Calendar day headers: remove top padding, dashed bottom border */
+article.rounded-xl .place-items-center.py-4.border-b {
+  padding-top: 0 !important;
+  border-bottom-style: dashed !important;
+  border-bottom-color: #f2f2f2 !important;
+}
+/* Calendar body: fill available height instead of fixed 70vh */
+.max-h-\[70vh\] {
+  max-height: none !important;
+}
+/* Time column (first child): no borders at all */
+.max-h-\[70vh\] > div:first-child .bg-slate-50 {
+  border: none !important;
+}

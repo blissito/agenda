@@ -44,7 +44,7 @@ export const loader = async ({ request }: { request: Request }) => {
   } catch (error) {
     console.warn(
       "Service photo upload error:",
-      error instanceof Error ? error.message : error
+      error instanceof Error ? error.message : error,
     )
   }
 

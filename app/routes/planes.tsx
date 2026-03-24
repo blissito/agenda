@@ -264,7 +264,8 @@ export const yearlyItems = [
             <ListStar /> Expediente de clientes
           </li>
           <li className="flex gap-3">
-            <ListStar /> Landing page con IA (5 generaciones / 20 refinamientos al mes)
+            <ListStar /> Landing page con IA (5 generaciones / 20 refinamientos
+            al mes)
           </li>
         </ul>
         {/* <PrimaryButton className="mt-10 md:mt-auto">
@@ -311,7 +312,8 @@ export const yearlyItems = [
             <ListStar /> Administración de usuarios
           </li>
           <li className="flex gap-3">
-            <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos al mes)
+            <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos
+            al mes)
           </li>
         </ul>{" "}
         <PrimaryButton className=" mt-10 ">
@@ -358,7 +360,8 @@ export const monthlyItems = [
             <ListStar /> Expediente de clientes
           </li>
           <li className="flex gap-3">
-            <ListStar /> Landing page con IA (5 generaciones / 20 refinamientos al mes)
+            <ListStar /> Landing page con IA (5 generaciones / 20 refinamientos
+            al mes)
           </li>
         </ul>
         {/* <PrimaryButton className="mt-10 md:mt-auto">
@@ -405,7 +408,8 @@ export const monthlyItems = [
             <ListStar /> Administración de usuarios
           </li>
           <li className="flex gap-3">
-            <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos al mes)
+            <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos
+            al mes)
           </li>
         </ul>{" "}
         <PrimaryButton className=" mt-10 ">
