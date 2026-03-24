@@ -66,6 +66,7 @@
     "react-icons": "^5.2.1",
     "react-router": "^7.12.0",
     "react-scroll-parallax": "^3.5.0",
+    "grapesjs": "^0.22.14",
     "recharts": "^3.8.0",
     "slugify": "^1.6.6",
     "stripe": "^19.3.0",
