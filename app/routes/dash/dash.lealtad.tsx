@@ -115,6 +115,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 // ==================== COMPONENT ====================
 
+
 export default function Lealtad() {
   const data = useLoaderData<typeof loader>()
   const revalidator = useRevalidator()

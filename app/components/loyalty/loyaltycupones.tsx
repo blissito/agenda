@@ -4,6 +4,7 @@ import type {
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
+  UIEvent,
 } from "react"
 import { useRevalidator } from "react-router"
 import { twMerge } from "tailwind-merge"
@@ -161,18 +162,125 @@ const FormInput = ({
   />
 )
 
-const FormSelect = ({
+// Nuevo componente CustomSelect basado en FieldSelect del primer código
+function CustomSelect({
+  value,
+  onChange,
   children,
   className = "",
-  ...props
-}: SelectHTMLAttributes<HTMLSelectElement>) => (
-  <select
-    {...props}
-    className={`h-[44px] w-full rounded-[16px] border border-brand_ash px-4 text-[14px] text-brand_dark outline-none focus:border-[#615FFF] ${className}`}
-  >
-    {children}
-  </select>
-)
+  disabled = false,
+}: {
+  value: string
+  onChange: (value: string) => void
+  children: ReactNode
+  className?: string
+  disabled?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapperRef = useRef<HTMLDivElement | null>(null)
+
+  const options = useMemo(() => {
+    return (
+      children &&
+      (Array.isArray(children) ? children : [children])
+        .filter((child): child is React.ReactElement => {
+          return (
+            child !== null &&
+            child !== undefined &&
+            typeof child === "object" &&
+            "props" in child
+          )
+        })
+        .map((child) => {
+          const element = child as React.ReactElement<{
+            value?: string
+            children?: React.ReactNode
+          }>
+
+          return {
+            value: String(element.props.value ?? ""),
+            label: element.props.children,
+          }
+        })
+    )
+  }, [children])
+
+  const selectedOption = options?.find((option) => option.value === value)
+  const selectedLabel = selectedOption?.label ?? options?.[0]?.label ?? ""
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!wrapperRef.current) return
+      if (!wrapperRef.current.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  function handleSelect(nextValue: string) {
+    onChange(nextValue)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={wrapperRef} className={`relative w-full ${className}`}>
+      <button
+        type="button"
+        onClick={() => !disabled && setOpen((prev) => !prev)}
+        disabled={disabled}
+        className="flex h-[44px] w-full items-center rounded-[16px] border border-brand_ash bg-white px-4 pr-10 text-left text-[14px] text-brand_dark outline-none transition focus:border-[#615FFF] disabled:opacity-50"
+      >
+        <span className="truncate">{selectedLabel}</span>
+      </button>
+
+      <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="text-brand_gray"
+        >
+          <path
+            d="M4 6L8 10L12 6"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+
+      {open && !disabled ? (
+        <div className="absolute left-0 right-0 top-[52px] z-50 overflow-hidden rounded-[16px] border border-brand_ash bg-white shadow-md">
+          {options?.map((option) => {
+            const isSelected = option.value === value
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => handleSelect(option.value)}
+                className={[
+                  "flex w-full items-center px-4 py-3 text-left text-[14px] transition",
+                  isSelected
+                    ? "bg-[#F8F7FF] text-brand_dark"
+                    : "bg-white text-brand_dark hover:bg-[#F8F7FF]",
+                ].join(" ")}
+              >
+                {option.label}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
+    </div>
+  )
+}
 
 const WizardField = ({
   label,
@@ -209,28 +317,33 @@ const WizardSelect = ({
   error,
   showError = false,
   children,
+  value,
+  onChange,
   className = "",
-  ...props
 }: {
   label: string
   required?: boolean
   error?: string
   showError?: boolean
   children: ReactNode
-} & SelectHTMLAttributes<HTMLSelectElement>) => (
+  value: string
+  onChange: (value: string) => void
+  className?: string
+}) => (
   <div>
     <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
       {label}
       {required}
     </label>
-    <select
-      {...props}
-      className={`h-[44px] w-full rounded-[16px] border px-4 text-[14px] text-brand_dark outline-none focus:border-[#615FFF] ${
-        showError && error ? "border-brand_red" : "border-brand_ash"
-      } ${className}`}
+
+    <CustomSelect
+      value={value}
+      onChange={onChange}
+      className={showError && error ? "border-brand_red" : ""}
     >
       {children}
-    </select>
+    </CustomSelect>
+
     {showError && error && (
       <p className="mt-1 text-[12px] text-brand_red">{error}</p>
     )}
@@ -542,31 +655,33 @@ function CouponRow({
             ref={menuRef}
             className="absolute right-0 top-12 z-20 w-[188px] rounded-[18px] bg-white p-2 shadow-[0_12px_28px_rgba(16,24,40,0.12)] ring-1 ring-[#F2F4F7]"
           >
-            <div className="space-y-2">
-              <button
-                type="button"
-                onClick={onToggleActive}
-                className="group flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_dark transition hover:bg-[#F8F7FF]"
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F4F4F5] text-brand_gray transition group-hover:bg-[#ECEBFF] group-hover:text-[#615FFF]">
-                  <PauseSmallIcon />
-                </span>
-                <span className="text-[14px] font-satoMedium">
-                  {reward.isActive ? "Desactivar" : "Activar"}
-                </span>
-              </button>
+           <div className="space-y-2">
+  <button
+    type="button"
+    onClick={onToggleActive}
+    className="flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_gray transition hover:bg-[#F5F5F7]"
+  >
+    <span className="flex h-8 w-8 items-center justify-center text-brand_gray">
+      <PauseSmallIcon />
+    </span>
+    <span className="text-[14px] font-satoMedium text-brand_gray">
+      {reward.isActive ? "Desactivar" : "Activar"}
+    </span>
+  </button>
 
-              <button
-                type="button"
-                onClick={onDelete}
-                className="group flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_dark transition hover:bg-[#FDF3F3] hover:text-[#D65B5B]"
-              >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#F4F4F5] text-brand_gray transition group-hover:bg-white group-hover:text-[#D65B5B]">
-                  <TrashSmallIcon />
-                </span>
-                <span className="text-[14px] font-satoMedium">Eliminar</span>
-              </button>
-            </div>
+  <button
+    type="button"
+    onClick={onDelete}
+    className="flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_red transition hover:bg-[#FDF3F3]"
+  >
+    <span className="flex h-8 w-8 items-center justify-center text-brand_red">
+      <TrashSmallIcon />
+    </span>
+    <span className="text-[14px] font-satoMedium text-brand_red">
+      Eliminar
+    </span>
+  </button>
+</div>
           </div>
         )}
       </div>
@@ -887,9 +1002,9 @@ function CouponWizardStepOne({
           label="Tipo de descuento"
           required
           value={discountType}
-          onChange={(e) =>
+          onChange={(value) =>
             setDiscountType(
-              e.target.value === "discount_fixed"
+              value === "discount_fixed"
                 ? "discount_fixed"
                 : "discount_percent",
             )
@@ -919,11 +1034,11 @@ function CouponWizardStepOne({
           label="Duración"
           required
           value={durationType}
-          onChange={(e) =>
+          onChange={(value) =>
             setDurationType(
-              e.target.value === "several_months"
+              value === "several_months"
                 ? "several_months"
-                : e.target.value === "forever"
+                : value === "forever"
                   ? "forever"
                   : "one_time",
             )
@@ -1156,6 +1271,8 @@ function CouponEditModal({
     currentMeta.serviceIds,
   )
 
+  const [hasScrolledTop, setHasScrolledTop] = useState(false)
+
   const toggleService = (serviceId: string) => {
     setSelectedServiceIds((prev) =>
       prev.includes(serviceId)
@@ -1164,9 +1281,13 @@ function CouponEditModal({
     )
   }
 
+  const handleBodyScroll = (e: UIEvent<HTMLDivElement>) => {
+    setHasScrolledTop(e.currentTarget.scrollTop > 0)
+  }
+
   return (
     <Modal onClose={onClose}>
-      <div className="mx-4 w-full max-w-[430px]">
+      <div className="mx-4 w-full max-w-[584px]">
         <form
           onSubmit={(e) =>
             onSubmit(
@@ -1177,163 +1298,184 @@ function CouponEditModal({
               selectedServiceIds,
             )
           }
-          className="flex max-h-[min(760px,calc(100dvh-32px))] min-h-[520px] flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+           className="flex h-[min(848px,calc(100dvh-32px))] w-full flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
         >
-          <div className="shrink-0 px-6 pb-4 pt-6">
-            <div className="flex items-start justify-between gap-4">
-              <h3 className="text-[18px] font-satoBold leading-[24px] text-brand_dark">
-                Editar cupón
-              </h3>
+          <div
+            onScroll={handleBodyScroll}
+            className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <div
+  className={twMerge(
+    "sticky top-0 z-20 transition-all duration-200",
+    hasScrolledTop ? "backdrop-blur-sm" : "bg-white",
+  )}
+>
+  <div className="px-[32px] pb-[24px] pt-[32px]">
+    <div className="flex items-center justify-between">
+      <h3 className="text-[18px] font-satoBold leading-[32px] text-brand_dark">
+        Editar cupón
+      </h3>
 
-              <button
-                type="button"
-                onClick={onClose}
-                className="shrink-0"
-                aria-label="Cerrar"
-              >
-                <X />
-              </button>
-            </div>
-          </div>
+      <button
+        type="button"
+        onClick={onClose}
+        className="shrink-0"
+        aria-label="Cerrar"
+      >
+        <X />
+      </button>
+    </div>
+  </div>
 
-          <div className="flex-1 overflow-y-auto px-6 pb-6 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-            <div className="space-y-5">
-              <div>
-                <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                  Nombre del cupón
-                </FormLabel>
-                <FormInput
-                  name="editName"
-                  defaultValue={reward.name}
-                  placeholder="Nombre del cupón"
-                  required
-                  className="h-[40px] rounded-[12px] text-[12px]"
-                />
-              </div>
+  <div
+    className={twMerge(
+      "pointer-events-none h-4 transition-opacity duration-200",
+      hasScrolledTop
+        ? "bg-gradient-to-b from-white/90 to-transparent opacity-100"
+        : "opacity-0",
+    )}
+  />
+</div>
 
-              <div>
-                <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                  Código del cupón (Código que usarán tus clientes)
-                </FormLabel>
-                <FormInput
-                  name="editCode"
-                  defaultValue={currentMeta.code}
-                  placeholder="Código del cupón"
-                  required
-                  className="h-[40px] rounded-[12px] text-[12px]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
+            <div className="px-[32px] pb-[24px]">
+              <div className="space-y-6">
                 <div>
                   <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                    Tipo de descuento
-                  </FormLabel>
-                  <FormSelect
-                    value={editDiscountType}
-                    onChange={(e) =>
-                      setEditDiscountType(
-                        e.target.value === "discount_fixed"
-                          ? "discount_fixed"
-                          : "discount_percent",
-                      )
-                    }
-                    className="h-[40px] rounded-[12px] text-[12px]"
-                  >
-                    <option value="discount_percent">% de descuento</option>
-                    <option value="discount_fixed">Importe fijo</option>
-                  </FormSelect>
-                </div>
-
-                <div>
-                  <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                    {editDiscountType === "discount_percent"
-                      ? "Porcentaje"
-                      : "Cantidad (mxn)"}
+                    Nombre del cupón
                   </FormLabel>
                   <FormInput
-                    name="editValue"
-                    type="number"
-                    min={1}
-                    defaultValue={
-                      reward.type === "discount_fixed"
-                        ? reward.value / 100
-                        : reward.value
-                    }
-                    placeholder="Valor"
+                    name="editName"
+                    defaultValue={reward.name}
+                    placeholder="Nombre del cupón"
                     required
                     className="h-[40px] rounded-[12px] text-[12px]"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-6">
                 <div>
                   <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                    Duración
+                    Código del cupón (Código que usarán tus clientes)
                   </FormLabel>
-                  <FormSelect
-                    value={editDurationType}
-                    onChange={(e) =>
-                      setEditDurationType(
-                        e.target.value === "several_months"
-                          ? "several_months"
-                          : e.target.value === "forever"
-                            ? "forever"
-                            : "one_time",
-                      )
-                    }
+                  <FormInput
+                    name="editCode"
+                    defaultValue={currentMeta.code}
+                    placeholder="Código del cupón"
+                    required
                     className="h-[40px] rounded-[12px] text-[12px]"
-                  >
-                    <option value="one_time">Una vez</option>
-                    <option value="several_months">Varios meses</option>
-                    <option value="forever">Para siempre</option>
-                  </FormSelect>
-                </div>
-
-                <div>
-                  {editDurationType === "several_months" ? (
-                    <>
-                      <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                        No. de meses
-                      </FormLabel>
-                      <FormInput
-                        name="editMonths"
-                        type="number"
-                        min={2}
-                        defaultValue={currentMeta.months}
-                        placeholder="2"
-                        required
-                        className="h-[40px] rounded-[12px] text-[12px]"
-                      />
-                    </>
-                  ) : (
-                    <div />
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-1">
-                <div className="space-y-3">
-                  <ServiceToggleRow
-                    label="Aplicable para todos los servicios"
-                    checked={applyAllServices}
-                    onChange={(checked) => setApplyAllServices(checked)}
                   />
+                </div>
 
-                  {services.map((service) => (
-                    <ServiceToggleRow
-                      key={service.id}
-                      label={service.name}
-                      checked={
-                        applyAllServices
-                          ? true
-                          : selectedServiceIds.includes(service.id)
+                <div className="grid grid-cols-2 gap-x-[24px]">
+                  <div>
+                    <FormLabel className="mb-2 text-[12px] leading-[16px]">
+                      Tipo de descuento
+                    </FormLabel>
+                    <CustomSelect
+                      value={editDiscountType}
+                      onChange={(value) =>
+                        setEditDiscountType(
+                          value === "discount_fixed"
+                            ? "discount_fixed"
+                            : "discount_percent",
+                        )
                       }
-                      disabled={applyAllServices}
-                      onChange={() => toggleService(service.id)}
+                      className="h-[40px]"
+                    >
+                      <option value="discount_percent">% de descuento</option>
+                      <option value="discount_fixed">Importe fijo</option>
+                    </CustomSelect>
+                  </div>
+
+                  <div>
+                    <FormLabel className="mb-2 text-[12px] leading-[16px]">
+                      {editDiscountType === "discount_percent"
+                        ? "Porcentaje"
+                        : "Cantidad (mxn)"}
+                    </FormLabel>
+                    <FormInput
+                      name="editValue"
+                      type="number"
+                      min={1}
+                      defaultValue={
+                        reward.type === "discount_fixed"
+                          ? reward.value / 100
+                          : reward.value
+                      }
+                      placeholder="Valor"
+                      required
+                      className="h-[40px] rounded-[12px] text-[12px]"
                     />
-                  ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-[24px]">
+                  <div>
+                    <FormLabel className="mb-2 text-[12px] leading-[16px]">
+                      Duración
+                    </FormLabel>
+                    <CustomSelect
+                      value={editDurationType}
+                      onChange={(value) =>
+                        setEditDurationType(
+                          value === "several_months"
+                            ? "several_months"
+                            : value === "forever"
+                              ? "forever"
+                              : "one_time",
+                        )
+                      }
+                      className="h-[40px]"
+                    >
+                      <option value="one_time">Una vez</option>
+                      <option value="several_months">Varios meses</option>
+                      <option value="forever">Para siempre</option>
+                    </CustomSelect>
+                  </div>
+
+                  <div>
+                    {editDurationType === "several_months" ? (
+                      <>
+                        <FormLabel className="mb-2 text-[12px] leading-[16px]">
+                          No. de meses
+                        </FormLabel>
+                        <FormInput
+                          name="editMonths"
+                          type="number"
+                          min={2}
+                          defaultValue={currentMeta.months}
+                          placeholder="2"
+                          required
+                          className="h-[40px] rounded-[12px] text-[12px]"
+                        />
+                      </>
+                    ) : (
+                      <div />
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-1">
+                  <div className="space-y-3">
+                    <ServiceToggleRow
+                      label="Aplicable para todos los servicios"
+                      checked={applyAllServices}
+                      onChange={(checked) => setApplyAllServices(checked)}
+                    />
+
+                    {services.map((service) => (
+                      <ServiceToggleRow
+                        key={service.id}
+                        label={service.name}
+                        checked={
+                          applyAllServices
+                            ? true
+                            : selectedServiceIds.includes(service.id)
+                        }
+                        disabled={applyAllServices}
+                        onChange={() => toggleService(service.id)}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1353,7 +1495,7 @@ function CouponEditModal({
                 <PrimaryButton
                   type="submit"
                   isDisabled={isUpdating}
-                  className="flex h-[52px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
+                  className="flex h-[40px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
                 >
                   {isUpdating ? "Guardando..." : "Guardar"}
                 </PrimaryButton>
@@ -1427,8 +1569,8 @@ function DotsIcon() {
 function PauseSmallIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="24"
+      height="24"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -1444,8 +1586,8 @@ function PauseSmallIcon() {
 function TrashSmallIcon() {
   return (
     <svg
-      width="16"
-      height="16"
+      width="24"
+      height="24"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
