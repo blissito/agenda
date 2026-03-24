@@ -232,7 +232,7 @@ export const EventForm = ({
   }
 
   return (
-    <Form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+    <Form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
       {/* @TODO: create a combobox */}
       <CustomersComboBox
         onSelect={handleCustomerSelection}
@@ -272,7 +272,7 @@ export const EventForm = ({
       {errors.startHour ? (
         <p className="text-red-500">{errors.startHour.message}</p>
       ) : (
-        <p className="mb-6">
+        <p>
           Duración:{" "}
           <strong className="font-sans font-bold"> {duration}m</strong>
         </p>

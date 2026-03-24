@@ -846,23 +846,116 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         .find((p) => p.type === "timeZoneName")?.value
       el.textContent = short ?? ""
     }
-    // Remove library's max-h-[70vh] so calendar shows all hours without internal scroll
+    // 1. Make article + inner containers fill available height
+    const article = calendarRef.current?.querySelector("article") as HTMLElement | null
+    if (article) {
+      article.style.flex = "1"
+      article.style.display = "flex"
+      article.style.flexDirection = "column"
+      const innerDiv = article.firstElementChild as HTMLElement | null
+      if (innerDiv) {
+        innerDiv.style.flex = "1"
+        innerDiv.style.display = "flex"
+        innerDiv.style.flexDirection = "column"
+      }
+    }
+
     const scrollSection = calendarRef.current?.querySelector(
       "article section:last-child",
     ) as HTMLElement | null
-    if (scrollSection) {
-      scrollSection.style.maxHeight = "none"
-      // Fix doubled borders between cells (each cell has border on all sides, doubling up)
-      scrollSection.querySelectorAll<HTMLElement>(".border-dashed").forEach((cell) => {
-        cell.style.borderRightWidth = "0px"
-        cell.style.borderBottomWidth = "0px"
-      })
-      // Remove header's border-bottom to avoid doubling with first row's top border
-      const headerSection = scrollSection.previousElementSibling as HTMLElement | null
-      if (headerSection) {
-        headerSection.style.borderBottomWidth = "0px"
-      }
+    if (!scrollSection) return
+
+    scrollSection.style.maxHeight = "none"
+    scrollSection.style.flex = "1"
+    scrollSection.style.overflow = "visible"
+
+    // 2. Fix doubled borders
+    const headerSection = scrollSection.previousElementSibling as HTMLElement | null
+    if (headerSection) {
+      headerSection.style.borderBottomWidth = "0px"
     }
+    scrollSection.querySelectorAll<HTMLElement>(".border-dashed").forEach((cell) => {
+      cell.style.borderRightWidth = "0px"
+      cell.style.borderBottomWidth = "0px"
+    })
+
+    // 3. Scale cells to fill available height
+    const ORIGINAL_CELL_H = 64
+    const totalHours = 21 - 8
+    const headerH = headerSection?.offsetHeight || 0
+    const articleH = article?.clientHeight || 0
+    const availableH = articleH - headerH
+    const targetCellH = Math.max(ORIGINAL_CELL_H, availableH / totalHours)
+
+    if (targetCellH > ORIGINAL_CELL_H) {
+      const scale = targetCellH / ORIGINAL_CELL_H
+
+      // Scale cell heights
+      scrollSection.querySelectorAll<HTMLElement>(".border-dashed").forEach((cell) => {
+        cell.style.height = `${targetCellH}px`
+      })
+
+      // Scale event top offsets and heights
+      scrollSection.querySelectorAll<HTMLElement>(".absolute.z-10").forEach((el) => {
+        const top = parseFloat(el.style.top)
+        const height = parseFloat(el.style.height)
+        if (!isNaN(top)) el.style.top = `${top * scale}px`
+        if (!isNaN(height)) el.style.height = `${height * scale}px`
+      })
+
+      // Scale current-time indicator
+      scrollSection.querySelectorAll<HTMLElement>(".absolute.z-20").forEach((el) => {
+        const top = parseFloat(el.style.top)
+        if (!isNaN(top)) el.style.top = `${top * scale}px`
+      })
+    }
+
+    // 4. Fix block Options popup + EmptyButton popup on click
+    const container = calendarRef.current!
+    const handleClick = () => {
+      setTimeout(() => {
+        container.querySelectorAll<HTMLElement>(".absolute.shadow-lg").forEach((popup) => {
+          const h3 = popup.querySelector("h3")
+          if (h3) {
+            // Block Options popup
+            popup.style.top = "-80px"
+            popup.style.left = "0"
+            popup.style.paddingLeft = "16px"
+            popup.style.paddingRight = "16px"
+            h3.textContent = "Horario bloqueado"
+            // Actions → top right
+            const actionsDiv = popup.querySelector(
+              "header + div",
+            ) as HTMLElement | null
+            if (actionsDiv) {
+              actionsDiv.style.top = "4px"
+              actionsDiv.style.right = "4px"
+              actionsDiv.style.left = "auto"
+              actionsDiv.style.justifyContent = "flex-end"
+            }
+            const p = popup.querySelector("header > p") as HTMLElement | null
+            if (p) {
+              p.style.fontSize = "12px"
+              const timeMatch = (p.textContent || "").match(/\d{1,2}:\d{2}/)
+              if (timeMatch) p.textContent = timeMatch[0]
+            }
+          } else {
+            // EmptyButton popup (Reserve / Block) — hide "Block" button
+            popup.querySelectorAll("button").forEach((btn) => {
+              const text = btn.textContent?.trim().toLowerCase() || ""
+              if (text === "block" || text === "bloquear") {
+                btn.style.display = "none"
+              }
+              if (text === "reserve" || text === "reservar") {
+                btn.textContent = "Reservar"
+              }
+            })
+          }
+        })
+      }, 50)
+    }
+    container.addEventListener("click", handleClick)
+    return () => container.removeEventListener("click", handleClick)
   }, [controls.date, viewMode])
 
   const eventDateKeys = useMemo(() => {
@@ -879,11 +972,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <>
+    <div className="flex flex-col min-h-[calc(100vh-8rem)]">
       <h1 className="text-3xl font-satoBold mb-2">Mi agenda</h1>
       {mutationFetcher.state !== "idle" && <Spinner />}
-      <div className="flex gap-6">
-        <div ref={calendarRef} className="flex-1 min-w-0">
+      <div className="flex gap-6 flex-1">
+        <div ref={calendarRef} className="flex-1 min-w-0 flex flex-col">
           <AgendaControls
             controls={controls}
             viewMode={viewMode}
@@ -955,6 +1048,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         onClose={() => setShowNewClientDrawer(false)}
         isOpen={showNewClientDrawer}
       />
-    </>
+    </div>
   )
 }
