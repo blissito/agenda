@@ -16,7 +16,6 @@ import {
   CreateLevelWizard,
   TabButton,
   NivelesTab,
-  FilterAdjustIcon,
 } from "~/components/loyalty/loyaltyStep"
 import { CuponesTab } from "~/components/loyalty/loyaltycupones"
 import { PrimaryButton } from "~/components/common/primaryButton"
@@ -181,24 +180,16 @@ export default function Lealtad() {
         </div>
 
         {activeTab === "niveles" && (
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-label="Filtros"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand_gray"
-            >
-              <FilterAdjustIcon />
-            </button>
-
-            <PrimaryButton
-              type="button"
-              onClick={() => setIsCreateWizardOpen(true)}
-              className="h-10 px-5 text-sm"
-            >
-              + Agregar nivel
-            </PrimaryButton>
-          </div>
-        )}
+  <div className="flex items-center gap-3">
+    <PrimaryButton
+      type="button"
+      onClick={() => setIsCreateWizardOpen(true)}
+      className="h-10 px-5 text-sm"
+    >
+      + Agregar nivel
+    </PrimaryButton>
+  </div>
+)}
         {activeTab === "cupones" && rewards.length > 0 && (
           <div className="flex items-center gap-3">
             <PrimaryButton

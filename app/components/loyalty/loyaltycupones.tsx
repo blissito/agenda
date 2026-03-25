@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import type {
   FormEvent,
-  InputHTMLAttributes,
   ReactNode,
-  SelectHTMLAttributes,
   UIEvent,
 } from "react"
 import { useRevalidator } from "react-router"
@@ -19,6 +17,7 @@ import type {
   Transaction,
 } from "~/routes/dash/dash.lealtad"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { BasicInput } from "~/components/forms/BasicInput"
 
 const COUPON_META_PREFIX = "__COUPON_META__:"
 
@@ -138,31 +137,8 @@ function Modal({
   )
 }
 
-const FormLabel = ({
-  children,
-  className = "",
-}: {
-  children: ReactNode
-  className?: string
-}) => (
-  <label
-    className={`mb-1 block font-satoMedium text-[14px] text-brand_gray ${className}`}
-  >
-    {children}
-  </label>
-)
-
-const FormInput = ({
-  className = "",
-  ...props
-}: InputHTMLAttributes<HTMLInputElement>) => (
-  <input
-    {...props}
-    className={`h-[44px] w-full rounded-[16px] border border-brand_ash px-4 text-[14px] text-brand_dark outline-none placeholder:text-brand_silver focus:border-[#615FFF] ${className}`}
-  />
-)
-
 // Nuevo componente CustomSelect basado en FieldSelect del primer código
+
 function CustomSelect({
   value,
   onChange,
@@ -227,11 +203,11 @@ function CustomSelect({
 
   return (
     <div ref={wrapperRef} className={`relative w-full ${className}`}>
-      <button
+     <button
         type="button"
         onClick={() => !disabled && setOpen((prev) => !prev)}
         disabled={disabled}
-        className="flex h-[44px] w-full items-center rounded-[16px] border border-brand_ash bg-white px-4 pr-10 text-left text-[14px] text-brand_dark outline-none transition focus:border-[#615FFF] disabled:opacity-50"
+        className="flex h-[44px] w-full items-center rounded-[16px] border border-brand_ash bg-white px-4 pr-10 text-left text-[16px] leading-[24px] text-brand_dark outline-none transition focus:border-[#615FFF] disabled:opacity-50"
       >
         <span className="truncate">{selectedLabel}</span>
       </button>
@@ -266,7 +242,7 @@ function CustomSelect({
                 type="button"
                 onClick={() => handleSelect(option.value)}
                 className={[
-                  "flex w-full items-center px-4 py-3 text-left text-[14px] transition",
+                  "flex w-full items-center px-4 py-3 text-left text-[16px] leading-[24px] transition",
                   isSelected
                     ? "bg-[#F8F7FF] text-brand_dark"
                     : "bg-white text-brand_dark hover:bg-[#F8F7FF]",
@@ -281,35 +257,6 @@ function CustomSelect({
     </div>
   )
 }
-
-const WizardField = ({
-  label,
-  required = false,
-  error,
-  showError = false,
-  ...props
-}: {
-  label: string
-  required?: boolean
-  error?: string
-  showError?: boolean
-} & InputHTMLAttributes<HTMLInputElement>) => (
-  <div>
-    <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
-      {label}
-      {required}
-    </label>
-    <input
-      {...props}
-      className={`h-[44px] w-full rounded-[16px] border px-4 text-[14px] text-brand_dark outline-none placeholder:text-brand_silver focus:border-[#615FFF] ${
-        showError && error ? "border-brand_red" : "border-brand_ash"
-      } ${props.className || ""}`}
-    />
-    {showError && error && (
-      <p className="mt-1 text-[12px] text-brand_red">{error}</p>
-    )}
-  </div>
-)
 
 const WizardSelect = ({
   label,
@@ -331,7 +278,7 @@ const WizardSelect = ({
   className?: string
 }) => (
   <div>
-    <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
+    <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_dark">
       {label}
       {required}
     </label>
@@ -557,7 +504,7 @@ function CouponTableHeader() {
   ]
 
   return (
-    <div className="mt-4 grid grid-cols-12 items-center rounded-t-2xl border-x border-b border-t border-slate-200 bg-white px-2 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 sm:px-4">
+    <div className="mt-4 grid grid-cols-12 items-center rounded-t-2xl border-b  border-slate-200 bg-white px-2 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 sm:px-4">
       {titles.map(([title, classes]) => (
         <h3
           key={`${title}-${classes}`}
@@ -595,10 +542,11 @@ function CouponRow({
 }) {
   return (
     <div
-      className={twMerge(
-        "grid grid-cols-12 items-center border-x border-b border-slate-200 bg-white px-2 transition-colors hover:bg-slate-50 sm:px-4",
-        isLast && "rounded-b-2xl",
-      )}
+    className={twMerge(
+      "grid grid-cols-12 items-center bg-white px-2 transition-colors hover:bg-slate-50 sm:px-4",
+      !isLast && "border-b border-slate-200",
+      isLast && "rounded-b-2xl",
+    )}
     >
       <button
         type="button"
@@ -655,7 +603,7 @@ function CouponRow({
             ref={menuRef}
             className="absolute right-0 top-12 z-20 w-[188px] rounded-[18px] bg-white p-2 shadow-[0_12px_28px_rgba(16,24,40,0.12)] ring-1 ring-[#F2F4F7]"
           >
-           <div className="space-y-2">
+           <div>
   <button
     type="button"
     onClick={onToggleActive}
@@ -664,7 +612,7 @@ function CouponRow({
     <span className="flex h-8 w-8 items-center justify-center text-brand_gray">
       <PauseSmallIcon />
     </span>
-    <span className="text-[14px] font-satoMedium text-brand_gray">
+    <span className="text-base font-satoMedium text-brand_gray">
       {reward.isActive ? "Desactivar" : "Activar"}
     </span>
   </button>
@@ -677,7 +625,7 @@ function CouponRow({
     <span className="flex h-8 w-8 items-center justify-center text-brand_red">
       <TrashSmallIcon />
     </span>
-    <span className="text-[14px] font-satoMedium text-brand_red">
+    <span className="text-base font-satoMedium text-brand_red">
       Eliminar
     </span>
   </button>
@@ -973,28 +921,39 @@ function CouponWizardStepOne({
     return ""
   }
 
+  const discountValueError = getDiscountValueError()
+  const monthsError = getMonthsError()
+
   return (
     <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
-      <WizardField
+      <BasicInput
         label="Nombre del cupón"
-        required
+        name="couponName"
         value={couponName}
         onChange={(e) => setCouponName(e.target.value)}
         placeholder="Buen Fin"
-        error={!couponName.trim() ? "Este campo es obligatorio" : ""}
-        showError={showValidation}
+        required
       />
+      {showValidation && !couponName.trim() && (
+        <p className="mt-1 text-[12px] text-brand_red">
+          Este campo es obligatorio
+        </p>
+      )}
 
       <div className="mt-5">
-        <WizardField
+        <BasicInput
           label="Código del cupón"
-          required
+          name="couponCode"
           value={couponCode}
           onChange={(e) => setCouponCode(e.target.value)}
           placeholder="BuenFin2026"
-          error={!couponCode.trim() ? "Este campo es obligatorio" : ""}
-          showError={showValidation}
+          required
         />
+        {showValidation && !couponCode.trim() && (
+          <p className="mt-1 text-[12px] text-brand_red">
+            Este campo es obligatorio
+          </p>
+        )}
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
@@ -1016,17 +975,27 @@ function CouponWizardStepOne({
           <option value="discount_fixed">Importe fijo</option>
         </WizardSelect>
 
-        <WizardField
-          label={discountType === "discount_percent" ? "Porcentaje" : "Cantidad (mxn)"}
-          required
-          type="text"
-          inputMode="numeric"
-          value={discountValue}
-          onChange={(e) => setDiscountValue(e.target.value.replace(/\D/g, ""))}
-          placeholder={discountType === "discount_percent" ? "15%" : "$120"}
-          error={getDiscountValueError()}
-          showError={showValidation}
-        />
+        <div>
+          <BasicInput
+            label={
+              discountType === "discount_percent"
+                ? "Porcentaje"
+                : "Cantidad (mxn)"
+            }
+            name="discountValue"
+            type="text"
+            inputMode="numeric"
+            value={discountValue}
+            onChange={(e) => setDiscountValue(e.target.value.replace(/\D/g, ""))}
+            placeholder={discountType === "discount_percent" ? "15%" : "$120"}
+            required
+          />
+          {showValidation && discountValueError && (
+            <p className="mt-1 text-[12px] text-brand_red">
+              {discountValueError}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
@@ -1052,17 +1021,23 @@ function CouponWizardStepOne({
         </WizardSelect>
 
         {durationType === "several_months" ? (
-          <WizardField
-            label="No. de meses"
-            required
-            type="text"
-            inputMode="numeric"
-            value={months}
-            onChange={(e) => setMonths(e.target.value.replace(/\D/g, ""))}
-            placeholder="2"
-            error={getMonthsError()}
-            showError={showValidation}
-          />
+          <div>
+            <BasicInput
+              label="No. de meses"
+              name="months"
+              type="text"
+              inputMode="numeric"
+              value={months}
+              onChange={(e) => setMonths(e.target.value.replace(/\D/g, ""))}
+              placeholder="2"
+              required
+            />
+            {showValidation && monthsError && (
+              <p className="mt-1 text-[12px] text-brand_red">
+                {monthsError}
+              </p>
+            )}
+          </div>
         ) : (
           <div />
         )}
@@ -1088,25 +1063,27 @@ function CouponWizardStepTwo({
 }) {
   return (
     <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
-      <div className="space-y-4">
-        <ServiceToggleRow
-          label="Aplicable para todos los servicios"
-          checked={applyAllServices}
-          onChange={(checked) => {
-            setApplyAllServices(checked)
-          }}
-        />
+     <div>
+  <ServiceToggleRow
+    label="Aplicable para todos los servicios"
+    checked={applyAllServices}
+    onChange={(checked) => {
+      setApplyAllServices(checked)
+    }}
+  />
 
-        {services.map((service) => (
-          <ServiceToggleRow
-            key={service.id}
-            label={service.name}
-            checked={applyAllServices ? true : selectedServiceIds.includes(service.id)}
-            disabled={applyAllServices}
-            onChange={() => toggleService(service.id)}
-          />
-        ))}
-      </div>
+  <div className="mt-[27px] flex flex-col gap-[26px]">
+    {services.map((service) => (
+      <ServiceToggleRow
+        key={service.id}
+        label={service.name}
+        checked={applyAllServices ? true : selectedServiceIds.includes(service.id)}
+        disabled={applyAllServices}
+        onChange={() => toggleService(service.id)}
+      />
+    ))}
+  </div>
+</div>
 
       {error && (
         <div className="mt-4 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-600">
@@ -1204,13 +1181,16 @@ function ServiceToggleRow({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="font-satoMedium text-[14px] text-brand_dark">{label}</span>
+    <div className="flex items-center justify-between gap-[52px]">
+      <span className="min-w-0 flex-1 font-satoMedium text-[16px] leading-[22px] text-brand_dark">
+        {label}
+      </span>
+
       <button
         type="button"
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative h-6 w-12 rounded-full transition ${
+        className={`relative h-6 w-12 shrink-0 rounded-full transition ${
           checked ? "bg-[#615FFF]" : "bg-[#E5E7EB]"
         } ${disabled ? "opacity-100" : ""}`}
         aria-pressed={checked}
@@ -1272,18 +1252,25 @@ function CouponEditModal({
   )
 
   const [hasScrolledTop, setHasScrolledTop] = useState(false)
-
-  const toggleService = (serviceId: string) => {
-    setSelectedServiceIds((prev) =>
-      prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId],
-    )
+  const [hasReachedBottom, setHasReachedBottom] = useState(false)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+  
+  const updateScrollState = (element: HTMLDivElement) => {
+    const { scrollTop, scrollHeight, clientHeight } = element
+  
+    setHasScrolledTop(scrollTop > 0)
+    setHasReachedBottom(scrollTop + clientHeight >= scrollHeight - 2)
   }
-
+  
   const handleBodyScroll = (e: UIEvent<HTMLDivElement>) => {
-    setHasScrolledTop(e.currentTarget.scrollTop > 0)
+    updateScrollState(e.currentTarget)
   }
+  
+  useEffect(() => {
+    if (scrollRef.current) {
+      updateScrollState(scrollRef.current)
+    }
+  }, [reward, editDurationType, applyAllServices, selectedServiceIds.length, services.length])
 
   return (
     <Modal onClose={onClose}>
@@ -1298,78 +1285,73 @@ function CouponEditModal({
               selectedServiceIds,
             )
           }
-           className="flex h-[min(848px,calc(100dvh-32px))] w-full flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
+          className="flex h-[min(848px,calc(100dvh-32px))] w-full flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)]"
         >
           <div
+            ref={scrollRef}
             onScroll={handleBodyScroll}
             className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
             <div
-  className={twMerge(
-    "sticky top-0 z-20 transition-all duration-200",
-    hasScrolledTop ? "backdrop-blur-sm" : "bg-white",
-  )}
->
-  <div className="px-[32px] pb-[24px] pt-[32px]">
-    <div className="flex items-center justify-between">
-      <h3 className="text-[18px] font-satoBold leading-[32px] text-brand_dark">
-        Editar cupón
-      </h3>
-
-      <button
-        type="button"
-        onClick={onClose}
-        className="shrink-0"
-        aria-label="Cerrar"
-      >
-        <X />
-      </button>
-    </div>
-  </div>
-
-  <div
-    className={twMerge(
-      "pointer-events-none h-4 transition-opacity duration-200",
-      hasScrolledTop
-        ? "bg-gradient-to-b from-white/90 to-transparent opacity-100"
-        : "opacity-0",
-    )}
-  />
-</div>
-
+              className={twMerge(
+                "sticky top-0 z-20 transition-all duration-200",
+                hasScrolledTop ? " backdrop-blur-sm" : "bg-white",
+              )}
+            >
+              <div className="px-[32px] pb-[24px] pt-[32px]">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[18px] font-satoBold leading-[32px] text-brand_dark">
+                    Editar cupón
+                  </h3>
+  
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="shrink-0"
+                    aria-label="Cerrar"
+                  >
+                    <X />
+                  </button>
+                </div>
+              </div>
+  
+              <div
+                className={twMerge(
+                  "pointer-events-none h-4 transition-opacity duration-200",
+                  hasScrolledTop
+                    ? "bg-gradient-to-b from-white/90 to-transparent opacity-100"
+                    : "opacity-0",
+                )}
+              />
+            </div>
+  
             <div className="px-[32px] pb-[24px]">
               <div className="space-y-6">
                 <div>
-                  <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                    Nombre del cupón
-                  </FormLabel>
-                  <FormInput
+                  <BasicInput
                     name="editName"
+                    label="Nombre del cupón"
                     defaultValue={reward.name}
                     placeholder="Nombre del cupón"
                     required
-                    className="h-[40px] rounded-[12px] text-[12px]"
                   />
                 </div>
-
+  
                 <div>
-                  <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                    Código del cupón (Código que usarán tus clientes)
-                  </FormLabel>
-                  <FormInput
+                  <BasicInput
                     name="editCode"
+                    label="Código del cupón (Código que usarán tus clientes)"
                     defaultValue={currentMeta.code}
                     placeholder="Código del cupón"
                     required
-                    className="h-[40px] rounded-[12px] text-[12px]"
                   />
                 </div>
-
+  
                 <div className="grid grid-cols-2 gap-x-[24px]">
                   <div>
-                    <FormLabel className="mb-2 text-[12px] leading-[16px]">
+                    <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_dark">
                       Tipo de descuento
-                    </FormLabel>
+                    </label>
                     <CustomSelect
                       value={editDiscountType}
                       onChange={(value) =>
@@ -1385,17 +1367,17 @@ function CouponEditModal({
                       <option value="discount_fixed">Importe fijo</option>
                     </CustomSelect>
                   </div>
-
+  
                   <div>
-                    <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                      {editDiscountType === "discount_percent"
-                        ? "Porcentaje"
-                        : "Cantidad (mxn)"}
-                    </FormLabel>
-                    <FormInput
+                    <BasicInput
                       name="editValue"
                       type="number"
                       min={1}
+                      label={
+                        editDiscountType === "discount_percent"
+                          ? "Porcentaje"
+                          : "Cantidad (mxn)"
+                      }
                       defaultValue={
                         reward.type === "discount_fixed"
                           ? reward.value / 100
@@ -1403,16 +1385,15 @@ function CouponEditModal({
                       }
                       placeholder="Valor"
                       required
-                      className="h-[40px] rounded-[12px] text-[12px]"
                     />
                   </div>
                 </div>
-
+  
                 <div className="grid grid-cols-2 gap-x-[24px]">
                   <div>
-                    <FormLabel className="mb-2 text-[12px] leading-[16px]">
+                    <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_dark">
                       Duración
-                    </FormLabel>
+                    </label>
                     <CustomSelect
                       value={editDurationType}
                       onChange={(value) =>
@@ -1431,21 +1412,18 @@ function CouponEditModal({
                       <option value="forever">Para siempre</option>
                     </CustomSelect>
                   </div>
-
+  
                   <div>
                     {editDurationType === "several_months" ? (
                       <>
-                        <FormLabel className="mb-2 text-[12px] leading-[16px]">
-                          No. de meses
-                        </FormLabel>
-                        <FormInput
+                        <BasicInput
                           name="editMonths"
                           type="number"
                           min={2}
+                          label="No. de meses"
                           defaultValue={currentMeta.months}
                           placeholder="2"
                           required
-                          className="h-[40px] rounded-[12px] text-[12px]"
                         />
                       </>
                     ) : (
@@ -1453,52 +1431,70 @@ function CouponEditModal({
                     )}
                   </div>
                 </div>
-
+  
                 <div className="pt-1">
-                  <div className="space-y-3">
+                  <div>
                     <ServiceToggleRow
                       label="Aplicable para todos los servicios"
                       checked={applyAllServices}
                       onChange={(checked) => setApplyAllServices(checked)}
                     />
 
-                    {services.map((service) => (
-                      <ServiceToggleRow
-                        key={service.id}
-                        label={service.name}
-                        checked={
-                          applyAllServices
-                            ? true
-                            : selectedServiceIds.includes(service.id)
-                        }
-                        disabled={applyAllServices}
-                        onChange={() => toggleService(service.id)}
-                      />
-                    ))}
+                    <div className="mt-[27px] flex flex-col gap-[26px]">
+                      {services.map((service) => (
+                        <ServiceToggleRow
+                          key={service.id}
+                          label={service.name}
+                          checked={
+                            applyAllServices
+                              ? true
+                              : selectedServiceIds.includes(service.id)
+                          }
+                          disabled={applyAllServices}
+                          onChange={() => toggleService(service.id)}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="shrink-0 px-[32px] pb-[32px] pt-[20px]">
-            <div className="flex justify-end">
-              <div className="flex items-center gap-[24px]">
-                <button
-                  type="button"
-                  onClick={onDelete}
-                  className="flex h-[32px] w-[140px] items-center justify-center whitespace-nowrap text-[16px] font-satoMedium text-brand_red"
-                >
-                  Eliminar cupón
-                </button>
-
-                <PrimaryButton
-                  type="submit"
-                  isDisabled={isUpdating}
-                  className="flex h-[40px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
-                >
-                  {isUpdating ? "Guardando..." : "Guardar"}
-                </PrimaryButton>
+  
+            <div className="sticky bottom-0 z-20">
+              <div
+                className={twMerge(
+                  "pointer-events-none h-4 transition-opacity duration-200",
+                  !hasReachedBottom
+                    ? "bg-gradient-to-t from-white/90 to-transparent opacity-100"
+                    : "opacity-0",
+                )}
+              />
+  
+              <div
+                className={twMerge(
+                  "px-[32px] pb-[32px] pt-[20px] transition-all duration-200",
+                  !hasReachedBottom ? " backdrop-blur-sm" : "bg-white",
+                )}
+              >
+                <div className="flex justify-end">
+                  <div className="flex items-center gap-[24px]">
+                    <button
+                      type="button"
+                      onClick={onDelete}
+                      className="flex h-[32px] w-[140px] items-center justify-center whitespace-nowrap text-[16px] font-satoMedium text-brand_red"
+                    >
+                      Eliminar cupón
+                    </button>
+  
+                    <PrimaryButton
+                      type="submit"
+                      isDisabled={isUpdating}
+                      className="flex h-[40px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
+                    >
+                      {isUpdating ? "Guardando..." : "Guardar"}
+                    </PrimaryButton>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

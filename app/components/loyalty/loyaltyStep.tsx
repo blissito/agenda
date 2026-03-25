@@ -12,7 +12,7 @@ import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { ArrowRight } from "~/components/icons/arrowRight"
-import { Settings } from "~/components/icons/settings"
+
 import type { Level, ServiceOption } from "~/routes/dash/dash.lealtad"
 import{X} from "~/components/icons/X"
 
@@ -255,8 +255,8 @@ function LoyaltyLevelCard({
   const imageSrc = level.image ? `/api/images?key=${level.image}` : null
 
   return (
-    <div className="group overflow-hidden rounded-[18px] bg-white">
-      <div className="relative overflow-hidden rounded-t-[16px] bg-[#F5F5F5]">
+    <div className="group overflow-hidden rounded-[16px] bg-white">
+      <div className="relative overflow-hidden rounded-t-[16px] bg-white">
         <div className="aspect-[1.55/1] w-full">
           {imageSrc ? (
             <img
@@ -1033,9 +1033,7 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
   )
 }
 
-export function FilterAdjustIcon() {
-  return <Settings className="h-[18px] w-[18px]" />
-}
+
 
 // ==================== ICONS ====================
 
