@@ -48,7 +48,7 @@ export const BasicInput = ({
     <div className={twMerge("w-full relative", containerClassName)}>
       {label ? (
         <label
-          className={twMerge("text-brand_gray font-satoMedium", className)}
+          className={twMerge("text-brand_dark font-satoMedium", className)}
           htmlFor={name}
         >
           {label}

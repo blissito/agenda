@@ -285,6 +285,7 @@ export function Calendar({
     renderColumnHeader,
     hoursStart = 0,
     hoursEnd = 24,
+    cellHeight: CELL_H = 64,
   } = config;
   const totalHours = hoursEnd - hoursStart;
   const week = completeWeek(date);
@@ -441,7 +442,7 @@ export function Calendar({
             style={resourceGridStyle}
             className="max-h-[70vh] overflow-y-auto"
           >
-            <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} />
+            <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} cellHeight={CELL_H} />
             {Array.from({ length: columnCount }, (_, colIndex) => (
               <Column
                 key={isResourceMode ? resources![colIndex].id : week[colIndex].toISOString()}
@@ -458,6 +459,7 @@ export function Calendar({
                 config={config}
                 hoursStart={hoursStart}
                 hoursEnd={hoursEnd}
+                cellHeight={CELL_H}
               />
             ))}
           </section>
@@ -477,6 +479,7 @@ const Cell = ({
   onClick,
   className,
   dayIndex,
+  cellHeight = 64,
 }: {
   className?: string;
   date?: Date;
@@ -484,6 +487,7 @@ const Cell = ({
   hours?: number;
   children?: ReactNode;
   dayIndex?: number;
+  cellHeight?: number;
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: dayIndex !== undefined ? `cell-${dayIndex}-${hours}` : `time-${hours}`,
@@ -497,8 +501,9 @@ const Cell = ({
       onKeyDown={(e) => e.code === "Space" && onClick?.()}
       onClick={onClick}
       role="button"
+      style={{ height: cellHeight }}
       className={cn(
-        "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
+        "bg-slate-50 w-full border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
         isOver && dayIndex !== undefined && "bg-blue-100",
         className
       )}
@@ -552,18 +557,20 @@ const EmptyButton = ({
             onClick={handleReserva}
             className="hover:bg-blue-50 px-4 py-2 rounded-lg text-left"
           >
-            Reserve
+            Reservar
           </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddBlock?.(d);
-              setShow(false);
-            }}
-            className="hover:bg-blue-50 px-4 py-2 rounded-lg text-left"
-          >
-            Block
-          </button>
+          {onAddBlock && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddBlock(d);
+                setShow(false);
+              }}
+              className="hover:bg-blue-50 px-4 py-2 rounded-lg text-left"
+            >
+              Bloquear
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -638,6 +645,7 @@ const Column = ({
   config = {},
   hoursStart = 0,
   hoursEnd = 24,
+  cellHeight = 64,
 }: {
   onEventClick?: (event: CalendarEvent) => void;
   onNewEvent?: (arg0: Date) => void;
@@ -652,6 +660,7 @@ const Column = ({
   config?: CalendarConfig;
   hoursStart?: number;
   hoursEnd?: number;
+  cellHeight?: number;
 }) => {
   const columnRef = useRef<HTMLDivElement>(null);
   const [now, setNow] = useState(new Date());
@@ -700,6 +709,7 @@ const Column = ({
           overlapColumn={column}
           overlapTotal={totalColumns}
           config={config}
+          cellHeight={cellHeight}
         />
       ));
     }
@@ -726,9 +736,9 @@ const Column = ({
 
   // Current time indicator position (pixels from top of column)
   const nowTop = isColumnToday
-    ? ((now.getHours() - hoursStart) + now.getMinutes() / 60) * 64
+    ? ((now.getHours() - hoursStart) + now.getMinutes() / 60) * cellHeight
     : -1;
-  const showNowLine = isColumnToday && nowTop >= 0 && nowTop <= (hoursEnd - hoursStart) * 64;
+  const showNowLine = isColumnToday && nowTop >= 0 && nowTop <= (hoursEnd - hoursStart) * cellHeight;
 
   return (
     <div ref={columnRef} className="grid relative">
@@ -741,6 +751,7 @@ const Column = ({
             date={dayOfWeek}
             className="relative"
             dayIndex={dayIndex}
+            cellHeight={cellHeight}
           >
             {findEventsAtHour(hours)}
           </Cell>
@@ -764,15 +775,17 @@ const Column = ({
 const TimeColumn = ({
   hoursStart = 0,
   hoursEnd = 24,
+  cellHeight = 64,
 }: {
   hoursStart?: number;
   hoursEnd?: number;
+  cellHeight?: number;
 }) => (
   <div className="grid">
     {Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
       const hour = hoursStart + i;
       return (
-        <Cell key={hour}>{`${hour < 10 ? "0" : ""}${hour}:00`}</Cell>
+        <Cell key={hour} cellHeight={cellHeight}>{`${hour < 10 ? "0" : ""}${hour}:00`}</Cell>
       );
     })}
   </div>
@@ -787,6 +800,7 @@ const DraggableEvent = ({
   overlapColumn = 0,
   overlapTotal = 1,
   config = {},
+  cellHeight = 64,
 }: {
   onClick?: (arg0: CalendarEvent) => void;
   onRemoveBlock?: (eventId: string) => void;
@@ -796,6 +810,7 @@ const DraggableEvent = ({
   overlapColumn?: number;
   overlapTotal?: number;
   config?: CalendarConfig;
+  cellHeight?: number;
 }) => {
   const [showOptions, setShowOptions] = useState(false);
 
@@ -811,7 +826,7 @@ const DraggableEvent = ({
 
   // Calculate top offset for events that don't start at exact hour
   const startMinutes = new Date(event.start).getMinutes();
-  const topOffset = (startMinutes / 60) * 64; // 64px per hour cell
+  const topOffset = (startMinutes / 60) * cellHeight;
 
   // Resolve color
   const colorClass = event.type === "BLOCK"
@@ -840,7 +855,7 @@ const DraggableEvent = ({
         <button
           ref={setNodeRef}
           style={{
-            height: (event.duration / 60) * 64,
+            height: (event.duration / 60) * cellHeight,
             transform: transform ? CSS.Translate.toString(transform) : undefined,
             width: `${widthPercent}%`,
             left: `${leftPercent}%`,
@@ -872,7 +887,7 @@ const DraggableEvent = ({
   }
 
   const style: React.CSSProperties = {
-    height: (event.duration / 60) * 64,
+    height: (event.duration / 60) * cellHeight,
     transform: transform ? CSS.Translate.toString(transform) : undefined,
     width: `${widthPercent}%`,
     left: `${leftPercent}%`,
@@ -894,11 +909,11 @@ const DraggableEvent = ({
         {...attributes}
         className={cn(
           "border-0 grid gap-y-0 overflow-hidden place-content-start",
-          "text-xs text-left pl-3 pr-1 py-1 absolute text-white rounded-lg z-10",
+          "text-xs text-left pl-3 pr-1 py-1 absolute rounded-lg z-10",
           colorClass,
-          event.type === "BLOCK" &&
-            "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
-          event.type !== "BLOCK" && "cursor-grab shadow-sm",
+          event.type === "BLOCK"
+            ? "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0 text-brand_gray"
+            : "text-white cursor-grab shadow-sm",
           isDragging && event.type !== "BLOCK" && "cursor-grabbing opacity-50"
         )}
       >
@@ -912,7 +927,7 @@ const DraggableEvent = ({
         {showTime && event.type !== "BLOCK" && (
           <span className="text-[10px] opacity-90 font-medium">{timeString}</span>
         )}
-        <span className="font-medium truncate">{event.title}</span>
+        <span className="font-medium truncate">{event.type === "BLOCK" ? "Bloqueado" : event.title}</span>
         <span className="text-white/80 truncate text-[10px]">{event.service?.name}</span>
         {event.participants && event.participants.length > 0 && (
           <ParticipantAvatars
@@ -954,7 +969,7 @@ const EventOverlay = ({
         "text-xs text-left pl-3 pr-1 py-1 text-white rounded-lg w-[200px] opacity-90 shadow-lg",
         colorClass
       )}
-      style={{ height: (event.duration / 60) * 64, ...colorStyle }}
+      style={{ height: (event.duration / 60) * (config.cellHeight || 64), ...colorStyle }}
     >
       {event.type !== "BLOCK" && (
         <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
@@ -1003,7 +1018,7 @@ const Options = ({
       className="text-left z-20 bg-white absolute border rounded-lg grid p-3 w-[264px] shadow-lg"
     >
       <header>
-        <h3 className="font-medium">Blocked Time</h3>
+        <h3 className="font-medium">Horario bloqueado</h3>
         <p className="text-xs text-gray-500">{eventDate}</p>
       </header>
       <div className="absolute flex left-0 right-0 justify-end gap-3 px-2 py-2 overflow-hidden">

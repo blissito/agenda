@@ -228,7 +228,7 @@ export const ActionButton = ({
 }) => (
   <button
     className={twMerge(
-      "text-brand_gray border rounded-full h-10 w-10 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white transition-colors enabled:hover:bg-slate-50",
+      "text-brand_gray shadow-sm rounded-full h-10 w-10 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white transition-colors enabled:hover:shadow",
       className,
     )}
     disabled={isDisabled}
@@ -366,10 +366,12 @@ export const ClientAvatar = ({
   photoUrl,
   initials,
   size = "sm",
+  className,
 }: {
   photoUrl?: string | null
   initials: string
   size?: "sm" | "md"
+  className?: string
 }) => {
   const [imageError, setImageError] = useState(false)
 
@@ -381,6 +383,7 @@ export const ClientAvatar = ({
         className={twMerge(
           "rounded-full bg-brand_blue text-white flex items-center justify-center font-semibold shrink-0",
           dim,
+          className,
         )}
       >
         {initials}
@@ -395,6 +398,7 @@ export const ClientAvatar = ({
       className={twMerge(
         "rounded-full object-cover shrink-0 border border-slate-200",
         dim,
+        className,
       )}
       onError={() => setImageError(true)}
     />

@@ -31,6 +31,9 @@ export default {
         brand_purple:"#B4B3E4",
         
       },
+      maxWidth: {
+        "8xl": "1800px",
+      },
       backgroundImage: {
         calendar: "url(/images/calendarPattern.svg)",
         banner: "url(/images/back-banner.png)",
