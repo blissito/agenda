@@ -2,15 +2,6 @@
 import { useState } from "react"
 import { useLoaderData, useRevalidator, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { PrimaryButton } from "~/components/common/primaryButton"
-import {
-  CreateLevelWizard,
-  DescuentosTab,
-  EmptyStateLoyalty,
-  FilterAdjustIcon,
-  NivelesTab,
-  TabButton,
-} from "~/components/loyalty/loyaltyStep"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import {
   getAllRewards,
@@ -20,6 +11,14 @@ import {
 } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.lealtad"
+import {
+  EmptyStateLoyalty,
+  CreateLevelWizard,
+  TabButton,
+  NivelesTab,
+} from "~/components/loyalty/loyaltyStep"
+import { CuponesTab } from "~/components/loyalty/loyaltycupones"
+import { PrimaryButton } from "~/components/common/primaryButton"
 
 // ==================== TYPES ====================
 
@@ -115,13 +114,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 // ==================== COMPONENT ====================
 
+
 export default function Lealtad() {
   const data = useLoaderData<typeof loader>()
   const revalidator = useRevalidator()
   const [searchParams, setSearchParams] = useSearchParams()
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
+  const [isCreateCouponOpen, setIsCreateCouponOpen] = useState(false)
 
-  // Mostrar estado vacío si no está habilitado O si no hay niveles
   const shouldShowEmptyState =
     !data.enabled || (data.enabled && data.levels.length === 0)
 
@@ -148,10 +148,14 @@ export default function Lealtad() {
   }
 
   const { levels, rewards, transactions, services } = data
-  const activeTab =
-    searchParams.get("tab") === "descuentos" ? "descuentos" : "niveles"
 
-  const changeTab = (tab: "niveles" | "descuentos") => {
+  const currentTabParam = searchParams.get("tab")
+  const activeTab =
+    currentTabParam === "cupones" || currentTabParam === "descuentos"
+      ? "cupones"
+      : "niveles"
+
+  const changeTab = (tab: "niveles" | "cupones") => {
     const next = new URLSearchParams(searchParams)
     next.set("tab", tab)
     setSearchParams(next)
@@ -169,28 +173,31 @@ export default function Lealtad() {
             onClick={() => changeTab("niveles")}
           />
           <TabButton
-            label="Descuentos"
-            active={activeTab === "descuentos"}
-            onClick={() => changeTab("descuentos")}
+            label="Cupones"
+            active={activeTab === "cupones"}
+            onClick={() => changeTab("cupones")}
           />
         </div>
 
         {activeTab === "niveles" && (
+  <div className="flex items-center gap-3">
+    <PrimaryButton
+      type="button"
+      onClick={() => setIsCreateWizardOpen(true)}
+      className="h-10 px-5 text-sm"
+    >
+      + Agregar nivel
+    </PrimaryButton>
+  </div>
+)}
+        {activeTab === "cupones" && rewards.length > 0 && (
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              aria-label="Filtros"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#6B7280] shadow-sm ring-1 ring-[#E5E7EB]"
-            >
-              <FilterAdjustIcon />
-            </button>
-
             <PrimaryButton
               type="button"
-              onClick={() => setIsCreateWizardOpen(true)}
+              onClick={() => setIsCreateCouponOpen(true)}
               className="h-10 px-5 text-sm"
             >
-              + Agregar nivel
+              + Agregar cupón
             </PrimaryButton>
           </div>
         )}
@@ -204,7 +211,17 @@ export default function Lealtad() {
             onCreateClick={() => setIsCreateWizardOpen(true)}
           />
         ) : (
-          <DescuentosTab rewards={rewards} transactions={transactions} />
+          <CuponesTab
+            rewards={rewards}
+            transactions={transactions}
+            services={services}
+            isCreateOpen={isCreateCouponOpen}
+            onOpenCreate={() => setIsCreateCouponOpen(true)}
+            onCloseCreate={() => {
+              setIsCreateCouponOpen(false)
+              revalidator.revalidate()
+            }}
+          />
         )}
       </div>
 

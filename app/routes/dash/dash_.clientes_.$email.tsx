@@ -19,6 +19,7 @@ import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash_.clientes_.$email"
 import { EventTable, type EventWithService } from "./clientes/EventTable"
 
+
 export const handle = { hideSidebar: true }
 
 const MOCK_AVATAR =

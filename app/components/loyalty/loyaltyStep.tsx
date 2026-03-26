@@ -1,4 +1,4 @@
-// loyaltySteps.tsx
+// loyaltyStep.tsx
 
 import type {
   ChangeEvent,
@@ -12,14 +12,9 @@ import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { ArrowRight } from "~/components/icons/arrowRight"
-import { Settings } from "~/components/icons/settings"
-import { X } from "~/components/icons/X"
-import type {
-  Level,
-  Reward,
-  ServiceOption,
-  Transaction,
-} from "~/routes/dash/dash.lealtad"
+
+import type { Level, ServiceOption } from "~/routes/dash/dash.lealtad"
+import{X} from "~/components/icons/X"
 
 // ==================== SHARED: LEVEL IMAGE UPLOAD ====================
 
@@ -101,48 +96,6 @@ const FormInput = ({
   />
 )
 
-const FormSelect = ({
-  children,
-  className = "",
-  ...props
-}: React.SelectHTMLAttributes<HTMLSelectElement>) => (
-  <select
-    {...props}
-    className={`w-full rounded border px-3 py-2 text-sm ${className}`}
-  >
-    {children}
-  </select>
-)
-
-const ActionButton = ({
-  onClick,
-  icon: Icon,
-  title,
-  variant = "default",
-}: {
-  onClick: () => void
-  icon: React.ComponentType<{ className?: string }>
-  title: string
-  variant?: "default" | "danger" | "warning" | "success"
-}) => {
-  const variantStyles = {
-    default: "text-gray-500 hover:bg-gray-100 hover:text-brand_blue",
-    danger: "text-gray-500 hover:bg-red-50 hover:text-red-600",
-    warning: "text-gray-500 hover:bg-orange-50 hover:text-orange-600",
-    success: "text-green-600 hover:bg-green-50",
-  }
-
-  return (
-    <button
-      onClick={onClick}
-      className={`rounded p-1.5 ${variantStyles[variant]}`}
-      title={title}
-    >
-      <Icon className="h-4 w-4" />
-    </button>
-  )
-}
-
 const CardActionButton = ({
   onClick,
   icon: Icon,
@@ -188,7 +141,6 @@ export function Modal({
 export function NivelesTab({
   levels,
   services,
-  onCreateClick,
 }: {
   levels: Level[]
   services: ServiceOption[]
@@ -245,8 +197,7 @@ export function NivelesTab({
 
     await apiCall("update-level", {
       levelId: editingLevel.id,
-      name: (form.elements.namedItem("editLevelName") as HTMLInputElement)
-        .value,
+      name: (form.elements.namedItem("editLevelName") as HTMLInputElement).value,
       minPoints: Number(
         (form.elements.namedItem("editMinPoints") as HTMLInputElement).value,
       ),
@@ -304,8 +255,8 @@ function LoyaltyLevelCard({
   const imageSrc = level.image ? `/api/images?key=${level.image}` : null
 
   return (
-    <div className="group overflow-hidden rounded-[18px] bg-white">
-      <div className="relative overflow-hidden rounded-t-[16px] bg-[#F5F5F5]">
+    <div className="group overflow-hidden rounded-[16px] bg-white">
+      <div className="relative overflow-hidden rounded-t-[16px] bg-white">
         <div className="aspect-[1.55/1] w-full">
           {imageSrc ? (
             <img
@@ -329,386 +280,15 @@ function LoyaltyLevelCard({
           />
         </div>
       </div>
-
-      <div className="flex items-center justify-between px-1 py-3">
+      <div className="flex items-center justify-between px-3 pt-3 pb-[15px]">
         <p className="min-w-0 truncate pr-3 text-[14px] font-satoMiddle text-brand_dark">
           {level.name}
         </p>
-        <div className="text-[13px] font-satoMiddle text-brand_gray">
+        <div className="text-[12px] font-satoMiddle text-brand_gray">
           +{level.minPoints} puntos
         </div>
       </div>
     </div>
-  )
-}
-
-// ==================== TAB: DESCUENTOS ====================
-
-export function DescuentosTab({
-  rewards,
-  transactions,
-}: {
-  rewards: Reward[]
-  transactions: Transaction[]
-}) {
-  const revalidator = useRevalidator()
-  const formRef = useRef<HTMLFormElement>(null)
-  const [isCreating, setIsCreating] = useState(false)
-  const [editingReward, setEditingReward] = useState<Reward | null>(null)
-  const [isUpdating, setIsUpdating] = useState(false)
-
-  const apiCall = async (intent: string, payload: Record<string, unknown>) => {
-    const res = await fetch(`/api/loyalty?intent=${intent}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ data: JSON.stringify(payload) }),
-    })
-    return res.json()
-  }
-
-  const handleCreateReward = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsCreating(true)
-
-    const form = e.currentTarget
-    await apiCall("create-reward", {
-      name: (form.elements.namedItem("rewardName") as HTMLInputElement).value,
-      description: (form.elements.namedItem("rewardDesc") as HTMLInputElement)
-        .value,
-      type: (form.elements.namedItem("rewardType") as HTMLSelectElement).value,
-      value: Number(
-        (form.elements.namedItem("rewardValue") as HTMLInputElement).value,
-      ),
-      pointsCost: Number(
-        (form.elements.namedItem("pointsCost") as HTMLInputElement).value,
-      ),
-    })
-
-    form.reset()
-    setIsCreating(false)
-    revalidator.revalidate()
-  }
-
-  const handleToggleActive = async (reward: Reward) => {
-    await apiCall("update-reward", {
-      rewardId: reward.id,
-      isActive: !reward.isActive,
-    })
-    revalidator.revalidate()
-  }
-
-  const handleDelete = async (reward: Reward) => {
-    const result = await apiCall("delete-reward", { rewardId: reward.id })
-    if (result.error) {
-      alert(result.error)
-    } else {
-      revalidator.revalidate()
-    }
-  }
-
-  const handleUpdateReward = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!editingReward) return
-
-    setIsUpdating(true)
-    const form = e.currentTarget
-
-    await apiCall("update-reward", {
-      rewardId: editingReward.id,
-      name: (form.elements.namedItem("editName") as HTMLInputElement).value,
-      description:
-        (form.elements.namedItem("editDesc") as HTMLInputElement).value || null,
-      type: (form.elements.namedItem("editType") as HTMLSelectElement).value,
-      value: Number(
-        (form.elements.namedItem("editValue") as HTMLInputElement).value,
-      ),
-      pointsCost: Number(
-        (form.elements.namedItem("editPointsCost") as HTMLInputElement).value,
-      ),
-    })
-
-    setEditingReward(null)
-    setIsUpdating(false)
-    revalidator.revalidate()
-  }
-
-  const getRewardTypeLabel = (type: string, value: number) => {
-    if (type === "discount_percent") return `${value}% descuento`
-    if (type === "discount_fixed") return `$${value / 100} descuento`
-    return "Servicio gratis"
-  }
-
-  return (
-    <div>
-      <h2 className="mb-3 text-lg font-semibold">Recompensas</h2>
-
-      {rewards.length === 0 ? (
-        <p className="text-gray-500">No hay recompensas configuradas.</p>
-      ) : (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {rewards.map((r) => (
-            <div
-              key={r.id}
-              className={`rounded-lg border bg-white p-4 ${!r.isActive ? "opacity-60" : ""}`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 font-medium">
-                    {r.name}
-                    {!r.isActive && (
-                      <span className="rounded bg-gray-200 px-2 py-0.5 text-xs text-gray-600">
-                        Inactiva
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-500">{r.description}</div>
-                  <div className="mt-2 text-sm">
-                    <span className="font-semibold">{r.pointsCost} pts</span>
-                    {" · "}
-                    {getRewardTypeLabel(r.type, r.value)}
-                  </div>
-                  {r.currentRedemptions > 0 && (
-                    <div className="mt-1 text-xs text-gray-400">
-                      {r.currentRedemptions} canjes
-                      {r.maxRedemptions && ` / ${r.maxRedemptions} max`}
-                    </div>
-                  )}
-                </div>
-
-                <div className="ml-2 flex gap-1">
-                  <ActionButton
-                    onClick={() => setEditingReward(r)}
-                    icon={PencilIcon}
-                    title="Editar"
-                    variant="default"
-                  />
-                  <ActionButton
-                    onClick={() => handleToggleActive(r)}
-                    icon={r.isActive ? PauseIcon : PlayIcon}
-                    title={r.isActive ? "Desactivar" : "Activar"}
-                    variant={r.isActive ? "warning" : "success"}
-                  />
-                  <ActionButton
-                    onClick={() => handleDelete(r)}
-                    icon={TrashIcon}
-                    title="Eliminar"
-                    variant="danger"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {editingReward && (
-        <RewardFormModal
-          reward={editingReward}
-          isUpdating={isUpdating}
-          onSubmit={handleUpdateReward}
-          onClose={() => setEditingReward(null)}
-        />
-      )}
-
-      <RewardCreateForm
-        formRef={formRef}
-        isCreating={isCreating}
-        onSubmit={handleCreateReward}
-      />
-
-      <TransactionsTable transactions={transactions} />
-    </div>
-  )
-}
-
-// Sub-componentes de Descuentos
-function RewardFormModal({
-  reward,
-  isUpdating,
-  onSubmit,
-  onClose,
-}: {
-  reward: Reward
-  isUpdating: boolean
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void
-  onClose: () => void
-}) {
-  return (
-    <Modal onClose={onClose}>
-      <h3 className="mb-4 text-lg font-semibold">Editar recompensa</h3>
-      <form onSubmit={onSubmit} className="space-y-3">
-        <RewardFormFields
-          namePrefix="edit"
-          defaultValues={{
-            name: reward.name,
-            description: reward.description || "",
-            type: reward.type,
-            value: reward.value,
-            pointsCost: reward.pointsCost,
-          }}
-        />
-        <div className="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 rounded border px-4 py-2 text-sm hover:bg-gray-50"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={isUpdating}
-            className="flex-1 rounded bg-brand_blue px-4 py-2 text-sm text-white hover:bg-brand_blue/90 disabled:opacity-50"
-          >
-            {isUpdating ? "Guardando..." : "Guardar"}
-          </button>
-        </div>
-      </form>
-    </Modal>
-  )
-}
-
-function RewardFormFields({
-  namePrefix = "",
-  defaultValues,
-}: {
-  namePrefix?: string
-  defaultValues?: {
-    name?: string
-    description?: string
-    type?: string
-    value?: number
-    pointsCost?: number
-  }
-}) {
-  const n = (base: string) =>
-    namePrefix
-      ? `${namePrefix}${base.charAt(0).toUpperCase() + base.slice(1)}`
-      : base
-
-  return (
-    <>
-      <div>
-        <FormLabel>Nombre</FormLabel>
-        <FormInput
-          name={n("name")}
-          defaultValue={defaultValues?.name}
-          placeholder="Nombre"
-          required
-        />
-      </div>
-      <div>
-        <FormLabel>Descripcion</FormLabel>
-        <FormInput
-          name={n("desc")}
-          defaultValue={defaultValues?.description}
-          placeholder="Descripcion (opcional)"
-        />
-      </div>
-      <div>
-        <FormLabel>Tipo</FormLabel>
-        <FormSelect
-          name={n("type")}
-          defaultValue={defaultValues?.type}
-          required
-        >
-          <option value="discount_percent">% Descuento</option>
-          <option value="discount_fixed">$ Descuento fijo</option>
-          <option value="free_service">Servicio gratis</option>
-        </FormSelect>
-      </div>
-      <div>
-        <FormLabel>Valor</FormLabel>
-        <FormInput
-          name={n("value")}
-          type="number"
-          defaultValue={defaultValues?.value}
-          placeholder="Valor (ej: 10 para 10%)"
-          required
-        />
-      </div>
-      <div>
-        <FormLabel>Costo en puntos</FormLabel>
-        <FormInput
-          name={n("pointsCost")}
-          type="number"
-          defaultValue={defaultValues?.pointsCost}
-          placeholder="Costo en puntos"
-          required
-        />
-      </div>
-    </>
-  )
-}
-
-function RewardCreateForm({
-  formRef,
-  isCreating,
-  onSubmit,
-}: {
-  formRef: React.RefObject<HTMLFormElement | null>
-  isCreating: boolean
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void
-}) {
-  return (
-    <form
-      ref={formRef}
-      onSubmit={onSubmit}
-      className="mt-6 max-w-md rounded-lg bg-gray-50 p-4"
-    >
-      <h3 className="mb-3 font-medium">Nueva recompensa</h3>
-      <div className="space-y-3">
-        <RewardFormFields namePrefix="reward" />
-        <button
-          type="submit"
-          disabled={isCreating}
-          className="rounded bg-brand_blue px-4 py-2 text-sm text-white hover:bg-brand_blue/90 disabled:opacity-50"
-        >
-          {isCreating ? "Creando..." : "Crear recompensa"}
-        </button>
-      </div>
-    </form>
-  )
-}
-
-function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
-  return (
-    <section className="mt-8">
-      <h2 className="mb-3 text-lg font-semibold">Transacciones recientes</h2>
-      {transactions.length === 0 ? (
-        <p className="text-gray-500">Sin transacciones aun.</p>
-      ) : (
-        <div className="overflow-hidden rounded-lg border bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left">Cliente</th>
-                <th className="px-4 py-2 text-left">Tipo</th>
-                <th className="px-4 py-2 text-right">Puntos</th>
-                <th className="px-4 py-2 text-right">Balance</th>
-                <th className="px-4 py-2 text-left">Razon</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((tx) => (
-                <tr key={tx.id} className="border-t">
-                  <td className="px-4 py-2">{tx.customer.displayName}</td>
-                  <td className="px-4 py-2">{tx.type}</td>
-                  <td
-                    className={`px-4 py-2 text-right ${tx.points >= 0 ? "text-green-600" : "text-red-600"}`}
-                  >
-                    {tx.points >= 0 ? "+" : ""}
-                    {tx.points}
-                  </td>
-                  <td className="px-4 py-2 text-right">{tx.balance}</td>
-                  <td className="px-4 py-2 text-gray-500">{tx.reason}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
   )
 }
 
@@ -746,7 +326,7 @@ export function CreateLevelWizard({
     discountPercent !== "" &&
     Number.isFinite(parsedMinPoints) &&
     Number.isFinite(parsedDiscount) &&
-    parsedMinPoints >= 0 &&
+    parsedMinPoints >= 1 &&
     parsedDiscount > 0 &&
     parsedDiscount <= 100
 
@@ -770,6 +350,7 @@ export function CreateLevelWizard({
   const handleBack = () => {
     if (isSubmitting) return
     setShowValidation(false)
+
     if (step === 1) {
       onClose()
     } else if (step === 2) {
@@ -783,9 +364,9 @@ export function CreateLevelWizard({
     if (step === 1) {
       if (!isStepOneValid) {
         setShowValidation(true)
-
         return
       }
+
       setShowValidation(false)
       setError(null)
       setStep(2)
@@ -894,7 +475,6 @@ export function CreateLevelWizard({
             setDiscountPercent={setDiscountPercent}
             imagePreview={imagePreview}
             handleImageChange={handleImageChange}
-            error={error}
             showValidation={showValidation}
           />
         )}
@@ -927,7 +507,7 @@ export function CreateLevelWizard({
 function WizardHeader({ currentStep }: { currentStep: 1 | 2 }) {
   return (
     <div className="mx-auto w-full pt-10 text-center sm:pt-8">
-      <h2 className="text-2xl  font-satoBold text-brand_dark">
+      <h2 className="text-2xl font-satoBold text-brand_dark">
         ¡Empecemos! Crea un nuevo nivel para tus clientes
       </h2>
       <div className="mt-5 flex justify-center">
@@ -946,7 +526,6 @@ function WizardStepOne({
   setDiscountPercent,
   imagePreview,
   handleImageChange,
-  error,
   showValidation = false,
 }: {
   levelName: string
@@ -957,19 +536,18 @@ function WizardStepOne({
   setDiscountPercent: (value: string) => void
   imagePreview: string | null
   handleImageChange: (file?: File | null) => void
-  error: string | null
   showValidation?: boolean
 }) {
   const getMinPointsError = () => {
     if (!minPoints) return "Este campo es obligatorio"
-    if (Number(minPoints) < 0) return "Debe ser mayor o igual a 0"
+    if (Number(minPoints) < 1) return "Debe ser mayor o igual a 1"
     return ""
   }
 
   const getDiscountError = () => {
     if (!discountPercent) return "Este campo es obligatorio"
     const num = Number(discountPercent)
-    if (num <= 0) return "Debe ser mayor a 0"
+    if (num < 1) return "Debe ser mayor o igual a 1"
     if (num > 100) return "Debe ser menor o igual a 100"
     return ""
   }
@@ -1028,10 +606,13 @@ function WizardStepOne({
         <WizardInput
           label="Puntos requeridos"
           required
-          type="number"
-          min={0}
+          type="text"
+          inputMode="numeric"
           value={minPoints}
-          onChange={(e) => setMinPoints(e.target.value)}
+          onChange={(e) => {
+            const onlyDigits = e.target.value.replace(/\D/g, "")
+            setMinPoints(onlyDigits)
+          }}
           placeholder="00"
           error={getMinPointsError()}
           showError={showValidation}
@@ -1040,12 +621,13 @@ function WizardStepOne({
         <WizardInput
           label="Porcentaje de descuento"
           required
-          type="number"
-          min={0}
-          max={100}
-          step={0.1}
+          type="text"
+          inputMode="numeric"
           value={discountPercent}
-          onChange={(e) => setDiscountPercent(e.target.value)}
+          onChange={(e) => {
+            const onlyDigits = e.target.value.replace(/\D/g, "")
+            setDiscountPercent(onlyDigits)
+          }}
           placeholder="10%"
           error={getDiscountError()}
           showError={showValidation}
@@ -1121,19 +703,19 @@ function WizardSuccessScreen({ onClose }: { onClose: () => void }) {
           <img
             src="/images/dancing-tag.webp"
             alt="Nivel creado exitosamente"
-            className="mx-auto mb-5 w-[150px] sm:w-[190px] md:w-[220px]"
+            className="mx-auto mb-6 w-[150px] sm:w-[190px] md:w-[220px]"
           />
-          <h3 className="text-2xl font-satoBold text-brand_dark sm:text-[28px]">
+          <h3 className="text-2xl font-satoBold text-brand_dark">
             ¡Eso sí es consentir clientes!
           </h3>
-          <p className="mx-auto mt-3 max-w-[360px] text-[18px] text-brand_gray sm:text-[15px]">
+          <p className="mx-auto mt-3 max-w-[420px] text-[18px] text-brand_gray">
             Ahora tus clientes pueden disfrutar de descuentos y beneficios ✨
           </p>
-          <div className="mt-7">
+          <div className="mt-12">
             <SecondaryButton
               type="button"
               onClick={onClose}
-              className="mx-auto min-w-[148px]"
+              className="mx-auto h-10 min-w-[180px] text-brand_dark"
             >
               Volver
             </SecondaryButton>
@@ -1147,7 +729,6 @@ function WizardSuccessScreen({ onClose }: { onClose: () => void }) {
 function WizardFooter({
   onBack,
   onNext,
-  canContinue,
   isSubmitting,
   nextText,
 }: {
@@ -1412,8 +993,8 @@ export function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`relative pb-2 text-sm font-medium ${
-        active ? "text-[#20242D]" : "text-[#8A90A2]"
+      className={`relative pb-2 text-base font-satoMedium ${
+        active ? "text-brand_dark" : "text-brand_gray"
       }`}
     >
       {label}
@@ -1433,10 +1014,10 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
           src="/images/emptyState/loyalty.webp"
           alt=""
         />
-        <p className="text-xl font-satoBold">
-          Convierte visitas en clientes frecuentes!
+        <p className="text-2xl font-satoBold">
+          ¡Convierte visitas en clientes frecuentes!
         </p>
-        <p className="mx-auto mt-2 max-w-[620px] text-center text-brand_gray">
+        <p className="mx-auto mt-2 max-w-[780px] text-center text-[18px] text-brand_gray">
           Activa el programa de lealtad y ofrece descuentos permanentes a tus
           clientes mas fieles, ademas de promociones para temporadas especiales
         </p>
@@ -1452,9 +1033,7 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
   )
 }
 
-export function FilterAdjustIcon() {
-  return <Settings className="h-[18px] w-[18px]" />
-}
+
 
 // ==================== ICONS ====================
 
@@ -1490,44 +1069,6 @@ function TrashIcon({ className = "" }: { className?: string }) {
         strokeWidth={2}
         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
       />
-    </svg>
-  )
-}
-
-function PauseIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      className={className || "h-4 w-4"}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M10 9v6m4-6v6"
-      />
-      <circle cx="12" cy="12" r="9" strokeWidth={2} />
-    </svg>
-  )
-}
-
-function PlayIcon({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      className={className || "h-4 w-4"}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-      />
-      <circle cx="12" cy="12" r="9" strokeWidth={2} />
     </svg>
   )
 }
