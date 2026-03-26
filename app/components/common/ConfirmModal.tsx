@@ -81,10 +81,10 @@ export const ConfirmModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-4 top-4 p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-all active:scale-95"
+              className="absolute right-4 top-4 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
               aria-label="Cerrar"
             >
-              <IoClose />
+              <IoClose className="text-2xl" />
             </button>
 
             {/* content */}
@@ -94,9 +94,10 @@ export const ConfirmModal = ({
               </h3>
 
               {description && (
-                <p className="mt-[16px] text-center font-medium font-satoshi text-[16px] leading-[22px] text-brand_gray">
-                  {description}
-                </p>
+                <p
+                  className="mt-[16px] text-center font-medium font-satoshi text-[16px] leading-[22px] text-brand_gray"
+                  dangerouslySetInnerHTML={{ __html: description }}
+                />
               )}
 
               {/* buttons */}

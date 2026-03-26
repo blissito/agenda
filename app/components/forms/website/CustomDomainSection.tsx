@@ -168,7 +168,7 @@ export function CustomDomainSection({ org }: { org: OrgWithDomain }) {
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
                 placeholder="agenda.minegocio.com"
-                className="flex-1 h-10 px-3 rounded-lg border border-gray-200 focus:border-brand_blue outline-none text-sm"
+                className="flex-1 h-10 px-3 rounded-lg border border-gray-200 focus:border-brand_blue focus:outline-none focus:ring-0 text-sm"
               />
               <button
                 onClick={handleAddDomain}

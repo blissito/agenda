@@ -509,11 +509,12 @@ const EmptyState = ({ search, onClear }: { search: string; onClear: () => void }
   <div className="py-16 flex flex-col items-center gap-3 text-center">
     {search ? (
       <>
-        <MagnifyingGlass className="w-12 h-12 text-brand_gray" />
-        <p className="font-satoMedium text-lg">Sin resultados para &quot;{search}&quot;</p>
-        <button onClick={onClear} className="text-brand_blue text-sm underline underline-offset-2">
-          Limpiar busqueda
-        </button>
+        <img src="/images/emptyState/search.svg" alt="" className="w-24 h-24" />
+        <p className="font-satoBold text-lg text-brand_dark">¡Vaya! No hay coincidencias con la búsqueda</p>
+        <p className="text-sm text-brand_gray">Intenta buscar por otro nombre, correo o teléfono.</p>
+        <SecondaryButton onClick={onClear} className="mt-2 min-w-0 h-10 px-5 text-sm">
+          Limpiar búsqueda
+        </SecondaryButton>
       </>
     ) : (
       <p className="text-brand_gray">No hay citas registradas</p>

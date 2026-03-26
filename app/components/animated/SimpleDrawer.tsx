@@ -62,7 +62,7 @@ export const Drawer = ({
       <motion.button
         onClick={onClose}
         id="overlay"
-        className="fixed inset-0 bg-slate-200/20 z-10"
+        className="fixed inset-0 bg-slate-200/20 z-40"
         animate={{ backdropFilter: "blur(4px)" }}
         exit={{ backdropFilter: "blur(0)", opacity: 0 }}
       />
@@ -72,26 +72,27 @@ export const Drawer = ({
         exit={{ x: "120%" }}
         transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
         className={cn(
-          "bg-white md:max-w-[540px] lg:w-[40%] md:w-[60%] w-[90%] z-10 h-screen fixed top-0 right-0 shadow-xl rounded-tl-3xl rounded-bl-3xl p-8 flex flex-col",
+          "bg-white md:max-w-[540px] lg:w-[40%] md:w-[60%] w-full z-50 h-screen fixed top-0 right-0 shadow-xl md:rounded-tl-3xl md:rounded-bl-3xl p-6 md:p-8 flex flex-col",
           {
-            "md:w-[80%] lg:w-[60%]": size === "big",
+            "md:max-w-[580px] md:w-[580px] lg:w-[580px]": size === "big",
           },
         )}
       >
-        <header className="flex items-start justify-between mb-3">
+        <header className="flex items-start justify-between mb-6">
           <div>
-            <h4 className="fot-bold text-2xl">{title}</h4>
+            <h4 className="font-satoBold text-2xl">{title}</h4>
             <p className="text-brand_gray">{subtitle}</p>
           </div>
           <button
             tabIndex={0}
             onClick={onClose}
-            className="text-2xl bg-gray-200 rounded-full p-1 active:scale-95"
+            className="text-2xl border-brand_ash border text-brand_gray w-8 h-8 grid place-items-center rounded-full p-1 active:scale-95"
           >
-            <IoClose />
+            <IoClose className="-mt-[1px] -ml-[1px]" />
           </button>
         </header>
         <section
+          className="flex-1 overflow-y-auto"
           style={{
             scrollbarWidth: "none",
           }}

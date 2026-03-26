@@ -52,7 +52,7 @@ export const UsernameInput = ({ org }: { org: Org }) => {
           onChange={handleSlugChange}
           className={twMerge(
             "placeholder-brand_iron text-brand_gray font-satoshi rounded-full border-none ",
-            "focus:border-brand_blue",
+            "focus:border-brand_blue focus:outline-none focus:ring-0",
             "h-8 w-full ",
             "disabled:bg-brand_stroke disabled:cursor-not-allowed",
           )}

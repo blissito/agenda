@@ -22,8 +22,15 @@ export const action = async ({ request }: Route.ActionArgs) => {
       )
     }
     const now = new Date()
-    return await db.customer.create({
-      data: {
+    return await db.customer.upsert({
+      where: { email_orgId: { email: result.data.email, orgId: org.id } },
+      update: {
+        displayName: result.data.displayName,
+        tel: result.data.tel ?? undefined,
+        comments: result.data.comments ?? undefined,
+        updatedAt: now,
+      },
+      create: {
         displayName: result.data.displayName,
         email: result.data.email,
         tel: result.data.tel ?? "",

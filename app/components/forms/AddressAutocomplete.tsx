@@ -169,7 +169,7 @@ export function AddressAutocomplete({
           autoComplete="off"
           className={twMerge(
             "placeholder:text-brand_iron text-brand_dark font-satoMedium",
-            "focus:border-brand_blue",
+            "focus:border-brand_blue focus:outline-none focus:ring-0",
             "rounded-xl border-gray-200 h-12 w-full mt-1",
             "disabled:bg-brand_stroke disabled:cursor-not-allowed",
           )}

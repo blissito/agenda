@@ -254,7 +254,7 @@ const DayHeader = ({
   // Default: weekday + date number
   return (
     <p className="grid place-items-center">
-      <span className="capitalize">
+      <span className="capitalize text-[11px] md:text-base">
         {date.toLocaleDateString(locale, { weekday: "short" })}
       </span>
       <span
@@ -291,6 +291,17 @@ export function Calendar({
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState<string | null>(null);
   const { canMove } = useCalendarEvents(events);
+
+  // Responsive mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   // Ref for scrollable container
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -374,18 +385,21 @@ export function Calendar({
     });
   };
 
-  // Dynamic grid columns: 1 for time + N for days/resources
-  const gridStyle = {
+  // Dynamic grid columns: 1 for time + N for days/resources (responsive)
+  const timeColWidth = isMobile ? 44 : 60;
+  const colMinWidth = isMobile ? 80 : 140;
+
+  const gridStyle: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: `60px repeat(${columnCount}, minmax(140px, 1fr))`,
+    gridTemplateColumns: `${timeColWidth}px repeat(${columnCount}, minmax(${colMinWidth}px, 1fr))`,
   };
 
   // For resource mode, we need min-width to enable horizontal scroll
-  const resourceGridStyle = isResourceMode
+  const resourceGridStyle: React.CSSProperties = isResourceMode
     ? {
         display: "grid",
-        gridTemplateColumns: `60px repeat(${columnCount}, minmax(150px, 1fr))`,
-        minWidth: `${60 + columnCount * 150}px`,
+        gridTemplateColumns: `${timeColWidth}px repeat(${columnCount}, minmax(150px, 1fr))`,
+        minWidth: `${timeColWidth + columnCount * 150}px`,
       }
     : gridStyle;
 
@@ -402,8 +416,9 @@ export function Calendar({
         <div
           ref={scrollContainerRef}
           className={cn(
-            isResourceMode && "overflow-x-auto"
+            (isResourceMode || isMobile) && "overflow-x-auto"
           )}
+          style={isMobile ? { WebkitOverflowScrolling: "touch" } : undefined}
         >
           {/* Header */}
           <section
@@ -411,7 +426,7 @@ export function Calendar({
             className="place-items-center py-4 border-b sticky top-0 bg-white z-10"
           >
             <p>
-              <span className="text-sm text-gray-500">
+              <span className={cn("text-sm text-gray-500", isMobile && "text-[8px] leading-tight")}>
                 {isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone}
               </span>
             </p>
@@ -440,9 +455,11 @@ export function Calendar({
           {/* Grid */}
           <section
             style={resourceGridStyle}
-            className="max-h-[70vh] overflow-y-auto"
+            className={cn(
+              !isMobile && "max-h-[70vh] overflow-y-auto"
+            )}
           >
-            <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} cellHeight={CELL_H} />
+            <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} cellHeight={CELL_H} compact={isMobile} />
             {Array.from({ length: columnCount }, (_, colIndex) => (
               <Column
                 key={isResourceMode ? resources![colIndex].id : week[colIndex].toISOString()}
@@ -776,16 +793,22 @@ const TimeColumn = ({
   hoursStart = 0,
   hoursEnd = 24,
   cellHeight = 64,
+  compact = false,
 }: {
   hoursStart?: number;
   hoursEnd?: number;
   cellHeight?: number;
+  compact?: boolean;
 }) => (
   <div className="grid">
     {Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
       const hour = hoursStart + i;
       return (
-        <Cell key={hour} cellHeight={cellHeight}>{`${hour < 10 ? "0" : ""}${hour}:00`}</Cell>
+        <Cell key={hour} cellHeight={cellHeight}>
+          <span className={cn(compact && "text-[11px]")}>
+            {`${hour < 10 ? "0" : ""}${hour}:00`}
+          </span>
+        </Cell>
       );
     })}
   </div>

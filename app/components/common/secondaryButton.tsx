@@ -47,8 +47,9 @@ export const SecondaryButton = forwardRef<
   } = props
 
   const mergedClassName = twMerge(
+    "font-satoMedium",
     isDisabled &&
-      "disabled:bg-gray-300 disabled:cursor-not-allowed font-satoMiddle",
+      "disabled:bg-gray-300 disabled:cursor-not-allowed",
     "bg-brand_pale text-brand-dark h-[48px] min-w-[80px] px-4",
     "enabled:hover:-translate-y-1 transition duration-400",
     "rounded-full flex items-center justify-center text-center gap-2",

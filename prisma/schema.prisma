@@ -319,6 +319,7 @@ model Customer {
   loyaltyTransactions LoyaltyTransaction[]
   loyaltyRedemptions  LoyaltyRedemption[]
 
+  @@unique([email, orgId])
   @@index([orgId])
 }
 
