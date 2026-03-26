@@ -364,7 +364,8 @@ function Calendar({
     icons = {},
     renderColumnHeader,
     hoursStart = 0,
-    hoursEnd = 24
+    hoursEnd = 24,
+    cellHeight: CELL_H = 64
   } = config;
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState(null);
@@ -484,7 +485,7 @@ function Calendar({
                   style: resourceGridStyle,
                   className: "max-h-[70vh] overflow-y-auto",
                   children: [
-                    /* @__PURE__ */ jsx(TimeColumn, { hoursStart, hoursEnd }),
+                    /* @__PURE__ */ jsx(TimeColumn, { hoursStart, hoursEnd, cellHeight: CELL_H }),
                     Array.from({ length: columnCount }, (_, colIndex) => /* @__PURE__ */ jsx(
                       Column,
                       {
@@ -500,7 +501,8 @@ function Calendar({
                         resourceId: isResourceMode ? resources[colIndex].id : void 0,
                         config,
                         hoursStart,
-                        hoursEnd
+                        hoursEnd,
+                        cellHeight: CELL_H
                       },
                       isResourceMode ? resources[colIndex].id : week[colIndex].toISOString()
                     ))
@@ -521,7 +523,8 @@ var Cell = ({
   children,
   onClick,
   className,
-  dayIndex
+  dayIndex,
+  cellHeight = 64
 }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: dayIndex !== void 0 ? `cell-${dayIndex}-${hours}` : `time-${hours}`,
@@ -535,8 +538,9 @@ var Cell = ({
       onKeyDown: (e) => e.code === "Space" && onClick?.(),
       onClick,
       role: "button",
+      style: { height: cellHeight },
       className: cn(
-        "bg-slate-50 w-full h-16 border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
+        "bg-slate-50 w-full border-gray-300 border-[.5px] border-dashed text-gray-500 relative grid",
         isOver && dayIndex !== void 0 && "bg-blue-100",
         className
       ),
@@ -582,19 +586,19 @@ var EmptyButton = ({
               {
                 onClick: handleReserva,
                 className: "hover:bg-blue-50 px-4 py-2 rounded-lg text-left",
-                children: "Reserve"
+                children: "Reservar"
               }
             ),
-            /* @__PURE__ */ jsx(
+            onAddBlock && /* @__PURE__ */ jsx(
               "button",
               {
                 onClick: (e) => {
                   e.stopPropagation();
-                  onAddBlock?.(d);
+                  onAddBlock(d);
                   setShow(false);
                 },
                 className: "hover:bg-blue-50 px-4 py-2 rounded-lg text-left",
-                children: "Block"
+                children: "Bloquear"
               }
             )
           ]
@@ -652,7 +656,8 @@ var Column = ({
   resourceId,
   config = {},
   hoursStart = 0,
-  hoursEnd = 24
+  hoursEnd = 24,
+  cellHeight = 64
 }) => {
   const columnRef = useRef(null);
   const [now, setNow] = useState(/* @__PURE__ */ new Date());
@@ -689,7 +694,8 @@ var Column = ({
           icons,
           overlapColumn: column,
           overlapTotal: totalColumns,
-          config
+          config,
+          cellHeight
         },
         event.id
       ));
@@ -711,8 +717,8 @@ var Column = ({
       }
     );
   };
-  const nowTop = isColumnToday ? (now.getHours() - hoursStart + now.getMinutes() / 60) * 64 : -1;
-  const showNowLine = isColumnToday && nowTop >= 0 && nowTop <= (hoursEnd - hoursStart) * 64;
+  const nowTop = isColumnToday ? (now.getHours() - hoursStart + now.getMinutes() / 60) * cellHeight : -1;
+  const showNowLine = isColumnToday && nowTop >= 0 && nowTop <= (hoursEnd - hoursStart) * cellHeight;
   return /* @__PURE__ */ jsxs("div", { ref: columnRef, className: "grid relative", children: [
     Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
       const hours = hoursStart + i;
@@ -723,6 +729,7 @@ var Column = ({
           date: dayOfWeek,
           className: "relative",
           dayIndex,
+          cellHeight,
           children: findEventsAtHour(hours)
         },
         hours
@@ -743,10 +750,11 @@ var Column = ({
 };
 var TimeColumn = ({
   hoursStart = 0,
-  hoursEnd = 24
+  hoursEnd = 24,
+  cellHeight = 64
 }) => /* @__PURE__ */ jsx("div", { className: "grid", children: Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
   const hour = hoursStart + i;
-  return /* @__PURE__ */ jsx(Cell, { children: `${hour < 10 ? "0" : ""}${hour}:00` }, hour);
+  return /* @__PURE__ */ jsx(Cell, { cellHeight, children: `${hour < 10 ? "0" : ""}${hour}:00` }, hour);
 }) });
 var DraggableEvent = ({
   event,
@@ -756,7 +764,8 @@ var DraggableEvent = ({
   icons,
   overlapColumn = 0,
   overlapTotal = 1,
-  config = {}
+  config = {},
+  cellHeight = 64
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -766,7 +775,7 @@ var DraggableEvent = ({
   const widthPercent = event.type === "BLOCK" ? 100 : 90 / overlapTotal;
   const leftPercent = event.type === "BLOCK" ? 0 : overlapColumn * (90 / overlapTotal);
   const startMinutes = new Date(event.start).getMinutes();
-  const topOffset = startMinutes / 60 * 64;
+  const topOffset = startMinutes / 60 * cellHeight;
   const colorClass = event.type === "BLOCK" ? "bg-gray-300" : resolveColorClass(event.color, config.colors);
   const colorStyle = event.type === "BLOCK" ? {} : getColorStyle(event.color);
   const showTime = event.showTime ?? config.eventTime?.enabled ?? false;
@@ -784,7 +793,7 @@ var DraggableEvent = ({
         {
           ref: setNodeRef,
           style: {
-            height: event.duration / 60 * 64,
+            height: event.duration / 60 * cellHeight,
             transform: transform ? CSS.Translate.toString(transform) : void 0,
             width: `${widthPercent}%`,
             left: `${leftPercent}%`,
@@ -817,7 +826,7 @@ var DraggableEvent = ({
     ] });
   }
   const style = {
-    height: event.duration / 60 * 64,
+    height: event.duration / 60 * cellHeight,
     transform: transform ? CSS.Translate.toString(transform) : void 0,
     width: `${widthPercent}%`,
     left: `${leftPercent}%`,
@@ -835,17 +844,16 @@ var DraggableEvent = ({
         ...attributes,
         className: cn(
           "border-0 grid gap-y-0 overflow-hidden place-content-start",
-          "text-xs text-left pl-3 pr-1 py-1 absolute text-white rounded-lg z-10",
+          "text-xs text-left pl-3 pr-1 py-1 absolute rounded-lg z-10",
           colorClass,
-          event.type === "BLOCK" && "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0",
-          event.type !== "BLOCK" && "cursor-grab shadow-sm",
+          event.type === "BLOCK" ? "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0 text-brand_gray" : "text-white cursor-grab shadow-sm",
           isDragging && event.type !== "BLOCK" && "cursor-grabbing opacity-50"
         ),
         children: [
           event.type !== "BLOCK" && /* @__PURE__ */ jsx("div", { className: "absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" }),
           event.type === "BLOCK" && /* @__PURE__ */ jsx("div", { className: "absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" }),
           showTime && event.type !== "BLOCK" && /* @__PURE__ */ jsx("span", { className: "text-[10px] opacity-90 font-medium", children: timeString }),
-          /* @__PURE__ */ jsx("span", { className: "font-medium truncate", children: event.title }),
+          /* @__PURE__ */ jsx("span", { className: "font-medium truncate", children: event.type === "BLOCK" ? "Bloqueado" : event.title }),
           /* @__PURE__ */ jsx("span", { className: "text-white/80 truncate text-[10px]", children: event.service?.name }),
           event.participants && event.participants.length > 0 && /* @__PURE__ */ jsx(
             ParticipantAvatars,
@@ -884,7 +892,7 @@ var EventOverlay = ({
         "text-xs text-left pl-3 pr-1 py-1 text-white rounded-lg w-[200px] opacity-90 shadow-lg",
         colorClass
       ),
-      style: { height: event.duration / 60 * 64, ...colorStyle },
+      style: { height: event.duration / 60 * (config.cellHeight || 64), ...colorStyle },
       children: [
         event.type !== "BLOCK" && /* @__PURE__ */ jsx("div", { className: "absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" }),
         event.type === "BLOCK" && /* @__PURE__ */ jsx("div", { className: "absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" }),
@@ -919,7 +927,7 @@ var Options = ({
       className: "text-left z-20 bg-white absolute border rounded-lg grid p-3 w-[264px] shadow-lg",
       children: [
         /* @__PURE__ */ jsxs("header", { children: [
-          /* @__PURE__ */ jsx("h3", { className: "font-medium", children: "Blocked Time" }),
+          /* @__PURE__ */ jsx("h3", { className: "font-medium", children: "Horario bloqueado" }),
           /* @__PURE__ */ jsx("p", { className: "text-xs text-gray-500", children: eventDate })
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "absolute flex left-0 right-0 justify-end gap-3 px-2 py-2 overflow-hidden", children: [

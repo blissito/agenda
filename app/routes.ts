@@ -22,6 +22,7 @@ export default [
       index("routes/dash/dash._index.tsx"),
       route("perfil", "routes/dash/dash.profile.tsx"),
       route("agenda", "routes/dash/dash.agenda.tsx"),
+      route("agenda/citas", "routes/dash/dash.agenda.citas.tsx"),
       route("onboarding", "routes/dash/dash.onboarding.tsx"),
       ...prefix("servicios", [
         index("routes/dash/servicios/index.tsx"),
