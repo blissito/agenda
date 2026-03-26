@@ -156,29 +156,27 @@ function CustomSelect({
   const wrapperRef = useRef<HTMLDivElement | null>(null)
 
   const options = useMemo(() => {
-    return (
-      children &&
-      (Array.isArray(children) ? children : [children])
-        .filter((child): child is React.ReactElement => {
-          return (
-            child !== null &&
-            child !== undefined &&
-            typeof child === "object" &&
-            "props" in child
-          )
-        })
-        .map((child) => {
-          const element = child as React.ReactElement<{
-            value?: string
-            children?: React.ReactNode
-          }>
+    if (!children) return []
+    return (Array.isArray(children) ? children : [children])
+      .filter((child): child is React.ReactElement => {
+        return (
+          child !== null &&
+          child !== undefined &&
+          typeof child === "object" &&
+          "props" in child
+        )
+      })
+      .map((child) => {
+        const element = child as React.ReactElement<{
+          value?: string
+          children?: React.ReactNode
+        }>
 
-          return {
-            value: String(element.props.value ?? ""),
-            label: element.props.children,
-          }
-        })
-    )
+        return {
+          value: String(element.props.value ?? ""),
+          label: element.props.children,
+        }
+      })
   }, [children])
 
   const selectedOption = options?.find((option) => option.value === value)
@@ -1250,6 +1248,14 @@ function CouponEditModal({
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(
     currentMeta.serviceIds,
   )
+
+  const toggleService = (serviceId: string) => {
+    setSelectedServiceIds((prev) =>
+      prev.includes(serviceId)
+        ? prev.filter((id) => id !== serviceId)
+        : [...prev, serviceId],
+    )
+  }
 
   const [hasScrolledTop, setHasScrolledTop] = useState(false)
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
