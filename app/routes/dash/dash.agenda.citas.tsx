@@ -11,6 +11,7 @@ import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { SelectInput } from "~/components/forms/SelectInput"
 import { Download } from "~/components/icons/download"
+import { TabButton } from "~/components/loyalty/loyaltyStep"
 import { Settings } from "~/components/icons/settings"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { db } from "~/utils/db.server"
@@ -62,6 +63,7 @@ const EMPTY_FILTERS: Filters = {
 
 export default function CitasPage({ loaderData }: Route.ComponentProps) {
   const { events, services } = loaderData
+  const [tab, setTab] = useState<"upcoming" | "past">("upcoming")
   const [search, setSearch] = useState("")
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
@@ -77,7 +79,11 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
     return () => document.removeEventListener("mousedown", handler)
   }, [showFilters])
 
+  const now = new Date()
   const filtered = events.filter((e) => {
+    const isUpcoming = new Date(e.start) >= now
+    if (tab === "upcoming" && !isUpcoming) return false
+    if (tab === "past" && isUpcoming) return false
     if (search) {
       const q = search.toLowerCase()
       const matchesSearch =
@@ -122,7 +128,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
   // Reset page when filters or search change
-  useEffect(() => { setPage(1) }, [search, filters])
+  useEffect(() => { setPage(1) }, [search, filters, tab])
 
   const hasActiveFilters = filters.from !== "" || filters.to !== "" || filters.serviceId !== "" || filters.statuses.size > 0
 
@@ -137,18 +143,27 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-4">
-        <div className="relative w-full sm:max-w-80">
-          <BasicInput
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            type="search"
-            placeholder="Busca por nombre o correo"
-            containerClassName="w-full"
-            inputClassName="!rounded-full pl-4 pr-12 border-white font-satoshi py-4"
-          />
-          <MagnifyingGlass className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-brand_iron" />
+        {/* Tabs */}
+        <div className="flex items-center gap-4">
+          <TabButton label="Próximas" active={tab === "upcoming"} onClick={() => setTab("upcoming")} />
+          <TabButton label="Anteriores" active={tab === "past"} onClick={() => setTab("past")} />
         </div>
+
+        {/* Search + actions */}
         <div className="flex items-center gap-2">
+          <div className="relative">
+            <BasicInput
+              name="search"
+              defaultValue={search}
+              onChange={(e) => setSearch(e.target.value)}
+              type="search"
+              placeholder="Buscar"
+              containerClassName="w-full"
+              inputClassName="!rounded-full pl-4 pr-10 border-white font-satoshi py-2 h-10"
+              registerOptions={{ required: false }}
+            />
+            <MagnifyingGlass className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-brand_iron" />
+          </div>
           <div className="relative" ref={filterRef}>
             <ActionButton onClick={() => {
               setDraft({ ...filters, statuses: new Set(filters.statuses) })
