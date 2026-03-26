@@ -22,6 +22,11 @@ type Props = {
   onBlur?: () => void
   onChange?: (evt: ChangeEvent<HTMLInputElement>) => void
   defaultValue?: string | number
+  value?: string | number
+  required?: boolean
+  min?: number | string
+  max?: number | string
+  inputMode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url"
 }
 
 export const BasicInput = ({
