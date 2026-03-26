@@ -11,6 +11,7 @@ import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { SelectInput } from "~/components/forms/SelectInput"
 import { Download } from "~/components/icons/download"
+import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 import { TabButton } from "~/components/loyalty/loyaltyStep"
 import { Settings } from "~/components/icons/settings"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
@@ -131,6 +132,26 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
   useEffect(() => { setPage(1) }, [search, filters, tab])
 
   const hasActiveFilters = filters.from !== "" || filters.to !== "" || filters.serviceId !== "" || filters.statuses.size > 0
+  const currentTabLabel = tab === "upcoming" ? "Próximas" : "Anteriores"
+
+  const { startDownload, toast } = useEventDownloadToast({
+    events: filtered.map((event) => ({
+      start: event.start,
+      status: event.status,
+      paid: event.paid,
+      customer: {
+        displayName: event.customer?.displayName ?? null,
+        email: event.customer?.email ?? null,
+      },
+      service: {
+        name: event.service?.name ?? null,
+        employeeName: event.service?.employeeName ?? null,
+        points: event.service?.points ?? null,
+        price: event.service?.price ?? null,
+      },
+    })),
+    clientName: `Citas ${currentTabLabel}`,
+  })
 
   return (
     <div>
@@ -192,7 +213,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
               />
             )}
           </div>
-          <ActionButton>
+          <ActionButton onClick={startDownload}>
             <Download className="w-5 h-5" />
           </ActionButton>
         </div>
@@ -252,6 +273,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
           onPerPageChange={setPerPage}
         />
       )}
+      {toast}
     </div>
   )
 }

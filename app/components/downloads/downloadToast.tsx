@@ -275,6 +275,10 @@ export type EventForXls = {
   start: Date | string
   status: string
   paid?: boolean | null
+  customer?: {
+    displayName?: string | null
+    email?: string | null
+  } | null
   service?: {
     name?: string | null
     employeeName?: string | null
@@ -344,6 +348,8 @@ function buildEventsXls(events: EventForXls[], clientName: string) {
     events.length > 0
       ? events
           .map((event) => {
+            const customerName =
+              event.customer?.displayName ?? event.customer?.email ?? ""
             const serviceName = event.service?.name ?? ""
             const employeeName = event.service?.employeeName ?? "s/n"
             const points = event.service?.points ?? ""
@@ -359,6 +365,9 @@ function buildEventsXls(events: EventForXls[], clientName: string) {
                 )}</td>
                 <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
                   formatHumanTime(event.start),
+                )}</td>
+                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
+                  customerName,
                 )}</td>
                 <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
                   serviceName,
@@ -384,7 +393,7 @@ function buildEventsXls(events: EventForXls[], clientName: string) {
           .join("")
       : `
         <tr>
-          <td colspan="8" style="padding:12px; border:1px solid #d9d9d9;">
+          <td colspan="9" style="padding:12px; border:1px solid #d9d9d9;">
             Este cliente no tiene citas registradas.
           </td>
         </tr>
@@ -401,12 +410,12 @@ function buildEventsXls(events: EventForXls[], clientName: string) {
       <body>
         <table>
           <tr>
-            <td colspan="8" style="font-size:18px; font-weight:bold; padding:12px;">
+            <td colspan="9" style="font-size:18px; font-weight:bold; padding:12px;">
               Historial de citas - ${escapeHtml(clientName)}
             </td>
           </tr>
           <tr>
-            <td colspan="8" style="padding:0 12px 12px 12px;">
+            <td colspan="9" style="padding:0 12px 12px 12px;">
               Generado el ${escapeHtml(formatHumanDate(new Date()))}
             </td>
           </tr>
@@ -417,6 +426,7 @@ function buildEventsXls(events: EventForXls[], clientName: string) {
             <tr>
               <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Fecha</th>
               <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Hora</th>
+              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Cliente</th>
               <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Servicio</th>
               <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Encargado</th>
               <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Puntos</th>
@@ -493,7 +503,10 @@ export function useEventDownloadToast({
     }
   }, [events, clientName])
 
-  const dynamicTitle = `${clientName || "Cliente"} — Descargando archivos 0/1`
+  const totalFiles = 1
+  const downloadedFiles = status === "downloading" || status === "done" ? 1 : 0
+
+  const dynamicTitle = `${clientName || "Cliente"} — Descargando archivos ${downloadedFiles}/${totalFiles}`
 
   const toast = (
     <DownloadToast
