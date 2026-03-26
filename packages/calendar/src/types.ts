@@ -144,6 +144,8 @@ export interface CalendarConfig {
   hoursStart?: number;
   /** End hour for the calendar grid (default: 24) */
   hoursEnd?: number;
+  /** Height of each hour cell in pixels (default: 64) */
+  cellHeight?: number;
   /** Locale for date formatting (default: "es-MX") */
   locale?: string;
   /** Custom icons for the calendar UI */

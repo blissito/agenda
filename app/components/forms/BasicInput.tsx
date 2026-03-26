@@ -22,6 +22,11 @@ type Props = {
   onBlur?: () => void
   onChange?: (evt: ChangeEvent<HTMLInputElement>) => void
   defaultValue?: string | number
+  value?: string | number
+  required?: boolean
+  min?: number | string
+  max?: number | string
+  inputMode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url"
 }
 
 export const BasicInput = ({
@@ -48,7 +53,7 @@ export const BasicInput = ({
     <div className={twMerge("w-full relative", containerClassName)}>
       {label ? (
         <label
-          className={twMerge("text-brand_gray font-satoMedium", className)}
+          className={twMerge("text-brand_dark font-satoMedium", className)}
           htmlFor={name}
         >
           {label}
