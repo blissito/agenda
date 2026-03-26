@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { getPublicImageUrl } from "~/utils/urls"
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { CustomerDashboard } from "~/components/dash/CustomerDashboard"
 import { db } from "~/utils/db.server"
@@ -89,7 +90,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }),
     // Recent events for the sidebar
     db.event.findMany({
-      where: { orgId: org!.id },
+      where: {
+        orgId: org!.id,
+        type: { not: "BLOCK" },
+        status: { not: "CANCELLED" },
+      },
       include: {
         service: true,
         customer: true,
@@ -150,7 +155,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     recentEvents: recentEvents.map((e) => ({
       id: e.id,
       serviceName: e.service?.name ?? e.title,
-      serviceImage: e.service?.gallery?.[0] ?? null,
+      serviceImage: getPublicImageUrl(e.service?.gallery?.[0]) ?? null,
       customerName: e.customer?.displayName ?? "Sin cliente",
       start: e.start.toISOString(),
       createdAt: e.createdAt.toISOString(),
@@ -159,7 +164,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     topServices: services.map((s) => ({
       id: s.id,
       name: s.name,
-      image: s.gallery?.[0] ?? null,
+      image: getPublicImageUrl(s.gallery?.[0]) ?? null,
       eventCount: s._count.events,
     })),
     salesTimeline,
@@ -190,7 +195,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   return (
     <section className=" w-full h-full 	">
-      <div className="h-full flex flex-col box-border overflow-hidden max-w-7xl mx-auto">
+      <div className="h-full flex flex-col box-border overflow-hidden max-w-8xl mx-auto">
         <Summary user={user} stats={stats} />
         {hasData ? (
           <DashboardData
@@ -518,7 +523,6 @@ const DashboardData = ({
             recentEvents.map((e) => (
               <AppointmentItem
                 key={e.id}
-                img={e.serviceImage ?? undefined}
                 service={e.serviceName}
                 client={e.customerName}
                 date={formatEventDate(e.start)}
