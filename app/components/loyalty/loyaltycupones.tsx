@@ -1072,7 +1072,7 @@ function CouponWizardStepTwo({
     }}
   />
 
-  <div className="mt-[27px] flex flex-col gap-[26px]">
+<div className="mt-6 flex flex-col gap-6">
     {services.map((service) => (
       <ServiceToggleRow
         key={service.id}
@@ -1182,7 +1182,7 @@ function ServiceToggleRow({
 }) {
   return (
     <div className="flex items-center justify-between gap-[52px]">
-      <span className="min-w-0 flex-1 font-satoMedium text-[16px] leading-[22px] text-brand_dark">
+      <span className="min-w-0 flex-1 font-satoMedium text-[16px] leading-[27px] text-brand_dark">
         {label}
       </span>
 
@@ -1292,38 +1292,42 @@ function CouponEditModal({
             onScroll={handleBodyScroll}
             className="flex-1 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           >
-            <div
-              className={twMerge(
-                "sticky top-0 z-20 transition-all duration-200",
-                hasScrolledTop ? " backdrop-blur-sm" : "bg-white",
-              )}
-            >
-              <div className="px-[32px] pb-[24px] pt-[32px]">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[18px] font-satoBold leading-[32px] text-brand_dark">
-                    Editar cupón
-                  </h3>
-  
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="shrink-0"
-                    aria-label="Cerrar"
-                  >
-                    <X />
-                  </button>
-                </div>
-              </div>
-  
-              <div
-                className={twMerge(
-                  "pointer-events-none h-4 transition-opacity duration-200",
-                  hasScrolledTop
-                    ? "bg-gradient-to-b from-white/90 to-transparent opacity-100"
-                    : "opacity-0",
-                )}
-              />
-            </div>
+          <div className="sticky top-0 z-20">
+  <div
+    className={twMerge(
+      "absolute inset-0 pointer-events-none transition-opacity duration-200",
+      hasScrolledTop
+        ? " backdrop-blur-sm opacity-100"
+        : "bg-white opacity-100",
+    )}
+  />
+
+  <div className="relative px-8 pt-8 pb-8">
+    <div className="flex items-center justify-between">
+      <h3 className="text-2xl font-satoBold leading-[32px] text-brand_dark">
+        Editar cupón
+      </h3>
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="shrink-0"
+        aria-label="Cerrar"
+      >
+        <X />
+      </button>
+    </div>
+  </div>
+
+  <div
+    className={twMerge(
+      "pointer-events-none absolute inset-x-0 -bottom-4 h-4 transition-opacity duration-200",
+      hasScrolledTop
+        ? "bg-gradient-to-b from-white/90 to-transparent opacity-100"
+        : "opacity-0",
+    )}
+  />
+</div>
   
             <div className="px-[32px] pb-[24px]">
               <div className="space-y-6">
@@ -1440,7 +1444,7 @@ function CouponEditModal({
                       onChange={(checked) => setApplyAllServices(checked)}
                     />
 
-                    <div className="mt-[27px] flex flex-col gap-[26px]">
+                      <div className="mt-6 flex flex-col gap-6">
                       {services.map((service) => (
                         <ServiceToggleRow
                           key={service.id}
@@ -1461,14 +1465,14 @@ function CouponEditModal({
             </div>
   
             <div className="sticky bottom-0 z-20">
-              <div
-                className={twMerge(
-                  "pointer-events-none h-4 transition-opacity duration-200",
-                  !hasReachedBottom
-                    ? "bg-gradient-to-t from-white/90 to-transparent opacity-100"
-                    : "opacity-0",
-                )}
-              />
+            <div
+              className={twMerge(
+                "pointer-events-none h-4 transition-opacity duration-200",
+                !hasReachedBottom
+                  ? "bg-gradient-to-t from-white/90 to-transparent opacity-100"
+                  : "opacity-0",
+              )}
+            />
   
               <div
                 className={twMerge(

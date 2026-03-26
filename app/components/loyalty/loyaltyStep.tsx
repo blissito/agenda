@@ -2,19 +2,20 @@
 
 import type {
   ChangeEvent,
+  ComponentType,
   FormEvent,
-  InputHTMLAttributes,
   ReactNode,
 } from "react"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { useRevalidator } from "react-router"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { ArrowRight } from "~/components/icons/arrowRight"
+import { BasicInput } from "~/components/forms/BasicInput"
 
 import type { Level, ServiceOption } from "~/routes/dash/dash.lealtad"
-import{X} from "~/components/icons/X"
+import { X } from "~/components/icons/X"
 
 // ==================== SHARED: LEVEL IMAGE UPLOAD ====================
 
@@ -41,68 +42,13 @@ async function uploadLevelImage(file: File): Promise<string | null> {
 
 // ==================== SHARED COMPONENTS ====================
 
-const WizardInput = ({
-  label,
-  required = false,
-  error,
-  showError = false,
-  ...props
-}: {
-  label: string
-  required?: boolean
-  error?: string
-  showError?: boolean
-} & InputHTMLAttributes<HTMLInputElement>) => (
-  <div>
-    <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
-      {label}
-      {required}
-    </label>
-    <input
-      {...props}
-      className={`h-[44px] w-full rounded-[16px] border px-4 text-[14px] outline-none placeholder:text-brand_silver focus:border-[#615FFF] ${
-        showError && error
-          ? "border-brand_red text-brand_gray"
-          : "border-brand_ash text-brand_gray"
-      } ${props.className || ""}`}
-    />
-    {showError && error && (
-      <p className="mt-1 text-[12px] text-red-500">{error}</p>
-    )}
-  </div>
-)
-
-const FormLabel = ({
-  children,
-  className = "",
-}: {
-  children: ReactNode
-  className?: string
-}) => (
-  <label
-    className={`mb-1 block font-satoMedium text-[14px] text-brand_gray ${className}`}
-  >
-    {children}
-  </label>
-)
-
-const FormInput = ({
-  className = "",
-  ...props
-}: InputHTMLAttributes<HTMLInputElement>) => (
-  <input
-    {...props}
-    className={`w-full rounded border px-3 py-2 text-sm ${className}`}
-  />
-)
-
 const CardActionButton = ({
   onClick,
   icon: Icon,
   title,
 }: {
   onClick: () => void
-  icon: React.ComponentType
+  icon: ComponentType
   title: string
 }) => (
   <button
@@ -554,18 +500,22 @@ function WizardStepOne({
 
   return (
     <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
-      <WizardInput
+      <BasicInput
         label="Nombre del nivel"
-        required
+        name="levelName"
         value={levelName}
         onChange={(e) => setLevelName(e.target.value)}
         placeholder="Ej. VIP, Premium, Gold"
-        error={!levelName.trim() ? "Este campo es obligatorio" : ""}
-        showError={showValidation}
+        required
       />
+      {showValidation && !levelName.trim() && (
+        <p className="mt-1 text-[12px] text-red-500">
+          Este campo es obligatorio
+        </p>
+      )}
 
       <div className="mt-5">
-        <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
+        <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_dark">
           Imagen
         </label>
         <p className="mt-2 font-satoMedium text-[14px] text-brand_gray">
@@ -603,35 +553,47 @@ function WizardStepOne({
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-4">
-        <WizardInput
-          label="Puntos requeridos"
-          required
-          type="text"
-          inputMode="numeric"
-          value={minPoints}
-          onChange={(e) => {
-            const onlyDigits = e.target.value.replace(/\D/g, "")
-            setMinPoints(onlyDigits)
-          }}
-          placeholder="00"
-          error={getMinPointsError()}
-          showError={showValidation}
-        />
+        <div>
+          <BasicInput
+            label="Puntos requeridos"
+            name="minPoints"
+            type="text"
+            inputMode="numeric"
+            value={minPoints}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "")
+              setMinPoints(onlyDigits)
+            }}
+            placeholder="00"
+            required
+          />
+          {showValidation && getMinPointsError() && (
+            <p className="mt-1 text-[12px] text-red-500">
+              {getMinPointsError()}
+            </p>
+          )}
+        </div>
 
-        <WizardInput
-          label="Porcentaje de descuento"
-          required
-          type="text"
-          inputMode="numeric"
-          value={discountPercent}
-          onChange={(e) => {
-            const onlyDigits = e.target.value.replace(/\D/g, "")
-            setDiscountPercent(onlyDigits)
-          }}
-          placeholder="10%"
-          error={getDiscountError()}
-          showError={showValidation}
-        />
+        <div>
+          <BasicInput
+            label="Porcentaje de descuento"
+            name="discountPercent"
+            type="text"
+            inputMode="numeric"
+            value={discountPercent}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "")
+              setDiscountPercent(onlyDigits)
+            }}
+            placeholder="10%"
+            required
+          />
+          {showValidation && getDiscountError() && (
+            <p className="mt-1 text-[12px] text-red-500">
+              {getDiscountError()}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -654,7 +616,7 @@ function WizardStepTwo({
 }) {
   return (
     <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
-      <div className="space-y-4">
+      <div>
         <ServiceToggleRow
           label="Aplicable para todos los servicios"
           checked={applyAllServices}
@@ -663,20 +625,27 @@ function WizardStepTwo({
           }}
         />
 
-        {services.map((service) => (
-          <ServiceToggleRow
-            key={service.id}
-            label={service.name}
-            checked={
-              applyAllServices ? true : selectedServiceIds.includes(service.id)
-            }
-            disabled={applyAllServices}
-            onChange={() => toggleService(service.id)}
-          />
-        ))}
+        {services.length > 0 && (
+             <div className="mt-6 flex flex-col gap-6">
+
+            {services.map((service) => (
+              <ServiceToggleRow
+                key={service.id}
+                label={service.name}
+                checked={
+                  applyAllServices
+                    ? true
+                    : selectedServiceIds.includes(service.id)
+                }
+                disabled={applyAllServices}
+                onChange={() => toggleService(service.id)}
+              />
+            ))}
+          </div>
+        )}
 
         {services.length === 0 && (
-          <p className="text-[13px] text-brand_gray">
+          <p className="mt-[27px] text-[16px] leading-[22px] text-brand_gray">
             No hay servicios creados. El nivel aplicará a todos cuando existan
             servicios disponibles.
           </p>
@@ -807,15 +776,16 @@ function ServiceToggleRow({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="font-satoMedium text-[14px] text-brand_dark">
+    <div className="flex items-center justify-between gap-[52px]">
+      <span className="min-w-0 flex-1 font-satoMedium text-[16px] leading-[22px] text-brand_dark">
         {label}
       </span>
+
       <button
         type="button"
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={`relative h-6 w-12 rounded-full transition ${
+        className={`relative h-6 w-12 shrink-0 rounded-full transition ${
           checked ? "bg-[#615FFF]" : "bg-[#E5E7EB]"
         } ${disabled ? "opacity-100" : ""}`}
         aria-pressed={checked}
@@ -875,7 +845,9 @@ function LevelForm({
       <h3 className="text-lg font-semibold">{title}</h3>
 
       <div>
-        <FormLabel>Imagen del nivel</FormLabel>
+        <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_gray">
+          Imagen del nivel
+        </label>
         <div className="flex items-center gap-4">
           {imagePreview ? (
             <img
@@ -902,9 +874,9 @@ function LevelForm({
       </div>
 
       <div>
-        <FormLabel>Nombre del nivel</FormLabel>
-        <FormInput
+        <BasicInput
           name={n("levelName")}
+          label="Nombre del nivel"
           defaultValue={defaultValues?.name}
           required
           placeholder="Ej. VIP, Premium, Gold"
@@ -913,24 +885,24 @@ function LevelForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <FormLabel>Puntos requeridos</FormLabel>
-          <FormInput
+          <BasicInput
             name={n("minPoints")}
             type="number"
             min={0}
+            label="Puntos requeridos"
             defaultValue={defaultValues?.minPoints}
             required
             placeholder="500"
           />
         </div>
         <div>
-          <FormLabel>% de descuento</FormLabel>
-          <FormInput
+          <BasicInput
             name={n("discountPercent")}
             type="number"
             min={0}
             max={100}
             step={0.1}
+            label="% de descuento"
             defaultValue={defaultValues?.discountPercent}
             required
             placeholder="15"
@@ -939,7 +911,9 @@ function LevelForm({
       </div>
 
       <div>
-        <FormLabel>Servicios donde aplica el descuento</FormLabel>
+        <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_gray">
+          Servicios donde aplica el descuento
+        </label>
         <p className="mb-2 text-xs text-brand_gray">
           Si no seleccionas ninguno, aplica a todos.
         </p>
@@ -1032,8 +1006,6 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
     </div>
   )
 }
-
-
 
 // ==================== ICONS ====================
 
