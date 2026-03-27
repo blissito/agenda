@@ -28,7 +28,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const {
       success,
       data: parsedData,
-      error,
     } = ServerServiceConfigFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
@@ -43,7 +42,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const {
       success,
       data: parsedData,
-      error,
     } = serviceTimesSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
@@ -63,7 +61,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const {
       success,
       data: parsedData,
-      error,
     } = serverServicePhotoFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
@@ -89,7 +86,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "general_form") {
     const {
       success,
-      error,
       data: parsedData,
     } = generalFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })

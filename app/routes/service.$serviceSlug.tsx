@@ -30,7 +30,7 @@ import {
   formatTimeOnly,
   type SupportedTimezone,
 } from "~/utils/timezone"
-import { DEFAULT_WEEK_DAYS, normalizeWeekDays } from "~/utils/weekDays"
+import { normalizeWeekDays } from "~/utils/weekDays"
 import type { Route } from "./+types/service.$serviceSlug"
 
 type WeekDaysType = Record<string, string[][]>

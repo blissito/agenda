@@ -208,13 +208,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 const Steper = ({ currentIndex }: { currentIndex: number }) => {
   return (
     <nav className="flex items-center py-10 justify-center">
-      <Number isActive={currentIndex === 0}>1</Number>
+      <StepNumber isActive={currentIndex === 0}>1</StepNumber>
       <Dots />
-      <Number isActive={currentIndex === 1}>2</Number>
+      <StepNumber isActive={currentIndex === 1}>2</StepNumber>
       <Dots />
-      <Number isActive={currentIndex === 2}>3</Number>
+      <StepNumber isActive={currentIndex === 2}>3</StepNumber>
       <Dots />
-      <Number isActive={currentIndex === 3}>4</Number>
+      <StepNumber isActive={currentIndex === 3}>4</StepNumber>
     </nav>
   )
 }
@@ -225,7 +225,7 @@ const Dots = () => {
   )
 }
 
-const Number = ({
+const StepNumber = ({
   isActive,
   children,
 }: {

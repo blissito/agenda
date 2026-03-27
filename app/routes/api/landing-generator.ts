@@ -41,7 +41,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }
 
         try {
-          const allSections = await generateOrgLanding(org, services, {
+          await generateOrgLanding(org, services, {
             onSection: (section) => send("section", section),
             onImageUpdate: (id, html) => send("section-update", { id, html }),
             onDone: async (sections) => {

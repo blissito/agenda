@@ -19,7 +19,7 @@ type Props = {
 function clampXText(text: string) {
   const MAX = 220
   if (text.length <= MAX) return text
-  return text.slice(0, MAX - 1).trimEnd() + "…"
+  return `${text.slice(0, MAX - 1).trimEnd()}…`
 }
 
 /** Reusable share button (para no repetir) */
