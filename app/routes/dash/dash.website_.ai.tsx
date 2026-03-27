@@ -69,6 +69,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false)
+  const [isPublished, setIsPublished] = useState(org.landingPublished ?? false)
   // During generation, we stream sections into a lightweight preview
   const [streamingSections, setStreamingSections] = useState<Section3[]>([])
   const [streamCount, setStreamCount] = useState(0)
@@ -208,8 +209,15 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         const msg = pendingSaveRef.current.publish ? "Landing publicada" : "Borrador guardado"
         setSaveMessage(msg)
         setTimeout(() => setSaveMessage(null), 3000)
-        if (pendingSaveRef.current.publish) setHasUnpublishedChanges(false)
+        if (pendingSaveRef.current.publish) {
+          setHasUnpublishedChanges(false)
+          setIsPublished(true)
+        }
       }
+      setIsSaving(false)
+      pendingSaveRef.current = null
+    } else if (isSavingRef.current) {
+      // Unexpected response shape — reset saving state
       setIsSaving(false)
       pendingSaveRef.current = null
     }
@@ -308,6 +316,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         if (html) currentSections = grapesToSections(html)
       }
 
+      if (currentSections.length === 0 && sections.length > 0) {
+        setErrorMessage("Error al procesar secciones. Intenta de nuevo.")
+        return
+      }
+
       setIsSaving(true)
       setSaveMessage(null)
       setErrorMessage(null)
@@ -367,7 +380,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           {hasExistingSections && (
             isSaving ? (
               <span className="text-xs text-gray-500 shrink-0">Guardando...</span>
-            ) : !org.landingPublished && !hasUnpublishedChanges ? (
+            ) : !isPublished && !hasUnpublishedChanges ? (
               <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-full shrink-0">Borrador</span>
             ) : hasUnpublishedChanges ? (
               <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded-full shrink-0">Cambios sin publicar</span>
@@ -408,7 +421,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                   {usage.genLimit - usage.genUsed}/{usage.genLimit}
                 </span>
               </button>
-              {org.landingPublished && (
+              {isPublished && (
                 <a
                   href={getOrgPublicUrl(org.slug!)}
                   target="_blank"
@@ -425,16 +438,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               <button
                 type="button"
                 onClick={() => handleSave(true)}
-                disabled={isSaving || (!hasUnpublishedChanges && org.landingPublished)}
+                disabled={isSaving || (!hasUnpublishedChanges && isPublished)}
                 className={`px-3 py-1 text-sm rounded-lg disabled:opacity-50 ${
-                  !hasUnpublishedChanges && org.landingPublished
+                  !hasUnpublishedChanges && isPublished
                     ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
                     : "bg-brand_blue text-white hover:bg-blue-700"
                 }`}
               >
                 {isSaving && pendingSaveRef.current?.publish
                   ? "Publicando..."
-                  : !org.landingPublished
+                  : !isPublished
                     ? "Publicar"
                     : hasUnpublishedChanges
                       ? "Publicar cambios"

@@ -6,9 +6,11 @@ import {
   Outlet,
   redirect,
   Scripts,
+  useLoaderData,
   useRouteError,
 } from "react-router"
 import { ParallaxProvider } from "react-scroll-parallax"
+import { FormmyProvider } from "@formmy.app/chat/react"
 import { isOrgDomain, isRouteAllowedOnOrgDomain } from "~/utils/host.server"
 import type { Route } from "./+types/root"
 import stylesheet from "./app.css?url"
@@ -49,7 +51,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     throw redirect("/")
   }
 
-  return null
+  return {
+    formmyPublishableKey: process.env.FORMMY_PUBLISHABLE_KEY || null,
+  }
 }
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -73,11 +77,22 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function App() {
-  return (
+  const data = useLoaderData<typeof loader>()
+  const content = (
     <ParallaxProvider>
       <Outlet />
     </ParallaxProvider>
   )
+
+  if (data?.formmyPublishableKey) {
+    return (
+      <FormmyProvider publishableKey={data.formmyPublishableKey}>
+        {content}
+      </FormmyProvider>
+    )
+  }
+
+  return content
 }
 
 export function ErrorBoundary() {
