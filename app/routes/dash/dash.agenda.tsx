@@ -8,10 +8,12 @@ import {
 import { type Event as PrismaEvent } from "@prisma/client"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
-import { Link, useFetcher, useNavigate } from "react-router"
+import { useFetcher, useNavigate, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { EventHoverCard, type EventHoverData } from "~/components/dash/agenda/EventHoverCard"
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer"
 import { EventFormDrawer } from "~/components/forms/EventFormDrawer"
 import { db } from "~/utils/db.server"
@@ -20,12 +22,13 @@ import type { Route } from "./+types/dash.agenda"
 
 type AgendaView = "week" | "day" | "month"
 
-type EventWithService = PrismaEvent & {
+type EventWithRelations = PrismaEvent & {
   service: { name: string } | null
+  customer: { displayName: string; email: string; tel: string } | null
 }
 
 type OptimisticOp =
-  | { type: "add"; event: EventWithService }
+  | { type: "add"; event: EventWithRelations }
   | { type: "remove"; eventId: string }
   | { type: "move"; eventId: string; newStart: Date }
 
@@ -93,6 +96,15 @@ export const action = async ({ request }: Route.ActionArgs) => {
     return { success: true }
   }
 
+  if (intent === "delete_event") {
+    const id = formData.get("eventId") as string
+    await db.event.update({
+      where: { id },
+      data: { archived: true },
+    })
+    return { success: true }
+  }
+
   if (intent === "move_event") {
     const eventId = formData.get("eventId") as string
     const newStart = formData.get("newStart") as string
@@ -140,7 +152,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const monthStart = new Date(monday.getFullYear(), monday.getMonth(), 1)
   const monthEnd = new Date(monday.getFullYear(), monday.getMonth() + 1, 0, 23, 59, 59, 999)
 
-  const [events, customers, employees, services, upcomingEvents, monthEvents] =
+  const [events, customers, employees, services, upcomingEvents, monthEvents, orgUsers] =
     await Promise.all([
       db.event.findMany({
         where: {
@@ -148,7 +160,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
           archived: false,
           start: { gte: monday, lte: sundayEnd },
         },
-        include: { service: true },
+        include: { service: true, customer: true },
       }),
       db.customer.findMany({ take: 1, where: { orgId: org.id } }),
       db.user.findMany({ take: 1, where: { orgId: org.id } }),
@@ -174,6 +186,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         },
         select: { start: true },
       }),
+      db.user.findMany({
+        where: { orgId: org.id },
+        select: { id: true, displayName: true },
+      }),
     ])
 
   return {
@@ -184,6 +200,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     monday: monday.toISOString(),
     sunday: sunday.toISOString(),
     orgSlug: org.slug,
+    employeeMap: Object.fromEntries(orgUsers.map((u) => [u.id, u.displayName ?? ""])),
     monthEventDates: monthEvents.map((e) => e.start.toISOString()),
     upcomingEvents: upcomingEvents.map((e) => ({
       id: e.id,
@@ -343,9 +360,9 @@ function UpcomingAppointments({
         <span className="font-satoMedium text-brand_dark text-sm">
           Citas agendadas
         </span>
-        <Link to="/dash/agenda/citas" className="text-xs text-[#615FFF] underline">
+        <a href="/dash/agenda/citas" className="text-xs text-[#615FFF] underline">
           Ver todas
-        </Link>
+        </a>
       </div>
       {events.length > 0 ? (
         <div className="overflow-y-auto flex-1">
@@ -461,12 +478,12 @@ function AgendaControls({
       : controls.label
 
   return (
-    <div className="flex items-center justify-between py-3">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between py-2 md:py-3 gap-2">
+      <div className="flex items-center gap-1 md:gap-2 min-w-0">
         <button
           onClick={controls.goToToday}
           disabled={controls.isToday}
-          className={`px-4 py-2 text-sm font-medium rounded-full border transition-colors ${
+          className={`px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-full border transition-colors shrink-0 ${
             controls.isToday
               ? "bg-gray-100 text-gray-400 cursor-not-allowed"
               : "bg-brand_dark text-white hover:bg-brand_dark/90"
@@ -474,26 +491,28 @@ function AgendaControls({
         >
           Hoy
         </button>
-        <button
-          onClick={handlePrev}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        >
-          <IoChevronBackOutline className="w-4 h-4" />
-        </button>
-        <button
-          onClick={handleNext}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-        >
-          <IoChevronForward className="w-4 h-4" />
-        </button>
-        <span className="text-lg font-medium capitalize ml-2">
+        <div className="flex items-center -space-x-1 md:space-x-0 shrink-0">
+          <button
+            onClick={handlePrev}
+            className="p-1 md:p-2 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <IoChevronBackOutline className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          </button>
+          <button
+            onClick={handleNext}
+            className="p-1 md:p-2 rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <IoChevronForward className="w-3.5 h-3.5 md:w-4 md:h-4" />
+          </button>
+        </div>
+        <span className="text-sm md:text-lg font-medium capitalize ml-1 md:ml-2 truncate">
           {label}
         </span>
       </div>
-      <div ref={dropdownRef} className="relative">
+      <div ref={dropdownRef} className="relative shrink-0">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 px-4 h-[48px] text-sm font-medium border border-brand_stroke rounded-full bg-white hover:shadow-sm transition-shadow"
+          className="flex items-center gap-1 md:gap-2 px-3 md:px-4 h-[40px] md:h-[48px] text-xs md:text-sm font-medium border border-brand_stroke rounded-full bg-white hover:shadow-sm transition-shadow"
         >
           {currentLabel}
           <svg
@@ -546,8 +565,8 @@ function MonthCalendar({
   onDayClick,
 }: {
   date: Date
-  events: EventWithService[]
-  onEventClick: (event: EventWithService) => void
+  events: EventWithRelations[]
+  onEventClick: (event: EventWithRelations) => void
   onDayClick: (date: Date) => void
 }) {
   const days = useMemo(() => {
@@ -568,7 +587,7 @@ function MonthCalendar({
   const currentMonth = date.getMonth()
 
   const eventsByDay = useMemo(() => {
-    const map = new Map<string, EventWithService[]>()
+    const map = new Map<string, EventWithRelations[]>()
     for (const e of events) {
       const d = new Date(e.start)
       const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
@@ -676,12 +695,26 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     upcomingEvents,
     orgSlug,
     monthEventDates,
+    employeeMap,
   } = loaderData
   const navigate = useNavigate()
   const mutationFetcher = useFetcher()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [editableEvent, setEditableEvent] =
     useState<Partial<PrismaEvent> | null>(null)
   const [optimisticOps, setOptimisticOps] = useState<OptimisticOp[]>([])
+
+  // Open drawer with pre-selected customer from URL param
+  useEffect(() => {
+    const customerId = searchParams.get("customerId")
+    if (customerId) {
+      setEditableEvent({ start: new Date(), customerId } as Partial<PrismaEvent>)
+      setSearchParams((prev) => {
+        prev.delete("customerId")
+        return prev
+      }, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const controls = useCalendarControls({
     initialDate: new Date(),
@@ -735,7 +768,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   // Apply optimistic operations on top of loader data
   const displayEvents = useMemo(() => {
-    let result = [...events] as EventWithService[]
+    let result = [...events] as EventWithRelations[]
     for (const op of optimisticOps) {
       if (op.type === "add") result.push(op.event)
       if (op.type === "remove")
@@ -747,6 +780,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     }
     return result
   }, [events, optimisticOps])
+
+  // Lookup map for full event data (used by hover card)
+  const eventsMap = useMemo(() => {
+    const map = new Map<string, EventWithRelations>()
+    for (const e of displayEvents) map.set(e.id, e)
+    return map
+  }, [displayEvents])
 
   // Day view: single resource so Calendar renders one column
   const isDayView = viewMode === "day"
@@ -764,7 +804,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         title: e.title,
         type: e.type as "BLOCK" | "EVENT",
         service: e.service ? { name: e.service.name } : null,
-        color: e.type === "BLOCK" ? undefined : "#FFD75E",
+        color: e.type === "BLOCK" ? undefined : e.status === "confirmed" ? "#BFDD78" : "#FFD75E",
         ...(isDayView ? { resourceId: "day" } : {}),
       })),
     [displayEvents, isDayView],
@@ -817,7 +857,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       createdAt: new Date(),
       updatedAt: new Date(),
       service: null,
-    } as EventWithService
+    } as EventWithRelations
     setOptimisticOps((prev) => [...prev, { type: "add", event: tempBlock }])
     mutationFetcher.submit(
       { intent: "add_block", start: start.toISOString() },
@@ -831,6 +871,42 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       { intent: "remove_block", eventId },
       { method: "POST" },
     )
+  }
+
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; customerName: string } | null>(null)
+  const handleRemoveEvent = (eventId: string) => {
+    setHoveredEventId(null)
+    const full = eventsMap.get(eventId)
+    setConfirmDelete({ id: eventId, customerName: full?.customer?.displayName ?? "el cliente" })
+  }
+  const handleConfirmDelete = () => {
+    if (!confirmDelete) return
+    setOptimisticOps((prev) => [...prev, { type: "remove", eventId: confirmDelete.id }])
+    mutationFetcher.submit(
+      { intent: "delete_event", eventId: confirmDelete.id },
+      { method: "POST" },
+    )
+    setConfirmDelete(null)
+  }
+
+  // Hover card state
+  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null)
+  const [hoverRect, setHoverRect] = useState<DOMRect | null>(null)
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleEventMouseEnter = (eventId: string, rect: DOMRect) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+    setHoveredEventId(eventId)
+    setHoverRect(rect)
+  }
+  const handleEventMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => setHoveredEventId(null), 150)
+  }
+  const handlePopoverMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+  }
+  const handlePopoverMouseLeave = () => {
+    setHoveredEventId(null)
   }
 
   const [showNewClientDrawer, setShowNewClientDrawer] = useState(false)
@@ -888,8 +964,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-8rem)]">
-      <h1 className="text-3xl font-satoBold mb-2">Mi agenda</h1>
+    <div className="flex flex-col min-h-[calc(100vh-8rem)] max-w-8xl mx-auto">
+      <h1 className="text-xl md:text-3xl font-satoBold mb-1 md:mb-2">Mi agenda</h1>
 
       <div className="flex gap-6 flex-1">
         <div ref={calendarRef} className="flex-1 min-w-0 flex flex-col">
@@ -943,6 +1019,20 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                       </p>
                     )
                   : undefined,
+                renderEvent: ({ event, isDragging }) => (
+                  <div
+                    className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm"
+                    style={{ backgroundColor: event.color || "#FFD75E" }}
+                    onMouseEnter={(e) => {
+                      if (!isDragging) handleEventMouseEnter(event.id, e.currentTarget.getBoundingClientRect())
+                    }}
+                    onMouseLeave={handleEventMouseLeave}
+                  >
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
+                    <span className="font-medium truncate text-brand_dark">{event.title}</span>
+                    <span className="text-brand_gray truncate text-[10px]">{event.service?.name}</span>
+                  </div>
+                ),
               }}
             />
           )}
@@ -964,6 +1054,50 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <ClientFormDrawer
         onClose={() => setShowNewClientDrawer(false)}
         isOpen={showNewClientDrawer}
+      />
+      {/* Hover card rendered at page level to avoid overflow clipping */}
+      {hoveredEventId && hoverRect && (() => {
+        const full = eventsMap.get(hoveredEventId)
+        if (!full) return null
+        const hoverData: EventHoverData = {
+          customerName: full.customer?.displayName,
+          serviceName: full.service?.name,
+          employeeName: full.employeeId ? employeeMap[full.employeeId] : undefined,
+          phone: full.customer?.tel,
+          email: full.customer?.email,
+          notes: full.notes ?? undefined,
+          status: full.status,
+          paid: full.paid,
+        }
+        const showAbove = hoverRect.top > 320
+        return (
+          <div
+            className="fixed z-50"
+            style={{
+              top: showAbove ? hoverRect.top - 8 : hoverRect.bottom + 8,
+              left: hoverRect.left,
+              transform: showAbove ? "translateY(-100%)" : undefined,
+            }}
+            onMouseEnter={handlePopoverMouseEnter}
+            onMouseLeave={handlePopoverMouseLeave}
+          >
+            <EventHoverCard
+              data={hoverData}
+              onEdit={() => { setEditableEvent(full); setHoveredEventId(null) }}
+              onDelete={() => { handleRemoveEvent(full.id); setHoveredEventId(null) }}
+            />
+          </div>
+        )
+      })()}
+      <ConfirmModal
+        isOpen={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="¿Seguro que quieres cancelar esta cita? 🫣"
+        description={`Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span class="font-satoBold ">${confirmDelete?.customerName ?? "el cliente"}</span>.`}
+        confirmText="Sí, cancelar"
+        cancelText="Volver"
+        variant="danger"
       />
     </div>
   )

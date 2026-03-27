@@ -119,16 +119,23 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       where: { email: validatedCustomer.email },
     })
 
-    const customer = await db.customer.create({
-      data: {
+    const now = new Date()
+    const customer = await db.customer.upsert({
+      where: { email_orgId: { email: validatedCustomer.email, orgId: org.id } },
+      update: {
+        displayName: validatedCustomer.displayName,
+        tel: validatedCustomer.tel || undefined,
+        updatedAt: now,
+        ...(existingUser && { user: { connect: { id: existingUser.id } } }),
+      },
+      create: {
         displayName: validatedCustomer.displayName,
         email: validatedCustomer.email,
         tel: validatedCustomer.tel || "",
         comments: validatedCustomer.comments || "",
         org: { connect: { id: org.id } },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        // Link to existing User if found
+        createdAt: now,
+        updatedAt: now,
         ...(existingUser && { user: { connect: { id: existingUser.id } } }),
       },
     })

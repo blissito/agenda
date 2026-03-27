@@ -2,6 +2,7 @@ import type { Customer, Event, Service, User } from "@prisma/client"
 import { type ChangeEvent, useEffect, useState } from "react"
 import { type FieldValues, useForm, useWatch } from "react-hook-form"
 import { Form, useFetcher } from "react-router"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Switch } from "~/components/common/Switch"
 import { newEventSchema } from "~/utils/zod_schemas"
@@ -66,11 +67,14 @@ export const EventForm = ({
   employees,
 }: EventFormProps) => {
   const fetcher = useFetcher()
-  const startDateValue = defaultValues.start
-    ? new Date(defaultValues.start)
-    : new Date()
-  const oneMoreHour = new Date(startDateValue)
-  oneMoreHour.setHours(oneMoreHour.getHours() + 1)
+  const startDateValue = (() => {
+    if (defaultValues.start) return new Date(defaultValues.start)
+    // Next full hour
+    const now = new Date()
+    now.setMinutes(0, 0, 0)
+    now.setHours(now.getHours() + 1)
+    return now
+  })()
 
   // Pre-populate start and end hours from the clicked date/time
   const startDate = new Date(startDateValue)
@@ -189,6 +193,7 @@ export const EventForm = ({
 
   const _startHour = useWatch({ control, name: "startHour" })
   const _endHour = useWatch({ control, name: "endHour" })
+  const _paid = useWatch({ control, name: "paid" })
 
   useEffect(() => {
     handleHoursChange()
@@ -198,7 +203,7 @@ export const EventForm = ({
   const registerVirtualFields = () => {
     // virtual fields
     register("customerId", { required: true, value: "" })
-    register("serviceId", { required: true, value: services[0]?.id })
+    register("serviceId", { required: true, value: defaultValues?.serviceId ?? "" })
     register("employeeId", { required: true, value: employees[0]?.id })
   }
 
@@ -208,10 +213,21 @@ export const EventForm = ({
   }, [])
 
   const handleServiceSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    setValue("serviceId", event.currentTarget.value, {
+    const selectedId = event.currentTarget.value
+    setValue("serviceId", selectedId, {
       shouldValidate: true,
       shouldDirty: true,
     })
+    const service = services.find((s) => s.id === selectedId)
+    if (service) {
+      const currentStart = getValues("startHour") || "09:00"
+      const [h, m] = currentStart.split(":").map(Number)
+      const startMins = h * 60 + m
+      const endMins = startMins + Number(service.duration)
+      const endH = String(Math.floor(endMins / 60) % 24).padStart(2, "0")
+      const endM = String(endMins % 60).padStart(2, "0")
+      setValue("endHour", `${endH}:${endM}`, { shouldValidate: true, shouldDirty: true })
+    }
   }
 
   const hanldeEmployeeSelect = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -221,17 +237,18 @@ export const EventForm = ({
     })
   }
 
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const handleDelete = async () => {
-    if (!confirm("Esta acción no es reversible")) return
-
     await fetcher.submit(null, {
       method: "delete",
       action: `/api/events?intent=delete&eventId=${defaultValues.id}`,
     })
+    setShowDeleteConfirm(false)
     onCancel?.()
   }
 
   return (
+    <>
     <Form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
       {/* @TODO: create a combobox */}
       <CustomersComboBox
@@ -241,7 +258,7 @@ export const EventForm = ({
         defaultValue={defaultValues.customerId}
       />
       <ServiceSelect
-        defaultValue={services[0]?.id}
+        defaultValue={defaultValues?.serviceId ?? ""}
         onChange={handleServiceSelect}
       />
       <EmployeeSelect
@@ -249,10 +266,13 @@ export const EventForm = ({
         onChange={hanldeEmployeeSelect}
       />
 
-      <p className="font-bold">Fecha y hora</p>
-      <div className="flex items-center">
-        <DateInput name="start" register={register} />
-        <span className="px-4">De</span>
+      <div className="flex flex-col gap-4">
+        <p className="font-bold">Fecha y hora <span className="text-brand_iron font-normal">({duration}m)</span></p>
+        <div className="flex items-center flex-wrap gap-y-2">
+        <div className="flex-1 min-w-[140px]">
+          <DateInput name="start" register={register} />
+        </div>
+        <span className="px-2">De</span>
         <DateInput
           type="time"
           name="startHour"
@@ -260,7 +280,7 @@ export const EventForm = ({
           onChange={handleHoursChange}
           error={errors.startHour}
         />
-        <span className="py-5 px-4">a</span>
+        <span className="px-2">a</span>
         <DateInput
           name="endHour"
           register={register}
@@ -268,68 +288,90 @@ export const EventForm = ({
           onChange={handleHoursChange}
           error={errors.startHour}
         />
+        </div>
+        {errors.startHour && (
+          <p className="text-red-500">{errors.startHour.message}</p>
+        )}
+        <BasicInput
+          label="Notas"
+          as="textarea"
+          name="notes"
+          register={register}
+          className="min-w-[170px]"
+          placeholder="Agrega una nota o comentario"
+          registerOptions={{ required: false }}
+        />
       </div>
-      {errors.startHour ? (
-        <p className="text-red-500">{errors.startHour.message}</p>
+      <hr className="border-brand_pale" />
+      {defaultValues.mp_payment_id ? (
+        <>
+          <div className="flex items-center justify-between">
+            <span className="text-brand_dark font-satoMedium">Pagado con MercadoPago</span>
+            <span className="text-xs px-2.5 py-1 rounded-full font-satoMedium bg-[#d5faf1] text-[#2a645f]">💸 Pagada</span>
+          </div>
+          <SelectInput
+            placeholder="Selecciona la forma de pago"
+            name="payment_method"
+            defaultValue="card"
+            label="Forma de pago"
+            isDisabled
+            options={[
+              { value: "card", title: "Tarjeta" },
+              { value: "cash", title: "Efectivo" },
+              { value: "transfer", title: "Transferencia bancaria" },
+            ]}
+          />
+        </>
       ) : (
-        <p>
-          Duración:{" "}
-          <strong className="font-sans font-bold"> {duration}m</strong>
-        </p>
+        <>
+          <Switch
+            label="Pagado"
+            name="paid"
+            defaultChecked={!!defaultValues.paid}
+            register={register}
+            registerOptions={{ required: false }}
+          />
+          {_paid && (
+            <SelectInput
+              placeholder="Selecciona la forma de pago"
+              register={register}
+              registerOptions={{ required: false }}
+              name="payment_method"
+              defaultValue="cash"
+              label="Forma de pago"
+              options={[
+                { value: "card", title: "Tarjeta" },
+                {
+                  value: "cash",
+                  title: "Efectivo",
+                },
+                {
+                  value: "transfer",
+                  title: "Transferencia bancaria",
+                },
+              ]}
+            />
+          )}
+        </>
       )}
-      <BasicInput
-        label="Notas"
-        as="textarea"
-        name="notes"
-        register={register}
-        className="min-w-[170px]"
-        placeholder="Agrega una nota o comentario"
-        registerOptions={{ required: false }}
-      />
-      <hr className="w-[90%] self-center border-brand_pale mt-2 mb-6" />
-      <Switch
-        label="Pagado"
-        name="paid"
-        register={register}
-        registerOptions={{ required: false }}
-      />
-      <SelectInput
-        placeholder="Selecciona la forma de pago"
-        register={register}
-        registerOptions={{ required: false }}
-        name="payment_method"
-        defaultValue="cash"
-        label="Forma de pago"
-        options={[
-          { value: "card", title: "Tarjeta" },
-          {
-            value: "cash",
-            title: "Efectivo",
-          },
-          {
-            value: "transfer",
-            title: "Transferencia bancaria",
-          },
-        ]}
-      />
       <hr className="mt-4 border-none" />
-      <nav className="absolute bottom-0 flex justify-end px-20 py-4 w-full gap-4 bg-white">
-        <PrimaryButton
+      <nav className="absolute bottom-0 left-0 right-0 flex justify-end px-6 md:px-8 py-4 gap-4 bg-white">
+        {/* <PrimaryButton
           type="button"
           isDisabled={isLoading}
           onClick={onCancel}
           mode="cancel"
         >
-          Cancelar
-        </PrimaryButton>
+          Volver
+        </PrimaryButton> */}
         {defaultValues.id && (
           <PrimaryButton
             type="button"
             isLoading={isLoading}
-            className="bg-red-500 text-white"
-            onClick={handleDelete}
+            className="bg-[#CA5757] hover:bg-[#B84E4E] text-white"
+            onClick={() => setShowDeleteConfirm(true)}
           >
-            Eliminar
+            Cancelar cita
           </PrimaryButton>
         )}
         <PrimaryButton
@@ -341,5 +383,16 @@ export const EventForm = ({
         </PrimaryButton>
       </nav>
     </Form>
+    <ConfirmModal
+      isOpen={showDeleteConfirm}
+      onClose={() => setShowDeleteConfirm(false)}
+      onConfirm={handleDelete}
+      title="¿Seguro que quieres cancelar esta cita? 🫣"
+      description={`Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span class="font-satoBold text-brand_dark">${customers.find(c => c.id === getValues("customerId"))?.displayName ?? "el cliente"}</span>.`}
+      confirmText="Sí, cancelar"
+      cancelText="Volver"
+      variant="danger"
+    />
+    </>
   )
 }

@@ -300,6 +300,25 @@ article.rounded-xl > div {
 article.rounded-xl > div > section {
   min-width: 1040px;
 }
+/* Mobile: let the calendar grid be responsive */
+@media (max-width: 768px) {
+  article.rounded-xl > div > section {
+    min-width: auto;
+  }
+  /* Compact calendar wrapper padding */
+  article.rounded-xl.shadow {
+    padding: 0.5rem;
+  }
+  /* Compact day header padding */
+  article.rounded-xl .place-items-center.py-4.border-b {
+    padding-top: 0 !important;
+    padding-bottom: 0.5rem !important;
+  }
+  /* Time column: no borders, compact */
+  article.rounded-xl > div > section > div:first-child .bg-slate-50 {
+    border: none !important;
+  }
+}
 /* Calendar: "Hoy" button brand_dark */
 div .bg-blue-500.text-white.rounded-full.border {
   background-color: #11151a !important;

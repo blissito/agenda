@@ -14,7 +14,7 @@ const AVATAR_COLORS = [
   "bg-brand_purple",
 ]
 
-function getAvatarColor(name: string) {
+export function getAvatarColor(name: string) {
   let hash = 0
   for (const ch of name) hash = ch.charCodeAt(0) + ((hash << 5) - hash)
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]

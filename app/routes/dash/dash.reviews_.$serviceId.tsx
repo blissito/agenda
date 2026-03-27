@@ -1,8 +1,11 @@
 import { BsEnvelope, BsTrash } from "react-icons/bs"
 import { Link, useLoaderData } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Image } from "~/components/common/Image"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { EmptyStateReviews } from "~/components/reviews/EmptyStateReviews"
 import { db } from "~/utils/db.server"
+import { generateLink } from "~/utils/generateSlug"
 import type { Route } from "./+types/dash.reviews_.$serviceId"
 
 type Review = {
@@ -16,7 +19,9 @@ type Review = {
 }
 
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  await getUserAndOrgOrRedirect(request)
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Response("Org not found", { status: 404 })
+  const link = generateLink(request.url, org.slug)
   const { serviceId } = params
 
   const service = await db.service.findUnique({
@@ -63,6 +68,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   return {
     service,
     reviews,
+    link,
     stats: {
       averageRating,
       totalReviews,
@@ -73,10 +79,10 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 }
 
 export default function ServiceReviewDetail() {
-  const { service, reviews, stats } = useLoaderData<typeof loader>()
+  const { service, reviews, stats, link } = useLoaderData<typeof loader>()
 
   return (
-    <main>
+    <main className="max-w-8xl mx-auto h-full flex flex-col">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm mb-6 font-satoMedium">
         <Link
@@ -93,19 +99,17 @@ export default function ServiceReviewDetail() {
       <ServiceHeaderCard service={service} stats={stats} />
 
       {/* Reviews List */}
-      <section className="bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-6 max-w-[845px]">
-        {reviews.map((review, index) => (
-          <ReviewCard
-            key={review.id}
-            review={review}
-            showDivider={index < reviews.length - 1}
-          />
-        ))}
-
-        {reviews.length === 0 && (
-          <p className="text-center text-brand_gray py-8">
-            Aún no hay evaluaciones para este servicio
-          </p>
+      <section className="bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-6 max-w-[845px] flex-1 flex items-center justify-center">
+        {reviews.length > 0 ? (
+          reviews.map((review, index) => (
+            <ReviewCard
+              key={review.id}
+              review={review}
+              showDivider={index < reviews.length - 1}
+            />
+          ))
+        ) : (
+          <EmptyStateReviews link={link} />
         )}
       </section>
     </main>
@@ -135,15 +139,11 @@ const ServiceHeaderCard = ({
       <div className="flex gap-6">
         {/* Service Image */}
         <div className="w-[193px] h-[120px] rounded-2xl overflow-hidden bg-gray-200 flex-shrink-0">
-          {service.gallery?.[0] ? (
-            <img
-              src={service.gallery[0]}
-              alt={service.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-brand_blue to-indigo-400" />
-          )}
+          <Image
+            src={service.gallery?.[0] || "/images/serviceDefault.png"}
+            alt={service.name}
+            className="w-full h-full object-cover"
+          />
         </div>
 
         {/* Service Info */}
@@ -282,14 +282,14 @@ const ReviewCard = ({
             <DropdownMenu hideDefaultButton>
               <MenuButton
                 onClick={() => {}}
-                className="text-[#ca5757]"
+                variant="danger"
                 icon={<BsTrash />}
               >
                 Eliminar comentario
               </MenuButton>
               <MenuButton
                 to={`/dash/clientes/${review.customerEmail}`}
-                className="text-brand_gray"
+                variant="default"
                 icon={<BsEnvelope />}
               >
                 Contactar cliente

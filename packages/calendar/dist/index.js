@@ -336,7 +336,7 @@ var DayHeader = ({
     ] });
   }
   return /* @__PURE__ */ jsxs("p", { className: "grid place-items-center", children: [
-    /* @__PURE__ */ jsx("span", { className: "capitalize", children: date.toLocaleDateString(locale, { weekday: "short" }) }),
+    /* @__PURE__ */ jsx("span", { className: "capitalize text-[11px] md:text-base", children: date.toLocaleDateString(locale, { weekday: "short" }) }),
     /* @__PURE__ */ jsx(
       "span",
       {
@@ -370,6 +370,15 @@ function Calendar({
   const week = completeWeek(date);
   const [activeId, setActiveId] = useState(null);
   const { canMove } = useCalendarEvents(events);
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
   const scrollContainerRef = useRef(null);
   const isResourceMode = !!resources && resources.length > 0;
   const columnCount = isResourceMode ? resources.length : 7;
@@ -423,14 +432,16 @@ function Calendar({
       return areSameDates(eventDate, dayOfWeek);
     });
   };
+  const timeColWidth = isMobile ? 44 : 60;
+  const colMinWidth = isMobile ? 80 : 140;
   const gridStyle = {
     display: "grid",
-    gridTemplateColumns: `60px repeat(${columnCount}, minmax(140px, 1fr))`
+    gridTemplateColumns: `${timeColWidth}px repeat(${columnCount}, minmax(${colMinWidth}px, 1fr))`
   };
   const resourceGridStyle = isResourceMode ? {
     display: "grid",
-    gridTemplateColumns: `60px repeat(${columnCount}, minmax(150px, 1fr))`,
-    minWidth: `${60 + columnCount * 150}px`
+    gridTemplateColumns: `${timeColWidth}px repeat(${columnCount}, minmax(150px, 1fr))`,
+    minWidth: `${timeColWidth + columnCount * 150}px`
   } : gridStyle;
   return /* @__PURE__ */ jsxs(
     DndContext,
@@ -446,8 +457,9 @@ function Calendar({
           {
             ref: scrollContainerRef,
             className: cn(
-              isResourceMode && "overflow-x-auto"
+              (isResourceMode || isMobile) && "overflow-x-auto"
             ),
+            style: isMobile ? { WebkitOverflowScrolling: "touch" } : void 0,
             children: [
               /* @__PURE__ */ jsxs(
                 "section",
@@ -455,7 +467,7 @@ function Calendar({
                   style: resourceGridStyle,
                   className: "place-items-center py-4 border-b sticky top-0 bg-white z-10",
                   children: [
-                    /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-500", children: isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone }) }),
+                    /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx("span", { className: cn("text-sm text-gray-500", isMobile && "text-[8px] leading-tight"), children: isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone }) }),
                     isResourceMode ? resources.map((resource, index) => /* @__PURE__ */ jsx(
                       DayHeader,
                       {
@@ -483,9 +495,11 @@ function Calendar({
                 "section",
                 {
                   style: resourceGridStyle,
-                  className: "max-h-[70vh] overflow-y-auto",
+                  className: cn(
+                    !isMobile && "max-h-[70vh] overflow-y-auto"
+                  ),
                   children: [
-                    /* @__PURE__ */ jsx(TimeColumn, { hoursStart, hoursEnd, cellHeight: CELL_H }),
+                    /* @__PURE__ */ jsx(TimeColumn, { hoursStart, hoursEnd, cellHeight: CELL_H, compact: isMobile }),
                     Array.from({ length: columnCount }, (_, colIndex) => /* @__PURE__ */ jsx(
                       Column,
                       {
@@ -751,10 +765,11 @@ var Column = ({
 var TimeColumn = ({
   hoursStart = 0,
   hoursEnd = 24,
-  cellHeight = 64
+  cellHeight = 64,
+  compact = false
 }) => /* @__PURE__ */ jsx("div", { className: "grid", children: Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
   const hour = hoursStart + i;
-  return /* @__PURE__ */ jsx(Cell, { cellHeight, children: `${hour < 10 ? "0" : ""}${hour}:00` }, hour);
+  return /* @__PURE__ */ jsx(Cell, { cellHeight, children: /* @__PURE__ */ jsx("span", { className: cn(compact && "text-[11px]"), children: `${hour < 10 ? "0" : ""}${hour}:00` }) }, hour);
 }) });
 var DraggableEvent = ({
   event,

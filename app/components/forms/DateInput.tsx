@@ -28,7 +28,7 @@ export const DateInput = ({
         {...props}
         className={cn(
           "placeholder:text-brand_iron text-brand_gray font-satoshi",
-          "focus:border-brand_blue",
+          "focus:border-brand_blue focus:outline-none focus:ring-0",
           "rounded-2xl border-gray-200 h-12 w-full mt-1 ",
           "disabled:bg-brand_stroke disabled:cursor-not-allowed",
           {

@@ -8,6 +8,7 @@ import { Spinner } from "~/components/common/Spinner"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { ArrowRight } from "~/components/icons/arrowRight"
 import { db } from "~/utils/db.server"
+import { RouteTitle } from "~/components/sideBar/routeTitle"
 import type { Route } from "./+types/pagos"
 
 export const action = async ({ request }: Route.ActionArgs) => {
@@ -105,13 +106,10 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
   const showEmptyState = !mpConnected && !stripeAccountId
 
   return (
-    <article className="w-full">
-      <div className="mb-8">
-        <h1 className="text-[32px] font-satoBold">
-          Ventas
-        </h1>
+    <article className="w-full max-w-8xl mx-auto">
+      <RouteTitle>Ventas</RouteTitle>
 
-        <div className="mt-6 flex items-center gap-6">
+        <div className="flex items-center gap-6">
           <button
             type="button"
             onClick={() => changeTab("sales")}
@@ -138,7 +136,6 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
             )}
           </button>
         </div>
-      </div>
 
       {showEmptyState ? (
         <section className="flex min-h-[560px] flex-col items-center justify-center px-4 py-10 text-center md:min-h-[640px]">

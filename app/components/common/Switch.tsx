@@ -67,7 +67,7 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       >
         <div className="grid">
           <div className="flex gap-1 items-center">
-            <span>{icon}</span>
+            {icon && <span>{icon}</span>}
             <span>{label}</span>
           </div>
           <span className="text-xs text-gray-500">{subtitle}</span>
@@ -77,7 +77,10 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
           className="hidden"
           {...props}
           {...register?.(name, registerOptions)}
-          onChange={(event) => handleChange(event.currentTarget.checked)}
+          onChange={(event) => {
+            register?.(name, registerOptions)?.onChange?.(event)
+            handleChange(event.currentTarget.checked)
+          }}
           checked={checked}
         />
         {/* Container */}

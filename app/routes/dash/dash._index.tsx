@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
+import { Link } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { getPublicImageUrl } from "~/utils/urls"
@@ -194,7 +195,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       recentEvents.length > 0)
 
   return (
-    <section className=" w-full h-full 	">
+    <section className="w-full h-[calc(100vh-3rem)] lg:h-[calc(100vh-5rem)]">
       <div className="h-full flex flex-col box-border overflow-hidden max-w-8xl mx-auto">
         <Summary user={user} stats={stats} />
         {hasData ? (
@@ -513,10 +514,13 @@ const DashboardData = ({
         <SalesChart data={salesTimeline} />
       </div>
       <div className="bg-white rounded-2xl overflow-y-scroll h-full col-span-6 xl:col-span-2 pb-6">
-        <div className="bg-white/80 z-10 backdrop-blur py-4 sticky top-0 px-6">
+        <div className="bg-white/80 z-10 backdrop-blur py-4 sticky top-0 px-6 flex items-center justify-between">
           <h3 className="text-lg font-satoBold">
             Servicios agendados recientemente
           </h3>
+          <Link to="/dash/agenda/citas" className="text-xs text-[#615FFF] underline">
+            Ver todas
+          </Link>
         </div>
         <div className="mt-0 overflow-y-scroll px-6">
           {recentEvents.length > 0 ? (

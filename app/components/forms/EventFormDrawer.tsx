@@ -28,7 +28,7 @@ export const EventFormDrawer = ({
 }: EventFormDrawerProps) => {
   return (
     <Drawer
-      title="Agendar cita"
+      title={event?.id ? "Editar cita" : "Agendar cita"}
       isOpen={isOpen}
       onClose={onClose}
       size="big"

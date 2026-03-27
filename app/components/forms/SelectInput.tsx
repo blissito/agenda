@@ -58,7 +58,7 @@ export const SelectInput = ({
           name="pets"
           id="pet-select"
           className={cn(
-            "rounded-2xl border-gray-200 h-12 w-full mt-1 text-brand_gray ",
+            "rounded-2xl border-gray-200 h-12 w-full mt-1 text-brand_gray focus:border-brand_blue focus:outline-none focus:ring-0",
             {
               "disabled:cursor-not-allowed": isDisabled,
               "pl-14 relative": icon,

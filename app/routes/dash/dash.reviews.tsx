@@ -1,10 +1,7 @@
-import { BsBarChart } from "react-icons/bs"
 import { Link, useLoaderData } from "react-router"
+import { Image } from "~/components/common/Image"
 import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
-import { SecondaryButton } from "~/components/common/secondaryButton"
-import { useCopyLink } from "~/components/hooks/useCopyLink"
-import { Anchor } from "~/components/icons/link"
+import { EmptyStateReviews } from "~/components/reviews/EmptyStateReviews"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { db } from "~/utils/db.server"
 import { generateLink } from "~/utils/generateSlug"
@@ -72,16 +69,16 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 }
 
 export default function Reviews() {
-  const { serviceReviews, overallAverage, totalReviews, link } =
+  const { serviceReviews, overallAverage, link } =
     useLoaderData<typeof loader>()
 
-  const hasReviews = totalReviews > 0
+  const hasServices = serviceReviews.length > 0
 
   return (
-    <main>
+    <main className="max-w-8xl mx-auto">
       <RouteTitle>Evaluaciones</RouteTitle>
 
-      {hasReviews ? (
+      {hasServices ? (
         <>
           <SummaryCard average={overallAverage} />
           <ReviewsTable services={serviceReviews} />
@@ -97,7 +94,7 @@ const SummaryCard = ({ average }: { average: number }) => {
   return (
     <section className="bg-white rounded-2xl px-6 py-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] w-fit">
       <p className="text-lg text-brand_gray font-satoMedium">
-        Tus clientes han hablado 🪄 ... la calificación promedio de tus
+        Tus clientes han hablado ✓ ... la calificación promedio de tus
         servicios es
       </p>
       <div className="flex items-center gap-6 mt-6">
@@ -121,13 +118,12 @@ const SummaryCard = ({ average }: { average: number }) => {
 
 const ReviewsTable = ({ services }: { services: ServiceReview[] }) => {
   return (
-    <section className="bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] overflow-hidden">
+    <section className="bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] overflow-hidden max-w-6xl">
       {/* Header */}
-      <div className="grid grid-cols-12 text-xs text-[#606264] font-satoMedium py-3 px-10">
-        <span className="col-span-4">Servicio</span>
-        <span className="col-span-2">Opiniones</span>
-        <span className="col-span-4">Puntuación</span>
-        <span className="col-span-2"></span>
+      <div className="grid grid-cols-[1fr_auto_auto] text-xs text-[#606264] font-satoMedium py-3 px-10">
+        <span>Servicio</span>
+        <span className="w-28 text-center">Opiniones</span>
+        <span className="w-52 text-center">Puntuación</span>
       </div>
       {/* Divider line */}
       <div className="h-px bg-gray-100 mx-0" />
@@ -144,20 +140,16 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
   return (
     <Link
       to={`/dash/evaluaciones/${service.id}`}
-      className="grid grid-cols-12 items-center py-4 px-10 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+      className="grid grid-cols-[1fr_auto_auto] items-center py-4 px-10 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
     >
       {/* Service info */}
-      <div className="col-span-4 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
-          {service.image ? (
-            <img
-              src={service.image}
-              alt={service.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-brand_blue to-indigo-400" />
-          )}
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-200 flex-shrink-0">
+          <Image
+            src={service.image || "/images/serviceDefault.png"}
+            alt={service.name}
+            className="w-full h-full object-cover"
+          />
         </div>
         <span className="font-satoBold text-sm text-brand_dark">
           {service.name}
@@ -165,14 +157,14 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
       </div>
 
       {/* Review count */}
-      <div className="col-span-2">
+      <div className="w-28 text-center">
         <span className="text-sm text-brand_gray font-satoMedium">
           {service.reviewCount}
         </span>
       </div>
 
       {/* Rating */}
-      <div className="col-span-4 flex items-center gap-3">
+      <div className="w-52 flex items-center justify-center gap-3">
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <StarIcon
@@ -189,19 +181,6 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
         <span className="text-sm text-[#606264] font-satoMedium">
           {service.averageRating.toFixed(1)}
         </span>
-      </div>
-
-      {/* Actions */}
-      <div className="col-span-2 flex justify-end">
-        <DropdownMenu>
-          <MenuButton
-            to={`/dash/evaluaciones/${service.id}`}
-            className="text-brand_gray"
-            icon={<BsBarChart />}
-          >
-            Ver detalle
-          </MenuButton>
-        </DropdownMenu>
       </div>
     </Link>
   )
@@ -258,29 +237,3 @@ const StarIcon = ({
   )
 }
 
-const EmptyStateReviews = ({ link }: { link: string }) => {
-  const { setLink, ref } = useCopyLink(link)
-  return (
-    <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center">
-      <div className="text-center">
-        <img className="mx-auto mb-4" src="/images/emptyState/clients-empty.webp" />
-        <p className=" text-2xl font-bold">
-        Las reseñas empiezan con una buena experiencia 
-        </p>
-        <p className="mt-2 text-brand_gray text-[18px] font-satoMedium">
-        Brinda un gran servicio y deja que tus clientes cuenten cómo les fue ⭐
-        </p>
-        <SecondaryButton
-          ref={ref}
-          onClick={setLink}
-          className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]"
-        >
-          <span className="text-inherit">
-            <Anchor />
-          </span>
-          <span>Copiar link</span>
-        </SecondaryButton>
-      </div>
-    </div>
-  )
-}

@@ -1,6 +1,7 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import * as React from "react"
-import { FiDownload, FiMapPin } from "react-icons/fi"
+import { FiDownload } from "react-icons/fi"
+import { MapPin } from "~/components/icons/mapPin"
 import { TbEdit } from "react-icons/tb"
 import { Link, useNavigation } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
@@ -9,7 +10,7 @@ import { PrimaryButton } from "~/components/common/primaryButton"
 import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 import { usePluralize } from "~/components/hooks/usePluralize"
 import { Calendar2 } from "~/components/icons/calendar2"
-import { CalendarPicker } from "~/components/icons/calendarPicker"
+import { Settings } from "~/components/icons/settings"
 import { Mail } from "~/components/icons/mail"
 import { MailButton } from "~/components/icons/mailButton"
 import { Notes } from "~/components/icons/notes"
@@ -17,7 +18,9 @@ import { Phone } from "~/components/icons/phone"
 import { WhatsApp } from "~/components/icons/WhatsApp"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash_.clientes_.$email"
-import { EventTable, type EventWithService } from "./clientes/EventTable"
+import { Pagination } from "~/components/common/Pagination"
+import { CitasFilterPopup, EMPTY_FILTERS, type CitasFilters } from "~/components/dash/CitasFilter"
+import { CitasTable, type CitaEvent } from "~/components/dash/CitasTable"
 
 
 export const handle = { hideSidebar: true }
@@ -52,17 +55,27 @@ export const loader = async ({
     orderBy: { start: "desc" },
   })
 
-  const events: EventWithService[] = dbEvents.filter(
+  const events: CitaEvent[] = dbEvents.filter(
     (e): e is typeof e & { service: NonNullable<typeof e.service> } =>
       e.service !== null,
   )
 
-  const points = events.reduce((acc, e) => acc + Number(e.service.points), 0)
+  const now = new Date()
+  const points = events
+    .filter((e) => new Date(e.start) < now)
+    .reduce((acc, e) => acc + Number(e.service.points), 0)
+
+  const services = await db.service.findMany({
+    where: { orgId: org.id },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  })
 
   return {
     customer,
     org,
     events,
+    services,
     stats: {
       eventCount: events.length,
       commentsCount: 0,
@@ -73,9 +86,48 @@ export const loader = async ({
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { events, stats, customer } = loaderData
+  const { events, stats, customer, services } = loaderData
   const pluralize = usePluralize()
   const navigation = useNavigation()
+
+  const [showFilters, setShowFilters] = React.useState(false)
+  const [filters, setFilters] = React.useState<CitasFilters>(EMPTY_FILTERS)
+  const [draft, setDraft] = React.useState<CitasFilters>(EMPTY_FILTERS)
+  const filterRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node))
+        setShowFilters(false)
+    }
+    if (showFilters) document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [showFilters])
+
+  const hasActiveFilters = filters.serviceId !== "" || filters.statuses.size > 0 || filters.from !== "" || filters.to !== ""
+
+  const filteredEvents = React.useMemo(() => {
+    return events.filter((e) => {
+      if (filters.from && new Date(e.start) < new Date(filters.from)) return false
+      if (filters.to) {
+        const to = new Date(filters.to)
+        to.setHours(23, 59, 59, 999)
+        if (new Date(e.start) > to) return false
+      }
+      if (filters.serviceId && e.service?.id !== filters.serviceId) return false
+      if (filters.statuses.size > 0) {
+        const statusVariant = e.status === "CANCELLED" || e.status === "canceled" ? "canceled" : e.status === "ACTIVE" || e.status === "confirmed" ? "confirmed" : "pending"
+        const payVariant = e.paid ? "paid" : "unpaid"
+        if (!filters.statuses.has(statusVariant) && !filters.statuses.has(payVariant)) return false
+      }
+      return true
+    })
+  }, [events, filters])
+
+  const PER_PAGE = 20
+  const [page, setPage] = React.useState(1)
+  React.useEffect(() => { setPage(1) }, [filters])
+  const paginated = filteredEvents.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
   const [showDelayedSkeleton, setShowDelayedSkeleton] = React.useState(false)
 
@@ -95,7 +147,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   if (showDelayedSkeleton) return <ClientDetailSkeleton />
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative pb-8">
       {/* Header Background */}
       <div className="absolute top-0 left-0 right-0 h-[240px] sm:h-[302px] rounded-b-2xl overflow-hidden z-0">
         <img
@@ -155,36 +207,42 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     <div className="flex flex-col items-end gap-2">
                       {/* fila de iconos */}
                       <div className="flex items-center justify-end gap-2">
-                        <button
+                        {/* <button
                           type="button"
                           className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
                           aria-label="Editar"
                         >
                           <TbEdit size={20} />
-                        </button>
+                        </button> */}
 
-                        <button
-                          type="button"
+                        <a
+                          href={`https://wa.me/${customer.tel.replace(/\D/g, "")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
                           aria-label="WhatsApp"
                         >
                           <WhatsApp size={20} />
-                        </button>
+                        </a>
 
-                        <button
-                          type="button"
+                        <a
+                          href={`mailto:${customer.email}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
                           aria-label="Enviar correo"
                         >
                           <MailButton />
-                        </button>
+                        </a>
                       </div>
 
                       {/* botón abajo */}
-                      <PrimaryButton className="min-w-0 min-h-0 h-10 px-4 gap-1">
-                        <Calendar2 size={20} />
-                        <span className="text-sm font-satoMedium">Agendar</span>
-                      </PrimaryButton>
+                      <Link to={`/dash/agenda?customerId=${customer.id}`}>
+                        <PrimaryButton className="min-w-0 min-h-0 h-10 px-4 gap-1">
+                          <Calendar2 size={20} />
+                          <span className="text-sm font-satoMedium">Agendar</span>
+                        </PrimaryButton>
+                      </Link>
                     </div>
                   </div>
 
@@ -195,34 +253,40 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     </h1>
 
                     <div className="flex items-center gap-2 ml-auto mr-8">
-                      <button
+                      {/* <button
                         type="button"
                         className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
                         aria-label="Editar"
                       >
                         <TbEdit size={20} />
-                      </button>
+                      </button> */}
 
-                      <button
-                        type="button"
+                      <a
+                        href={`https://wa.me/${customer.tel.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
                         aria-label="WhatsApp"
                       >
                         <WhatsApp size={20} />
-                      </button>
+                      </a>
 
-                      <button
-                        type="button"
+                      <a
+                        href={`mailto:${customer.email}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="w-10 h-10 rounded-full bg-transparent border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
                         aria-label="Enviar correo"
                       >
                         <MailButton />
-                      </button>
+                      </a>
 
-                      <PrimaryButton className="ml-2 min-w-0 min-h-0 h-10 px-4 gap-1">
-                        <Calendar2 size={20} />
-                        <span className="text-sm font-satoMedium">Agendar</span>
-                      </PrimaryButton>
+                      <Link to={`/dash/agenda?customerId=${customer.id}`}>
+                        <PrimaryButton className="ml-2 min-w-0 min-h-0 h-10 px-4 gap-1">
+                          <Calendar2 size={20} />
+                          <span className="text-sm font-satoMedium">Agendar</span>
+                        </PrimaryButton>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -246,9 +310,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
                   {/* Dirección */}
                   <div className="col-span-2 flex items-start gap-2 min-w-0 sm:col-span-1">
-                    <FiMapPin
+                    <MapPin
                       className="text-brand_gray mt-0.5 shrink-0"
-                      size={20}
                     />
                     <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
                       {"address" in customer && (customer as any).address
@@ -315,60 +378,70 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Filter Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-8 mb-0">
-            <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 w-full sm:min-w-[340px] sm:w-auto">
-              <span className="text-brand_gray font-satoMedium text-base flex-1">
-                Filtrar por fecha
-              </span>
-              <CalendarPicker className="text-brand_gray" />
-            </div>
+          <div className="flex items-center gap-3 mt-8 mb-0">
+            <h2 className="text-lg font-satoBold text-brand_dark">Historial de citas</h2>
+            <div className="flex-1" />
 
-            <div className="hidden sm:block flex-1" />
-
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <div className="bg-white rounded-full px-4 h-12 flex items-center gap-2 flex-1 sm:min-w-[180px] sm:flex-none">
-                <span className="text-brand_gray font-satoMedium text-base">
-                  Citas
-                </span>
-                <div className="ml-auto" aria-hidden="true">
-                  <svg
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="rotate-90"
-                  >
-                    <path
-                      d="M9 18l6-6-6-6"
-                      stroke="currentColor"
-                      className="text-brand_gray"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-
+            <div className="relative" ref={filterRef}>
               <button
                 type="button"
-                onClick={startDownload}
-                className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
-                aria-label="Descargar"
+                onClick={() => {
+                  setDraft({ ...filters, statuses: new Set(filters.statuses) })
+                  setShowFilters((v) => !v)
+                }}
+                className="relative bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
+                aria-label="Filtros"
               >
-                <FiDownload size={20} />
+                <Settings className="w-5 h-5" />
+                {hasActiveFilters && (
+                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-brand_blue" />
+                )}
               </button>
+              {showFilters && (
+                <CitasFilterPopup
+                  draft={draft}
+                  setDraft={setDraft}
+                  services={services}
+                  hasActiveFilters={hasActiveFilters}
+                  onApply={() => {
+                    setFilters(draft)
+                    setShowFilters(false)
+                  }}
+                  onReset={() => {
+                    setDraft(EMPTY_FILTERS)
+                    setFilters(EMPTY_FILTERS)
+                    setShowFilters(false)
+                  }}
+                />
+              )}
             </div>
+
+            <button
+              type="button"
+              onClick={startDownload}
+              className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
+              aria-label="Descargar"
+            >
+              <FiDownload size={20} />
+            </button>
           </div>
 
           {/* Events */}
           <div className="mt-6">
-            {events.length === 0 ? (
+            {paginated.length === 0 ? (
               <div className="bg-white rounded-2xl p-6 text-sm font-satoMedium text-brand_gray">
-                Este cliente aún no tiene citas.
+                {hasActiveFilters ? "No hay citas que coincidan con los filtros." : "Este cliente aún no tiene citas."}
               </div>
             ) : (
-              <EventTable events={events} />
+              <CitasTable events={paginated} hideClient />
+            )}
+            {filteredEvents.length > PER_PAGE && (
+              <Pagination
+                total={filteredEvents.length}
+                page={page}
+                perPage={PER_PAGE}
+                onPageChange={setPage}
+              />
             )}
           </div>
         </div>

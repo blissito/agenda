@@ -307,6 +307,7 @@ model Customer {
   tel                 String
   updatedAt           DateTime             @db.Date
   userId              String?              @db.ObjectId
+  blocked             Boolean?             @default(false)
   // Loyalty program fields (optional — org may not activate loyalty)
   loyaltyPoints       Int?                 @default(0)
   loyaltyTotalEarned  Int?                 @default(0)
@@ -319,6 +320,7 @@ model Customer {
   loyaltyTransactions LoyaltyTransaction[]
   loyaltyRedemptions  LoyaltyRedemption[]
 
+  @@unique([email, orgId])
   @@index([orgId])
 }
 
