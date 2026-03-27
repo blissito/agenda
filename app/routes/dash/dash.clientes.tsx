@@ -176,17 +176,18 @@ const SearchNav = ({
 }) => {
   return (
     <div className="flex items-center gap-3 my-4">
-      <div className="relative flex-1 sm:max-w-80">
+      <div className="relative flex-1 sm:min-w-[420px] sm:flex-none">
         <BasicInput
           value={search}
           onChange={(e) => onSearch(e.target.value)}
           type="search"
           placeholder="Busca por nombre, email, teléfono"
           containerClassName="w-full"
-          inputClassName="!rounded-full pr-12 border-white font-satoshi"
+          inputClassName="!rounded-full pr-12 border-white font-satoshi placeholder:text-brand_iron"
         />
         <MagnifyingGlass className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-brand_iron" />
       </div>
+      <div className="hidden sm:block flex-1" />
       <ActionButton onClick={onDownload} isDisabled={!canDownload}>
         <Download />
       </ActionButton>
@@ -205,7 +206,7 @@ export const ActionButton = ({
 }) => (
   <button
     className={twMerge(
-      "text-brand_gray shadow-sm rounded-full h-10 w-10 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white transition-colors enabled:hover:shadow",
+      "text-brand_gray shadow-sm rounded-full h-12 w-12 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white transition-colors enabled:hover:shadow",
       className,
     )}
     disabled={isDisabled}
@@ -492,7 +493,7 @@ export const Summary = ({
         )}
 
         {overflow > 0 && (
-          <div className="bg-[#F8F8F8] text-brand_blue w-12 h-12 rounded-full grid place-items-center -ml-3 border-2 border-white text-sm font-semibold shrink-0">
+          <div className="bg-brand_sky text-brand_blue w-12 h-12 rounded-full grid place-items-center -ml-3 border-2 border-white text-sm font-semibold shrink-0">
             +{overflow}
           </div>
         )}

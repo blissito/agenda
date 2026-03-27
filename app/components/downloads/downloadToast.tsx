@@ -273,6 +273,7 @@ export function useDownloadToast({
 }
 export type EventForXls = {
   start: Date | string
+  createdAt?: Date | string | null
   status: string
   paid?: boolean | null
   service?: {
@@ -325,113 +326,22 @@ function formatHumanTime(value?: Date | string | null) {
   })
 }
 
-function escapeHtml(value: unknown) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;")
-}
+function buildEventsCsv(events: EventForXls[]) {
+  const headers = ["Fecha", "Hora", "Agendada el", "Servicio", "Encargado", "Puntos", "Precio", "Estatus cita", "Pago"]
 
-function formatMoney(value: unknown) {
-  const num = Number(value ?? 0)
-  return `$${num.toFixed(2)}`
-}
+  const rows = events.map((event) => [
+    csvValue(formatHumanDate(event.start)),
+    csvValue(formatHumanTime(event.start)),
+    csvValue(formatHumanDate(event.createdAt)),
+    csvValue(event.service?.name ?? ""),
+    csvValue(event.service?.employeeName ?? "s/n"),
+    csvValue(String(event.service?.points ?? "")),
+    csvValue(`$${Number(event.service?.price ?? 0).toFixed(2)}`),
+    csvValue(event.status === "ACTIVE" ? "Confirmada" : "Cancelada"),
+    csvValue(event.paid ? "Pagada" : "Sin pagar"),
+  ].join(","))
 
-function buildEventsXls(events: EventForXls[], clientName: string) {
-  const rows =
-    events.length > 0
-      ? events
-          .map((event) => {
-            const serviceName = event.service?.name ?? ""
-            const employeeName = event.service?.employeeName ?? "s/n"
-            const points = event.service?.points ?? ""
-            const price = formatMoney(event.service?.price)
-            const eventStatus =
-              event.status === "ACTIVE" ? "Confirmada" : "Cancelada"
-            const paymentStatus = event.paid ? "Pagada" : "Sin pagar"
-
-            return `
-              <tr>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  formatHumanDate(event.start),
-                )}</td>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  formatHumanTime(event.start),
-                )}</td>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  serviceName,
-                )}</td>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  employeeName,
-                )}</td>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  points,
-                )}</td>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  price,
-                )}</td>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  eventStatus,
-                )}</td>
-                <td style="padding:8px; border:1px solid #d9d9d9;">${escapeHtml(
-                  paymentStatus,
-                )}</td>
-              </tr>
-            `
-          })
-          .join("")
-      : `
-        <tr>
-          <td colspan="8" style="padding:12px; border:1px solid #d9d9d9;">
-            Este cliente no tiene citas registradas.
-          </td>
-        </tr>
-      `
-
-  return `
-    <html xmlns:o="urn:schemas-microsoft-com:office:office"
-          xmlns:x="urn:schemas-microsoft-com:office:excel"
-          xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="ProgId" content="Excel.Sheet" />
-      </head>
-      <body>
-        <table>
-          <tr>
-            <td colspan="8" style="font-size:18px; font-weight:bold; padding:12px;">
-              Historial de citas - ${escapeHtml(clientName)}
-            </td>
-          </tr>
-          <tr>
-            <td colspan="8" style="padding:0 12px 12px 12px;">
-              Generado el ${escapeHtml(formatHumanDate(new Date()))}
-            </td>
-          </tr>
-        </table>
-
-        <table style="border-collapse:collapse; width:100%;">
-          <thead>
-            <tr>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Fecha</th>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Hora</th>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Servicio</th>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Encargado</th>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Puntos</th>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Precio</th>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Estatus cita</th>
-              <th style="padding:10px; border:1px solid #d9d9d9; background:#f5f5f5; text-align:left;">Pago</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows}
-          </tbody>
-        </table>
-      </body>
-    </html>
-  `
+  return [headers.join(","), ...rows].join("\n")
 }
 
 export function useEventDownloadToast({
@@ -443,7 +353,7 @@ export function useEventDownloadToast({
 }) {
   const [open, setOpen] = React.useState(false)
   const [status, setStatus] = React.useState<DownloadStatus>("preparing")
-  const [fileName, setFileName] = React.useState("cliente.xls")
+  const [fileName, setFileName] = React.useState("cliente.csv")
 
   const startDownload = React.useCallback(() => {
     try {
@@ -451,7 +361,7 @@ export function useEventDownloadToast({
         (clientName || "cliente").trim() || "cliente",
       )
 
-      const dynamicName = `${safeClientName}_${formatFileDate()}.xls`
+      const dynamicName = `${safeClientName}_citas_${formatFileDate()}.csv`
 
       setFileName(dynamicName)
       setOpen(true)
@@ -461,10 +371,10 @@ export function useEventDownloadToast({
         setStatus("generating")
 
         setTimeout(() => {
-          const xls = buildEventsXls(events || [], clientName || "Cliente")
+          const csv = buildEventsCsv(events || [])
 
-          const blob = new Blob(["\ufeff", xls], {
-            type: "application/vnd.ms-excel;charset=utf-8;",
+          const blob = new Blob(["\ufeff", csv], {
+            type: "text/csv;charset=utf-8;",
           })
 
           const url = URL.createObjectURL(blob)

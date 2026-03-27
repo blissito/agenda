@@ -8,7 +8,7 @@ import {
 import { type Event as PrismaEvent } from "@prisma/client"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
-import { Link, useFetcher, useNavigate } from "react-router"
+import { Link, useFetcher, useNavigate, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
@@ -699,9 +699,22 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   } = loaderData
   const navigate = useNavigate()
   const mutationFetcher = useFetcher()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [editableEvent, setEditableEvent] =
     useState<Partial<PrismaEvent> | null>(null)
   const [optimisticOps, setOptimisticOps] = useState<OptimisticOp[]>([])
+
+  // Open drawer with pre-selected customer from URL param
+  useEffect(() => {
+    const customerId = searchParams.get("customerId")
+    if (customerId) {
+      setEditableEvent({ start: new Date(), customerId } as Partial<PrismaEvent>)
+      setSearchParams((prev) => {
+        prev.delete("customerId")
+        return prev
+      }, { replace: true })
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const controls = useCalendarControls({
     initialDate: new Date(),

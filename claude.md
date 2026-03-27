@@ -201,6 +201,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**DALL-E + S3 para landings**: Imágenes generadas con DALL-E 3, persistidas en Tigris~~ (SDK 0.2.11 con `persistImage` callback, Denik sube a `landings/{orgId}/`)
 - [x] ~~**Opus para landings**: `generateOrgLanding` ahora usa `claude-sonnet-4-6`~~ (refine usa Haiku 4.5 sin imagen, Sonnet 4.6 con imagen de referencia)
 - [ ] **AI Landing — Referencias visuales**: El editor ya acepta imagen de referencia (base64 upload → vision model replica el diseño). Extender para aceptar también **links de Figma** via MCP (`figma-to-code`), donde el usuario pega un share link y el sistema extrae el diseño como referencia para generar/refinar secciones. La biblioteca SDK debe exponer esto como opción (`referenceUrl?: string` además de `referenceImage?: string`).
+- [ ] **ASISTENCIA**: Agregar campo `attended` (Boolean?, default null) al modelo Event para trackear si el cliente se presentó. Tag visible solo en citas pasadas (null = sin marcar, true = asistió, false = no-show). Usar este campo en vez de solo la fecha para sumar puntos de lealtad. Componente: nuevo StatusTag variant en `CitasTable.tsx`
 - [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
   - Repetición (cada martes 10am, cada semana, cada mes)
   - Número de repeticiones o fecha fin de recurrencia

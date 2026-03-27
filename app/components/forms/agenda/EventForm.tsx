@@ -67,11 +67,14 @@ export const EventForm = ({
   employees,
 }: EventFormProps) => {
   const fetcher = useFetcher()
-  const startDateValue = defaultValues.start
-    ? new Date(defaultValues.start)
-    : new Date()
-  const oneMoreHour = new Date(startDateValue)
-  oneMoreHour.setHours(oneMoreHour.getHours() + 1)
+  const startDateValue = (() => {
+    if (defaultValues.start) return new Date(defaultValues.start)
+    // Next full hour
+    const now = new Date()
+    now.setMinutes(0, 0, 0)
+    now.setHours(now.getHours() + 1)
+    return now
+  })()
 
   // Pre-populate start and end hours from the clicked date/time
   const startDate = new Date(startDateValue)
@@ -200,7 +203,7 @@ export const EventForm = ({
   const registerVirtualFields = () => {
     // virtual fields
     register("customerId", { required: true, value: "" })
-    register("serviceId", { required: true, value: services[0]?.id })
+    register("serviceId", { required: true, value: defaultValues?.serviceId ?? "" })
     register("employeeId", { required: true, value: employees[0]?.id })
   }
 
@@ -210,10 +213,21 @@ export const EventForm = ({
   }, [])
 
   const handleServiceSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    setValue("serviceId", event.currentTarget.value, {
+    const selectedId = event.currentTarget.value
+    setValue("serviceId", selectedId, {
       shouldValidate: true,
       shouldDirty: true,
     })
+    const service = services.find((s) => s.id === selectedId)
+    if (service) {
+      const currentStart = getValues("startHour") || "09:00"
+      const [h, m] = currentStart.split(":").map(Number)
+      const startMins = h * 60 + m
+      const endMins = startMins + Number(service.duration)
+      const endH = String(Math.floor(endMins / 60) % 24).padStart(2, "0")
+      const endM = String(endMins % 60).padStart(2, "0")
+      setValue("endHour", `${endH}:${endM}`, { shouldValidate: true, shouldDirty: true })
+    }
   }
 
   const hanldeEmployeeSelect = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -244,7 +258,7 @@ export const EventForm = ({
         defaultValue={defaultValues.customerId}
       />
       <ServiceSelect
-        defaultValue={services[0]?.id}
+        defaultValue={defaultValues?.serviceId ?? ""}
         onChange={handleServiceSelect}
       />
       <EmployeeSelect
