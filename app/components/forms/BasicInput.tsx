@@ -100,7 +100,7 @@ export const BasicInput = ({
             type={type}
             placeholder={placeholder}
             className={twMerge(
-              "placeholder:text-brand_blueLight text-brand_dark font-satoMedium",
+              "placeholder:text-brand_iron text-brand_dark font-satoMedium",
               "focus:border-brand_blue focus:outline-none focus:ring-0",
               "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",

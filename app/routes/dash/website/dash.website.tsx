@@ -106,7 +106,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const onShare = () => setShareOpen(true)
 
   return (
-    <main className="w-full h-[calc(100vh-8rem)] flex flex-col">
+    <main className="w-full h-[calc(100vh-8rem)] flex flex-col max-w-8xl mx-auto">
       <div className="flex items-center justify-between gap-4 pb-4">
         <RouteTitle className="mb-0">Sitio web</RouteTitle>
 

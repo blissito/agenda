@@ -53,7 +53,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [hasNewPhotos, setHasNewPhotos] = React.useState(false)
 
   return (
-    <section className="pb-10">
+    <section className="pb-10 max-w-8xl mx-auto">
       <div className="relative">
         <Breadcrumb className="text-brand_gray">
           <BreadcrumbList>

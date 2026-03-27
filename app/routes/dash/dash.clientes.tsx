@@ -118,7 +118,7 @@ export default function Clients() {
   })
 
   return (
-    <>
+    <div className="max-w-8xl mx-auto">
       <RouteTitle>Clientes</RouteTitle>
 
       {clients.length > 0 ? (
@@ -159,7 +159,7 @@ export default function Clients() {
       )}
 
       {toast}
-    </>
+    </div>
   )
 }
 

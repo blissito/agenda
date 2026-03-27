@@ -68,7 +68,7 @@ import { Rank } from "../icons/menu/rank"
 import { Services } from "../icons/menu/services"
 import { Settings } from "../icons/menu/settings"
 import { Website } from "../icons/menu/webiste"
-import { People } from "../icons/people"
+
 
 export function SideBar({
   user,
@@ -322,7 +322,6 @@ const MainMenu = ({ className }: { className?: string }) => {
         </MenuButton>
         <NavButton pathname="pagos" icon={<Financial />} />
         <NavButton pathname="clientes" />
-        <NavButton pathname="colaboradores" icon={<People />} />
         <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
           <MenuButton.Icon isActive={match("lealtad")}>
             <Loyalty />

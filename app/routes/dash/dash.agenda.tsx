@@ -8,7 +8,7 @@ import {
 import { type Event as PrismaEvent } from "@prisma/client"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
-import { Link, useFetcher, useNavigate, useSearchParams } from "react-router"
+import { useFetcher, useNavigate, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
@@ -360,9 +360,9 @@ function UpcomingAppointments({
         <span className="font-satoMedium text-brand_dark text-sm">
           Citas agendadas
         </span>
-        <Link to="/dash/agenda/citas" className="text-xs text-[#615FFF] underline">
+        <a href="/dash/agenda/citas" className="text-xs text-[#615FFF] underline">
           Ver todas
-        </Link>
+        </a>
       </div>
       {events.length > 0 ? (
         <div className="overflow-y-auto flex-1">
@@ -964,7 +964,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="flex flex-col min-h-[calc(100vh-8rem)]">
+    <div className="flex flex-col min-h-[calc(100vh-8rem)] max-w-8xl mx-auto">
       <h1 className="text-xl md:text-3xl font-satoBold mb-1 md:mb-2">Mi agenda</h1>
 
       <div className="flex gap-6 flex-1">

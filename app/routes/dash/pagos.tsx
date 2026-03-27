@@ -106,7 +106,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
   const showEmptyState = !mpConnected && !stripeAccountId
 
   return (
-    <article className="w-full">
+    <article className="w-full max-w-8xl mx-auto">
       <RouteTitle>Ventas</RouteTitle>
 
         <div className="flex items-center gap-6">

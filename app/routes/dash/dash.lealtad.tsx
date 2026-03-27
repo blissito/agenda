@@ -127,7 +127,7 @@ export default function Lealtad() {
 
   if (shouldShowEmptyState) {
     return (
-      <main>
+      <main className="max-w-8xl mx-auto">
         <RouteTitle>Lealtad</RouteTitle>
 
         <EmptyStateLoyalty onStart={() => setIsCreateWizardOpen(true)} />
@@ -162,7 +162,7 @@ export default function Lealtad() {
   }
 
   return (
-    <main className="px-6 py-4">
+    <main className="max-w-8xl mx-auto">
       <RouteTitle>Lealtad</RouteTitle>
 
       <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

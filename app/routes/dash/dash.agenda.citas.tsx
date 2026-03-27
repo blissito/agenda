@@ -114,7 +114,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
   const hasActiveFilters = filters.from !== "" || filters.to !== "" || filters.serviceId !== "" || filters.statuses.size > 0
 
   return (
-    <div>
+    <div className="max-w-8xl mx-auto">
       <div className="flex items-center gap-2 text-sm text-brand_gray mb-6">
         <Link to="/dash/agenda" className="hover:text-brand_dark transition-colors">
           Mi agenda
