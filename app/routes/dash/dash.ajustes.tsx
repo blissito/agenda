@@ -1,18 +1,24 @@
 import { type ReactNode, useMemo, useState } from "react"
 import { FaCheck } from "react-icons/fa6"
+import { FaInstagram, FaFacebookF, FaTiktok, FaYoutube, FaLinkedinIn } from "react-icons/fa6"
 import { FaTrash } from "react-icons/fa6"
-import { Form, useLoaderData, useSearchParams } from "react-router"
+import { Form, useFetcher, useLoaderData, useSearchParams } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Switch } from "~/components/common/Switch"
 import { BasicInput } from "~/components/forms/BasicInput"
+import { InputFile } from "~/components/forms/InputFile"
+import { TimesForm } from "~/components/forms/TimesForm"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { TabButton } from "~/components/loyalty/loyaltyStep"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import SelectStylized, { type Choice } from "~/components/ui/select"
-import { SUPPORTED_TIMEZONES } from "~/utils/timezone"
 import { db } from "~/utils/db.server"
+import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server"
+import { SUPPORTED_TIMEZONES } from "~/utils/timezone"
+import type { WeekSchema } from "~/utils/zod_schemas"
+import { weekDaysOrgSchema } from "~/utils/zod_schemas"
 import { ClientAvatar } from "./dash.clientes"
 
 const COUNTRIES: Choice[] = [
@@ -48,12 +54,17 @@ const TIMES: Choice[] = [
   { value: "unlimited", label: "Ilimitadas" },
 ]
 
+const TABS = ["general", "horarios", "configuracion", "integraciones", "colaboradores"] as const
+type Tab = (typeof TABS)[number]
+
 export const loader = async ({ request }: { request: Request }) => {
   const { org } = await getUserAndOrgOrRedirect(request)
   if (!org) throw new Response("Org not found", { status: 404 })
   const collaborators = await db.user.findMany({
     where: { orgId: org.id },
   })
+  const putUrl = await getPutFileUrl(`logos/${org.id}`)
+  const removeUrl = await removeFileUrl(`logos/${org.id}`)
   return {
     countries: COUNTRIES,
     timeZones: TIMEZONES,
@@ -61,7 +72,13 @@ export const loader = async ({ request }: { request: Request }) => {
     ranges: RANGES,
     times: TIMES,
     collaborators,
-    orgName: org.name,
+    org,
+    logoAction: {
+      putUrl,
+      removeUrl,
+      readUrl: `/api/images?key=logos/${org.id}`,
+      logoKey: `logos/${org.id}`,
+    },
   }
 }
 
@@ -77,6 +94,22 @@ export const action = async ({ request }: { request: Request }) => {
     await db.user.update({
       where: { id: userId, orgId: org.id },
       data: { orgId: null },
+    })
+    return { ok: true }
+  }
+
+  if (intent === "update_weekdays") {
+    const rawData = JSON.parse(formData.get("data") as string)
+    const result = weekDaysOrgSchema.safeParse(rawData)
+    if (!result.success) {
+      return Response.json(
+        { error: "Datos inválidos", details: result.error.flatten() },
+        { status: 400 },
+      )
+    }
+    await db.org.update({
+      where: { id: org.id },
+      data: { weekDays: { set: result.data.weekDays } },
     })
     return { ok: true }
   }
@@ -111,16 +144,25 @@ export const action = async ({ request }: { request: Request }) => {
   return { error: "Intent no reconocido" }
 }
 
+const TAB_LABELS: Record<Tab, string> = {
+  general: "Info General",
+  horarios: "Horarios",
+  configuracion: "Configuración",
+  integraciones: "Integraciones",
+  colaboradores: "Colaboradores",
+}
+
 export default function Ajustes() {
-  const { countries, timeZones, collaborators } =
+  const { countries, timeZones, collaborators, org, logoAction } =
     useLoaderData<typeof loader>()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const activeTab = searchParams.get("tab") === "colaboradores"
-    ? "colaboradores"
+  const rawTab = searchParams.get("tab")
+  const activeTab: Tab = TABS.includes(rawTab as Tab)
+    ? (rawTab as Tab)
     : "general"
 
-  const changeTab = (tab: "general" | "colaboradores") => {
+  const changeTab = (tab: Tab) => {
     const next = new URLSearchParams(searchParams)
     if (tab === "general") {
       next.delete("tab")
@@ -131,25 +173,26 @@ export default function Ajustes() {
   }
 
   return (
-    <main className="pb-10">
+    <main className="pb-10 max-w-8xl mx-auto">
       <RouteTitle>Ajustes</RouteTitle>
 
-      <div className="flex items-center gap-6 mb-6">
-        <TabButton
-          label="General"
-          active={activeTab === "general"}
-          onClick={() => changeTab("general")}
-        />
-        <TabButton
-          label="Colaboradores"
-          active={activeTab === "colaboradores"}
-          onClick={() => changeTab("colaboradores")}
-        />
+      <div className="flex items-center gap-6 mb-6 overflow-x-auto">
+        {TABS.map((tab) => (
+          <TabButton
+            key={tab}
+            label={TAB_LABELS[tab]}
+            active={activeTab === tab}
+            onClick={() => changeTab(tab)}
+          />
+        ))}
       </div>
 
-      {activeTab === "general" && (
-        <GeneralTab countries={countries} timeZones={timeZones} />
+      {activeTab === "general" && <InfoGeneralTab org={org} logoAction={logoAction} />}
+      {activeTab === "horarios" && <HorariosTab org={org} />}
+      {activeTab === "configuracion" && (
+        <ConfiguracionTab countries={countries} timeZones={timeZones} />
       )}
+      {activeTab === "integraciones" && <IntegracionesTab />}
       {activeTab === "colaboradores" && (
         <ColaboradoresTab collaborators={collaborators} />
       )}
@@ -157,9 +200,254 @@ export default function Ajustes() {
   )
 }
 
-/* ==================== General Tab ==================== */
+/* ==================== Info General Tab ==================== */
 
-function GeneralTab({
+const DESC_MAX = 300
+
+function InfoGeneralTab({
+  org,
+  logoAction,
+}: {
+  org: any
+  logoAction: { putUrl: string; removeUrl: string; readUrl: string; logoKey: string }
+}) {
+  const fetcher = useFetcher()
+  const [name, setName] = useState(org.name || "")
+  const [shopKeeper, setShopKeeper] = useState(org.shopKeeper || "")
+  const [email, setEmail] = useState(org.email || "")
+  const [tel, setTel] = useState(org.tel || "")
+  const [description, setDescription] = useState(org.description || "")
+  const [address, setAddress] = useState(org.address || "")
+  const [logoKey, setLogoKey] = useState<string | null>(org.logo || null)
+
+  const social = (org.social || {}) as Record<string, string>
+  const [instagram, setInstagram] = useState(social.instagram || "")
+  const [facebook, setFacebook] = useState(social.facebook || "")
+  const [tiktok, setTiktok] = useState(social.tiktok || "")
+  const [youtube, setYoutube] = useState(social.youtube || "")
+  const [linkedin, setLinkedin] = useState(social.linkedin || "")
+
+  const isLoading = fetcher.state !== "idle"
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    fetcher.submit(
+      {
+        intent: "org_update",
+        data: JSON.stringify({
+          id: org.id,
+          name,
+          shopKeeper: shopKeeper || null,
+          email: email || null,
+          tel: tel || null,
+          description: description || null,
+          address: address || null,
+          logo: logoKey,
+          social: {
+            instagram: instagram || "",
+            facebook: facebook || "",
+            tiktok: tiktok || "",
+            youtube: youtube || "",
+            linkedin: linkedin || "",
+            x: social.x || "",
+            website: social.website || "",
+          },
+        }),
+      },
+      { method: "post", action: "/api/org" },
+    )
+  }
+
+  return (
+    <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
+      <form onSubmit={handleSubmit} className="p-6 lg:p-8">
+        <h3 className="text-lg font-satoBold">
+          Información general{" "}
+        </h3>
+
+        {/* Logo + Name fields row */}
+        <div className="flex flex-col md:flex-row md:items-stretch gap-6 mt-6">
+          <div className="[&>div]:mb-0 [&>div]:h-full">
+            <InputFile
+              name="logo"
+              className="w-[160px] h-full mt-0"
+              action={logoAction}
+              onUploadComplete={(key) => setLogoKey(key)}
+              onDelete={() => setLogoKey(null)}
+            >
+              <p className="text-brand_gray text-sm hover:scale-105 transition-all">
+                Arrastra o<br />selecciona tu logo
+              </p>
+            </InputFile>
+          </div>
+          <div className="flex-1 space-y-4">
+            <BasicInput
+              name="name"
+              label="Nombre de tu negocio"
+              placeholder="Estudio Milan"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <BasicInput
+              name="shopKeeper"
+              label="Tu nombre o del profesional que atiende tu negocio"
+              placeholder="Brenda Ortega"
+              value={shopKeeper}
+              onChange={(e) => setShopKeeper(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Correo + Teléfono row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <BasicInput
+            name="email"
+            label="Correo"
+            type="email"
+            placeholder="hola@estudiodemilan.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <BasicInput
+            name="tel"
+            label="Teléfono"
+            placeholder="55 653 66 33"
+            value={tel}
+            onChange={(e) => setTel(e.target.value)}
+          />
+        </div>
+
+        {/* Ubicación */}
+        <div className="mt-4">
+          <BasicInput
+            name="address"
+            label="Ubicación de tu negocio"
+            placeholder="Av. Lopez Mateos 116, col. centro, CDMX, MEX"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+        </div>
+
+        {/* Descripción con counter */}
+        <div className="mt-4 relative">
+          <BasicInput
+            name="description"
+            as="textarea"
+            label="Descripción"
+            placeholder="Cuéntale a tus clientes sobre tu negocio"
+            value={description}
+            onChange={(e) => {
+              if (e.target.value.length <= DESC_MAX) setDescription(e.target.value)
+            }}
+          />
+          <span className="absolute bottom-2 right-3 text-xs text-brand_gray">
+            {description.length}/{DESC_MAX}
+          </span>
+        </div>
+
+        {/* Redes sociales */}
+        <hr className="bg-brand_stroke my-6" />
+        <h3 className="text-lg font-bold mb-4">Redes sociales</h3>
+
+        <div className="space-y-4">
+          <BasicInput
+            name="instagram"
+            label="Instagram"
+            placeholder="https://www.instagram.com/tunegocio/"
+            value={instagram}
+            onChange={(e) => setInstagram(e.target.value)}
+            icon={<FaInstagram />}
+          />
+          <BasicInput
+            name="facebook"
+            label="Facebook"
+            placeholder="https://www.facebook.com/tunegocio/"
+            value={facebook}
+            onChange={(e) => setFacebook(e.target.value)}
+            icon={<FaFacebookF />}
+          />
+          <BasicInput
+            name="tiktok"
+            label="Tiktok"
+            placeholder="https://www.tiktok.com/@tunegocio"
+            value={tiktok}
+            onChange={(e) => setTiktok(e.target.value)}
+            icon={<FaTiktok />}
+          />
+          <BasicInput
+            name="youtube"
+            label="Youtube"
+            placeholder="https://www.youtube.com/@tunegocio"
+            value={youtube}
+            onChange={(e) => setYoutube(e.target.value)}
+            icon={<FaYoutube />}
+          />
+          <BasicInput
+            name="linkedin"
+            label="Linkedin"
+            placeholder="https://www.linkedin.com/company/tunegocio"
+            value={linkedin}
+            onChange={(e) => setLinkedin(e.target.value)}
+            icon={<FaLinkedinIn />}
+          />
+        </div>
+
+        <div className="flex justify-end mt-12en Horarios, ajusta el font del titulo, y el padding de la card
+        ">
+          <PrimaryButton
+            type="submit"
+            isLoading={isLoading}
+            className="hover:-translate-y-1 hover:shadow-md transition-all active:translate-y-0"
+          >
+            Guardar
+          </PrimaryButton>
+        </div>
+      </form>
+    </section>
+  )
+}
+
+/* ==================== Horarios Tab ==================== */
+
+function HorariosTab({ org }: { org: any }) {
+  const fetcher = useFetcher()
+
+  const handleSubmit = (weekDays: WeekSchema) => {
+    weekDaysOrgSchema.parse({ weekDays })
+    fetcher.submit(
+      {
+        data: JSON.stringify({ weekDays }),
+        intent: "update_weekdays",
+      },
+      { method: "POST" },
+    )
+  }
+
+  return (
+    <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
+      <div className="p-6 lg:p-8">
+        <h3 className="text-lg font-satoBold mb-2">Horario: Actualiza los días y horarios en los que ofreces servicio</h3>
+        <div className="mt-6 [&>form]:mx-0 [&>form]:px-0 [&>form]:pt-0 [&>form]:max-w-none">
+          <TimesForm org={org} onSubmit={handleSubmit}>
+            <div className="flex justify-end mt-12">
+              <PrimaryButton
+                type="submit"
+                isLoading={fetcher.state !== "idle"}
+                className="hover:-translate-y-1 hover:shadow-md transition-all active:translate-y-0"
+              >
+                Guardar
+              </PrimaryButton>
+            </div>
+          </TimesForm>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ==================== Configuración Tab ==================== */
+
+function ConfiguracionTab({
   countries,
   timeZones,
 }: {
@@ -262,7 +550,25 @@ function GeneralTab({
             placeholder="Pega aquí los términos y condiciones de tus servicios"
           />
         </div>
-        <hr className="bg-brand_stroke my-6" />
+      </div>
+      <div className="fixed right-4 bottom-4 py-10 px-4 rounded-xl backdrop-blur-sm">
+        <PrimaryButton
+          type="submit"
+          className="hover:-translate-y-1 hover:shadow-md transition-all active:translate-y-0"
+        >
+          Guardar
+        </PrimaryButton>
+      </div>
+    </section>
+  )
+}
+
+/* ==================== Integraciones Tab ==================== */
+
+function IntegracionesTab() {
+  return (
+    <section className="bg-white rounded-2xl max-w-4xl pb-10 overflow-hidden">
+      <div className="p-6">
         <h3 className="text-lg font-bold">Integraciones</h3>
         <p className="text-brand_dark font-satoshi mt-4 mb-4">
           {" "}
@@ -307,14 +613,6 @@ function GeneralTab({
             description="Acepta citas en cualquier momento desde tu cuenta de instragram."
           />
         </div>
-      </div>
-      <div className="fixed right-4 bottom-4 py-10 px-4 rounded-xl backdrop-blur-sm">
-        <PrimaryButton
-          type="submit"
-          className="hover:-translate-y-1 hover:shadow-md transition-all active:translate-y-0"
-        >
-          Guardar
-        </PrimaryButton>
       </div>
     </section>
   )

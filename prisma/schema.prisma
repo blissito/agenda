@@ -391,6 +391,7 @@ model Org {
   shopKeeper         String?
   slug               String            @unique
   social             OrgSocial?
+  tel                String?
   timezone           String?           // e.g. "America/Mexico_City"
   websiteConfig      OrgWebsiteConfig?
   /// Could not determine type: the field only had null or empty values in the sample set.

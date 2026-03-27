@@ -24,6 +24,7 @@ export const ServiceCard = ({
   path,
   id,
   isActive,
+  index = 0,
 }: {
   service: Service
   isActive: boolean
@@ -35,6 +36,7 @@ export const ServiceCard = ({
   status: string
   link: string
   path: string
+  index?: number
 }) => {
   // lets try with an api endpoint...
   const fetcher = useFetcher()
@@ -84,10 +86,11 @@ export const ServiceCard = ({
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: -5 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -5 }}
-      className="relative group shadow hover:shadow-lg rounded-xl transition-all"
+      transition={{ duration: 0.3, delay: index * 0.08 }}
+      className="relative group shadow hover:shadow-lg rounded-xl transition-shadow"
     >
       <button
         onClick={() => {
