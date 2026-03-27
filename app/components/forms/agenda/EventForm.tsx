@@ -388,7 +388,7 @@ export const EventForm = ({
       onClose={() => setShowDeleteConfirm(false)}
       onConfirm={handleDelete}
       title="¿Seguro que quieres cancelar esta cita? 🫣"
-      description={`Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span class="font-satoBold text-brand_dark">${customers.find(c => c.id === getValues("customerId"))?.displayName ?? "el cliente"}</span>.`}
+      description={<>Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span className="font-satoBold text-brand_dark">{customers.find(c => c.id === getValues("customerId"))?.displayName ?? "el cliente"}</span>.</>}
       confirmText="Sí, cancelar"
       cancelText="Volver"
       variant="danger"

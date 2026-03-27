@@ -1094,7 +1094,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         onClose={() => setConfirmDelete(null)}
         onConfirm={handleConfirmDelete}
         title="¿Seguro que quieres cancelar esta cita? 🫣"
-        description={`Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span class="font-satoBold ">${confirmDelete?.customerName ?? "el cliente"}</span>.`}
+        description={<>Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span className="font-satoBold">{confirmDelete?.customerName ?? "el cliente"}</span>.</>}
         confirmText="Sí, cancelar"
         cancelText="Volver"
         variant="danger"

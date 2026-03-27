@@ -104,7 +104,7 @@ export default function CancelEventPage({
   loaderData,
   actionData,
 }: Route.ComponentProps) {
-  const { event, service, customer, rebookUrl } = loaderData
+  const { event, service, rebookUrl } = loaderData
   const [showConfirm, setShowConfirm] = useState(false)
 
   if (actionData?.cancelled) {

@@ -172,7 +172,7 @@ async function handleBookingCancelled(
   data: unknown,
   orgId: string,
 ): Promise<void> {
-  const { event, service, customer } = data as BookingEventData
+  const { event } = data as BookingEventData
 
   // Get org with integrations
   const org = (await db.org.findUnique({

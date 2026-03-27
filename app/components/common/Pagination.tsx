@@ -19,8 +19,6 @@ export const Pagination = ({
   className?: string
 }) => {
   const totalPages = Math.max(1, Math.ceil(total / perPage))
-  const from = total === 0 ? 0 : (page - 1) * perPage + 1
-  const to = Math.min(page * perPage, total)
 
   const pages = getVisiblePages(page, totalPages)
 

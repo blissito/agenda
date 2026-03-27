@@ -10,7 +10,7 @@ type ConfirmModalProps = {
   onClose: () => void
   onConfirm: () => void
   title: string
-  description?: string
+  description?: ReactNode
   children?: ReactNode
   confirmText?: string
   cancelText?: string
@@ -97,10 +97,9 @@ export const ConfirmModal = ({
               </h3>
 
               {description && (
-                <p
-                  className="mt-[16px] text-center font-normal font-satoshi text-[16px] leading-[22px] text-brand_gray"
-                  dangerouslySetInnerHTML={{ __html: description }}
-                />
+                <p className="mt-[16px] text-center font-normal font-satoshi text-[16px] leading-[22px] text-brand_gray">
+                  {description}
+                </p>
               )}
 
               {children}

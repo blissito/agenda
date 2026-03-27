@@ -6,7 +6,7 @@ import type {
   InputHTMLAttributes,
   ReactNode,
 } from "react"
-import { useRef, useState } from "react"
+import { useState } from "react"
 import { useRevalidator } from "react-router"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"

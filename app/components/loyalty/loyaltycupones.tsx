@@ -1421,7 +1421,6 @@ function CouponEditModal({
   
                   <div>
                     {editDurationType === "several_months" ? (
-                      <>
                         <BasicInput
                           name="editMonths"
                           type="number"
@@ -1431,7 +1430,6 @@ function CouponEditModal({
                           placeholder="2"
                           required
                         />
-                      </>
                     ) : (
                       <div />
                     )}

@@ -134,7 +134,7 @@ async function main() {
 
   if (options.listModels) {
     console.log("\nAvailable models:")
-    MODELS.forEach((m) => console.log(`  - ${m}`))
+    for (const m of MODELS) console.log(`  - ${m}`)
     console.log("\nUsage examples:")
     console.log("  npx tsx scripts/dev/db-read.ts User")
     console.log('  npx tsx scripts/dev/db-read.ts Org --where "ownerId=abc123"')

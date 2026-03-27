@@ -46,7 +46,7 @@ export const icons = [
   <Item key="coaching" icon={<Couch />} title="Coaching" />,
   <Item key="veterinaria" icon={<Pet />} title="Veterinaria" />,
   <Item key="turismo" icon={<Tourism />} title="Experiencias turísticas" />,
-  <Item icon={<Reformer />} title="Pilates" />,
+  <Item key="pilates" icon={<Reformer />} title="Pilates" />,
 ]
 
 // export const muchos = Array.from({ length: 80 }).map(() => (
