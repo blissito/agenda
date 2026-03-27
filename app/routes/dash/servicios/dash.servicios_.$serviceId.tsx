@@ -47,27 +47,44 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   }
 }
 
+
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { service, orgWeekDays } = loaderData
+  const [hasNewPhotos, setHasNewPhotos] = React.useState(false)
 
   return (
     <section className="pb-10">
-      <Breadcrumb className="text-brand_gray">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/servicios">Servicios</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/servicios/">
-              {service.name}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <div className="relative">
+        <Breadcrumb className="text-brand_gray">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dash/servicios">Servicios</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dash/servicios/">
+                {service.name}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <div className="mt-8 grid grid-cols-1 gap-6">
-        <ServiceDetail service={service} orgWeekDays={orgWeekDays} />
+        {hasNewPhotos && (
+          <button
+            type="button"
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-brand_blue text-white font-satoMedium text-sm px-5 h-9 rounded-full hover:opacity-90 transition-opacity"
+          >
+            Guardar fotos
+          </button>
+        )}
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-6">
+        <ServiceDetail
+          service={service}
+          orgWeekDays={orgWeekDays}
+          onHasNewPhotos={setHasNewPhotos}
+        />
       </div>
     </section>
   )
@@ -90,7 +107,13 @@ export const convertToMeridian = (hourString: string) => {
  * - Animación en cada imagen nueva
  * - Scroll SOLO cuando ya hay 3 o más, y se mueve a la nueva
  */
-function LocalFloatingGallery({ coverSrc }: { coverSrc?: string | null }) {
+function LocalFloatingGallery({
+  coverSrc,
+  onHasNewPhotos,
+}: {
+  coverSrc?: string | null
+  onHasNewPhotos?: (has: boolean) => void
+}) {
   const inputRef = React.useRef<HTMLInputElement | null>(null)
 
   const [images, setImages] = React.useState<
@@ -134,6 +157,7 @@ function LocalFloatingGallery({ coverSrc }: { coverSrc?: string | null }) {
       if (mapped.length === 0) return prev
 
       const next = [...prev, ...mapped]
+      onHasNewPhotos?.(true)
 
       if (!activeId && next.length > 0) setActiveId(next[0].id)
 
@@ -147,14 +171,7 @@ function LocalFloatingGallery({ coverSrc }: { coverSrc?: string | null }) {
           const el = document.querySelector(
             `[data-thumb-id="${lastNewId}"]`,
           ) as HTMLElement | null
-
-          if (el) {
-            el.scrollIntoView({
-              behavior: "smooth",
-              block: "nearest",
-              inline: "end",
-            })
-          }
+          el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "end" })
         })
       }
 
@@ -172,8 +189,43 @@ function LocalFloatingGallery({ coverSrc }: { coverSrc?: string | null }) {
 
   const hasCover = Boolean(coverSrc)
   const showLocalMain = !hasCover && Boolean(mainLocal?.url)
+  const hasAnyImage = hasCover || hasUploads
+
+  const addButton = (
+    <button
+      type="button"
+      onClick={openPicker}
+      className={
+        hasAnyImage
+          ? "h-20 w-full shrink-0 rounded-xl border border-dashed border-brand_stroke/60 flex items-center justify-center px-2 text-center hover:bg-neutral-50 transition"
+          : "w-full h-full rounded-2xl border border-dashed border-brand_stroke/60 flex items-center justify-center px-4 text-center hover:bg-neutral-50 transition"
+      }
+    >
+      <div className="flex flex-col items-center justify-center gap-0">
+        <div className="grid h-8 w-8 place-items-center rounded-2xl">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M4 4C2.90694 4 2 4.90694 2 6V18C2 19.0931 2.90694 20 4 20H12V18H4V6H20V12H22V6C22 4.90694 21.0931 4 20 4H4ZM14.5 11L11 15L8.5 12.5L5.77734 16H16V13L14.5 11ZM18 14V18H14V20H18V24H20V20H24V18H20V14H18Z"
+              fill="#4B5563"
+            />
+          </svg>
+        </div>
+        <p className="font-satoMedium text-xs text-brand_gray leading-tight">
+          Agregar fotos
+        </p>
+      </div>
+    </button>
+  )
+
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col flex-1 min-h-0">
       <style>{`
         .lg-scrollbar-hide { -ms-overflow-style:none; scrollbar-width:none; }
         .lg-scrollbar-hide::-webkit-scrollbar{ display:none; }
@@ -185,106 +237,72 @@ function LocalFloatingGallery({ coverSrc }: { coverSrc?: string | null }) {
         }
         .lg-thumb-pop { animation: lg-thumb-pop 700ms cubic-bezier(.2,.9,.2,1) both; }
       `}</style>
-      <div className="overflow-hidden rounded-2xl bg-neutral-100 border border-brand_stroke/50">
-        <div className="relative w-full h-[280px] sm:h-[320px] lg:h-[340px]">
-          {showLocalMain ? (
-            <img
-              src={mainLocal?.url}
-              alt="Imagen principal del servicio"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 [&_img]:h-full [&_img]:w-full [&_img]:object-cover">
-              <Image alt="Imagen principal del servicio" src={coverSrc ?? ""} />
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="mt-3">
-        <div className="relative overflow-x-auto lg-scrollbar-hide">
-          <div className="flex items-stretch gap-3 pr-2 w-full">
-            {!hasUploads && (
-              <>
-                <div
-                  aria-hidden="true"
-                  className="h-24 sm:h-28 w-40 shrink-0 rounded-2xl invisible"
-                />
-                <div
-                  aria-hidden="true"
-                  className="h-24 sm:h-28 w-40 shrink-0 rounded-2xl invisible"
-                />
-              </>
-            )}
-            {hasUploads &&
-              images.map((img) => {
-                const isActive = img.id === (mainLocal?.id ?? "")
-                const isNew = newIds.includes(img.id)
 
-                return (
-                  <button
-                    key={img.id}
-                    data-thumb-id={img.id}
-                    type="button"
-                    onClick={() => setActiveId(img.id)}
-                    className={[
-                      "h-24 sm:h-28 w-40 rounded-2xl overflow-hidden border shrink-0",
-                      isActive
-                        ? "border-neutral-900/40"
-                        : "border-brand_stroke/50",
-                      isNew ? "lg-thumb-pop" : "",
-                    ].join(" ")}
-                    aria-label="Seleccionar imagen"
-                  >
-                    <img
-                      src={img.url}
-                      alt="Miniatura"
-                      className="h-full w-full object-cover"
-                    />
-                  </button>
-                )
-              })}
-            <div className="sticky right-0 shrink-0 flex items-stretch">
-              <div className="pl-3 bg-white flex items-stretch">
-                <button
-                  type="button"
-                  onClick={openPicker}
-                  className="h-24 sm:h-28 w-56 rounded-2xl bg-neutral-50 border border-brand_stroke/60 flex items-center justify-center px-4 text-center hover:bg-neutral-100 transition"
-                >
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl">
-                      <svg
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M4 4C2.90694 4 2 4.90694 2 6V18C2 19.0931 2.90694 20 4 20H12V18H4V6H20V12H22V6C22 4.90694 21.0931 4 20 4H4ZM14.5 11L11 15L8.5 12.5L5.77734 16H16V13L14.5 11ZM18 14V18H14V20H18V24H20V20H24V18H20V14H18Z"
-                          fill="#4B5563"
-                        />
-                      </svg>
-                    </div>
-                    <p className="font-satoMedium text-sm text-brand_gray leading-tight">
-                      Agregar o editar fotos
-                    </p>
-                  </div>
-                </button>
-              </div>
-            </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={onPick}
+      />
 
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={onPick}
-            />
+      {!hasAnyImage ? (
+        addButton
+      ) : (
+        <div className="flex gap-3 min-h-0 h-full">
+          {/* Main image */}
+          <div className="flex-1 min-w-0 overflow-hidden rounded-2xl bg-neutral-100 border border-brand_stroke/50">
+            <div className="relative w-full h-full max-h-full">
+              {showLocalMain ? (
+                <img
+                  src={mainLocal?.url}
+                  alt="Imagen principal del servicio"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <div className="absolute inset-0 [&_img]:h-full [&_img]:w-full [&_img]:object-cover">
+                  <Image alt="Imagen principal del servicio" src={coverSrc ?? ""} />
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Thumbnails column */}
+          <div className="w-24 shrink-0 min-h-0 overflow-y-auto lg-scrollbar-hide">
+            <div className="flex flex-col gap-3">
+              {addButton}
+              {hasUploads &&
+                images.map((img) => {
+                  const isActive = img.id === (mainLocal?.id ?? "")
+                  const isNew = newIds.includes(img.id)
+
+                  return (
+                    <button
+                      key={img.id}
+                      data-thumb-id={img.id}
+                      type="button"
+                      onClick={() => setActiveId(img.id)}
+                      className={[
+                        "h-20 w-full rounded-xl overflow-hidden border shrink-0",
+                        isActive
+                          ? "border-neutral-900/40"
+                          : "border-brand_stroke/50",
+                        isNew ? "lg-thumb-pop" : "",
+                      ].join(" ")}
+                      aria-label="Seleccionar imagen"
+                    >
+                      <img
+                        src={img.url}
+                        alt="Miniatura"
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  )
+                })}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -311,12 +329,12 @@ const WeekDayRow = ({
 
 const EditButton = ({ to, label }: { to: string; label: string }) => (
   <SecondaryButton
-    className="!h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-neutral-100"
+    className="!h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-brand_light_gray"
     as="Link"
     to={to}
     aria-label={label}
   >
-    <Edit fill="currentColor" className="h-5 w-5" />
+    <Edit fill="currentColor" className="h-5 w-5 text-brand_gray" />
   </SecondaryButton>
 )
 
@@ -328,14 +346,16 @@ const WEEK_DAYS_LIST = WEEK_DAYS.map((key) => ({
 export const ServiceDetail = ({
   service,
   orgWeekDays,
+  onHasNewPhotos,
 }: {
   service: Service
   orgWeekDays: any
+  onHasNewPhotos?: (has: boolean) => void
 }) => {
   return (
     <div className="w-full">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
-        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-5 border border-brand_stroke/60 h-full flex flex-col">
+        <div className="bg-white rounded-2xl p-6 lg:col-span-5 border border-brand_stroke/60 h-full flex flex-col">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h2 className="font-satoBold text-[24px]  text-brand_dark">
@@ -353,7 +373,7 @@ export const ServiceDetail = ({
             {service.description}
           </p>
 
-          <div className="mt-8 space-y-6grid grid-cols-2 gap-10">
+          <div className="mt-8 grid grid-cols-2 gap-6">
             <DetailItem label="Servicio" value={service.place || ""} />
             <DetailItem
               label="Agendamiento en línea"
@@ -391,13 +411,16 @@ export const ServiceDetail = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-7 border border-brand_stroke/60">
-          <LocalFloatingGallery coverSrc={(service as any)?.gallery?.[0]} />
+        <div className="bg-white rounded-2xl p-6 lg:col-span-7 border border-brand_stroke/60 flex flex-col lg:h-[480px] overflow-hidden">
+          <LocalFloatingGallery
+            coverSrc={(service as any)?.gallery?.[0]}
+            onHasNewPhotos={onHasNewPhotos}
+          />
         </div>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
+        <div className="bg-white rounded-2xl p-6 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
             <h3 className="font-satoBold text-lg text-brand_dark">Horario</h3>
             <EditButton
@@ -406,7 +429,7 @@ export const ServiceDetail = ({
             />
           </div>
 
-          <p className="mt-3 font-satoMedium">
+          <p className="-mt-2 font-satoMedium text-brand_gray">
             Sesiones de{" "}
             <span className="text-brand_dark">{service.duration} minutos</span>{" "}
             con <span className="text-brand_dark">0 minutos</span> de descanso.
@@ -423,7 +446,7 @@ export const ServiceDetail = ({
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
+        <div className="bg-white rounded-2xl p-6 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
             <h3 className="font-satoBold text-lg text-brand_dark">
               Recordatorios y pago
@@ -434,7 +457,7 @@ export const ServiceDetail = ({
             />
           </div>
 
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-6">
             <DetailItem
               label="Pago"
               value={service.payment ? "Al agendar" : "Despues de la cita"}
@@ -488,8 +511,8 @@ export const ServiceDetail = ({
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="bg-white rounded-2xl p-6 sm:p-8 lg:col-span-6 border border-brand_stroke/60">
+      {/* <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="bg-white rounded-2xl p-6 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
             <h3 className="font-satoBold text-lg text-brand_dark">Acciones</h3>
             <EditButton
@@ -503,7 +526,7 @@ export const ServiceDetail = ({
             tu CRM o disparar webhooks.
           </p>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

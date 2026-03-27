@@ -201,7 +201,7 @@ export const AddService = () => {
         <div>
           <Plus className="mx-auto group-hover:scale-125 transition-all" />
           <p className="font-satoshi text-brand_gray mt-4 group-hover:scale-110 transition-all">
-            Agrega un nuevo servicio
+            Agregar un nuevo servicio
           </p>
         </div>
       </button>

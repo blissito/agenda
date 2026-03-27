@@ -282,14 +282,14 @@ const ReviewCard = ({
             <DropdownMenu hideDefaultButton>
               <MenuButton
                 onClick={() => {}}
-                className="text-[#ca5757]"
+                variant="danger"
                 icon={<BsTrash />}
               >
                 Eliminar comentario
               </MenuButton>
               <MenuButton
                 to={`/dash/clientes/${review.customerEmail}`}
-                className="text-brand_gray"
+                variant="default"
                 icon={<BsEnvelope />}
               >
                 Contactar cliente

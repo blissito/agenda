@@ -40,7 +40,7 @@ export const DropdownMenu = ({
             initial={{ opacity: 0, y: -3 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -3 }}
-            className="z-10 absolute bg-white shadow-lg text-brand_gray rounded-3xl top-[100%] right-8 border w-max px-4 py-3 flex flex-col gap-5"
+            className="z-10 absolute bg-white shadow-lg text-brand_gray rounded-2xl top-[100%] right-0 w-max p-2 flex flex-col gap-1"
           >
             {children}
             {!hideDefaultButton && <MenuButton isDisabled />}
@@ -51,19 +51,26 @@ export const DropdownMenu = ({
   )
 }
 
+const MENU_BUTTON_VARIANTS = {
+  danger: "text-brand_red hover:bg-brand_red/5",
+  default: "text-brand_gray hover:bg-brand_blue/5",
+} as const
+
+export type MenuButtonVariant = keyof typeof MENU_BUTTON_VARIANTS
+
 export const MenuButton = ({
   children = "eliminar",
   to = "",
   state,
   isDisabled,
   onClick,
+  variant = children === "eliminar" ? "danger" : "default",
   icon = (
-    // @TODO: remove default
     <span className="text-md">
       <FaRegTrashCan />
     </span>
   ),
-  className = "text-red-500/70 hover:text-red-500",
+  className,
 }: {
   state?: Record<string, string>
   to?: string
@@ -72,6 +79,7 @@ export const MenuButton = ({
   onClick?: () => void
   children?: ReactNode
   icon?: ReactNode
+  variant?: MenuButtonVariant
 }) => {
   const Element = ({ ...props }: { [x: string]: unknown }) => {
     return to ? (
@@ -86,7 +94,8 @@ export const MenuButton = ({
         disabled={isDisabled}
         onClick={onClick}
         className={twMerge(
-          "transition-all gap-3 items-center flex w-full hover:bg-[#F9FAFB] rounded-lg px-2 py-1 -mx-2 -my-1 enabled:active:scale-95",
+          "transition-all gap-3 items-center flex w-full whitespace-nowrap rounded-lg px-3 py-2 enabled:active:scale-95",
+          MENU_BUTTON_VARIANTS[variant],
           isDisabled && "disabled:text-gray-300 disabled:cursor-not-allowed",
           className,
         )}

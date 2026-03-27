@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "motion/react"
+import type { ReactNode } from "react"
 import { IoClose } from "react-icons/io5"
 import { useClickOutside } from "~/utils/hooks/useClickOutside"
 import { PrimaryButton } from "./primaryButton"
@@ -10,6 +11,7 @@ type ConfirmModalProps = {
   onConfirm: () => void
   title: string
   description?: string
+  children?: ReactNode
   confirmText?: string
   cancelText?: string
   variant?: "danger" | "default"
@@ -21,6 +23,7 @@ export const ConfirmModal = ({
   onConfirm,
   title,
   description,
+  children,
   confirmText = "Confirmar",
   cancelText = "Cancelar",
   variant = "default",
@@ -81,7 +84,7 @@ export const ConfirmModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="absolute right-4 top-4 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
+              className="absolute right-6 top-6 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
               aria-label="Cerrar"
             >
               <IoClose className="text-2xl" />
@@ -95,10 +98,12 @@ export const ConfirmModal = ({
 
               {description && (
                 <p
-                  className="mt-[16px] text-center font-medium font-satoshi text-[16px] leading-[22px] text-brand_gray"
+                  className="mt-[16px] text-center font-normal font-satoshi text-[16px] leading-[22px] text-brand_gray"
                   dangerouslySetInnerHTML={{ __html: description }}
                 />
               )}
+
+              {children}
 
               {/* buttons */}
               <div className="mt-12 flex items-center justify-center gap-8">

@@ -165,7 +165,7 @@ export function ConversationHistory({
         </div>
 
         {/* List */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {isLoading ? (
             <div className="flex items-center justify-center h-32">
               <div className="w-6 h-6 border-2 border-brand_blue border-t-transparent rounded-full animate-spin" />

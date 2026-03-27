@@ -190,7 +190,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
   // If no agentId, show activation screen
   if (!agentId) {
     return (
-      <section className="flex flex-col items-center justify-center h-[70vh] text-center">
+      <section className="flex flex-col items-center justify-center h-[calc(100svh-120px)] text-center">
         <img
           src="/images/illustrations/ghosty-puzzle.svg"
           alt="Ghosty - asistente inteligente"

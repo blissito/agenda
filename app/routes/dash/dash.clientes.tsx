@@ -1,11 +1,12 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 
 import { useMemo, useState } from "react"
-import { MdBlock } from "react-icons/md"
-import { Link, useLoaderData } from "react-router"
+import { Link, useFetcher, useLoaderData } from "react-router"
 import { twMerge } from "tailwind-merge"
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Avatar } from "~/components/common/Avatar"
+import { getAvatarColor } from "~/components/dash/AppointmentItem"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { useDownloadToast } from "~/components/downloads/downloadToast"
@@ -24,18 +25,17 @@ import { generateLink } from "~/utils/generateSlug"
 import type { Route } from "./+types/dash.clientes"
 
 export type Client = {
-  points: number
   updatedAt: Date | string
   createdAt: Date | string
   eventCount: number
-  nextEventDate: Date | string
-  loggedUserId?: string | null
+  nextEventDate: Date | string | null
   displayName: string | null
   email: string
   tel: string | null
   comments: string | null
   id: string
   photoUrl?: string | null
+  loyaltyPoints: number | null
 }
 
 type Stats = {
@@ -48,46 +48,35 @@ type HeaderTitle = string | [string, string]
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request)
   const link = generateLink(request.url, org.slug)
-  const services = await getServices(request)
-  const events = await db.event.findMany({
-    where: {
-      service: {
-        id: { in: services.map((s) => s.id) },
+
+  const customers = await db.customer.findMany({
+    where: { orgId: org.id },
+    include: {
+      _count: { select: { events: true } },
+      events: {
+        where: { start: { gte: new Date() } },
+        orderBy: { start: "asc" },
+        take: 1,
+        select: { start: true },
       },
     },
-    include: {
-      service: true,
-      customer: true,
-    },
+    orderBy: { createdAt: "desc" },
   })
 
-  const clientsObject: { [x: string]: Client } = {}
-  const counter: Record<string, number> = {}
+  // TODO: mover filtro a query Prisma (where: { blocked: { not: true } }) cuando todos los documentos tengan el campo `blocked`
+  const clients: Client[] = customers.filter((c) => c.blocked !== true).map((c) => ({
+    id: c.id,
+    displayName: c.displayName,
+    email: c.email,
+    tel: c.tel,
+    comments: c.comments,
+    createdAt: c.createdAt,
+    updatedAt: c.updatedAt,
+    eventCount: c._count.events,
+    nextEventDate: c.events[0]?.start ?? null,
+    loyaltyPoints: c.loyaltyPoints,
+  }))
 
-  events.forEach((e) => {
-    const tomorrow = new Date()
-    const { email } = e.customer || {}
-    if (!email) return
-
-    counter[email] =
-      counter[email] && typeof counter[email] === "number"
-        ? counter[email] + 1
-        : 1
-
-    tomorrow.setDate(tomorrow.getDate() + 1)
-
-    clientsObject[email] = {
-      ...e.customer,
-      email,
-      points: e.service.points,
-      updatedAt: e.updatedAt,
-      eventCount: counter[email],
-      nextEventDate: tomorrow,
-      id: e.id,
-    }
-  })
-
-  const clients = Object.values(clientsObject) as Client[]
   return {
     orgId: org.id,
     orgName: org.name,
@@ -149,7 +138,7 @@ export default function Clients() {
               ["Puntos", "col-span-2 text-center"],
               ["Citas", "col-span-1 text-center"],
               ["Próxima cita", "col-span-2 text-center"],
-              ["Acciones", "col-span-1 text-center"],
+              ["Acciones", "col-start-11 col-span-1 text-right"],
             ]}
           />
 
@@ -186,33 +175,21 @@ const SearchNav = ({
   onSearch: (v: string) => void
 }) => {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center my-4">
-      <div className="relative w-full sm:max-w-80">
+    <div className="flex items-center gap-3 my-4">
+      <div className="relative flex-1 sm:max-w-80">
         <BasicInput
           value={search}
           onChange={(e) => onSearch(e.target.value)}
           type="search"
-          placeholder="Busca por nombre,email,teléfono"
+          placeholder="Busca por nombre, email, teléfono"
           containerClassName="w-full"
-          inputClassName="!rounded-full pr-12 border-white"
+          inputClassName="!rounded-full pr-12 border-white font-satoshi"
         />
         <MagnifyingGlass className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-brand_iron" />
       </div>
-      <div className="flex flex-wrap pt-2 gap-3 justify-start sm:justify-end">
-        <Link to="">
-          <ActionButton isDisabled>
-            <Settings />
-          </ActionButton>
-        </Link>
-        <Link to="">
-          <ActionButton isDisabled>
-            <Upload />
-          </ActionButton>
-        </Link>
-        <ActionButton onClick={onDownload} isDisabled={!canDownload}>
-          <Download />
-        </ActionButton>
-      </div>
+      <ActionButton onClick={onDownload} isDisabled={!canDownload}>
+        <Download />
+      </ActionButton>
     </div>
   )
 }
@@ -238,7 +215,7 @@ export const ActionButton = ({
 
 export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
   return (
-    <div className="grid grid-cols-12 rounded-t-2xl border-t border-x border-b border-slate-200 bg-white mt-4 px-2 sm:px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 items-center">
+    <div className="grid grid-cols-12 rounded-t-2xl border-b border-brand_stroke bg-white mt-4 px-2 sm:px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 items-center">
       {titles.map((t) => {
         const title = Array.isArray(t) ? t[0] : t
         const classes = Array.isArray(t) ? t[1] : "col-span-2 text-center"
@@ -272,28 +249,43 @@ export const ClientRow = ({
   isLast?: boolean
 }) => {
   const initials = getInitials2(client.displayName, client.email)
+  const fetcher = useFetcher()
+  const isDeleting = fetcher.state !== "idle"
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [blockOnDelete, setBlockOnDelete] = useState(false)
+
+  const handleDelete = () => {
+    setShowDeleteModal(false)
+    fetcher.submit(
+      { customerId: client.id, block: String(blockOnDelete) },
+      { method: "POST", action: "/api/customers?intent=delete" },
+    )
+    setBlockOnDelete(false)
+  }
+
+  if (isDeleting) return null
 
   return (
     <div
       className={twMerge(
-        "grid grid-cols-12 border-b border-x border-slate-200 bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4",
-        isLast && "rounded-b-2xl",
+        "grid grid-cols-12 border-b border-brand_stroke bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4",
+        isLast && "border-b-0 rounded-b-2xl",
       )}
     >
       <Link
         to={`${client.email}`}
         state={{ client }}
-        className="col-span-11 grid grid-cols-11 items-center py-3 min-w-0 "
+        className="col-span-11 grid grid-cols-11 items-center py-3 min-w-0"
       >
-        <div className="flex gap-3 items-center col-span-11 sm:col-span-4 min-w-0 ">
+        <div className="flex gap-3 items-center col-span-11 sm:col-span-4 min-w-0">
           <ClientAvatar
             photoUrl={client.photoUrl}
             initials={initials}
             size="sm"
+            className={getAvatarColor(client.displayName || client.email)}
           />
-
           <div className="min-w-0">
-            <p className="font-semibold text-brand_dark text-sm truncate leading-tight ">
+            <p className="font-semibold text-brand_dark text-sm truncate leading-tight">
               {client.displayName || "—"}
             </p>
             <p className="text-xs font-satoMedium text-brand_gray truncate">
@@ -302,23 +294,23 @@ export const ClientRow = ({
           </div>
         </div>
 
-        <p className="hidden font-satoMedium sm:block text-sm col-span-2 text-center text-brand_gray whitespace-nowrap pl-4">
+        <p className="hidden font-satoMedium sm:block text-sm col-span-2 text-center text-brand_gray whitespace-nowrap">
           {new Date(client.createdAt || client.updatedAt).toLocaleDateString(
             "es-MX",
             { day: "numeric", month: "short", year: "numeric" },
           )}
         </p>
 
-        <p className="hidden sm:block text-sm col-span-2 text-center font-semibold text-brand_gray whitespace-nowrap -ml-1">
-          {client.points}
+        <p className="hidden sm:block text-sm col-span-2 text-center font-semibold text-brand_gray whitespace-nowrap">
+          {client.loyaltyPoints ?? 0}
           <span className="font-semibold text-brand_gray ml-1">pts</span>
         </p>
 
-        <p className="hidden sm:block text-sm col-span-1 text-center text-brand_gray whitespace-nowrap -ml-6">
+        <p className="hidden sm:block text-sm col-span-1 text-center text-brand_gray whitespace-nowrap">
           {client.eventCount}
         </p>
 
-        <p className="hidden sm:block col-span-2 text-sm text-center text-brand_green whitespace-nowrap -ml-1">
+        <p className="hidden sm:block col-span-2 text-sm text-center text-brand_green whitespace-nowrap">
           {client.nextEventDate
             ? new Date(client.nextEventDate).toLocaleDateString("es-MX", {
                 day: "numeric",
@@ -333,15 +325,36 @@ export const ClientRow = ({
         className="col-span-1 flex items-center justify-center py-3"
         onClick={(e) => e.stopPropagation()}
       >
-        <DropdownMenu>
+        <DropdownMenu hideDefaultButton>
           <MenuButton
-            to=""
-            className=" text-brand_gray hover:brand_red"
-            icon={<MdBlock className="text-[#6B7280]" />}
+            variant="danger"
+            onClick={() => setShowDeleteModal(true)}
           >
-            Bloquear cliente
+            Eliminar
           </MenuButton>
         </DropdownMenu>
+        <ConfirmModal
+          isOpen={showDeleteModal}
+          onClose={() => {
+            setShowDeleteModal(false)
+            setBlockOnDelete(false)
+          }}
+          onConfirm={handleDelete}
+          title="¿Seguro que quieres eliminar a ese cliente?"
+          description="Al eliminar a un cliente, se elimina todo su historial de citas y pagos. Puedes solo eliminar a tu cliente, o eliminarlo y bloquearlo."
+          confirmText="Sí, eliminar"
+          variant="danger"
+        >
+          <label className="mt-6 flex items-center gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={blockOnDelete}
+              onChange={(e) => setBlockOnDelete(e.target.checked)}
+              className="h-5 w-5 rounded border-brand_ash accent-brand_blue cursor-pointer"
+            />
+            <span className="text-brand_gray text-sm">Bloquear cliente</span>
+          </label>
+        </ConfirmModal>
       </div>
     </div>
   )
@@ -462,11 +475,13 @@ export const Summary = ({
         ) : (
           previewClients.map((c, i) => {
             const initials = getInitials2(c.displayName, c.email)
+            const colorClass = getAvatarColor(c.displayName || c.email)
             return (
               <div
                 key={c.id}
                 className={twMerge(
-                  "bg-brand_blue text-white w-12 h-12 rounded-full grid place-items-center border-2 border-white text-sm font-semibold shrink-0",
+                  "text-white w-12 h-12 rounded-full grid place-items-center border-2 border-white text-sm font-semibold shrink-0",
+                  colorClass,
                   i > 0 ? "-ml-3" : "",
                 )}
               >

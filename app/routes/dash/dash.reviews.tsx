@@ -196,7 +196,7 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
         <DropdownMenu>
           <MenuButton
             to={`/dash/evaluaciones/${service.id}`}
-            className="text-brand_gray"
+            variant="default"
             icon={<BsBarChart />}
           >
             Ver detalle

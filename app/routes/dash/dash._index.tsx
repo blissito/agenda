@@ -194,7 +194,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       recentEvents.length > 0)
 
   return (
-    <section className=" w-full h-full 	">
+    <section className="w-full h-[calc(100vh-3rem)] lg:h-[calc(100vh-5rem)]">
       <div className="h-full flex flex-col box-border overflow-hidden max-w-8xl mx-auto">
         <Summary user={user} stats={stats} />
         {hasData ? (

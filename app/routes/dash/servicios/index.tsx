@@ -54,8 +54,9 @@ export default function Services({ loaderData }: Route.ComponentProps) {
 
       {!services.length && <EmptyStateServices />}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
         <AnimatePresence>
+          <AddService />
           {services.map((service) => (
             <ServiceCard
               service={service}
@@ -75,7 +76,6 @@ export default function Services({ loaderData }: Route.ComponentProps) {
               }
             />
           ))}
-          {!!services.length && <AddService />}
         </AnimatePresence>
       </div>
       <Outlet />

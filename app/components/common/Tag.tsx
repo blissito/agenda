@@ -10,7 +10,7 @@ export const Tag = ({
 }) => (
   <section
     className={twMerge(
-      "bg-brand_blue/20 text-brand_blue rounded-[4px] h-5 flex justify-center items-center text-center px-4  text-sm font-satoshi capitalize",
+      "bg-brand_cloud/20 text-cyan-600 rounded-[4px] h-5 flex justify-center items-center text-center px-4  text-sm font-satoshi capitalize",
       className,
     )}
   >
