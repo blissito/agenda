@@ -7,6 +7,7 @@ import type {
   ReactNode,
 } from "react"
 import { useState } from "react"
+import { motion } from "motion/react"
 import { useRevalidator } from "react-router"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
@@ -215,13 +216,19 @@ export function NivelesTab({
   return (
     <>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {levels.map((level) => (
-          <LoyaltyLevelCard
+        {levels.map((level, index) => (
+          <motion.div
             key={level.id}
-            level={level}
-            onEdit={() => setEditingLevel(level)}
-            onDelete={() => handleDelete(level)}
-          />
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.08 }}
+          >
+            <LoyaltyLevelCard
+              level={level}
+              onEdit={() => setEditingLevel(level)}
+              onDelete={() => handleDelete(level)}
+            />
+          </motion.div>
         ))}
       </div>
 

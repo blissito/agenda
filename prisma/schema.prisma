@@ -33,6 +33,17 @@ type OrgWeekDays {
   sunday    Json?
 }
 
+type OrgConfig {
+  country              String?
+  calendarAvailability String?
+  simultaneousServices Boolean?
+  minBookingAdvance    String?
+  rescheduleWindow     String?
+  maxReschedules       String?
+  cancellationWindow   String?
+  termsAndConditions   String?
+}
+
 type ServiceConfig {
   confirmation          Boolean
   reminder              Boolean
@@ -373,6 +384,7 @@ model Org {
   lat                Float?
   lng                Float?
   businessType       String?
+  config             OrgConfig?
   customDomain       String?
   customDomainStatus String?
   customDomainDns    Json?
@@ -391,6 +403,7 @@ model Org {
   shopKeeper         String?
   slug               String            @unique
   social             OrgSocial?
+  tel                String?
   timezone           String?           // e.g. "America/Mexico_City"
   websiteConfig      OrgWebsiteConfig?
   /// Could not determine type: the field only had null or empty values in the sample set.

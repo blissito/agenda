@@ -113,6 +113,17 @@ export const orgSocialSchema = z.object({
   youtube: z.string().optional().nullable(),
 })
 
+export const orgConfigSchema = z.object({
+  country: z.string().optional().nullable(),
+  calendarAvailability: z.string().optional().nullable(),
+  simultaneousServices: z.boolean().optional().nullable(),
+  minBookingAdvance: z.string().optional().nullable(),
+  rescheduleWindow: z.string().optional().nullable(),
+  maxReschedules: z.string().optional().nullable(),
+  cancellationWindow: z.string().optional().nullable(),
+  termsAndConditions: z.string().optional().nullable(),
+})
+
 export const orgUpdateSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1).optional(),
@@ -131,6 +142,8 @@ export const orgUpdateSchema = z.object({
   tel: z.string().optional().nullable(),
   logo: z.string().optional().nullable(),
   social: orgSocialSchema.optional().nullable(),
+  timezone: z.string().optional().nullable(),
+  config: orgConfigSchema.optional().nullable(),
   websiteConfig: z
     .object({
       color: z.string().optional().nullable(),

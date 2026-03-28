@@ -57,13 +57,14 @@ export default function Services({ loaderData }: Route.ComponentProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         <AnimatePresence>
           <AddService />
-          {services.map((service) => (
+          {services.map((service, index) => (
             <ServiceCard
               service={service}
               isActive={service.isActive}
               id={service.id}
               image={service.gallery?.[0]}
               key={service.id}
+              index={index}
               title={service.name}
               duration={Number(service.duration)} // @TODO: format function this is minutes for now
               price={`${service.price} mxn`}
