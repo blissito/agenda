@@ -79,7 +79,7 @@ export const TimePicker = ({
       // value={selected ?? (value || startTime)}
       defaultValue={defaultSelected}
       onChange={handleChange}
-      className="border-gray-200 rounded-xl text-gray-500"
+      className="border-gray-200 rounded-xl text-gray-500 text-sm sm:text-base px-2 sm:px-3 py-1.5 sm:py-2"
     >
       {options.map((o) => (
         <option key={o} value={o}>

@@ -70,7 +70,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         { status: 400 },
       )
     }
-    const { id, weekDays, social, ...restData } = result.data
+    const { id, weekDays, social, config, ...restData } = result.data
 
     // Validate slug if being updated
     if (restData.slug) {
@@ -110,6 +110,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       ...restData,
       ...(weekDays && { weekDays: { set: weekDays } }),
       ...(normalizedSocial && { social: { set: normalizedSocial } }),
+      ...(config && { config: { set: config } }),
     }
 
     await db.org.update({ where: { id }, data: prismaData })

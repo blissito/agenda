@@ -62,20 +62,18 @@ export default function SelectStylized({
         {name && (
           <input type="hidden" name={name} value={selected?.value || ""} />
         )}
-        <div className="relative">
+        <ComboboxButton as="div" className="relative cursor-pointer">
           <ComboboxInput
+            readOnly
             placeholder={placeholder}
             className={twMerge(
-              "w-full rounded-lg  bg-white border-[1px] border-brand_ash py-1.5 pr-8 pl-3 text-sm/6 text-brand_gray",
+              "w-full rounded-2xl bg-white border-[1px] border-brand_ash py-1.5 pr-8 pl-3 text-sm/6 text-brand_gray cursor-pointer",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
             )}
             displayValue={(choice: Choice | null) => choice?.label || ""}
-            onChange={(event) => setQuery(event.target.value)}
           />
-          <ComboboxButton className="group absolute inset-y-0 right-0 px-2.5">
-            <IoIosArrowDown className="size-4 fill-brand_gray group-data-[hover]:fill-brand_blue" />
-          </ComboboxButton>
-        </div>
+          <IoIosArrowDown className="absolute right-2.5 top-1/2 -translate-y-1/2 size-4 fill-brand_gray" />
+        </ComboboxButton>
 
         <ComboboxOptions
           anchor="bottom"
@@ -89,7 +87,7 @@ export default function SelectStylized({
             <ComboboxOption
               key={choice.value}
               value={choice}
-              className="group  flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-brand_pale/40"
+              className="group  flex cursor-default items-center gap-2 rounded-lg py-1.5 px-3 select-none data-[focus]:bg-brand_blue/5"
             >
               <FaCheck className="invisible w-4 fill-brand_gray group-data-[selected]:visible" />
               <div className="text-sm/6 text-brand_gray">{choice.label}</div>

@@ -254,7 +254,7 @@ export const DayTimesSelector = ({
         )}
       >
         {ranges.map((range, index) => (
-          <div className="flex items-center gap-4" key={nanoid()}>
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap" key={nanoid()}>
             <RangeTimePicker
               isDisabled={!isActive}
               index={index}
@@ -316,7 +316,7 @@ export const RangeTimePicker = ({
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
       <span className="text-sm text-neutral-500">De</span>
       <TimePicker
         isDisabled={isDisabled}

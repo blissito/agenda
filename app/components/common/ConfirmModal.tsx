@@ -15,6 +15,8 @@ type ConfirmModalProps = {
   confirmText?: string
   cancelText?: string
   variant?: "danger" | "default"
+  emoji?: string
+  hideButtons?: boolean
 }
 
 export const ConfirmModal = ({
@@ -27,6 +29,8 @@ export const ConfirmModal = ({
   confirmText = "Confirmar",
   cancelText = "Cancelar",
   variant = "default",
+  emoji = "🗑️",
+  hideButtons,
 }: ConfirmModalProps) => {
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: onClose,
@@ -74,7 +78,7 @@ export const ConfirmModal = ({
                     aria-label="link"
                     className="text-6xl leading-none"
                   >
-                    🗑️
+                    {emoji}
                   </span>
                 </div>
               </div>
@@ -105,22 +109,24 @@ export const ConfirmModal = ({
               {children}
 
               {/* buttons */}
-              <div className="mt-12 flex items-center justify-center gap-8">
-                <SecondaryButton onClick={onClose} className="w-[160px] h-10">
-                  {cancelText}
-                </SecondaryButton>
+              {!hideButtons && (
+                <div className="mt-12 flex items-center justify-center gap-8">
+                  <SecondaryButton onClick={onClose} className="w-[160px] h-10">
+                    {cancelText}
+                  </SecondaryButton>
 
-                <PrimaryButton
-                  onClick={onConfirm}
-                  className={
-                    variant === "danger"
-                      ? "w-[160px] h-10 bg-[#CA5757] hover:bg-[#B84E4E]"
-                      : "w-[160px] h-10"
-                  }
-                >
-                  {confirmText}
-                </PrimaryButton>
-              </div>
+                  <PrimaryButton
+                    onClick={onConfirm}
+                    className={
+                      variant === "danger"
+                        ? "w-[160px] h-10 bg-[#CA5757] hover:bg-[#B84E4E]"
+                        : "w-[160px] h-10"
+                    }
+                  >
+                    {confirmText}
+                  </PrimaryButton>
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>
