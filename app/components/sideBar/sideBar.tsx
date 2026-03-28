@@ -1,5 +1,5 @@
 import { type User as PrismaUser } from "@prisma/client"
-import { motion, type Transition } from "motion/react"
+import { AnimatePresence, motion, type Transition } from "motion/react"
 import {
   Children,
   cloneElement,
@@ -8,6 +8,7 @@ import {
   type ReactNode,
   useEffect,
   useRef,
+  useState,
 } from "react"
 import { Form, Link, useLocation } from "react-router"
 import { twMerge } from "tailwind-merge"
@@ -98,7 +99,7 @@ export function SideBar({
         drag="x"
         dragConstraints={{ right: 0, left: sidebar.config.closedX }}
         style={{ x: sidebar.x }}
-        className="w-[320px] bg-white fixed rounded-e-3xl flex flex-col justify-end h-screen overflow-hidden"
+        className="hidden md:flex w-[320px] bg-white fixed rounded-e-3xl flex-col justify-end h-screen overflow-hidden"
       >
         <Header user={user} className="pl-6" />
         <MainMenu className="mb-auto" />
@@ -112,7 +113,7 @@ export function SideBar({
         aria-controls="sidebar-nav"
         aria-label={sidebar.isOpen ? "Cerrar menú" : "Abrir menú"}
         style={{ x: sidebar.x }}
-        className="h-10 w-10 rounded-full bg-white flex items-center justify-center
+        className="hidden md:flex h-10 w-10 rounded-full bg-white items-center justify-center
           hover:bg-gray-50 transition-colors fixed left-[295px] top-1/2 -translate-y-1/2 z-50
           shadow-md border border-gray-200 cursor-pointer group"
       >
@@ -130,10 +131,11 @@ export function SideBar({
       </motion.button>
       <motion.section
         style={{ paddingLeft: sidebar.contentPadding }}
-        className="pl-[360px] lg:pr-10 pr-6 py-6 lg:py-10 w-full min-h-screen h-auto box-border "
+        className="dash-content pl-[360px] lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-24 md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
       >
         {children}
       </motion.section>
+      <MobileBottomNav user={user} />
     </article>
   )
 }
@@ -405,3 +407,241 @@ const OnboardingBanner = () => {
     </section>
   )
 }
+
+// ==================== MOBILE NAVIGATION ====================
+
+const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
+  const location = useLocation()
+  const [showMore, setShowMore] = useState(false)
+  const match = (s: string) => location.pathname.includes(s)
+  const matchIndex = () => /^\/dash$/.test(location.pathname)
+
+  // Close bottom sheet on navigation
+  useEffect(() => {
+    setShowMore(false)
+  }, [location.pathname])
+
+  const tabs = [
+    { to: "/dash", label: "Inicio", icon: <Dashboard />, active: matchIndex() },
+    {
+      to: "/dash/agenda",
+      label: "Agenda",
+      icon: <Agenda />,
+      active: match("agenda"),
+    },
+    {
+      to: "/dash/servicios",
+      label: "Servicios",
+      icon: <Services />,
+      active: match("servicios"),
+    },
+    {
+      to: "/dash/clientes",
+      label: "Clientes",
+      icon: <Clients />,
+      active: match("clientes"),
+    },
+  ]
+
+  const moreActive =
+    match("website") ||
+    match("chatbot") ||
+    match("pagos") ||
+    match("lealtad") ||
+    match("evaluaciones") ||
+    match("ajustes") ||
+    match("perfil")
+
+  return (
+    <>
+      {/* Bottom tab bar */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 md:hidden safe-bottom">
+        <div className="flex justify-around items-center h-16">
+          {tabs.map((tab) => (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              prefetch="intent"
+              className={twMerge(
+                "flex flex-col items-center justify-center gap-0.5 flex-1 h-full",
+                tab.active ? "text-brand_blue" : "text-gray-400",
+              )}
+            >
+              <MobileIcon active={tab.active}>{tab.icon}</MobileIcon>
+              <span className="text-[10px] leading-tight">{tab.label}</span>
+            </Link>
+          ))}
+          <button
+            onClick={() => setShowMore(true)}
+            className={twMerge(
+              "flex flex-col items-center justify-center gap-0.5 flex-1 h-full cursor-pointer",
+              moreActive || showMore ? "text-brand_blue" : "text-gray-400",
+            )}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
+            </svg>
+            <span className="text-[10px] leading-tight">Más</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Bottom sheet overlay */}
+      <AnimatePresence>
+        {showMore && (
+          <motion.div
+            key="more-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black/30 z-[60] md:hidden"
+            onClick={() => setShowMore(false)}
+          >
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
+              onClick={(e) => e.stopPropagation()}
+              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl overflow-auto max-h-[85vh]"
+            >
+              {/* Handle bar */}
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-10 h-1 bg-gray-300 rounded-full" />
+              </div>
+
+              {/* User info */}
+              <div className="px-6 pb-4 border-b border-gray-100">
+                <UserAvatar user={user} />
+              </div>
+
+              {/* Menu items */}
+              <div className="py-2">
+                <MobileMenuItem
+                  to="/dash/website"
+                  icon={<Website />}
+                  label="Sitio web"
+                  active={match("website")}
+                />
+                <MobileMenuItem
+                  to="/dash/chatbot"
+                  icon={<Chatbot />}
+                  label="Chatbot IA"
+                  active={match("chatbot")}
+                />
+                <MobileMenuItem
+                  to="/dash/pagos"
+                  icon={<Financial />}
+                  label="Pagos"
+                  active={match("pagos")}
+                />
+                <MobileMenuItem
+                  to="/dash/lealtad"
+                  icon={<Loyalty />}
+                  label="Lealtad"
+                  active={match("lealtad")}
+                />
+                <MobileMenuItem
+                  to="/dash/evaluaciones"
+                  icon={<Rank />}
+                  label="Evaluaciones"
+                  active={match("evaluaciones")}
+                />
+                <MobileMenuItem
+                  to="/dash/ajustes"
+                  icon={<Settings />}
+                  label="Ajustes"
+                  active={match("ajustes")}
+                />
+              </div>
+
+              <div className="border-t border-gray-100 py-2">
+                <MobileMenuItem
+                  to="/dash/perfil"
+                  icon={<Profile />}
+                  label="Perfil"
+                  active={match("perfil")}
+                />
+                <MobileMenuItem
+                  to="/dash/onboarding"
+                  icon={null}
+                  label="Configurar agenda"
+                  active={match("onboarding")}
+                />
+              </div>
+
+              <div className="border-t border-gray-100 py-2 safe-bottom">
+                <Form action="/signin">
+                  <button
+                    type="submit"
+                    name="intent"
+                    value="logout"
+                    className="flex items-center gap-3 px-6 py-3 w-full text-left text-gray-500 hover:bg-gray-50"
+                  >
+                    <Out />
+                    <span>Cerrar sesión</span>
+                  </button>
+                </Form>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  )
+}
+
+const MobileIcon = ({
+  active,
+  children,
+}: {
+  active: boolean
+  children: ReactNode
+}) => (
+  <i className="[&>svg]:w-5 [&>svg]:h-5">
+    {active
+      ? Children.map(children, (c) =>
+          isValidElement(c)
+            ? cloneElement(c as ReactElement<{ fill?: string }>, {
+                fill: "#5158F6",
+              })
+            : c,
+        )
+      : children}
+  </i>
+)
+
+const MobileMenuItem = ({
+  to,
+  icon,
+  label,
+  active,
+}: {
+  to: string
+  icon: ReactNode
+  label: string
+  active: boolean
+}) => (
+  <Link
+    to={to}
+    prefetch="intent"
+    className={twMerge(
+      "flex items-center gap-3 px-6 py-3.5 hover:bg-gray-50 transition-colors",
+      active ? "text-brand_blue" : "text-brand_dark",
+    )}
+  >
+    {icon && <MobileIcon active={active}>{icon}</MobileIcon>}
+    <span className="text-sm">{label}</span>
+  </Link>
+)

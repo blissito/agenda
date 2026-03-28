@@ -183,6 +183,18 @@ input[type="color"].custom {
   }
 }
 
+/* Mobile: override sidebar motion paddingLeft */
+@media (max-width: 767px) {
+  .dash-content {
+    padding-left: 1rem !important;
+  }
+}
+
+/* Safe area for bottom nav on notched devices */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
 @media (max-width: 520px) {
   h1,
   h2,
