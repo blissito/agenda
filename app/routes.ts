@@ -110,6 +110,9 @@ export default [
   route("event/:eventId/cancel", "routes/event.$eventId.cancel.tsx"),
   // Survey from email links
   route("survey", "routes/survey.tsx"),
+  // Customer portal
+  route("mi-cuenta", "routes/mi-cuenta._index.tsx"),
+  route("mi-cuenta/perfil", "routes/mi-cuenta.perfil.tsx"),
   // Clean URL for subdomains/custom domains: /:serviceSlug
   route(":serviceSlug", "routes/service.$serviceSlug.tsx"),
 ] satisfies RouteConfig

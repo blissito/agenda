@@ -6,13 +6,14 @@ export const sendMagicLink = async (
   email: string,
   uri: string = "http://localhost:3000",
   subject?: string,
+  callbackPath: string = "/signin",
 ) => {
   // generate token
   const token = await generateUserToken(email)
   // Use APP_URL in production to avoid localhost issues behind reverse proxy
   const baseUrl = process.env.APP_URL || uri
   const url = new URL(baseUrl)
-  url.pathname = "/signin"
+  url.pathname = callbackPath
   url.searchParams.set("token", token)
 
   const sesTransport = getSesTransport()
