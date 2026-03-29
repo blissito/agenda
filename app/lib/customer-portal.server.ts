@@ -8,6 +8,7 @@ export type PortalOrgInfo = {
   name: string
   slug: string
   logo: string | null
+  tel: string | null
 }
 
 export type PortalLoyalty = {
@@ -83,6 +84,7 @@ export async function getCustomerPortalData(
           name: true,
           slug: true,
           logo: true,
+          tel: true,
           loyaltyEnabled: true,
         },
       })
@@ -108,6 +110,7 @@ export async function getCustomerPortalData(
       name: org.name,
       slug: org.slug,
       logo: org.logo,
+      tel: org.tel ?? null,
     })
 
     if (customer.tel && !tel) tel = customer.tel
@@ -163,7 +166,7 @@ export async function getCustomerPortalData(
       })
 
       loyalty.push({
-        org: { id: org.id, name: org.name, slug: org.slug, logo: org.logo },
+        org: { id: org.id, name: org.name, slug: org.slug, logo: org.logo, tel: org.tel ?? null },
         points: customer.loyaltyPoints ?? 0,
         totalEarned,
         level,

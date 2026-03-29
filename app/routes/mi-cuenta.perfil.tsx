@@ -1,16 +1,25 @@
-import { useMemo, useState } from "react"
+import {
+  Calendar,
+  type CalendarEvent,
+  useCalendarControls,
+} from "@hectorbliss/denik-calendar"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Form, redirect } from "react-router"
 import { getUserOrNull } from "~/.server/userGetters"
 import { destroySession, getSession } from "~/sessions"
 import { Avatar } from "~/components/common/Avatar"
 import { TabButton } from "~/components/common/TabButton"
-import { TopBar } from "~/components/common/topBar"
 import { type CitaEvent, getStatusVariant } from "~/components/dash/CitasTable"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { FaRegCalendarCheck } from "react-icons/fa6"
-import { TbCalendarCancel } from "react-icons/tb"
+import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
+import { TbCalendarCancel, TbList } from "react-icons/tb"
 import { ReviewStar } from "~/components/icons/reviewStar"
+import { Calendar2 } from "~/components/icons/calendar2"
+import { EventHoverCard, type EventHoverData } from "~/components/dash/agenda/EventHoverCard"
+import { EditPen } from "~/components/icons/editPen"
 import { Mail } from "~/components/icons/mail"
+import { MapPin } from "~/components/icons/mapPin"
 import { Phone } from "~/components/icons/phone"
 import {
   getCustomerPortalData,
@@ -52,6 +61,13 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
   const { user, data } = loaderData
   const [activeTab, setActiveTab] = useState<TabId>("upcoming")
   const [orgFilter, setOrgFilter] = useState<string>("all")
+  const [upcomingView, setUpcomingView] = useState<"calendar" | "table">("calendar")
+
+  const controls = useCalendarControls({
+    initialDate: new Date(),
+    initialView: "week",
+    locale: "es-MX",
+  })
 
   const filterByOrg = (events: CitaEvent[]) => {
     if (!data || orgFilter === "all") return events
@@ -76,6 +92,61 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
 
   const getOrgForEvent = (event: CitaEvent) =>
     data ? orgById.get(data.eventOrgMap[event.id]) ?? null : null
+
+  const calendarEvents: CalendarEvent[] = useMemo(
+    () =>
+      filteredUpcoming.map((e) => ({
+        id: e.id,
+        start: new Date(e.start),
+        duration: Number(e.duration),
+        title: e.service?.name ?? "Cita",
+        type: "EVENT" as const,
+        service: e.service ? { name: e.service.name } : null,
+        color: e.status === "CONFIRMED" || e.status === "confirmed"
+          ? "#BFDD78"
+          : "#FFD75E",
+      })),
+    [filteredUpcoming],
+  )
+
+  // Inject timezone abbreviation into the calendar (same as dash/agenda)
+  const calendarRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = calendarRef.current?.querySelector(".text-sm.text-gray-500")
+    if (el) {
+      const short = new Intl.DateTimeFormat("es-MX", { timeZoneName: "short" })
+        .formatToParts(new Date())
+        .find((p) => p.type === "timeZoneName")?.value
+      el.textContent = short ?? ""
+    }
+  }, [controls.date, upcomingView])
+
+  // Hover card state for calendar events
+  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null)
+  const [hoverRect, setHoverRect] = useState<DOMRect | null>(null)
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleEventMouseEnter = (eventId: string, rect: DOMRect) => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+    setHoveredEventId(eventId)
+    setHoverRect(rect)
+  }
+  const handleEventMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => setHoveredEventId(null), 150)
+  }
+  const handlePopoverMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current)
+  }
+  const handlePopoverMouseLeave = () => {
+    setHoveredEventId(null)
+  }
+
+  // Lookup map for hover data
+  const eventsMap = useMemo(() => {
+    const map = new Map<string, CitaEvent>()
+    for (const e of filteredUpcoming) map.set(e.id, e)
+    return map
+  }, [filteredUpcoming])
 
   return (
     <div className="min-h-screen relative pb-8 bg-brand_light_gray">
@@ -133,19 +204,35 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
             <div className="flex flex-col md:flex-row md:items-stretch">
               {/* Left */}
               <div className="flex-1">
-                {/* MOBILE name */}
-                <h1 className="sm:hidden mt-20 text-xl font-satoBold text-brand_dark mb-4">
-                  {data?.displayName ?? user.displayName ?? "Mi cuenta"}
-                </h1>
+                {/* MOBILE name + edit */}
+                <div className="sm:hidden flex items-center mt-20 mb-4">
+                  <h1 className="text-xl font-satoBold text-brand_dark">
+                    {data?.displayName ?? user.displayName ?? "Mi cuenta"}
+                  </h1>
+                  <button
+                    type="button"
+                    className="ml-auto mr-6 w-8 h-8 rounded-full border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
+                    aria-label="Editar"
+                  >
+                    <EditPen fill="#4B5563" className="w-4 h-4" />
+                  </button>
+                </div>
 
-                {/* DESKTOP name */}
-                <div className="hidden sm:flex items-center gap-4 mb-6 pl-[150px]">
+                {/* DESKTOP name + edit */}
+                <div className="hidden sm:flex items-center gap-3 mb-6 pl-[150px]">
                   <h1 className="text-2xl font-satoBold text-brand_dark">
                     {data?.displayName ?? user.displayName ?? "Mi cuenta"}
                   </h1>
+                  <button
+                    type="button"
+                    className="ml-auto mr-6 w-9 h-9 rounded-full border border-brand_stroke flex items-center justify-center text-brand_gray hover:bg-gray-50 transition"
+                    aria-label="Editar"
+                  >
+                    <EditPen fill="#4B5563" className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mt-4 sm:grid-cols-3 sm:gap-x-16 sm:gap-y-0 sm:mt-16">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mt-4 sm:grid-cols-3 sm:gap-x-10 sm:gap-y-0 sm:mt-4 sm:pl-[150px]">
                   {/* Email */}
                   <div className="col-span-2 flex items-center gap-2 min-w-0 sm:col-span-1">
                     <Mail className="text-brand_gray shrink-0" />
@@ -158,7 +245,15 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                   <div className="col-span-2 flex items-center gap-2 min-w-0 sm:col-span-1">
                     <Phone className="text-brand_gray shrink-0" />
                     <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
-                      {data?.tel || "Sin telefono"}
+                      {data?.tel || "----"}
+                    </span>
+                  </div>
+
+                  {/* Address */}
+                  <div className="col-span-2 flex items-start gap-2 min-w-0 sm:col-span-1">
+                    <MapPin className="text-brand_gray mt-0.5 shrink-0" />
+                    <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
+                      ----
                     </span>
                   </div>
                 </div>
@@ -175,7 +270,7 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                       <div className="md:mb-4">
                         <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
                           {data.stats.eventCount}{" "}
-                          <span className="text-sm font-satoMedium text-brand_gray">
+                          <span>
                             {data.stats.eventCount === 1 ? "cita" : "citas"}
                           </span>
                         </p>
@@ -187,11 +282,14 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                       </div>
 
                       <div>
-                        <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
-                          {data.stats.points}
-                        </p>
+                        <div className="flex items-center gap-1">
+                          <span className="text-xl sm:text-2xl font-satoBold text-brand_dark">
+                            0
+                          </span>
+                          <span className="text-brand_yellow">⭐</span>
+                        </div>
                         <p className="text-xs font-satoMedium text-brand_gray">
-                          puntos
+                          reseñas
                         </p>
                       </div>
                     </div>
@@ -214,38 +312,168 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
 
-        {/* Org filter */}
-        {(activeTab === "upcoming" || activeTab === "history") &&
-          data &&
-          data.orgs.length > 1 &&
-          (activeTab === "upcoming"
-            ? data.upcoming.length > 0
-            : data.past.length > 0) && (
-            <div className="flex items-center gap-3 mt-6">
-              <SelectStylized
-                choices={[
-                  { value: "all", label: "Todos los negocios" },
-                  ...data.orgs.map((org) => ({
-                    value: org.id,
-                    label: org.name,
-                  })),
-                ]}
-                value={orgFilter}
-                onChange={(value) => setOrgFilter(value)}
-                placeholder="Todos los negocios"
-                className="w-[240px]"
-                inputClassName="rounded-full border-0"
-              />
+        {/* Filters bar */}
+        {(activeTab === "upcoming" || activeTab === "history") && data && (
+          <div className="flex items-center gap-3 mt-6">
+            {/* Week controls (only in calendar view) */}
+            {activeTab === "upcoming" && upcomingView === "calendar" && filteredUpcoming.length > 0 && (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={controls.goToToday}
+                  disabled={controls.isToday}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors shrink-0 ${
+                    controls.isToday
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : "bg-brand_dark text-white hover:bg-brand_dark/90"
+                  }`}
+                >
+                  Hoy
+                </button>
+                <button
+                  onClick={controls.goToPrev}
+                  className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  <IoChevronBackOutline className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={controls.goToNext}
+                  className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                >
+                  <IoChevronForward className="w-4 h-4" />
+                </button>
+                <span className="text-sm font-medium capitalize ml-1 truncate">
+                  {controls.label}
+                </span>
+              </div>
+            )}
+
+            {/* Right side: select + view toggle */}
+            <div className="ml-auto flex items-center gap-3">
+              {data.orgs.length > 1 &&
+                (activeTab === "upcoming"
+                  ? data.upcoming.length > 0
+                  : data.past.length > 0) && (
+                  <SelectStylized
+                    choices={[
+                      { value: "all", label: "Todos los negocios" },
+                      ...data.orgs.map((org) => ({
+                        value: org.id,
+                        label: org.name,
+                      })),
+                    ]}
+                    value={orgFilter}
+                    onChange={(value) => setOrgFilter(value)}
+                    placeholder="Todos los negocios"
+                    className="w-[240px]"
+                    inputClassName="rounded-full border-0"
+                  />
+                )}
+              {activeTab === "upcoming" && filteredUpcoming.length > 0 && (
+                <div className="flex items-center bg-white rounded-full h-12 p-1">
+              
+                  <button
+                    type="button"
+                    onClick={() => setUpcomingView("calendar")}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                      upcomingView === "calendar"
+                        ? "bg-brand_blue text-white"
+                        : "text-brand_gray hover:text-brand_dark"
+                    }`}
+                    title="Vista calendario"
+                  >
+                    <Calendar2 className="w-[22px] h-[22px]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUpcomingView("table")}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                      upcomingView === "table"
+                        ? "bg-brand_blue text-white"
+                        : "text-brand_gray hover:text-brand_dark"
+                    }`}
+                    title="Vista tabla"
+                  >
+                    <TbList size={22} />
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+        )}
 
         {/* Tab content */}
-        <div className="mt-6">
+        <div className="mt-4 relative">
+          <img src="/images/nik.svg" alt="calendar" className="w-16 h-16 absolute -top-14 left-1/2" />
           {!data ? (
             <EmptyState />
           ) : activeTab === "upcoming" ? (
             filteredUpcoming.length === 0 ? (
               <EmptyState />
+            ) : upcomingView === "calendar" ? (
+              <div ref={calendarRef} className="bg-white rounded-2xl overflow-hidden relative portal-calendar">
+                <Calendar
+                  events={calendarEvents}
+                  date={controls.date}
+                  config={{
+                    hoursStart: 8,
+                    hoursEnd: 21,
+                    locale: "es-MX",
+                    renderEvent: ({ event }) => (
+                      <div
+                        className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm"
+                        style={{ backgroundColor: event.color || "#FFD75E" }}
+                        onMouseEnter={(e) =>
+                          handleEventMouseEnter(event.id, e.currentTarget.getBoundingClientRect())
+                        }
+                        onMouseLeave={handleEventMouseLeave}
+                      >
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
+                        <span className="font-medium truncate text-brand_dark">{event.title}</span>
+                        <span className="text-brand_gray truncate text-[10px]">{event.service?.name}</span>
+                      </div>
+                    ),
+                  }}
+                />
+                {/* Hover card */}
+                {hoveredEventId && hoverRect && (() => {
+                  const full = eventsMap.get(hoveredEventId)
+                  if (!full) return null
+                  const org = getOrgForEvent(full)
+                  const startDate = new Date(full.start)
+                  const timeStr = startDate.toLocaleTimeString("es-MX", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                  const hoverData: EventHoverData = {
+                    customerName: full.service?.name ?? "Cita",
+                    serviceName: org?.name,
+                    employeeName: timeStr,
+                    phone: org?.tel ?? undefined,
+                    status: full.status,
+                    paid: full.paid,
+                  }
+                  const showAbove = hoverRect.top > 320
+                  return (
+                    <div
+                      className="fixed z-50"
+                      style={{
+                        top: showAbove ? hoverRect.top - 8 : hoverRect.bottom + 8,
+                        left: hoverRect.left,
+                        transform: showAbove ? "translateY(-100%)" : undefined,
+                      }}
+                      onMouseEnter={handlePopoverMouseEnter}
+                      onMouseLeave={handlePopoverMouseLeave}
+                    >
+                      <EventHoverCard
+                        data={hoverData}
+                        hidePayment
+                        onEdit={() => setHoveredEventId(null)}
+                        onDelete={() => setHoveredEventId(null)}
+                      />
+                    </div>
+                  )
+                })()}
+              </div>
             ) : (
               <PortalEventList events={filteredUpcoming} getOrg={getOrgForEvent} />
             )
@@ -256,7 +484,10 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
               <PortalEventList events={filteredPast} getOrg={getOrgForEvent} isPast />
             )
           ) : activeTab === "comments" ? (
-            <ComingSoon label="Comentarios" />
+            <EmptyState
+              title="Ayuda a otros con tus experiencias"
+              subtitle="Cuando visites un negocio, deja tu reseña y compártelo con la comunidad."
+            />
           ) : activeTab === "favorites" ? (
             <FavoritesTab orgs={data.orgs} />
           ) : activeTab === "loyalty" ? (
@@ -273,11 +504,10 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
 function LoyaltyTab({ loyalty }: { loyalty: PortalLoyalty[] }) {
   if (loyalty.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-12 text-center">
-        <p className="text-sm text-brand_gray">
-          Ningun negocio tiene programa de lealtad activo
-        </p>
-      </div>
+      <EmptyState
+        title="Acumula puntos con cada visita"
+        subtitle="Los negocios que visites pueden premiarte con puntos, descuentos y recompensas."
+      />
     )
   }
 
@@ -483,15 +713,15 @@ function PortalEventRow({
 
   return (
     <div
-      className={`grid grid-cols-[140px_1.2fr_1fr_90px_90px_1fr_44px] items-center px-6 py-3 hover:bg-slate-50 transition-colors ${isPast ? "opacity-70" : ""}`}
+      className={`grid grid-cols-[140px_1.2fr_1fr_90px_90px_1fr_44px] items-center px-6 py-3 hover:bg-slate-50 transition-colors ${isPast ? "opacity-1" : ""}`}
     >
       {/* Date pill + time */}
       <div className="flex items-center gap-2">
         <div
           className={`inline-flex flex-col items-center justify-center w-[48px] rounded-lg py-1.5 ${
             isPast
-              ? "bg-gray-100 text-brand_gray"
-              : "bg-brand_blue/10 text-brand_blue"
+              ? "bg-brand_stroke text-brand_dark"
+              : "bg-brand_blue/10 text-brand_dark"
           }`}
         >
           <span className="text-[10px] font-satoMedium leading-tight">
@@ -693,28 +923,25 @@ function FavoritesTab({ orgs }: { orgs: PortalOrgInfo[] }) {
 
 // ==================== PLACEHOLDERS ====================
 
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div className="bg-white rounded-2xl p-12 text-center">
-      <p className="text-xl font-satoBold text-brand_dark">{label}</p>
-      <p className="mt-2 text-sm text-brand_gray">Proximamente</p>
-    </div>
-  )
-}
-
-function EmptyState() {
+function EmptyState({
+  title = "Mmm... aun no has agendado ninguna cita",
+  subtitle = "Agenda tu proxima cita con negocios que usan Denik",
+}: {
+  title?: string
+  subtitle?: string
+} = {}) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center min-h-[60vh]">
       <img
-        src="/images/emptyState/empty_customer.webp"
+        src="/images/emptyState/empty_customer.svg"
         alt=""
         className="mx-auto mb-6 w-[180px] sm:w-[220px]"
       />
       <h2 className="text-xl sm:text-2xl font-satoBold text-brand_dark">
-        Mmm... aun no has agendado ninguna cita
+        {title}
       </h2>
-      <p className="mt-2 text-base text-brand_gray">
-        Agenda tu proxima cita con negocios que usan Denik
+      <p className="mt-2 text-base text-brand_gray max-w-md mx-auto">
+        {subtitle}
       </p>
     </div>
   )

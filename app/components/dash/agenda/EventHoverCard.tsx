@@ -1,4 +1,4 @@
-import { FiMail, FiPhone, FiFileText, FiUser } from "react-icons/fi"
+import { FiClock, FiMail, FiPhone, FiFileText, FiUser } from "react-icons/fi"
 import { EditPen } from "~/components/icons/editPen"
 import { Trash } from "~/components/icons/trash"
 import { Money } from "~/components/icons/money"
@@ -7,6 +7,7 @@ export type EventHoverData = {
   customerName?: string
   serviceName?: string
   employeeName?: string
+  time?: string
   phone?: string
   email?: string
   notes?: string
@@ -44,10 +45,12 @@ export function EventHoverCard({
   data,
   onEdit,
   onDelete,
+  hidePayment,
 }: {
   data: EventHoverData
   onEdit?: () => void
   onDelete?: () => void
+  hidePayment?: boolean
 }) {
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-[280px] text-left">
@@ -68,12 +71,14 @@ export function EventHoverCard({
               <Trash fill="#CA5757" className="w-5 h-5" />
             </button>
           )}
-          <button
-            onClick={(e) => { e.stopPropagation() }}
-            className="p-1 rounded-md hover:bg-gray-100 text-gray-500 transition-colors"
-          >
-            <Money className="w-5 h-5" />
-          </button>
+          {!hidePayment && (
+            <button
+              onClick={(e) => { e.stopPropagation() }}
+              className="p-1 rounded-md hover:bg-gray-100 text-gray-500 transition-colors"
+            >
+              <Money className="w-5 h-5" />
+            </button>
+          )}
           {onEdit && (
             <button
               onClick={(e) => { e.stopPropagation(); onEdit() }}

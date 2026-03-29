@@ -190,6 +190,20 @@ input[type="color"].custom {
   }
 }
 
+/* Portal calendar: hide empty cell popup and disable interactions */
+.portal-calendar [role="button"] {
+  pointer-events: none;
+  cursor: default;
+}
+.portal-calendar [role="button"]:hover {
+  background: transparent !important;
+}
+/* Re-enable pointer events on actual events */
+.portal-calendar [role="button"] > div[style] {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 /* Safe area for bottom nav on notched devices */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
