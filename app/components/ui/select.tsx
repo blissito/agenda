@@ -22,12 +22,16 @@ export default function SelectStylized({
   value: controlledValue,
   onChange,
   name,
+  className,
+  inputClassName,
 }: {
   choices: Choice[]
   placeholder?: string
   value?: string
   onChange?: (value: string) => void
   name?: string
+  className?: string
+  inputClassName?: string
 }) {
   const [query, setQuery] = useState("")
   const [internalValue, setInternalValue] = useState<string | undefined>(
@@ -47,7 +51,7 @@ export default function SelectStylized({
         })
 
   return (
-    <div className=" w-[180px]">
+    <div className={twMerge("w-[180px]", className)}>
       <Combobox
         value={selected}
         onChange={(choice) => {
@@ -67,8 +71,9 @@ export default function SelectStylized({
             readOnly
             placeholder={placeholder}
             className={twMerge(
-              "w-full rounded-2xl bg-white border-[1px] border-brand_ash py-1.5 pr-8 pl-3 text-sm/6 text-brand_gray cursor-pointer",
+              "w-full h-12 rounded-2xl bg-white border-[1px] border-brand_ash pr-8 pl-3 text-sm/6 text-brand_gray cursor-pointer",
               "focus:outline-none data-[focus]:outline-2 data-[focus]:-outline-offset-2 data-[focus]:outline-white/25",
+              inputClassName,
             )}
             displayValue={(choice: Choice | null) => choice?.label || ""}
           />
