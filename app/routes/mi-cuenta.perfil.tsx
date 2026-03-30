@@ -5,7 +5,7 @@ import {
 } from "@hectorbliss/denik-calendar"
 import { AnimatePresence, motion } from "motion/react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Form, redirect } from "react-router"
+import { Form, Link, redirect } from "react-router"
 import { getUserOrNull } from "~/.server/userGetters"
 import { destroySession, getSession } from "~/sessions"
 import { Avatar } from "~/components/common/Avatar"
@@ -28,7 +28,9 @@ import {
   getCustomerPortalData,
   type PortalLoyalty,
   type PortalOrgInfo,
+  type PortalReview,
 } from "~/lib/customer-portal.server"
+import { Pagination } from "~/components/common/Pagination"
 import SelectStylized from "~/components/ui/select"
 import type { Route } from "./+types/mi-cuenta.perfil"
 
@@ -63,6 +65,13 @@ type TabId = (typeof TABS)[number]["id"]
 export default function MiCuenta({ loaderData }: Route.ComponentProps) {
   const { user, data } = loaderData
   const [activeTab, setActiveTab] = useState<TabId>("upcoming")
+  const [tabDirection, setTabDirection] = useState(0)
+  const handleTabChange = (tab: TabId) => {
+    const prevIndex = TABS.findIndex((t) => t.id === activeTab)
+    const nextIndex = TABS.findIndex((t) => t.id === tab)
+    setTabDirection(nextIndex > prevIndex ? 1 : -1)
+    setActiveTab(tab)
+  }
   const [orgFilter, setOrgFilter] = useState<string>("all")
   const [upcomingView, setUpcomingView] = useState<"calendar" | "table">("calendar")
   const [cellHeight, setCellHeight] = useState(64)
@@ -294,7 +303,7 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                     </div>
                     <div>
                       <div className="flex items-center justify-center gap-1">
-                        <span className="text-xl font-satoBold text-brand_dark">0</span>
+                        <span className="text-xl font-satoBold text-brand_dark">{data.stats.reviewCount}</span>
                         <span className="text-brand_yellow">⭐</span>
                       </div>
                       <p className="text-xs font-satoMedium text-brand_gray">reseñas</p>
@@ -358,7 +367,7 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                   </div>
                   <div>
                     <div className="flex items-center gap-1">
-                      <span className="text-2xl font-satoBold text-brand_dark">0</span>
+                      <span className="text-2xl font-satoBold text-brand_dark">{data.stats.reviewCount}</span>
                       <span className="text-brand_yellow">⭐</span>
                     </div>
                     <p className="text-xs font-satoMedium text-brand_gray">reseñas</p>
@@ -376,7 +385,7 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
               key={tab.id}
               label={tab.label}
               active={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
             />
           ))}
         </div>
@@ -471,10 +480,19 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
         )}
 
         {/* Tab content */}
-        <div className="mt-4 relative">
+        <div className="mt-4 relative overflow-hidden">
           {activeTab === "upcoming" && upcomingView === "calendar" && filteredUpcoming.length > 0 && (
             <img src="/images/nik.svg" alt="calendar" className="w-16 h-16 absolute -top-14 left-1/2 hidden md:block" />
           )}
+          <AnimatePresence mode="wait" initial={false} custom={tabDirection}>
+            <motion.div
+              key={activeTab}
+              custom={tabDirection}
+              initial={{ opacity: 0, x: tabDirection * 60 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: tabDirection * -60 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+            >
           {!data ? (
             <EmptyState />
           ) : activeTab === "upcoming" ? (
@@ -549,15 +567,14 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
               <PortalEventList events={filteredPast} getOrg={getOrgForEvent} isPast />
             )
           ) : activeTab === "comments" ? (
-            <EmptyState
-              title="Ayuda a otros con tus experiencias"
-              subtitle="Cuando visites un negocio, deja tu reseña y compártelo con la comunidad."
-            />
+            <CommentsTab reviews={data.reviews} orgs={data.orgs} />
           ) : activeTab === "favorites" ? (
             <FavoritesTab orgs={data.orgs} />
           ) : activeTab === "loyalty" ? (
             <LoyaltyTab loyalty={data.loyalty} />
           ) : null}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 
@@ -666,7 +683,7 @@ function LoyaltyTab({ loyalty }: { loyalty: PortalLoyalty[] }) {
   }
 
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {loyalty.map((l) => (
         <LoyaltyCard key={l.org.id} loyalty={l} />
       ))}
@@ -675,93 +692,38 @@ function LoyaltyTab({ loyalty }: { loyalty: PortalLoyalty[] }) {
 }
 
 function LoyaltyCard({ loyalty }: { loyalty: PortalLoyalty }) {
-  const progress = loyalty.nextLevel
-    ? Math.min(
-        100,
-        (loyalty.totalEarned /
-          (loyalty.totalEarned + loyalty.nextLevel.pointsNeeded)) *
-          100,
-      )
-    : 100
+  const levelImage = loyalty.nextLevel?.image ?? loyalty.level?.image
+  const levelName = loyalty.nextLevel?.name ?? loyalty.level?.name
+  const discount = loyalty.level?.discountPercent ?? loyalty.nextLevel?.discountPercent
 
   return (
-    <div className="bg-white rounded-2xl p-6">
-      {/* Org header */}
-      <div className="flex items-center gap-2.5 mb-4">
-        {loyalty.org.logo ? (
+    <div>
+      {/* Membership card image */}
+      {levelImage && (
+        <div className="rounded-2xl overflow-hidden bg-gray-100 aspect-[16/10]">
           <img
-            src={loyalty.org.logo}
-            alt=""
-            className="w-8 h-8 rounded-full object-cover"
+            src={levelImage}
+            alt={levelName ?? ""}
+            className="w-full h-full object-cover"
           />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-brand_blue/10 flex items-center justify-center text-sm font-satoMedium text-brand_blue">
-            {loyalty.org.name.charAt(0)}
-          </div>
-        )}
-        <span className="font-satoMedium text-brand_dark">
+        </div>
+      )}
+
+      {/* Info row */}
+      <div className="flex items-center gap-2 mt-3 flex-wrap">
+        <span className="text-sm font-satoBold text-brand_dark">
           {loyalty.org.name}
         </span>
-      </div>
-
-      <div className="bg-gradient-to-br from-brand_blue/5 to-brand_blue/10 rounded-xl p-4">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <p className="text-xs text-brand_gray">Tu nivel</p>
-            <p className="font-satoMedium text-brand_dark">
-              {loyalty.level?.name ?? "Sin nivel"}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-2xl font-satoBold text-brand_blue">
-              {loyalty.points}
-            </p>
-            <p className="text-xs text-brand_gray">puntos disponibles</p>
-          </div>
-        </div>
-
-        {loyalty.nextLevel && (
-          <div>
-            <div className="flex justify-between text-[11px] text-brand_gray mb-1">
-              <span>{loyalty.level?.name ?? "Inicio"}</span>
-              <span>{loyalty.nextLevel.name}</span>
-            </div>
-            <div className="h-2 bg-white rounded-full overflow-hidden">
-              <div
-                className="h-full bg-brand_blue rounded-full transition-all"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <p className="text-[11px] text-brand_gray mt-1">
-              Te faltan{" "}
-              <strong className="text-brand_dark">
-                {loyalty.nextLevel.pointsNeeded} pts
-              </strong>{" "}
-              para {loyalty.nextLevel.name}
-            </p>
-          </div>
+        {levelName && (
+          <span className="text-xs font-satoMedium bg-brand_blue/10 text-brand_blue px-2.5 py-0.5 rounded-full">
+            {levelName}
+          </span>
         )}
-
-        {loyalty.redemptions.length > 0 && (
-          <div className="mt-4 border-t border-brand_blue/10 pt-3">
-            <p className="text-xs font-satoMedium text-brand_dark mb-2">
-              Recompensas activas
-            </p>
-            {loyalty.redemptions.map((r) => (
-              <div
-                key={r.id}
-                className="flex items-center justify-between bg-white rounded-lg px-3 py-2 mb-1"
-              >
-                <span className="text-sm text-brand_dark">
-                  {r.reward.name}
-                </span>
-                <code className="text-xs bg-brand_blue/10 text-brand_blue px-2 py-0.5 rounded font-mono">
-                  {r.code}
-                </code>
-              </div>
-            ))}
-          </div>
-        )}
+        <span className="text-sm text-brand_gray font-satoMedium ml-auto">
+          {discount
+            ? `${discount}% desc`
+            : `${loyalty.points} puntos`}
+        </span>
       </div>
     </div>
   )
@@ -847,6 +809,13 @@ function PortalEventList({
   getOrg: (e: CitaEvent) => PortalOrgInfo | null
   isPast?: boolean
 }) {
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+
+  const paginated = isPast
+    ? events.slice((page - 1) * perPage, page * perPage)
+    : events
+
   return (
     <section className="w-full">
       {/* Desktop */}
@@ -862,7 +831,7 @@ function PortalEventList({
             <div />
           </div>
           <div className="rounded-b-2xl bg-white divide-y divide-brand_stroke">
-            {events.map((event) => (
+            {paginated.map((event) => (
               <PortalEventRow
                 key={event.id}
                 event={event}
@@ -876,7 +845,7 @@ function PortalEventList({
 
       {/* Mobile */}
       <div className="lg:hidden rounded-2xl bg-white overflow-hidden divide-y divide-brand_stroke">
-        {events.map((event) => (
+        {paginated.map((event) => (
           <PortalEventCardMobile
             key={event.id}
             event={event}
@@ -885,6 +854,16 @@ function PortalEventList({
           />
         ))}
       </div>
+
+      {isPast && events.length > 10 && (
+        <Pagination
+          total={events.length}
+          page={page}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={setPerPage}
+        />
+      )}
     </section>
   )
 }
@@ -976,7 +955,7 @@ function PortalEventRow({
 
       {/* Actions */}
       <div className="flex items-center justify-end">
-        <EventActions isPast={isPast} />
+        <EventActions isPast={isPast} eventId={event.id} />
       </div>
     </div>
   )
@@ -1039,7 +1018,7 @@ function PortalEventCardMobile({
 
         {/* Price + Actions */}
         <div className="flex flex-col items-end gap-2 shrink-0">
-          <EventActions isPast={isPast} />
+          <EventActions isPast={isPast} eventId={event.id} />
           <p className="text-[12px] font-satoMedium text-brand_gray tabular-nums">
             {event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"}
           </p>
@@ -1051,16 +1030,16 @@ function PortalEventCardMobile({
 
 // ==================== EVENT ACTIONS ====================
 
-function EventActions({ isPast }: { isPast?: boolean }) {
-  if (isPast) {
+function EventActions({ isPast, eventId }: { isPast?: boolean; eventId?: string }) {
+  if (isPast && eventId) {
     return (
-      <button
-        type="button"
+      <Link
+        to={`/mi-cuenta/perfil/resena/${eventId}`}
         className="hover:scale-110 transition-transform cursor-pointer"
-        title="Dejar review"
+        title="Dejar reseña"
       >
         <ReviewStar size={28} />
-      </button>
+      </Link>
     )
   }
   return (
@@ -1121,6 +1100,126 @@ function FavoritesTab({ orgs }: { orgs: PortalOrgInfo[] }) {
 }
 
 // ==================== PLACEHOLDERS ====================
+
+// ==================== COMMENTS TAB ====================
+
+function CommentsTab({
+  reviews,
+  orgs,
+}: {
+  reviews: PortalReview[]
+  orgs: PortalOrgInfo[]
+}) {
+  if (reviews.length === 0) {
+    return (
+      <EmptyState
+        title="Ayuda a otros con tus experiencias"
+        subtitle='Cuando visites un negocio, deja tu reseña y haz clic en "Escribir una opinión".'
+      />
+    )
+  }
+
+  const orgMap = new Map(orgs.map((o) => [o.id, o]))
+
+  return (
+    <div>
+      <p className="text-sm text-brand_gray font-satoMedium mb-6">
+        Estas son las opiniones que mostraste públicamente. Para agregar más,
+        busca un lugar y haz clic en &quot;Escribir una opinión&quot;.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {reviews.map((review) => {
+          const org = orgMap.get(review.orgId)
+          return (
+            <ReviewCard
+              key={review.id}
+              review={review}
+              orgLogo={org?.logo ?? review.orgLogo}
+              orgName={review.orgName}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function ReviewCard({
+  review,
+  orgLogo,
+  orgName,
+}: {
+  review: PortalReview
+  orgLogo: string | null
+  orgName: string
+}) {
+  const date = new Date(review.createdAt)
+  const formattedDate = date.toLocaleDateString("es-MX", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+
+  return (
+    <div className="bg-white rounded-2xl border border-brand_stroke overflow-hidden">
+      <div className="p-5">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          {orgLogo ? (
+            <img
+              src={orgLogo}
+              alt=""
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-sm font-satoMedium text-brand_gray flex-shrink-0">
+              {orgName.charAt(0)}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-satoBold text-brand_dark truncate">
+              {orgName}
+            </p>
+            <p className="text-xs text-brand_gray font-satoMedium">
+              {formattedDate}
+            </p>
+          </div>
+          <DropdownMenu hideDefaultButton>
+            <MenuButton
+              icon={<Trash />}
+              variant="danger"
+            >
+              Eliminar
+            </MenuButton>
+          </DropdownMenu>
+        </div>
+
+        {/* Stars */}
+        <div className="flex gap-1 mt-3">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <svg
+            key={star}
+            width={16}
+            height={16}
+            viewBox="0 0 24 24"
+            fill={star <= review.rating ? "#F5A623" : "#E5E7EB"}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+          </svg>
+        ))}
+      </div>
+
+      {/* Comment */}
+      {review.comment && (
+        <p className="mt-3 text-sm text-brand_gray font-satoMedium leading-relaxed">
+          {review.comment}
+        </p>
+      )}
+      </div>
+    </div>
+  )
+}
 
 function EmptyState({
   title = "Mmm... aun no has agendado ninguna cita",

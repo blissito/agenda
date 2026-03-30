@@ -110,6 +110,8 @@ export default [
   route("event/:eventId/cancel", "routes/event.$eventId.cancel.tsx"),
   // Survey from email links
   route("survey", "routes/survey.tsx"),
+  // Review page for a specific appointment
+  route("mi-cuenta/perfil/resena/:eventId", "routes/mi-cuenta.perfil.resena.$eventId.tsx"),
   // Customer portal
   route("mi-cuenta", "routes/mi-cuenta._index.tsx"),
   route("mi-cuenta/perfil", "routes/mi-cuenta.perfil.tsx"),

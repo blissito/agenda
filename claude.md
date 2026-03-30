@@ -193,6 +193,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**ULTIMO**: Buenos días, Héctor BlisS no corresponde al horario~~ (función getGreeting() dinámica)
 - [x] ~~Mejorar UX de selección Stripe vs MercadoPago en onboarding~~ (orientado 100% a MP, Stripe removido del UI)
 - [ ] Drag & drop en galería de servicio para reordenar imágenes y seleccionar la principal
+- [ ] **LOYALTY POINTS**: Actualmente los puntos de lealtad se calculan en vivo sumando `service.points` de citas pasadas (tanto en `dash_.clientes_.$email.tsx` como en `customer-portal.server.ts`). Los campos `customer.loyaltyPoints` y `customer.loyaltyTotalEarned` en la DB están siempre en 0 y no se usan. Hay que implementar la escritura real de estos campos (al completar una cita o marcar asistencia) para que el sistema use `customer.loyaltyPoints` en vez del cálculo en vivo, lo cual permitiría redenciones que descuenten puntos correctamente.
 - [x] ~~La página pública de org no muestra bien los horarios~~ (campos corregidos: logo, email, weekDays)
 - [ ] **UX**: Selección de horarios en booking - actualmente bloquea todos los slots mientras carga. Implementar optimistic UI para respuesta inmediata
 - [x] ~~**BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod~~ (corregido en sendAppointment.ts)

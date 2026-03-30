@@ -209,6 +209,11 @@ type Pages = {
   "/survey": {
     params: {};
   };
+  "/mi-cuenta/perfil/resena/:eventId": {
+    params: {
+      "eventId": string;
+    };
+  };
   "/mi-cuenta": {
     params: {};
   };
@@ -225,7 +230,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -451,6 +456,10 @@ type RouteFiles = {
     id: "routes/survey";
     page: "/survey";
   };
+  "routes/mi-cuenta.perfil.resena.$eventId.tsx": {
+    id: "routes/mi-cuenta.perfil.resena.$eventId";
+    page: "/mi-cuenta/perfil/resena/:eventId";
+  };
   "routes/mi-cuenta._index.tsx": {
     id: "routes/mi-cuenta._index";
     page: "/mi-cuenta";
@@ -523,6 +532,7 @@ type RouteModules = {
   "routes/event.$eventId.modify": typeof import("./app/routes/event.$eventId.modify.tsx");
   "routes/event.$eventId.cancel": typeof import("./app/routes/event.$eventId.cancel.tsx");
   "routes/survey": typeof import("./app/routes/survey.tsx");
+  "routes/mi-cuenta.perfil.resena.$eventId": typeof import("./app/routes/mi-cuenta.perfil.resena.$eventId.tsx");
   "routes/mi-cuenta._index": typeof import("./app/routes/mi-cuenta._index.tsx");
   "routes/mi-cuenta.perfil": typeof import("./app/routes/mi-cuenta.perfil.tsx");
   "routes/service.$serviceSlug": typeof import("./app/routes/service.$serviceSlug.tsx");

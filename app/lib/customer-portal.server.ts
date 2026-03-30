@@ -1,5 +1,6 @@
 import type { CitaEvent } from "~/components/dash/CitasTable"
 import { db } from "~/utils/db.server"
+import { getPublicImageUrl } from "~/utils/urls"
 
 // ==================== TYPES ====================
 
@@ -15,10 +16,12 @@ export type PortalLoyalty = {
   org: PortalOrgInfo
   points: number
   totalEarned: number
-  level: { name: string; image: string | null; minPoints: number } | null
+  level: { name: string; image: string | null; minPoints: number; discountPercent: number } | null
   nextLevel: {
     name: string
+    image: string | null
     minPoints: number
+    discountPercent: number
     pointsNeeded: number
   } | null
   redemptions: {
@@ -28,6 +31,16 @@ export type PortalLoyalty = {
   }[]
 }
 
+export type PortalReview = {
+  id: string
+  rating: number
+  comment: string | null
+  createdAt: Date
+  orgId: string
+  orgName: string
+  orgLogo: string | null
+}
+
 export type PortalData = {
   displayName: string
   email: string
@@ -35,10 +48,12 @@ export type PortalData = {
   orgs: PortalOrgInfo[]
   upcoming: CitaEvent[]
   past: CitaEvent[]
+  reviews: PortalReview[]
   loyalty: PortalLoyalty[]
   stats: {
     eventCount: number
     points: number
+    reviewCount: number
     since: string | null
   }
   /** Maps eventId → orgId for filtering */
@@ -140,11 +155,14 @@ export async function getCustomerPortalData(
 
     // Loyalty (one entry per org)
     if (org.loyaltyEnabled && !loyalty.some((l) => l.org.id === org.id)) {
-      const level = customer.loyaltyLevelId
+      const rawLevel = customer.loyaltyLevelId
         ? await db.loyaltyLevel.findUnique({
             where: { id: customer.loyaltyLevelId },
-            select: { name: true, image: true, minPoints: true },
+            select: { name: true, image: true, minPoints: true, discountPercent: true },
           })
+        : null
+      const level = rawLevel
+        ? { ...rawLevel, image: getPublicImageUrl(rawLevel.image) ?? null, discountPercent: rawLevel.discountPercent }
         : null
 
       let nextLevel: PortalLoyalty["nextLevel"] = null
@@ -152,13 +170,17 @@ export async function getCustomerPortalData(
         where: { orgId: org.id },
         orderBy: { minPoints: "asc" },
       })
-      const totalEarned = customer.loyaltyTotalEarned ?? 0
-      const found = levels.find((l) => l.minPoints > totalEarned)
+      const calcPoints = customer.events
+        .filter((e) => new Date(e.start) < now && e.service)
+        .reduce((acc, e) => acc + Number(e.service?.points ?? 0), 0)
+      const found = levels.find((l) => l.minPoints > calcPoints)
       if (found) {
         nextLevel = {
           name: found.name,
+          image: getPublicImageUrl(found.image) ?? null,
           minPoints: found.minPoints,
-          pointsNeeded: found.minPoints - totalEarned,
+          discountPercent: found.discountPercent,
+          pointsNeeded: found.minPoints - calcPoints,
         }
       }
 
@@ -170,10 +192,15 @@ export async function getCustomerPortalData(
         orderBy: { createdAt: "desc" },
       })
 
+      // Calculate points from past events (same logic as dashboard)
+      const customerPoints = customer.events
+        .filter((e) => new Date(e.start) < now && e.service)
+        .reduce((acc, e) => acc + Number(e.service?.points ?? 0), 0)
+
       loyalty.push({
         org: { id: org.id, name: org.name, slug: org.slug, logo: org.logo, tel: org.tel ?? null },
-        points: customer.loyaltyPoints ?? 0,
-        totalEarned,
+        points: customerPoints,
+        totalEarned: customerPoints,
         level,
         nextLevel,
         redemptions,
@@ -188,6 +215,26 @@ export async function getCustomerPortalData(
     (a, b) => new Date(b.start).getTime() - new Date(a.start).getTime(),
   )
 
+  // Load customer reviews
+  const customerIds = customers.map((c) => c.id)
+  const surveyResponses = await db.surveyResponse.findMany({
+    where: { customerId: { in: customerIds } },
+    orderBy: { createdAt: "desc" },
+  })
+
+  const reviews: PortalReview[] = surveyResponses.map((r) => {
+    const org = orgsMap.get(r.orgId)
+    return {
+      id: r.id,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt,
+      orgId: r.orgId,
+      orgName: org?.name ?? "—",
+      orgLogo: org?.logo ?? null,
+    }
+  })
+
   const totalEvents = allUpcoming.length + allPast.length
 
   return {
@@ -197,11 +244,13 @@ export async function getCustomerPortalData(
     orgs,
     upcoming: allUpcoming,
     past: allPast,
+    reviews,
     loyalty,
     eventOrgMap,
     stats: {
       eventCount: totalEvents,
       points: totalPoints,
+      reviewCount: reviews.length,
       since: firstEventDate ? formatSince(firstEventDate) : null,
     },
   }
