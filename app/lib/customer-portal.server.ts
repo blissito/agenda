@@ -101,17 +101,22 @@ export async function getCustomerPortalData(
   let firstEventDate: Date | null = null
   let tel: string | null = null
 
+  const seenOrgIds = new Set<string>()
+
   for (const customer of customers) {
     const org = orgsMap.get(customer.orgId)
     if (!org) continue
 
-    orgs.push({
-      id: org.id,
-      name: org.name,
-      slug: org.slug,
-      logo: org.logo,
-      tel: org.tel ?? null,
-    })
+    if (!seenOrgIds.has(org.id)) {
+      seenOrgIds.add(org.id)
+      orgs.push({
+        id: org.id,
+        name: org.name,
+        slug: org.slug,
+        logo: org.logo,
+        tel: org.tel ?? null,
+      })
+    }
 
     if (customer.tel && !tel) tel = customer.tel
 
@@ -133,8 +138,8 @@ export async function getCustomerPortalData(
       }
     }
 
-    // Loyalty
-    if (org.loyaltyEnabled) {
+    // Loyalty (one entry per org)
+    if (org.loyaltyEnabled && !loyalty.some((l) => l.org.id === org.id)) {
       const level = customer.loyaltyLevelId
         ? await db.loyaltyLevel.findUnique({
             where: { id: customer.loyaltyLevelId },

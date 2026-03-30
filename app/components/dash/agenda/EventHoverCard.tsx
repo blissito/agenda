@@ -92,6 +92,12 @@ export function EventHoverCard({
 
       {/* Details */}
       <div className="mt-3 space-y-2.5 text-[12px] text-brand_gray">
+        {data.time && (
+          <div className="flex items-center gap-2.5">
+            <FiClock className="w-4 h-4 text-gray-400 shrink-0" />
+            <span className="truncate">{data.time}</span>
+          </div>
+        )}
         {data.employeeName && (
           <div className="flex items-center gap-2.5">
             <FiUser className="w-4 h-4 text-gray-400 shrink-0" />

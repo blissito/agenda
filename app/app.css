@@ -191,6 +191,11 @@ input[type="color"].custom {
 }
 
 /* Portal calendar: hide empty cell popup and disable interactions */
+/* Portal calendar: read-only */
+.portal-calendar {
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
 .portal-calendar [role="button"] {
   pointer-events: none;
   cursor: default;
@@ -320,11 +325,30 @@ article.rounded-xl .cursor-grab > .text-\[10px\].truncate {
   opacity: 1 !important;
 }
 /* Calendar: scroll horizontal synced (header + body together) */
-article.rounded-xl > div {
+article.rounded-xl > div:not(.portal-calendar *) {
+  overflow-x: auto !important;
+}
+.portal-calendar article.rounded-xl > div {
   overflow-x: auto !important;
 }
 article.rounded-xl > div > section {
   min-width: 1040px;
+}
+.portal-calendar article.rounded-xl > div > section {
+  min-width: 640px !important;
+}
+@media (max-width: 767px) {
+  .portal-calendar article.rounded-xl > div > section {
+    min-width: 380px !important;
+  }
+  /* Smaller timezone text */
+  .portal-calendar .text-sm.text-gray-500 {
+    font-size: 10px !important;
+  }
+  /* Compact day headers */
+  .portal-calendar .place-items-center {
+    font-size: 11px !important;
+  }
 }
 /* Mobile: let the calendar grid be responsive */
 @media (max-width: 768px) {
