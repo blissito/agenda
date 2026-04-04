@@ -30,6 +30,7 @@ import {
   type SupportedTimezone,
 } from "~/utils/timezone"
 import { normalizeWeekDays } from "~/utils/weekDays"
+import { ChatWidget } from "~/components/chatbot/ChatWidget"
 import type { Route } from "./+types/agenda.$orgSlug.$serviceSlug"
 
 type WeekDaysType = Record<string, string[][]>
@@ -572,6 +573,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
         )}
       </main>
+      {org.chatbotAgentId && org.chatbotConfig && (
+        <ChatWidget
+          agentId={org.chatbotAgentId as string}
+          config={org.chatbotConfig as any}
+        />
+      )}
     </article>
   )
 }

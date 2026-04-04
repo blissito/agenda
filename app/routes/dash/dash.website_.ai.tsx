@@ -101,6 +101,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [saveMessage, setSaveMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false)
+  const [isPublished, setIsPublished] = useState(org.landingPublished ?? false)
   // During generation, we stream sections into a lightweight preview
   const [streamingSections, setStreamingSections] = useState<Section3[]>([])
   const [streamCount, setStreamCount] = useState(0)
@@ -243,8 +244,15 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         const msg = "Sitio web actualizado"
         setSaveMessage(msg)
         setTimeout(() => setSaveMessage(null), 3000)
-        if (pendingSaveRef.current.publish) setHasUnpublishedChanges(false)
+        if (pendingSaveRef.current.publish) {
+          setHasUnpublishedChanges(false)
+          setIsPublished(true)
+        }
       }
+      setIsSaving(false)
+      pendingSaveRef.current = null
+    } else if (isSavingRef.current) {
+      // Unexpected response shape — reset saving state
       setIsSaving(false)
       pendingSaveRef.current = null
     }
@@ -341,6 +349,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       if (editorRef.current) {
         const html = editorRef.current.getHtml()
         if (html) currentSections = grapesToSections(html)
+      }
+
+      if (currentSections.length === 0 && sections.length > 0) {
+        setErrorMessage("Error al procesar secciones. Intenta de nuevo.")
+        return
       }
 
       setIsSaving(true)
@@ -551,7 +564,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                   {usage.genLimit - usage.genUsed}/{usage.genLimit}
                 </span>
               </button>
-              {org.landingPublished && (
+              {isPublished && (
                 <a
                   href={getOrgPublicUrl(org.slug!)}
                   target="_blank"
@@ -573,7 +586,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               >
                 {isSaving && pendingSaveRef.current?.publish
                   ? "Publicando..."
-                  : !org.landingPublished
+                  : !isPublished
                     ? "Publicar"
                     : "Publicar cambios"}
               </button>

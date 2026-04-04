@@ -114,6 +114,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
           })
         } catch (e) {
           console.error("Error updating Formmy agent:", e)
+          return json({ success: true, warning: "Config guardada, pero no se pudo sincronizar con Formmy" })
         }
       }
 
@@ -174,6 +175,17 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
   const messageFetcher = useFetcher()
 
   const isSaving = saveFetcher.state !== "idle"
+  const [saveMessage, setSaveMessage] = useState<string | null>(null)
+
+  // Show toast when save completes
+  useEffect(() => {
+    if (saveFetcher.state !== "idle" || !saveFetcher.data) return
+    const data = saveFetcher.data as { success?: boolean; warning?: string }
+    if (data.success) {
+      setSaveMessage(data.warning || "Configuracion guardada")
+      setTimeout(() => setSaveMessage(null), 3000)
+    }
+  }, [saveFetcher.state, saveFetcher.data])
 
   const [conversations, setConversations] = useState(initialConversations)
   useEffect(() => {
@@ -342,6 +354,13 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
           avatarPutUrl={avatarPutUrl || undefined}
           avatarKey={avatarKey}
         />
+      )}
+
+      {/* Toast */}
+      {saveMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-green-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
+          {saveMessage}
+        </div>
       )}
     </div>
   )
