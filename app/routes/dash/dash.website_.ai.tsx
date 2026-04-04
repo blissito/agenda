@@ -11,8 +11,40 @@ import {
   type CustomColors,
   grapesToSections,
 } from "@easybits.cloud/html-tailwind-generator"
-import { GrapesEditor, type GrapesEditorHandle, type AiAction } from "@easybits.cloud/html-tailwind-generator/components4"
+import { GrapesEditor, LANDING_BLOCKS, type GrapesEditorHandle, type AiAction } from "@easybits.cloud/html-tailwind-generator/components4"
+import { DeviceToggle } from "~/components/dash/website/DeviceToggle"
+import { EditorRightSidebar } from "~/components/dash/website/EditorRightSidebar"
 import type { Route } from "./+types/dash.website_.ai"
+
+// Remap block categories: "Básicos" for basic elements, section categories for compound sections
+const CATEGORY_MAP: Record<string, string> = {
+  Basic: "Básicos",
+  Layout: "Básicos",
+  Heroes: "Heroes",
+  Features: "Services",
+  "Social Proof": "Social Proof",
+  Pricing: "Pricing",
+  Content: "Content",
+  CTA: "CTA",
+  Footer: "Footer",
+}
+
+const LABEL_MAP: Record<string, string> = {
+  Text: "Texto",
+  Heading: "Título",
+  Image: "Imagen",
+  Button: "Botón",
+  Container: "Contenedor",
+  "2 Columns": "2 Columnas",
+  "3 Columns": "3 Columnas",
+  Spacer: "Espaciador",
+}
+
+const customBlocks = LANDING_BLOCKS.map((block) => ({
+  ...block,
+  label: LABEL_MAP[block.label] ?? block.label,
+  category: CATEGORY_MAP[block.category] ?? block.category,
+}))
 
 export const handle = { hideSidebar: true }
 
@@ -73,6 +105,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   // During generation, we stream sections into a lightweight preview
   const [streamingSections, setStreamingSections] = useState<Section3[]>([])
   const [streamCount, setStreamCount] = useState(0)
+  const [themeVersion, setThemeVersion] = useState(0)
+  const [activeDevice, setActiveDevice] = useState<"Desktop" | "Tablet" | "Mobile">("Desktop")
+  const [editorInstance, setEditorInstance] = useState<ReturnType<GrapesEditorHandle["getEditor"]>>(null)
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
@@ -206,7 +241,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       if (data.error) {
         setErrorMessage(data.error)
       } else if (data.ok) {
-        const msg = pendingSaveRef.current.publish ? "Landing publicada" : "Borrador guardado"
+        const msg = "Sitio web actualizado"
         setSaveMessage(msg)
         setTimeout(() => setSaveMessage(null), 3000)
         if (pendingSaveRef.current.publish) {
@@ -346,12 +381,42 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     setHasUnpublishedChanges(true)
   }, [])
 
-  // Theme change from GrapesEditor sidebar
+  // Theme change from sidebar
   const handleThemeChange = useCallback((themeId: string, colors?: Record<string, string>) => {
     setTheme(themeId)
     if (colors) setCustomColors(colors)
+    setThemeVersion((v) => v + 1)
     setHasUnpublishedChanges(true)
   }, [])
+
+  // Device switching
+  const handleDeviceChange = useCallback((device: "Desktop" | "Tablet" | "Mobile") => {
+    setActiveDevice(device)
+    const editor = editorRef.current?.getEditor()
+    if (editor) editor.setDevice(device)
+  }, [])
+
+  // Capture GrapesJS editor instance after mount
+  useEffect(() => {
+    if (showEditor && editorRef.current && !editorInstance) {
+      // Small delay to let GrapesEditor initialize
+      const timer = setTimeout(() => {
+        const ed = editorRef.current?.getEditor() ?? null
+        setEditorInstance(ed)
+        // Collapse all block categories except the first (Básicos)
+        if (ed) {
+          const cats = ed.BlockManager.getCategories()
+          cats.each((cat: { get: (k: string) => unknown; set: (k: string, v: unknown) => void }, i: number) => {
+            if (i > 0) cat.set("open", false)
+          })
+        }
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+    if (!showEditor && editorInstance) {
+      setEditorInstance(null)
+    }
+  }, [showEditor, editorInstance])
 
   // Abort streaming on unmount
   useEffect(() => {
@@ -364,45 +429,123 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     : null
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    <div className="flex flex-col h-screen bg-brand_dark">
+      {/* Block manager overrides (correct class: gjs-block__media) */}
+      <style>{`
+.gjs-blocks-c .gjs-block.gjs-block {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+  gap: 10px !important;
+  padding: 2px 10px !important;
+  margin: 0 !important;
+  width: 100% !important;
+  min-height: 28px !important;
+  height: auto !important;
+  box-shadow: none !important;
+}
+.gjs-blocks-c .gjs-block.gjs-block:hover { background: rgba(255,255,255,0.06) !important; }
+.gjs-block .gjs-block__media {
+  width: 24px !important; height: 24px !important;
+  min-width: 24px !important; max-width: 24px !important;
+  min-height: 24px !important; max-height: 24px !important;
+  background: #2D2D2D !important;
+  border-radius: 5px !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  padding: 4px !important; flex-shrink: 0 !important;
+}
+.gjs-block .gjs-block__media { margin: 0 !important; }
+.gjs-block .gjs-block__media svg { width: 14px !important; height: 14px !important; display: block !important; fill: #9ca3af !important; stroke: #9ca3af !important; }
+.gjs-blocks-c .gjs-block .gjs-block-label { font-size: 14px !important; font-weight: 400 !important; text-align: left !important; padding: 0 !important; flex: 1 !important; line-height: 24px !important; font-family: "Satoshi ", sans-serif !important; }
+.gjs-block-category:first-child .gjs-blocks-c { display: flex !important; flex-direction: column !important; flex-wrap: nowrap !important; gap: 12px !important; padding: 2px 0 !important; }
+.gjs-blocks-c { flex-direction: column !important; flex-wrap: nowrap !important; gap: 8px !important; padding: 4px 0 !important; }
+.gjs-blocks-c[style*="none"] { display: none !important; }
+.gjs-editor, .gjs-editor-cont, .gjs-cv-canvas { background: white !important; }
+.gjs-editor-cont + .absolute { background: transparent !important; }
+.w-60.shrink-0.bg-black { background-color: #11151A !important; }
+.w-60 > div:first-child { gap: 0 !important; padding: 12px !important; border: none !important; display: flex !important; }
+.w-60 > div:first-child button { flex: none !important; padding: 8px 16px !important; border-radius: 9999px !important; font-size: 14px !important; border: none !important; background: transparent !important; }
+.w-60 > div:first-child button.text-white { background-color: #2A2B31 !important; }
+.gjs-cv-canvas { background: white !important; top: 32px !important; left: 32px !important; width: calc(100% - 64px) !important; height: calc(100% - 64px) !important; }
+.w-72 span.inline-flex, .w-72 button.inline-flex { border: none !important; background: #2A2B31 !important; color: white !important; outline: none !important; }
+.w-72 span.inline-flex:hover, .w-72 button.inline-flex:hover { background: #363740 !important; }
+.w-72 p.uppercase { color: #9ca3af !important; }
+.w-72 p.text-gray-600 { color: #9ca3af !important; }
+.w-72 code { color: white !important; }
+.w-72 input, .w-72 select, .w-72 button { outline: none !important; box-shadow: none !important; }
+.w-72 input { background-color: #2A2B31 !important; }
+.w-72 input, .w-72 .border, .w-72 .border-gray-600 { border-color: transparent !important; }
+.w-72 input:focus { border-color: transparent !important; }
+.w-72 .px-3 { padding-left: 16px !important; padding-right: 16px !important; }
+.w-72 .p-3 { padding: 16px !important; }
+.gjs-block-category { background: transparent !important; border: none !important; }
+.gjs-block-categories { background: transparent !important; }
+.gjs-block-category:first-child .gjs-title { background: transparent !important; color: #9ca3af !important; font-size: 11px !important; font-weight: 600 !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; padding: 6px 10px 6px !important; border: none !important; pointer-events: none !important; font-family: "Medium Font ", sans-serif !important; }
+.gjs-block-category:first-child .gjs-caret-icon { display: none !important; }
+.gjs-block-category:first-child .gjs-blocks-c { display: flex !important; }
+.gjs-block-category:not(:first-child) .gjs-title { background: transparent !important; color: #e5e7eb !important; font-size: 14px !important; font-weight: 500 !important; padding: 8px 10px !important; border: none !important; display: flex !important; align-items: center !important; gap: 10px !important; font-family: "Medium Font ", sans-serif !important; }
+.gjs-block-category:not(:first-child) .gjs-title:hover { background: rgba(255,255,255,0.04) !important; }
+.gjs-block-category:not(:first-child) .gjs-caret-icon { color: #6b7280 !important; margin-left: auto !important; }
+.gjs-block-category:nth-child(2)::before { content: 'Secciones'; display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #9ca3af; padding: 18px 10px 6px; font-family: "Medium Font ", sans-serif; }
+.gjs-block-category:not(:first-child) .gjs-title::before { content: ''; display: inline-block; width: 24px; height: 24px; min-width: 24px; border-radius: 5px; }
+.gjs-block-category:nth-child(2) .gjs-title::before { background: #f472b6; }
+.gjs-block-category:nth-child(3) .gjs-title::before { background: #fb923c; }
+.gjs-block-category:nth-child(4) .gjs-title::before { background: #f87171; }
+.gjs-block-category:nth-child(5) .gjs-title::before { background: #facc15; }
+.gjs-block-category:nth-child(6) .gjs-title::before { background: #4ade80; }
+.gjs-block-category:nth-child(7) .gjs-title::before { background: #60a5fa; }
+.gjs-block-category:nth-child(8) .gjs-title::before { background: #c084fc; }
+.gjs-block-category:nth-child(9) .gjs-title::before { background: #a8a29e; }
+.gjs-block-category:not(:first-child) .gjs-title { justify-content: flex-start !important; }
+.gjs-block-category:not(:first-child) .gjs-caret-icon { order: 99 !important; margin-left: auto !important; }
+.gjs-block-category:not(:first-child) .gjs-block::after { display: none !important; }
+      `}</style>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-200 bg-white min-h-[3.25rem]">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            to="/dash/website"
-            className="text-gray-500 hover:text-gray-700 text-sm shrink-0"
-          >
-            &larr; Volver
+      <div className="relative flex items-center justify-between px-4 py-2.5 border-b border-gray-700 bg-brand_dark min-h-[3.25rem]">
+        {/* Left: Breadcrumb */}
+        <div className="flex items-center gap-2 min-w-0 text-sm">
+          <Link to="/dash/website" className="text-gray-400 hover:text-white transition-colors">
+            Sitio web
           </Link>
-          <h1 className="text-base font-semibold text-gray-900 truncate">
-            Editor IA
-          </h1>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18L15 12L9 6" />
+          </svg>
+          <span className="text-white font-medium">Editor IA</span>
           {hasExistingSections && (
             isSaving ? (
               <span className="text-xs text-gray-500 shrink-0">Guardando...</span>
-            ) : !isPublished && !hasUnpublishedChanges ? (
-              <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded-full shrink-0">Borrador</span>
+            ) : isRefining ? (
+              <span className="px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-full shrink-0 animate-pulse">Refinando...</span>
             ) : hasUnpublishedChanges ? (
-              <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded-full shrink-0">Cambios sin publicar</span>
-            ) : (
-              <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full shrink-0 inline-flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+              <span className="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-300 rounded-full shrink-0">Sin publicar</span>
+            ) : org.landingPublished ? (
+              <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-300 rounded-full shrink-0 inline-flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
                 Publicada
               </span>
-            )
-          )}
-          {isRefining && (
-            <span className="px-2 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 rounded-full shrink-0 animate-pulse">
-              Refinando...
-            </span>
+            ) : null
           )}
         </div>
+
+        {/* Center: Device toggle */}
+        {showEditor && (
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <DeviceToggle activeDevice={activeDevice} onDeviceChange={handleDeviceChange} />
+          </div>
+        )}
+
+        {/* Right: Actions */}
         <div className="flex items-center gap-2 shrink-0">
           {isGenerating && (
             <button
               type="button"
               onClick={() => { abortRef.current?.abort(); setIsGenerating(false) }}
-              className="px-2.5 py-1 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50"
+              className="px-2.5 py-1 text-sm border border-red-500/50 text-red-400 rounded-lg hover:bg-red-500/10"
             >
               Detener
             </button>
@@ -413,11 +556,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 type="button"
                 onClick={handleGenerate}
                 disabled={isGenerating || isLoading || usage.genUsed >= usage.genLimit}
-                className="px-2.5 py-1 text-sm border border-purple-300 text-purple-700 rounded-lg hover:bg-purple-50 disabled:opacity-50 inline-flex items-center gap-1.5"
-                title={usage.genUsed >= usage.genLimit ? "Limite de generaciones alcanzado este mes" : `${usage.genLimit - usage.genUsed} generaciones restantes`}
+                className="px-2.5 py-1 text-sm border border-purple-500/50 text-purple-300 rounded-lg hover:bg-purple-500/10 disabled:opacity-50 inline-flex items-center gap-1.5"
+                title={usage.genUsed >= usage.genLimit ? "Limite de generaciones alcanzado" : `${usage.genLimit - usage.genUsed} restantes`}
               >
                 {isGenerating ? "Regenerando..." : "Regenerar"}
-                <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.genUsed >= usage.genLimit ? "bg-red-100 text-red-700" : "bg-purple-100 text-purple-700"}`}>
+                <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.genUsed >= usage.genLimit ? "bg-red-500/20 text-red-300" : "bg-purple-500/20 text-purple-300"}`}>
                   {usage.genLimit - usage.genUsed}/{usage.genLimit}
                 </span>
               </button>
@@ -426,7 +569,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                   href={getOrgPublicUrl(org.slug!)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-2.5 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 inline-flex items-center gap-1"
+                  className="px-2.5 py-1 text-sm border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 inline-flex items-center gap-1"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
@@ -438,27 +581,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               <button
                 type="button"
                 onClick={() => handleSave(true)}
-                disabled={isSaving || (!hasUnpublishedChanges && isPublished)}
-                className={`px-3 py-1 text-sm rounded-lg disabled:opacity-50 ${
-                  !hasUnpublishedChanges && isPublished
-                    ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
-                    : "bg-brand_blue text-white hover:bg-blue-700"
-                }`}
+                disabled={isSaving}
+                className="px-3 py-1 text-sm rounded-lg disabled:opacity-50 bg-brand_blue text-white hover:bg-blue-700"
               >
                 {isSaving && pendingSaveRef.current?.publish
                   ? "Publicando..."
                   : !isPublished
                     ? "Publicar"
-                    : hasUnpublishedChanges
-                      ? "Publicar cambios"
-                      : "Publicada"}
+                    : "Publicar cambios"}
               </button>
             </>
-          )}
-          {hasExistingSections && (
-            <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.refineUsed >= usage.refineLimit ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-500"}`} title="Refinamientos restantes este mes">
-              Refine {usage.refineLimit - usage.refineUsed}/{usage.refineLimit}
-            </span>
           )}
         </div>
       </div>
@@ -466,17 +598,30 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       {/* Main content */}
       <div className="flex-1 overflow-hidden">
         {showEditor ? (
-          /* GrapesJS Editor */
-          <GrapesEditor
-            ref={editorRef}
-            initialHtml={sectionsToHtml(sections)}
-            theme={theme}
-            customColors={customColors}
-            onChange={handleEditorChange}
-            onAiAction={handleAiAction}
-            onThemeChange={handleThemeChange}
-            panelSide="left"
-          />
+          /* GrapesJS Editor with right sidebar */
+          <div className="flex h-full">
+            <div className="flex-1 overflow-hidden">
+              <GrapesEditor
+                ref={editorRef}
+                initialHtml={sectionsToHtml(sections)}
+                theme={theme}
+                customColors={customColors}
+                onChange={handleEditorChange}
+                onAiAction={handleAiAction}
+                onThemeChange={handleThemeChange}
+                hiddenTabs={["styles", "themes"]}
+                panelSide="left"
+                blocks={customBlocks}
+              />
+            </div>
+            <EditorRightSidebar
+              editor={editorInstance}
+              theme={theme}
+              customColors={customColors}
+              onThemeChange={handleThemeChange}
+              themeVersion={themeVersion}
+            />
+          </div>
         ) : isGenerating ? (
           /* Streaming preview during generation */
           <div className="h-full flex flex-col">
@@ -563,8 +708,13 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
 
       {/* Toast notifications */}
       {saveMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-green-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
+        <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          <div className="px-5 py-3 bg-white text-brand_dark rounded-full shadow-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap pointer-events-auto">
+          <svg className="w-5 h-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+          </svg>
           {saveMessage}
+          </div>
         </div>
       )}
       {errorMessage && (

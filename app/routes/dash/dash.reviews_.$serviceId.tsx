@@ -99,7 +99,7 @@ export default function ServiceReviewDetail() {
       <ServiceHeaderCard service={service} stats={stats} />
 
       {/* Reviews List */}
-      <section className="bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-6 max-w-[845px] flex-1 flex items-center justify-center">
+      <section className={`bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-[24px] max-w-[845px] flex flex-col ${reviews.length <= 1 ? "" : "flex-1"}`}>
         {reviews.length > 0 ? (
           reviews.map((review, index) => (
             <ReviewCard
@@ -109,7 +109,9 @@ export default function ServiceReviewDetail() {
             />
           ))
         ) : (
-          <EmptyStateReviews link={link} />
+          <div className="flex-1 flex items-center justify-center">
+            <EmptyStateReviews link={link} />
+          </div>
         )}
       </section>
     </main>
@@ -160,7 +162,7 @@ const ServiceHeaderCard = ({
       </div>
 
       {/* Stats Section */}
-      <div className="flex mt-6 gap-8">
+      <div className="flex mt-6 gap-6">
         {/* Rating Number and Stars */}
         <div className="flex-shrink-0">
           <p className="text-6xl font-satoBold text-black">
@@ -191,7 +193,7 @@ const ServiceHeaderCard = ({
                 <span className="text-base text-[#606264] font-satoMedium w-4">
                   {rating}
                 </span>
-                <div className="flex-1 h-3 bg-[#e5e7f0] rounded-full overflow-hidden max-w-[410px]">
+                <div className="flex-1 h-3 bg-[#e5e7f0] rounded-full overflow-hidden max-w-full">
                   <div
                     className="h-full bg-[#ffc166] rounded-full transition-all"
                     style={{ width: `${percentage}%` }}
@@ -203,7 +205,7 @@ const ServiceHeaderCard = ({
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-gray-200 mx-4" />
+        <div className="w-px bg-gray-200" />
 
         {/* Stats Numbers */}
         <div className="flex flex-col justify-center gap-4">
@@ -214,7 +216,7 @@ const ServiceHeaderCard = ({
             <StarIcon filled size={20} />
           </div>
           <span className="text-xs text-[#606264] font-satoMedium -mt-3">
-            comentarios
+            {stats.totalReviews === 1 ? "comentario" : "comentarios"}
           </span>
 
           <span className="text-2xl font-satoBold text-brand_dark">

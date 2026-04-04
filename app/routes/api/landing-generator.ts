@@ -32,39 +32,51 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder()
+        let closed = false
         const send = (event: string, data: unknown) => {
+          if (closed) return
           controller.enqueue(
             encoder.encode(
               `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
             ),
           )
         }
+        const close = () => {
+          if (closed) return
+          closed = true
+          controller.close()
+        }
 
         try {
+          let donePromise: Promise<void> | undefined
           await generateOrgLanding(org, services, {
             onSection: (section) => send("section", section),
             onImageUpdate: (id, html) => send("section-update", { id, html }),
             onDone: async (sections) => {
-              await incrementLandingUsage(org.id, "gen")
               send("done", { total: sections.length })
-              // Auto-save to DB
-              try {
-                await db.org.update({
-                  where: { id: org.id },
-                  data: { landingSections: sections as any },
-                })
-              } catch (e) {
-                console.error("Failed to auto-save sections:", e)
-              }
+              // Run async work but capture the promise so we await it before closing
+              donePromise = (async () => {
+                await incrementLandingUsage(org.id, "gen")
+                try {
+                  await db.org.update({
+                    where: { id: org.id },
+                    data: { landingSections: sections as any },
+                  })
+                } catch (e) {
+                  console.error("Failed to auto-save sections:", e)
+                }
+              })()
             },
             onError: (error) => send("error", { message: error.message }),
           })
+          // Wait for onDone async work to finish before closing
+          if (donePromise) await donePromise
         } catch (err) {
           const message =
             err instanceof Error ? err.message : "Error al generar landing"
           send("error", { message })
         } finally {
-          controller.close()
+          close()
         }
       },
     })
@@ -101,29 +113,38 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const stream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder()
+        let closed = false
         const send = (event: string, data: unknown) => {
+          if (closed) return
           controller.enqueue(
             encoder.encode(
               `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
             ),
           )
         }
+        const close = () => {
+          if (closed) return
+          closed = true
+          controller.close()
+        }
         try {
+          let donePromise: Promise<void> | undefined
           await refineOrgLanding(org.id, currentHtml, instruction, {
             referenceImage: referenceImage || undefined,
             onChunk: (html) => send("chunk", { html }),
             onDone: async (html) => {
-              await incrementLandingUsage(org.id, "refine")
               send("done", { html })
+              donePromise = incrementLandingUsage(org.id, "refine")
             },
             onError: (err) => send("error", { message: err.message }),
           })
+          if (donePromise) await donePromise
         } catch (err) {
           const message =
             err instanceof Error ? err.message : "Error al refinar"
           send("error", { message })
         } finally {
-          controller.close()
+          close()
         }
       },
     })

@@ -38,6 +38,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   // preview: just embed mode (AI landing or template, whichever is active)
   const previewUrlObj = new URL(url)
   previewUrlObj.searchParams.set("embed", "1")
+  previewUrlObj.searchParams.set("t", String(Date.now()))
   const previewUrl = previewUrlObj.toString()
 
   return { org, url, previewUrl }
@@ -106,7 +107,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const onShare = () => setShareOpen(true)
 
   return (
-    <main className="w-full h-[calc(100vh-8rem)] flex flex-col max-w-8xl mx-auto">
+    <main className="w-full h-full flex flex-col max-w-8xl mx-auto overflow-hidden">
       <div className="flex items-center justify-between gap-4 pb-4">
         <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
@@ -127,14 +128,11 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             <Share className="w-5 h-5" />
           </RoundAction>
 
-          <TemplateFormModal
-            org={org}
-            trigger={
-              <RoundAction label="Editar sitio web">
-                <Edit2 className="w-5 h-5" />
-              </RoundAction>
-            }
-          />
+          <Link to="/dash/website/ai">
+            <RoundAction label="Editar sitio web">
+              <Edit2 className="w-5 h-5" />
+            </RoundAction>
+          </Link>
         </div>
       </div>
 
