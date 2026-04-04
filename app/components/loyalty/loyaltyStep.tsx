@@ -260,17 +260,24 @@ function LoyaltyLevelCard({
   onDelete: () => void
 }) {
   const imageSrc = level.image ? `/api/images?key=${level.image}` : null
+  const [imgLoaded, setImgLoaded] = useState(false)
 
   return (
     <div className="group overflow-hidden rounded-[16px] bg-white">
       <div className="relative overflow-hidden rounded-t-[16px] bg-white">
         <div className="aspect-[1.55/1] w-full">
           {imageSrc ? (
-            <img
-              src={imageSrc}
-              alt={level.name}
-              className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-            />
+            <>
+              {!imgLoaded && (
+                <div className="absolute inset-0 flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EEEAFE] to-[#F8F7FF] animate-pulse" />
+              )}
+              <img
+                src={imageSrc}
+                alt={level.name}
+                onLoad={() => setImgLoaded(true)}
+                className={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.02] ${imgLoaded ? "opacity-100" : "opacity-0"}`}
+              />
+            </>
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EEEAFE] to-[#F8F7FF] text-[28px] font-semibold text-[#615FFF]">
               {level.name.charAt(0).toUpperCase()}
