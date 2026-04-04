@@ -8,13 +8,45 @@ import {
 } from "~/components/forms/services_model/ServicePhotoForm"
 import { serviceTimesSchema } from "~/components/forms/services_model/ServiceTimesForm"
 import { db } from "~/utils/db.server"
-import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server"
+import { getPutFileUrl, removeFileUrl, uploadFileToTigris } from "~/utils/lib/tigris.server"
 import { generateUniqueServiceSlug } from "~/utils/slugs.server"
 import type { Route } from "./+types/services"
 
 export const action = async ({ request }: Route.ActionArgs) => {
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Response("Org not found", { status: 404 })
+
   const formData = await request.formData()
   const intent = formData.get("intent")
+
+  // Server-side gallery upload (avoids CORS issues with presigned URLs)
+  if (intent === "gallery_upload") {
+    const serviceId = formData.get("serviceId") as string
+    const file = formData.get("file") as File
+    if (!serviceId || !file) {
+      return Response.json({ error: "serviceId and file required" }, { status: 400 })
+    }
+    const service = await db.service.findFirst({
+      where: { id: serviceId, orgId: org.id },
+      select: { id: true, gallery: true },
+    })
+    if (!service) {
+      return Response.json({ error: "Service not found" }, { status: 404 })
+    }
+    const key = `services/${service.id}/${Date.now()}-${file.name}`
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer())
+      await uploadFileToTigris(key, buffer, file.type)
+    } catch (e: any) {
+      console.error("[gallery_upload] Tigris upload failed:", e.message || e)
+      return Response.json({ error: "Upload failed", details: e.message }, { status: 500 })
+    }
+    // Also persist to gallery array
+    const gallery = [...(service.gallery || []), key]
+    await db.service.update({ where: { id: service.id }, data: { gallery } })
+    return Response.json({ ok: true, key })
+  }
+
   const data = JSON.parse(formData.get("data") as string) as Partial<Service>
 
   if (intent === "service_update") {
@@ -164,6 +196,24 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }
 
     return Response.json({ photoAction })
+  }
+
+  if (intent === "get_gallery_upload_url") {
+    const serviceId = url.searchParams.get("serviceId")
+    const filename = url.searchParams.get("filename")
+    if (!serviceId || !filename) {
+      return Response.json({ error: "serviceId and filename required" }, { status: 400 })
+    }
+    const service = await db.service.findFirst({
+      where: { id: serviceId, orgId: org.id },
+      select: { id: true },
+    })
+    if (!service) {
+      return Response.json({ error: "Service not found" }, { status: 404 })
+    }
+    const key = `services/${service.id}/${Date.now()}-${filename}`
+    const putUrl = await getPutFileUrl(key)
+    return Response.json({ putUrl, key })
   }
 
   return {

@@ -4,6 +4,8 @@
  * Verifies JWT token and redirects to appropriate action page
  */
 import { redirect } from "react-router"
+import { createMeetLink } from "~/lib/google-meet.server"
+import { awardPoints } from "~/lib/loyalty.server"
 import { commitSession, getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
 import { verifyEventActionToken } from "~/utils/tokens"
@@ -63,6 +65,38 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
           updatedAt: new Date(),
         },
       })
+
+      // Award loyalty points for confirmed booking
+      try {
+        const basePoints = Math.floor(Number(event.service?.price)) || 10
+        await awardPoints({
+          customerId: payload.customerId,
+          orgId: event.service!.org.id,
+          eventId: payload.eventId,
+          basePoints,
+        })
+      } catch (e) {
+        console.error("Loyalty awardPoints failed:", e)
+      }
+
+      // Create Google Meet link if org has calendar connected
+      try {
+        const org = event.service!.org
+        if (org.googleCalendarToken && event.customer && event.service) {
+          const { meetingLink, calendarEventId } = await createMeetLink({
+            org,
+            event,
+            service: event.service,
+            customer: event.customer,
+          })
+          await db.event.update({
+            where: { id: payload.eventId },
+            data: { meetingLink, calendarEventId },
+          })
+        }
+      } catch (e) {
+        console.error("Google Meet link creation failed:", e)
+      }
 
       // Get the customer to create/link User account
       const customer = await db.customer.findUnique({

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { FaTrash } from "react-icons/fa6"
 import { Form, useLoaderData } from "react-router"
 import { twMerge } from "tailwind-merge"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { getUserAndOrgOrRedirect, requireRole } from "~/.server/userGetters"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
@@ -13,7 +13,7 @@ import type { Route } from "./+types/dash.colaboradores"
 import { ClientAvatar } from "./dash.clientes"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   const collaborators = await db.user.findMany({
     where: { orgId: org.id },
   })
@@ -21,7 +21,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 }
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   const formData = await request.formData()
   const intent = formData.get("intent")
 

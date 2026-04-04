@@ -4,7 +4,7 @@ import { FaInstagram, FaFacebookF, FaTiktok, FaYoutube, FaLinkedinIn } from "rea
 import { Trash } from "~/components/icons/trash"
 import { Form, useFetcher, useLoaderData, useSearchParams } from "react-router"
 import { twMerge } from "tailwind-merge"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { getUserAndOrgOrRedirect, requireRole } from "~/.server/userGetters"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Switch } from "~/components/common/Switch"
@@ -80,7 +80,7 @@ const TABS = ["general", "horarios", "configuracion", "integraciones", "colabora
 type Tab = (typeof TABS)[number]
 
 export const loader = async ({ request }: { request: Request }) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   if (!org) throw new Response("Org not found", { status: 404 })
   const collaborators = await db.user.findMany({
     where: { orgId: org.id },

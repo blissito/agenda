@@ -16,6 +16,7 @@ import { People } from "~/components/icons/people"
 import TemplateOne from "~/components/templates/TemplateOne"
 import TemplateTwo from "~/components/templates/TemplateTwo"
 import { getMetaTags } from "~/utils/getMetaTags"
+import { getPublicImageUrl } from "~/utils/urls"
 import { resolveHostForIndex } from "~/utils/host.server"
 import type { Route } from "./+types/home"
 
@@ -71,7 +72,7 @@ export const meta = ({ data }: Route.MetaArgs) => {
       title: `${org.name} | Agenda tu cita`,
       description: org.description || `Reserva con ${org.name}`,
       url: `https://${slug}`,
-      image: org.logo || "/cover.png",
+      image: getPublicImageUrl(org.logo) || "/cover.png",
     })
   }
   return getMetaTags({

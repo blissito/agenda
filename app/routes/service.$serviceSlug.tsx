@@ -18,6 +18,7 @@ import { MonthView } from "~/components/forms/agenda/MonthView"
 import TimeView from "~/components/forms/agenda/TimeView"
 import { BasicInput } from "~/components/forms/BasicInput"
 import type { WeekTuples } from "~/components/forms/TimesForm"
+import { getLevelDiscount } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import {
   sendAppointmentToCustomer,
@@ -144,11 +145,28 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       },
     })
 
+    // Loyalty discount lookup
+    let discountPercent = 0
+    let levelName: string | null = null
+    try {
+      const discount = await getLevelDiscount({ customerId: customer.id, serviceId: service.id })
+      if (discount) {
+        discountPercent = discount.discountPercent
+        levelName = discount.levelName
+      }
+    } catch (e) {
+      console.error("Loyalty discount lookup failed:", e)
+    }
+
+    const effectivePrice = discountPercent > 0
+      ? Number(service.price) * (1 - discountPercent / 100)
+      : Number(service.price)
+
     const startDate = new Date(data.start)
     const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000)
 
     // Si el servicio requiere pago, redirigir a MP
-    if (service.payment && Number(service.price) > 0) {
+    if (service.payment && effectivePrice > 0) {
       // Obtener owner para tokens de MP
       const owner = await db.user.findUnique({
         where: { id: org.ownerId },
@@ -169,7 +187,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         const preference = await createPreference(accessToken, {
           serviceId: service.id,
           serviceName: service.name,
-          price: Number(service.price),
+          price: effectivePrice,
           customerId: customer.id,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
@@ -275,7 +293,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       console.error("Failed to schedule notifications:", e)
     }
 
-    return { success: true, event, org }
+    return { success: true, event, org, discountPercent, levelName }
   }
   return null
 }

@@ -65,6 +65,7 @@ export const sendAppointmentToCustomer = async ({
         serviceName: event.service.name,
         orgName: event.service.org.name,
         customerName: event.customer.displayName ?? undefined,
+        meetingLink: (event as any).meetingLink ?? undefined,
       }),
     })
     .catch((e: unknown) => {

@@ -359,6 +359,8 @@ model Event {
   mp_payment_id            String?
   stripe_session_id        String?
   stripe_payment_intent_id String?
+  meetingLink              String?
+  calendarEventId          String?
   reminderSentAt           DateTime? @db.Date  // null = reminder not sent yet
   surveySentAt             DateTime? @db.Date  // null = survey not sent yet
   customer                 Customer?       @relation(fields: [customerId], references: [id])
@@ -418,6 +420,7 @@ model Org {
   landingUsageMonth     String?
   chatbotAgentId        String?
   chatbotConfig         Json?
+  googleCalendarToken   Json?
   customers          Customer[]
   events             Event[]
   services           Service[]

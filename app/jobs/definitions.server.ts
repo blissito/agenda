@@ -12,7 +12,7 @@ import { sendSurvey } from "~/utils/emails/sendSurvey"
 import { getAgenda } from "./agenda.server"
 
 const DEFAULT_REMINDER_HOURS = 4
-const SURVEY_DELAY_MINUTES = 10
+const SURVEY_DELAY_MINUTES = 60 * 24 // 24 hours
 
 type ReminderJobData = {
   eventId: string

@@ -26,7 +26,6 @@ export function useSidebarState() {
     false,
   )
   const [isOpen, setIsOpen] = useLocalStorage("denik_sidebar_open", false)
-
   const x = useMotionValue<number>(SIDEBAR.closedX)
   const [scope, animate] = useAnimate()
   const contentPadding = useTransform(
@@ -35,22 +34,30 @@ export function useSidebarState() {
     [SIDEBAR.padding.min, SIDEBAR.padding.mid, SIDEBAR.padding.max],
   )
 
-  // Hidratar posición después del mount
+  // Read directly from localStorage to avoid race with useLocalStorage hydration
   useEffect(() => {
-    // Primera visita: abrir y marcar como visitado
-    const shouldOpen = !hasVisited || isOpen
-    if (!hasVisited) {
+    let storedVisited = false
+    let storedOpen = false
+    try {
+      const v = localStorage.getItem("denik_sidebar_visited")
+      if (v !== null) storedVisited = JSON.parse(v)
+      const o = localStorage.getItem("denik_sidebar_open")
+      if (o !== null) storedOpen = JSON.parse(o)
+    } catch {}
+
+    const shouldOpen = !storedVisited || storedOpen
+    if (!storedVisited) {
       setHasVisited(true)
       setIsOpen(true)
     }
     const target = shouldOpen ? SIDEBAR.openX : SIDEBAR.closedX
-    // Animar solo si hay diferencia y scope está listo
     if (scope.current && x.get() !== target) {
       animate(scope.current, { x: target }, SIDEBAR.spring.open)
     } else {
       x.set(target)
     }
-  }, [hasVisited, isOpen, setHasVisited, setIsOpen, x, scope, animate])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Usar ref para toggle estable en listeners
   const isOpenRef = useRef(isOpen)

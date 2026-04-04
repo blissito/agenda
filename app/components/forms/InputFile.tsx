@@ -57,7 +57,7 @@ export const InputFile = ({
     const file = event.dataTransfer.files[0]
     if (file) {
       await putFile(file)
-      setPreview(action?.readUrl)
+      setPreview(action?.readUrl ? `${action.readUrl}&t=${Date.now()}` : undefined)
       if (action?.logoKey) onUploadComplete?.(action.logoKey)
     }
   }
@@ -73,8 +73,7 @@ export const InputFile = ({
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
-      const url = URL.createObjectURL(file)
-      setPreview(url)
+      setPreview(URL.createObjectURL(file))
       await putFile(file)
       if (action?.logoKey) onUploadComplete?.(action.logoKey)
     }

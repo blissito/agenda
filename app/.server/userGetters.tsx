@@ -167,6 +167,28 @@ export const getUserAndOrgOrRedirect = async (
 
   return { user, org }
 }
+/**
+ * Role-based access control helper.
+ * Usage: await requireRole(request, ["OWNER", "ADMIN"])
+ * Throws redirect to /dash if user's role is not in allowedRoles.
+ */
+export const requireRole = async (
+  request: Request,
+  allowedRoles: string[],
+): Promise<{ user: User; org: Org }> => {
+  const { user, org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw redirect("/dash")
+
+  // Org owner always has access
+  if (org.ownerId === user.id) return { user, org }
+
+  const role = (user.role || "user").toUpperCase()
+  if (!allowedRoles.map((r) => r.toUpperCase()).includes(role)) {
+    throw redirect("/dash?error=unauthorized")
+  }
+  return { user, org }
+}
+
 export const getServicefromSearchParams = async (
   request: Request,
   options: any = {},

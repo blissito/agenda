@@ -10,6 +10,7 @@ export default ({
   address,
   orgName,
   customerName,
+  meetingLink,
 }: {
   confirmLink: string
   modifyLink: string
@@ -22,6 +23,7 @@ export default ({
   address?: string
   customerName?: string
   orgName?: string
+  meetingLink?: string
 }) => `
 <body style="font-family:Arial; background-color:#F8F8F8;padding:24px; ">
 <div style="min-width:360px; max-width:480px; margin:0 auto;padding:24px; background-color:#ffffff; border-radius:24px;">
@@ -42,8 +44,14 @@ export default ({
               <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/jua9FtD.png"/><p style="padding-top:4px;" >${Number(amount) > 0 ? `$${amount} mxn` : "Gratuito"}</p></div>
               ${displayName ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>` : ""}
        ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
-      
+
   </div>
+  ${meetingLink ? `
+  <a style="text-decoration:none;" href="${meetingLink}" target="blank">
+    <button style="background:#00897B; height:40px; border-radius:20px; border:none; color:white; width:100%; margin-top:24px; cursor:pointer; font-size:14px;">
+      Unirse a videollamada (Google Meet)
+    </button>
+  </a>` : ""}
             <a style="text-decoration:none;" href="${confirmLink}" target="blank">
     <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
       Confirmar cita

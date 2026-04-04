@@ -32,6 +32,8 @@ const getS3Client = () => {
         accessKeyId: accessKey,
         secretAccessKey: secretKey,
       },
+      requestChecksumCalculation: "WHEN_REQUIRED",
+      responseChecksumValidation: "WHEN_REQUIRED",
     })
   }
   return _s3Client
@@ -111,6 +113,20 @@ export const removeFileUrl = async (key: string) => {
     }),
     { expiresIn: 3600 },
   )
+}
+
+export const uploadFileToTigris = async (key: string, body: Buffer | Uint8Array, contentType: string) => {
+  const fullKey = key.startsWith("denik/") ? key : `denik/${key}`
+  await getS3Client().send(
+    new PutObjectCommand({
+      Bucket: BUCKET,
+      Key: fullKey,
+      Body: body,
+      ContentType: contentType,
+      ACL: "public-read",
+    }),
+  )
+  return fullKey
 }
 
 export const getPutPair = async (key: string) => {

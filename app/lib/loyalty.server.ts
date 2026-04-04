@@ -23,6 +23,11 @@ export async function createLevel(data: {
   discountPercent: number
   serviceIds: string[]
 }) {
+  if (data.minPoints < 0) throw new Error("minPoints must be >= 0")
+  if (data.discountPercent < 0 || data.discountPercent > 100) {
+    throw new Error("discountPercent must be between 0 and 100")
+  }
+
   // Auto-set order based on existing count
   const count = await db.loyaltyLevel.count({ where: { orgId: data.orgId } })
   return db.loyaltyLevel.create({
@@ -41,6 +46,13 @@ export async function updateLevel(
     order: number
   }>,
 ) {
+  if (data.minPoints !== undefined && data.minPoints < 0) {
+    throw new Error("minPoints must be >= 0")
+  }
+  if (data.discountPercent !== undefined && (data.discountPercent < 0 || data.discountPercent > 100)) {
+    throw new Error("discountPercent must be between 0 and 100")
+  }
+
   return db.loyaltyLevel.update({ where: { id: levelId }, data })
 }
 
@@ -115,6 +127,21 @@ export async function awardPoints(params: {
 }) {
   const { customerId, orgId, eventId, basePoints } = params
 
+  if (!Number.isFinite(basePoints) || basePoints <= 0) {
+    throw new Error("basePoints must be a positive finite number")
+  }
+
+  // Idempotency: skip if points already awarded for this event
+  const existingTx = await db.loyaltyTransaction.findFirst({
+    where: { eventId, type: "earn" },
+  })
+  if (existingTx) {
+    const existingCustomer = await db.customer.findUnique({
+      where: { id: customerId },
+    })
+    return { customer: existingCustomer, transaction: existingTx, levelUpgrade: false }
+  }
+
   const customer = await db.customer.findUnique({
     where: { id: customerId },
     select: {
@@ -181,6 +208,10 @@ export async function deductPoints(params: {
   reason: string
 }) {
   const { customerId, orgId, points, reason } = params
+
+  if (!Number.isFinite(points) || points <= 0) {
+    throw new Error("points must be a positive finite number")
+  }
 
   const customer = await db.customer.findUnique({
     where: { id: customerId },
@@ -482,6 +513,9 @@ export async function createReward(data: {
   pointsCost: number
   maxRedemptions?: number
 }) {
+  if (data.pointsCost <= 0) throw new Error("pointsCost must be > 0")
+  if (data.value <= 0) throw new Error("value must be > 0")
+
   return db.loyaltyReward.create({ data })
 }
 
