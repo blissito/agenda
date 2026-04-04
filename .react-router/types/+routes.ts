@@ -120,6 +120,15 @@ type Pages = {
   "/dash/ajustes": {
     params: {};
   };
+  "/dash/google-calendar/connect": {
+    params: {};
+  };
+  "/dash/google-calendar/callback": {
+    params: {};
+  };
+  "/dash/colaboradores": {
+    params: {};
+  };
   "/dash/pagos": {
     params: {};
   };
@@ -209,17 +218,6 @@ type Pages = {
   "/survey": {
     params: {};
   };
-  "/mi-cuenta/perfil/resena/:eventId": {
-    params: {
-      "eventId": string;
-    };
-  };
-  "/mi-cuenta": {
-    params: {};
-  };
-  "/mi-cuenta/perfil": {
-    params: {};
-  };
   "/:serviceSlug": {
     params: {
       "serviceSlug": string;
@@ -230,7 +228,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/colaboradores" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -262,7 +260,7 @@ type RouteFiles = {
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
-    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/pagos";
+    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/colaboradores" | "/dash/pagos";
   };
   "routes/dash/dash._index.tsx": {
     id: "routes/dash/dash._index";
@@ -351,6 +349,18 @@ type RouteFiles = {
   "routes/dash/dash.ajustes.tsx": {
     id: "routes/dash/dash.ajustes";
     page: "/dash/ajustes";
+  };
+  "routes/dash/dash.google-calendar-connect.tsx": {
+    id: "routes/dash/dash.google-calendar-connect";
+    page: "/dash/google-calendar/connect";
+  };
+  "routes/dash/dash.google-calendar-callback.tsx": {
+    id: "routes/dash/dash.google-calendar-callback";
+    page: "/dash/google-calendar/callback";
+  };
+  "routes/dash/dash.colaboradores.tsx": {
+    id: "routes/dash/dash.colaboradores";
+    page: "/dash/colaboradores";
   };
   "routes/dash/pagos.tsx": {
     id: "routes/dash/pagos";
@@ -456,18 +466,6 @@ type RouteFiles = {
     id: "routes/survey";
     page: "/survey";
   };
-  "routes/mi-cuenta.perfil.resena.$eventId.tsx": {
-    id: "routes/mi-cuenta.perfil.resena.$eventId";
-    page: "/mi-cuenta/perfil/resena/:eventId";
-  };
-  "routes/mi-cuenta._index.tsx": {
-    id: "routes/mi-cuenta._index";
-    page: "/mi-cuenta";
-  };
-  "routes/mi-cuenta.perfil.tsx": {
-    id: "routes/mi-cuenta.perfil";
-    page: "/mi-cuenta/perfil";
-  };
   "routes/service.$serviceSlug.tsx": {
     id: "routes/service.$serviceSlug";
     page: "/:serviceSlug";
@@ -506,6 +504,9 @@ type RouteModules = {
   "routes/dash/dash.reviews": typeof import("./app/routes/dash/dash.reviews.tsx");
   "routes/dash/dash.reviews_.$serviceId": typeof import("./app/routes/dash/dash.reviews_.$serviceId.tsx");
   "routes/dash/dash.ajustes": typeof import("./app/routes/dash/dash.ajustes.tsx");
+  "routes/dash/dash.google-calendar-connect": typeof import("./app/routes/dash/dash.google-calendar-connect.tsx");
+  "routes/dash/dash.google-calendar-callback": typeof import("./app/routes/dash/dash.google-calendar-callback.tsx");
+  "routes/dash/dash.colaboradores": typeof import("./app/routes/dash/dash.colaboradores.tsx");
   "routes/dash/pagos": typeof import("./app/routes/dash/pagos.tsx");
   "routes/api/customers": typeof import("./app/routes/api/customers.ts");
   "routes/api/services": typeof import("./app/routes/api/services.ts");
@@ -532,8 +533,5 @@ type RouteModules = {
   "routes/event.$eventId.modify": typeof import("./app/routes/event.$eventId.modify.tsx");
   "routes/event.$eventId.cancel": typeof import("./app/routes/event.$eventId.cancel.tsx");
   "routes/survey": typeof import("./app/routes/survey.tsx");
-  "routes/mi-cuenta.perfil.resena.$eventId": typeof import("./app/routes/mi-cuenta.perfil.resena.$eventId.tsx");
-  "routes/mi-cuenta._index": typeof import("./app/routes/mi-cuenta._index.tsx");
-  "routes/mi-cuenta.perfil": typeof import("./app/routes/mi-cuenta.perfil.tsx");
   "routes/service.$serviceSlug": typeof import("./app/routes/service.$serviceSlug.tsx");
 };
