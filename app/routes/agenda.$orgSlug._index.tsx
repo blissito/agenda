@@ -26,23 +26,20 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     throw new Response("Organización no encontrada", { status: 404 })
   }
 
-  // If org has a published AI landing, serve it directly as HTML
+  // If org has a published AI landing, build HTML for iframe rendering
+  let aiLandingHtml: string | null = null
   if (org.landingPublished && org.landingSections) {
     try {
       const raw = org.landingSections
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
       const sections = raw as unknown as Section3[]
-      const html = buildDeployHtml(
+      aiLandingHtml = buildDeployHtml(
         sections,
         org.landingTheme || undefined,
         org.landingCustomColors as unknown as CustomColors | undefined,
       )
-      throw new Response(html, {
-        headers: { "Content-Type": "text/html; charset=utf-8" },
-      })
     } catch (err) {
       console.error("Failed to build landing HTML:", err)
-      // Fall through to normal template rendering
     }
   }
 
@@ -50,7 +47,7 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     where: { orgId: org.id, isActive: true, archived: false },
   })
 
-  return { org, services }
+  return { org, services, aiLandingHtml }
 }
 
 export const meta = ({ data }: Route.MetaArgs) => {
@@ -67,7 +64,18 @@ export const meta = ({ data }: Route.MetaArgs) => {
 }
 
 export default function OrgLanding({ loaderData }: Route.ComponentProps) {
-  const { org, services } = loaderData
+  const { org, services, aiLandingHtml } = loaderData
+
+  // AI landing takes priority
+  if (aiLandingHtml) {
+    return (
+      <iframe
+        srcDoc={aiLandingHtml}
+        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
+        title="Landing"
+      />
+    )
+  }
 
   // Render template based on org config
   if (org.websiteConfig?.template === "defaultTemplate") {
