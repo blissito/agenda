@@ -138,9 +138,6 @@ type Pages = {
   "/dash/google-calendar/callback": {
     params: {};
   };
-  "/dash/colaboradores": {
-    params: {};
-  };
   "/dash/pagos": {
     params: {};
   };
@@ -251,7 +248,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/help" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/colaboradores" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/help" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/pagos" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -299,7 +296,7 @@ type RouteFiles = {
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
-    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/colaboradores" | "/dash/pagos";
+    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/pagos";
   };
   "routes/dash/dash._index.tsx": {
     id: "routes/dash/dash._index";
@@ -396,10 +393,6 @@ type RouteFiles = {
   "routes/dash/dash.google-calendar-callback.tsx": {
     id: "routes/dash/dash.google-calendar-callback";
     page: "/dash/google-calendar/callback";
-  };
-  "routes/dash/dash.colaboradores.tsx": {
-    id: "routes/dash/dash.colaboradores";
-    page: "/dash/colaboradores";
   };
   "routes/dash/pagos.tsx": {
     id: "routes/dash/pagos";
@@ -561,7 +554,6 @@ type RouteModules = {
   "routes/dash/dash.ajustes": typeof import("./app/routes/dash/dash.ajustes.tsx");
   "routes/dash/dash.google-calendar-connect": typeof import("./app/routes/dash/dash.google-calendar-connect.tsx");
   "routes/dash/dash.google-calendar-callback": typeof import("./app/routes/dash/dash.google-calendar-callback.tsx");
-  "routes/dash/dash.colaboradores": typeof import("./app/routes/dash/dash.colaboradores.tsx");
   "routes/dash/pagos": typeof import("./app/routes/dash/pagos.tsx");
   "routes/api/customers": typeof import("./app/routes/api/customers.ts");
   "routes/api/services": typeof import("./app/routes/api/services.ts");
