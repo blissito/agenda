@@ -10,7 +10,7 @@ export const FinalCta = ({ children }: { children?: ReactNode }) => (
       <div className="flex flex-col justify-center h-full items-center -mt-20 md:-mt-16 leading-normal ">
         {children}
         <PrimaryButton as="Link" to="/signin">
-          Únete <ArrowRight />
+          Probar gratis <ArrowRight />
         </PrimaryButton>
       </div>
       <div className="w-full flex justify-between text-left  absolute -bottom-40 md:-bottom-60 gap-4 ">

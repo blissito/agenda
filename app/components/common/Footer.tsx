@@ -18,10 +18,15 @@ export const Footer = () => {
             <p>Comunidad Deník</p>
           </Link> */}
 
+          <Link to="/funcionalidades">
+            <p>Funcionalidades</p>
+          </Link>
+          <Link to="/como-funciona">
+            <p>Cómo funciona</p>
+          </Link>
           <Link to="/help">
             <p>Blog</p>
           </Link>
-          {/* <p>Atención al cliente</p> */}
           <Link to="/terminosycondiciones">
             <p>Términos y condiciones</p>
           </Link>

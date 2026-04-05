@@ -52,7 +52,7 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
         <ItemCard
           image="/images/illustrations/robot.svg"
           title="Tu propio agente IA"
-          description="Permite que tus clientes agenden citas por chat, 24/7"
+          description="Permite que tus clientes agenden citas por chat desde tu sitio web o desde whats app, 24/7"
         />
         <ItemCard
           image="/images/illustrations/atm-machine.svg"

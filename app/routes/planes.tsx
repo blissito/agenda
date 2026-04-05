@@ -1,9 +1,9 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react"
 import { AnimatePresence, motion } from "motion/react"
 import { type ReactNode, Suspense, useEffect, useState } from "react"
+
 import type { MetaFunction } from "react-router"
 import { HoverEffect } from "~/components/common/CardHoverEffect"
-import { DialogButton } from "~/components/common/DialogButton"
 import { Footer } from "~/components/common/Footer"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { TopBar } from "~/components/common/topBar"
@@ -41,12 +41,12 @@ export default function Index() {
         </Suspense>
         <Faq />
         <FinalCta>
-          <h2 className="group text-4xl xl:text-6xl	font-bold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
+          <h2 className="group text-4xl xl:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
             <span className="mr-4">No lo pienses </span>
             <Lamp className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
             <span className="ml-4"> más.</span>
           </h2>
-          <h2 className="text-4xl lg:text-6xl font-bold  text-brand_dark mb-16 mt-2 ">
+          <h2 className="text-4xl lg:text-6xl font-satoBold  text-brand_dark mb-16 mt-2 ">
             ¡Empieza ahora!
           </h2>
         </FinalCta>
@@ -58,7 +58,7 @@ export default function Index() {
 
 export const Faq = () => (
   <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
-    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4">Preguntas </span>
       <Bubble className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
       <span className="ml-4"> frecuentes</span>
@@ -104,7 +104,7 @@ export const Faq = () => (
       />
       <Question
         question="¿Puedo personalizar mi página de citas?"
-        answer="Sí, Deník permite personalizar tu sitio web de citas para que se ajuste a la imagen de tu negocio y facilite el agendamiento de citas por parte de tus clientes. "
+        answer="Sí, Deník permite personalizar tu sitio web de citas para que se ajuste a la imagen de tu negocio. Además, con nuestra herramienta de inteligencia artificial puedes generar y editar tu landing page de forma fácil y rápida, sin necesidad de conocimientos técnicos ni de diseño. Solo describe lo que quieres y la IA se encarga del resto."
       />
       <Question
         question="¿Qué tipo de negocios pueden usar Deník?"
@@ -116,18 +116,18 @@ export const Faq = () => (
       />
       <Question
         question="¿Es seguro usar Deník para recibir pagos?"
-        answer="Sí, Deník utiliza medidas de seguridad avanzadas para garantizar que todas las transacciones sean seguras. Tanto tus datos como los de tus clientes, están protegidos."
+        answer="Sí, Deník integra Stripe y MercadoPago, dos de las plataformas de pago más seguras y confiables del mundo. Ambas cuentan con encriptación de datos, protección contra fraude y cumplimiento de estándares internacionales de seguridad. Tus datos y los de tus clientes están siempre protegidos."
       />
       <Question
         question="¿Qué hago si tengo problemas con mi cuenta?"
         answer={
           <p>
-            "Si tienes algún problema, puedes contactar al soporte de Deník a
+            Si tienes algún problema, puedes contactar al soporte de Deník a
             través del correo{" "}
             <strong className="text-brand_blue underline">
               hola@denik.me{" "}
             </strong>{" "}
-            y nuestro equipo te ayudará."
+            y nuestro equipo te ayudará.
           </p>
         }
       />
@@ -225,206 +225,77 @@ export const Pricing = () => (
   </section>
 )
 
-export const ListStar = () => {
-  return <img className="w-6 h-6" src="/images/star.svg" />
-}
+const FEATURES_PRO = [
+  "Agenda en línea",
+  "Recordatorios automáticos",
+  "Sitio web para citas",
+  "Pagos en línea",
+  "Programa de lealtad, descuentos y tarjetas de regalo",
+  "Encuesta de satisfacción",
+  "Expediente de clientes",
+  "Landing page con IA (5 generaciones / 20 refinamientos al mes)",
+]
+
+const FEATURES_ENTERPRISE = [
+  ...FEATURES_PRO.filter((f) => !f.startsWith("Landing page")),
+  "Administración de sucursales",
+  "Gestión de equipo y permisos",
+  "Landing page con IA (15 generaciones / 60 refinamientos al mes)",
+  "Chatbot de agendamiento con IA",
+]
 
 export const yearlyItems = [
   {
     plan: "Profesional",
+    description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
     price: "$159 mxn",
-    children: (
-      <div className="h-full flex flex-col ">
-        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Agenda en línea
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Recordatorios automáticos
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Sitio web para citas
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Pagos en línea
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Encuesta de satisfacción
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Expediente de clientes
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Landing page con IA (5 generaciones / 20 refinamientos
-            al mes)
-          </li>
-        </ul>
-        {/* <PrimaryButton className="mt-10 md:mt-auto">
-          Probar gratis <ArrowRight />{" "}
-        </PrimaryButton> */}
-        <DialogButton className="mt-10 md:mt-auto">
-          Únete a la lista de espera <ArrowRight />{" "}
-        </DialogButton>
-      </div>
+    priceNote: "Facturado anualmente.\nCancela cuando quieras.",
+    cta: (
+      <PrimaryButton as="Link" to="/signin" className="w-full">
+        Empieza ahora <ArrowRight />
+      </PrimaryButton>
     ),
-    link: "/signup",
+    features: FEATURES_PRO,
   },
   {
-    plan: "Empresarial",
+    plan: "Enterprise",
+    description: "Para negocios con equipo y necesidades avanzadas.",
     price: "$399 mxn",
-    children: (
-      <div className="h-full flex flex-col">
-        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi  ">
-          <li className="flex gap-3">
-            <ListStar /> Agenda en línea
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Recordatorios automáticos
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Sitio web para citas
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Pagos en línea
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Encuesta de satisfacción
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Expediente de clientes
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Administración de sucursales
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Gestión de equipo y permisos
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos
-            al mes)
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Chatbot de agendamiento con IA
-          </li>
-        </ul>{" "}
-        <PrimaryButton className=" mt-10 ">
-          Contactar a ventas <ArrowRight />{" "}
-        </PrimaryButton>
-      </div>
+    priceNote: "Facturado anualmente.\nCancela cuando quieras.",
+    popular: true,
+    cta: (
+      <PrimaryButton as="Link" to="/signin" className="w-full">
+        Escala sin límites <ArrowRight />
+      </PrimaryButton>
     ),
-    link: "/signup",
-    recommended: true,
+    features: FEATURES_ENTERPRISE,
   },
 ]
 
 export const monthlyItems = [
   {
     plan: "Profesional",
+    description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
     price: "$199 mxn",
-    children: (
-      <div className="h-full flex flex-col">
-        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Agenda en línea
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Recordatorios automáticos
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Sitio web para citas
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Pagos en línea
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Encuesta de satisfacción
-          </li>
-          <li className="flex gap-3">
-            {" "}
-            <ListStar /> Expediente de clientes
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Landing page con IA (5 generaciones / 20 refinamientos
-            al mes)
-          </li>
-        </ul>
-        {/* <PrimaryButton className="mt-10 md:mt-auto">
-          Probar gratis <ArrowRight />{" "}
-        </PrimaryButton> */}
-        <DialogButton className="mt-10 md:mt-auto">
-          Únete a la lista de espera <ArrowRight />{" "}
-        </DialogButton>
-      </div>
+    priceNote: "Cancela cuando quieras.",
+    cta: (
+      <PrimaryButton as="Link" to="/signin" className="w-full">
+        Empieza ahora <ArrowRight />
+      </PrimaryButton>
     ),
-    link: "/signup",
+    features: FEATURES_PRO,
   },
   {
-    plan: "Empresarial",
+    plan: "Enterprise",
+    description: "Para negocios con equipo y necesidades avanzadas.",
     price: "$499 mxn",
-    children: (
-      <div className="h-full flex flex-col">
-        <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi  ">
-          <li className="flex gap-3">
-            <ListStar /> Agenda en línea
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Recordatorios automáticos
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Sitio web para citas
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Pagos en línea
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Programa de lealtad, descuentos y tarjetas de regalo
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Encuesta de satisfacción
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Expediente de clientes
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Administración de sucursales
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Gestión de equipo y permisos
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos
-            al mes)
-          </li>
-          <li className="flex gap-3">
-            <ListStar /> Chatbot de agendamiento con IA
-          </li>
-        </ul>{" "}
-        <PrimaryButton className=" mt-10 ">
-          Contactar a ventas <ArrowRight />{" "}
-        </PrimaryButton>
-      </div>
+    priceNote: "Cancela cuando quieras.",
+    popular: true,
+    cta: (
+      <PrimaryButton as="Link" to="/signin" className="w-full">
+        Escala sin límites <ArrowRight />
+      </PrimaryButton>
     ),
-    link: "/signup",
-    recommended: true,
+    features: FEATURES_ENTERPRISE,
   },
 ]

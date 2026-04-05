@@ -103,7 +103,7 @@ export const DialogButton = (props: DialogButtonProps) => {
   )
 
   const buttonClassName = twMerge(
-    "rounded-full hover:-translate-y-1 transition-all bg-fish text-base md:text-lg bg-brand_blue text-white h-12 md:h-12 px-6 flex gap-2 items-center justify-center font-light",
+    "rounded-full hover:-translate-y-1 transition-all bg-brand_blue font-satoMiddle text-white min-h-[44px] px-4 flex gap-2 items-center justify-center",
     "disabled:bg-slate-300 disabled:pointer-events-none",
     className,
   )

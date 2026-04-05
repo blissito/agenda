@@ -10,6 +10,7 @@ import { Benefits } from "~/components/home/Benefits"
 import { BlogPreview } from "~/components/home/BlogPreview"
 import { CompaniesScroll } from "~/components/home/CompaniesScroll"
 import { FinalCta } from "~/components/home/FinalCta"
+import { Integrations } from "~/components/home/Integrations"
 import { Features, Hero, ScrollReviews } from "~/components/home/home"
 import { ParallaxHero } from "~/components/home/ParallaxHero"
 import { People } from "~/components/icons/people"
@@ -120,6 +121,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <Banner />
         <Features />
         <Benefits />
+        <Integrations />
         <CompaniesScroll />
         <BlogPreview />
         <FinalCta>
