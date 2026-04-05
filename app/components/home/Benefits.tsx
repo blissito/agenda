@@ -13,7 +13,7 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
       src="/images/line.svg"
     />
     <div className="md:max-w-7xl max-w-[90%] w-full mx-auto my-[160px] text-center">
-      <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+      <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
         <span className="mr-4"> Todo lo que tu negocio</span>
         <Star className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
         <span className="ml-4">necesita </span>
@@ -22,7 +22,7 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
         <ItemCard
           image="/images/illustrations/agenda.svg"
           title="Agenda en línea"
-          description="Digitaliza tu agenda y organiza tu día a día. Facilita a tus clientes la agenda en línea"
+          description="Digitaliza tu agenda y permite que tus clientes reserven en segundos"
         />
         <ItemCard
           image="/images/illustrations/TV.svg"
@@ -32,7 +32,7 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
         <ItemCard
           image="/images/illustrations/announcement.svg"
           title="Recordatorios automáticos"
-          description="Automatiza el envío de recordatorios a tus clientes después de cada cita"
+          description="Automatiza el envío de recordatorios a tus clientes antes de cada cita"
         />
         <ItemCard
           image="/images/illustrations/banking-app.svg"
@@ -50,14 +50,14 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
           description="No dejes de mejorar tus servicios, y programa encuestas después de cada cita"
         />
         <ItemCard
-          image="/images/illustrations/ticket.svg"
-          title="Tarjetas de regalo"
-          description="Ofrece recompensas a tus clientes más fieles, escoge entre más de 20 tarjetas de regalo"
+          image="/images/illustrations/robot.svg"
+          title="Tu propio agente IA"
+          description="Permite que tus clientes agenden citas por chat, 24/7"
         />
         <ItemCard
           image="/images/illustrations/atm-machine.svg"
           title="Sistema de caja"
-          description="Lleva un registro diario, semanal o mensual de tus pagos "
+          description="Lleva un registro diario, semanal o mensual de tus ventas "
         />
         <ItemCard
           image="/images/illustrations/medical-folder.svg"
@@ -84,7 +84,7 @@ export const ItemCard = ({
       className="w-[100px] mx-auto group-hover:scale-90 transition-all"
       src={image}
     />
-    <h3 className="text-brand_dark text-2xl font-bold mt-6">{title}</h3>
+    <h3 className="text-brand_dark text-2xl font-satoBold mt-6">{title}</h3>
     <p className="text-brand_gray text-xl font-satoshi mt-4">{description}</p>
   </section>
 )

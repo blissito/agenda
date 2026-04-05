@@ -13,10 +13,10 @@ export const Footer = () => {
           <Denik fill="#ffffff" />
         </div>
         <div className="text-base text-brand_pale font-satoshi flex flex-col gap-4 w-full md:w-[25%]">
-          <h3 className="text-brand_iron font-satoshi text-sm">Deník</h3>
-          <Link to="/404">
+          <h3 className="text-brand_iron font-satoshi ">Deník</h3>
+          {/* <Link to="/community">
             <p>Comunidad Deník</p>
-          </Link>
+          </Link> */}
 
           <Link to="/help">
             <p>Blog</p>
@@ -25,28 +25,30 @@ export const Footer = () => {
           <Link to="/terminosycondiciones">
             <p>Términos y condiciones</p>
           </Link>
-          <p>Aviso de privacidad</p>
+          <Link to="/avisodeprivacidad">
+            <p>Aviso de privacidad</p>
+          </Link>
         </div>
         <div className="text-base text-brand_pale font-satoshi flex flex-col gap-4 w-full md:w-[25%]">
           <h3 className="text-brand_iron font-satoshi">Contacto</h3>
-          <a>hola@denik.me</a>
-          <a>+52 737 443 44 44</a>
+          <a href="mailto:hola@denik.me">hola@denik.me</a>
+          {/* <a href="https://wa.me/527374434444" target="_blank" rel="noopener noreferrer">+52 737 443 44 44</a> */}
           <Link to="/help">
             <p>Ayuda</p>
           </Link>
         </div>
         <div className="w-full md:w-[25%]">
           <p className="text-brand_iron font-satoshi">
-            Suscríbete a nuestro newsletter para recibir promociones
+            Síguenos en redes
           </p>
-          <div className="flex mt-10">
+          <div className="flex mt-4">
             <a
               href="https://www.facebook.com/profile.php?id=61563700900314"
               target="_blank"
               rel="noopener"
               className="hover:opacity-50 transition-all"
             >
-              <Facebook fill="#707376" />
+              <Facebook fill="#707376" className="scale-[70%]" />
             </a>
             <a
               href="https://www.linkedin.com/company/104767180"
@@ -57,7 +59,7 @@ export const Footer = () => {
               <Linkedin fill="#707376" />
             </a>
             <a
-              href="https://www.linkedin.com/company/104767180"
+              href="https://www.instagram.com/denik_agenda/"
               target="_blank"
               rel="noopener"
               className="hover:opacity-50 transition-all"
@@ -83,7 +85,7 @@ export const Footer = () => {
         </div>
       </section>
       <p className="text-brand_iron font-satoshi text-sm text-center py-6">
-        Todos los derechos reservados Deník® 2024
+        Todos los derechos reservados Deník® 2026
       </p>
     </section>
   )

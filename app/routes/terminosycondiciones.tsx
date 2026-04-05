@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect } from "react"
+import { type ReactNode, useEffect, useState } from "react"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { Rocket } from "~/components/icons/rocket"
@@ -28,7 +28,7 @@ export default function Index() {
 
 const Info = () => {
   return (
-    <section className="col-span-6  ">
+    <section className="col-span-8 lg:col-span-6  ">
       <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark leading-tight flex flex-wrap items-center justify-start ">
         <span className="mr-4">Términos </span>
         <Rocket className="group-hover:animate-vibration-effect cursor-pointer" />{" "}
@@ -140,6 +140,28 @@ const Info = () => {
               Reservación a través de la Plataforma, y puede realizar el pago, a
               través de la misma Plataforma.
             </p>
+            <p>
+              <strong className="font-satoMiddle">
+                Funcionalidades de IA:
+              </strong>{" "}
+              herramientas dentro de la Plataforma que utilizan modelos de
+              inteligencia artificial de terceros para generar contenido
+              (texto, imágenes, diseño y código HTML) a partir de
+              instrucciones del Negocio.
+            </p>
+            <p>
+              <strong className="font-satoMiddle">
+                Contenido Generado por IA:
+              </strong>{" "}
+              cualquier texto, imagen, diseño o código producido mediante las
+              Funcionalidades de IA de la Plataforma.
+            </p>
+            <p>
+              <strong className="font-satoMiddle">Proveedores de IA:</strong>{" "}
+              terceros que proveen los modelos de inteligencia artificial
+              utilizados por la Plataforma, incluyendo de manera enunciativa
+              mas no limitativa a Anthropic (Claude) y OpenAI (DALL-E).
+            </p>
           </div>
         </Clause>
         <Clause id="tres" name="3. Servicios/funcionalades de Deník">
@@ -164,7 +186,7 @@ const Info = () => {
               del Usuario Final.
             </p>
             <p>
-              Adicionalmente, Stripe por medio de la Plataforma brendará
+              Adicionalmente, Stripe y/o MercadoPago por medio de la Plataforma brindará
               servicios de valor agregado, incluyendo la actuación por orden del
               Negocio para cobrar y percibir los pagos digitales de los Usuarios
               finales,además de la conciliación, prevención del fraude, entre
@@ -199,6 +221,14 @@ const Info = () => {
               <li>
                 e. Almacenamiento privado de toda la información que cada
                 Negocio ingresa a la Plataforma.
+              </li>
+              <li>
+                f. Funcionalidades de Inteligencia Artificial para la
+                generación automática de páginas web (landing pages) del
+                Negocio, incluyendo texto, diseño e imágenes, mediante el uso
+                de modelos de IA de terceros (Proveedores de IA). El
+                contenido generado queda sujeto a revisión y aprobación del
+                Negocio antes de su publicación.
               </li>
             </ul>
             <p>
@@ -312,7 +342,7 @@ const Info = () => {
             <p>
               El Negocio accederá a su Cuenta mediante el inicio de sesión
               integrado con los servicios de Google o Microsoft, o el ingreso de
-              su dirección de correo electrónico (e-mail). Deníl se obliga a
+              su dirección de correo electrónico (e-mail). Deník se obliga a
               mantener la confidencialidad de la información del Negocio. En
               virtud de ello, el Negocio será el único y exclusivo responsable
               por todas las operaciones efectuadas en la Plataforma con sus
@@ -411,7 +441,7 @@ const Info = () => {
               correo electrónico enviado a la casilla informada por el Negocio;
               en cuyo caso el Negocio podrá poner término a los Servicios,
               mediante comunicación escrita a Deník, en cuyo caso será aplicable
-              la cláusula 13 de este instrumento
+              la cláusula 15 de este instrumento
             </p>
             <p>
               El Negocio puede cambiar el Plan en cualquier momento. Si como
@@ -513,13 +543,88 @@ const Info = () => {
               <strong className="font-satoMiddle">
                 d. Inclusión en Búsquedas:
               </strong>{" "}
-              Dneík se reserva el derecho de decidir si un Negocio será incluido
+              Deník se reserva el derecho de decidir si un Negocio será incluido
               o no en las búsquedas de Comunidad Deník, y no estamos obligados a
               proporcionar explicaciones detalladas para cada caso.
             </p>
           </div>
         </Clause>
-        <Clause id="nueve" name="9. Responsabilidades del Negocio">
+        <Clause
+          id="ochobis"
+          name="9. Funcionalidades de Inteligencia Artificial"
+        >
+          <div className="flex flex-col gap-4">
+            <p>
+              <strong className="font-satoMiddle">9.1. Descripción.</strong>{" "}
+              La Plataforma ofrece Funcionalidades de IA que permiten al
+              Negocio generar y personalizar páginas web (landing pages) de
+              forma automatizada. Estas funcionalidades utilizan modelos de
+              inteligencia artificial provistos por terceros (Proveedores de
+              IA), incluyendo de manera enunciativa mas no limitativa a
+              Anthropic y OpenAI, para producir texto, diseño e imágenes a
+              partir de la información y las instrucciones proporcionadas por
+              el Negocio.
+            </p>
+            <p>
+              <strong className="font-satoMiddle">
+                9.2. Datos enviados a Proveedores de IA.
+              </strong>{" "}
+              Para el funcionamiento de las Funcionalidades de IA, cierta
+              información del Negocio (nombre, descripción, servicios
+              ofrecidos, horarios, e imágenes de galería) podrá ser enviada a
+              los servidores de los Proveedores de IA para su procesamiento.
+              Deník no envía datos personales de los Usuarios finales a los
+              Proveedores de IA. Los Proveedores de IA se encuentran ubicados
+              en Estados Unidos de América, por lo que el uso de estas
+              funcionalidades implica la transferencia internacional de datos
+              del Negocio. Si el Negocio sube imágenes de referencia para
+              personalizar su landing page, dichas imágenes serán procesadas
+              por los modelos de visión de los Proveedores de IA, por lo que
+              el Negocio debe contar con los derechos y consentimientos
+              necesarios sobre dichas imágenes.
+            </p>
+            <p>
+              <strong className="font-satoMiddle">
+                9.3. Responsabilidad sobre el Contenido Generado por IA.
+              </strong>{" "}
+              El Negocio es el único y exclusivo responsable de revisar,
+              aprobar y publicar cualquier Contenido Generado por IA. Deník no
+              garantiza la precisión, originalidad, idoneidad, integridad ni
+              veracidad del contenido producido por las Funcionalidades de IA.
+              El Contenido Generado por IA se proporciona "tal cual" (AS IS),
+              sin garantía de resultados específicos. El Negocio se obliga a
+              verificar que el contenido generado no infrinja derechos de
+              propiedad intelectual de terceros, no contenga información falsa
+              o engañosa, y cumpla con la legislación aplicable antes de su
+              publicación.
+            </p>
+            <p>
+              <strong className="font-satoMiddle">
+                9.4. Disponibilidad y limitaciones.
+              </strong>{" "}
+              Las Funcionalidades de IA dependen de servicios de terceros
+              (Proveedores de IA) que están fuera del control de Deník. Deník
+              no garantiza la disponibilidad ininterrumpida de dichas
+              funcionalidades y no será responsable por interrupciones,
+              cambios en las políticas, precios o capacidades de los
+              Proveedores de IA, ni por la descontinuación de sus servicios.
+              Las Funcionalidades de IA están sujetas a límites de uso
+              mensuales según el Plan contratado por el Negocio.
+            </p>
+            <p>
+              <strong className="font-satoMiddle">
+                9.5. Políticas de terceros.
+              </strong>{" "}
+              El uso de las Funcionalidades de IA está sujeto, adicionalmente,
+              a los términos de uso y políticas de privacidad de los
+              Proveedores de IA correspondientes. El Negocio reconoce y acepta
+              que los Proveedores de IA pueden actualizar sus términos y
+              políticas en cualquier momento, lo cual podría afectar la
+              disponibilidad o el funcionamiento de las Funcionalidades de IA.
+            </p>
+          </div>
+        </Clause>
+        <Clause id="nueve" name="10. Responsabilidades del Negocio (incluye IA)">
           <div className="flex flex-col gap-4">
             <p>
               El Negocio asume las siguientes obligaciones y responsabilidades:
@@ -590,7 +695,7 @@ const Info = () => {
             </p>
           </div>
         </Clause>
-        <Clause id="diez" name="10. Responsabilidad de Deník por los Servicios">
+        <Clause id="diez" name="11. Responsabilidad de Deník por los Servicios">
           <div className="flex flex-col gap-4">
             <p>
               Deník asume las siguientes obligaciones y limita su
@@ -648,18 +753,33 @@ const Info = () => {
                 los proveedores de servicios que resulten críticos para el
                 funcionamiento de la Plataforma, y/o cualquier otro tercero.
               </li>
+              <li>
+                H. Deník no será responsable por la precisión, originalidad,
+                idoneidad o veracidad del Contenido Generado por IA. El
+                Negocio actúa como editor final y único responsable del
+                contenido que publique, incluyendo aquel generado mediante las
+                Funcionalidades de IA.
+              </li>
+              <li>
+                I. Deník no será responsable por interrupciones, cambios o
+                descontinuación de los servicios provistos por los Proveedores
+                de IA, ni por cambios en sus políticas, precios o
+                capacidades, los cuales están fuera del control de Deník.
+              </li>
             </ul>
           </div>
         </Clause>
-        <Clause id="once" name="11. Servicio de intermediación en pagos">
+        <Clause id="once" name="12. Servicio de intermediación en pagos">
           <p>
-            El procesamiento de pagos se lleva a cabo por medio de Stripe, por
-            lo que los procesos de verificación y validación de pagos son
-            realizados por Stripe de forma directa. Deník no se responsabiliza
-            por los procesos y validación de pagos, devoluciones,
+            El procesamiento de pagos se lleva a cabo por medio de Stripe y/o
+            MercadoPago, según la configuración del Negocio, por lo que los
+            procesos de verificación y validación de pagos son realizados por
+            el procesador de pagos correspondiente de forma directa. Deník no
+            se responsabiliza por los procesos y validación de pagos,
+            devoluciones,
           </p>
         </Clause>
-        <Clause id="doce" name="12. Auditoría">
+        <Clause id="doce" name="13. Auditoría">
           <p>
             El Negocio se obliga a colaborar para que Deník lleve a cabo una
             auditoría del negocio, ya sea por sí mismo o a través de un tercero
@@ -669,7 +789,7 @@ const Info = () => {
             aplicables, las reglas de las Redes y/o el presente Contrato.
           </p>
         </Clause>
-        <Clause id="trece" name="13. Prohibiciones del Negocio">
+        <Clause id="trece" name="14. Prohibiciones del Negocio">
           <div className="flex flex-col gap-4">
             <p>
               A. La utilización de la Plataforma para realizar servicios que:
@@ -701,11 +821,24 @@ const Info = () => {
               del Servicio, ni descompilar o reconstruir de otra forma el
               Servicio.
             </p>
+            <p>
+              D. Utilizar las Funcionalidades de IA para generar contenido
+              ilegal, engañoso, difamatorio, discriminatorio, o que viole
+              derechos de propiedad intelectual o cualquier otro derecho de
+              terceros.
+            </p>
+            <p>
+              E. Intentar extraer, hacer ingeniería inversa, eludir las
+              limitaciones de uso, o abusar de los modelos de inteligencia
+              artificial accesibles a través de la Plataforma, incluyendo
+              cualquier intento de acceder directamente a las APIs de los
+              Proveedores de IA mediante las credenciales de Deník.
+            </p>
           </div>
         </Clause>
-        <Clause id="catorce" name="14. Vigencia y terminación del contrato">
+        <Clause id="catorce" name="15. Vigencia y terminación del contrato">
           <p>
-            <strong className="font-satoMiddle">14.1. Vigencia.</strong>{" "}
+            <strong className="font-satoMiddle">15.1. Vigencia.</strong>{" "}
             Mediante la aceptación de estos Términos y Condiciones, el Negocio
             se obliga a efectuar el pago mensual del Plan contratado hasta que
             alguna de las partes notifique su término. Para dar de baja los
@@ -733,7 +866,7 @@ const Info = () => {
           </p>
           <p className="mt-4">
             <strong className="font-satoMiddle">
-              14.2. Término anticipado por incumplimiento del Negocio.{" "}
+              15.2. Término anticipado por incumplimiento del Negocio.{" "}
             </strong>{" "}
             Deník podrá dar por terminado este Contrato sin previo aviso en caso
             de que el Negocio: (a) haya incumplido estos Términos y Condiciones
@@ -747,7 +880,7 @@ const Info = () => {
           </p>
           <p className="mt-4">
             <strong className="font-satoMiddle">
-              14.3. Responsabilidades que sobreviven al contrato.{" "}
+              15.3. Responsabilidades que sobreviven al contrato.{" "}
             </strong>{" "}
             La terminación de este Contrato no liberará al Negocio de ninguna
             obligación de pago en favor de Deník derivado de contraprestaciones
@@ -760,10 +893,10 @@ const Info = () => {
             derivado de cualquier suspensión o terminación de los Servicios.
           </p>
         </Clause>
-        <Clause id="quince" name="15. Responsabilidad">
+        <Clause id="quince" name="16. Responsabilidad">
           <div className="flex flex-col gap-4">
             <p>
-              15.1. Deník no será responsable (i) por ninguna otra deficiencia
+              16.1. Deník no será responsable (i) por ninguna otra deficiencia
               ni error en, o al amparo de la prestación del Servicio por causas
               ajenas a éste; (ii) de garantizar que el Servicio esté disponible
               en todo momento y para la realización de operaciones de pagos;
@@ -775,19 +908,19 @@ const Info = () => {
               contrario.
             </p>
             <p>
-              15.2. Deník no será responsable, en ninguna circunstancia, por
+              16.2. Deník no será responsable, en ninguna circunstancia, por
               daños indirectos, tales como, lucro cesante, pérdida de datos u
               otras pérdidas, resultantes del uso o de la falta de uso del
               Servicio. De acuerdo con lo anterior, Deník no asume ninguna
               responsabilidad por ningún acto u omisión de ningún tercero.
             </p>
             <p>
-              15.3. En cualquier caso, la responsabilidad de Deník estará
+              16.3. En cualquier caso, la responsabilidad de Deník estará
               limitada al importe equivalente al 100% de las Comisiones pagadas
               por el Negocio a Deník durante los últimos 3 meses.
             </p>
             <p>
-              15.4. Deník no será responsable por perjuicios que provengan de:
+              16.4. Deník no será responsable por perjuicios que provengan de:
             </p>
             <p>
               (i) La intervención por parte de terceros en que haya habido culpa
@@ -822,11 +955,11 @@ const Info = () => {
             </p>
           </div>
         </Clause>
-        <Clause id="diezyseis" name="16. Propiedad Intelectual">
+        <Clause id="diezyseis" name="17. Propiedad Intelectual">
           <p>
             El Software, los contenidos de las pantallas relativas a los
             servicios de Deník, como así también los programas, bases de datos,
-            redes y archivos son de propiedad de Deník y están protegidas por
+            redes y archivos son propiedad de Deník y están protegidas por
             las leyes y los tratados internacionales de derecho de autor,
             marcas, patentes, modelos y diseños industriales. El uso indebido y
             la reproducción total o parcial de dichos contenidos quedan
@@ -846,26 +979,44 @@ const Info = () => {
             servicio o lemas y otras marcas de Deník, así como el uso de la
             Plataforma.
           </p>
+          <p className="mt-4">
+            {" "}
+            <strong className="font-satoMiddle">
+              Contenido Generado por IA.
+            </strong>{" "}
+            Respecto del Contenido Generado por IA, el Negocio obtiene una
+            licencia de uso no exclusiva sobre dicho contenido para los fines
+            de su negocio. El Negocio reconoce que: (i) el Contenido Generado
+            por IA puede no ser susceptible de protección por derechos de autor
+            en todas las jurisdicciones; (ii) las imágenes obtenidas de bancos
+            de imágenes (como Pexels) están sujetas a las licencias de sus
+            respectivos proveedores; (iii) las imágenes generadas por modelos
+            de IA (como DALL-E) están sujetas a los términos de uso de sus
+            respectivos Proveedores de IA; y (iv) el Negocio no podrá reclamar
+            derechos de autor exclusivos sobre contenido generado
+            exclusivamente por inteligencia artificial, en la medida que la
+            legislación aplicable así lo determine.
+          </p>
         </Clause>
-        <Clause id="diezysiete" name="17. Varios">
+        <Clause id="diezysiete" name="18. Varios">
           <div className="flex flex-col gap-4">
             <p>
               <strong className="font-satoMiddle">
-                17.1. Cuentas Inactivas.
+                18.1. Cuentas Inactivas.
               </strong>{" "}
               Si no se produjera ninguna actividad en la Cuenta durante, al
               menos, 12 meses consecutivos o el plazo que la legislación
               aplicable establezca y si tuviera un saldo a favor del Negocio,
               éste será notificado mediante correo electrónico y Negocio
               permitirá mantener la Cuenta activa o cerrarla y retirar cualquier
-              saldo pendiente. Si Dneík no recibe ninguna respuesta del Negocio
+              saldo pendiente. Si Deník no recibe ninguna respuesta del Negocio
               en el plazo de treinta días a contar de la fecha de envío, cerrará
               automáticamente la Cuenta y los fondos quedarán sujetos al destino
               que determine la ley aplicable.
             </p>
             <p>
               <strong className="font-satoMiddle">
-                17.2. Pagos en Moneda Extranjera.
+                18.2. Pagos en Moneda Extranjera.
               </strong>{" "}
               Todos los pagos deberán ser realizados en la moneda del curso
               legal del país en que se contratan los Servicios. El tipo de
@@ -878,7 +1029,7 @@ const Info = () => {
             </p>
             <p>
               <strong className="font-satoMiddle">
-                17.3. Seguridad de la Información.
+                18.3. Seguridad de la Información.
               </strong>{" "}
               El Negocio se obliga con Deník a evitar la transmisión de datos
               dañinos, inexactos o incompletos, y en general a cualquier
@@ -899,7 +1050,7 @@ const Info = () => {
             </p>
             <p>
               <strong className="font-satoMiddle">
-                17.4. Veracidad de datos y Facturación.
+                18.4. Veracidad de datos y Facturación.
               </strong>{" "}
               Mediante la aceptación de estos Términos y Condiciones, el Negocio
               declara que todos los datos entregados son verídicos. Asimismo, el
@@ -912,7 +1063,7 @@ const Info = () => {
             </p>
             <p>
               <strong className="font-satoMiddle">
-                17.5. Modificaciones a los Términos y Condiciones.
+                18.5. Modificaciones a los Términos y Condiciones.
               </strong>{" "}
               Deník puede modificar estos Términos y Condiciones en cualquier
               momento. Los cambios serán notificados a través de la Plataforma,
@@ -924,7 +1075,7 @@ const Info = () => {
               Cuenta.
             </p>
             <p>
-              <strong className="font-satoMiddle">17.6. Acuerdo total.</strong>{" "}
+              <strong className="font-satoMiddle">18.6. Acuerdo total.</strong>{" "}
               Los Términos y Condiciones constituyen el acuerdo integral y
               entendimiento final entre las partes respecto de los Servicios a
               ser prestados por Deník. Las partes manifiestan que en la
@@ -934,7 +1085,7 @@ const Info = () => {
               convenido sobre su objeto, Tarifas, Comisiones y sus cláusulas.
             </p>
             <p>
-              <strong className="font-satoMiddle">17.7. Jurisdicción.</strong>{" "}
+              <strong className="font-satoMiddle">18.7. Jurisdicción.</strong>{" "}
               Este acuerdo estará regido en todos sus puntos por las leyes
               vigentes en los Estados Unidos Mexicanos.
             </p>
@@ -955,8 +1106,8 @@ const Clause = ({
   children: ReactNode
 }) => {
   return (
-    <section id={id} className="py-40">
-      <h3 className="font-title text-xl text-brand_dark">{name}</h3>
+    <section id={id} className="py-20 lg:py-40">
+      <h3 className="font-title text-xl text-brand_dark font-satoBold">{name}</h3>
       <p className="mt-4 text-brand_gray">{children}</p>
     </section>
   )
@@ -967,146 +1118,85 @@ const handleClick = (id: string) => {
   node?.scrollIntoView({ behavior: "smooth" })
 }
 
+const CLAUSE_IDS = [
+  "uno",
+  "dos",
+  "tres",
+  "cuatro",
+  "cinco",
+  "seis",
+  "siete",
+  "ocho",
+  "ochobis",
+  "nueve",
+  "diez",
+  "once",
+  "doce",
+  "trece",
+  "catorce",
+  "quince",
+  "diezyseis",
+  "diezysiete",
+]
+
+const CLAUSE_LABELS = [
+  "1. Generalidades",
+  "2. Intervinientes y definiciones",
+  "3. Servicios de Deník",
+  "4. Condiciones de acceso",
+  "5. Planes y forma de pago",
+  "6. Tarifas y Comisiones",
+  "7. Reserva de citas",
+  "8. Comunidad Deník",
+  "9. Funcionalidades de IA",
+  "10. Responsabilidades del Negocio",
+  "11. Responsabilidad de Deník",
+  "12. Intermediación en pagos",
+  "13. Auditoría",
+  "14. Prohibiciones del Negocio",
+  "15. Vigencia y terminación",
+  "16. Responsabilidad",
+  "17. Propiedad Intelectual",
+  "18. Varios",
+]
+
 const Tabs = () => {
+  const [activeId, setActiveId] = useState<string>("")
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id)
+          }
+        }
+      },
+      { rootMargin: "-20% 0px -60% 0px" },
+    )
+
+    for (const id of CLAUSE_IDS) {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <section className="col-span-6 xl:col-span-2 ">
+    <section className="col-span-8 xl:col-span-2 ">
       <div className="bg-white rounded-2xl overflow-hidden sticky top-[280px] flex flex-col gap-2 text-brand_dark">
-        <div
-          onClick={() => {
-            handleClick("#uno")
-          }}
-        >
-          <p className="cursor-pointer font-satoshi">1. Generalidades </p>
-        </div>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#dos")
-          }}
-        >
-          2. Intervinientes y definiciones
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#tres")
-          }}
-        >
-          3. Servicios de Deník
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#cuatro")
-          }}
-        >
-          4. Condiciones para acceder a los Servicios de Deník por parte del
-          Negocio
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#cinco")
-          }}
-        >
-          5. Planes y forma de pago
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#seis")
-          }}
-        >
-          6. Tarifas y Comisiones
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#siete")
-          }}
-        >
-          7. Funcionalidad de Reserva de citas
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#ocho")
-          }}
-        >
-          8. Funcionalidad de Deník Market
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#nueve")
-          }}
-        >
-          9. Responsabilidades del Negocio
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#diez")
-          }}
-        >
-          10. Responsabilidad de Deník por los Servicios
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#once")
-          }}
-        >
-          11. Servicio de intermediación en pagos
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#doce")
-          }}
-        >
-          12. Auditoría
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#trece")
-          }}
-        >
-          13. Prohibiciones del Negocio
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#catorce")
-          }}
-        >
-          14. Vigencia y terminación del contrato
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#quince")
-          }}
-        >
-          15. Responsabilidad
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#diezyseis")
-          }}
-        >
-          16. Propiedad Intelectual
-        </p>
-        <p
-          className="cursor-pointer"
-          onClick={() => {
-            handleClick("#diezysiete")
-          }}
-        >
-          17. Varios
-        </p>
+        {CLAUSE_IDS.map((id, i) => (
+          <p
+            key={id}
+            className={`cursor-pointer font-satoBold transition-colors ${
+              activeId === id ? "text-brand_blue" : ""
+            }`}
+            onClick={() => handleClick(`#${id}`)}
+          >
+            {CLAUSE_LABELS[i]}
+          </p>
+        ))}
       </div>
     </section>
   )

@@ -19,7 +19,7 @@ export const Banner = () => {
           Probar gratis <ArrowRight />{" "}
         </PrimaryButton> */}
         <DialogButton>
-          Únete a la lista de espera <ArrowRight />{" "}
+          Crear una cuenta gratis <ArrowRight />{" "}
         </DialogButton>
         <a href="https://wa.me/525539111285?text=¡Hola!%20Quiero%agendar%20un%demo.">
           <SecondaryButton className="w-full md:w-[180px]">

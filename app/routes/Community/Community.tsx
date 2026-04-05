@@ -1,4 +1,5 @@
 import { CommunityPage } from "~/components/Community/CommunityPage"
+import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 
 export default function Community() {
@@ -8,6 +9,7 @@ export default function Community() {
         <TopBar />
         <CommunityPage />
       </div>
+      <Footer />
     </main>
   )
 }

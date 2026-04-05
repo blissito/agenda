@@ -18,25 +18,25 @@ import { Waves } from "../icons/waves"
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center  ">
     <div className="w-full h-full px-[5%] xl:px-[18%]">
-      <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-[68px]	font-bold text-brand_dark  flex-wrap items-center text-center justify-center ">
+      <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-[68px]	font-satoBold text-brand_dark  flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4  md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
-      <h1 className=" flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark flex-wrap items-center text-center justify-center ">
+      <h1 className=" flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-satoBold text-brand_dark flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
       </h1>
-      <h1 className="flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-bold text-brand_dark flex-wrap items-center text-center justify-center ">
+      <h1 className="flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-satoBold text-brand_dark flex-wrap items-center text-center justify-center ">
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4" />{" "}
         <span>agenda</span> de tu negocio en un solo lugar
       </h1>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
-        Agenda de manera sencilla, realiza cobros, manda recordatorios a tus
+        Agenda de manera sencilla con ayuda de tu agente IA, realiza cobros, manda recordatorios a tus
         clientes y envía encuestas de satisfacción
       </p>
       <div className="flex gap-8 mt-12 justify-center ">
         <PrimaryButton as="Link" to="/signin">
-          Únete <ArrowRight />
+          Crear cuenta <ArrowRight />
         </PrimaryButton>
         <a
           href="https://wa.me/525539111285?text=¡Hola!%20Quiero%20agendar%20un%20demo."
@@ -328,22 +328,22 @@ export const CardImage = ({
 
 export const Features = () => (
   <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
-    <h2 className="group text-4xl lg:text-6xl	font-bold text-brand_dark flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Impulsa</span>
       <Rocket className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10 lg:w-16 lg:h-16" />{" "}
       <span className="ml-4 mr-4"> tu </span> negocio con Deník
     </h2>
     <div className="flex justify-between items-center mt-[80px] lg:mt-[120px] flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
       <div className="pr-0 lg:pr-12">
-        <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark !leading-tight">
+        <h2 className="font-satoBold text-2xl lg:text-4xl text-brand_dark !leading-tight">
           No más citas olvidadas: Controla y automatiza tu agenda{" "}
         </h2>
         <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-3 lg:mt-6 mb-6 md:mb-16 ">
           Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
           ¡Ahora tienes el control!
         </p>
-        <PrimaryButton as="Link" to="/signin">
-          Únete <ArrowRight />
+        <PrimaryButton as="Link" to="/signin" className="w-fit">
+          Crear cuenta <ArrowRight />
         </PrimaryButton>
       </div>
       <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%]">
@@ -373,8 +373,8 @@ export const Features = () => (
         />
       </WobbleCard>
       <div className="pl-0 lg:pl-12">
-        <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark !leading-tight">
-          ¡Que no te dejen plantado! Envía recordatorios por email y whats app
+        <h2 className="font-satoBold text-2xl lg:text-4xl text-brand_dark !leading-tight">
+          ¡Que no te dejen plantad@! Envía recordatorios por email y whats app
         </h2>
         <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-0 md:mb-16">
           Evita pérdidas de tiempo y dinero: confirmamos tus citas y enviamos
@@ -384,16 +384,14 @@ export const Features = () => (
     </div>
     <div className="flex justify-between items-center mt-[120px] lg:mt-[160px]  flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
       <div className="pr-0 lg:pr-12">
-        <h2 className="font-bold text-2xl lg:text-4xl text-brand_dark !leading-tight">
+        <h2 className="font-satoBold text-2xl lg:text-4xl text-brand_dark !leading-tight">
           No pierdas más clientes, recibe pagos en línea
         </h2>
         <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-6 md:mb-16">
           Ofrece más alternativas de pago a tus clientes o pacientes con pagos
           desde tu sitio web.
         </p>
-        <PrimaryButton as="Link" to="/signin">
-          Únete <ArrowRight />
-        </PrimaryButton>
+
       </div>
 
       <WobbleCard className="w-full  lg:w-[90%] mx-auto min-h-auto lg:min-h-[520px] flex justify-center items-center">
@@ -408,6 +406,32 @@ export const Features = () => (
           src="/images/payment.svg"
         />
       </WobbleCard>
+      
+    </div>
+       <div className="flex justify-between items-center mt-[120px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0 ">
+      <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
+        <img
+          alt="notificación"
+          className="w-full md:hidden block "
+          src="/images/notification.png"
+        />
+        <img
+          alt="notificación"
+          className="w-full hidden md:block "
+          src="/images/notification.svg"
+        />
+      </WobbleCard>
+      <div className="pl-0 lg:pl-12 w-[100%] ">
+        <h2 className="font-satoBold text-2xl lg:text-4xl text-brand_dark !leading-tight">
+           Tu negocio funcionando, incluso cuando no estás
+        </h2>
+        <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-0 md:mb-16">
+            Tu agente IA responde y agenda a tus clientes, y te ayuda a actualizar tu sitio web de reservas.
+        </p>
+                 <PrimaryButton as="Link" to="/signin" className="w-fit">
+          Crear cuenta <ArrowRight />
+        </PrimaryButton>
+      </div>
     </div>
   </section>
 )

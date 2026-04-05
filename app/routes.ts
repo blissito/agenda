@@ -9,6 +9,10 @@ import {
 export default [
   index("routes/home.tsx"),
   route("planes", "routes/planes.tsx"),
+  route("community", "routes/Community/community.tsx"),
+  route("terminosycondiciones", "routes/terminosycondiciones.tsx"),
+  route("avisodeprivacidad", "routes/avisodeprivacidad.tsx"),
+  route("help", "routes/help.tsx"),
   //login
   route("signin", "routes/login/signin.tsx"),
   route("signup", "routes/login/signup._index.tsx"),

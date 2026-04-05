@@ -7,8 +7,8 @@ export const Facebook = ({
 }) => (
   <svg
     className={className}
-    width="18"
-    height="30"
+    width="32"
+    height="32"
     viewBox="0 0 18 33"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

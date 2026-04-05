@@ -68,7 +68,7 @@ function AgendaSlugBar() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full max-w-xl bg-white border border-brand-gray-light rounded-full px-5 py-3 flex items-center justify-between gap-3 shadow-sm">
+      <div className="w-full max-w-xl bg-white border border-brand-gray-light rounded-full px-5 py-3 flex items-center justify-between gap-3 ">
         <div className="flex items-center flex-1 min-w-0">
           <span className="font-semibold text-brand_dark shrink-0">
             denik.me/
@@ -88,14 +88,14 @@ function AgendaSlugBar() {
         <button
           type="button"
           onClick={goSignin}
-          className="bg-brand_blue text-white px-5 py-2 rounded-full text-sm md:text-base font-semibold whitespace-nowrap"
+          className="bg-brand_blue text-white px-5 py-2 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap"
         >
           Crear mi agenda
         </button>
       </div>
 
-      <p className="mt-3 text-xs md:text-sm text-brand_gray">
-        Empieza a usar Deník gratis
+      <p className="mt-3 text-xs md:text-sm text-brand_blue">
+        ¡Empieza a usar Deník gratis!
       </p>
     </div>
   )
@@ -167,23 +167,20 @@ export function CommunityPage() {
   }, [activeCategory])
 
   return (
-    <section className="pt-28 pb-16 px-6">
+    <section className="pt-[220px] pb-16 px-6">
       <div className="max-w-5xl mx-auto text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-brand_dark leading-tight">
+        <h1 className="text-4xl md:text-6xl font-satoBold text-brand_dark leading-tight">
           Conoce algunos <br className="hidden md:block" />
           miembros de Deník
         </h1>
-
-        <p className="mt-5 text-brand_gray text-base md:text-lg max-w-2xl mx-auto">
+        <p className="mt-5 text-brand_gray text-base md:text-lg lg:text-2xl max-w-2xl mx-auto">
           Conoce a la comunidad y encuentra servicios cercanos a tu ubicación o
           crea una agenda para tu negocio
         </p>
-
-        <div className="mt-8">
+        <div className="mt-16">
           <AgendaSlugBar />
         </div>
       </div>
-
       <div className="max-w-6xl mx-auto mt-12">
         <CategoryTabs
           categories={categories}

@@ -212,7 +212,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
           Conoce a Ghosty: tu asistente inteligente de agendamiento
         </h1>
         <p className="text-base text-brand_gray max-w-2xl">
-          Denik trabaja con FormmyApp para potenciar tu agenda digital con
+          Deník trabaja con FormmyApp para potenciar tu agenda digital con
           Inteligencia Artificial.
         </p>
         <fetcher.Form method="post">
