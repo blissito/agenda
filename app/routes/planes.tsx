@@ -309,11 +309,14 @@ export const yearlyItems = [
             <ListStar /> Administración de sucursales
           </li>
           <li className="flex gap-3">
-            <ListStar /> Administración de usuarios
+            <ListStar /> Gestión de equipo y permisos
           </li>
           <li className="flex gap-3">
             <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos
             al mes)
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Chatbot de agendamiento con IA
           </li>
         </ul>{" "}
         <PrimaryButton className=" mt-10 ">
@@ -322,6 +325,7 @@ export const yearlyItems = [
       </div>
     ),
     link: "/signup",
+    recommended: true,
   },
 ]
 
@@ -405,11 +409,14 @@ export const monthlyItems = [
             <ListStar /> Administración de sucursales
           </li>
           <li className="flex gap-3">
-            <ListStar /> Administración de usuarios
+            <ListStar /> Gestión de equipo y permisos
           </li>
           <li className="flex gap-3">
             <ListStar /> Landing page con IA (15 generaciones / 60 refinamientos
             al mes)
+          </li>
+          <li className="flex gap-3">
+            <ListStar /> Chatbot de agendamiento con IA
           </li>
         </ul>{" "}
         <PrimaryButton className=" mt-10 ">
@@ -418,5 +425,6 @@ export const monthlyItems = [
       </div>
     ),
     link: "/signup",
+    recommended: true,
   },
 ]

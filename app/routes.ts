@@ -9,7 +9,7 @@ import {
 export default [
   index("routes/home.tsx"),
   route("planes", "routes/planes.tsx"),
-  route("community", "routes/Community/community.tsx"),
+  route("community", "routes/Community/Community.tsx"),
   route("terminosycondiciones", "routes/terminosycondiciones.tsx"),
   route("avisodeprivacidad", "routes/avisodeprivacidad.tsx"),
   route("help", "routes/help.tsx"),

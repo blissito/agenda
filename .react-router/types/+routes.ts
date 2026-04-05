@@ -261,8 +261,8 @@ type RouteFiles = {
     id: "routes/planes";
     page: "/planes";
   };
-  "routes/Community/community.tsx": {
-    id: "routes/Community/community";
+  "routes/Community/Community.tsx": {
+    id: "routes/Community/Community";
     page: "/community";
   };
   "routes/terminosycondiciones.tsx": {
@@ -527,7 +527,7 @@ type RouteModules = {
   "root": typeof import("./app/root.tsx");
   "routes/home": typeof import("./app/routes/home.tsx");
   "routes/planes": typeof import("./app/routes/planes.tsx");
-  "routes/Community/community": typeof import("./app/routes/Community/community.tsx");
+  "routes/Community/Community": typeof import("./app/routes/Community/Community.tsx");
   "routes/terminosycondiciones": typeof import("./app/routes/terminosycondiciones.tsx");
   "routes/avisodeprivacidad": typeof import("./app/routes/avisodeprivacidad.tsx");
   "routes/help": typeof import("./app/routes/help.tsx");
