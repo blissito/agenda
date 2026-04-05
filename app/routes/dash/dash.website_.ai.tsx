@@ -14,6 +14,7 @@ import {
 import { GrapesEditor, LANDING_BLOCKS, type GrapesEditorHandle, type AiAction } from "@easybits.cloud/html-tailwind-generator/components4"
 import { DeviceToggle } from "~/components/dash/website/DeviceToggle"
 import { EditorRightSidebar } from "~/components/dash/website/EditorRightSidebar"
+import { buildDefaultSections } from "~/lib/default-landing"
 import type { Route } from "./+types/dash.website_.ai"
 
 // Remap block categories: "Básicos" for basic elements, section categories for compound sections
@@ -56,6 +57,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       slug: true,
       description: true,
       businessType: true,
+      logo: true,
+      email: true,
+      address: true,
+      social: true,
       landingSections: true,
       landingTheme: true,
       landingCustomColors: true,
@@ -64,12 +69,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   })
   if (!org) throw new Response("Org not found", { status: 404 })
 
-  const serviceCount = await db.service.count({
+  const services = await db.service.findMany({
     where: { orgId: org.id, isActive: true, archived: false },
+    select: { id: true, name: true, slug: true, duration: true, price: true, gallery: true },
+    take: 12,
   })
 
   const usage = await getLandingUsage(org.id)
-  return { org, serviceCount, usage }
+  return { org, serviceCount: services.length, services, usage }
 }
 
 /** Convert Section3[] to a single HTML string for GrapesEditor */
@@ -82,15 +89,17 @@ function sectionsToHtml(sections: Section3[]): string {
 }
 
 export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
-  const { org, serviceCount, usage: initialUsage } = loaderData
+  const { org, serviceCount, services, usage: initialUsage } = loaderData
   const [usage, setUsage] = useState(initialUsage)
   const fetcher = useFetcher()
   const editorRef = useRef<GrapesEditorHandle>(null)
 
-  // State
-  const [sections, setSections] = useState<Section3[]>(
-    (org.landingSections as Section3[] | null) || [],
-  )
+  // State — pre-load default template if no saved sections
+  const [sections, setSections] = useState<Section3[]>(() => {
+    const saved = org.landingSections as Section3[] | null
+    if (saved && saved.length > 0) return saved
+    return buildDefaultSections(org as any, services)
+  })
   const [theme, setTheme] = useState(org.landingTheme || "default")
   const [customColors, setCustomColors] = useState<Record<string, string>>(
     () => (org.landingCustomColors as Record<string, string> | null) || {},
@@ -554,7 +563,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             <>
               <button
                 type="button"
-                onClick={handleGenerate}
+                onClick={() => {
+                  if (window.confirm("Esto reemplazará tu landing actual con una nueva generada por IA. ¿Continuar?")) {
+                    handleGenerate()
+                  }
+                }}
                 disabled={isGenerating || isLoading || usage.genUsed >= usage.genLimit}
                 className="px-2.5 py-1 text-sm border border-purple-500/50 text-purple-300 rounded-lg hover:bg-purple-500/10 disabled:opacity-50 inline-flex items-center gap-1.5"
                 title={usage.genUsed >= usage.genLimit ? "Limite de generaciones alcanzado" : `${usage.genLimit - usage.genUsed} restantes`}
@@ -682,7 +695,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             <div className="p-6 text-center max-w-sm">
               <div className="text-6xl mb-4">&#10024;</div>
               <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                Genera tu landing con IA
+                Genera una nueva landing con IA
               </h2>
               <p className="text-sm text-gray-500 mb-1">
                 Usaremos los datos de tu negocio:

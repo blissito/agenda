@@ -117,7 +117,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm"
           >
             <span>&#10024;</span>
-            Generar con IA
+            Editar con IA
           </Link>
 
           <RoundAction as="a" href={url} label="Abrir sitio web">
