@@ -61,6 +61,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       console.error("Failed to build landing HTML:", err)
     }
   }
+
   return resolution
 }
 
