@@ -40,7 +40,7 @@ export const HoverEffect = ({
                 {item.plan}
               </h3>
               {item.popular && (
-                <span className="bg-brand_yellow/40 text-amber-600 text-[10px] font-satoshi_bold uppercase tracking-widest px-3 py-1 rounded-full">
+                <span className="bg-brand_cloud/40 text-teal-800 text-[10px] font-satoshi_bold uppercase tracking-widest px-3 py-1 rounded-full">
                   Más popular
                 </span>
               )}

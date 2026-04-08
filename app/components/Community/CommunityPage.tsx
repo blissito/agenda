@@ -68,7 +68,7 @@ export function AgendaSlugBar() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full max-w-xl bg-white  rounded-full px-5 py-3 flex items-center justify-between gap-3 ">
+      <div className="w-full max-w-xl bg-white rounded-full pl-5 pr-1.5 py-1.5 flex items-center justify-between gap-3 border border-outline">
         <div className="flex items-center flex-1 min-w-0">
           <span className="font-semibold text-brand_dark shrink-0">
             denik.me/
@@ -88,7 +88,7 @@ export function AgendaSlugBar() {
         <button
           type="button"
           onClick={goSignin}
-          className="bg-brand_blue text-white px-4 h-12 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap"
+          className="bg-brand_blue text-white px-6 py-3 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap"
         >
           Crear mi agenda en línea
         </button>

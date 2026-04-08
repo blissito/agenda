@@ -121,7 +121,6 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <Banner />
         <Features />
         <Benefits />
-        <Integrations />
         <CompaniesScroll />
         <BlogPreview />
         <FinalCta>

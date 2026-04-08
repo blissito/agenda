@@ -1,4 +1,3 @@
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react"
 import { AnimatePresence, motion } from "motion/react"
 import { type ReactNode, Suspense, useEffect, useState } from "react"
 
@@ -188,42 +187,61 @@ export const Pricing = () => (
       Olvídate de los problemas administrativos. Únete a cientos de negocios que
       usan Deník.<br className="hidden md:flex" />¿Listo para empezar hoy mismo?
     </p>
-    <div>
-      <TabGroup className="">
-        <TabList className="flex  bg-brand_pale mx-auto w-[180px] rounded-full h-12 mt-16 relative">
-          <Tab
-            key="monthly"
-            className="rounded-full w-[90px]  py-1 px-3 text-base font-semibold text-[#B3B4B6] font-satoshi focus:outline-none data-[selected]:bg-brand_dark data-[selected]:text-white  data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-brand_dark data-[focus]:outline-1 data-[focus]:outline-white"
-          >
-            Mensual
-          </Tab>
-          <Tab
-            key="yearly"
-            className="rounded-full w-[90px]  py-1 px-3 text-base font-semibold text-[#B3B4B6] font-satoshi focus:outline-none data-[selected]:bg-brand_dark data-[selected]:text-white  data-[hover]:bg-white/5 data-[selected]:data-[hover]:bg-brand_dark data-[focus]:outline-1 data-[focus]:outline-white"
-          >
-            Anual
-          </Tab>
-          <div className="absolute -right-16 md:-right-24  bottom-10 text-brand_blue ">
-            <img src="/images/tag.svg" />
-            <Arrow className=" w-10 h-10" />
-          </div>
-        </TabList>
-        <TabPanels className="mt-3">
-          <TabPanel key="monthly">
-            <div className="flex gap-12 justify-center mt-10 flex-wrap ">
-              <HoverEffect items={monthlyItems} />
-            </div>
-          </TabPanel>
-          <TabPanel key="monthly">
-            <div className="flex gap-12 justify-center mt-10 flex-wrap ">
-              <HoverEffect items={yearlyItems} />
-            </div>
-          </TabPanel>
-        </TabPanels>
-      </TabGroup>
-    </div>
+    <PricingTabs />
   </section>
 )
+
+function PricingTabs() {
+  const [selected, setSelected] = useState(0)
+
+  return (
+    <div className="mt-16">
+      <div className="flex bg-brand_pale mx-auto w-[180px] rounded-full h-12 relative">
+        {/* Animated background pill */}
+        <motion.div
+          className="absolute top-0 h-full w-[90px] bg-brand_dark rounded-full"
+          animate={{ x: selected * 90 }}
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        />
+        <button
+          type="button"
+          onClick={() => setSelected(0)}
+          className={`relative z-10 w-[90px] rounded-full py-1 px-3 text-base font-semibold font-satoshi transition-colors duration-200 ${
+            selected === 0 ? "text-white" : "text-[#B3B4B6]"
+          }`}
+        >
+          Mensual
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelected(1)}
+          className={`relative z-10 w-[90px] rounded-full py-1 px-3 text-base font-semibold font-satoshi transition-colors duration-200 ${
+            selected === 1 ? "text-white" : "text-[#B3B4B6]"
+          }`}
+        >
+          Anual
+        </button>
+        <div className="absolute -right-16 md:-right-24 bottom-10 text-brand_blue">
+          <img src="/images/tag.svg" alt="" />
+          <Arrow className="w-10 h-10" />
+        </div>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selected}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.25 }}
+          className="flex gap-12 justify-center mt-10 flex-wrap"
+        >
+          <HoverEffect items={selected === 0 ? monthlyItems : yearlyItems} />
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  )
+}
 
 const FEATURES_PRO = [
   "Agenda en línea",
@@ -248,7 +266,7 @@ export const yearlyItems = [
   {
     plan: "Profesional",
     description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
-    price: "$159 mxn",
+    price: "$249 mxn",
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
     cta: (
       <PrimaryButton as="Link" to="/signin" className="w-full">
@@ -260,7 +278,7 @@ export const yearlyItems = [
   {
     plan: "Enterprise",
     description: "Para negocios con equipo y necesidades avanzadas.",
-    price: "$399 mxn",
+    price: "$479 mxn",
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
     popular: true,
     cta: (
@@ -276,7 +294,7 @@ export const monthlyItems = [
   {
     plan: "Profesional",
     description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
-    price: "$199 mxn",
+    price: "$239 mxn",
     priceNote: "Cancela cuando quieras.",
     cta: (
       <PrimaryButton as="Link" to="/signin" className="w-full">
@@ -288,7 +306,7 @@ export const monthlyItems = [
   {
     plan: "Enterprise",
     description: "Para negocios con equipo y necesidades avanzadas.",
-    price: "$499 mxn",
+    price: "$599 mxn",
     priceNote: "Cancela cuando quieras.",
     popular: true,
     cta: (

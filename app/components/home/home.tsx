@@ -15,20 +15,55 @@ import { Search } from "../icons/search"
 import { Thunder } from "../icons/thunder"
 import { Waves } from "../icons/waves"
 
+function Sparkles() {
+  return (
+    <span className="relative inline-block w-0">
+      <svg
+        className="absolute -top-8 -left-4 md:-left-5 lg:-left-6 w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 animate-[sparkle_2s_ease-in-out_infinite]"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 64 64"
+      >
+        <path
+          fill="#ffdc6e"
+          d="M45.98,1.61l1.76,5.71c1.46,4.72,5.15,8.41,9.87,9.87l5.71,1.76c.91.28.91,1.57,0,1.86l-5.71,1.76c-4.72,1.46-8.41,5.15-9.87,9.87l-1.76,5.71c-.28.91-1.57.91-1.86,0l-1.76-5.71c-1.46-4.72-5.15-8.41-9.87-9.87l-5.71-1.76c-.91-.28-.91-1.57,0-1.86l5.71-1.76c4.72-1.46,8.41-5.15,9.87-9.87l1.76-5.71c.28-.91,1.57-.91,1.86,0z"
+        />
+      </svg>
+      <svg
+        className="absolute -top-6 left-2 md:top-6 md:left-3 lg:-top-4 lg:left-4 w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 animate-[sparkle_2s_ease-in-out_0.7s_infinite]"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 64 64"
+      >
+        <path
+          fill="#ffdc6e"
+          d="M14.44,36.04l1.28,4.15c1.06,3.43,3.74,6.11,7.17,7.17l4.15,1.28c.66.2.66,1.14,0,1.35l-4.15,1.28c-3.43,1.06-6.11,3.74-7.17,7.17l-1.28,4.15c-.2.66-1.14.66-1.35,0l-1.28-4.15c-1.06-3.43-3.74-6.11-7.17-7.17l-4.15-1.28c-.66-.2-.66-1.14,0-1.35l4.15-1.28c3.43-1.06,6.11-3.74,7.17-7.17l1.28-4.15c.2-.66,1.14-.66,1.35,0z"
+        />
+      </svg>
+      <style>{`
+        @keyframes sparkle {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.3; transform: scale(0.6); }
+        }
+      `}</style>
+    </span>
+  )
+}
+
 export const Hero = () => (
   <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center  ">
     <div className="w-full h-full px-[5%] xl:px-[18%]">
       <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-[68px]	font-satoBold text-brand_dark  flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4  md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
-        <span>agenda</span> de tu negocio en un solo lugar
+        <span>agenda</span> de tu negocio en un solo lugar con IA
+        <Sparkles />
       </h1>
       <h1 className=" flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-satoBold text-brand_dark flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
       </h1>
       <h1 className="flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-satoBold text-brand_dark flex-wrap items-center text-center justify-center ">
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4" />{" "}
-        <span>agenda</span> de tu negocio en un solo lugar
+        <span>agenda</span> de tu negocio en un solo lugar con IA
+        <Sparkles />
       </h1>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
         Agenda de manera sencilla con ayuda de tu agente IA, realiza cobros, manda recordatorios a tus

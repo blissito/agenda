@@ -43,7 +43,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
       <section>
         <PlanCard
           plan="Plan Profesional"
-          price="199.00 mxn"
+          price="249.00 mxn"
           nextPayment="18 de Agosto 2024"
         >
           <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">

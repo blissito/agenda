@@ -103,34 +103,44 @@ export function ErrorBoundary() {
   const isError = error instanceof Error
 
   return (
-    <div className="text-white pt-20 p-8">
-      <h1 className="text-2xl font-bold mb-4">
-        {is404 ? (
-          <>
-            {error.status} {error.statusText}
-          </>
-        ) : (
-          "Ha ocurrido un error"
-        )}
+    <div className="min-h-screen bg-[#F7F7F9] flex flex-col items-center justify-center px-6">
+      {/* 404 background text */}
+      <div className="relative flex items-center justify-center">
+        <span className="text-[200px] md:text-[280px] font-satoBold text-gray-200 select-none leading-none">
+          {is404 ? error.status : "Error"}
+        </span>
+        <img
+          src="/images/nik.svg"
+          alt=""
+          className="absolute w-[180px] md:w-[260px] bottom-4"
+        />
+      </div>
+
+      <h1 className="text-2xl md:text-4xl font-satoBold text-brand_dark text-center mt-6">
+        {is404
+          ? "Ups, \u00a1Esta p\u00e1gina no existe!"
+          : "Ha ocurrido un error"}
       </h1>
-      {is404 && <p>{error.data}</p>}
+
       {isError && isDev && (
-        <details className="mt-4">
-          <summary className="cursor-pointer text-gray-400">
+        <details className="mt-4 max-w-xl w-full">
+          <summary className="cursor-pointer text-gray-400 text-sm">
             Detalles del error (solo en desarrollo)
           </summary>
-          <pre className="mt-2 text-sm bg-gray-900 p-4 rounded overflow-auto">
+          <pre className="mt-2 text-sm bg-gray-900 text-white p-4 rounded overflow-auto">
             {error.message}
             {"\n\n"}
             {error.stack}
           </pre>
         </details>
       )}
-      {!isDev && isError && (
-        <p className="text-gray-400">
-          Por favor intenta de nuevo o contacta soporte si el problema persiste.
-        </p>
-      )}
+
+      <a
+        href="/"
+        className="mt-8 bg-brand_blue text-white px-8 py-3 rounded-full text-base font-satoMedium hover:opacity-90 transition-opacity"
+      >
+        Volver a la pagina principal
+      </a>
     </div>
   )
 }
