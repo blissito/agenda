@@ -7,7 +7,7 @@ import { PrimaryButton } from "./primaryButton"
 
 const NAV_LINKS = [
   { to: "/funcionalidades", label: "Funcionalidades" },
-  { to: "/como-funciona", label: "Cómo funciona" },
+  { to: "/negocios", label: "Negocios" },
   { to: "/planes", label: "Planes" },
 ]
 

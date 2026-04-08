@@ -13,14 +13,17 @@ import { Lamp } from "~/components/icons/lamp"
 import { Rocket } from "~/components/icons/rocket"
 import { Comment } from "~/components/icons/comment"
 import { Thunder } from "~/components/icons/thunder"
+import { HandShake } from "~/components/icons/handshake"
+import { Card, Carousel } from "~/components/ui/cards-carrusel"
 import { getMetaTags } from "~/utils/getMetaTags"
+import { AgendaSlugBar } from "~/components/Community/CommunityPage"
 
 export const meta: MetaFunction = () =>
   getMetaTags({
-    title: "Cómo funciona | Deník",
+    title: "Negocios | Deník",
     description:
-      "Descubre cómo funciona Deník en 3 sencillos pasos y empieza a recibir citas hoy mismo.",
-    url: "https://denik.me/como-funciona",
+      "Deník se adapta a cualquier tipo de negocio. Descubre cómo podemos ayudarte a gestionar tus citas y hacer crecer tu marca.",
+    url: "https://denik.me/negocios",
   })
 
 export default function ComoFunciona() {
@@ -33,8 +36,11 @@ export default function ComoFunciona() {
       <div className="bg-white rounded-b-[40px] overflow-hidden">
         <TopBar />
 
+        {/* Business */}
+        <Business />
+
         {/* Hero */}
-        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-[200px] lg:pt-[24%] xl:pt-[16%]">
+        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto my-[160px] pt-20">
           <h1 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
             <span className="mr-4">Cómo funciona</span>
             <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
@@ -167,5 +173,70 @@ function StepCard({
         {description}
       </p>
     </div>
+  )
+}
+
+const businessData = [
+  {
+    category: "Clases de idiomas",
+    title: "Clases de idiomas",
+    src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=3556&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Estudio de belleza",
+    title: "Estudio de belleza",
+    src: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Gimnasios",
+    title: "Gimnasios",
+    src: "https://images.unsplash.com/photo-1713869791518-a770879e60dc?q=80&w=2333&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Centros deportivos",
+    title: "Centros deportivos",
+    src: "https://images.unsplash.com/photo-1599202860130-f600f4948364?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Spas",
+    title: "Spas",
+    src: "https://images.unsplash.com/photo-1602081957921-9137a5d6eaee?q=80&w=2793&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    content: "You can do more with AI.",
+  },
+  {
+    category: "Experiencias turísticas",
+    title: "Experiencias turísticas",
+    src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    content: "You can do more with AI.",
+  },
+]
+
+const Business = () => {
+  const cards = businessData.map((card, index) => (
+    <Card key={card.src} card={card} index={index} />
+  ))
+  return (
+    <section className="my-[160px] relative">
+      <div className="py-[80px] bg-[#F3F6FA] h-[1200px] mx-auto rounded-[40px] max-w-7xl">
+        <h2 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
+          <span className="mr-4">Para todos los negocios</span>
+          <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />
+        </h2>
+        <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full text-center mx-auto md:w-[90%]">
+          Deník se adapta a cualquier tipo de negocio. Descubre cómo podemos
+          ayudarte a gestionar tus citas y hacer crecer tu marca.
+        </p>
+        <div className="mt-10 flex justify-center">
+          <AgendaSlugBar />
+        </div>
+      </div>
+      <div className="-mt-[860px]">
+        <Carousel items={cards} />
+      </div>
+    </section>
   )
 }

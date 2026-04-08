@@ -32,20 +32,20 @@ export const ClientFolderIllustration = ({
       .client-file {
         transition: transform 0.5s ease-out, opacity 0.5s ease-out;
       }
-      .client-file-0 { transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.9); opacity: 0; }
-      .client-file-1 { transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.9); opacity: 0; }
-      .client-file-2 { transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.9); opacity: 0; }
+      .client-file-0 { transform: translateY(-30px) translateX(-30px) rotate(-8deg) scale(1); opacity: 1; }
+      .client-file-1 { transform: translateY(-38px) translateX(15px) rotate(0deg) scale(1); opacity: 1; }
+      .client-file-2 { transform: translateY(-30px) translateX(60px) rotate(8deg) scale(1); opacity: 1; }
       .group:hover .client-file-0 {
-        transform: translateY(-30px) translateX(-30px) rotate(-8deg) scale(1);
-        opacity: 1;
+        transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.9);
+        opacity: 0;
       }
       .group:hover .client-file-1 {
-        transform: translateY(-38px) translateX(15px) rotate(0deg) scale(1);
-        opacity: 1;
+        transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.9);
+        opacity: 0;
       }
       .group:hover .client-file-2 {
-        transform: translateY(-30px) translateX(60px) rotate(8deg) scale(1);
-        opacity: 1;
+        transform: translateY(0px) translateX(0px) rotate(0deg) scale(0.9);
+        opacity: 0;
       }
     `}</style>
 
@@ -55,42 +55,42 @@ export const ClientFolderIllustration = ({
       <div className="relative w-[130px]">
         {/* File cards that emerge from folder */}
         <div
-          className="client-file client-file-0 absolute bottom-full left-0 w-[80px] h-[60px] rounded-lg bg-brand_blue/90 shadow-md overflow-hidden z-[3]"
+          className="client-file client-file-0 absolute bottom-full left-0 w-[80px] h-[60px] rounded-lg bg-white shadow-lg overflow-hidden z-[3]"
           style={{ transitionDelay: "0ms" }}
         >
-          <div className="h-[35px] bg-brand_blue/30" />
+          <img src="/images/illustrations/person1.png" alt="Cliente 1" className="h-[35px] w-full object-cover" />
           <div className="p-1.5">
-            <div className="h-[4px] w-10 bg-white/40 rounded" />
-            <div className="h-[3px] w-6 bg-white/20 rounded mt-1" />
+            <div className="h-[4px] w-10 bg-black/10 rounded" />
+            <div className="h-[3px] w-6 bg-black/5 rounded mt-1" />
           </div>
         </div>
 
         <div
-          className="client-file client-file-1 absolute bottom-full left-0 w-[80px] h-[60px] rounded-lg bg-brand_yellow shadow-md overflow-hidden z-[4]"
+          className="client-file client-file-1 absolute bottom-full left-0 w-[80px] h-[60px] rounded-lg bg-white shadow-lg overflow-hidden z-[4]"
           style={{ transitionDelay: "80ms" }}
         >
-          <div className="h-[35px] bg-brand_mostaza/30" />
+          <img src="/images/illustrations/person2.png" alt="Cliente 2" className="h-[35px] w-full object-cover" />
           <div className="p-1.5">
-            <div className="h-[4px] w-10 bg-white/40 rounded" />
-            <div className="h-[3px] w-6 bg-white/20 rounded mt-1" />
+            <div className="h-[4px] w-10 bg-black/10 rounded" />
+            <div className="h-[3px] w-6 bg-black/5 rounded mt-1" />
           </div>
         </div>
 
         <div
-          className="client-file client-file-2 absolute bottom-full left-0 w-[80px] h-[60px] rounded-lg bg-brand_cloud shadow-md overflow-hidden z-[3]"
+          className="client-file client-file-2 absolute bottom-full left-0 w-[80px] h-[60px] rounded-lg bg-white shadow-lg overflow-hidden z-[3]"
           style={{ transitionDelay: "160ms" }}
         >
-          <div className="h-[35px] bg-brand_cloud/50" />
+          <img src="/images/illustrations/person3.png" alt="Cliente 3" className="h-[35px] w-full object-cover" />
           <div className="p-1.5">
-            <div className="h-[4px] w-10 bg-white/40 rounded" />
-            <div className="h-[3px] w-6 bg-white/20 rounded mt-1" />
+            <div className="h-[4px] w-10 bg-black/10 rounded" />
+            <div className="h-[3px] w-6 bg-black/5 rounded mt-1" />
           </div>
         </div>
 
         {/* Folder */}
         <div className="relative z-10">
           <div className="w-[45%] h-[10px] bg-brand_mostaza rounded-t-md ml-1" />
-          <div className="w-full h-[65px] bg-brand_yellow rounded-tr-lg rounded-b-lg shadow-md flex items-end p-3">
+          <div className="w-full h-[65px] bg-brand_yellow rounded-lg shadow-md flex items-end p-3">
             <div className="flex items-center gap-1.5">
               <div className="w-4 h-4 rounded-full bg-white/30 flex items-center justify-center">
                 <svg width="8" height="8" viewBox="0 0 16 16" fill="white" fillOpacity="0.9">

@@ -53,7 +53,7 @@ function CategoryTabs({ categories, active, onChange }: CategoryTabsProps) {
   )
 }
 
-function AgendaSlugBar() {
+export function AgendaSlugBar() {
   const [slug, setSlug] = useState<string>("")
   const navigate = useNavigate()
 
@@ -68,7 +68,7 @@ function AgendaSlugBar() {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full max-w-xl bg-white border border-brand-gray-light rounded-full px-5 py-3 flex items-center justify-between gap-3 ">
+      <div className="w-full max-w-xl bg-white  rounded-full px-5 py-3 flex items-center justify-between gap-3 ">
         <div className="flex items-center flex-1 min-w-0">
           <span className="font-semibold text-brand_dark shrink-0">
             denik.me/
@@ -88,15 +88,15 @@ function AgendaSlugBar() {
         <button
           type="button"
           onClick={goSignin}
-          className="bg-brand_blue text-white px-5 py-2 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap"
+          className="bg-brand_blue text-white px-4 h-12 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap"
         >
-          Crear mi agenda
+          Crear mi agenda en línea
         </button>
       </div>
 
-      <p className="mt-3 text-xs md:text-sm text-brand_blue">
+      {/* <p className="mt-3 text-xs md:text-sm text-brand_blue">
         ¡Empieza a usar Deník gratis!
-      </p>
+      </p> */}
     </div>
   )
 }

@@ -157,9 +157,9 @@ export const Carousel = ({
             ))}
           </div>
         </div>
-        <div className="flex justify-end gap-2 mr-10">
+        <div className="flex justify-center gap-2">
           <button
-            className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-30 hover:bg-gray-200 transition-colors"
+            className="relative z-40 h-10 w-10 rounded-full bg-brand_dark flex items-center justify-center disabled:opacity-30 hover:bg-brand_dark/80 transition-colors"
             onClick={scrollLeft}
             disabled={!canScrollLeft}
             aria-label="Anterior"
@@ -167,7 +167,7 @@ export const Carousel = ({
             <ArrowRight className="h-6 w-6 text-gray-500 rotate-180" />
           </button>
           <button
-            className="relative z-40 h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center disabled:opacity-30 hover:bg-gray-200 transition-colors"
+            className="relative z-40 h-10 w-10 rounded-full bg-brand_dark flex items-center justify-center disabled:opacity-30 hover:bg-brand_dark/80 transition-colors"
             onClick={scrollRight}
             disabled={!canScrollRight}
             aria-label="Siguiente"
@@ -266,23 +266,24 @@ export const Card = ({
       <motion.button
         layoutId={layout ? `card-${card.title}` : undefined}
         onClick={handleOpen}
-        className="rounded-3xl bg-gray-100 dark:bg-neutral-900 h-80 w-56 md:h-[40rem] md:w-96 overflow-hidden flex flex-col items-start justify-start relative z-10"
+        className="group/card rounded-3xl bg-gray-100 dark:bg-neutral-900 h-80 w-56 md:h-[40rem] md:w-96 overflow-hidden flex flex-col items-start justify-start relative z-10"
       >
-        <div className="absolute h-full top-0 inset-x-0 bg-gradient-to-b from-black/50 via-transparent to-transparent z-30 pointer-events-none" />
-        <div className="relative z-40 p-8">
-          <motion.p
-            layoutId={layout ? `category-${card.category}` : undefined}
-            className="text-white text-sm md:text-base font-medium font-sans text-left"
-          >
-            {card.category}
-          </motion.p>
+        {/* Bottom gradient */}
+        <div className="absolute h-1/2 bottom-0 inset-x-0 bg-gradient-to-t from-black/60 to-transparent z-30 pointer-events-none" />
+
+        {/* Content — name centered at bottom, shifts up on hover */}
+        <div className="absolute inset-x-0 bottom-0 z-40 p-8 flex flex-col items-center text-center">
           <motion.p
             layoutId={layout ? `title-${card.title}` : undefined}
-            className="text-white text-xl md:text-3xl font-semibold max-w-xs text-left [text-wrap:balance] font-sans mt-2"
+            className="text-white text-xl md:text-3xl font-semibold [text-wrap:balance] font-sans transition-transform duration-300 group-hover/card:-translate-y-14"
           >
             {card.title}
           </motion.p>
+          <span className="absolute bottom-8 border border-white text-white text-xs md:text-sm px-5 py-2 rounded-full opacity-0 translate-y-3 group-hover/card:opacity-100 group-hover/card:translate-y-0 transition-all duration-300">
+            Ver más
+          </span>
         </div>
+
         <BlurImage
           src={card.src}
           alt={card.title}

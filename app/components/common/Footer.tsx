@@ -21,8 +21,8 @@ export const Footer = () => {
           <Link to="/funcionalidades">
             <p>Funcionalidades</p>
           </Link>
-          <Link to="/como-funciona">
-            <p>Cómo funciona</p>
+          <Link to="/negocios">
+            <p>Negocios</p>
           </Link>
           <Link to="/help">
             <p>Blog</p>
