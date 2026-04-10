@@ -25,6 +25,7 @@ export const serverServicePhotoFormSchema = z.object({
   place: z.string(),
   allowMultiple: z.boolean().optional(),
   isActive: z.boolean().optional(),
+  seats: z.number().optional(),
 })
 
 export const servicePhotoFormSchema = z.object({
@@ -38,6 +39,7 @@ export const servicePhotoFormSchema = z.object({
     .enum(["true", "false", "on"])
     .optional()
     .transform((value) => value === "true" || value === "on"),
+  seats: z.coerce.number().optional(),
 })
 
 type ServicePhotoFormFields = z.infer<typeof servicePhotoFormSchema>
@@ -62,6 +64,7 @@ const initialPhotoValues = {
   isActive: true,
   allowMultiple: false,
   gallery: "",
+  seats: 2,
 }
 export const ServicePhotoForm = ({
   photoAction,
@@ -210,7 +213,8 @@ export const SwitchOption = ({
 }: {
   isDisabled?: boolean
   defaultChecked?: boolean
-  setValue?: (name: string, value: boolean) => void
+  // biome-ignore lint: matches loose typing of register prop
+  setValue?: any
   name: string
   register: UseFormRegister<FieldValues> | any
   title: string
