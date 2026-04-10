@@ -74,6 +74,21 @@ export const AboutYourCompanyForm = ({
     }
   }, [setValue, org?.numberOfEmployees])
 
+  // Pre-llena el nombre del negocio si el usuario lo escribió en el slug bar
+  // de /negocios antes de crear su cuenta. Solo aplica si la org todavía
+  // tiene el placeholder por defecto.
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const pending = window.localStorage.getItem("denik_pending_org_name")
+    if (!pending) return
+    // Limpiamos siempre para evitar datos viejos en próximas sesiones.
+    window.localStorage.removeItem("denik_pending_org_name")
+    const isPlaceholder = !org?.name || org.name === "New Denik Org"
+    if (isPlaceholder) {
+      setValue("name", pending, { shouldValidate: true })
+    }
+  }, [setValue, org?.name])
+
   const goNext = async () => {
     if (screen === 0) {
       const ok = await trigger("name")
@@ -145,7 +160,7 @@ export const AboutYourCompanyForm = ({
                 />
               </div>
 
-              <p className="font-jakarta text-[24px] font-bold text-brand_dark">
+              <p className="text-2xl font-satoBold text-brand_dark">
                 Empecemos con el nombre de tu negocio
               </p>
 
@@ -196,7 +211,7 @@ export const AboutYourCompanyForm = ({
                     <span className="text-lg leading-none">‹</span> Volver
                   </button>
 
-                  <p className=" font-jakarta text-[24px] font-bold text-brand_dark">
+                  <p className=" font-jakarta text-[24px] font-satoBold text-brand_dark">
                     ¿Cuál es tu nombre?
                   </p>
 
@@ -274,7 +289,7 @@ export const AboutYourCompanyForm = ({
                 <div
                   className={twMerge(
                     "grid w-full max-w-6xl gap-16 lg:gap-24",
-                    "lg:grid-cols-[420px_420px]",
+                    "lg:grid-cols-[460px_400px]",
                     "items-center",
                   )}
                 >
@@ -287,7 +302,7 @@ export const AboutYourCompanyForm = ({
                       <span className="text-lg leading-none">‹</span> Volver
                     </button>
 
-                    <p className="font-jakarta text-[24px] font-bold text-brand_dark">
+                    <p className="font-jakarta text-[24px] font-satoBold text-brand_dark">
                       ¿Cuántos empleados tiene tu negocio?
                     </p>
 
@@ -355,9 +370,9 @@ export const AboutYourCompanyForm = ({
 
 function PreviewCard({ shopKeeper }: { shopKeeper: string }) {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200">
-      <h3 className="text-lg font-semibold text-neutral-900">Masaje Sueco</h3>
-      <div className="mt-3 space-y-2 text-sm text-neutral-600">
+    <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-brand_pale">
+      <h3 className="text-lg font-satoBold text-neutral-900">Masaje Sueco</h3>
+      <div className="mt-3 space-y-2 text-sm text-brand_gray">
         <div className="flex items-center gap-2">
           <span>📅</span> <span>19 de Agosto 2026, 10:00 am</span>
         </div>

@@ -344,7 +344,7 @@ const TiltCard = ({
           <h3 className="mt-4 text-2xl font-semibold">{title}</h3>
           <p className="mb-4 mt-1 text-brand_gray">{description}</p>
           <span className="text-brand_blue font-satoMiddle underline">
-            Leer articulo
+            Leer artículo
           </span>
         </section>
       </div>

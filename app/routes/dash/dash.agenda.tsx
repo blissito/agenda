@@ -148,9 +148,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const sundayEnd = new Date(sunday)
   sundayEnd.setHours(23, 59, 59, 999)
 
-  // Month range for mini calendar dots
+  // Month range for mini calendar dots (extend to cover full visible grid ~6 weeks)
   const monthStart = new Date(monday.getFullYear(), monday.getMonth(), 1)
+  monthStart.setDate(monthStart.getDate() - 7) // include prev month tail
   const monthEnd = new Date(monday.getFullYear(), monday.getMonth() + 1, 0, 23, 59, 59, 999)
+  monthEnd.setDate(monthEnd.getDate() + 7) // include next month head
 
   const [events, customers, employees, services, upcomingEvents, monthEvents, orgUsers] =
     await Promise.all([
@@ -311,7 +313,7 @@ function MiniCalendar({
             <button
               key={i}
               onClick={() => onDateClick(d)}
-              className="flex flex-col items-center gap-0.5 mx-auto"
+              className="flex flex-col items-center mx-auto"
             >
               <span
                 className={`w-7 h-7 rounded-full text-xs flex items-center justify-center transition-colors ${
@@ -327,8 +329,8 @@ function MiniCalendar({
                 {d.getDate()}
               </span>
               <span
-                className={`w-1.5 h-1.5 rounded-full -mt-2 z-10 ${
-                  hasEvent ? "bg-[#FFD75E]" : "bg-transparent"
+                className={`w-1.5 h-1.5 rounded-full -mt-[4px] ${
+                  hasEvent ? "bg-brand_yellow" : "bg-transparent"
                 }`}
               />
             </button>

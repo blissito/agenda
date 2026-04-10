@@ -18,7 +18,7 @@ export const Template = ({
   return (
     <section className="col-span-6 xl:col-span-2 ">
       <div className="bg-white rounded-2xl overflow-hidden sticky top-8">
-        <div className="bg-schedule w-full h-20 flex items-center justify-center px-6 text-white text-xl font-satoMiddle">
+        <div className="bg-schedule w-full h-20 flex items-center justify-center px-6 text-white text-xl font-satoBold">
           Tu agenda esta lista... ¡Compártela!
         </div>
         <DomainCard org={org} url={url} qr={qr} />

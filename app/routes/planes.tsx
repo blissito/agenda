@@ -56,7 +56,7 @@ export default function Index() {
 }
 
 export const Faq = () => (
-  <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
+  <section id="preguntas-frecuentes" className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
     <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4">Preguntas </span>
       <Bubble className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}

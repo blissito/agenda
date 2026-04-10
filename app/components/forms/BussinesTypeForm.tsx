@@ -14,7 +14,6 @@ import { Crossfit } from "../icons/business/corssfit"
 import { Couch } from "../icons/business/couch"
 import { Courses } from "../icons/business/courses"
 import { Dance } from "../icons/business/dance"
-import { Equipment } from "../icons/business/equipment"
 import { Gym } from "../icons/business/gym"
 import { Hair } from "../icons/business/hair"
 import { Mat } from "../icons/business/mat"
@@ -33,22 +32,21 @@ export const OPTIONS = [
   "estudios clínicos",
   "crossfit",
   "coaching",
-  "tutorias",
+  "tutorías",
   "gimnasio",
   "yoga / meditación",
   "spa",
   "centro de idiomas",
-  "nutriologo",
+  "nutriólogo",
   "veterinaria",
   "danza / baile",
   "terapia física",
-  "psicologo",
-  "experiencias turisticas",
-  "salon de belleza",
-  "reparaciones",
-  "hojalatería",
-  "code review",
-  "uñas",
+  "psicólogo",
+  "experiencias turísticas",
+  "salón de belleza",
+  "pilates",
+  "consultorio psicológico",
+  "salón de uñas",
   "otro",
 ]
 
@@ -68,7 +66,7 @@ const getIconByOption = (string?: string, fill = "#8391A1") => {
       return <Crossfit fill={fill} />
     case "coaching":
       return <Couch fill={fill} />
-    case "tutorias":
+    case "tutorías":
       return <ClassIcon fill={fill} />
     case "gimnasio":
       return <Gym fill={fill} />
@@ -78,7 +76,7 @@ const getIconByOption = (string?: string, fill = "#8391A1") => {
       return <Spa fill={fill} />
     case "centro de idiomas":
       return <Courses fill={fill} />
-    case "nutriologo":
+    case "nutriólogo":
       return <Apple fill={fill} />
     case "veterinaria":
       return <Pet fill={fill} />
@@ -86,19 +84,17 @@ const getIconByOption = (string?: string, fill = "#8391A1") => {
       return <Dance fill={fill} />
     case "terapia física":
       return <Reformer fill={fill} />
-    case "psicologo":
+    case "psicólogo":
       return <Brain fill={fill} />
-    case "experiencias turisticas":
+    case "experiencias turísticas":
       return <Tourism fill={fill} />
-    case "salon de belleza":
+    case "salón de belleza":
       return <Hair fill={fill} />
-    case "reparaciones":
-      return <Equipment fill={fill} />
-    case "hojalatería":
-      return <Equipment fill={fill} />
-    case "code review":
-      return <Courses fill={fill} />
-    case "uñas":
+    case "pilates":
+      return <Reformer fill={fill} />
+    case "consultorio psicológico":
+      return <Brain fill={fill} />
+    case "salón de uñas":
       return <Beauty fill={fill} />
     default:
       return <Barbershop fill={fill} />
@@ -185,7 +181,7 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
           <span className="text-lg leading-none">‹</span> Volver
         </a>
 
-        <h1 className="font-jakarta text-[24px] font-bold text-brand_dark">
+        <h1 className="font-satoBold text-2xl text-brand_dark">
           ¿Qué tipo de negocio tienes?
         </h1>
 

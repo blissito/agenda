@@ -1,5 +1,5 @@
-import { Suspense, useEffect } from "react"
-import type { MetaFunction } from "react-router"
+import { Suspense, useEffect, useState } from "react"
+import { useNavigate, type MetaFunction } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { Banner } from "~/components/home/Banner"
@@ -11,7 +11,6 @@ import { Rocket } from "~/components/icons/rocket"
 import { HandShake } from "~/components/icons/handshake"
 import { Card, Carousel } from "~/components/ui/cards-carrusel"
 import { getMetaTags } from "~/utils/getMetaTags"
-import { AgendaSlugBar } from "~/components/Community/CommunityPage"
 
 export const meta: MetaFunction = () =>
   getMetaTags({
@@ -1044,12 +1043,60 @@ const Business = () => {
           ayudarte a gestionar tus citas y hacer crecer tu marca.
         </p>
         <div className="mt-10 flex justify-center">
-          <AgendaSlugBar />
+          <NegociosSlugBar />
         </div>
       </div>
       <div className="-mt-[640px]">
         <Carousel items={cards} />
       </div>
     </section>
+  )
+}
+
+function NegociosSlugBar() {
+  const [slug, setSlug] = useState<string>("")
+  const navigate = useNavigate()
+
+  const trimmedSlug = slug.trim()
+  const isDisabled = trimmedSlug.length === 0
+
+  const goSignin = () => {
+    if (isDisabled) return
+    // Persistimos el nombre del negocio para pre-llenarlo en el step 1 del
+    // onboarding. localStorage sobrevive el flujo de magic link, donde el
+    // usuario regresa desde su correo a una URL distinta.
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("denik_pending_org_name", trimmedSlug)
+    }
+    navigate(`/signin?slug=${encodeURIComponent(trimmedSlug)}`)
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="w-full max-w-xl bg-white rounded-full pl-5 pr-1.5 py-1.5 flex items-center justify-between gap-3 border border-outline">
+        <div className="flex items-center flex-1 min-w-0">
+          <span className="font-semibold text-brand_dark shrink-0">
+            denik.me/
+          </span>
+          <input
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") goSignin()
+            }}
+            placeholder="tunegocio"
+            className="ml-2 w-full !bg-transparent !border-0 !outline-none !ring-0 focus:!ring-0 focus:!outline-none text-brand_gray placeholder:text-brand_gray/70"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={goSignin}
+          disabled={isDisabled}
+          className="bg-brand_blue text-white px-6 py-3 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap transition disabled:bg-brand_blue/40 disabled:cursor-not-allowed enabled:hover:-translate-y-0.5"
+        >
+          Crear mi agenda en línea
+        </button>
+      </div>
+    </div>
   )
 }

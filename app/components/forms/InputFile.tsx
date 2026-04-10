@@ -125,7 +125,7 @@ export const InputFile = ({
         onDrop={handleDragEnd}
         onDragOver={handleOnDragOver}
         className={twMerge(
-          "bg-transparent flex justify-center text-center items-center border-[1px] border-[#CFCFCF] border-dashed rounded-2xl mt-6 h-[160px] text-red-500 transition-all",
+          "group bg-transparent flex justify-center text-center items-center border-[1px] border-[#CFCFCF] border-dashed rounded-2xl mt-6 h-[160px] text-red-500 transition-all",
           "hover:border-brand_blue relative overflow-hidden",
           isOver && "border-brand_blue scale-105 bg-brand_blue/10",
           className,

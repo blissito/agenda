@@ -28,7 +28,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   if (!tokens.access_token) {
     console.error("MP OAuth error:", tokens)
-    throw redirect("/dash/pagos?mp_error=oauth_failed")
+    throw redirect("/dash/ventas?mp_error=oauth_failed")
   }
 
   // Guardar tokens en el usuario
@@ -45,5 +45,5 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     },
   })
 
-  throw redirect("/dash/pagos?mp_success=true")
+  throw redirect("/dash/ventas?mp_success=true")
 }

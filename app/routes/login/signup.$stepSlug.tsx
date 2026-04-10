@@ -109,7 +109,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
         <button
           type="button"
-          className="rounded-full bg-neutral-50 px-5 py-2 text-sm text-neutral-700 ring-1 ring-neutral-200 hover:bg-neutral-100"
+          className="rounded-full bg-brand_light_gray px-5 py-2 text-sm text-neutral-700 hover:bg-brand_light_gray/80"
         >
           Ayuda
         </button>
@@ -130,7 +130,37 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             ) : stepSlug === "4" ? (
               <BussinesTypeForm org={org} />
             ) : stepSlug === "5" ? (
-              <TimesForm org={org} />
+              <div className="min-h-[calc(100vh-190px)] flex items-center justify-center">
+                <div className="grid w-full max-w-6xl mx-auto gap-10 lg:gap-16 lg:grid-cols-[1fr_460px] items-center">
+                  <div className="max-w-xl">
+                    <a
+                      href="/signup/4"
+                      className="mb-6 inline-flex items-center gap-2 text-sm text-neutral-500 hover:text-neutral-800"
+                    >
+                      <span className="text-lg leading-none">‹</span> Volver
+                    </a>
+                    <p className="font-jakarta text-[24px] font-satoBold text-brand_dark">
+                      ¿Qué horarios manejas?
+                    </p>
+                    <p className="mt-2 text-sm text-brand_gray font-satoshi">
+                      Elige los días y rangos de horarios en los que tus
+                      clientes podrán reservar contigo.
+                    </p>
+                    <TimesForm
+                      org={org}
+                      className="max-w-none mx-0 px-0 pt-6 md:pt-6 h-auto"
+                    />
+                  </div>
+                  <div className="hidden lg:flex items-center justify-center">
+                    <img
+                      src="/images/agenda.svg"
+                      alt="vista de agenda"
+                      className="w-full h-auto select-none pointer-events-none"
+                      draggable={false}
+                    />
+                  </div>
+                </div>
+              </div>
             ) : (
               <LoaderScreen title={org.name} />
             )}
@@ -141,8 +171,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <footer className="absolute bottom-6 left-0 right-0 px-10 text-xs text-neutral-400">
         <div className="flex items-center justify-between">
           <span>Todos los derechos reservados Denik® 2024</span>
-          <a className="hover:text-neutral-600" href="#">
-            Política de privacidad
+          <a className="hover:text-neutral-600" href="/avisodeprivacidad">
+            Aviso de Privacidad
           </a>
         </div>
       </footer>
@@ -170,7 +200,7 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           draggable={false}
         />
 
-        <h1 className="font-jakarta-bold font-bold text-4xl leading-[44px] text-brand_dark">
+        <h1 className="font-satoBold text-4xl leading-[44px] text-brand_dark">
           {/*4xl= 36 */}
           {text}
         </h1>

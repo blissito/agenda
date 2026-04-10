@@ -24,7 +24,7 @@ export const Footer = () => {
           <Link to="/negocios">
             <p>Negocios</p>
           </Link>
-          <Link to="/help">
+          <Link to="/blog">
             <p>Blog</p>
           </Link>
           <Link to="/terminosycondiciones">
@@ -38,8 +38,8 @@ export const Footer = () => {
           <h3 className="text-brand_iron font-satoshi">Contacto</h3>
           <a href="mailto:hola@denik.me">hola@denik.me</a>
           {/* <a href="https://wa.me/527374434444" target="_blank" rel="noopener noreferrer">+52 737 443 44 44</a> */}
-          <Link to="/help">
-            <p>Ayuda</p>
+          <Link to="/planes#preguntas-frecuentes">
+            <p>Preguntas frecuentes</p>
           </Link>
         </div>
         <div className="w-full md:w-[25%]">

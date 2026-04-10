@@ -101,16 +101,15 @@ export const ServiceTimesForm = ({
 
   return (
     <>
-      <Form ref={formRef} className="mt-14">
+      <Form ref={formRef}>
         <SelectInput
           register={register}
-          className="mt-8"
           options={OPTIONS}
           name="duration"
           placeholder="Selecciona una opción"
           label="¿Cuánto dura cada sesión?"
         />
-        <div className="text-brand_gray">
+        <div className="text-brand_gray mt-8">
           <p className="text-brand_dark font-satoMiddle">
             ¿En que horario ofrecerás este servicio?
           </p>
@@ -131,6 +130,7 @@ export const ServiceTimesForm = ({
       {localWeekDays === "specific" && (
         <TimesForm
           noSubmit
+          className="mx-0 px-0 pt-6 md:pt-6"
           org={{ weekDays: week } as unknown as import("@prisma/client").Org} // @TODO: hack, please improve
           onChange={(data: WeekSchema) => {
             onTimesChange?.(data)

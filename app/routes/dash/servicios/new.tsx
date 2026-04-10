@@ -6,6 +6,7 @@ import { Link, useFetcher } from "react-router"
 import type { ZodError } from "zod"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
 import {
   ServiceConfigForm,
   serviceConfigFormSchema,
@@ -41,7 +42,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       },
     })
   }
-  return { id, service }
+  return { id, service, orgAddress: org?.address ?? null }
 }
 
 const formatErrors = (zodError: ZodError): Record<string, FieldError> => {
@@ -56,13 +57,15 @@ const formatErrors = (zodError: ZodError): Record<string, FieldError> => {
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { id, service } = loaderData
+  const { id, service, orgAddress } = loaderData
   const [errors, setErrors] = useState<Record<string, FieldError>>({})
   const formRef = useRef<HTMLFormElement>(null)
   const [index, setIndex] = useState(id ? 1 : 0)
   const [times, setTimes] = useState<WeekSchema>({})
   const [serviceId, setServiceId] = useState<string | null>(id)
   const [photoAction, setPhotoAction] = useState<PhotoAction | undefined>()
+  const [addressWarning, setAddressWarning] = useState(false)
+  const [paymentSelected, setPaymentSelected] = useState(false)
   const fetcher = useFetcher()
   const photoUrlsFetcher = useFetcher<{ photoAction?: PhotoAction }>()
   const intent = useMemo(() => {
@@ -145,9 +148,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     <article className="h-screen bg-white fixed inset-0 pt-10 overflow-y-auto z-[600]">
       <Link
         to="/dash/servicios"
-        className="top-10 right-10 absolute bg-gray-100 p-1 rounded-full hover:bg-gray-200"
+        aria-label="Cerrar"
+        className="absolute right-10 top-10 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
       >
-        <IoClose />
+        <IoClose className="text-2xl" />
       </Link>
       {index !== 4 && (
         <section className="max-w-xl mx-auto h-full flex flex-col">
@@ -161,12 +165,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {index === 1 && (
             <ServicePhotoForm
               photoAction={photoAction}
+              orgAddress={orgAddress}
               defaultValues={{
                 place: "ONLINE",
                 isActive: true,
                 allowMultiple: false,
               }}
               formRef={formRef}
+              onAddressWarningChange={setAddressWarning}
             />
           )}
           {index === 2 && (
@@ -179,26 +185,26 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           {index === 3 && (
             <ServiceConfigForm
               formRef={formRef as React.RefObject<HTMLFormElement>}
+              onPaymentSelected={setPaymentSelected}
             />
           )}
-          <ServiceFormFooter onClick={detonateSubmit} />
+          <ServiceFormFooter
+            onClick={detonateSubmit}
+            isDisabled={addressWarning || (index === 3 && !paymentSelected)}
+            onBack={index > 0 ? () => setIndex(index - 1) : undefined}
+          />
         </section>
       )}
       {index === 4 && (
         <section className="flex flex-col justify-center gap-2 place-items-center h-full">
           <img src="/steper/pencil_paper.svg" />
-          <h1 className="text-2xl">¡Tu servicio ha sido agregado!</h1>
-          <p className="max-w-xl text-center text-lg">
-            Tu servicio “{service?.name}” ya se ha creado. Edítalo desde la
-            sección «Servicios».
+          <h1 className="text-2xl font-satoBold">¡Tu servicio ha sido agregado!</h1>
+          <p className="max-w-xl text-center text-lg text-brand_gray">
+            Tu servicio <span className="font-satoBold">“{service?.name}”</span> está listo para recibir clientes.
           </p>
-          <Link
-            to="/dash/servicios"
-            className="bg-gray-200 rounded-full shadow py-1 px-4"
-          >
-            {" "}
-            Ver mis servicios
-          </Link>
+          <SecondaryButton as="Link" to="/dash/servicios" className="mt-12">
+            Ir a mis servicios
+          </SecondaryButton>
         </section>
       )}
     </article>
@@ -208,20 +214,24 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 const Steper = ({ currentIndex }: { currentIndex: number }) => {
   return (
     <nav className="flex items-center py-10 justify-center">
-      <StepNumber isActive={currentIndex === 0}>1</StepNumber>
-      <Dots />
-      <StepNumber isActive={currentIndex === 1}>2</StepNumber>
-      <Dots />
-      <StepNumber isActive={currentIndex === 2}>3</StepNumber>
-      <Dots />
-      <StepNumber isActive={currentIndex === 3}>4</StepNumber>
+      <StepNumber isActive={currentIndex >= 0}>1</StepNumber>
+      <Dots isActive={currentIndex >= 1} />
+      <StepNumber isActive={currentIndex >= 1}>2</StepNumber>
+      <Dots isActive={currentIndex >= 2} />
+      <StepNumber isActive={currentIndex >= 2}>3</StepNumber>
+      <Dots isActive={currentIndex >= 3} />
+      <StepNumber isActive={currentIndex >= 3}>4</StepNumber>
     </nav>
   )
 }
 
-const Dots = () => {
+const Dots = ({ isActive }: { isActive?: boolean }) => {
   return (
-    <hr className="w-20 border-b-0 border-[10px] border-gray-300 border-dotted" />
+    <hr
+      className={`w-20 border-b-0 border-[10px] border-dotted ${
+        isActive ? "border-brand_blue" : "border-gray-300"
+      }`}
+    />
   )
 }
 
@@ -250,23 +260,36 @@ export const ServiceFormFooter = ({
   isDisabled,
   onClick,
   isLoading,
+  onBack,
   backButtonLink = "/dash/servicios",
 }: {
   onClick?: () => void
+  onBack?: () => void
   backButtonLink?: string
   isLoading?: boolean
   isDisabled?: boolean
 }) => (
   <footer className="items-center pb-4 px-4 w-full max-w-xl justify-between flex mt-auto">
-    <PrimaryButton
-      type="button"
-      className="bg-transparent text-brand_dark font-satoMiddle flex gap-2 items-center group transition-all"
-      as="Link"
-      to={backButtonLink}
-    >
-      <FaArrowLeftLong />
-      <span className="group-hover:ml-1 transition-all">Volver</span>
-    </PrimaryButton>
+    {onBack ? (
+      <PrimaryButton
+        type="button"
+        className="bg-transparent text-brand_dark font-satoMiddle flex gap-2 items-center group transition-all"
+        onClick={onBack}
+      >
+        <FaArrowLeftLong />
+        <span className="group-hover:ml-1 transition-all">Volver</span>
+      </PrimaryButton>
+    ) : (
+      <PrimaryButton
+        type="button"
+        className="bg-transparent text-brand_dark font-satoMiddle flex gap-2 items-center group transition-all"
+        as="Link"
+        to={backButtonLink}
+      >
+        <FaArrowLeftLong />
+        <span className="group-hover:ml-1 transition-all">Volver</span>
+      </PrimaryButton>
+    )}
     <PrimaryButton
       onClick={onClick}
       isDisabled={isDisabled}

@@ -1,8 +1,9 @@
 import type { Service } from "@prisma/client"
 import { AnimatePresence } from "motion/react"
 import { useCallback } from "react"
-import { Link, Outlet } from "react-router"
+import { Outlet } from "react-router"
 import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
 import {
   AddService,
   ServiceCard,
@@ -52,33 +53,35 @@ export default function Services({ loaderData }: Route.ComponentProps) {
     <main className="max-w-8xl mx-auto">
       <RouteTitle>Servicios </RouteTitle>
 
-      {!services.length && <EmptyStateServices />}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <AnimatePresence>
-          <AddService />
-          {services.map((service, index) => (
-            <ServiceCard
-              service={service}
-              isActive={service.isActive}
-              id={service.id}
-              image={service.gallery?.[0]}
-              key={service.id}
-              index={index}
-              title={service.name}
-              duration={Number(service.duration)} // @TODO: format function this is minutes for now
-              price={`${service.price} mxn`}
-              status={service.isActive ? "Activo" : "Desactivado"}
-              link={getLink(service)} // for copy link action
-              path={
-                service.isActive
-                  ? `/dash/servicios/${service.id}`
-                  : `/dash/servicios/nuevo?id=${service.id}`
-              }
-            />
-          ))}
-        </AnimatePresence>
-      </div>
+      {!services.length ? (
+        <EmptyStateServices />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <AnimatePresence>
+            <AddService />
+            {services.map((service, index) => (
+              <ServiceCard
+                service={service}
+                isActive={service.isActive}
+                id={service.id}
+                image={service.gallery?.[0]}
+                key={service.id}
+                index={index}
+                title={service.name}
+                duration={Number(service.duration)} // @TODO: format function this is minutes for now
+                price={`${service.price} mxn`}
+                status={service.isActive ? "Activo" : "Desactivado"}
+                link={getLink(service)} // for copy link action
+                path={
+                  service.isActive
+                    ? `/dash/servicios/${service.id}`
+                    : `/dash/servicios/nuevo?id=${service.id}`
+                }
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
       <Outlet />
     </main>
   )
@@ -98,12 +101,13 @@ const EmptyStateServices = () => {
           Crea tu primer servicio y empieza a recibir a tus clientes
         </p>
 
-        <Link
+        <PrimaryButton
+          as="Link"
           to="/dash/servicios/nuevo"
-          className="mx-auto mt-12 inline-flex items-center justify-center rounded-full bg-brand_dark text-white px-8 py-3 font-satoMedium hover:opacity-90 transition-opacity"
+          className="mx-auto mt-12 w-fit"
         >
           + Agregar servicio
-        </Link>
+        </PrimaryButton>
       </div>
     </div>
   )

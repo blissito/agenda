@@ -34,7 +34,7 @@ export const TextAreaInput = ({
         placeholder={placeholder}
         className={twMerge(
           "w-full",
-          "focus:border-brand_blue focus:outline-none focus:ring-0 h-20 font-satoMedium text-brand_dark",
+          "focus:border-brand_blue focus:outline-none focus:ring-0 h-20 font-satoshi text-brand_dark",
           "rounded-xl border-gray-200 h-20 placeholder:text-brand_iron",
           !!error && "border-red-500",
         )}

@@ -8,7 +8,7 @@ export default function NewServiceSuccess() {
         src="/images/success.svg"
         alt="ilustration"
       />
-      <h3 className="text-2xl text-brand_dark font-satoMedium mb-4">
+      <h3 className="text-2xl text-brand_dark font-satoBold mb-4">
         ¡Tu servicio ha sido agregado!
       </h3>
       <p className="text-brand_gray text-lg mb-12">

@@ -146,7 +146,7 @@ export default function DashOnboarding() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                   >
-                    <PrimaryButton as="Link" to="/dash/pagos" className="h-10">
+                    <PrimaryButton as="Link" to="/dash/ventas" className="h-10">
                       Configurar
                     </PrimaryButton>
                   </motion.div>

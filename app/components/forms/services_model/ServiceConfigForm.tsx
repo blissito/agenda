@@ -1,4 +1,4 @@
-import type { RefObject } from "react"
+import { type RefObject, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { Form } from "react-router"
 import { z } from "zod"
@@ -36,17 +36,25 @@ export const ServiceConfigForm = ({
     payment: true,
     config: { confirmation: false, reminder: false, survey: false },
   },
+  onPaymentSelected,
 }: {
   errors?: Record<string, { message?: string }>
   formRef?: RefObject<HTMLFormElement>
   defaultValues?: ServiceConfigFormFields
+  onPaymentSelected?: (selected: boolean) => void
 }) => {
-  const { register } = useForm({
-    defaultValues,
+  const { register, watch } = useForm({
+    defaultValues: { ...defaultValues, payment: undefined as unknown as string },
   })
 
+  const paymentValue = watch("payment")
+
+  useEffect(() => {
+    onPaymentSelected?.(paymentValue !== undefined && paymentValue !== null)
+  }, [paymentValue])
+
   return (
-    <Form ref={formRef} className="mt-14">
+    <Form ref={formRef}>
       <div className="text-brand_gray">
         <p className="text-brand_dark font-satoMiddle">
           ¿En que horario ofrecerás este servicio?
@@ -71,10 +79,10 @@ export const ServiceConfigForm = ({
         <SwitchOption
           defaultChecked={defaultValues?.config.confirmation}
           register={register}
-          registerOptions={{ required: false }}
           name="confirmation"
-          title="Mail de confirmación"
-          description="Lo enviaremos en cuanto se complete la reservación"
+          title="Mail de recordatorio"
+          description="Lo enviaremos 12 hrs antes de la sesión"
+          registerOptions={{ required: false }}
         />
         <SwitchOption
           defaultChecked={defaultValues?.config.reminder}

@@ -6,7 +6,7 @@ export const loader = ({ request }: Route.ActionArgs) => {
   const intent = url.searchParams.get("intent")
 
   if (intent === "return") {
-    return redirect("/dash/pagos?success=1")
+    return redirect("/dash/ventas?success=1")
   }
   return null
 }

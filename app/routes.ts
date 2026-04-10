@@ -14,7 +14,7 @@ export default [
   route("community", "routes/Community/Community.tsx"),
   route("terminosycondiciones", "routes/terminosycondiciones.tsx"),
   route("avisodeprivacidad", "routes/avisodeprivacidad.tsx"),
-  route("help", "routes/help.tsx"),
+  route("blog", "routes/help.tsx"),
   //login
   route("signin", "routes/login/signin.tsx"),
   route("signup", "routes/login/signup._index.tsx"),
@@ -73,7 +73,7 @@ export default [
       route("google-calendar/connect", "routes/dash/dash.google-calendar-connect.tsx"),
       route("google-calendar/callback", "routes/dash/dash.google-calendar-callback.tsx"),
 
-      route("pagos", "routes/dash/pagos.tsx"),
+      route("ventas", "routes/dash/pagos.tsx"),
     ]),
   ]),
   // api

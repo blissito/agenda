@@ -168,12 +168,18 @@ const Footer = () => {
         </MenuButton.Icon>
         <MenuButton.Title isActive={match("profile")}>Perfil</MenuButton.Title>
       </MenuButton>
-      <MenuButton>
+      <a
+        href="/blog"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="relative h-12 flex items-center gap-3 cursor-pointer"
+      >
+        <span className="mr-2 w-1 h-11" />
         <MenuButton.Icon>
           <Help />
         </MenuButton.Icon>
         <MenuButton.Title>Ayuda</MenuButton.Title>
-      </MenuButton>
+      </a>
       <Form action="/signin">
         <button
           type="submit"
@@ -322,7 +328,7 @@ const MainMenu = ({ className }: { className?: string }) => {
             Servicios
           </MenuButton.Title>
         </MenuButton>
-        <NavButton pathname="pagos" icon={<Financial />} />
+        <NavButton pathname="ventas" icon={<Financial />} />
         <NavButton pathname="clientes" />
         <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
           <MenuButton.Icon isActive={match("lealtad")}>
@@ -342,9 +348,11 @@ const MainMenu = ({ className }: { className?: string }) => {
 const NavButton = ({
   pathname,
   icon,
+  label,
 }: {
   icon?: ReactNode
   pathname: string
+  label?: string
 }) => {
   const ref = useRef<HTMLDivElement>(null)
   const location = useLocation()
@@ -361,7 +369,7 @@ const NavButton = ({
           {icon || <Clients />}
         </MenuButton.Icon>
         <MenuButton.Title isActive={match(pathname)}>
-          {pathname}
+          {label || pathname}
         </MenuButton.Title>
       </MenuButton>
     </div>
@@ -541,10 +549,10 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
                   active={match("chatbot")}
                 />
                 <MobileMenuItem
-                  to="/dash/pagos"
+                  to="/dash/ventas"
                   icon={<Financial />}
-                  label="Pagos"
-                  active={match("pagos")}
+                  label="Ventas"
+                  active={match("ventas")}
                 />
                 <MobileMenuItem
                   to="/dash/lealtad"

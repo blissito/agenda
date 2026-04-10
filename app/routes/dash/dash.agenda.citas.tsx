@@ -182,7 +182,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
       {paginated.length > 0 ? (
         <CitasTable events={paginated} />
       ) : (
-        <EmptyState search={search} onClear={() => setSearch("")} />
+        <EmptyState search={search} onClear={() => setSearch("")} tab={tab} />
       )}
 
       {/* Paginación */}
@@ -199,8 +199,8 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
   )
 }
 
-const EmptyState = ({ search, onClear }: { search: string; onClear: () => void }) => (
-  <div className="py-16 flex flex-col items-center gap-3 text-center">
+const EmptyState = ({ search, onClear, tab }: { search: string; onClear: () => void; tab: "upcoming" | "past" }) => (
+  <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center min-h-[60vh]">
     {search ? (
       <>
         <img src="/images/emptyState/search.svg" alt="" className="w-24 h-24" />
@@ -211,7 +211,21 @@ const EmptyState = ({ search, onClear }: { search: string; onClear: () => void }
         </SecondaryButton>
       </>
     ) : (
-      <p className="text-brand_gray">No hay citas registradas</p>
+      <>
+        <img
+          className="mx-auto mb-4"
+          src="/images/emptyState/empty_customer.svg"
+          alt="Sin citas"
+        />
+        <p className="text-2xl font-satoBold">
+          {tab === "upcoming" ? "No tienes citas para los próximos días" : "Aún no tienes citas anteriores"}
+        </p>
+        <p className="text-[18px] text-brand_gray mt-2">
+          {tab === "upcoming"
+            ? "Las citas de tus clientes aparecerán aquí."
+            : "Aquí aparecerán las citas que ya hayan pasado."}
+        </p>
+      </>
     )}
   </div>
 )

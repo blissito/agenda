@@ -41,6 +41,7 @@ export const TimesForm = ({
   onClose,
   noSubmit,
   actionUrl,
+  className,
 }: {
   noSubmit?: boolean
   cta?: string
@@ -50,6 +51,7 @@ export const TimesForm = ({
   onSubmit?: (data: WeekSchema) => void
   org: Org
   actionUrl?: string
+  className?: string
 }) => {
   const fetcher = useFetcher()
   const [data, setData] = useState<WeekTuples>(
@@ -175,6 +177,7 @@ export const TimesForm = ({
       className={twMerge(
         "h-full pt-6 md:pt-20 px-[5%] md:px-2  max-w-xl mx-auto",
         "flex flex-col justify-evenly h-full gap-5 text-brand_dark",
+        className,
       )}
     >
       {/* Switches */}
@@ -205,7 +208,7 @@ export const TimesForm = ({
         ) : noSubmit ? null : (
           <PrimaryButton
             isLoading={fetcher.state !== "idle"}
-            className="w-full mt-auto"
+            className="w-fit mt-auto"
             isDisabled={isDisabled}
             type="submit"
           >

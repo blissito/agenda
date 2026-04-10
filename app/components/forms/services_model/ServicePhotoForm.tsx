@@ -1,11 +1,11 @@
-import { motion } from "motion/react"
-import { type RefObject, useRef, useState } from "react"
+import { AnimatePresence, motion } from "motion/react"
+import { type RefObject, useEffect, useRef, useState } from "react"
 import {
   type FieldValues,
   type UseFormRegister,
   useForm,
 } from "react-hook-form"
-import { Form, useFetcher } from "react-router"
+import { Form, Link, useFetcher } from "react-router"
 import { z } from "zod"
 import { AddImage } from "~/components/icons/addImage"
 import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug"
@@ -68,17 +68,29 @@ export const ServicePhotoForm = ({
   formRef,
   defaultValues = initialPhotoValues,
   errors = {} as Record<string, { message?: string }>,
+  orgAddress,
+  onAddressWarningChange,
 }: {
   formRef?: RefObject<HTMLFormElement | null>
   photoAction?: PhotoAction
   errors?: Record<string, { message?: string }>
   defaultValues?: ServicePhotoFormFields
+  orgAddress?: string | null
+  onAddressWarningChange?: (hasWarning: boolean) => void
 }) => {
   const _fetcher = useFetcher()
   const [newPhoto, setNewPhoto] = useState(defaultValues?.gallery || "")
-  const { register, setValue } = useForm({
+  const { register, setValue, watch } = useForm({
     defaultValues,
   })
+
+  const placeValue = watch("place")
+  const showAddressWarning =
+    placeValue === "INPLACE" && !orgAddress?.trim()
+
+  useEffect(() => {
+    onAddressWarningChange?.(showAddressWarning)
+  }, [showAddressWarning])
 
   const handleUploadComplete = (key: string) => {
     setNewPhoto(key)
@@ -108,12 +120,14 @@ export const ServicePhotoForm = ({
         onUploadComplete={handleUploadComplete}
         onDelete={handlePhotoDelete}
       >
-        <AddImage className="mx-auto mb-3" />
-        <span className="font-satoshi">
-          {isUploadReady
-            ? "Arrastra o selecciona tu foto de portada"
-            : "Espera un momento..."}
-        </span>
+        <div className="text-brand_gray group-hover:text-brand_blue transition-colors">
+          <AddImage className="mx-auto mb-3" />
+          <span className="font-satoshi">
+            {isUploadReady
+              ? "Arrastra o selecciona tu foto de portada"
+              : "Espera un momento..."}
+          </span>
+        </div>
       </InputFile>
 
       <SelectInput
@@ -125,27 +139,60 @@ export const ServicePhotoForm = ({
         placeholder="Selecciona una opción"
         label="¿En donde se realiza el servicio?"
       />
+      {showAddressWarning && (
+        <p className="mt-2 text-xs text-red-500 font-satoshi">
+          Aún no tienes una dirección registrada.{" "}
+          <Link
+            to="/dash/ajustes"
+            className="underline text-red-500 hover:text-red-600"
+          >
+            Agrega tu dirección
+          </Link>{" "}
+          para poder ofrecer este servicio en el negocio.
+        </p>
+      )}
+      <div className="mt-8">
+        <SwitchOption
+          defaultChecked={defaultValues.isActive}
+          register={register}
+          registerOptions={{ required: false }}
+          name="isActive"
+          title="Permitir que este servicio se agende en línea"
+        />
+      </div>
       <SwitchOption
-        defaultChecked={defaultValues.isActive}
-        register={register}
-        registerOptions={{ required: false }}
-        name="isActive"
-        title="Permitir que este servicio se agende en línea"
-      />
-      <SwitchOption
-        isDisabled // @todo implent two or more
         defaultChecked={defaultValues.allowMultiple}
         registerOptions={{ required: false }}
         register={register}
+        setValue={setValue}
         name="allowMultiple"
         title="Permitir que 2 o más clientes agenden al mismo tiempo"
       />
-      {/* <BasicInput
-        placeholder="2"
-        label="¿Hasta cuantas sesiones se pueden agendar por hora?"
-        name="seats"
-        type="number"
-      /> */}
+      <AnimatePresence>
+        {watch("allowMultiple") && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden -mt-6 mb-6"
+          >
+            <div className="pt-6">
+              <label className="text-brand_dark font-satoMiddle" htmlFor="seats">
+                ¿Cuántas personas pueden agendar al mismo tiempo?
+              </label>
+              <input
+                type="number"
+                min={2}
+                placeholder="2"
+                defaultValue={2}
+                className="rounded-2xl border-gray-200 h-12 w-full mt-1 text-brand_gray focus:border-brand_blue focus:outline-none focus:ring-0"
+                {...register("seats", { required: false, valueAsNumber: true })}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Form>
   )
 }
@@ -163,7 +210,7 @@ export const SwitchOption = ({
 }: {
   isDisabled?: boolean
   defaultChecked?: boolean
-  setValue?: () => void // @todo: fix
+  setValue?: (name: string, value: boolean) => void
   name: string
   register: UseFormRegister<FieldValues> | any
   title: string
@@ -171,12 +218,14 @@ export const SwitchOption = ({
   registerOptions?: { required: string | false }
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
-  const [isOn, setOn] = useState(false)
+  const [isOn, setOn] = useState(defaultChecked ?? false)
 
   const onClick = () => {
     setOn((o) => {
-      inputRef.current!.checked = !o
-      return !o
+      const next = !o
+      inputRef.current!.checked = next
+      setValue?.(name, next)
+      return next
     })
   }
 

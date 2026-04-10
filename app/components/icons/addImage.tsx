@@ -1,5 +1,5 @@
 export const AddImage = ({
-  fill = "#4B5563",
+  fill = "currentColor",
   className,
 }: {
   fill?: string
