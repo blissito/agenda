@@ -11,7 +11,7 @@ const NAV_LINKS = [
   { to: "/planes", label: "Planes" },
 ]
 
-export const TopBar = () => {
+export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -21,8 +21,12 @@ export const TopBar = () => {
   }, [location.pathname])
 
   return (
-    <section className="fixed flex justify-center w-full z-50 px-4 md:px-8">
-      <article className="border bg-white/40 backdrop-blur-xl backdrop-saturate-150 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex items-center h-20 max-w-6xl w-full rounded-full mx-auto mt-4 md:mt-8 pl-4 md:pl-8 pr-4 justify-between relative">
+    <section className="fixed flex justify-center w-full z-40 px-4 md:px-8">
+      <article
+        className={`border bg-white/40 backdrop-blur-xl backdrop-saturate-150 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex items-center h-20 max-w-6xl w-full rounded-full mx-auto ${
+          withBanner ? "mt-12 md:mt-14" : "mt-4 md:mt-8"
+        } pl-4 md:pl-8 pr-4 justify-between relative`}
+      >
         <Link to="/">
           <Denik className="w-[96px]" />
         </Link>
@@ -37,7 +41,7 @@ export const TopBar = () => {
             </Link>
           ))}
           <PrimaryButton as="Link" to="/signin">
-            Únete <ArrowRight />
+            Probar gratis <ArrowRight />
           </PrimaryButton>
         </div>
 
@@ -61,7 +65,11 @@ export const TopBar = () => {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden absolute top-24 left-4 right-4 bg-white/95 backdrop-blur-lg border border-brand_pale rounded-2xl shadow-lg p-6 flex flex-col gap-4">
+        <div
+          className={`md:hidden absolute ${
+            withBanner ? "top-32" : "top-24"
+          } left-4 right-4 bg-white/95 backdrop-blur-lg border border-brand_pale rounded-2xl shadow-lg p-6 flex flex-col gap-4`}
+        >
           {NAV_LINKS.map((link) => (
             <Link key={link.to} to={link.to}>
               <p className="font-satoshi font-medium text-brand_dark text-lg py-2 hover:text-brand_blue transition-colors">
@@ -70,7 +78,7 @@ export const TopBar = () => {
             </Link>
           ))}
           <PrimaryButton as="Link" to="/signin" className="mt-2">
-            Únete <ArrowRight />
+            Probar gratis <ArrowRight />
           </PrimaryButton>
         </div>
       )}

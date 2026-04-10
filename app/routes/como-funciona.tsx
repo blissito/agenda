@@ -279,38 +279,752 @@ const businessData = [
   {
     category: "Clases de idiomas",
     title: "Clases de idiomas",
-    src: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=3556&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: "You can do more with AI.",
+    src: "/images/photos/image7.webp",
+    titleAside: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-3">
+          <img
+            src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+        </div>
+        <span className="hidden text-xs md:text-sm font-satoshi text-brand_gray">
+          +200 alumnos
+          <br />
+          ya reservan con Deník
+        </span>
+      </div>
+    ),
+    content: (
+      <div className="space-y-8">
+        <p className="text-base md:text-lg text-brand_gray font-satoshi">
+          Deník es la agenda ideal para{" "}
+          <strong className="font-satoBold text-brand_dark">
+            escuelas de idiomas, profesores independientes y centros de
+            enseñanza
+          </strong>
+          . Olvídate del WhatsApp y los cobros manuales: gestiona alumnos,
+          clases y pagos desde un solo lugar.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">📅</span>Reservas 24/7
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Tus alumnos eligen idioma, nivel y horario desde tu landing.
+              Sin chats, sin idas y vueltas.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🔔</span>Recordatorios automáticos
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cada alumno recibe confirmación y recordatorio por email.
+              Reduce ausencias y cancelaciones de último minuto.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💳</span>Paquetes y cobros en línea
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cobra clases sueltas o paquetes con MercadoPago. El pago se
+              confirma antes de que empiece la sesión.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">👩‍🏫</span>Múltiples profesores
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Asigna distintos maestros por idioma o nivel, cada uno con su
+              propia disponibilidad.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">📊</span>Seguimiento de alumnos
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Historial de clases, notas y contacto de cada estudiante en un
+              solo expediente.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">⭐</span>Programa de lealtad
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Premia a tus alumnos con puntos por cada clase tomada. Fomenta
+              constancia y recompra.
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     category: "Estudio de belleza",
     title: "Estudio de belleza",
-    src: "https://images.unsplash.com/photo-1531554694128-c4c6665f59c2?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: "You can do more with AI.",
+    src: "/images/photos/image3.webp",
+    titleAside: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-3">
+          <img
+            src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+        </div>
+      </div>
+    ),
+    content: (
+      <div className="space-y-8">
+        <p className="text-base md:text-lg text-brand_gray font-satoshi">
+          Deník es la agenda perfecta para{" "}
+          <strong className="font-satoBold text-brand_dark">
+            salones, estilistas, manicuristas y centros de estética
+          </strong>
+          . Llena tu agenda, reduce los no-shows y consiente a tus clientas
+          frecuentes sin perder horas en WhatsApp.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">✂️</span>Reservas por servicio
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Tus clientas eligen el servicio (corte, color, manicure, facial)
+              y el horario que les acomoda. Tú solo llegas a atender.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🔔</span>Adiós a los no-shows
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Recordatorios automáticos por email antes de cada cita. Menos
+              huecos en tu agenda y menos pérdidas.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💳</span>Anticipo al reservar
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cobra el servicio o un anticipo con MercadoPago al momento de
+              agendar. Asegura la cita y protege tu tiempo.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💇‍♀️</span>Múltiples estilistas
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Gestiona la agenda de cada profesional del salón con sus propios
+              servicios y horarios disponibles.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">📋</span>Ficha de clienta
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Guarda fórmulas de color, alergias, preferencias e historial de
+              visitas. Cada clienta se siente como en casa.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">⭐</span>Premia a tus regulares
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Programa de lealtad con puntos por visita. Convierte clientas
+              ocasionales en clientas frecuentes.
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
+  },
+  {
+    category: "Consultorios médicos",
+    title: "Consultorios médicos",
+    src: "/images/photos/image6.webp",
+    titleAside: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-3">
+          <img
+            src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+        </div>
+      </div>
+    ),
+    content: (
+      <div className="space-y-8">
+        <p className="text-base md:text-lg text-brand_gray font-satoshi">
+          Deník es la agenda profesional para{" "}
+          <strong className="font-satoBold text-brand_dark">
+            consultorios privados, clínicas, dentistas y especialistas
+          </strong>
+          . Reduce inasistencias, organiza a varios médicos y mantén el
+          historial de tus pacientes en un solo lugar.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🩺</span>Notas del paciente al reservar
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cada paciente puede dejar el motivo de su visita o detalles
+              relevantes en las notas al agendar. Llegas preparado a la
+              consulta.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🔔</span>Reduce inasistencias
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Recordatorios automáticos por email antes de cada cita. Menos
+              huecos en tu consulta y más pacientes atendidos.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💳</span>Cobro de consulta en línea
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cobra la consulta o un anticipo con MercadoPago al momento de
+              reservar. Confirma compromiso y protege tu agenda.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🌐</span>Tu landing profesional
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Una página web propia donde tus pacientes reservan directo,
+              con tu marca y sin descargar nada. Comparte el link en tus
+              tarjetas o redes.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">📋</span>Expediente del paciente
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Historial de visitas, notas privadas y datos de contacto de
+              cada paciente, siempre a la mano.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">⏰</span>Duración por servicio
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Configura tiempos distintos para primera consulta, seguimiento
+              o procedimientos. Tu agenda se ajusta sola.
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     category: "Gimnasios",
     title: "Gimnasios",
-    src: "https://images.unsplash.com/photo-1713869791518-a770879e60dc?q=80&w=2333&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: "You can do more with AI.",
+    src: "/images/photos/image5.webp",
+    titleAside: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-3">
+          <img
+            src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+        </div>
+      </div>
+    ),
+    content: (
+      <div className="space-y-8">
+        <p className="text-base md:text-lg text-brand_gray font-satoshi">
+          Cada sesión cancelada a último minuto es tiempo y dinero perdidos.
+          Deník ayuda a{" "}
+          <strong className="font-satoBold text-brand_dark">
+            gimnasios, entrenadores personales, estudios de yoga y boutique
+            fitness
+          </strong>{" "}
+          a llenar su agenda, asegurar pagos por adelantado y construir
+          comunidad con sus miembros más constantes.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💪</span>Reservas de sesión 1-a-1
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Tus clientes eligen el tipo de entrenamiento y el horario que
+              les acomoda. Tú solo llegas a entrenar.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🔔</span>Adiós a las ausencias
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Recordatorios automáticos por email antes de cada sesión.
+              Menos huecos en tu agenda y más disciplina en tus alumnos.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💳</span>Cobro por adelantado
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cobra la sesión o un anticipo con MercadoPago al reservar.
+              Asegura el compromiso antes de prender la luz del estudio.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🌐</span>Tu landing profesional
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Una página propia con tu marca donde tus clientes reservan
+              directo. Compártela en Instagram o tu bio sin fricciones.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🤖</span>Tu agente IA 24/7
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Un chatbot que responde dudas, recomienda servicios y agenda
+              sesiones por ti, incluso a media noche. Atiende más sin
+              dejar de entrenar.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">⭐</span>Premia la constancia
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Programa de lealtad con puntos por cada sesión. Convierte
+              clientes ocasionales en miembros frecuentes.
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     category: "Centros deportivos",
     title: "Centros deportivos",
-    src: "https://images.unsplash.com/photo-1599202860130-f600f4948364?q=80&w=2515&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: "You can do more with AI.",
+    src: "/images/photos/image2.webp",
+    titleAside: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-3">
+          <img
+            src="https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+        </div>
+      </div>
+    ),
+    content: (
+      <div className="space-y-8">
+        <p className="text-base md:text-lg text-brand_gray font-satoshi">
+          Olvídate de la libreta de reservas y los mensajes a deshoras.
+          Deník automatiza la gestión de{" "}
+          <strong className="font-satoBold text-brand_dark">
+            centros deportivos, clubes, escuelas de fútbol, tenis, pádel y
+            academias
+          </strong>{" "}
+          para que tus socios reserven directo y tú dediques tu tiempo a
+          entrenar y enseñar.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🎾</span>Reservas por cancha o disciplina
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cada instalación o clase como un servicio independiente. Tus
+              socios eligen qué y cuándo reservar.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🔔</span>Confirmación instantánea
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cada reserva manda confirmación y recordatorio por email. Sin
+              llamadas a deshoras ni dobles reservas.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💳</span>Apartado con anticipo
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cobra el costo completo o un anticipo con MercadoPago al
+              reservar. Adiós a las canchas vacías.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🌐</span>Tu sitio del club
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Una landing propia con tu marca donde tus socios reservan
+              directo. Ideal para compartir en redes y bio.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">📋</span>Ficha del jugador
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Nivel, contacto, historial de reservas y notas privadas en
+              cada socio. Conoce mejor a tu comunidad.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">⭐</span>Premia a tus socios
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Programa de lealtad con puntos por reserva. Convierte
+              jugadores ocasionales en habituales del club.
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     category: "Spas",
     title: "Spas",
-    src: "https://images.unsplash.com/photo-1602081957921-9137a5d6eaee?q=80&w=2793&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: "You can do more with AI.",
+    src: "/images/photos/image4.webp",
+    titleAside: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-3">
+          <img
+            src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+        </div>
+      </div>
+    ),
+    content: (
+      <div className="space-y-8">
+        <p className="text-base md:text-lg text-brand_gray font-satoshi">
+          Tus huéspedes vienen a desconectarse, no a pelear con WhatsApp
+          para cuadrar una cita. Deník permite a{" "}
+          <strong className="font-satoBold text-brand_dark">
+            spas urbanos, day spas, centros de bienestar y resorts wellness
+          </strong>{" "}
+          ofrecer reservas, pagos y comunicación tan fluidos como sus
+          tratamientos.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">✨</span>Reservas de experiencias
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cada tratamiento como un servicio: masajes, faciales,
+              hidroterapia o paquetes de día completo. Tus huéspedes eligen
+              y reservan en segundos.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🔔</span>Llega relajado, no apurado
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Confirmación y recordatorios automáticos por email. Menos
+              huéspedes que olvidan su cita y más cabinas ocupadas.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💳</span>Reserva con anticipo
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cobra el tratamiento o un anticipo con MercadoPago al
+              reservar. Asegura compromiso para tus servicios premium.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🌐</span>Tu sitio del spa
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Una landing propia con tu marca y estética. Comparte el link
+              en Instagram y deja que la magia visual venda por ti.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">📋</span>Preferencias del huésped
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Aceites favoritos, alergias, presión deseada o tipo de piel.
+              Cada huésped recibe una experiencia personalizada.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">⭐</span>Programa de lealtad
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Premia a tus huéspedes con puntos por cada visita. Convierte
+              escapadas ocasionales en rituales mensuales.
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
   },
   {
     category: "Experiencias turísticas",
     title: "Experiencias turísticas",
-    src: "https://images.unsplash.com/photo-1511984804822-e16ba72f5848?q=80&w=2048&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    content: "You can do more with AI.",
+    src: "/images/photos/image1.webp",
+    titleAside: (
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-3">
+          <img
+            src="https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+          <img
+            src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200"
+            alt=""
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full border-[3px] border-white object-cover shadow-sm"
+          />
+        </div>
+      </div>
+    ),
+    content: (
+      <div className="space-y-8">
+        <p className="text-base md:text-lg text-brand_gray font-satoshi">
+          Los viajeros deciden en segundos. Si tu reserva no es instantánea,
+          tu próximo cliente ya está en el tour de la competencia. Deník
+          permite a{" "}
+          <strong className="font-satoBold text-brand_dark">
+            operadores turísticos, tours guiados, experiencias gastronómicas
+            y agencias de aventura
+          </strong>{" "}
+          convertir interesados en reservas confirmadas las 24 horas.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🌎</span>Reservas online de tours
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cada experiencia como un servicio independiente. Tus viajeros
+              eligen fecha, horario y reservan en segundos, desde cualquier
+              parte del mundo.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🔔</span>Confirmación instantánea
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Email automático con todos los detalles del tour. Tus clientes
+              reciben tranquilidad y tú no contestas el mismo mensaje 20
+              veces.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">💳</span>Cobro al reservar
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Cobra el tour completo o un anticipo con MercadoPago. Cero
+              riesgo de no-shows con turistas que cambian de planes.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🌐</span>Tu sitio profesional
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Una landing propia visible 24/7 para viajeros buscando
+              experiencias en tu destino. Compártela en TripAdvisor, redes
+              o tu bio.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">🤖</span>Tu agente IA 24/7
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Responde dudas de viajeros en cualquier zona horaria: qué
+              llevar, punto de encuentro, duración. Convierte preguntas en
+              reservas mientras duermes.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
+            <h3 className="text-base font-satoBold text-brand_dark">
+              <span className="mr-2">📋</span>Notas del viajero
+            </h3>
+            <p className="text-sm text-brand_gray font-satoshi mt-2">
+              Restricciones alimentarias, alergias, idioma o nivel de
+              experiencia. Personaliza cada tour antes de que el grupo
+              llegue.
+            </p>
+          </div>
+        </div>
+      </div>
+    ),
   },
 ]
 
@@ -333,7 +1047,7 @@ const Business = () => {
           <AgendaSlugBar />
         </div>
       </div>
-      <div className="-mt-[660px]">
+      <div className="-mt-[640px]">
         <Carousel items={cards} />
       </div>
     </section>

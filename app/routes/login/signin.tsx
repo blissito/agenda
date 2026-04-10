@@ -124,10 +124,10 @@ export default function Page() {
             </h1>
             <p className="mt-4 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
               Por favor revisa tu bandeja de entrada y{" "}
-              <strong className="text-brand_dark font-satoMedium">
+              <strong className="text-brand_dark font-satoBold">
                 da clic en el enlace
               </strong>{" "}
-              del email para iniciar sesión.
+              del mail para iniciar sesión.
             </p>
             <p className="mt-3 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
               ¡A veces el mail puede terminar en SPAM! Esperamos que ese no sea

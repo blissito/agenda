@@ -19,7 +19,7 @@ function Sparkles() {
   return (
     <span className="relative inline-block w-0">
       <svg
-        className="absolute -top-8 -left-4 md:-left-5 lg:-left-6 w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 animate-[sparkle_2s_ease-in-out_infinite]"
+        className="absolute -top-2 md:-top-4 lg:-top-8 -left-4 md:-left-5 lg:-left-6 w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 animate-[sparkle_2s_ease-in-out_infinite]"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 64 64"
       >
@@ -29,7 +29,7 @@ function Sparkles() {
         />
       </svg>
       <svg
-        className="absolute -top-6 left-2 md:top-6 md:left-3 lg:-top-4 lg:left-4 w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 animate-[sparkle_2s_ease-in-out_0.7s_infinite]"
+        className="absolute top-2 left-2 md:top-4 md:left-3 lg:-top-4 lg:left-4 w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 animate-[sparkle_2s_ease-in-out_0.7s_infinite]"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 64 64"
       >
@@ -54,16 +54,22 @@ export const Hero = () => (
       <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-[68px]	font-satoBold text-brand_dark  flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4  md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
-        <span>agenda</span> de tu negocio en un solo lugar con IA
-        <Sparkles />
+        <span>agenda </span>
+        <span>
+          de tu negocio en un solo lugar con IA
+          <Sparkles />
+        </span>
       </h1>
       <h1 className=" flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-satoBold text-brand_dark flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
       </h1>
       <h1 className="flex md:hidden group text-4xl md:text-6xl lg:text-7xl	font-satoBold text-brand_dark flex-wrap items-center text-center justify-center ">
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4" />{" "}
-        <span>agenda</span> de tu negocio en un solo lugar con IA
-        <Sparkles />
+        <span>agenda </span>
+        <span>
+          de tu negocio en un solo lugar con IA
+          <Sparkles />
+        </span>
       </h1>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
         Agenda de manera sencilla con ayuda de tu agente IA, realiza cobros, manda recordatorios a tus
@@ -71,7 +77,7 @@ export const Hero = () => (
       </p>
       <div className="flex gap-8 mt-12 justify-center ">
         <PrimaryButton as="Link" to="/signin">
-          Crear cuenta <ArrowRight />
+          Probar gratis por 30 días <ArrowRight />
         </PrimaryButton>
         <a
           href="https://wa.me/525539111285?text=¡Hola!%20Quiero%20agendar%20un%20demo."

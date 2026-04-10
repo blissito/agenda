@@ -13,6 +13,8 @@ import React, {
 import { BiCloset } from "react-icons/bi"
 import { cn } from "~/utils/cn"
 import { useOutsideClick } from "~/utils/hooks/use-outside-click"
+import { PrimaryButton } from "../common/primaryButton"
+import { SecondaryButton } from "../common/secondaryButton"
 import { ArrowRight } from "../icons/arrowRight"
 
 interface CarouselProps {
@@ -26,6 +28,7 @@ type CardType = {
   title: string
   category: string
   content: ReactNode
+  titleAside?: ReactNode
 }
 
 type ImageProps = ImgHTMLAttributes<HTMLImageElement> & {
@@ -246,13 +249,28 @@ export const Card = ({
               >
                 <BiCloset className="h-6 w-6 text-gray-600" />
               </button>
-              <motion.p
-                layoutId={layout ? `title-${card.title}` : undefined}
-                className="text-2xl md:text-5xl font-semibold text-neutral-700 mt-4"
-              >
-                {card.title}
-              </motion.p>
-              <div className="py-10 text-lg text-gray-600 leading-relaxed">{card.content}</div>
+              <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <motion.p
+                  layoutId={layout ? `title-${card.title}` : undefined}
+                  className="text-2xl md:text-5xl font-satoBold text-brand_dark"
+                >
+                  {card.title}
+                </motion.p>
+                {card.titleAside}
+              </div>
+              <div className="py-10 text-lg text-brand_gray leading-relaxed">{card.content}</div>
+              <div className="flex flex-col md:flex-row gap-4 pt-2">
+                <PrimaryButton as="Link" to="/signin" className="w-full md:w-auto">
+                  Crear cuenta <ArrowRight />
+                </PrimaryButton>
+                <SecondaryButton
+                  as="a"
+                  href="https://wa.me/525539111285?text=¡Hola!%20Quiero%20agendar%20un%20demo%20de%20Deník."
+                  className="w-full md:w-auto"
+                >
+                  Agendar demo
+                </SecondaryButton>
+              </div>
             </motion.div>
           </div>
         )}
@@ -296,9 +314,21 @@ export const BlurImage = ({
   fill,
   ...rest
 }: ImageProps) => {
+  const imgRef = useRef<HTMLImageElement>(null)
   const [isLoading, setLoading] = useState(true)
+
+  // Si la imagen ya está en caché del navegador, `onLoad` puede dispararse
+  // antes de que React adjunte el listener. Verificamos `complete` al montar
+  // para revelar las imágenes cacheadas.
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setLoading(false)
+    }
+  }, [src])
+
   return (
     <img
+      ref={imgRef}
       className={cn(
         "transition duration-300 object-cover w-full h-full ",
         isLoading ? "opacity-0" : "opacity-100",

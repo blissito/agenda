@@ -3,6 +3,7 @@ import type {
   Section3,
 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
+import { Link } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { Banner } from "~/components/home/Banner"
@@ -112,8 +113,14 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   }
   return (
     <main className="bg-brand_dark">
+      <Link
+        to="/signin"
+        className="fixed top-0 left-0 right-0 z-50 h-10 flex items-center justify-center bg-brand_dark text-white text-xs md:text-sm font-satoMedium px-4 hover:bg-black transition-colors"
+      >
+        ✨ Prueba Deník gratis por 30 días — sin tarjeta de crédito
+      </Link>
       <div className="bg-white rounded-b-[40px]">
-        <TopBar />
+        <TopBar withBanner />
         <ParallaxHero>
           <Hero />
           <ScrollReviews />

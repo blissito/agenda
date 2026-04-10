@@ -256,17 +256,18 @@ const FEATURES_PRO = [
 
 const FEATURES_ENTERPRISE = [
   ...FEATURES_PRO.filter((f) => !f.startsWith("Landing page")),
-  "Administración de sucursales",
+  // "Administración de sucursales",
   "Gestión de equipo y permisos",
   "Landing page con IA (15 generaciones / 60 refinamientos al mes)",
-  "Chatbot de agendamiento con IA",
+  "Chatbot de agendamiento con IA (250 conversaciones al mes)",
+  "Soporte prioritario",
 ]
 
 export const yearlyItems = [
   {
     plan: "Profesional",
     description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
-    price: "$249 mxn",
+    price: "$199 mxn",
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
     cta: (
       <PrimaryButton as="Link" to="/signin" className="w-full">
@@ -294,7 +295,7 @@ export const monthlyItems = [
   {
     plan: "Profesional",
     description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
-    price: "$239 mxn",
+    price: "$249 mxn",
     priceNote: "Cancela cuando quieras.",
     cta: (
       <PrimaryButton as="Link" to="/signin" className="w-full">

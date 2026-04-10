@@ -306,24 +306,31 @@ function MiniCalendar({
           const isCurrentMonth = d.getMonth() === currentMonth
           const today = isTodayFn(d)
           const inWeek = isInWeek(d)
+          const hasEvent = eventDates.has(toDateKey(d))
           return (
             <button
               key={i}
               onClick={() => onDateClick(d)}
-              className={`relative w-7 h-7 mx-auto rounded-full text-xs flex items-center justify-center transition-colors ${
-                today
-                  ? "bg-brand_blue text-white"
-                  : inWeek
-                    ? "bg-brand_blue/10 text-brand_dark font-medium"
-                    : isCurrentMonth
-                      ? "text-brand_dark hover:bg-gray-100"
-                      : "text-brand_gray/40"
-              }`}
+              className="flex flex-col items-center gap-0.5 mx-auto"
             >
-              {d.getDate()}
-              {eventDates.has(toDateKey(d)) && (
-                <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-[5px] h-[5px] rounded-full bg-[#FFD75E]" />
-              )}
+              <span
+                className={`w-7 h-7 rounded-full text-xs flex items-center justify-center transition-colors ${
+                  today
+                    ? "bg-brand_blue text-white"
+                    : inWeek
+                      ? "bg-brand_blue/10 text-brand_dark font-medium"
+                      : isCurrentMonth
+                        ? "text-brand_dark hover:bg-gray-100"
+                        : "text-brand_gray/40"
+                }`}
+              >
+                {d.getDate()}
+              </span>
+              <span
+                className={`w-1.5 h-1.5 rounded-full -mt-2 z-10 ${
+                  hasEvent ? "bg-[#FFD75E]" : "bg-transparent"
+                }`}
+              />
             </button>
           )
         })}

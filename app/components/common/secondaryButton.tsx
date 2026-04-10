@@ -49,12 +49,12 @@ export const SecondaryButton = forwardRef<
   const mergedClassName = twMerge(
     "font-satoMedium",
     isDisabled &&
-      "disabled:bg-gray-300 disabled:cursor-not-allowed",
+      "disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:translate-y-0",
     "bg-brand_pale text-brand-dark h-[48px] min-w-[80px] px-4",
-    "enabled:hover:-translate-y-1 transition duration-400",
+    "transition duration-400",
     "rounded-full flex items-center justify-center text-center gap-2",
     "transition-all",
-    "enabled:active:translate-y-[0.1px]",
+    !isDisabled && !isLoading && "hover:-translate-y-1 active:translate-y-[0.1px]",
     "disabled:text-gray-500",
     isLoading && "bg-brand_blue/50 text-gray-600 pointer-events-none",
     className,

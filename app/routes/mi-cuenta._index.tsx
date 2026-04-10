@@ -106,7 +106,7 @@ export default function MiCuentaLogin({ loaderData }: Route.ComponentProps) {
             <p className="mt-4 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
               Hemos enviado un enlace a tu correo para que puedas acceder a tu
               cuenta. Revisa tu bandeja de entrada y{" "}
-              <strong className="text-brand_dark font-satoMedium">
+              <strong className="text-brand_dark font-satoBold">
                 da clic en el enlace
               </strong>
               .
