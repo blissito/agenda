@@ -42,6 +42,7 @@ type OrgConfig {
   maxReschedules       String?
   cancellationWindow   String?
   termsAndConditions   String?
+  surveyEnabled        Boolean?
 }
 
 type ServiceConfig {

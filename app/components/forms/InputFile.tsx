@@ -2,10 +2,13 @@ import {
   type ChangeEvent,
   type DragEvent,
   type ReactNode,
+  useEffect,
+  useRef,
   useState,
 } from "react"
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
 import { FaRegTrashCan } from "react-icons/fa6"
+import { BsThreeDotsVertical } from "react-icons/bs"
 import { twMerge } from "tailwind-merge"
 
 type Props = {
@@ -27,8 +30,7 @@ type Props = {
   onUploadComplete?: (key: string) => void
   onDelete?: () => void
 }
-// const morras =
-//   "https://media.licdn.com/dms/image/C561BAQE8cwNr6BMj_Q/company-background_10000/0/1612306118493/cover_corp_cover?e=2147483647&v=beta&t=2-D8AuQQLqxb8ML7eEs3AtJbC7jspwH47Z8Ta-B4MpA";
+
 export const InputFile = ({
   title,
   action,
@@ -42,55 +44,60 @@ export const InputFile = ({
   className,
   onUploadComplete,
   onDelete,
-  ...props
 }: Props) => {
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isOver, setIsOver] = useState(false)
   const [preview, setPreview] = useState<string | undefined>(action?.readUrl)
+
+  useEffect(() => {
+    if (action?.readUrl && !preview) {
+      setPreview(action.readUrl)
+    }
+  }, [action?.readUrl])
+
   const handleOnDragOver = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     setIsOver(true)
   }
+
   const handleDragEnd = async (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
-    setPreview("")
     setIsOver(false)
     const file = event.dataTransfer.files[0]
     if (file) {
-      await putFile(file)
-      setPreview(action?.readUrl ? `${action.readUrl}&t=${Date.now()}` : undefined)
-      if (action?.logoKey) onUploadComplete?.(action.logoKey)
+      const ok = await putFile(file)
+      if (ok) {
+        setPreview(
+          action?.readUrl ? `${action.readUrl}&t=${Date.now()}` : undefined,
+        )
+        if (action?.logoKey) onUploadComplete?.(action.logoKey)
+      }
     }
   }
-  const handleDelete = async () => {
+
+  const handleDelete = () => {
     setPreview(undefined)
-    if (action?.removeUrl) {
-      await fetch(action.removeUrl, {
-        method: "delete",
-      }).catch((e) => console.error(e))
-    }
     onDelete?.()
   }
+
   const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       setPreview(URL.createObjectURL(file))
-      await putFile(file)
-      if (action?.logoKey) onUploadComplete?.(action.logoKey)
+      const ok = await putFile(file)
+      if (ok && action?.logoKey) onUploadComplete?.(action.logoKey)
     }
   }
 
-  const putFile = async (file: File) => {
+  const openFilePicker = () => {
+    fileInputRef.current?.click()
+  }
+
+  const putFile = async (file: File): Promise<boolean> => {
     if (!action?.putUrl) {
       console.warn("[InputFile] No putUrl provided - upload skipped")
-      return
+      return false
     }
-
-    console.log(
-      "[InputFile] Uploading to:",
-      `${action.putUrl.substring(0, 80)}...`,
-    )
-    console.log("[InputFile] File:", file.name, file.size, "bytes", file.type)
-
     try {
       const response = await fetch(action.putUrl, {
         method: "put",
@@ -101,72 +108,132 @@ export const InputFile = ({
           "x-amz-acl": "public-read",
         },
       })
-      if (response.ok) {
-        console.log("[InputFile] Upload SUCCESS")
-      } else {
-        console.error(
-          "[InputFile] Upload FAILED:",
-          response.status,
-          response.statusText,
-        )
-      }
+      return response.ok
     } catch (e) {
       console.error("[InputFile] Upload error:", e)
+      return false
     }
   }
 
   return (
     <div className="mb-8">
-      <p className="text-brand_dark font-satoMiddle">{title}</p>
-      <p className="text-brand_gray text-sm">{description}</p>
+      {title && <p className="text-brand_dark font-satoMiddle">{title}</p>}
+      {description && (
+        <p className="text-brand_gray text-sm">{description}</p>
+      )}
 
       <div
-        // id="drop_zone"
         onDrop={handleDragEnd}
         onDragOver={handleOnDragOver}
+        onDragLeave={() => setIsOver(false)}
+        onClick={preview ? undefined : openFilePicker}
         className={twMerge(
-          "group bg-transparent flex justify-center text-center items-center border-[1px] border-[#CFCFCF] border-dashed rounded-2xl mt-6 h-[160px] text-red-500 transition-all",
-          "hover:border-brand_blue relative overflow-hidden",
+          "group relative flex cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[#CFCFCF] bg-transparent text-center transition-all mt-6 h-[160px]",
+          "hover:border-brand_blue",
           isOver && "border-brand_blue scale-105 bg-brand_blue/10",
           className,
         )}
       >
-        {preview && (
-          <div className="absolute inset-0">
-            <img
-              onError={() => {
-                setPreview("")
-              }}
-              alt="preview"
-              className="w-full h-full object-cover"
-              src={preview}
-              // src={"/api/images?key=66a96106fbaa2ba8588df323"}
-            />
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="absolute text-white font-bold z-10 right-1 top-1 transition-all hover:bg-black h-8 w-8 flex justify-center items-center rounded-full shadow active:scale-95"
-            >
-              <FaRegTrashCan />
-            </button>
-          </div>
-        )}
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          onChange={handleChange}
+          type="file"
+          className="hidden"
+          multiple={multiple}
+        />
         <input
           type="hidden"
           name={name}
           {...register?.(name, registerOptions)}
         />
-        <input
-          onChange={handleChange}
-          type="file"
-          id={name}
-          className="inputfile inputfile-3"
-          data-multiple-caption="{count} archivos seleccionados"
-          multiple={multiple}
-        />
-        <label htmlFor={name}>{children}</label>
-        {<p className="mb-6 text-xs text-red-500 h-1 pl-1">{error?.message}</p>}
+
+        {preview ? (
+          <>
+            <img
+              onError={() => setPreview("")}
+              alt="preview"
+              className="absolute inset-0 h-full w-full object-cover"
+              src={preview}
+            />
+            {/* Menu overlay */}
+            <div className="absolute right-1 top-1 z-10">
+              <DropdownMenu
+                onDelete={handleDelete}
+                onReplace={openFilePicker}
+              />
+            </div>
+          </>
+        ) : (
+          <div className="text-brand_gray">{children}</div>
+        )}
       </div>
+
+      {error?.message && (
+        <p className="mt-1 text-xs text-red-500 pl-1">{error.message}</p>
+      )}
     </div>
+  )
+}
+
+function DropdownMenu({
+  onDelete,
+  onReplace,
+}: {
+  onDelete: () => void
+  onReplace: () => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          setOpen((o) => !o)
+        }}
+        className="flex h-8 w-8 items-center justify-center rounded-full text-white shadow transition-all hover:bg-black/60 bg-black/30"
+      >
+        <BsThreeDotsVertical />
+      </button>
+      {open && (
+        <>
+          {/* Backdrop to close menu */}
+          <div
+            className="fixed inset-0 z-20"
+            onClick={(e) => {
+              e.stopPropagation()
+              setOpen(false)
+            }}
+          />
+          <div className="absolute right-0 z-30 mt-1 min-w-[160px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setOpen(false)
+                onReplace()
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+            >
+              Cambiar imagen
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setOpen(false)
+                onDelete()
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+            >
+              <FaRegTrashCan className="text-xs" />
+              Eliminar
+            </button>
+          </div>
+        </>
+      )}
+    </>
   )
 }

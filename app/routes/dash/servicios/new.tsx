@@ -5,6 +5,7 @@ import { IoClose } from "react-icons/io5"
 import { Link, useFetcher } from "react-router"
 import type { ZodError } from "zod"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import {
@@ -167,9 +168,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               photoAction={photoAction}
               orgAddress={orgAddress}
               defaultValues={{
-                place: "ONLINE",
-                isActive: true,
+                place: service?.place || "ONLINE",
+                isActive: service?.isActive ?? true,
                 allowMultiple: false,
+                gallery: service?.gallery?.[0] || "",
               }}
               formRef={formRef}
               onAddressWarningChange={setAddressWarning}
@@ -197,6 +199,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       )}
       {index === 4 && (
         <section className="flex flex-col justify-center gap-2 place-items-center h-full">
+          <EmojiConfetti />
           <img src="/steper/pencil_paper.svg" />
           <h1 className="text-2xl font-satoBold">¡Tu servicio ha sido agregado!</h1>
           <p className="max-w-xl text-center text-lg text-brand_gray">

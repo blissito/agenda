@@ -4,7 +4,6 @@ import { FaInstagram, FaFacebookF, FaTiktok, FaYoutube, FaLinkedinIn } from "rea
 import { Trash } from "~/components/icons/trash"
 import { Form, useFetcher, useLoaderData, useSearchParams } from "react-router"
 import { twMerge } from "tailwind-merge"
-import { getUserAndOrgOrRedirect, requireRole } from "~/.server/userGetters"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Switch } from "~/components/common/Switch"
@@ -15,156 +14,25 @@ import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { TabButton } from "~/components/loyalty/loyaltyStep"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import SelectStylized, { type Choice } from "~/components/ui/select"
-import { db } from "~/utils/db.server"
-import { getPutFileUrl, removeFileUrl } from "~/utils/lib/tigris.server"
-import { SUPPORTED_TIMEZONES } from "~/utils/timezone"
 import type { WeekSchema } from "~/utils/zod_schemas"
 import { weekDaysOrgSchema } from "~/utils/zod_schemas"
-import { ClientAvatar } from "./dash.clientes"
+import { ClientAvatar } from "~/components/common/ClientAvatar"
+import {
+  COUNTRIES,
+  TIMEZONES,
+  PERIOD,
+  RANGES,
+  RESCHEDULE_RANGES,
+  CANCELLATION_RANGES,
+  TIMES,
+  ROLE_LABELS,
+} from "./dash.ajustes.constants"
 
-const COUNTRIES: Choice[] = [
-  { value: "MX", label: "🇲🇽 México" },
-  { value: "AR", label: "🇦🇷 Argentina" },
-  { value: "CO", label: "🇨🇴 Colombia" },
-  { value: "ES", label: "🇪🇸 España" },
-  { value: "PE", label: "🇵🇪 Perú" },
-]
-
-const TIMEZONES: Choice[] = SUPPORTED_TIMEZONES.map((tz) => ({
-  value: tz.value,
-  label: tz.label,
-}))
-
-const PERIOD: Choice[] = [
-  { value: "3m", label: "3 meses" },
-  { value: "6m", label: "6 meses" },
-  { value: "1y", label: "1 año" },
-]
-
-const RANGES: Choice[] = [
-  { value: "15", label: "15 minutos" },
-  { value: "30", label: "30 minutos" },
-  { value: "60", label: "1 hora" },
-  { value: "1440", label: "24 horas" },
-]
-
-const RESCHEDULE_RANGES: Choice[] = [
-  { value: "30", label: "30 minutos" },
-  { value: "60", label: "1 hora" },
-  { value: "240", label: "4 horas" },
-  { value: "1440", label: "24 horas" },
-]
-
-const CANCELLATION_RANGES: Choice[] = [
-  { value: "60", label: "1 hora" },
-  { value: "240", label: "4 horas" },
-  { value: "720", label: "12 horas" },
-  { value: "1440", label: "24 horas" },
-]
-
-const TIMES: Choice[] = [
-  { value: "1", label: "1 vez" },
-  { value: "2", label: "2 veces" },
-  { value: "3", label: "3 veces" },
-  { value: "unlimited", label: "Ilimitadas" },
-]
-
-const ROLE_LABELS: Record<string, string> = {
-  user: "Miembro",
-  GUEST: "Miembro",
-  ADMIN: "Administrador",
-  OWNER: "Propietario",
-}
+export { loader, action } from "./dash.ajustes.server"
+import type { loader } from "./dash.ajustes.server"
 
 const TABS = ["general", "horarios", "configuracion", "integraciones", "colaboradores"] as const
 type Tab = (typeof TABS)[number]
-
-export const loader = async ({ request }: { request: Request }) => {
-  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
-  if (!org) throw new Response("Org not found", { status: 404 })
-  const collaborators = await db.user.findMany({
-    where: { orgId: org.id },
-  })
-  const putUrl = await getPutFileUrl(`logos/${org.id}`)
-  const removeUrl = await removeFileUrl(`logos/${org.id}`)
-  return {
-    countries: COUNTRIES,
-    timeZones: TIMEZONES,
-    period: PERIOD,
-    ranges: RANGES,
-    times: TIMES,
-    collaborators,
-    org,
-    logoAction: {
-      putUrl,
-      removeUrl,
-      readUrl: `/api/images?key=logos/${org.id}`,
-      logoKey: `logos/${org.id}`,
-    },
-  }
-}
-
-export const action = async ({ request }: { request: Request }) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
-  if (!org) throw new Response("Org not found", { status: 404 })
-  const formData = await request.formData()
-  const intent = formData.get("intent")
-
-  if (intent === "delete") {
-    const userId = formData.get("userId") as string
-    if (!userId) return { error: "userId requerido" }
-    await db.user.update({
-      where: { id: userId, orgId: org.id },
-      data: { orgId: null },
-    })
-    return { ok: true }
-  }
-
-  if (intent === "update_weekdays") {
-    const rawData = JSON.parse(formData.get("data") as string)
-    const result = weekDaysOrgSchema.safeParse(rawData)
-    if (!result.success) {
-      return Response.json(
-        { error: "Datos inválidos", details: result.error.flatten() },
-        { status: 400 },
-      )
-    }
-    await db.org.update({
-      where: { id: org.id },
-      data: { weekDays: { set: result.data.weekDays } },
-    })
-    return { ok: true }
-  }
-
-  if (intent === "invite") {
-    const email = (formData.get("email") as string)?.trim()
-    const displayName = (formData.get("displayName") as string)?.trim()
-    if (!email) return { error: "Email requerido" }
-
-    const existing = await db.user.findUnique({ where: { email } })
-    if (existing) {
-      if (existing.orgId === org.id) {
-        return { error: "Este colaborador ya pertenece a tu organización" }
-      }
-      await db.user.update({
-        where: { id: existing.id },
-        data: { orgId: org.id },
-      })
-    } else {
-      await db.user.create({
-        data: {
-          email,
-          emailVerified: false,
-          displayName: displayName || null,
-          orgId: org.id,
-        },
-      })
-    }
-    return { ok: true }
-  }
-
-  return { error: "Intent no reconocido" }
-}
 
 const TAB_LABELS: Record<Tab, string> = {
   general: "Info General",
@@ -214,7 +82,7 @@ export default function Ajustes() {
       {activeTab === "configuracion" && (
         <ConfiguracionTab countries={countries} timeZones={timeZones} org={org} />
       )}
-      {activeTab === "integraciones" && <IntegracionesTab />}
+      {activeTab === "integraciones" && <IntegracionesTab org={org} />}
       {activeTab === "colaboradores" && (
         <ColaboradoresTab collaborators={collaborators} />
       )}
@@ -490,6 +358,7 @@ function ConfiguracionTab({
   const [maxReschedules, setMaxReschedules] = useState<string>(existingConfig.maxReschedules || "")
   const [cancellationWindow, setCancellationWindow] = useState<string>(existingConfig.cancellationWindow || "")
   const [termsAndConditions, setTermsAndConditions] = useState<string>(existingConfig.termsAndConditions || "")
+  const [surveyEnabled, setSurveyEnabled] = useState<boolean>(existingConfig.surveyEnabled ?? true)
 
   const isLoading = fetcher.state !== "idle"
 
@@ -510,6 +379,7 @@ function ConfiguracionTab({
             maxReschedules: maxReschedules || null,
             cancellationWindow: cancellationWindow || null,
             termsAndConditions: termsAndConditions || null,
+            surveyEnabled,
           },
         }),
       },
@@ -634,6 +504,19 @@ function ConfiguracionTab({
             onChange={(e: any) => setTermsAndConditions(e.target.value)}
           />
         </div>
+        <hr className="bg-brand_stroke my-6" />
+        <h3 className="text-lg font-satoBold">Encuestas</h3>
+        <OptionBox
+          title="Encuesta de satisfacción"
+          description="Enviar encuesta de satisfacción después de cada cita"
+        >
+          <Switch
+            name="survey_enabled"
+            className="h-10"
+            defaultChecked={surveyEnabled}
+            onChange={setSurveyEnabled}
+          />
+        </OptionBox>
         <div className="flex justify-end mt-12">
           <PrimaryButton
             type="submit"
@@ -650,7 +533,8 @@ function ConfiguracionTab({
 
 /* ==================== Integraciones Tab ==================== */
 
-function IntegracionesTab() {
+function IntegracionesTab({ org }: { org: any }) {
+  const isGoogleMeetConnected = Boolean(org.googleCalendarToken)
   return (
     <section className="bg-white rounded-2xl max-w-4xl pb-10 overflow-hidden">
       <div className="p-6">
@@ -692,11 +576,21 @@ function IntegracionesTab() {
             tool="Zoom"
             description="Añade enlaces de zoom para tus servicios en línea."
           />
-          <IntegrationCardDisconnected
-            icon="/images/google-meet.svg"
-            tool="Google Meet"
-            description="Usa Google Meet para generar citas en línea."
-          />
+          {isGoogleMeetConnected ? (
+            <IntegrationCard
+              icon="/images/google-meet.svg"
+              tool="Google Meet"
+              description="Usa Google Meet para generar citas en línea."
+            />
+          ) : (
+            <a href="/dash/google-calendar/connect">
+              <IntegrationCardDisconnected
+                icon="/images/google-meet.svg"
+                tool="Google Meet"
+                description="Conecta Google Meet para generar citas en línea."
+              />
+            </a>
+          )}
         </div>
         <p className="col-span-3 text-brand_dark font-satoshi mt-6 mb-4">
           {" "}

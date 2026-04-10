@@ -288,6 +288,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
               reminderHours?: number | null
             }
           | undefined,
+        org.config as { surveyEnabled?: boolean } | undefined,
       )
     } catch (e) {
       console.error("Failed to schedule notifications:", e)
@@ -537,6 +538,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   orgTimezone={org.timezone as SupportedTimezone}
                   onTimezoneChange={handleTimezoneChange}
                   selectedTime={time}
+                  minBookingAdvance={org.config?.minBookingAdvance ? parseInt(org.config.minBookingAdvance) : undefined}
                 />
               )}
             </>

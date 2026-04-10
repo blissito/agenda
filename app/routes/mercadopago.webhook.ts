@@ -1,4 +1,5 @@
 import { getPayment, validateWebhookSignature } from "~/.server/mercadopago"
+import { awardPoints } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import {
   sendAppointmentToCustomer,
@@ -115,6 +116,19 @@ export const action = async ({ request }: Route.ActionArgs) => {
         }
 
         console.log("MP Payment approved, event created:", event.id)
+
+        // Award loyalty points
+        try {
+          const basePoints = Math.floor(Number(service.price)) || 10
+          await awardPoints({
+            customerId: customer.id,
+            orgId: service.org.id,
+            eventId: event.id,
+            basePoints,
+          })
+        } catch (e) {
+          console.error("Loyalty awardPoints failed:", e)
+        }
       }
 
       // Pago rechazado o cancelado: enviar email

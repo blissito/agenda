@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs } from "react-router"
 import { Stripe } from "stripe"
+import { awardPoints } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import {
   sendAppointmentToCustomer,
@@ -145,6 +146,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         }
 
         console.log("Stripe payment approved, event created:", dbEvent.id)
+
+        // Award loyalty points
+        try {
+          const basePoints = Math.floor(Number(service.price)) || 10
+          await awardPoints({
+            customerId: customer.id,
+            orgId: service.org.id,
+            eventId: dbEvent.id,
+            basePoints,
+          })
+        } catch (e2) {
+          console.error("Loyalty awardPoints failed:", e2)
+        }
       } catch (e) {
         console.error("Stripe checkout.session.completed error:", e)
       }

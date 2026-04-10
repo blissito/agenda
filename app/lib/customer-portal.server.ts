@@ -135,16 +135,14 @@ export async function getCustomerPortalData(
 
     if (customer.tel && !tel) tel = customer.tel
 
+    totalPoints += customer.loyaltyPoints || 0
+
     for (const event of customer.events) {
       if (!firstEventDate || new Date(event.start) < firstEventDate) {
         firstEventDate = new Date(event.start)
       }
 
       eventOrgMap[event.id] = org.id
-
-      if (new Date(event.start) < now && event.service) {
-        totalPoints += Number(event.service.points ?? 0)
-      }
 
       if (new Date(event.start) >= now) {
         allUpcoming.push(event)
@@ -170,17 +168,15 @@ export async function getCustomerPortalData(
         where: { orgId: org.id },
         orderBy: { minPoints: "asc" },
       })
-      const calcPoints = customer.events
-        .filter((e) => new Date(e.start) < now && e.service)
-        .reduce((acc, e) => acc + Number(e.service?.points ?? 0), 0)
-      const found = levels.find((l) => l.minPoints > calcPoints)
+      const customerTotalEarned = customer.loyaltyTotalEarned || 0
+      const found = levels.find((l) => l.minPoints > customerTotalEarned)
       if (found) {
         nextLevel = {
           name: found.name,
           image: getPublicImageUrl(found.image) ?? null,
           minPoints: found.minPoints,
           discountPercent: found.discountPercent,
-          pointsNeeded: found.minPoints - calcPoints,
+          pointsNeeded: found.minPoints - customerTotalEarned,
         }
       }
 
@@ -192,15 +188,10 @@ export async function getCustomerPortalData(
         orderBy: { createdAt: "desc" },
       })
 
-      // Calculate points from past events (same logic as dashboard)
-      const customerPoints = customer.events
-        .filter((e) => new Date(e.start) < now && e.service)
-        .reduce((acc, e) => acc + Number(e.service?.points ?? 0), 0)
-
       loyalty.push({
         org: { id: org.id, name: org.name, slug: org.slug, logo: org.logo, tel: org.tel ?? null },
-        points: customerPoints,
-        totalEarned: customerPoints,
+        points: customer.loyaltyPoints || 0,
+        totalEarned: customer.loyaltyTotalEarned || 0,
         level,
         nextLevel,
         redemptions,

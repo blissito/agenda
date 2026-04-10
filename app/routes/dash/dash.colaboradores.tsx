@@ -2,13 +2,14 @@
 
 import { useMemo, useState } from "react"
 import { FaTrash } from "react-icons/fa6"
-import { Form, useLoaderData } from "react-router"
+import { Form, useFetcher, useLoaderData } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { requireRole } from "~/.server/userGetters"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { db } from "~/utils/db.server"
+import { sendInviteCollaborator } from "~/utils/emails/sendInviteCollaborator"
 import type { Route } from "./+types/dash.colaboradores"
 import { ClientAvatar } from "./dash.clientes"
 
@@ -17,7 +18,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const collaborators = await db.user.findMany({
     where: { orgId: org.id },
   })
-  return { collaborators, orgName: org.name }
+  return { collaborators, orgName: org.name, ownerId: org.ownerId }
 }
 
 export const action = async ({ request }: Route.ActionArgs) => {
@@ -36,9 +37,21 @@ export const action = async ({ request }: Route.ActionArgs) => {
     return { ok: true }
   }
 
+  if (intent === "update_role") {
+    const userId = formData.get("userId") as string
+    const role = formData.get("role") as string
+    if (!userId || !role) return { error: "Datos incompletos" }
+    // Don't allow changing the owner's role
+    const targetUser = await db.user.findUnique({ where: { id: userId } })
+    if (targetUser?.id === org.ownerId) return { error: "No puedes cambiar el rol del propietario" }
+    await db.user.update({ where: { id: userId, orgId: org.id }, data: { role } })
+    return { ok: true }
+  }
+
   if (intent === "invite") {
     const email = (formData.get("email") as string)?.trim()
     const displayName = (formData.get("displayName") as string)?.trim()
+    const role = (formData.get("role") as string) || "user"
     if (!email) return { error: "Email requerido" }
 
     // Check if user already exists
@@ -50,7 +63,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       // Add existing user to org
       await db.user.update({
         where: { id: existing.id },
-        data: { orgId: org.id },
+        data: { orgId: org.id, role },
       })
     } else {
       // Create new user with orgId
@@ -60,9 +73,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
           emailVerified: false,
           displayName: displayName || null,
           orgId: org.id,
+          role,
         },
       })
     }
+    // Send invite email (non-blocking, won't fail the invite)
+    await sendInviteCollaborator(email, org.name || "tu equipo")
     return { ok: true }
   }
 
@@ -70,7 +86,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
 }
 
 export default function Colaboradores() {
-  const { collaborators } = useLoaderData<typeof loader>()
+  const { collaborators, ownerId } = useLoaderData<typeof loader>()
   const [search, setSearch] = useState("")
   const [showInvite, setShowInvite] = useState(false)
 
@@ -125,6 +141,14 @@ export default function Colaboradores() {
             required
             containerClassName="flex-1"
           />
+          <select
+            name="role"
+            defaultValue="user"
+            className="border border-slate-200 rounded-full px-4 py-2 text-sm text-brand_dark bg-white self-end"
+          >
+            <option value="user">Miembro</option>
+            <option value="ADMIN">Administrador</option>
+          </select>
           <button
             type="submit"
             className="bg-brand_blue text-white px-6 py-2 rounded-full text-sm font-satoMedium hover:opacity-90 transition-opacity self-end"
@@ -190,9 +214,13 @@ export default function Colaboradores() {
                 <p className="col-span-3 hidden sm:block text-sm text-center text-brand_gray truncate">
                   {c.email}
                 </p>
-                <p className="col-span-2 hidden sm:block text-sm text-center text-brand_gray capitalize">
-                  {c.role || "miembro"}
-                </p>
+                <div className="col-span-2 hidden sm:flex justify-center">
+                  {c.id === ownerId ? (
+                    <span className="text-sm text-brand_gray">Propietario</span>
+                  ) : (
+                    <RoleSelect userId={c.id} currentRole={c.role || "user"} />
+                  )}
+                </div>
                 <div className="col-span-2 flex justify-center">
                   <Form method="post">
                     <input type="hidden" name="intent" value="delete" />
@@ -242,6 +270,25 @@ export default function Colaboradores() {
         </div>
       )}
     </>
+  )
+}
+
+function RoleSelect({ userId, currentRole }: { userId: string; currentRole: string }) {
+  const fetcher = useFetcher()
+  return (
+    <select
+      value={currentRole}
+      onChange={(e) => {
+        fetcher.submit(
+          { intent: "update_role", userId, role: e.target.value },
+          { method: "post" },
+        )
+      }}
+      className="border border-slate-200 rounded-full px-3 py-1 text-sm text-brand_dark bg-white cursor-pointer"
+    >
+      <option value="user">Miembro</option>
+      <option value="ADMIN">Administrador</option>
+    </select>
   )
 }
 

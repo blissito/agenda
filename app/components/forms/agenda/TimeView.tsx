@@ -27,6 +27,7 @@ export default function TimeView({
   orgTimezone = DEFAULT_TIMEZONE,
   onTimezoneChange,
   selectedTime,
+  minBookingAdvance,
 }: {
   onSelect?: (timeString: string) => void
   selected: Date
@@ -38,6 +39,7 @@ export default function TimeView({
   orgTimezone?: SupportedTimezone
   onTimezoneChange?: (timezone: SupportedTimezone) => void
   selectedTime?: string
+  minBookingAdvance?: number
 }) {
   const [time, setTime] = useState(selectedTime || "")
   const fetcher = useFetcher()
@@ -114,6 +116,13 @@ export default function TimeView({
   const availableRanges = ranges?.filter((t) => {
     if (scheduledEvents.includes(t)) return false
     if (isToday && isTimePassed(t, timezone)) return false
+    if (minBookingAdvance && minBookingAdvance > 0) {
+      const [hours, minutes] = t.split(":").map(Number)
+      const slotDate = new Date(selected)
+      slotDate.setHours(hours, minutes, 0, 0)
+      const advanceMs = minBookingAdvance * 60 * 1000
+      if (slotDate.getTime() < Date.now() + advanceMs) return false
+    }
     return true
   })
 

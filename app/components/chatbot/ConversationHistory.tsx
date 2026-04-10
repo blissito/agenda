@@ -1,74 +1,37 @@
-import { useEffect, useRef, useState } from "react"
-import {
-  formatDateSeparator,
-  formatMessageTime,
-  formatRelativeTime,
-  groupMessagesByDate,
-} from "./utils"
+/**
+ * @file ConversationHistory.tsx
+ * @description Componente encargado de listar las conversaciones pasadas con el agente IA
+ * y gestionar la selección, visualización y eliminación de estas.
+ * @author Agent
+ * @date 2026-04-08
+ */
 
-// Types matching the Formmy SDK shape
-interface ConversationSummary {
+import React, { useState, useCallback, useMemo } from "react"
+import { useFetcher } from "react-router"
+interface Conversation {
   id: string
-  sessionId: string
   name?: string
-  status: string
-  messageCount: number
-  isFavorite: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-interface ConversationMessage {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  createdAt: string
-}
-
-interface ConversationDetail extends ConversationSummary {
-  messages: ConversationMessage[]
+  sessionId?: string
+  isFavorite?: boolean
+  [key: string]: any
 }
 
 interface ConversationHistoryProps {
-  conversations: ConversationSummary[]
+  conversations: Conversation[]
   isLoading: boolean
   hasMore: boolean
-  onLoadMore: () => void
-  selectedConversation: ConversationDetail | null
-  onSelectConversation: (id: string | null) => void
-  messages: ConversationMessage[]
+  onLoadMore: () => void // Función stub, puede ser implementada más tarde
+  selectedConversation: Conversation | null // La conversación actualmente activa
+  onSelectConversation: (conversationId: string) => Promise<void>
+  messages: any[] // Array de mensajes para la conversación seleccionada
   isLoadingMessages: boolean
-  onDelete: (id: string) => Promise<void>
-  onToggleFavorite: (id: string) => Promise<void>
-  onSearch: (query: string) => void
-  searchQuery: string
+  onDelete: (conversationId: string) => Promise<void>
+  onToggleFavorite: (conversationId: string) => Promise<void>
+  onSearch: (query: string) => void // Callback para actualizar el estado de búsqueda
+  searchQuery: string // El término de búsqueda actual
 }
 
-function RobotIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h0m6 0h0m-5 4h4"
-      />
-    </svg>
-  )
-}
-
-// Chat wallpaper pattern as inline SVG background
-const chatPatternBg = {
-  backgroundColor: "#f0f2f5",
-  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d1d5db' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-}
-
-export function ConversationHistory({
+const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   conversations,
   isLoading,
   hasMore,
@@ -81,319 +44,118 @@ export function ConversationHistory({
   onToggleFavorite,
   onSearch,
   searchQuery,
-}: ConversationHistoryProps) {
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const listEndRef = useRef<HTMLDivElement>(null)
+}) => {
+  const fetcher = useFetcher()
 
-  // Infinite scroll observer
-  useEffect(() => {
-    if (!listEndRef.current || !hasMore) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) onLoadMore()
-      },
-      { threshold: 0.1 },
+  // Función para manejar la búsqueda de manera eficiente
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearch(e.target.value)
+  }, [onSearch])
+
+  // Memoizar la lista filtrada para evitar recálculos innecesarios
+  const filteredConversations = useMemo(() => {
+    return conversations.filter((c: any) =>
+      (c.name || c.sessionId || "")
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
     )
-    observer.observe(listEndRef.current)
-    return () => observer.disconnect()
-  }, [hasMore, onLoadMore])
+  }, [conversations, searchQuery])
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+  // Manejador de click en la conversación
+  const handleConversationClick = useCallback(async (id: string) => {
+    await onSelectConversation(id)
+  }, [onSelectConversation])
 
-  const handleDelete = async (id: string) => {
-    if (confirmDelete === id) {
-      await onDelete(id)
-      setConfirmDelete(null)
-    } else {
-      setConfirmDelete(id)
-      setTimeout(() => setConfirmDelete(null), 3000)
-    }
-  }
+  // Renderizado de una sola tarjeta de conversación
+  const ConversationCard: React.FC<{ conversation: any }> = ({ conversation }) => {
+    const { id, name, sessionId, isFavorite } = conversation
 
-  const messageGroups =
-    messages.length > 0 ? groupMessagesByDate(messages) : new Map()
+    return (
+      <div
+        className={`flex items-center p-3 mb-2 rounded-lg cursor-pointer transition-all border ${
+          selectedConversation?.id === id
+            ? "bg-brand_blue/10 border-brand_blue shadow-md"
+            : "bg-white border-gray-200 hover:bg-gray-50"
+        }`}
+        onClick={() => handleConversationClick(id)}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onToggleFavorite(id)
+          }}
+          className="text-gray-400 hover:text-yellow-500 mr-2 transition-colors"
+          aria-label="Marcar como favorito"
+        >
+          {isFavorite ? '⭐' : '☆'}
+        </button>
 
-  return (
-    <div className="flex h-[calc(100vh-180px)] bg-white rounded-2xl border border-gray-100 overflow-hidden">
-      {/* Left panel - Conversation list */}
-      <div className="w-[278px] border-r border-gray-200 flex flex-col">
-        {/* Search */}
-        <div className="p-3 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <input
-                type="text"
-                placeholder="Buscar mensaje"
-                value={searchQuery}
-                onChange={(e) => onSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 rounded-lg text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand_blue/20"
-              />
-            </div>
-            <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
-              <svg
-                className="w-4 h-4 text-gray-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                />
-              </svg>
-            </button>
-          </div>
+        <div className="flex-grow min-w-0">
+          <p className="text-sm font-semibold text-brand_dark truncate">{name || `Sesión ${sessionId}`}</p>
+          <p className="text-xs text-brand_gray truncate">
+            {sessionId ? `ID: ${sessionId.substring(0, 10)}...` : "Sin título"}
+          </p>
         </div>
 
-        {/* List */}
-        <div className="flex-1 overflow-y-auto min-h-0">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="w-6 h-6 border-2 border-brand_blue border-t-transparent rounded-full animate-spin" />
-            </div>
-          ) : conversations.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400 px-8">
-              <RobotIcon className="w-12 h-12 mb-3" />
-              <p className="text-sm text-center font-satoMedium">
-                No hay conversaciones aun
-              </p>
-            </div>
-          ) : (
-            <>
-              {conversations.map((conv) => (
-                <button
-                  key={conv.id}
-                  onClick={() => onSelectConversation(conv.id)}
-                  className={`w-full h-[72px] px-3 flex items-center gap-3 transition-colors text-left border-b border-gray-100 ${
-                    selectedConversation?.id === conv.id
-                      ? "bg-brand_blue/10"
-                      : "hover:bg-gray-50"
-                  }`}
-                >
-                  {/* Avatar */}
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                    <RobotIcon className="w-5 h-5 text-white" />
-                  </div>
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="font-satoBold text-sm text-brand_dark truncate">
-                        {conv.name || `Visitante ${conv.sessionId.slice(-4)}`}
-                      </span>
-                      <span className="text-[11px] text-brand_gray flex-shrink-0 ml-2">
-                        {formatRelativeTime(conv.updatedAt)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-brand_gray truncate mt-0.5">
-                      {conv.messageCount} mensajes
-                    </p>
-                  </div>
-                </button>
-              ))}
-              {hasMore && <div ref={listEndRef} className="h-8" />}
-            </>
-          )}
+        <div className="flex space-x-2 ml-2">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(id)
+            }}
+            className="text-red-400 hover:text-red-600 p-1 rounded-full transition-colors"
+            aria-label="Eliminar conversación"
+          >
+            🗑️
+          </button>
         </div>
       </div>
+    )
+  }
 
-      {/* Right panel - Message thread */}
-      <div className="flex-1 flex flex-col">
-        {!selectedConversation ? (
-          <div
-            className="flex-1 flex flex-col items-center justify-center"
-            style={chatPatternBg}
-          >
-            <div className="w-16 h-16 rounded-full bg-white/80 flex items-center justify-center mb-4 shadow-sm">
-              <RobotIcon className="w-8 h-8 text-brand_gray" />
-            </div>
-            <p className="font-satoMedium text-brand_gray">
-              Selecciona una conversacion
-            </p>
+  return (
+    <div className="flex flex-col h-full">
+      {/* Input de Búsqueda */}
+      <div className="p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
+        <input
+          type="text"
+          placeholder="Buscar conversaciones por nombre o ID..."
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-brand_blue focus:border-brand_blue shadow-sm"
+        />
+      </div>
+
+      {/* Lista de Conversaciones */}
+      <div className="flex-grow overflow-y-auto p-4 space-y-3">
+        {isLoading ? (
+          <div className="text-center p-8 text-brand_gray">Cargando conversaciones...</div>
+        ) : filteredConversations.length > 0 ? (
+          <div className="space-y-3">
+            {filteredConversations.map((conversation) => (
+              <ConversationCard key={conversation.id} conversation={conversation} />
+            ))}
           </div>
         ) : (
-          <>
-            {/* Header */}
-            <div className="h-[72px] px-5 bg-white border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                  <RobotIcon className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-satoBold text-sm text-brand_dark">
-                    {selectedConversation.name ||
-                      `Usuario web ${selectedConversation.sessionId.slice(-3)}`}
-                  </h3>
-                  <p className="text-xs text-brand_gray">
-                    {new Date(
-                      selectedConversation.createdAt,
-                    ).toLocaleDateString("es-MX", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}
-                    ,{" "}
-                    {new Date(
-                      selectedConversation.createdAt,
-                    ).toLocaleTimeString("es-MX", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                {/* Robot / AI toggle */}
-                <button
-                  onClick={() => onToggleFavorite(selectedConversation.id)}
-                  className="w-9 h-9 rounded-full bg-brand_blue flex items-center justify-center hover:bg-brand_blue/90 transition-colors"
-                  title={
-                    selectedConversation.isFavorite
-                      ? "Quitar favorito"
-                      : "Marcar favorito"
-                  }
-                >
-                  <RobotIcon className="w-4 h-4 text-white" />
-                </button>
-                {/* Download */}
-                <button
-                  onClick={() => {
-                    const data = messages
-                      .map(
-                        (m) =>
-                          `[${formatMessageTime(m.createdAt)}] ${m.role}: ${m.content}`,
-                      )
-                      .join("\n")
-                    const blob = new Blob([data], { type: "text/plain" })
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement("a")
-                    a.href = url
-                    a.download = `conversacion-${selectedConversation.id.slice(-6)}.txt`
-                    a.click()
-                    URL.revokeObjectURL(url)
-                  }}
-                  className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
-                  title="Descargar conversacion"
-                >
-                  <svg
-                    className="w-[18px] h-[18px] text-brand_gray"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                </button>
-                {/* Delete */}
-                <button
-                  onClick={() => handleDelete(selectedConversation.id)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                    confirmDelete === selectedConversation.id
-                      ? "bg-red-50 text-red-500"
-                      : "hover:bg-gray-100 text-brand_gray"
-                  }`}
-                  title={
-                    confirmDelete === selectedConversation.id
-                      ? "Click para confirmar"
-                      : "Eliminar"
-                  }
-                >
-                  <svg
-                    className="w-[18px] h-[18px]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
+          <div className="text-center p-8 text-brand_gray">
+            {searchQuery ? "No se encontraron conversaciones con ese término." : "Aún no tienes conversaciones guardadas. Activa Ghosty para empezar."}
+          </div>
+        )}
 
-            {/* Messages */}
-            <div
-              className="flex-1 overflow-y-auto px-6 py-4"
-              style={chatPatternBg}
-            >
-              {isLoadingMessages ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="w-6 h-6 border-2 border-brand_blue border-t-transparent rounded-full animate-spin" />
-                </div>
-              ) : (
-                <>
-                  {Array.from(messageGroups.entries()).map(
-                    ([dateKey, msgs]) => (
-                      <div key={dateKey}>
-                        {/* Date separator */}
-                        <div className="flex items-center justify-center my-4">
-                          <span className="px-3 py-1 bg-white/80 rounded-lg text-xs text-brand_gray shadow-sm font-satoMedium">
-                            {formatDateSeparator(
-                              (msgs as ConversationMessage[])[0].createdAt,
-                            )}
-                          </span>
-                        </div>
-                        {/* Messages */}
-                        {(msgs as ConversationMessage[]).map((msg) => (
-                          <div
-                            key={msg.id}
-                            className={`flex mb-3 ${
-                              msg.role === "user"
-                                ? "justify-end"
-                                : "justify-start"
-                            }`}
-                          >
-                            <div
-                              className={`max-w-[70%] px-4 py-2.5 text-sm leading-relaxed shadow-sm ${
-                                msg.role === "user"
-                                  ? "bg-brand_dark text-white rounded-2xl rounded-br-md"
-                                  : "bg-white text-brand_dark rounded-2xl rounded-bl-md"
-                              }`}
-                            >
-                              <p className="whitespace-pre-wrap">
-                                {msg.content}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ),
-                  )}
-                  <div ref={messagesEndRef} />
-                </>
-              )}
-            </div>
-          </>
+        {/* Control de Carga Adicional */}
+        {hasMore && (
+          <button
+            onClick={onLoadMore}
+            disabled={isLoading}
+            className="w-full py-2 mt-4 text-brand_blue border border-brand_blue rounded-lg hover:bg-brand_blue/10 transition-colors disabled:opacity-50"
+          >
+            {isLoading ? "Cargando más..." : "Cargar más conversaciones"}
+          </button>
         )}
       </div>
     </div>
   )
 }
+
+export { ConversationHistory }
+export default ConversationHistory

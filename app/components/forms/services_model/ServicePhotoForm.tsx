@@ -108,7 +108,7 @@ export const ServicePhotoForm = ({
   const isUploadReady = Boolean(photoAction?.putUrl)
 
   return (
-    <Form ref={formRef} method="post">
+    <Form ref={formRef} method="post" action="/api/services">
       {/* Hidden input for the new photo key to add to gallery */}
       <input type="hidden" name="gallery" value={newPhoto} />
       <InputFile
