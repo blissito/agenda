@@ -187,6 +187,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
       {activeTab === "config" && (
         <ChatbotConfig
           initialConfig={chatbotConfig || undefined}
+          agentId={agentId || undefined}
           onSave={(config) => {
             saveFetcher.submit(
               { intent: "save_config", config: JSON.stringify(config) },
