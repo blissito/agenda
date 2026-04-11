@@ -1,4 +1,9 @@
 // app/routes/dash.website.tsx
+import type {
+  CustomColors,
+  Section3,
+} from "@easybits.cloud/html-tailwind-generator"
+import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import * as React from "react"
 import { useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
@@ -28,6 +33,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       customDomain: true,
       customDomainStatus: true,
       customDomainDns: true,
+      landingPublished: true,
+      landingSections: true,
+      landingTheme: true,
+      landingCustomColors: true,
     },
   })
 
@@ -35,13 +44,33 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const url = getOrgPublicUrl(org.slug, request.url)
 
-  // preview: just embed mode (AI landing or template, whichever is active)
-  const previewUrlObj = new URL(url)
-  previewUrlObj.searchParams.set("embed", "1")
-  previewUrlObj.searchParams.set("t", String(Date.now()))
-  const previewUrl = previewUrlObj.toString()
+  // Build preview HTML from AI landing sections (no network request needed)
+  let previewHtml: string | null = null
+  if (org.landingPublished && org.landingSections) {
+    try {
+      const raw = org.landingSections
+      if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
+      const sections = raw as unknown as Section3[]
+      previewHtml = buildDeployHtml(
+        sections,
+        org.landingTheme || undefined,
+        org.landingCustomColors as unknown as CustomColors | undefined,
+      )
+    } catch (err) {
+      console.error("Failed to build preview HTML:", err)
+    }
+  }
 
-  return { org, url, previewUrl }
+  // Fallback: subdomain URL for orgs without AI landing
+  let previewUrl: string | null = null
+  if (!previewHtml) {
+    const previewUrlObj = new URL(url)
+    previewUrlObj.searchParams.set("embed", "1")
+    previewUrlObj.searchParams.set("t", String(Date.now()))
+    previewUrl = previewUrlObj.toString()
+  }
+
+  return { org, url, previewUrl, previewHtml }
 }
 
 type RoundActionProps =
@@ -90,7 +119,7 @@ const RoundAction = (props: RoundActionProps) => {
 }
 
 export default function Website({ loaderData }: Route.ComponentProps) {
-  const { org, url, previewUrl } = loaderData
+  const { org, url, previewUrl, previewHtml } = loaderData
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
@@ -137,15 +166,25 @@ export default function Website({ loaderData }: Route.ComponentProps) {
       </div>
 
       <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
-        <iframe
-          ref={iframeRef}
-          title="Preview del sitio"
-          src={iframeSrc}
-          className="w-full h-full border-0 block"
-          loading="lazy"
-          sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
-          referrerPolicy="strict-origin-when-cross-origin"
-        />
+        {previewHtml ? (
+          <iframe
+            ref={iframeRef}
+            title="Preview del sitio"
+            srcDoc={previewHtml}
+            className="w-full h-full border-0 block"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+          />
+        ) : (
+          <iframe
+            ref={iframeRef}
+            title="Preview del sitio"
+            src={iframeSrc}
+            className="w-full h-full border-0 block"
+            loading="lazy"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        )}
       </section>
 
       <ShareWebsiteModal
