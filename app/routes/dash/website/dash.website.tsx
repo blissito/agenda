@@ -136,7 +136,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const onShare = () => setShareOpen(true)
 
   return (
-    <main className="w-full h-full flex flex-col max-w-8xl mx-auto overflow-hidden">
+    <main className="w-full h-full flex flex-col max-w-8xl mx-auto overflow-hidden" style={{ minHeight: "calc(100vh - 80px)" }}>
       <div className="flex items-center justify-between gap-4 pb-4">
         <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
@@ -165,7 +165,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
 
-      <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden">
+      <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden" style={{ minHeight: "70vh" }}>
         {previewHtml ? (
           <iframe
             ref={iframeRef}
