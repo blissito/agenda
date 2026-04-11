@@ -2,6 +2,7 @@ import type { Event } from "@prisma/client"
 import invariant from "tiny-invariant"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { createMeetLink } from "~/lib/google-meet.server"
+import { createZoomMeeting } from "~/lib/zoom.server"
 import { db } from "~/utils/db.server"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/customers"
@@ -144,6 +145,30 @@ export const action = async ({ request }: Route.ActionArgs) => {
         }
       } catch (e) {
         console.error("[Meet] Google Calendar event creation failed:", e instanceof Error ? e.message : e)
+      }
+    }
+
+    // Create Zoom meeting if connected (and no Google Meet was created)
+    if (!(await db.event.findUnique({ where: { id: event.id }, select: { meetingLink: true } }))?.meetingLink && org.zoomToken && validData.serviceId && validData.customerId) {
+      try {
+        const [service, fullCustomer] = await Promise.all([
+          db.service.findUnique({ where: { id: validData.serviceId } }),
+          db.customer.findUnique({ where: { id: validData.customerId } }),
+        ])
+        if (service && fullCustomer) {
+          const { meetingLink } = await createZoomMeeting({
+            org,
+            event,
+            service,
+            customer: fullCustomer,
+          })
+          await db.event.update({
+            where: { id: event.id },
+            data: { meetingLink },
+          })
+        }
+      } catch (e) {
+        console.error("[Zoom] Meeting creation failed:", e instanceof Error ? e.message : e)
       }
     }
 

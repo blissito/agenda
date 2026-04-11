@@ -422,6 +422,7 @@ model Org {
   chatbotAgentId        String?
   chatbotConfig         Json?
   googleCalendarToken   Json?
+  zoomToken             Json?
   customers          Customer[]
   events             Event[]
   services           Service[]

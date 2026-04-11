@@ -536,6 +536,7 @@ function ConfiguracionTab({
 function IntegracionesTab({ org }: { org: any }) {
   const fetcher = useFetcher()
   const isGoogleMeetConnected = Boolean(org.googleCalendarToken)
+  const isZoomConnected = Boolean(org.zoomToken)
   return (
     <section className="bg-white rounded-2xl max-w-4xl pb-10 overflow-hidden">
       <div className="p-6">
@@ -572,11 +573,37 @@ function IntegracionesTab({ org }: { org: any }) {
           <strong className="font-satoMiddle">Videollamadas</strong>
         </p>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <IntegrationCardDisconnected
-            icon="/images/zoom.svg"
-            tool="Zoom"
-            description="Añade enlaces de zoom para tus servicios en línea."
-          />
+          {isZoomConnected ? (
+            <div className="relative col-span-1 md:col-span-2">
+              <IntegrationCard
+                icon="/images/zoom.svg"
+                tool="Zoom"
+                description="Zoom conectado. Se generarán enlaces automáticamente en tus citas."
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm("¿Desconectar Zoom?")) {
+                    fetcher.submit(
+                      { intent: "disconnect_zoom" },
+                      { method: "post", action: "/dash/ajustes" },
+                    )
+                  }
+                }}
+                className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 transition-colors"
+              >
+                Desconectar
+              </button>
+            </div>
+          ) : (
+            <a href="/dash/zoom/connect">
+              <IntegrationCardDisconnected
+                icon="/images/zoom.svg"
+                tool="Zoom"
+                description="Añade enlaces de zoom para tus servicios en línea."
+              />
+            </a>
+          )}
           {isGoogleMeetConnected ? (
             <div className="relative col-span-1 md:col-span-2">
               <IntegrationCard

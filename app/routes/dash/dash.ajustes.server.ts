@@ -98,5 +98,13 @@ export const action = async ({ request }: { request: Request }) => {
     return { ok: true }
   }
 
+  if (intent === "disconnect_zoom") {
+    await db.org.update({
+      where: { id: org.id },
+      data: { zoomToken: null },
+    })
+    return { ok: true }
+  }
+
   return { error: "Intent no reconocido" }
 }

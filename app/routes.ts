@@ -73,6 +73,8 @@ export default [
       route("ajustes", "routes/dash/dash.ajustes.tsx"),
       route("google-calendar/connect", "routes/dash/dash.google-calendar-connect.tsx"),
       route("google-calendar/callback", "routes/dash/dash.google-calendar-callback.tsx"),
+      route("zoom/connect", "routes/dash/dash.zoom-connect.tsx"),
+      route("zoom/callback", "routes/dash/dash.zoom-callback.tsx"),
 
       route("ventas", "routes/dash/pagos.tsx"),
     ]),
