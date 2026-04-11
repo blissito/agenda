@@ -184,7 +184,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 
 - [x] ~~Completar webhook Stripe~~ (implementado)
 - [x] ~~**ELMASURGENTE**: El link de pagos en el menú no funciona~~ (webhook Stripe registrado en routes.ts, loader de pagos ya no auto-crea cuenta Stripe, guard en getClient())
-- [ ] **CI/CD**: Los checks de GitHub Actions nunca pasan - investigar y arreglar el pipeline
+- [x] ~~**CI/CD**: Los checks de GitHub Actions nunca pasan~~ (ya pasan correctamente)
 - [x] ~~**BUG PROD - IMÁGENES**: Las imágenes no se muestran en sitio público~~ (helper `getPublicImageUrl()` en urls.ts)
 - [ ] **URGENTE**: Agregar `STRIPE_WEBHOOK_SECRET` en Fly secrets — sin esta variable el webhook Stripe rechaza todo con 400. Obtener de [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks) y correr: `fly secrets set STRIPE_WEBHOOK_SECRET="whsec_..."`
 - [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
@@ -199,7 +199,7 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~La página pública de org no muestra bien los horarios~~ (campos corregidos: logo, email, weekDays)
 - [ ] **UX**: Selección de horarios en booking - actualmente bloquea todos los slots mientras carga. Implementar optimistic UI para respuesta inmediata
 - [x] ~~**BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod~~ (corregido en sendAppointment.ts)
-- [ ] **META TAGS**: Revisar y mejorar meta tags en las landings publicadas (OG tags, title, description, favicon) para SEO y sharing en redes sociales
+- [x] ~~**META TAGS**: Revisar y mejorar meta tags en las landings publicadas~~ (OG tags en booking público y landing de org)
 - [ ] **AI Landing en S3**: Subir HTML generado a S3/CloudFront en vez de servirlo via iframe srcDoc (mejor SEO, carga directa, sin limitaciones de iframe). Actualmente se usa `<iframe srcDoc>` fullscreen en `home.tsx` como workaround porque React Router v7 no permite devolver raw HTML desde loaders.
 - [x] ~~**DALL-E + S3 para landings**: Imágenes generadas con DALL-E 3, persistidas en Tigris~~ (SDK 0.2.11 con `persistImage` callback, Denik sube a `landings/{orgId}/`)
 - [x] ~~**Opus para landings**: `generateOrgLanding` ahora usa `claude-sonnet-4-6`~~ (refine usa Haiku 4.5 sin imagen, Sonnet 4.6 con imagen de referencia)
