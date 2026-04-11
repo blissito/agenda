@@ -16,6 +16,7 @@ import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { EventHoverCard, type EventHoverData } from "~/components/dash/agenda/EventHoverCard"
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer"
 import { EventFormDrawer } from "~/components/forms/EventFormDrawer"
+import { createMeetLink } from "~/lib/google-meet.server"
 import { db } from "~/utils/db.server"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/dash.agenda"
@@ -45,7 +46,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       JSON.parse(formData.get("data") as string),
     )
 
-    await db.event.create({
+    const newEvent = await db.event.create({
       data: {
         ...validData,
         orgId: org.id,
@@ -59,6 +60,30 @@ export const action = async ({ request }: Route.ActionArgs) => {
         type: "EVENT",
       },
     })
+
+    // Create Google Meet link if connected
+    if (org.googleCalendarToken && validData.serviceId && validData.customerId) {
+      try {
+        const [service, customer] = await Promise.all([
+          db.service.findUnique({ where: { id: validData.serviceId } }),
+          db.customer.findUnique({ where: { id: validData.customerId } }),
+        ])
+        if (service && customer) {
+          const { meetingLink, calendarEventId } = await createMeetLink({
+            org,
+            event: newEvent,
+            service,
+            customer,
+          })
+          await db.event.update({
+            where: { id: newEvent.id },
+            data: { meetingLink, calendarEventId },
+          })
+        }
+      } catch (e) {
+        console.error("Google Meet creation failed:", e)
+      }
+    }
   }
 
   if (intent === "remove_block") {
@@ -202,6 +227,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     monday: monday.toISOString(),
     sunday: sunday.toISOString(),
     orgSlug: org.slug,
+    isGoogleCalendarConnected: Boolean(org.googleCalendarToken),
     employeeMap: Object.fromEntries(orgUsers.map((u) => [u.id, u.displayName ?? ""])),
     monthEventDates: monthEvents.map((e) => e.start.toISOString()),
     upcomingEvents: upcomingEvents.map((e) => ({
@@ -705,6 +731,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     orgSlug,
     monthEventDates,
     employeeMap,
+    isGoogleCalendarConnected,
   } = loaderData
   const navigate = useNavigate()
   const mutationFetcher = useFetcher()
@@ -1059,6 +1086,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         event={editableEvent as PrismaEvent}
         isOpen={!!editableEvent}
         onNewClientClick={handleNewClientClick}
+        isGoogleCalendarConnected={isGoogleCalendarConnected}
       />
       <ClientFormDrawer
         onClose={() => setShowNewClientDrawer(false)}
