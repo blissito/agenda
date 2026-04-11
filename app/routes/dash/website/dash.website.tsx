@@ -5,7 +5,7 @@ import type {
 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import * as React from "react"
-import { useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Edit2 } from "~/components/icons/Edit2"
@@ -122,8 +122,23 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const { org, url, previewUrl, previewHtml } = loaderData
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
+  const sectionRef = useRef<HTMLElement | null>(null)
 
   const [shareOpen, setShareOpen] = useState(false)
+
+  // Scale iframe (1440px wide) to fit container
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const update = () => {
+      const scale = section.clientWidth / 1440
+      section.style.setProperty("--preview-scale", String(scale))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(section)
+    return () => ro.disconnect()
+  }, [])
 
   const iframeSrc = useMemo(() => {
     const u = (previewUrl ?? "").trim()
@@ -165,24 +180,28 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
 
-      <section className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden" style={{ minHeight: "70vh" }}>
+      <section ref={sectionRef} className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden relative" style={{ minHeight: "70vh" }}>
         {previewHtml ? (
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
             srcDoc={previewHtml}
-            className="w-full h-full border-0 block"
+            className="border-0 block origin-top-left absolute"
+            style={{ width: "1440px", height: "900%", transform: "scale(var(--preview-scale, 0.5))", transformOrigin: "top left" }}
             sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            scrolling="auto"
           />
         ) : (
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
             src={iframeSrc}
-            className="w-full h-full border-0 block"
+            className="border-0 block origin-top-left absolute"
+            style={{ width: "1440px", height: "900%", transform: "scale(var(--preview-scale, 0.5))", transformOrigin: "top left" }}
             loading="lazy"
             sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
             referrerPolicy="strict-origin-when-cross-origin"
+            scrolling="auto"
           />
         )}
       </section>
