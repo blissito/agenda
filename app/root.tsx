@@ -71,6 +71,10 @@ export function Layout({ children }: { children: ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="zoom-domain-verification"
+          content="ZOOM_verify_57e48124bb5a490c8caea186034dd160"
+        />
         <Meta />
         <Links />
       </head>
