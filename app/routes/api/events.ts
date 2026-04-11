@@ -1,6 +1,7 @@
 import type { Event } from "@prisma/client"
 import invariant from "tiny-invariant"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { createMeetLink } from "~/lib/google-meet.server"
 import { db } from "~/utils/db.server"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/customers"
@@ -121,6 +122,31 @@ export const action = async ({ request }: Route.ActionArgs) => {
         updatedAt: now,
       },
     })
+
+    // Create Google Calendar event + Meet link if connected
+    if (org.googleCalendarToken && validData.serviceId && validData.customerId) {
+      try {
+        const [service, fullCustomer] = await Promise.all([
+          db.service.findUnique({ where: { id: validData.serviceId } }),
+          db.customer.findUnique({ where: { id: validData.customerId } }),
+        ])
+        if (service && fullCustomer) {
+          const { meetingLink, calendarEventId } = await createMeetLink({
+            org,
+            event,
+            service,
+            customer: fullCustomer,
+          })
+          await db.event.update({
+            where: { id: event.id },
+            data: { meetingLink, calendarEventId },
+          })
+        }
+      } catch (e) {
+        console.error("[Meet] Google Calendar event creation failed:", e instanceof Error ? e.message : e)
+      }
+    }
+
     return event
   }
   return null
