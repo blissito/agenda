@@ -167,7 +167,9 @@ Después de cambiar el schema: `npx prisma generate`
 | Stripe Connect         | ⚠️ Legacy (no usado en booking, solo backend)                       |
 | Webhooks Stripe        | ⚠️ Legacy (ruta registrada, pero booking usa MP)                    |
 | MercadoPago            | ✅ OAuth, webhooks idempotentes, token refresh                      |
-| Loyalty (puntos/tiers) | ✅                                                                  |
+| Loyalty (puntos/tiers) | ✅ (DB unificada, awardPoints en webhooks MP/Stripe)                |
+| Google Calendar/Meet   | ✅ OAuth, crear/borrar eventos, Meet automático                     |
+| Zoom                   | ✅ OAuth, crear/borrar meetings (falta webhook para asistencia)     |
 | Tests                  | ❌ 0%                                                               |
 
 ## Protección contra duplicados
@@ -203,6 +205,8 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**Opus para landings**: `generateOrgLanding` ahora usa `claude-sonnet-4-6`~~ (refine usa Haiku 4.5 sin imagen, Sonnet 4.6 con imagen de referencia)
 - [ ] **AI Landing — Referencias visuales**: El editor ya acepta imagen de referencia (base64 upload → vision model replica el diseño). Extender para aceptar también **links de Figma** via MCP (`figma-to-code`), donde el usuario pega un share link y el sistema extrae el diseño como referencia para generar/refinar secciones. La biblioteca SDK debe exponer esto como opción (`referenceUrl?: string` además de `referenceImage?: string`).
 - [ ] **ASISTENCIA**: Agregar campo `attended` (Boolean?, default null) al modelo Event para trackear si el cliente se presentó. Tag visible solo en citas pasadas (null = sin marcar, true = asistió, false = no-show). Usar este campo en vez de solo la fecha para sumar puntos de lealtad. Componente: nuevo StatusTag variant en `CitasTable.tsx`
+- [ ] **ZOOM WEBHOOKS**: Configurar webhook endpoint para recibir eventos de Zoom (`meeting.started`, `meeting.ended`, `meeting.participant_joined`). Secret Token: usar `ZOOM_WEBHOOK_SECRET` para verificar. Esto permitiría marcar `attended` automáticamente cuando el cliente se conecta a la videollamada. Endpoint sugerido: `/zoom/webhook`
+- [ ] **GOOGLE CALENDAR VERIFICACIÓN**: Enviar solicitud de verificación en Google Cloud Console para quitar pantalla "Google no verificó esta app". Requiere: dominio verificado (✅), política de privacidad (✅ `/avisodeprivacidad`), descripción de uso del scope `calendar.events`
 - [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
   - Repetición (cada martes 10am, cada semana, cada mes)
   - Número de repeticiones o fecha fin de recurrencia
@@ -271,6 +275,14 @@ MP_CLIENT_SECRET=
 MP_ACCESS_TOKEN=
 MP_WEBHOOK_SECRET=   # Panel MP > Webhooks > Secret key
 
+# Google Calendar/Meet
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Zoom
+ZOOM_CLIENT_ID=
+ZOOM_CLIENT_SECRET=
+
 # Opcionales
 ADMIN_EMAILS=email1@x.com,email2@x.com
 ```
@@ -282,6 +294,8 @@ ADMIN_EMAILS=email1@x.com,email2@x.com
 - **Stripe**: `app/.server/stripe.ts`, `app/routes/stripe/`
 - **MercadoPago**: `app/.server/mercadopago.ts`, `app/routes/mercadopago.*`
 - **Loyalty**: `app/lib/loyalty.server.ts`, `app/routes/api/loyalty.ts`
+- **Google Calendar/Meet**: `app/lib/google-meet.server.ts`, `app/routes/dash/dash.google-calendar-*.tsx`
+- **Zoom**: `app/lib/zoom.server.ts`, `app/routes/dash/dash.zoom-*.tsx`
 - **Validación**: `app/utils/zod_schemas.ts`
 
 ## Herramientas de Desarrollo (DB)
