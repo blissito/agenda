@@ -63,11 +63,15 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
     // Create Google Meet link if connected
     if (org.googleCalendarToken && validData.serviceId && validData.customerId) {
+      console.log("[Meet] Attempting Google Calendar event creation for org:", org.id)
+      const token = org.googleCalendarToken as any
+      console.log("[Meet] Token exists:", !!token, "expires_at:", token?.expires_at, "now:", Date.now())
       try {
         const [service, customer] = await Promise.all([
           db.service.findUnique({ where: { id: validData.serviceId } }),
           db.customer.findUnique({ where: { id: validData.customerId } }),
         ])
+        console.log("[Meet] Service:", service?.id, "Customer:", customer?.id)
         if (service && customer) {
           const { meetingLink, calendarEventId } = await createMeetLink({
             org,
@@ -75,14 +79,19 @@ export const action = async ({ request }: Route.ActionArgs) => {
             service,
             customer,
           })
+          console.log("[Meet] SUCCESS - meetingLink:", meetingLink, "calendarEventId:", calendarEventId)
           await db.event.update({
             where: { id: newEvent.id },
             data: { meetingLink, calendarEventId },
           })
+        } else {
+          console.log("[Meet] Skipped - service or customer not found")
         }
       } catch (e) {
-        console.error("Google Meet creation failed:", e)
+        console.error("[Meet] FAILED:", e instanceof Error ? e.message : e)
       }
+    } else {
+      console.log("[Meet] Skipped - googleCalendarToken:", !!org.googleCalendarToken, "serviceId:", !!validData.serviceId, "customerId:", !!validData.customerId)
     }
   }
 
