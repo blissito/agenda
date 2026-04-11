@@ -64,6 +64,7 @@ export const action = async ({ request }: { request: Request }) => {
   if (intent === "invite") {
     const email = (formData.get("email") as string)?.trim()
     const displayName = (formData.get("displayName") as string)?.trim()
+    const role = (formData.get("role") as string) || "user"
     if (!email) return { error: "Email requerido" }
 
     const existing = await db.user.findUnique({ where: { email } })
@@ -73,7 +74,7 @@ export const action = async ({ request }: { request: Request }) => {
       }
       await db.user.update({
         where: { id: existing.id },
-        data: { orgId: org.id },
+        data: { orgId: org.id, role },
       })
     } else {
       await db.user.create({
@@ -82,6 +83,7 @@ export const action = async ({ request }: { request: Request }) => {
           emailVerified: false,
           displayName: displayName || null,
           orgId: org.id,
+          role,
         },
       })
     }

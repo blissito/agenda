@@ -141,14 +141,6 @@ export default function Colaboradores() {
             required
             containerClassName="flex-1"
           />
-          <select
-            name="role"
-            defaultValue="user"
-            className="border border-slate-200 rounded-full px-4 py-2 text-sm text-brand_dark bg-white self-end"
-          >
-            <option value="user">Miembro</option>
-            <option value="ADMIN">Administrador</option>
-          </select>
           <button
             type="submit"
             className="bg-brand_blue text-white px-6 py-2 rounded-full text-sm font-satoMedium hover:opacity-90 transition-opacity self-end"
@@ -215,11 +207,9 @@ export default function Colaboradores() {
                   {c.email}
                 </p>
                 <div className="col-span-2 hidden sm:flex justify-center">
-                  {c.id === ownerId ? (
-                    <span className="text-sm text-brand_gray">Propietario</span>
-                  ) : (
-                    <RoleSelect userId={c.id} currentRole={c.role || "user"} />
-                  )}
+                  <span className="text-sm text-brand_gray">
+                    {c.id === ownerId ? "Propietario" : "Miembro"}
+                  </span>
                 </div>
                 <div className="col-span-2 flex justify-center">
                   <Form method="post">
