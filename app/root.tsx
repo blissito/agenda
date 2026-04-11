@@ -16,6 +16,13 @@ import type { Route } from "./+types/root"
 import stylesheet from "./app.css?url"
 import { getMetaTags } from "./utils/getMetaTags"
 
+export const headers = () => ({
+  "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "frame-ancestors 'self'",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+})
+
 export const meta = () =>
   getMetaTags({
     title: "Tienes un mensaje sorpresa esperandote 🎁",
