@@ -16,6 +16,8 @@ const STATUS_STYLES = {
   paid: { bg: "bg-[#d5faf1]", text: "text-[#2a645f]", label: "Pagada", icon: "💸" },
   unpaid: { bg: "bg-[#eef9fd]", text: "text-[#276297]", label: "Sin pagar", icon: "💰" },
   pending: { bg: "bg-[#fff8e1]", text: "text-[#8b6914]", label: "Reservada", icon: "📣" },
+  attended: { bg: "bg-[#e0f2fe]", text: "text-[#0369a1]", label: "Asistió", icon: "✅" },
+  noshow: { bg: "bg-[#fef2f2]", text: "text-[#991b1b]", label: "No asistió", icon: "❌" },
 } as const
 
 type StatusVariant = keyof typeof STATUS_STYLES
@@ -198,9 +200,11 @@ const CitaRow = ({
           {event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"}
         </p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <StatusTag variant={getStatusVariant(event.status)} />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
+        {new Date(event.start) < new Date() && event.attended === true && <StatusTag variant="attended" />}
+        {new Date(event.start) < new Date() && event.attended === false && <StatusTag variant="noshow" />}
       </div>
       <div className="flex items-center justify-end">
         <DropdownMenu />
@@ -254,6 +258,8 @@ const CitaCardMobile = ({
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         <StatusTag variant={getStatusVariant(event.status)} />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
+        {new Date(event.start) < new Date() && event.attended === true && <StatusTag variant="attended" />}
+        {new Date(event.start) < new Date() && event.attended === false && <StatusTag variant="noshow" />}
         {hideClient && (
           <span className="text-[11px] text-brand_gray">{String(event.service?.points ?? 0)} pts</span>
         )}

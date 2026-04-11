@@ -362,6 +362,7 @@ model Event {
   stripe_payment_intent_id String?
   meetingLink              String?
   calendarEventId          String?
+  attended                 Boolean?             // null = not marked, true = attended, false = no-show
   reminderSentAt           DateTime? @db.Date  // null = reminder not sent yet
   surveySentAt             DateTime? @db.Date  // null = survey not sent yet
   customer                 Customer?       @relation(fields: [customerId], references: [id])

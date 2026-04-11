@@ -32,7 +32,21 @@ import {
 } from "~/utils/timezone"
 import { normalizeWeekDays } from "~/utils/weekDays"
 import { ChatWidget } from "~/components/chatbot/ChatWidget"
+import { getMetaTags } from "~/utils/getMetaTags"
+import { getServicePublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/agenda.$orgSlug.$serviceSlug"
+
+export const meta = ({ data }: Route.MetaArgs) => {
+  if (!data) return getMetaTags({})
+  const { org, service } = data
+  const image = service.gallery?.[0] || "/cover.png"
+  return getMetaTags({
+    title: `${service.name} — ${org.name || "Deník"}`,
+    description: `Reserva ${service.name}${service.price ? ` · $${service.price}` : ""} · ${service.duration} min`,
+    image,
+    url: getServicePublicUrl(org.slug, service.slug),
+  })
+}
 
 type WeekDaysType = Record<string, string[][]>
 
