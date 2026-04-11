@@ -46,7 +46,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   // Build preview HTML from AI landing sections (no network request needed)
   let previewHtml: string | null = null
-  if (org.landingPublished && org.landingSections) {
+  if (org.landingSections) {
     try {
       const raw = org.landingSections
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
