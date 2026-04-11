@@ -43,7 +43,7 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
     agentId,
   })
 
-  const isStreaming = status === "streaming"
+  const isStreaming = status === "streaming" || status === "submitted"
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -278,7 +278,7 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const { messages, sendMessage, status } = useFormmyChat({ agentId })
-  const isStreaming = status === "streaming"
+  const isStreaming = status === "streaming" || status === "submitted"
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
