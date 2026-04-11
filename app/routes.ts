@@ -14,7 +14,7 @@ export default [
   route("community", "routes/Community/Community.tsx"),
   route("terminosycondiciones", "routes/terminosycondiciones.tsx"),
   route("avisodeprivacidad", "routes/avisodeprivacidad.tsx"),
-  route("privacidad", "routes/avisodeprivacidad.tsx"),
+  route("privacidad", "routes/privacidad.tsx"),
   route("blog", "routes/help.tsx"),
   //login
   route("signin", "routes/login/signin.tsx"),
