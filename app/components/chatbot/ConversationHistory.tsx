@@ -114,43 +114,101 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Input de Búsqueda */}
-      <div className="p-4 border-b border-gray-200 bg-white sticky top-0 z-10">
-        <input
-          type="text"
-          placeholder="Buscar conversaciones por nombre o ID..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-brand_blue focus:border-brand_blue shadow-sm"
-        />
+    <div className="grid grid-cols-1 lg:grid-cols-[360px,1fr] gap-6 min-h-[calc(100vh-220px)]">
+      {/* Left — Conversation list */}
+      <div className="flex flex-col bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-gray-200">
+          <input
+            type="text"
+            placeholder="Buscar conversaciones por nombre o ID..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-brand_blue focus:border-brand_blue shadow-sm text-sm"
+          />
+        </div>
+
+        <div className="flex-grow overflow-y-auto p-3 space-y-2">
+          {isLoading ? (
+            <div className="text-center p-8 text-brand_gray">Cargando...</div>
+          ) : filteredConversations.length > 0 ? (
+            filteredConversations.map((conversation) => (
+              <ConversationCard key={conversation.id} conversation={conversation} />
+            ))
+          ) : (
+            <div className="text-center p-8 text-brand_gray text-sm">
+              {searchQuery ? "Sin resultados." : "No hay conversaciones aún."}
+            </div>
+          )}
+
+          {hasMore && (
+            <button
+              onClick={onLoadMore}
+              disabled={isLoading}
+              className="w-full py-2 mt-2 text-brand_blue border border-brand_blue rounded-lg hover:bg-brand_blue/10 transition-colors disabled:opacity-50 text-sm"
+            >
+              Cargar más
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Lista de Conversaciones */}
-      <div className="flex-grow overflow-y-auto p-4 space-y-3">
-        {isLoading ? (
-          <div className="text-center p-8 text-brand_gray">Cargando conversaciones...</div>
-        ) : filteredConversations.length > 0 ? (
-          <div className="space-y-3">
-            {filteredConversations.map((conversation) => (
-              <ConversationCard key={conversation.id} conversation={conversation} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center p-8 text-brand_gray">
-            {searchQuery ? "No se encontraron conversaciones con ese término." : "Aún no tienes conversaciones guardadas. Activa Ghosty para empezar."}
-          </div>
-        )}
+      {/* Right — Messages panel */}
+      <div className="bg-white rounded-2xl shadow-sm flex flex-col overflow-hidden">
+        {selectedConversation ? (
+          <>
+            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <p className="font-satoBold text-brand_dark">
+                  {selectedConversation.name || `Sesión ${selectedConversation.sessionId}`}
+                </p>
+                <p className="text-xs text-brand_gray">
+                  {messages.length} mensaje{messages.length !== 1 ? "s" : ""}
+                </p>
+              </div>
+              <button
+                onClick={() => onSelectConversation("")}
+                className="text-brand_gray hover:text-brand_dark text-sm lg:hidden"
+              >
+                ← Volver
+              </button>
+            </div>
 
-        {/* Control de Carga Adicional */}
-        {hasMore && (
-          <button
-            onClick={onLoadMore}
-            disabled={isLoading}
-            className="w-full py-2 mt-4 text-brand_blue border border-brand_blue rounded-lg hover:bg-brand_blue/10 transition-colors disabled:opacity-50"
-          >
-            {isLoading ? "Cargando más..." : "Cargar más conversaciones"}
-          </button>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 max-h-[calc(100vh-320px)]">
+              {isLoadingMessages ? (
+                <div className="text-center p-8 text-brand_gray">Cargando mensajes...</div>
+              ) : messages.length > 0 ? (
+                messages.map((msg: any, i: number) => {
+                  const isUser = msg.role === "user"
+                  const text = msg.content || msg.text || ""
+                  if (!text) return null
+                  return (
+                    <div key={msg.id || i} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className={`px-3 py-2 rounded-xl text-sm max-w-[75%] ${
+                          isUser
+                            ? "bg-brand_blue text-white rounded-br-sm"
+                            : "bg-white border border-gray-200 text-gray-700 rounded-bl-sm"
+                        }`}
+                      >
+                        <p className="whitespace-pre-wrap break-words">{text}</p>
+                        {msg.createdAt && (
+                          <p className={`text-[10px] mt-1 ${isUser ? "text-white/60" : "text-gray-400"}`}>
+                            {new Date(msg.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })
+              ) : (
+                <div className="text-center p-8 text-brand_gray text-sm">Sin mensajes</div>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-brand_gray text-sm">
+            Selecciona una conversación para ver los mensajes
+          </div>
         )}
       </div>
     </div>
