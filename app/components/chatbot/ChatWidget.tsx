@@ -185,7 +185,7 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
             })}
 
             {/* Streaming indicator */}
-            {isStreaming && messages.length > 0 && !getMessageText(messages[messages.length - 1]) && (
+            {isStreaming && (
               <div className="flex gap-2">
                 <div
                   className="w-7 h-7 rounded-full flex-shrink-0"
