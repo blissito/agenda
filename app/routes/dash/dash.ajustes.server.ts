@@ -90,5 +90,13 @@ export const action = async ({ request }: { request: Request }) => {
     return { ok: true }
   }
 
+  if (intent === "disconnect_google") {
+    await db.org.update({
+      where: { id: org.id },
+      data: { googleCalendarToken: null },
+    })
+    return { ok: true }
+  }
+
   return { error: "Intent no reconocido" }
 }

@@ -534,6 +534,7 @@ function ConfiguracionTab({
 /* ==================== Integraciones Tab ==================== */
 
 function IntegracionesTab({ org }: { org: any }) {
+  const fetcher = useFetcher()
   const isGoogleMeetConnected = Boolean(org.googleCalendarToken)
   return (
     <section className="bg-white rounded-2xl max-w-4xl pb-10 overflow-hidden">
@@ -577,11 +578,27 @@ function IntegracionesTab({ org }: { org: any }) {
             description="Añade enlaces de zoom para tus servicios en línea."
           />
           {isGoogleMeetConnected ? (
-            <IntegrationCard
-              icon="/images/google-meet.svg"
-              tool="Google Meet"
-              description="Usa Google Meet para generar citas en línea."
-            />
+            <div className="relative col-span-1 md:col-span-2">
+              <IntegrationCard
+                icon="/images/google-meet.svg"
+                tool="Google Meet"
+                description="Usa Google Meet para generar citas en línea."
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm("¿Desconectar Google Meet?")) {
+                    fetcher.submit(
+                      { intent: "disconnect_google" },
+                      { method: "post", action: "/dash/ajustes" },
+                    )
+                  }
+                }}
+                className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 transition-colors"
+              >
+                Desconectar
+              </button>
+            </div>
           ) : (
             <a href="/dash/google-calendar/connect">
               <IntegrationCardDisconnected
