@@ -82,10 +82,10 @@ export default function TemplateTwo({
   return (
     <section className="w-full min-h-screen h-auto bg-white pb-10  ">
       <div
-        className="h-[300px] w-full"
+        className="h-[300px] w-full bg-cover bg-center"
         style={{
           backgroundImage:
-            'url( "https://images.pexels.com/photos/2346216/pexels-photo-2346216.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2")',
+            'url("https://images.pexels.com/photos/2346216/pexels-photo-2346216.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2")',
         }}
       ></div>
       <img
