@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { LoaderFunctionArgs } from "react-router";
 import { useFetcher, useLoaderData } from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
+import { db } from "~/utils/db.server";
 import { getMessagesSince } from "~/lib/nanoclaw.server";
 
 type Msg = {
@@ -21,12 +22,27 @@ const SUGGESTIONS = [
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request);
   if (!org) throw new Response("Org not found", { status: 404 });
+
+  // Auto-limpiar pending stale (>2min): si Nanoclaw no respondió en ese
+  // tiempo, el mensaje está huérfano — mejor borrarlo que mostrar duplicados.
+  const staleThreshold = new Date(Date.now() - 2 * 60 * 1000);
+  await db.assistantMessage.deleteMany({
+    where: {
+      orgId: org.id,
+      role: "user",
+      status: "pending",
+      createdAt: { lt: staleThreshold },
+    },
+  });
+
   const messages = await getMessagesSince(org.id);
-  return { initialMessages: messages };
+  const host = request.headers.get("host") ?? "";
+  const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1");
+  return { initialMessages: messages, isLocalhost };
 };
 
 export default function AsistenteIA() {
-  const { initialMessages } = useLoaderData<typeof loader>();
+  const { initialMessages, isLocalhost } = useLoaderData<typeof loader>();
   const [messages, setMessages] = useState<Msg[]>(
     initialMessages.map((m: any) => ({ ...m, createdAt: String(m.createdAt) })),
   );
@@ -35,13 +51,13 @@ export default function AsistenteIA() {
   const pollFetcher = useFetcher<{ messages: Msg[] }>();
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const waitingAssistant = messages.some(
-    (m) => m.role === "user" && m.status === "pending",
-  );
+  const waitingAssistant =
+    !isLocalhost &&
+    messages.some((m) => m.role === "user" && m.status === "pending");
 
-  // Polling a 1s mientras haya mensaje pendiente
+  // Polling a 1s mientras haya mensaje pendiente (nunca en localhost)
   useEffect(() => {
-    if (!waitingAssistant) return;
+    if (!waitingAssistant || isLocalhost) return;
     const id = setInterval(() => {
       const last = messages[messages.length - 1];
       const since = last ? new Date(last.createdAt).toISOString() : "";
@@ -59,13 +75,16 @@ export default function AsistenteIA() {
         .filter((m: any) => !ids.has(m.id))
         .map((m: any) => ({ ...m, createdAt: String(m.createdAt) }));
       if (!incoming.length) return prev;
-      const hasAssistant = incoming.some((m) => m.role === "assistant");
-      const next = prev.map((m) =>
-        hasAssistant && m.role === "user" && m.status === "pending"
-          ? { ...m, status: "delivered" }
-          : m,
+      // Reemplazar optimistic (tmp_*) por el real cuando llega del server
+      const incomingUser = incoming.filter((m) => m.role === "user");
+      const withoutMatchedTmp = prev.filter(
+        (m) =>
+          !(
+            m.id.startsWith("tmp_") &&
+            incomingUser.some((inc) => inc.content === m.content)
+          ),
       );
-      return [...next, ...incoming];
+      return [...withoutMatchedTmp, ...incoming];
     });
   }, [pollFetcher.data]);
 
@@ -121,6 +140,20 @@ export default function AsistenteIA() {
         <WhatsAppChip />
       </header>
 
+      {isLocalhost && (
+        <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900 font-satoMedium">
+          <span className="font-satoBold">Asistente no disponible en localhost.</span>{" "}
+          Esta función requiere el droplet de Nanoclaw en producción. Pruébala en{" "}
+          <a
+            href="https://www.denik.me/dash/asistente"
+            className="underline hover:text-amber-700"
+          >
+            denik.me
+          </a>
+          .
+        </div>
+      )}
+
       <section className="flex-1 overflow-auto flex flex-col gap-3 -mx-2 px-2">
         {isEmpty ? (
           <div className="m-auto flex flex-col items-center gap-5 text-center">
@@ -162,17 +195,22 @@ export default function AsistenteIA() {
 
       <form
         onSubmit={onSend}
-        className="flex items-center gap-2 bg-white border border-brand_stroke rounded-full shadow-sm pl-5 pr-1.5 py-1.5"
+        className="flex items-center gap-2 bg-white rounded-full shadow-[0_4px_24px_rgba(0,0,0,0.06)] pl-5 pr-1.5 py-1.5"
       >
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Escribe un mensaje…"
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-brand_iron font-satoMedium"
+          placeholder={
+            isLocalhost
+              ? "Disponible solo en producción…"
+              : "Escribe un mensaje…"
+          }
+          disabled={isLocalhost}
+          className="flex-1 bg-transparent text-sm outline-none border-none placeholder:text-brand_iron font-satoMedium disabled:cursor-not-allowed"
         />
         <button
           type="submit"
-          disabled={!input.trim() || sendFetcher.state !== "idle"}
+          disabled={isLocalhost || !input.trim() || sendFetcher.state !== "idle"}
           className="w-10 h-10 rounded-full bg-brand_blue text-white flex items-center justify-center disabled:opacity-40 transition hover:-translate-y-0.5 active:translate-y-0"
           aria-label="Enviar"
         >
