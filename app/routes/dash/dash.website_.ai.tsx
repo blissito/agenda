@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useFetcher, useLoaderData, Link } from "react-router"
+import { HiSparkles } from "react-icons/hi"
 import { getOrgPublicUrl } from "~/utils/urls"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
@@ -86,6 +87,18 @@ function sectionsToHtml(sections: Section3[]): string {
     .sort((a, b) => a.order - b.order)
     .map((s) => s.html)
     .join("\n")
+}
+
+/** Always-present canvas styles: Satoshi font for branding etc. */
+const BASE_CANVAS_STYLES = `@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}`
+
+/** Extract the persisted GrapesJS CSS rules so they can be re-injected on load. */
+function sectionsToCanvasStyles(sections: Section3[]): string {
+  const cssSection = sections.find((s) => s.id === "__grapes_css__")
+  const persisted = cssSection?.html
+    ? cssSection.html.replace(/<\/?style[^>]*>/gi, "")
+    : ""
+  return `${BASE_CANVAS_STYLES}\n${persisted}`
 }
 
 export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
@@ -267,13 +280,27 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     }
   }, [fetcher.state, fetcher.data])
 
-  // AI refine handler (called from GrapesEditor toolbar)
-  const handleAiAction = useCallback(async (action: AiAction) => {
+  // AI refine modal state
+  const [refineModal, setRefineModal] = useState<{ open: boolean; action: AiAction | null }>({
+    open: false,
+    action: null,
+  })
+  const [refineInstruction, setRefineInstruction] = useState("")
+
+  // AI refine handler (called from GrapesEditor toolbar) — opens custom modal instead of native prompt.
+  const handleAiAction = useCallback((action: AiAction) => {
     if (action.type !== "refine-element") return
+    setRefineInstruction("")
+    setRefineModal({ open: true, action })
+  }, [])
 
-    const instruction = prompt("Instruccion para refinar:")
-    if (!instruction) return
+  const closeRefineModal = useCallback(() => {
+    setRefineModal({ open: false, action: null })
+    setRefineInstruction("")
+  }, [])
 
+  const runRefine = useCallback(async (action: AiAction, instruction: string) => {
+    if (action.type !== "refine-element") return
     setIsRefining(true)
     setErrorMessage(null)
 
@@ -349,6 +376,14 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     }
   }, [])
 
+  const handleRefineConfirm = useCallback(() => {
+    const action = refineModal.action
+    const instruction = refineInstruction.trim()
+    if (!action || !instruction) return
+    closeRefineModal()
+    runRefine(action, instruction)
+  }, [refineModal.action, refineInstruction, closeRefineModal, runRefine])
+
   // Save/Publish
   const pendingSaveRef = useRef<{ publish: boolean } | null>(null)
   const handleSave = useCallback(
@@ -383,10 +418,15 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     [sections, theme, customColors, fetcher],
   )
 
-  // GrapesEditor onChange — sync sections state
+  // GrapesEditor onChange — sync sections state, preserving __grapes_css__ if lost.
   const handleEditorChange = useCallback((html: string) => {
     const newSections = grapesToSections(html)
-    setSections(newSections)
+    setSections((prev) => {
+      const newHasCss = newSections.some((s) => s.id === "__grapes_css__")
+      if (newHasCss) return newSections
+      const prevCss = prev.find((s) => s.id === "__grapes_css__")
+      return prevCss ? [prevCss, ...newSections] : newSections
+    })
     setHasUnpublishedChanges(true)
   }, [])
 
@@ -418,6 +458,64 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           cats.each((cat: { get: (k: string) => unknown; set: (k: string, v: unknown) => void }, i: number) => {
             if (i > 0) cat.set("open", false)
           })
+          // Inject the persisted __grapes_css__ rules into the editor's CSS manager
+          // so they survive editor.getCss()/save round-trips.
+          const persistedCss = sectionsToCanvasStyles(sections).replace(BASE_CANVAS_STYLES, "").trim()
+          if (persistedCss && ed.Css?.addRules) {
+            try { ed.Css.addRules(persistedCss) } catch (e) { console.warn("addRules failed", e) }
+          }
+          // Ensure the "Powered by Denik" branding section exists and is locked
+          const logoOrigin =
+            typeof window !== "undefined" &&
+            (window.location.hostname === "localhost" ||
+              window.location.hostname === "127.0.0.1")
+              ? window.location.origin
+              : "https://denik.me"
+          const BRANDING_HTML = `<div data-denik-branding="true" data-gjs-removable="false" data-gjs-copyable="false" data-gjs-draggable="false" data-gjs-editable="false" class="w-full flex items-center justify-center gap-1 py-4"><span data-gjs-removable="false" data-gjs-editable="false" style="font-family:'Satoshi ',system-ui,sans-serif;color:#5158F6;font-size:14px">Powered by</span><img alt="Denik" src="${logoOrigin}/images/denik-logo.svg" data-gjs-removable="false" data-gjs-editable="false" data-gjs-resizable="false" style="height:32px;width:auto;display:inline-block;margin-left:4px"/></div>`
+          const ensureBranding = () => {
+            const wrapper = ed.DomComponents.getWrapper()
+            if (!wrapper) return
+            const allComps = wrapper.find("[data-denik-branding], section, footer, div")
+            const existing = allComps.find((comp: any) => {
+              if (comp.getAttributes()?.["data-denik-branding"] === "true") return true
+              const html = comp.toHTML()
+              return html.includes("Powered by") && html.includes("Denik") && html.length < 600
+            })
+            // If existing branding doesn't contain the Denik logo image, replace it.
+            if (existing && !existing.toHTML().includes('alt="Denik"')) {
+              const parent = existing.parent()
+              const idx = existing.index()
+              existing.remove()
+              if (parent) parent.append(BRANDING_HTML, { at: idx })
+              else wrapper.append(BRANDING_HTML, { at: wrapper.components().length })
+              return ensureBranding()
+            }
+            // Fix logo src in case the saved/default HTML points to a stale URL
+            if (existing) {
+              existing.find("img").forEach((img: any) => {
+                if (img.getAttributes()?.alt === "Denik") {
+                  img.setAttributes({ ...img.getAttributes(), src: `${logoOrigin}/images/denik-logo.svg` })
+                }
+              })
+            }
+            const target =
+              existing ||
+              wrapper.append(BRANDING_HTML, { at: wrapper.components().length })[0]
+            if (!target) return
+            target.set({
+              removable: false,
+              copyable: false,
+              draggable: false,
+              editable: false,
+              "custom-name": "Branding (Denik)",
+            })
+            target.components().forEach((child: any) => {
+              child.set({ removable: false, editable: false, draggable: false })
+            })
+          }
+          ensureBranding()
+          ed.on("component:remove", ensureBranding)
+          ed.on("component:add", ensureBranding)
         }
       }, 500)
       return () => clearTimeout(timer)
@@ -481,6 +579,17 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
 .w-60 > div:first-child button { flex: none !important; padding: 8px 16px !important; border-radius: 9999px !important; font-size: 14px !important; border: none !important; background: transparent !important; }
 .w-60 > div:first-child button.text-white { background-color: #2A2B31 !important; }
 .gjs-cv-canvas { background: white !important; top: 32px !important; left: 32px !important; width: calc(100% - 64px) !important; height: calc(100% - 64px) !important; }
+/* Selection toolbar — brand_blue + rounded corners */
+.gjs-toolbar { background-color: #5158F6 !important; border-radius: 8px !important; overflow: hidden !important; padding: 2px !important; display: flex !important; align-items: center !important; }
+.gjs-toolbar-items { display: flex !important; align-items: center !important; }
+.gjs-toolbar-item { color: white !important; border-radius: 6px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; line-height: 1 !important; padding: 4px 6px !important; }
+.gjs-toolbar-item svg { display: block !important; vertical-align: middle !important; }
+.gjs-toolbar-item:hover { background-color: rgba(255,255,255,0.15) !important; }
+.gjs-selected { outline: 2px solid #5158F6 !important; outline-offset: -2px; border-radius: 4px; }
+.gjs-highlighter { outline: 2px solid #5158F6 !important; border-radius: 4px; }
+/* Device responsive: override patch's width:auto so GrapesJS can resize frame-wrapper */
+[data-device="Tablet"] .gjs-frame-wrapper { width: 768px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; }
+[data-device="Mobile"] .gjs-frame-wrapper { width: 375px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; }
 .w-72 span.inline-flex, .w-72 button.inline-flex { border: none !important; background: #2A2B31 !important; color: white !important; outline: none !important; }
 .w-72 span.inline-flex:hover, .w-72 button.inline-flex:hover { background: #363740 !important; }
 .w-72 p.uppercase { color: #9ca3af !important; }
@@ -572,25 +681,24 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 className="px-2.5 py-1 text-sm border border-purple-500/50 text-purple-300 rounded-lg hover:bg-purple-500/10 disabled:opacity-50 inline-flex items-center gap-1.5"
                 title={usage.genUsed >= usage.genLimit ? "Limite de generaciones alcanzado" : `${usage.genLimit - usage.genUsed} restantes`}
               >
-                {isGenerating ? "Regenerando..." : "Regenerar"}
+                <HiSparkles className="w-4 h-4 text-brand_yellow" />
+                {isGenerating ? "Regenerando..." : "Generar con IA"}
                 <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.genUsed >= usage.genLimit ? "bg-red-500/20 text-red-300" : "bg-purple-500/20 text-purple-300"}`}>
                   {usage.genLimit - usage.genUsed}/{usage.genLimit}
                 </span>
               </button>
-              {isPublished && (
-                <a
-                  href={getOrgPublicUrl(org.slug!)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-2.5 py-1 text-sm border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 inline-flex items-center gap-1"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                  </svg>
-                  Ver
-                </a>
-              )}
+              <a
+                href={getOrgPublicUrl(org.slug!)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-2.5 py-1 text-sm border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 inline-flex items-center gap-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                </svg>
+                Ver
+              </a>
               <button
                 type="button"
                 onClick={() => handleSave(true)}
@@ -612,11 +720,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       <div className="flex-1 overflow-hidden">
         {showEditor ? (
           /* GrapesJS Editor with right sidebar */
-          <div className="flex h-full">
+          <div className="flex h-full" data-device={activeDevice}>
             <div className="flex-1 overflow-hidden">
               <GrapesEditor
                 ref={editorRef}
                 initialHtml={sectionsToHtml(sections)}
+                canvasStyles={sectionsToCanvasStyles(sections)}
                 theme={theme}
                 customColors={customColors}
                 onChange={handleEditorChange}
@@ -733,6 +842,80 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       {errorMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-red-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
           {errorMessage}
+        </div>
+      )}
+
+      {refineModal.open && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+          role="dialog"
+          aria-modal="true"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") closeRefineModal()
+          }}
+        >
+          <button
+            type="button"
+            onClick={closeRefineModal}
+            className="absolute inset-0 bg-black/35 backdrop-blur-[16px]"
+            aria-label="Cerrar"
+          />
+          <div className="relative w-[640px] max-w-full rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi">
+            <div className="absolute left-1/2 -top-16 -translate-x-1/2 z-20">
+              <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
+                <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
+                  <span className="text-6xl leading-none">✨</span>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={closeRefineModal}
+              className="absolute right-6 top-6 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+            <div className="w-full px-12 pt-16 pb-8 flex flex-col items-center">
+              <h3 className="text-center font-satoBold text-2xl leading-[32px] text-brand_dark">
+                Refinar con IA
+              </h3>
+              <p className="mt-4 text-center font-normal font-satoshi text-base leading-[22px] text-brand_gray">
+                Describe el cambio que quieres aplicar a este elemento.
+              </p>
+              <textarea
+                autoFocus
+                value={refineInstruction}
+                onChange={(e) => setRefineInstruction(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                    e.preventDefault()
+                    handleRefineConfirm()
+                  }
+                }}
+                placeholder="Ej. cambia el color de fondo a azul y agrega un titulo más grande"
+                rows={4}
+                className="mt-6 w-full rounded-xl border border-brand_stroke bg-white px-4 py-3 text-sm font-satoshi text-brand_dark placeholder:text-brand_gray focus:outline-none focus:border-brand_blue focus:ring-0"
+              />
+              <div className="mt-8 flex items-center justify-center gap-6">
+                <button
+                  type="button"
+                  onClick={closeRefineModal}
+                  className="px-6 py-2 rounded-full border border-brand_stroke text-brand_dark hover:bg-gray-50 transition-colors min-w-[140px]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRefineConfirm}
+                  disabled={!refineInstruction.trim()}
+                  className="px-6 py-2 rounded-full bg-brand_blue text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[140px]"
+                >
+                  Refinar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

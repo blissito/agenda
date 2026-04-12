@@ -57,6 +57,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         resolution.org.landingCustomColors as unknown as
           | CustomColors
           | undefined,
+        false,
+      ).replace(
+        "</head>",
+        `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
       )
       return { ...resolution, aiLandingHtml: html }
     } catch (err) {

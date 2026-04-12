@@ -38,6 +38,10 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
         sections,
         org.landingTheme || undefined,
         org.landingCustomColors as unknown as CustomColors | undefined,
+        false,
+      ).replace(
+        "</head>",
+        `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
       )
     } catch (err) {
       console.error("Failed to build landing HTML:", err)

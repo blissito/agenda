@@ -55,6 +55,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         sections,
         org.landingTheme || undefined,
         org.landingCustomColors as unknown as CustomColors | undefined,
+        false,
+      ).replace(
+        "</head>",
+        `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
       )
     } catch (err) {
       console.error("Failed to build preview HTML:", err)
@@ -141,14 +145,6 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
         <div className="flex gap-3">
-          <Link
-            to="/dash/website/ai"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 transition-all shadow-md hover:shadow-lg text-sm"
-          >
-            <span>&#10024;</span>
-            Editar con IA
-          </Link>
-
           <RoundAction as="a" href={url} label="Abrir sitio web">
             <WebsiteIcon className="w-5 h-5" />
           </RoundAction>
