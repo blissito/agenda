@@ -192,8 +192,13 @@ export default function AsistenteIA() {
       <section className="flex-1 overflow-auto flex flex-col gap-3 -mx-2 px-2">
         {isEmpty ? (
           <div className="m-auto flex flex-col items-center gap-5 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-brand_blue/10 flex items-center justify-center text-2xl">
-              ✨
+            <div className="relative flex items-center justify-center">
+              <img
+                src="/images/nik.svg"
+                alt="Nik"
+                className="w-20 h-20 object-contain"
+              />
+              <span className="absolute -top-1 -right-1 text-xl">✨</span>
             </div>
             <p className="text-sm text-brand_iron max-w-xs">
               Pregúntale algo a tu asistente para empezar.
