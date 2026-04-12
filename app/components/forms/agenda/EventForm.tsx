@@ -12,6 +12,7 @@ import { DateInput } from "../DateInput"
 import { EmployeeSelect } from "../EmployeeSelect"
 import { SelectInput } from "../SelectInput"
 import { ServiceSelect } from "../ServiceSelect"
+import { VideoProviderSelect, type VideoProviderValue } from "../VideoProviderSelect"
 
 const formatDate = (d: Date | string): string =>
   new Date(d).toISOString().substring(0, 10)
@@ -204,12 +205,29 @@ export const EventForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [_startHour, _endHour])
 
+  // Resuelve default de videoProvider según servicio e integraciones.
+  const resolveDefaultProvider = (serviceVP?: string | null): VideoProviderValue => {
+    const pref = (serviceVP || "auto") as string
+    if (pref === "meet" && hasMeet) return "meet"
+    if (pref === "zoom" && hasZoom) return "zoom"
+    if (pref === "none") return "none"
+    // auto o preferencia no disponible → primera integración disponible
+    if (hasMeet) return "meet"
+    if (hasZoom) return "zoom"
+    return "none"
+  }
+
+  const initialService = services.find((s) => s.id === defaultValues?.serviceId)
+  const initialProvider = resolveDefaultProvider(
+    (initialService as any)?.videoProvider,
+  )
+
   const registerVirtualFields = () => {
     // virtual fields
     register("customerId", { required: true, value: "" })
     register("serviceId", { required: true, value: defaultValues?.serviceId ?? "" })
     register("employeeId", { required: true, value: employees[0]?.id })
-    register("videoProvider", { required: false, value: "auto" })
+    register("videoProvider", { required: false, value: initialProvider })
   }
 
   useEffect(() => {
@@ -232,14 +250,16 @@ export const EventForm = ({
       const endH = String(Math.floor(endMins / 60) % 24).padStart(2, "0")
       const endM = String(endMins % 60).padStart(2, "0")
       setValue("endHour", `${endH}:${endM}`, { shouldValidate: true, shouldDirty: true })
-      setValue("videoProvider", (service as any).videoProvider || "auto", {
-        shouldDirty: true,
-      })
+      setValue(
+        "videoProvider",
+        resolveDefaultProvider((service as any).videoProvider),
+        { shouldDirty: true },
+      )
     }
   }
 
   const videoProviderValue = useWatch({ control, name: "videoProvider" }) as string | undefined
-  const showVideoSelector = !defaultValues.id && (hasMeet || hasZoom)
+  const showVideoSelector = !defaultValues.id
 
   const hanldeEmployeeSelect = (event: ChangeEvent<HTMLSelectElement>) => {
     setValue("employeeId", event.currentTarget.value, {
@@ -278,25 +298,14 @@ export const EventForm = ({
       />
 
       {showVideoSelector && (
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-satoMedium text-brand_dark">
-            Link de llamada
-          </label>
-          <select
-            value={videoProviderValue ?? "auto"}
-            onChange={(e) =>
-              setValue("videoProvider", e.currentTarget.value, {
-                shouldDirty: true,
-              })
-            }
-            className="w-full rounded-full border border-brand_stroke bg-white px-4 py-3 text-brand_gray focus:outline-none focus:border-brand_blue"
-          >
-            <option value="auto">Automático (según servicio)</option>
-            {hasMeet && <option value="meet">Google Meet</option>}
-            {hasZoom && <option value="zoom">Zoom</option>}
-            <option value="none">Sin link de llamada</option>
-          </select>
-        </div>
+        <VideoProviderSelect
+          value={(videoProviderValue as VideoProviderValue) ?? "auto"}
+          onChange={(v) =>
+            setValue("videoProvider", v, { shouldDirty: true })
+          }
+          hasMeet={hasMeet}
+          hasZoom={hasZoom}
+        />
       )}
 
       <div className="flex flex-col gap-4">

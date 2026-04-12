@@ -1,7 +1,7 @@
 import type { Customer, Event, Service } from "@prisma/client"
 import { FaRegClock } from "react-icons/fa6"
 import { useFetcher } from "react-router"
-import { DropdownMenu } from "~/components/common/DropDownMenu"
+import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { ClientAvatar } from "~/routes/dash/dash.clientes"
 
 export type CitaEvent = Event & {
@@ -81,6 +81,24 @@ function getInitials(name: string) {
     .slice(0, 2)
     .map((w) => w.charAt(0).toUpperCase())
     .join("")
+}
+
+// ── Row menu (delete) ──────────────────────────────────────────
+
+const RowMenu = ({ eventId }: { eventId: string }) => {
+  const fetcher = useFetcher()
+  const handleDelete = () => {
+    if (!window.confirm("¿Cancelar esta cita? Se eliminará de la agenda.")) return
+    fetcher.submit(null, {
+      method: "delete",
+      action: `/api/events?intent=delete&eventId=${eventId}`,
+    })
+  }
+  return (
+    <DropdownMenu hideDefaultButton>
+      <MenuButton onClick={handleDelete}>eliminar</MenuButton>
+    </DropdownMenu>
+  )
 }
 
 // ── Attendance dropdown (past events only) ─────────────────────
@@ -244,7 +262,7 @@ const CitaRow = ({
         {new Date(event.start) < new Date() && <AttendanceDropdown event={event} />}
       </div>
       <div className="flex items-center justify-end">
-        <DropdownMenu />
+        <RowMenu eventId={event.id} />
       </div>
     </div>
   )
@@ -286,7 +304,7 @@ const CitaCardMobile = ({
           )}
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
-          <DropdownMenu />
+          <RowMenu eventId={event.id} />
           <p className="text-[12px] font-satoMedium text-brand_gray tabular-nums">
             {event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"}
           </p>

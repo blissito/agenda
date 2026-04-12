@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
 import { ChatWidgetInline, type ChatConfig } from "./ChatWidget"
+import { WhatsAppAd } from "./WhatsAppAd"
 
 interface ChatbotConfigProps {
   initialConfig?: ChatConfig
@@ -175,8 +176,13 @@ export function ChatbotConfig({
           />
         </div>
 
+        {/* WhatsApp Ad — pushed to bottom above Save */}
+        <div className="mt-auto pt-10">
+          <WhatsAppAd />
+        </div>
+
         {/* Save button */}
-        <div className="mt-auto pt-6">
+        <div className="pt-6">
           <button
             onClick={handleSave}
             disabled={isSaving}
@@ -196,14 +202,7 @@ export function ChatbotConfig({
           backgroundSize: "40px 40px",
         }}
       >
-        {agentId ? (
-          <ChatWidgetInline agentId={agentId} config={previewConfig} />
-        ) : (
-          <ChatWidgetInline
-            agentId=""
-            config={previewConfig}
-          />
-        )}
+        <ChatWidgetInline agentId={agentId ?? ""} config={previewConfig} />
       </div>
     </div>
   )

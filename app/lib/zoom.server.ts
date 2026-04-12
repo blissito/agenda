@@ -127,13 +127,33 @@ export async function createZoomMeeting({
 
   const startDate = new Date(event.start)
   const durationMinutes = Math.round(Number(event.duration))
+  const timezone = (org as any).timezone || "America/Mexico_City"
+
+  // Zoom: si start_time termina en "Z" (UTC), ignora el timezone param.
+  // Hay que mandar LOCAL time sin Z, formateado en el timezone de la org.
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
+    .formatToParts(startDate)
+    .reduce<Record<string, string>>((acc, p) => {
+      if (p.type !== "literal") acc[p.type] = p.value
+      return acc
+    }, {})
+  const localStart = `${parts.year}-${parts.month}-${parts.day}T${parts.hour === "24" ? "00" : parts.hour}:${parts.minute}:${parts.second}`
 
   const body = {
     topic: `${service.name} - ${customer.displayName}`,
     type: 2, // Scheduled meeting
-    start_time: startDate.toISOString(),
+    start_time: localStart,
     duration: durationMinutes,
-    timezone: (org as any).timezone || "America/Mexico_City",
+    timezone,
     settings: {
       join_before_host: true,
     },

@@ -5,9 +5,7 @@
 
 import { useState } from "react"
 import { redirect } from "react-router"
-import { cancelMeetEvent } from "~/lib/google-meet.server"
-import { cancelZoomMeeting } from "~/lib/zoom.server"
-import { cancelEventJobs } from "~/jobs/agenda.server"
+import { cancelEventFully } from "~/lib/event-cancel.server"
 import { getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
 import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
@@ -116,41 +114,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       }
     }
 
-    // Cancel pending jobs (reminder, survey)
-    await cancelEventJobs(params.eventId)
-
-    // Cancel Google Meet event if exists
-    if (event.calendarEventId) {
-      try {
-        const org = event.service?.org
-        if (org) {
-          await cancelMeetEvent(org, event.calendarEventId)
-        }
-      } catch (e) {
-        console.error("Google Meet cancellation failed:", e)
-      }
-    }
-
-    // Cancel Zoom meeting if exists
-    if (event.zoomMeetingId) {
-      try {
-        const org = event.service?.org
-        if (org) {
-          await cancelZoomMeeting(org, event.zoomMeetingId)
-        }
-      } catch (e) {
-        console.error("Zoom cancellation failed:", e)
-      }
-    }
-
-    await db.event.update({
-      where: { id: params.eventId },
-      data: {
-        status: "CANCELLED",
-        archived: true,
-        updatedAt: new Date(),
-      },
-    })
+    await cancelEventFully({ eventId: params.eventId! })
 
     return { success: true, cancelled: true, message: "Cita cancelada" }
   }

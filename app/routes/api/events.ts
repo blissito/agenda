@@ -1,6 +1,7 @@
 import type { Event } from "@prisma/client"
 import invariant from "tiny-invariant"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { cancelEventFully } from "~/lib/event-cancel.server"
 import { createMeetLink } from "~/lib/google-meet.server"
 import { createZoomMeeting } from "~/lib/zoom.server"
 import { db } from "~/utils/db.server"
@@ -38,10 +39,11 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!org) {
       return Response.json({ error: "Organization not found" }, { status: 404 })
     }
-    return await db.event.update({
-      where: { id: eventId, orgId: org.id },
-      data: { archived: true },
-    })
+    const updated = await cancelEventFully({ eventId, orgId: org.id })
+    if (!updated) {
+      return Response.json({ error: "Event not found" }, { status: 404 })
+    }
+    return updated
   }
 
   if (intent === "update") {

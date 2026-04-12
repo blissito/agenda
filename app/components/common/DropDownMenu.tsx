@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "motion/react"
-import { type ReactNode, useState } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { FaRegTrashCan } from "react-icons/fa6"
 import { TbDots } from "react-icons/tb"
 import { Link } from "react-router"
@@ -14,17 +15,35 @@ export const DropdownMenu = ({
   hideDefaultButton?: boolean
 }) => {
   const [show, setShow] = useState(false)
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
   const ref = useOutsideClick<HTMLDivElement>({
     isActive: show,
     onClickOutside: () => setShow(false),
     keyboardListener: true,
   })
+
+  useEffect(() => {
+    if (!show || !btnRef.current) return
+    const update = () => {
+      if (!btnRef.current) return
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 4, right: window.innerWidth - r.right })
+    }
+    update()
+    window.addEventListener("scroll", update, true)
+    window.addEventListener("resize", update)
+    return () => {
+      window.removeEventListener("scroll", update, true)
+      window.removeEventListener("resize", update)
+    }
+  }, [show])
+
   return (
-    <div className="relative">
+    <>
       <button
-        onClick={() => {
-          setShow((s) => !s)
-        }}
+        ref={btnRef}
+        onClick={() => setShow((s) => !s)}
         type="button"
         className={twMerge(
           "text-brand_gray ml-auton text-xl",
@@ -33,21 +52,26 @@ export const DropdownMenu = ({
       >
         <TbDots />
       </button>
-      <AnimatePresence>
-        {show && (
-          <motion.div
-            ref={ref}
-            initial={{ opacity: 0, y: -3 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -3 }}
-            className="z-10 absolute bg-white shadow-lg text-brand_gray rounded-2xl top-[100%] right-0 w-max p-2 flex flex-col gap-1"
-          >
-            {children}
-            {!hideDefaultButton && <MenuButton isDisabled />}
-          </motion.div>
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {show && pos && (
+              <motion.div
+                ref={ref}
+                initial={{ opacity: 0, y: -3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                style={{ position: "fixed", top: pos.top, right: pos.right }}
+                className="z-50 bg-white shadow-lg text-brand_gray rounded-2xl w-max p-2 flex flex-col gap-1"
+              >
+                {children}
+                {!hideDefaultButton && <MenuButton isDisabled />}
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
-    </div>
+    </>
   )
 }
 

@@ -13,9 +13,11 @@ import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { CopyLinkButton } from "~/components/common/CopyLinkButton"
 import { EventHoverCard, type EventHoverData } from "~/components/dash/agenda/EventHoverCard"
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer"
 import { EventFormDrawer } from "~/components/forms/EventFormDrawer"
+import { cancelEventFully } from "~/lib/event-cancel.server"
 import { createMeetLink } from "~/lib/google-meet.server"
 import { db } from "~/utils/db.server"
 import { newEventSchema } from "~/utils/zod_schemas"
@@ -132,10 +134,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "delete_event") {
     const id = formData.get("eventId") as string
-    await db.event.update({
-      where: { id },
-      data: { archived: true },
-    })
+    const { org } = await getUserAndOrgOrRedirect(request)
+    if (!org) return Response.json({ error: "Org not found" }, { status: 404 })
+    await cancelEventFully({ eventId: id, orgId: org.id })
     return { success: true }
   }
 
@@ -433,27 +434,7 @@ function UpcomingAppointments({
           <p className="text-sm text-brand_gray mt-2 max-w-[200px]">
             Comparte tu sitio web y empieza a recibir a tus clientes
           </p>
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(`https://${orgSlug}.denik.me`)
-            }}
-            className="mt-4 flex items-center gap-2 border border-brand_stroke rounded-full px-4 py-2 text-sm text-brand_dark hover:bg-gray-50 transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-              />
-            </svg>
-            Copiar link
-          </button>
+          <CopyLinkButton url={`https://${orgSlug}.denik.me`} />
         </div>
       )}
     </div>
