@@ -362,7 +362,7 @@ function NikGroupButton({ initialLink }: { initialLink: LinkData | null }) {
       className="flex items-center gap-1.5 text-xs font-satoMedium text-brand_dark bg-white border border-brand_stroke rounded-full px-3 py-1.5 hover:border-brand_blue hover:text-brand_blue transition disabled:opacity-50"
     >
       <span className="w-2 h-2 rounded-full bg-[#25D366]" />
-      {loading ? "Conectando…" : "Hablar por WhatsApp"}
+      {loading ? "Conectando…" : "Conectar WhatsApp"}
     </button>
   );
 }

@@ -39,19 +39,36 @@ Casos conocidos con síntoma → causa → fix.
   fly secrets set NANOCLAW_SECRET="<valor del droplet>"
   ```
 
-## 4. Droplet no responde ni a SSH
+## 4. Provisión de grupo Denik-Nik falla con `EACCES: mkdir`
+
+- **Síntoma**: logs de Nanoclaw muestran `[webhook] Denik group provisioning failed` con `EACCES: permission denied, mkdir '/home/nanoclaw/app/groups/webhook_denik_<orgId>'`. La UI queda en "Conectando WhatsApp…" para siempre, el grupo WA **sí se creó** (quedó huérfano).
+- **Causa**: `/home/nanoclaw/app/groups/` quedó owned by `root:root` (típicamente tras un `rm -rf` o `scp` ejecutado como root). Nanoclaw corre como user `nanoclaw`, no puede `mkdir` subdirs.
+- **Fix rápido**:
+  ```bash
+  ssh root@143.198.149.230 'chown -R nanoclaw:nanoclaw /home/nanoclaw/app/groups /home/nanoclaw/app/data/sessions'
+  ```
+- **Cleanup del link huérfano**:
+  ```bash
+  ./docs/nanoclaw/scripts/cleanup-denik-group.sh <orgId>
+  ```
+  El script ya incluye el `chown` al final para prevenir recurrencia.
+- **Verificar**: `ssh root@143.198.149.230 'ls -la /home/nanoclaw/app/groups | head -3'` → owner debe ser `nanoclaw nanoclaw`.
+
+**Por qué pasa seguido**: cualquier operación en el droplet como root sobre esos directorios (incluso `rm`, `scp`, `tee`) puede alterar ownership del parent. Ley de oro: todo trabajo con `groups/` y `data/sessions/` via `ssh root@... 'sudo -u nanoclaw <comando>'` o agregar `chown` al final.
+
+## 5. Droplet no responde ni a SSH
 
 1. Panel DO fixter → Droplet → **Power → Power Cycle**
 2. Si persiste: **Console** desde DO UI (acceso root directo)
 3. Si el FS está corrupto: restaurar desde snapshot
 
-## 5. Mensajes duplicados en el chat
+## 6. Mensajes duplicados en el chat
 
 - **Síntoma**: aparece el mismo mensaje assistant dos veces.
 - **Causa**: nanoclaw reintenta el callback si el primero devolvió 5xx.
 - **Fix**: asegurar que `app/routes/whatsapp.webhook.ts` responda 200 aun si el mensaje ya existe (idempotencia por contenido + timestamp).
 
-## 6. Disk full
+## 7. Disk full
 
 - **Diagnóstico**: `ssh root@143.198.149.230 'df -h /'`
 - **Culpables comunes**:
@@ -60,7 +77,7 @@ Casos conocidos con síntoma → causa → fix.
   - `/home/nanoclaw/app/logs/` → `truncate -s 0 /home/nanoclaw/app/nanoclaw.log`
   - Container sessions viejas → `du -sh /home/nanoclaw/app/data/sessions/*`
 
-## 7. El webhook funciona pero Denik UI no muestra la respuesta
+## 8. El webhook funciona pero Denik UI no muestra la respuesta
 
 - **Síntoma**: 200 OK en el callback, pero la UI sigue en "Pensando...".
 - **Causa A**: polling frontend detenido — refrescar página.
