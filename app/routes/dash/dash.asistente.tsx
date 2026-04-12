@@ -126,6 +126,15 @@ export default function AsistenteIA() {
 
   const isEmpty = messages.length === 0;
 
+  const onReset = () => {
+    if (!confirm("¿Borrar toda la conversación?")) return;
+    const fd = new FormData();
+    fd.set("intent", "reset");
+    fetch("/api/asistente", { method: "POST", body: fd }).then(() => {
+      setMessages([]);
+    });
+  };
+
   return (
     <main className="flex flex-col h-[calc(100vh-4rem)] max-w-3xl mx-auto px-6 pt-8 pb-4 gap-6">
       <header className="flex items-start justify-between gap-4">
@@ -137,7 +146,18 @@ export default function AsistenteIA() {
             Tu asistente personal conectado a tu agenda.
           </p>
         </div>
-        <WhatsAppChip />
+        <div className="flex items-center gap-2">
+          {messages.length > 0 && (
+            <button
+              onClick={onReset}
+              className="text-xs font-satoMedium text-brand_iron hover:text-brand_dark transition px-3 py-1.5 rounded-full border border-brand_stroke bg-white"
+              title="Borrar toda la conversación"
+            >
+              Nueva conversación
+            </button>
+          )}
+          <WhatsAppChip />
+        </div>
       </header>
 
       {isLocalhost && (
@@ -206,7 +226,7 @@ export default function AsistenteIA() {
               : "Escribe un mensaje…"
           }
           disabled={isLocalhost}
-          className="flex-1 bg-transparent text-sm outline-none border-none placeholder:text-brand_iron font-satoMedium disabled:cursor-not-allowed"
+          className="flex-1 bg-transparent text-sm outline-none border-0 ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none placeholder:text-brand_iron font-satoMedium disabled:cursor-not-allowed"
         />
         <button
           type="submit"

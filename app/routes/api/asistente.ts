@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
+import { db } from "~/utils/db.server";
 import {
   getMessagesSince,
   saveUserMessage,
@@ -44,6 +45,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     }
     return Response.json({ ok: true, message: saved });
+  }
+
+  if (intent === "reset") {
+    await db.assistantMessage.deleteMany({ where: { orgId: org.id } });
+    return Response.json({ ok: true });
   }
 
   return Response.json({ error: "Unknown intent" }, { status: 400 });
