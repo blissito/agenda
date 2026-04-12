@@ -64,6 +64,20 @@ const tools = [
       denikGet("services", { intent: "public_url", serviceId: args.serviceId }),
   },
   {
+    name: "list_customers",
+    description:
+      "Lista los clientes de la org paginado (primeros 20 por default, orden alfabético). Útil para dar overview cuando el usuario pregunta '¿qué clientes tengo?' sin especificar. Retorna {total, hasMore, customers}.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        limit: { type: "number", default: 20, description: "Máximo 100" },
+        offset: { type: "number", default: 0 },
+      },
+    },
+    handler: async (args: any) =>
+      denikGet("customers", { intent: "list", ...args }),
+  },
+  {
     name: "find_customer",
     description: "Busca clientes por nombre, email o teléfono. Hasta 20 resultados.",
     inputSchema: {

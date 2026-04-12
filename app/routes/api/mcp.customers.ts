@@ -13,6 +13,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url)
   const intent = url.searchParams.get("intent") ?? "find"
 
+  if (intent === "list") {
+    const limit = Math.min(Number(url.searchParams.get("limit") ?? 20), 100)
+    const offset = Number(url.searchParams.get("offset") ?? 0)
+    const [customers, total] = await Promise.all([
+      db.customer.findMany({
+        where: { orgId: org.id },
+        orderBy: { displayName: "asc" },
+        take: limit,
+        skip: offset,
+      }),
+      db.customer.count({ where: { orgId: org.id } }),
+    ])
+    return Response.json({
+      total,
+      offset,
+      limit,
+      hasMore: offset + customers.length < total,
+      customers: customers.map(serializeCustomer),
+    })
+  }
+
   if (intent === "find") {
     const q = url.searchParams.get("q")?.trim() ?? ""
     if (!q) return Response.json([])

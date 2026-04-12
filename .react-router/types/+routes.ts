@@ -189,6 +189,21 @@ type Pages = {
   "/api/asistente": {
     params: {};
   };
+  "/api/mcp/events": {
+    params: {};
+  };
+  "/api/mcp/services": {
+    params: {};
+  };
+  "/api/mcp/customers": {
+    params: {};
+  };
+  "/api/mcp/org": {
+    params: {};
+  };
+  "/api/mcp/landing": {
+    params: {};
+  };
   "/stripe": {
     params: {};
   };
@@ -275,7 +290,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/funcionalidades" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/asistente" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/funcionalidades" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -489,6 +504,26 @@ type RouteFiles = {
     id: "routes/api/asistente";
     page: "/api/asistente";
   };
+  "routes/api/mcp.events.ts": {
+    id: "routes/api/mcp.events";
+    page: "/api/mcp/events";
+  };
+  "routes/api/mcp.services.ts": {
+    id: "routes/api/mcp.services";
+    page: "/api/mcp/services";
+  };
+  "routes/api/mcp.customers.ts": {
+    id: "routes/api/mcp.customers";
+    page: "/api/mcp/customers";
+  };
+  "routes/api/mcp.org.ts": {
+    id: "routes/api/mcp.org";
+    page: "/api/mcp/org";
+  };
+  "routes/api/mcp.landing.ts": {
+    id: "routes/api/mcp.landing";
+    page: "/api/mcp/landing";
+  };
   "routes/stripe/api.ts": {
     id: "routes/stripe/api";
     page: "/stripe";
@@ -634,6 +669,11 @@ type RouteModules = {
   "routes/api/api.images": typeof import("./app/routes/api/api.images.ts");
   "routes/api/landing-generator": typeof import("./app/routes/api/landing-generator.ts");
   "routes/api/asistente": typeof import("./app/routes/api/asistente.ts");
+  "routes/api/mcp.events": typeof import("./app/routes/api/mcp.events.ts");
+  "routes/api/mcp.services": typeof import("./app/routes/api/mcp.services.ts");
+  "routes/api/mcp.customers": typeof import("./app/routes/api/mcp.customers.ts");
+  "routes/api/mcp.org": typeof import("./app/routes/api/mcp.org.ts");
+  "routes/api/mcp.landing": typeof import("./app/routes/api/mcp.landing.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
   "routes/stripe/webhook": typeof import("./app/routes/stripe/webhook.ts");
   "routes/mercadopago.oauth": typeof import("./app/routes/mercadopago.oauth.tsx");
