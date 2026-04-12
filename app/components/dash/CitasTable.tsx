@@ -1,5 +1,6 @@
 import type { Customer, Event, Service } from "@prisma/client"
 import { FaRegClock } from "react-icons/fa6"
+import { useFetcher } from "react-router"
 import { DropdownMenu } from "~/components/common/DropDownMenu"
 import { ClientAvatar } from "~/routes/dash/dash.clientes"
 
@@ -80,6 +81,43 @@ function getInitials(name: string) {
     .slice(0, 2)
     .map((w) => w.charAt(0).toUpperCase())
     .join("")
+}
+
+// ── Attendance dropdown (past events only) ─────────────────────
+
+const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
+  const fetcher = useFetcher()
+  const current =
+    fetcher.formData?.get("attended") ?? String(event.attended)
+  const value =
+    current === "true" ? "true" : current === "false" ? "false" : "null"
+
+  return (
+    <fetcher.Form
+      method="post"
+      action="/api/events?intent=mark_attendance"
+    >
+      <input type="hidden" name="eventId" value={event.id} />
+      <select
+        name="attended"
+        value={value}
+        onChange={(e) => {
+          const fd = new FormData()
+          fd.set("eventId", event.id)
+          fd.set("attended", e.target.value)
+          fetcher.submit(fd, {
+            method: "post",
+            action: "/api/events?intent=mark_attendance",
+          })
+        }}
+        className="text-[12px] rounded border border-gray-200 bg-white px-2 py-[2px] text-brand_gray focus:outline-none"
+      >
+        <option value="null">Sin marcar</option>
+        <option value="true">Asistió</option>
+        <option value="false">No asistió</option>
+      </select>
+    </fetcher.Form>
+  )
 }
 
 // ── Table ───────────────────────────────────────────────────────
@@ -203,8 +241,7 @@ const CitaRow = ({
       <div className="flex items-center gap-2 flex-wrap">
         <StatusTag variant={getStatusVariant(event.status)} />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
-        {new Date(event.start) < new Date() && event.attended === true && <StatusTag variant="attended" />}
-        {new Date(event.start) < new Date() && event.attended === false && <StatusTag variant="noshow" />}
+        {new Date(event.start) < new Date() && <AttendanceDropdown event={event} />}
       </div>
       <div className="flex items-center justify-end">
         <DropdownMenu />
@@ -258,8 +295,7 @@ const CitaCardMobile = ({
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         <StatusTag variant={getStatusVariant(event.status)} />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
-        {new Date(event.start) < new Date() && event.attended === true && <StatusTag variant="attended" />}
-        {new Date(event.start) < new Date() && event.attended === false && <StatusTag variant="noshow" />}
+        {new Date(event.start) < new Date() && <AttendanceDropdown event={event} />}
         {hideClient && (
           <span className="text-[11px] text-brand_gray">{String(event.service?.points ?? 0)} pts</span>
         )}

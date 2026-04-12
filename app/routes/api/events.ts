@@ -12,6 +12,25 @@ export const action = async ({ request }: Route.ActionArgs) => {
   const intent = url.searchParams.get("intent")
   const formData = await request.formData()
 
+  if (intent === "mark_attendance") {
+    const { org } = await getUserAndOrgOrRedirect(request)
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 })
+    }
+    const eventId = (formData.get("eventId") as string) || ""
+    const raw = formData.get("attended") as string | null
+    const attended =
+      raw === "true" ? true : raw === "false" ? false : null
+    if (!eventId) {
+      return Response.json({ error: "eventId requerido" }, { status: 400 })
+    }
+    await db.event.update({
+      where: { id: eventId, orgId: org.id },
+      data: { attended },
+    })
+    return Response.json({ ok: true })
+  }
+
   if (intent === "delete") {
     const eventId = url.searchParams.get("eventId") as string
     const { org } = await getUserAndOrgOrRedirect(request)
@@ -132,7 +151,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
           db.customer.findUnique({ where: { id: validData.customerId } }),
         ])
         if (service && fullCustomer) {
-          const { meetingLink, calendarEventId } = await createMeetLink({
+          const { meetingLink, calendarEventId, calendarHtmlLink } = await createMeetLink({
             org,
             event,
             service,
@@ -140,7 +159,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
           })
           await db.event.update({
             where: { id: event.id },
-            data: { meetingLink, calendarEventId },
+            data: { meetingLink, calendarEventId, calendarHtmlLink },
           })
         }
       } catch (e) {
@@ -156,7 +175,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
           db.customer.findUnique({ where: { id: validData.customerId } }),
         ])
         if (service && fullCustomer) {
-          const { meetingLink } = await createZoomMeeting({
+          const { meetingLink, meetingId } = await createZoomMeeting({
             org,
             event,
             service,
@@ -164,7 +183,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
           })
           await db.event.update({
             where: { id: event.id },
-            data: { meetingLink },
+            data: { meetingLink, zoomMeetingId: meetingId },
           })
         }
       } catch (e) {

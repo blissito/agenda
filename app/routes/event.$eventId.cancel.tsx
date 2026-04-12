@@ -6,6 +6,7 @@
 import { useState } from "react"
 import { redirect } from "react-router"
 import { cancelMeetEvent } from "~/lib/google-meet.server"
+import { cancelZoomMeeting } from "~/lib/zoom.server"
 import { cancelEventJobs } from "~/jobs/agenda.server"
 import { getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
@@ -127,6 +128,18 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         }
       } catch (e) {
         console.error("Google Meet cancellation failed:", e)
+      }
+    }
+
+    // Cancel Zoom meeting if exists
+    if (event.zoomMeetingId) {
+      try {
+        const org = event.service?.org
+        if (org) {
+          await cancelZoomMeeting(org, event.zoomMeetingId)
+        }
+      } catch (e) {
+        console.error("Zoom cancellation failed:", e)
       }
     }
 

@@ -19,6 +19,7 @@ interface CreateMeetParams {
 interface MeetResult {
   meetingLink: string
   calendarEventId: string
+  calendarHtmlLink?: string
 }
 
 // ==================== GOOGLE AUTH ====================
@@ -188,6 +189,7 @@ export async function createMeetLink({
   return {
     meetingLink,
     calendarEventId: data.id,
+    calendarHtmlLink: data.htmlLink as string | undefined,
   }
 }
 

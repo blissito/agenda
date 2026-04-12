@@ -104,6 +104,8 @@ export default [
     route("pending", "routes/mercadopago.pending.tsx"),
     route("failure", "routes/mercadopago.failure.tsx"),
   ]),
+  // Zoom webhook
+  route("zoom/webhook", "routes/zoom.webhook.ts"),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
   // Public org landing (works on localhost): /agenda/:orgSlug

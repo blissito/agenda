@@ -210,8 +210,9 @@ Los webhooks verifican si ya existe un evento antes de crear:
   - **Tests**: `app/lib/contrast-validator.test.ts` (vitest) cubriendo: parent `bg-primary` + child `text-on-surface` → fix; `text-primary` sobre `bg-primary` → `text-on-primary`; nested bgs; `text-gray-900` → `text-on-surface`; gradientes; self-closing; HTML malformado.
   - **Backfill opcional**: `scripts/dev/backfill-contrast.ts` para landings ya guardadas. Correr `--dry` primero.
   - No tocar `node_modules` ni el system prompt del SDK — fix puramente en nuestro código.
-- [ ] **ASISTENCIA**: Agregar campo `attended` (Boolean?, default null) al modelo Event para trackear si el cliente se presentó. Tag visible solo en citas pasadas (null = sin marcar, true = asistió, false = no-show). Usar este campo en vez de solo la fecha para sumar puntos de lealtad. Componente: nuevo StatusTag variant en `CitasTable.tsx`
-- [ ] **ZOOM WEBHOOKS**: Configurar webhook endpoint para recibir eventos de Zoom (`meeting.started`, `meeting.ended`, `meeting.participant_joined`). Secret Token: usar `ZOOM_WEBHOOK_SECRET` para verificar. Esto permitiría marcar `attended` automáticamente cuando el cliente se conecta a la videollamada. Endpoint sugerido: `/zoom/webhook`
+- [x] ~~**GOOGLE CAL htmlLink**~~ (campo `calendarHtmlLink` en Event, link "Ver en Google Calendar" en drawer)
+- [x] ~~**ASISTENCIA**: campo `attended` + UI manual~~ (dropdown en CitasTable para citas pasadas, intent `mark_attendance` en api/events)
+- [x] ~~**ZOOM WEBHOOKS**~~ (endpoint `/zoom/webhook`, marca `attended=true` en `meeting.participant_joined`, requiere `ZOOM_WEBHOOK_SECRET` en Fly + config en Zoom Marketplace app)
 - [ ] **GOOGLE CALENDAR VERIFICACIÓN**: Enviar solicitud de verificación en Google Cloud Console para quitar pantalla "Google no verificó esta app". Requiere: dominio verificado (✅), política de privacidad (✅ `/avisodeprivacidad`), descripción de uso del scope `calendar.events`
 - [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
   - Repetición (cada martes 10am, cada semana, cada mes)
@@ -288,6 +289,7 @@ GOOGLE_CLIENT_SECRET=
 # Zoom
 ZOOM_CLIENT_ID=
 ZOOM_CLIENT_SECRET=
+ZOOM_WEBHOOK_SECRET=   # Zoom Marketplace > Feature > Event Subscriptions > Secret Token
 
 # Opcionales
 ADMIN_EMAILS=email1@x.com,email2@x.com
