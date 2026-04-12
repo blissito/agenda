@@ -1,8 +1,11 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router"
 import { getOrgFromApiKey } from "~/.server/apiKeyAuth"
 import { cancelEventFully } from "~/lib/event-cancel.server"
+import { createMeetLink } from "~/lib/google-meet.server"
+import { createZoomMeeting } from "~/lib/zoom.server"
 import { db } from "~/utils/db.server"
 import { sendReminder } from "~/utils/emails/sendReminder"
+import { resolveVideoProvider } from "~/utils/videoProvider.server"
 
 /**
  * GET /api/mcp/events?intent=list&from=ISO&to=ISO&status=CONFIRMED&serviceId=&customerId=&attended=true
@@ -140,7 +143,43 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         updatedAt: now,
       },
     })
-    return Response.json(serialize(event))
+
+    // Auto-resolver video provider (meet|zoom|none) sin preguntar al user.
+    // Usa Service.videoProvider default si existe; si "auto", decide por
+    // integraciones conectadas de la org (Meet → Zoom → none).
+    try {
+      const provider = resolveVideoProvider({ org, service, override: undefined })
+      if (provider === "meet") {
+        const { meetingLink, calendarEventId, calendarHtmlLink } = await createMeetLink({
+          org, event, service, customer,
+        })
+        await db.event.update({
+          where: { id: event.id },
+          data: { meetingLink, calendarEventId, calendarHtmlLink, videoProvider: "meet" },
+        })
+      } else if (provider === "zoom") {
+        const { meetingLink, meetingId } = await createZoomMeeting({
+          org, event, service, customer,
+        })
+        await db.event.update({
+          where: { id: event.id },
+          data: { meetingLink, zoomMeetingId: meetingId, videoProvider: "zoom" },
+        })
+      } else {
+        await db.event.update({ where: { id: event.id }, data: { videoProvider: "none" } })
+      }
+    } catch (e) {
+      console.error("[mcp create_event] video link failed", e)
+    }
+
+    const fresh = await db.event.findUnique({
+      where: { id: event.id },
+      include: { customer: true, service: true },
+    })
+    return Response.json({
+      ...serialize(fresh),
+      agendaUrl: `https://www.denik.me/dash/agenda/citas?eventId=${event.id}`,
+    })
   }
 
   if (intent === "send_reminder") {
@@ -169,6 +208,7 @@ function serialize(event: any) {
     paid: event.paid,
     meetingLink: event.meetingLink,
     videoProvider: event.videoProvider,
+    calendarHtmlLink: event.calendarHtmlLink,
     notes: event.notes,
     customer: event.customer && {
       id: event.customer.id,
@@ -182,5 +222,8 @@ function serialize(event: any) {
       price: Number(event.service.price),
       duration: Number(event.service.duration),
     },
+    // Link directo al detalle del evento en dashboard — Nik debe incluirlo
+    // en respuestas para que el usuario pueda abrirlo con un click.
+    agendaUrl: `https://www.denik.me/dash/agenda/citas?eventId=${event.id}`,
   }
 }

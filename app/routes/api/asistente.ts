@@ -3,6 +3,7 @@ import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
 import { db } from "~/utils/db.server";
 import {
   getMessagesSince,
+  resetNanoclawSession,
   saveUserMessage,
   sendToNanoclaw,
 } from "~/lib/nanoclaw.server";
@@ -48,7 +49,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (intent === "reset") {
-    await db.assistantMessage.deleteMany({ where: { orgId: org.id } });
+    await Promise.all([
+      db.assistantMessage.deleteMany({ where: { orgId: org.id } }),
+      resetNanoclawSession(org.id),
+    ]);
     return Response.json({ ok: true });
   }
 

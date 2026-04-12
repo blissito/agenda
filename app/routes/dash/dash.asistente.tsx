@@ -77,14 +77,21 @@ export default function AsistenteIA() {
       if (!incoming.length) return prev;
       // Reemplazar optimistic (tmp_*) por el real cuando llega del server
       const incomingUser = incoming.filter((m) => m.role === "user");
-      const withoutMatchedTmp = prev.filter(
-        (m) =>
-          !(
-            m.id.startsWith("tmp_") &&
-            incomingUser.some((inc) => inc.content === m.content)
-          ),
-      );
-      return [...withoutMatchedTmp, ...incoming];
+      const hasAssistant = incoming.some((m) => m.role === "assistant");
+      const next = prev
+        .filter(
+          (m) =>
+            !(
+              m.id.startsWith("tmp_") &&
+              incomingUser.some((inc) => inc.content === m.content)
+            ),
+        )
+        .map((m) =>
+          hasAssistant && m.role === "user" && m.status === "pending"
+            ? { ...m, status: "delivered" }
+            : m,
+        );
+      return [...next, ...incoming];
     });
   }, [pollFetcher.data]);
 

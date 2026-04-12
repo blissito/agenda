@@ -82,6 +82,30 @@ export async function sendToNanoclaw(params: {
   }
 }
 
+/**
+ * Borra la sesión de Claude Agent SDK asociada a esta org en Nanoclaw,
+ * forzando que el próximo mensaje arranque sin historial cacheado.
+ * No-op silencioso si falla (ej. endpoint no disponible en droplet viejo).
+ */
+export async function resetNanoclawSession(orgId: string): Promise<void> {
+  if (!NANOCLAW_URL || !NANOCLAW_SECRET) return;
+  try {
+    const res = await fetch(`${NANOCLAW_URL}/session/reset`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${NANOCLAW_SECRET}`,
+      },
+      body: JSON.stringify({ jid: orgIdToJid(orgId) }),
+    });
+    if (!res.ok) {
+      console.warn(`[nanoclaw] session reset responded ${res.status}`);
+    }
+  } catch (err) {
+    console.warn("[nanoclaw] session reset failed:", err);
+  }
+}
+
 export async function saveUserMessage(orgId: string, content: string) {
   return db.assistantMessage.create({
     data: { orgId, role: "user", content, status: "pending" },
