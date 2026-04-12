@@ -305,6 +305,21 @@ ADMIN_EMAILS=email1@x.com,email2@x.com
 - **Google Calendar/Meet**: `app/lib/google-meet.server.ts`, `app/routes/dash/dash.google-calendar-*.tsx`
 - **Zoom**: `app/lib/zoom.server.ts`, `app/routes/dash/dash.zoom-*.tsx`
 - **Validación**: `app/utils/zod_schemas.ts`
+- **Cancelación de citas (universal)**: `app/lib/event-cancel.server.ts` — `cancelEventFully({ eventId, orgId? })` cancela Meet + Zoom + jobs + marca `CANCELLED`/`archived`. Úsalo siempre en lugar de `db.event.update({ archived: true })`.
+- **Link de llamada (video provider)**:
+  - `app/utils/videoProvider.server.ts` — `resolveVideoProvider({ org, service, override })` decide "meet" | "zoom" | "none"
+  - `app/components/forms/VideoProviderSelect.tsx` — dropdown custom con logos oficiales (Meet/Zoom) + "Denik Link próximamente"
+  - `Service.videoProvider` (default del servicio: "auto" | "meet" | "zoom" | "none") y `Event.videoProvider` (snapshot)
+
+## Componentes/Assets reutilizables
+
+- **`app/components/common/CopyLinkButton.tsx`** — Botón copiar URL con animación de partículas (14 partículas multicolor, state "¡Copiado!" por 1.5s). Uso: `<CopyLinkButton url="..." />`.
+- **`app/components/common/DropDownMenu.tsx`** — Renderiza vía `createPortal` a `document.body`, nunca es clippeado por `overflow`. Reposiciona en scroll/resize.
+- **`app/components/chatbot/WhatsAppAd.tsx`** — Card promocional para WhatsApp (colores Meta green, gradiente). CTA abre Meta Embedded Signup (coexistencia) — configurar `META_APP_ID` + `META_CONFIG_ID` cuando apruebe la app.
+- **Assets Nik** (mascota):
+  - `public/images/nik.svg` — morado (#5158F6)
+  - `public/images/nik-white.svg` — variante blanca (para fondos de color), generada con `sed 's/#5158F6/white/g'` del original
+  - `public/images/bg-banner.svg` — banner onboarding (tailwind class `bg-onboarding`) con Nik blanco embebido
 
 ## Herramientas de Desarrollo (DB)
 

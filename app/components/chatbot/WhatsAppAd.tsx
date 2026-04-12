@@ -68,7 +68,7 @@ export const WhatsAppAd = () => {
 
       <div className="relative flex items-start gap-4">
         <img
-          src="/images/nik.svg"
+          src="/images/nik-white.svg"
           alt="Nik"
           className="h-20 w-20 shrink-0 drop-shadow-md animate-[nikWobble_3s_ease-in-out_infinite]"
         />
