@@ -409,6 +409,7 @@ model Org {
   plugins            Json?
   shopKeeper         String?
   slug               String            @unique
+  apiKey             String?           @unique
   social             OrgSocial?
   tel                String?
   timezone           String?           // e.g. "America/Mexico_City"
@@ -600,5 +601,16 @@ model LoyaltyRedemption {
   reward        LoyaltyReward @relation(fields: [rewardId], references: [id])
 
   @@index([customerId, status])
+  @@index([orgId, createdAt])
+}
+
+model AssistantMessage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  orgId     String   @db.ObjectId
+  role      String   // "user" | "assistant"
+  content   String
+  status    String?  // "pending" | "delivered"
+  createdAt DateTime @default(now()) @db.Date
+
   @@index([orgId, createdAt])
 }

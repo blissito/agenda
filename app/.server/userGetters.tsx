@@ -122,6 +122,7 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
         slug: `new-denik-org-${nanoid(4)}`,
         email: user.email,
         isActive: false,
+        apiKey: `dk_${nanoid(32)}`,
       },
     })
   }

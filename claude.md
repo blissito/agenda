@@ -170,6 +170,7 @@ Después de cambiar el schema: `npx prisma generate`
 | Loyalty (puntos/tiers) | ✅ (DB unificada, awardPoints en webhooks MP/Stripe)                |
 | Google Calendar/Meet   | ✅ OAuth, crear/borrar eventos, Meet automático                     |
 | Zoom                   | ✅ OAuth, crear/borrar meetings (falta webhook para asistencia)     |
+| Asistente IA (nanoclaw)| ✅ droplet propio en fixter, canal webhook, chat en `/dash/asistente` — ver `docs/nanoclaw/README.md` |
 | Tests                  | ❌ 0%                                                               |
 
 ## Protección contra duplicados
@@ -214,6 +215,11 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [x] ~~**ASISTENCIA**: campo `attended` + UI manual~~ (dropdown en CitasTable para citas pasadas, intent `mark_attendance` en api/events)
 - [x] ~~**ZOOM WEBHOOKS**~~ (endpoint `/zoom/webhook`, marca `attended=true` en `meeting.participant_joined`, requiere `ZOOM_WEBHOOK_SECRET` en Fly + config en Zoom Marketplace app)
 - [ ] **GOOGLE CALENDAR VERIFICACIÓN**: Enviar solicitud de verificación en Google Cloud Console para quitar pantalla "Google no verificó esta app". Requiere: dominio verificado (✅), política de privacidad (✅ `/avisodeprivacidad`), descripción de uso del scope `calendar.events`
+- [ ] **WABA (WhatsApp Business API) para Asistente IA**: Hoy el chat `/dash/asistente` solo funciona en web (canal webhook de nanoclaw). Para que cada org pueda hablar con su asistente por WhatsApp usando un número oficial de Meta, hay que:
+  1. **En nanoclaw**: implementar `src/channels/meta-waba.ts` — recibe webhooks de Meta Cloud API (verificación de challenge, validación de firma con `META_WABA_APP_SECRET`), parsea mensajes inbound (text/image/audio/location), envía outbound via Graph API. Patrón igual a `telegram.ts` (~200-300 líneas). **Copiar directamente la lógica de Formmy** (`/Users/bliss/formmy_rrv7/server/integrations/whatsapp/`) que ya resuelve Embedded Signup, firma, y routing. Env vars: `META_WABA_VERIFY_TOKEN`, `META_WABA_APP_SECRET`, `META_WABA_ACCESS_TOKEN`, `META_WABA_PHONE_NUMBER_ID`.
+  2. **En Denik**: UI en `/dash/asistente` para que el owner haga Embedded Signup de Meta, reciba WABA ID + Phone Number ID, y guarde en `Org.whatsappWabaId` + `Org.whatsappPhoneNumberId`. Reusar flow existente de Formmy.
+  3. **Routing**: nanoclaw recibe webhook de Meta con número destino → busca `Org` por `whatsappPhoneNumberId` → despacha al grupo `webhook_denik_{orgId}` existente. La memoria y el agente ya están configurados.
+  4. Ver roadmap en `/Users/bliss/nanoclaw/CLAUDE.md` sección "Next Steps → Meta WABA direct channel" (ya está documentado ahí).
 - [ ] **EVALUAR**: Eventos recurrentes - El modelo Event carece de features avanzados:
   - Repetición (cada martes 10am, cada semana, cada mes)
   - Número de repeticiones o fecha fin de recurrencia

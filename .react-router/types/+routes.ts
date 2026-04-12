@@ -62,6 +62,9 @@ type Pages = {
   "/dash": {
     params: {};
   };
+  "/dash/asistente": {
+    params: {};
+  };
   "/dash/perfil": {
     params: {};
   };
@@ -183,6 +186,9 @@ type Pages = {
   "/api/landing-generator": {
     params: {};
   };
+  "/api/asistente": {
+    params: {};
+  };
   "/stripe": {
     params: {};
   };
@@ -205,6 +211,9 @@ type Pages = {
     params: {};
   };
   "/zoom/webhook": {
+    params: {};
+  };
+  "/whatsapp/webhook": {
     params: {};
   };
   "/demo/smatch": {
@@ -266,7 +275,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/funcionalidades" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/funcionalidades" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/asistente" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -326,11 +335,15 @@ type RouteFiles = {
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
-    page: "/dash" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas";
+    page: "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas";
   };
   "routes/dash/dash._index.tsx": {
     id: "routes/dash/dash._index";
     page: "/dash";
+  };
+  "routes/dash/dash.asistente.tsx": {
+    id: "routes/dash/dash.asistente";
+    page: "/dash/asistente";
   };
   "routes/dash/dash.profile.tsx": {
     id: "routes/dash/dash.profile";
@@ -472,6 +485,10 @@ type RouteFiles = {
     id: "routes/api/landing-generator";
     page: "/api/landing-generator";
   };
+  "routes/api/asistente.ts": {
+    id: "routes/api/asistente";
+    page: "/api/asistente";
+  };
   "routes/stripe/api.ts": {
     id: "routes/stripe/api";
     page: "/stripe";
@@ -503,6 +520,10 @@ type RouteFiles = {
   "routes/zoom.webhook.ts": {
     id: "routes/zoom.webhook";
     page: "/zoom/webhook";
+  };
+  "routes/whatsapp.webhook.ts": {
+    id: "routes/whatsapp.webhook";
+    page: "/whatsapp/webhook";
   };
   "routes/demo.smatch.tsx": {
     id: "routes/demo.smatch";
@@ -576,6 +597,7 @@ type RouteModules = {
   "routes/auth.callback.$provider": typeof import("./app/routes/auth.callback.$provider.tsx");
   "routes/dash/dash_layout": typeof import("./app/routes/dash/dash_layout.tsx");
   "routes/dash/dash._index": typeof import("./app/routes/dash/dash._index.tsx");
+  "routes/dash/dash.asistente": typeof import("./app/routes/dash/dash.asistente.tsx");
   "routes/dash/dash.profile": typeof import("./app/routes/dash/dash.profile.tsx");
   "routes/dash/dash.agenda": typeof import("./app/routes/dash/dash.agenda.tsx");
   "routes/dash/dash.agenda.citas": typeof import("./app/routes/dash/dash.agenda.citas.tsx");
@@ -611,6 +633,7 @@ type RouteModules = {
   "routes/api/loyalty": typeof import("./app/routes/api/loyalty.ts");
   "routes/api/api.images": typeof import("./app/routes/api/api.images.ts");
   "routes/api/landing-generator": typeof import("./app/routes/api/landing-generator.ts");
+  "routes/api/asistente": typeof import("./app/routes/api/asistente.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
   "routes/stripe/webhook": typeof import("./app/routes/stripe/webhook.ts");
   "routes/mercadopago.oauth": typeof import("./app/routes/mercadopago.oauth.tsx");
@@ -619,6 +642,7 @@ type RouteModules = {
   "routes/mercadopago.pending": typeof import("./app/routes/mercadopago.pending.tsx");
   "routes/mercadopago.failure": typeof import("./app/routes/mercadopago.failure.tsx");
   "routes/zoom.webhook": typeof import("./app/routes/zoom.webhook.ts");
+  "routes/whatsapp.webhook": typeof import("./app/routes/whatsapp.webhook.ts");
   "routes/demo.smatch": typeof import("./app/routes/demo.smatch.tsx");
   "routes/agenda.$orgSlug._index": typeof import("./app/routes/agenda.$orgSlug._index.tsx");
   "routes/agenda.$orgSlug.$serviceSlug": typeof import("./app/routes/agenda.$orgSlug.$serviceSlug.tsx");

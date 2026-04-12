@@ -27,6 +27,7 @@ export default [
   ...prefix("dash", [
     layout("routes/dash/dash_layout.tsx", [
       index("routes/dash/dash._index.tsx"),
+      route("asistente", "routes/dash/dash.asistente.tsx"),
       route("perfil", "routes/dash/dash.profile.tsx"),
       route("agenda", "routes/dash/dash.agenda.tsx"),
       route("agenda/citas", "routes/dash/dash.agenda.citas.tsx"),
@@ -90,6 +91,13 @@ export default [
     route("loyalty", "routes/api/loyalty.ts"),
     route("images", "routes/api/api.images.ts"),
     route("landing-generator", "routes/api/landing-generator.ts"),
+    route("asistente", "routes/api/asistente.ts"),
+    // MCP (stdio server @denik/mcp) — auth via X-Denik-Api-Key
+    route("mcp/events", "routes/api/mcp.events.ts"),
+    route("mcp/services", "routes/api/mcp.services.ts"),
+    route("mcp/customers", "routes/api/mcp.customers.ts"),
+    route("mcp/org", "routes/api/mcp.org.ts"),
+    route("mcp/landing", "routes/api/mcp.landing.ts"),
   ]),
   // Stripe
   ...prefix("stripe", [
@@ -106,6 +114,8 @@ export default [
   ]),
   // Zoom webhook
   route("zoom/webhook", "routes/zoom.webhook.ts"),
+  // Nanoclaw callback (respuestas del asistente)
+  route("whatsapp/webhook", "routes/whatsapp.webhook.ts"),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
   // Public org landing (works on localhost): /agenda/:orgSlug
