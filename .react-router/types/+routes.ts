@@ -204,6 +204,9 @@ type Pages = {
   "/api/mcp/landing": {
     params: {};
   };
+  "/api/whatsapp/link": {
+    params: {};
+  };
   "/stripe": {
     params: {};
   };
@@ -229,6 +232,9 @@ type Pages = {
     params: {};
   };
   "/whatsapp/webhook": {
+    params: {};
+  };
+  "/whatsapp/link/callback": {
     params: {};
   };
   "/demo/smatch": {
@@ -290,7 +296,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/funcionalidades" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/funcionalidades" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/api/whatsapp/link" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/whatsapp/link/callback" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -524,6 +530,10 @@ type RouteFiles = {
     id: "routes/api/mcp.landing";
     page: "/api/mcp/landing";
   };
+  "routes/api/whatsapp.link.ts": {
+    id: "routes/api/whatsapp.link";
+    page: "/api/whatsapp/link";
+  };
   "routes/stripe/api.ts": {
     id: "routes/stripe/api";
     page: "/stripe";
@@ -559,6 +569,10 @@ type RouteFiles = {
   "routes/whatsapp.webhook.ts": {
     id: "routes/whatsapp.webhook";
     page: "/whatsapp/webhook";
+  };
+  "routes/whatsapp.link.callback.ts": {
+    id: "routes/whatsapp.link.callback";
+    page: "/whatsapp/link/callback";
   };
   "routes/demo.smatch.tsx": {
     id: "routes/demo.smatch";
@@ -674,6 +688,7 @@ type RouteModules = {
   "routes/api/mcp.customers": typeof import("./app/routes/api/mcp.customers.ts");
   "routes/api/mcp.org": typeof import("./app/routes/api/mcp.org.ts");
   "routes/api/mcp.landing": typeof import("./app/routes/api/mcp.landing.ts");
+  "routes/api/whatsapp.link": typeof import("./app/routes/api/whatsapp.link.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
   "routes/stripe/webhook": typeof import("./app/routes/stripe/webhook.ts");
   "routes/mercadopago.oauth": typeof import("./app/routes/mercadopago.oauth.tsx");
@@ -683,6 +698,7 @@ type RouteModules = {
   "routes/mercadopago.failure": typeof import("./app/routes/mercadopago.failure.tsx");
   "routes/zoom.webhook": typeof import("./app/routes/zoom.webhook.ts");
   "routes/whatsapp.webhook": typeof import("./app/routes/whatsapp.webhook.ts");
+  "routes/whatsapp.link.callback": typeof import("./app/routes/whatsapp.link.callback.ts");
   "routes/demo.smatch": typeof import("./app/routes/demo.smatch.tsx");
   "routes/agenda.$orgSlug._index": typeof import("./app/routes/agenda.$orgSlug._index.tsx");
   "routes/agenda.$orgSlug.$serviceSlug": typeof import("./app/routes/agenda.$orgSlug.$serviceSlug.tsx");

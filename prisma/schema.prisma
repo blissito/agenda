@@ -433,6 +433,23 @@ model Org {
   services           Service[]
 }
 
+/// Link entre una Org y un grupo de WhatsApp provisionado vía Nanoclaw.
+/// El flow completo está en docs/nanoclaw/droplet/README.md y en el plan.
+model WhatsAppLink {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  orgId       String    @db.ObjectId
+  userId      String    @db.ObjectId
+  token       String    @unique                  // nanoid(32), usado en el callback
+  status      String                              // pending | provisioned | active | revoked
+  groupJid    String?   @unique                   // llega en el callback de Nanoclaw
+  inviteUrl   String?
+  createdAt   DateTime  @default(now()) @db.Date
+  activatedAt DateTime? @db.Date
+  revokedAt   DateTime? @db.Date
+
+  @@index([orgId])
+}
+
 model Service {
   id            String           @id @default(auto()) @map("_id") @db.ObjectId
   address       String?

@@ -13,6 +13,19 @@ Log cronológico de cambios aplicados al droplet `nanoclaw-denik` (143.198.149.2
 
 ---
 
+## Políticas
+
+### MCP `@denik.me/mcp` — pinned a `^0.5.0`
+
+Solo aceptamos **patches dentro de la línea 5.x** (0.5.1, 0.5.2, ...). Cualquier bump a 0.6+ requiere:
+1. Revisar CHANGELOG del MCP
+2. Validar breaking changes contra Nik persona y agent-runner
+3. Decisión explícita antes de cambiar el Dockerfile del fork
+
+Enforcement: `container/Dockerfile` pinea `'@denik.me/mcp@^0.5.0'` en el `npm install -g`.
+
+---
+
 ## 2026-04-12
 
 ### Remote cambiado a fork privado `blissito/nanoclaw-denik`

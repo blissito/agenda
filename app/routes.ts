@@ -98,6 +98,8 @@ export default [
     route("mcp/customers", "routes/api/mcp.customers.ts"),
     route("mcp/org", "routes/api/mcp.org.ts"),
     route("mcp/landing", "routes/api/mcp.landing.ts"),
+    // WhatsApp group provisioning (Nik)
+    route("whatsapp/link", "routes/api/whatsapp.link.ts"),
   ]),
   // Stripe
   ...prefix("stripe", [
@@ -116,6 +118,7 @@ export default [
   route("zoom/webhook", "routes/zoom.webhook.ts"),
   // Nanoclaw callback (respuestas del asistente)
   route("whatsapp/webhook", "routes/whatsapp.webhook.ts"),
+  route("whatsapp/link/callback", "routes/whatsapp.link.callback.ts"),
   // Demo
   route("demo/smatch", "routes/demo.smatch.tsx"),
   // Public org landing (works on localhost): /agenda/:orgSlug

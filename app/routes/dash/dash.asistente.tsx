@@ -38,11 +38,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const messages = await getMessagesSince(org.id);
   const host = request.headers.get("host") ?? "";
   const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1");
-  return { initialMessages: messages, isLocalhost };
+  const link = await db.whatsAppLink.findFirst({
+    where: {
+      orgId: org.id,
+      status: { in: ["pending", "provisioned", "active"] },
+    },
+    orderBy: { createdAt: "desc" },
+    select: { status: true, inviteUrl: true, groupJid: true },
+  });
+  return { initialMessages: messages, isLocalhost, link };
 };
 
 export default function AsistenteIA() {
-  const { initialMessages, isLocalhost } = useLoaderData<typeof loader>();
+  const { initialMessages, isLocalhost, link } = useLoaderData<typeof loader>();
   const [messages, setMessages] = useState<Msg[]>(
     initialMessages.map((m: any) => ({ ...m, createdAt: String(m.createdAt) })),
   );
@@ -163,7 +171,7 @@ export default function AsistenteIA() {
               Nueva conversación
             </button>
           )}
-          <WhatsAppChip />
+          <NikGroupButton initialLink={link} />
         </div>
       </header>
 
@@ -275,6 +283,89 @@ const SendIcon = () => (
     <path d="M22 2l-7 20-4-9-9-4z" />
   </svg>
 );
+
+type LinkData = {
+  status: string | null;
+  inviteUrl: string | null;
+  groupJid: string | null;
+};
+
+function NikGroupButton({ initialLink }: { initialLink: LinkData | null }) {
+  const [link, setLink] = useState<LinkData | null>(initialLink);
+  const [loading, setLoading] = useState(false);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Polling mientras está en pending
+  useEffect(() => {
+    if (link?.status !== "pending") {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+      return;
+    }
+    pollingRef.current = setInterval(async () => {
+      try {
+        const res = await fetch("/api/whatsapp/link");
+        if (!res.ok) return;
+        const data = (await res.json()) as LinkData;
+        if (data.status && data.status !== "pending") setLink(data);
+      } catch {}
+    }, 2000);
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, [link?.status]);
+
+  const create = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/whatsapp/link", { method: "POST" });
+      const data = (await res.json()) as LinkData & { error?: string };
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+      setLink(data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fase 3: provisionado/activo — botón para unirse
+  if (link?.inviteUrl) {
+    return (
+      <a
+        href={link.inviteUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="flex items-center gap-1.5 text-xs font-satoMedium text-white bg-[#25D366] rounded-full px-3 py-1.5 hover:-translate-y-0.5 transition"
+      >
+        <span className="w-2 h-2 rounded-full bg-white" />
+        Unirme al grupo Nik
+      </a>
+    );
+  }
+
+  // Fase 2: pending
+  if (link?.status === "pending") {
+    return (
+      <div className="flex items-center gap-1.5 text-xs font-satoMedium text-brand_iron bg-white border border-brand_stroke rounded-full px-3 py-1.5">
+        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+        Creando grupo Nik…
+      </div>
+    );
+  }
+
+  // Fase 1: sin link
+  return (
+    <button
+      onClick={create}
+      disabled={loading}
+      className="flex items-center gap-1.5 text-xs font-satoMedium text-brand_dark bg-white border border-brand_stroke rounded-full px-3 py-1.5 hover:border-brand_blue hover:text-brand_blue transition disabled:opacity-50"
+    >
+      <span className="w-2 h-2 rounded-full bg-[#25D366]" />
+      {loading ? "Creando…" : "Crear grupo Nik"}
+    </button>
+  );
+}
 
 function WhatsAppChip() {
   const [open, setOpen] = useState(false);

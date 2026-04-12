@@ -106,6 +106,42 @@ export async function resetNanoclawSession(orgId: string): Promise<void> {
   }
 }
 
+/**
+ * Provisiona un grupo de WhatsApp para esta org via Nanoclaw.
+ * Nanoclaw responde 202 inmediato y hace el callback async a
+ * /whatsapp/link/callback con {token, groupJid, inviteUrl}.
+ */
+export async function createNanoclawGroup(params: {
+  orgId: string;
+  orgName: string;
+  token: string;
+  apiKey: string;
+}): Promise<void> {
+  if (!NANOCLAW_URL || !NANOCLAW_SECRET) {
+    throw new Error("NANOCLAW_URL o NANOCLAW_SECRET no configurados");
+  }
+  const callbackUrl = `${DENIK_BASE_URL}/whatsapp/link/callback`;
+  const res = await fetch(`${NANOCLAW_URL}/group/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${NANOCLAW_SECRET}`,
+    },
+    body: JSON.stringify({
+      token: params.token,
+      orgId: params.orgId,
+      orgName: params.orgName,
+      denikApiKey: params.apiKey,
+      denikBaseUrl: DENIK_BASE_URL,
+      callbackUrl,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Nanoclaw /group/create ${res.status}: ${text}`);
+  }
+}
+
 export async function saveUserMessage(orgId: string, content: string) {
   return db.assistantMessage.create({
     data: { orgId, role: "user", content, status: "pending" },
