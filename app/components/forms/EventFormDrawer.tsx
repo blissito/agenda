@@ -16,6 +16,7 @@ type EventFormDrawerProps = {
   isOpen?: boolean
   event: Partial<PrismaEvent> | null
   isGoogleCalendarConnected?: boolean
+  isZoomConnected?: boolean
 }
 
 export const EventFormDrawer = ({
@@ -27,6 +28,7 @@ export const EventFormDrawer = ({
   employees,
   services,
   isGoogleCalendarConnected,
+  isZoomConnected,
 }: EventFormDrawerProps) => {
   return (
     <Drawer
@@ -36,14 +38,6 @@ export const EventFormDrawer = ({
       size="big"
       footer={null}
     >
-      {isGoogleCalendarConnected && !event?.id && (
-        <div className="mx-4 mb-4 flex items-center gap-3 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3">
-          <img src="/images/google-meet.svg" alt="Google Meet" className="w-5 h-5" />
-          <p className="text-sm text-blue-800">
-            Se creará un evento en Google Calendar con link de Google Meet
-          </p>
-        </div>
-      )}
       {event?.id && event?.meetingLink && (() => {
         const isZoom = /zoom\.us/i.test(event.meetingLink)
         return (
@@ -83,6 +77,8 @@ export const EventFormDrawer = ({
         onNewClientClick={onNewClientClick}
         onCancel={onClose}
         defaultValues={event as PrismaEvent}
+        hasMeet={!!isGoogleCalendarConnected}
+        hasZoom={!!isZoomConnected}
       />
     </Drawer>
   )

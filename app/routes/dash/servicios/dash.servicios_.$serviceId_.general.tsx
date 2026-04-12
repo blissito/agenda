@@ -42,12 +42,20 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId
   const service = await db.service.findUnique({ where: { id: serviceId } })
   if (!service) throw new Response(null, { status: 404 })
+  const org = await db.org.findUnique({
+    where: { id: service.orgId },
+    select: { googleCalendarToken: true, zoomToken: true },
+  })
 
-  return { service }
+  return {
+    service,
+    hasMeet: !!org?.googleCalendarToken,
+    hasZoom: !!org?.zoomToken,
+  }
 }
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { service } = loaderData
+  const { service, hasMeet, hasZoom } = loaderData
   const fetcher = useFetcher()
   const isFetching = fetcher.state !== "idle"
 
@@ -121,6 +129,27 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             defaultLat={service.lat}
             defaultLng={service.lng}
           />
+
+          {(hasMeet || hasZoom) && (
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-satoMedium text-brand_dark">
+                Link de llamada
+              </label>
+              <select
+                name="videoProvider"
+                defaultValue={service.videoProvider ?? "auto"}
+                className="w-full rounded-full border border-brand_stroke bg-white px-4 py-3 text-brand_gray focus:outline-none focus:border-brand_blue"
+              >
+                <option value="auto">Automático</option>
+                {hasMeet && <option value="meet">Google Meet</option>}
+                {hasZoom && <option value="zoom">Zoom</option>}
+                <option value="none">Sin link de llamada</option>
+              </select>
+              <p className="text-xs text-brand_gray">
+                Al reservar una cita se generará automáticamente el link elegido.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex mt-16 justify-end gap-6">

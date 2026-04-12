@@ -364,6 +364,7 @@ model Event {
   calendarEventId          String?
   calendarHtmlLink         String?
   zoomMeetingId            String?
+  videoProvider            String?              // "meet" | "zoom" | "none" (snapshot al crear)
   attended                 Boolean?             // null = not marked, true = attended, false = no-show
   reminderSentAt           DateTime? @db.Date  // null = reminder not sent yet
   surveySentAt             DateTime? @db.Date  // null = survey not sent yet
@@ -455,6 +456,7 @@ model Service {
   price         BigInt
   seats         BigInt
   slug          String           @unique
+  videoProvider String           @default("auto") // "auto" | "meet" | "zoom" | "none"
   weekDays      ServiceWeekDays?
   org           Org              @relation(fields: [orgId], references: [id])
   events        Event[]

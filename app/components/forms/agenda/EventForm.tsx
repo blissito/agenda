@@ -56,6 +56,8 @@ type EventFormProps = {
   onValid?: (arg0: { isValid: boolean; values: Partial<Event> }) => void
   defaultValues: Partial<Event>
   ownerName?: string
+  hasMeet?: boolean
+  hasZoom?: boolean
 }
 
 export const EventForm = ({
@@ -65,6 +67,8 @@ export const EventForm = ({
   customers,
   services,
   employees,
+  hasMeet,
+  hasZoom,
 }: EventFormProps) => {
   const fetcher = useFetcher()
   const startDateValue = (() => {
@@ -205,6 +209,7 @@ export const EventForm = ({
     register("customerId", { required: true, value: "" })
     register("serviceId", { required: true, value: defaultValues?.serviceId ?? "" })
     register("employeeId", { required: true, value: employees[0]?.id })
+    register("videoProvider", { required: false, value: "auto" })
   }
 
   useEffect(() => {
@@ -227,8 +232,14 @@ export const EventForm = ({
       const endH = String(Math.floor(endMins / 60) % 24).padStart(2, "0")
       const endM = String(endMins % 60).padStart(2, "0")
       setValue("endHour", `${endH}:${endM}`, { shouldValidate: true, shouldDirty: true })
+      setValue("videoProvider", (service as any).videoProvider || "auto", {
+        shouldDirty: true,
+      })
     }
   }
+
+  const videoProviderValue = useWatch({ control, name: "videoProvider" }) as string | undefined
+  const showVideoSelector = !defaultValues.id && (hasMeet || hasZoom)
 
   const hanldeEmployeeSelect = (event: ChangeEvent<HTMLSelectElement>) => {
     setValue("employeeId", event.currentTarget.value, {
@@ -265,6 +276,28 @@ export const EventForm = ({
         defaultValue={employees[0]?.id}
         onChange={hanldeEmployeeSelect}
       />
+
+      {showVideoSelector && (
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-satoMedium text-brand_dark">
+            Link de llamada
+          </label>
+          <select
+            value={videoProviderValue ?? "auto"}
+            onChange={(e) =>
+              setValue("videoProvider", e.currentTarget.value, {
+                shouldDirty: true,
+              })
+            }
+            className="w-full rounded-full border border-brand_stroke bg-white px-4 py-3 text-brand_gray focus:outline-none focus:border-brand_blue"
+          >
+            <option value="auto">Automático (según servicio)</option>
+            {hasMeet && <option value="meet">Google Meet</option>}
+            {hasZoom && <option value="zoom">Zoom</option>}
+            <option value="none">Sin link de llamada</option>
+          </select>
+        </div>
+      )}
 
       <div className="flex flex-col gap-4">
         <p className="font-bold">Fecha y hora <span className="text-brand_iron font-normal">({duration}m)</span></p>

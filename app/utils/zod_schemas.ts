@@ -17,6 +17,7 @@ export const serviceUpdateSchema = z.object({
   address: z.string().optional().nullable(),
   lat: optionalNumber.optional(),
   lng: optionalNumber.optional(),
+  videoProvider: z.enum(["auto", "meet", "zoom", "none"]).optional(),
 })
 export type ServiceUpdateSchema = z.infer<typeof signup2Schema>
 
@@ -88,6 +89,7 @@ export const newEventSchema = z.object({
     .number()
     .min(5, { message: "La duración de la sesión, no puede ser negativa" })
     .default(60),
+  videoProvider: z.enum(["auto", "meet", "zoom", "none"]).optional(),
 })
 
 const _typeEnum = z.enum(["Private", "Business"])

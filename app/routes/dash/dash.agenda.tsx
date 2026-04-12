@@ -237,6 +237,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     sunday: sunday.toISOString(),
     orgSlug: org.slug,
     isGoogleCalendarConnected: Boolean(org.googleCalendarToken),
+    isZoomConnected: Boolean(org.zoomToken),
     employeeMap: Object.fromEntries(orgUsers.map((u) => [u.id, u.displayName ?? ""])),
     monthEventDates: monthEvents.map((e) => e.start.toISOString()),
     upcomingEvents: upcomingEvents.map((e) => ({
@@ -741,6 +742,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     monthEventDates,
     employeeMap,
     isGoogleCalendarConnected,
+    isZoomConnected,
   } = loaderData
   const navigate = useNavigate()
   const mutationFetcher = useFetcher()
@@ -1096,6 +1098,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         isOpen={!!editableEvent}
         onNewClientClick={handleNewClientClick}
         isGoogleCalendarConnected={isGoogleCalendarConnected}
+        isZoomConnected={isZoomConnected}
       />
       <ClientFormDrawer
         onClose={() => setShowNewClientDrawer(false)}
