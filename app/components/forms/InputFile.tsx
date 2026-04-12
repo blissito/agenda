@@ -103,9 +103,7 @@ export const InputFile = ({
         method: "put",
         body: file,
         headers: {
-          "Content-Length": String(file.size),
           "Content-Type": file.type,
-          "x-amz-acl": "public-read",
         },
       })
       return response.ok
