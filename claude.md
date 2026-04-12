@@ -171,7 +171,24 @@ Después de cambiar el schema: `npx prisma generate`
 | Google Calendar/Meet   | ✅ OAuth, crear/borrar eventos, Meet automático                     |
 | Zoom                   | ✅ OAuth, crear/borrar meetings (falta webhook para asistencia)     |
 | Asistente IA (nanoclaw)| ✅ droplet propio en fixter, canal webhook, chat en `/dash/asistente` — ver `docs/nanoclaw/README.md` |
+| Nik MCP (`@denik.me/mcp`) | ✅ stdio MCP, 15 tools (lectura + mutaciones + landing), scoped por `Org.apiKey` — ver sección abajo |
+| Nik por WhatsApp       | ✅ grupos provisionados al click (avatar Denik), usan fork `blissito/nanoclaw-denik` en el droplet |
 | Tests                  | ❌ 0%                                                               |
+
+## Nik — Asistente IA por WhatsApp
+
+E2E end-to-end: cada org tiene un agente **Nik** accesible por un grupo privado de WhatsApp.
+
+**Flujo**: `/dash/asistente` → click **"Conectar WhatsApp"** → Denik llama a Nanoclaw → crea grupo WA con avatar Denik → callback con inviteUrl → user acepta → Nik responde en el grupo con tools MCP scoped a esa org.
+
+**Componentes**:
+- **Paquete npm** `@denik.me/mcp` (pinned a `^0.5.0`, policy en `docs/nanoclaw/droplet/CHANGELOG.md`) con 15 tools: agenda, clientes, servicios, landing, loyalty. Auth por `X-Denik-Api-Key` → `Org.apiKey` (auto-generada, backfill via `scripts/dev/backfill-api-keys.ts`).
+- **Endpoints** `/api/mcp/{events,customers,services,org,landing}` — `app/routes/api/mcp.*.ts`. Helper `app/.server/apiKeyAuth.ts`.
+- **Provisioning** `/api/whatsapp/link` (create/status) + callback `/whatsapp/link/callback`. Model `WhatsAppLink`.
+- **Fork nanoclaw** `github.com/blissito/nanoclaw-denik` — droplet SSH deploy key, `git pull && npm run build && systemctl restart nanoclaw`. Toda operación con `groups/` y `data/sessions/` debe terminar en `chown -R nanoclaw:nanoclaw ...` (ver TROUBLESHOOTING.md #4).
+- **Cleanup** de grupo: `./docs/nanoclaw/scripts/cleanup-denik-group.sh <orgId>` borra ambas DBs + FS + perms.
+
+**Runbooks**: `docs/nanoclaw/README.md` (infra), `docs/nanoclaw/TROUBLESHOOTING.md` (8 casos), `docs/nanoclaw/droplet/CHANGELOG.md` (log de cambios al droplet).
 
 ## Protección contra duplicados
 
