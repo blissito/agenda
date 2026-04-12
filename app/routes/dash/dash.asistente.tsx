@@ -151,7 +151,7 @@ export default function AsistenteIA() {
   };
 
   return (
-    <main className="flex flex-col h-[calc(100vh-8rem)] max-w-3xl mx-auto px-6 pt-4 pb-2 gap-4 overflow-hidden">
+    <main className="flex flex-col h-screen -mt-6 lg:-mt-10 -mr-4 md:-mr-6 lg:-mr-10 -mb-24 md:-mb-6 lg:-mb-10 max-w-3xl mx-auto px-6 pt-6 pb-4 gap-4 overflow-hidden">
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-satoBold text-brand_dark">
