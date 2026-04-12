@@ -135,14 +135,22 @@ export const action = async ({ request }: { request: Request }) => {
 
     case "get_messages": {
       const conversationId = formData.get("conversationId") as string
-      if (org.chatbotAgentId) {
-        const result = await formmy.conversations.get(
+      if (!org.chatbotAgentId) return json({ conversation: null })
+      try {
+        const result: any = await formmy.conversations.get(
           org.chatbotAgentId,
           conversationId,
         )
-        return json({ conversation: result.conversation })
+        // SDK puede devolver { conversation } o directo la conversación
+        const conversation = result?.conversation ?? result ?? null
+        if (!conversation) {
+          console.warn("[chatbot get_messages] empty result", { conversationId })
+        }
+        return json({ conversation })
+      } catch (e) {
+        console.error("[chatbot get_messages] failed:", e)
+        return json({ conversation: null, error: String(e) }, { status: 500 })
       }
-      return json({ conversation: null })
     }
 
     default:

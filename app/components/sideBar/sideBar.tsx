@@ -288,6 +288,14 @@ const MainMenu = ({ className }: { className?: string }) => {
     <div className={twMerge("overflow-auto mb-auto h-full", className)}>
       <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
       <section className="gri ">
+        <MenuButton to="/dash/asistente" isActive={match("asistente")}>
+          <MenuButton.Icon isActive={match("asistente")}>
+            <Chatbot />
+          </MenuButton.Icon>
+          <MenuButton.Title isActive={match("asistente")}>
+            Asistente IA
+          </MenuButton.Title>
+        </MenuButton>
         <MenuButton isActive={matchIndex()} to="/dash">
           <MenuButton.Icon isActive={matchIndex()}>
             <Dashboard />

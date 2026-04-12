@@ -8,6 +8,11 @@
 
 import React, { useState, useCallback, useMemo } from "react"
 import { useFetcher } from "react-router"
+import {
+  ParticleLayer,
+  playBurstSound,
+  useParticleBurst,
+} from "~/components/common/ParticleBurst"
 interface Conversation {
   id: string
   name?: string
@@ -69,15 +74,21 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   // Renderizado de una sola tarjeta de conversación
   const ConversationCard: React.FC<{ conversation: any }> = ({ conversation }) => {
     const { id, name, sessionId, isFavorite } = conversation
+    const { particles, burst } = useParticleBurst({ count: 10 })
+    const isLoadingThis = isLoadingMessages && selectedConversation?.id === id
 
     return (
       <div
-        className={`flex items-center p-3 mb-2 rounded-lg cursor-pointer transition-all border ${
+        className={`relative flex items-center p-3 mb-2 rounded-lg cursor-pointer transition-all border ${
           selectedConversation?.id === id
             ? "bg-brand_blue/10 border-brand_blue shadow-md"
             : "bg-white border-gray-200 hover:bg-gray-50"
         }`}
-        onClick={() => handleConversationClick(id)}
+        onClick={() => {
+          burst()
+          playBurstSound()
+          handleConversationClick(id)
+        }}
       >
         <button
           onClick={(e) => {
@@ -97,7 +108,10 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
           </p>
         </div>
 
-        <div className="flex space-x-2 ml-2">
+        <div className="flex space-x-2 ml-2 items-center">
+          {isLoadingThis && (
+            <span className="inline-block h-3 w-3 rounded-full border-2 border-brand_blue/30 border-t-brand_blue animate-spin" />
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -109,6 +123,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             🗑️
           </button>
         </div>
+        <ParticleLayer particles={particles} />
       </div>
     )
   }

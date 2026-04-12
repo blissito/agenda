@@ -40,7 +40,18 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
   }, [initialConversations])
   const [selectedConversation, setSelectedConversation] = useState<any>(null)
   const [messages, setMessages] = useState<any[]>([])
-  const [isLoadingMessages, setIsLoadingMessages] = useState(false)
+  const isLoadingMessages =
+    messageFetcher.state !== "idle" &&
+    messageFetcher.formData?.get("intent") === "get_messages"
+
+  useEffect(() => {
+    if (messageFetcher.state !== "idle" || !messageFetcher.data) return
+    const data = messageFetcher.data as { conversation?: any }
+    if (data.conversation) {
+      setSelectedConversation(data.conversation)
+      setMessages(data.conversation.messages || [])
+    }
+  }, [messageFetcher.state, messageFetcher.data])
   const [searchQuery, setSearchQuery] = useState("")
 
   const isActivating =
@@ -126,33 +137,24 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
               setMessages([])
               return
             }
-            setIsLoadingMessages(true)
-            try {
-              const formData = new FormData()
-              formData.set("intent", "get_messages")
-              formData.set("conversationId", id)
-              const response = await fetch("/dash/chatbot", {
-                method: "POST",
-                body: formData,
-              })
-              const data = await response.json()
-              if (data.conversation) {
-                setSelectedConversation(data.conversation)
-                setMessages(data.conversation.messages || [])
-              }
-            } catch (e) {
-              console.error("Error fetching messages:", e)
-            } finally {
-              setIsLoadingMessages(false)
+            // Optimistic: marcar la conversación como seleccionada ya
+            const stub = conversations.find((c: any) => c.id === id)
+            if (stub) {
+              setSelectedConversation({ ...stub, messages: [] })
+              setMessages([])
             }
+            messageFetcher.submit(
+              { intent: "get_messages", conversationId: id },
+              { method: "post" },
+            )
           }}
           messages={messages}
           isLoadingMessages={isLoadingMessages}
           onDelete={async (id) => {
-            const formData = new FormData()
-            formData.set("intent", "delete_conversation")
-            formData.set("conversationId", id)
-            await fetch("/dash/chatbot", { method: "POST", body: formData })
+            fetcher.submit(
+              { intent: "delete_conversation", conversationId: id },
+              { method: "post" },
+            )
             setConversations((prev: any[]) => prev.filter((c) => c.id !== id))
             if (selectedConversation?.id === id) {
               setSelectedConversation(null)
@@ -160,22 +162,19 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
             }
           }}
           onToggleFavorite={async (id) => {
-            const formData = new FormData()
-            formData.set("intent", "toggle_favorite")
-            formData.set("conversationId", id)
-            const response = await fetch("/dash/chatbot", {
-              method: "POST",
-              body: formData,
-            })
-            const data = await response.json()
+            // Optimistic toggle — confirmaremos con el dato del server al volver
             setConversations((prev: any[]) =>
               prev.map((c) =>
-                c.id === id ? { ...c, isFavorite: data.isFavorite } : c,
+                c.id === id ? { ...c, isFavorite: !c.isFavorite } : c,
               ),
+            )
+            fetcher.submit(
+              { intent: "toggle_favorite", conversationId: id },
+              { method: "post" },
             )
             if (selectedConversation?.id === id) {
               setSelectedConversation((prev: any) =>
-                prev ? { ...prev, isFavorite: data.isFavorite } : null,
+                prev ? { ...prev, isFavorite: !prev.isFavorite } : null,
               )
             }
           }}
