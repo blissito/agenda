@@ -471,8 +471,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               window.location.hostname === "127.0.0.1")
               ? window.location.origin
               : "https://denik.me"
-          const BRANDING_HTML = `<div data-denik-branding="true" data-gjs-removable="false" data-gjs-copyable="false" data-gjs-draggable="false" data-gjs-editable="false" class="w-full flex items-center justify-center gap-1 py-4"><span data-gjs-removable="false" data-gjs-editable="false" style="font-family:'Satoshi ',system-ui,sans-serif;color:#5158F6;font-size:14px">Powered by</span><img alt="Denik" src="${logoOrigin}/images/denik-logo.svg" data-gjs-removable="false" data-gjs-editable="false" data-gjs-resizable="false" style="height:32px;width:auto;display:inline-block;margin-left:4px"/></div>`
+          const BRANDING_HTML = `<div data-denik-branding="true" data-gjs-removable="false" data-gjs-copyable="false" data-gjs-draggable="false" data-gjs-editable="false" class="w-full flex items-center justify-center gap-1 py-1"><span data-gjs-removable="false" data-gjs-editable="false" style="font-family:'Satoshi ',system-ui,sans-serif;color:#5158F6;font-size:14px">Powered by</span><img alt="Denik" src="${logoOrigin}/images/denik-logo.svg" data-gjs-removable="false" data-gjs-editable="false" data-gjs-resizable="false" style="height:32px;width:auto;display:inline-block;margin-left:4px"/></div>`
+          let ensuringBranding = false
           const ensureBranding = () => {
+            if (ensuringBranding) return
+            ensuringBranding = true
+            try {
             const wrapper = ed.DomComponents.getWrapper()
             if (!wrapper) return
             const allComps = wrapper.find("[data-denik-branding], section, footer, div")
@@ -512,10 +516,22 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             target.components().forEach((child: any) => {
               child.set({ removable: false, editable: false, draggable: false })
             })
+            } finally {
+              ensuringBranding = false
+            }
+          }
+          // Debounce so rapid edits/streamed sections don't trigger storms
+          let ensureBrandingTimer: ReturnType<typeof setTimeout> | null = null
+          const scheduleEnsureBranding = () => {
+            if (ensureBrandingTimer) clearTimeout(ensureBrandingTimer)
+            ensureBrandingTimer = setTimeout(() => {
+              ensureBrandingTimer = null
+              ensureBranding()
+            }, 200)
           }
           ensureBranding()
-          ed.on("component:remove", ensureBranding)
-          ed.on("component:add", ensureBranding)
+          ed.on("component:remove", scheduleEnsureBranding)
+          ed.on("component:add", scheduleEnsureBranding)
         }
       }, 500)
       return () => clearTimeout(timer)
