@@ -1,6 +1,8 @@
 # Cómo publicar `@denik.me/mcp`
 
 > TL;DR: `cd packages/denik-mcp && npm version <patch|minor|major> && npm publish --access public` — luego actualizar el pin del droplet.
+>
+> **⚠️ Antes de cada release seguí [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md) paso a paso.** npm publish es solo 1 de 4 superficies (backend Fly, paquete npm, Dockerfile del fork, system prompt de Nik). Saltarse cualquiera = Nik responde "no tengo esa función" aunque el paquete esté publicado.
 
 ## Contexto
 
