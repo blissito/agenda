@@ -1,6 +1,6 @@
 {
   "name": "@denik.me/mcp",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Denik Agenda MCP stdio server — tools para operar una org desde un agente (p.ej. bot de WhatsApp).",
   "type": "module",
   "bin": {
