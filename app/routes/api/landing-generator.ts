@@ -163,6 +163,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const theme = formData.get("theme") as string | null
     const customColorsRaw = formData.get("customColors") as string | null
     const publish = formData.get("publish") === "true"
+    const chatbotEnabledRaw = formData.get("chatbotEnabled")
+    const chatbotEnabled =
+      chatbotEnabledRaw === null ? undefined : chatbotEnabledRaw === "true"
 
     console.log(
       "[landing-generator] save intent — publish:",
@@ -194,6 +197,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             ? { landingCustomColors: JSON.parse(customColorsRaw) }
             : {}),
           landingPublished: publish,
+          ...(chatbotEnabled !== undefined
+            ? { landingChatbotEnabled: chatbotEnabled }
+            : {}),
         },
       })
       console.log("[landing-generator] save OK — published:", publish)

@@ -95,7 +95,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex flex-col h-[calc(100svh-160px)] lg:h-[calc(100svh-120px)]">
       <div className="mb-4">
         {activeTab === "config" ? (
           <Breadcrumb className="text-brand_gray">
@@ -128,7 +128,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
       </div>
 
       {activeTab === "conversations" && (
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 relative">
             <svg
               className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -204,23 +204,6 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
             if (selectedConversation?.id === id) {
               setSelectedConversation(null)
               setMessages([])
-            }
-          }}
-          onToggleFavorite={async (id) => {
-            // Optimistic toggle — confirmaremos con el dato del server al volver
-            setConversations((prev: any[]) =>
-              prev.map((c) =>
-                c.id === id ? { ...c, isFavorite: !c.isFavorite } : c,
-              ),
-            )
-            fetcher.submit(
-              { intent: "toggle_favorite", conversationId: id },
-              { method: "post" },
-            )
-            if (selectedConversation?.id === id) {
-              setSelectedConversation((prev: any) =>
-                prev ? { ...prev, isFavorite: !prev.isFavorite } : null,
-              )
             }
           }}
           onSearch={setSearchQuery}

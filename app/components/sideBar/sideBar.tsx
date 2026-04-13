@@ -58,6 +58,7 @@ import { PrimaryButton } from "../common/primaryButton"
 import { useSidebarState } from "../hooks/useSidebarState"
 import { Denik } from "../icons/denik"
 import { Agenda } from "../icons/menu/agenda"
+import { Asistente } from "../icons/menu/asistente"
 import { Chatbot } from "../icons/menu/chatbot"
 import { Clients } from "../icons/menu/clients"
 import { Financial } from "../icons/menu/financial"
@@ -290,7 +291,7 @@ const MainMenu = ({ className }: { className?: string }) => {
       <section className="gri ">
         <MenuButton to="/dash/asistente" isActive={match("asistente")}>
           <MenuButton.Icon isActive={match("asistente")}>
-            <Chatbot />
+            <Asistente />
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("asistente")}>
             Asistente IA

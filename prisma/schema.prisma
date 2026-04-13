@@ -421,6 +421,7 @@ model Org {
   landingTheme          String?
   landingCustomColors   Json?
   landingPublished      Boolean           @default(false)
+  landingChatbotEnabled Boolean           @default(true)
   landingGenCount       Int               @default(0)
   landingRefineCount    Int               @default(0)
   landingUsageMonth     String?

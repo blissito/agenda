@@ -15,6 +15,7 @@ import { Integrations } from "~/components/home/Integrations"
 import { Features, Hero, ScrollReviews } from "~/components/home/home"
 import { ParallaxHero } from "~/components/home/ParallaxHero"
 import { People } from "~/components/icons/people"
+import { ChatWidget } from "~/components/chatbot/ChatWidget"
 import TemplateOne from "~/components/templates/TemplateOne"
 import TemplateTwo from "~/components/templates/TemplateTwo"
 import { getMetaTags } from "~/utils/getMetaTags"
@@ -94,18 +95,31 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   if (loaderData.type === "org") {
     // AI-generated landing takes priority
     if ("aiLandingHtml" in loaderData && loaderData.aiLandingHtml) {
+      const { org } = loaderData
+      const showChatbot =
+        org.landingChatbotEnabled !== false &&
+        Boolean(org.chatbotAgentId) &&
+        Boolean(org.chatbotConfig)
       return (
-        <iframe
-          srcDoc={loaderData.aiLandingHtml as string}
-          style={{
-            position: "fixed",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            border: "none",
-          }}
-          title="Landing"
-        />
+        <>
+          <iframe
+            srcDoc={loaderData.aiLandingHtml as string}
+            style={{
+              position: "fixed",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              border: "none",
+            }}
+            title="Landing"
+          />
+          {showChatbot && (
+            <ChatWidget
+              agentId={org.chatbotAgentId as string}
+              config={org.chatbotConfig as any}
+            />
+          )}
+        </>
       )
     }
     const { org } = loaderData

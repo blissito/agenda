@@ -66,6 +66,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       landingTheme: true,
       landingCustomColors: true,
       landingPublished: true,
+      landingChatbotEnabled: true,
+      chatbotAgentId: true,
     },
   })
   if (!org) throw new Response("Org not found", { status: 404 })
@@ -124,6 +126,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false)
   const [isPublished, setIsPublished] = useState(org.landingPublished ?? false)
+  const [chatbotEnabled, setChatbotEnabled] = useState(
+    org.landingChatbotEnabled ?? true,
+  )
   // During generation, we stream sections into a lightweight preview
   const [streamingSections, setStreamingSections] = useState<Section3[]>([])
   const [streamCount, setStreamCount] = useState(0)
@@ -411,11 +416,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           theme,
           customColors: JSON.stringify(customColors),
           publish: publish ? "true" : "false",
+          chatbotEnabled: chatbotEnabled ? "true" : "false",
         },
         { method: "post", action: "/api/landing-generator" },
       )
     },
-    [sections, theme, customColors, fetcher],
+    [sections, theme, customColors, chatbotEnabled, fetcher],
   )
 
   // GrapesEditor onChange — sync sections state, preserving __grapes_css__ if lost.
@@ -480,11 +486,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             const wrapper = ed.DomComponents.getWrapper()
             if (!wrapper) return
             const allComps = wrapper.find("[data-denik-branding], section, footer, div")
-            const existing = allComps.find((comp: any) => {
+            const matches = allComps.filter((comp: any) => {
               if (comp.getAttributes()?.["data-denik-branding"] === "true") return true
               const html = comp.toHTML()
               return html.includes("Powered by") && html.includes("Denik") && html.length < 600
             })
+            // Dedupe: keep the first match, remove any extras.
+            const existing = matches[0]
+            if (matches.length > 1) {
+              for (let i = 1; i < matches.length; i++) {
+                try { matches[i].remove() } catch { /* noop */ }
+              }
+            }
             // If existing branding doesn't contain the Denik logo image, replace it.
             if (existing && !existing.toHTML().includes('alt="Denik"')) {
               const parent = existing.parent()
@@ -758,6 +771,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               customColors={customColors}
               onThemeChange={handleThemeChange}
               themeVersion={themeVersion}
+              hasChatbot={Boolean(org.chatbotAgentId)}
+              chatbotEnabled={chatbotEnabled}
+              onChatbotEnabledChange={(enabled) => {
+                setChatbotEnabled(enabled)
+                setHasUnpublishedChanges(true)
+              }}
             />
           </div>
         ) : isGenerating ? (

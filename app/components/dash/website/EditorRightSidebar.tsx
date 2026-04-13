@@ -9,6 +9,9 @@ export interface EditorRightSidebarProps {
   customColors: Record<string, string>
   onThemeChange: (themeId: string, colors?: Record<string, string>) => void
   themeVersion: number
+  hasChatbot?: boolean
+  chatbotEnabled?: boolean
+  onChatbotEnabledChange?: (enabled: boolean) => void
 }
 
 export function EditorRightSidebar({
@@ -17,6 +20,9 @@ export function EditorRightSidebar({
   customColors,
   onThemeChange,
   themeVersion,
+  hasChatbot = false,
+  chatbotEnabled = false,
+  onChatbotEnabledChange,
 }: EditorRightSidebarProps) {
   const resolvedColors = useMemo(() => {
     const base = LANDING_THEMES.find((t) => t.id === theme)?.colors ?? {}
@@ -25,6 +31,51 @@ export function EditorRightSidebar({
 
   return (
     <div className="w-72 shrink-0 bg-brand_dark border-l border-gray-700 flex flex-col h-full overflow-hidden">
+      {/* Chatbot */}
+      {hasChatbot && (
+        <>
+          <div className="px-4 pt-5 pb-3 flex items-center justify-between select-none">
+            <span className="text-sm font-bold text-white">Chatbot</span>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-[11px] font-semibold uppercase tracking-wide transition-colors ${
+                  chatbotEnabled ? "text-brand_blue" : "text-gray-500"
+                }`}
+              >
+                {chatbotEnabled ? "Activo" : "Inactivo"}
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={chatbotEnabled}
+                onClick={() => onChatbotEnabledChange?.(!chatbotEnabled)}
+                className="chatbot-toggle relative flex items-center w-9 h-5 rounded-full p-0 cursor-pointer"
+                style={{
+                  background: chatbotEnabled ? "#5158F6" : "#4B5563",
+                  backgroundImage: "none",
+                  border: "none",
+                  outline: "none",
+                  transition: "background 0.2s",
+                }}
+              >
+                <span
+                  className="rounded-full block"
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    marginLeft: "4px",
+                    background: "#ffffff",
+                    transform: chatbotEnabled ? "translateX(16px)" : "translateX(0)",
+                    transition: "transform 0.2s",
+                  }}
+                />
+              </button>
+            </div>
+          </div>
+          <div className="w-full h-px bg-gray-700" />
+        </>
+      )}
+
       {/* Temas */}
       <div className="px-4 pt-5 pb-3">
         <h3 className="text-sm font-bold text-white mb-3">Temas</h3>

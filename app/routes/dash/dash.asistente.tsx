@@ -13,10 +13,10 @@ type Msg = {
   createdAt: string;
 };
 
-const SUGGESTIONS = [
-  "¿Qué citas tengo hoy?",
-  "Resume mis ventas de la semana",
-  "Recuérdame mis próximos pendientes",
+const SUGGESTIONS: { icon: string; text: string }[] = [
+  { icon: "📅", text: "¿Qué citas tengo hoy?" },
+  { icon: "💰", text: "Resume mis ventas de la semana" },
+  { icon: "🔔", text: "Recuérdame mis próximos pendientes" },
 ];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -151,11 +151,11 @@ export default function AsistenteIA() {
   };
 
   return (
-    <main className="flex flex-col h-[calc(100vh-8rem)] max-w-3xl mx-auto px-6 pt-4 pb-2 gap-4 overflow-hidden">
+    <main className="flex flex-col h-[calc(100vh-5rem)] max-w-3xl mx-auto px-6 pt-4 gap-4 min-h-0">
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-satoBold text-brand_dark">
-            Enciende tu asistente IA
+            Nik - Tu asistente IA
           </h1>
           <p className="text-sm text-brand_iron mt-1">
             Tu asistente personal conectado a tu agenda.
@@ -176,7 +176,7 @@ export default function AsistenteIA() {
       </header>
 
       {isLocalhost && (
-        <div className="rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-900 font-satoMedium">
+        <div className="rounded-2xl bg-brand_cloud/20 border border-brand_cloud/30 px-4 py-3 text-sm text-brand_gray font-satoMedium">
           <span className="font-satoBold">Asistente no disponible en localhost.</span>{" "}
           Esta función requiere el droplet de Nanoclaw en producción. Pruébala en{" "}
           <a
@@ -196,21 +196,22 @@ export default function AsistenteIA() {
               <img
                 src="/images/nik.svg"
                 alt="Nik"
-                className="w-20 h-20 object-contain"
+                className="w-28 h-28 object-contain"
               />
               <span className="absolute -top-1 -right-1 text-xl">✨</span>
             </div>
-            <p className="text-sm text-brand_iron max-w-xs">
-              Pregúntale algo a tu asistente para empezar.
+            <p className=" text-brand_iron max-w-xs">
+              Pregúntale algo a Nik para empezar.
             </p>
             <div className="flex flex-col gap-2 w-full max-w-sm">
               {SUGGESTIONS.map((s) => (
                 <button
-                  key={s}
-                  onClick={() => submit(s)}
-                  className="text-left text-sm font-satoMedium text-brand_dark bg-white border border-brand_stroke rounded-full px-4 py-2.5 hover:border-brand_blue hover:text-brand_blue transition"
+                  key={s.text}
+                  onClick={() => submit(s.text)}
+                  className="flex items-center gap-2 text-left text-base font-satoMedium text-brand_dark bg-white border border-brand_stroke rounded-full px-4 py-2.5 hover:border-brand_blue hover:text-brand_blue transition"
                 >
-                  {s}
+                  <span className="text-base leading-none">{s.icon}</span>
+                  <span>{s.text}</span>
                 </button>
               ))}
             </div>
@@ -221,7 +222,7 @@ export default function AsistenteIA() {
               key={m.id}
               className={
                 m.role === "user"
-                  ? "self-end max-w-[75%] rounded-2xl rounded-br-sm bg-brand_blue text-white px-4 py-2.5 text-sm whitespace-pre-wrap font-satoMedium"
+                  ? "self-end max-w-[75%] rounded-2xl rounded-br-sm bg-brand_dark text-white px-4 py-2.5 text-sm whitespace-pre-wrap font-satoMedium"
                   : "self-start max-w-[75%] rounded-2xl rounded-bl-sm bg-white text-brand_dark px-4 py-2.5 text-sm whitespace-pre-wrap shadow-sm font-satoMedium"
               }
             >
@@ -246,7 +247,7 @@ export default function AsistenteIA() {
               : "Escribe un mensaje…"
           }
           disabled={isLocalhost}
-          className="flex-1 bg-transparent text-sm outline-none border-0 ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none placeholder:text-brand_iron font-satoMedium disabled:cursor-not-allowed"
+          className="flex-1 bg-transparent text-base outline-none border-0 ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none placeholder:text-brand_iron font-satoshi disabled:cursor-not-allowed"
         />
         <button
           type="submit"

@@ -66,13 +66,13 @@ export const WhatsAppAd = () => {
       <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-[#DCF8C6]/30 blur-xl" />
 
-      <div className="relative flex items-start gap-4">
+      <div className="relative flex items-center gap-4">
         <img
           src="/images/nik-white.svg"
           alt="Nik"
           className="h-20 w-20 shrink-0 drop-shadow-md animate-[nikWobble_3s_ease-in-out_infinite]"
         />
-        <div className="flex-1 text-white">
+        <div className="flex-1 text-white min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <FaWhatsapp className="text-white text-xl" />
             <span className="text-[11px] uppercase tracking-wide font-satoBold bg-white/20 rounded-full px-2 py-0.5">
@@ -86,20 +86,14 @@ export const WhatsAppAd = () => {
             Atiende a tus clientes desde donde ya están chateando.
           </p>
         </div>
-      </div>
-
-      <div className="relative mt-3 flex items-center justify-between gap-4">
         <button
           onClick={handleConnect}
           disabled={loading}
           className="shrink-0 flex items-center justify-center gap-2 rounded-full bg-white text-[#128C7E] font-satoBold px-5 py-3 text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70"
         >
           <FaWhatsapp className="text-lg" />
-          {loading ? "Cargando…" : "Conectar con WhatsApp"}
+          {loading ? "Cargando…" : "Conectar WhatsApp"}
         </button>
-        <p className="text-white/70 text-[10px]">
-          Vía Meta Embedded Signup · Coexistencia
-        </p>
       </div>
 
       {notice && (

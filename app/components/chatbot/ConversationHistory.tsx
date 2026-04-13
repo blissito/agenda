@@ -13,6 +13,11 @@ import {
   playBurstSound,
   useParticleBurst,
 } from "~/components/common/ParticleBurst"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { Trash } from "~/components/icons/trash"
+import { Download } from "~/components/icons/download"
+import { ClientFace } from "~/components/icons/clientFace"
+import { Tooltip } from "~/components/common/Tooltip"
 interface Conversation {
   id: string
   name?: string
@@ -31,7 +36,6 @@ interface ConversationHistoryProps {
   messages: any[] // Array de mensajes para la conversación seleccionada
   isLoadingMessages: boolean
   onDelete: (conversationId: string) => Promise<void>
-  onToggleFavorite: (conversationId: string) => Promise<void>
   onSearch: (query: string) => void // Callback para actualizar el estado de búsqueda
   searchQuery: string // El término de búsqueda actual
 }
@@ -46,11 +50,54 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   messages,
   isLoadingMessages,
   onDelete,
-  onToggleFavorite,
   onSearch,
   searchQuery,
 }) => {
   const fetcher = useFetcher()
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+
+  // Reescribe nombres genéricos del proveedor (ej. "SDA User 1", "SDK User 1",
+  // "Web User 1", "Anonymous 1") como "Usuario Web #1".
+  const displayName = useCallback((conversation: any): string => {
+    const raw = (conversation?.name || "").trim()
+    const match = raw.match(
+      /^(?:SDA|SDK|Web|Anon(?:ymous)?|Visitor|Guest|User)[\s_-]*(?:User|Visitor|Guest)?[\s#_-]*(\d+)$/i,
+    )
+    if (match) return `Usuario Web #${match[1]}`
+    if (!raw) {
+      const sid = conversation?.sessionId || ""
+      return sid ? `Usuario Web #${sid.slice(-4)}` : "Usuario Web"
+    }
+    return raw
+  }, [])
+
+  const handleDownload = useCallback(() => {
+    if (!selectedConversation) return
+    const title = displayName(selectedConversation)
+    const lines = messages
+      .map((msg: any) => {
+        const text = msg.content || msg.text || ""
+        if (!text) return null
+        const role = msg.role === "user" ? "Usuario" : "Asistente"
+        const stamp = msg.createdAt
+          ? new Date(msg.createdAt).toLocaleString("es-MX")
+          : ""
+        return `[${stamp}] ${role}: ${text}`
+      })
+      .filter(Boolean)
+      .join("\n\n")
+    const blob = new Blob([`${title}\n\n${lines}`], {
+      type: "text/plain;charset=utf-8",
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${title.replace(/[^a-z0-9-_]+/gi, "_")}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, [selectedConversation, messages, displayName])
 
   // Función para manejar la búsqueda de manera eficiente
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,12 +106,11 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
   // Memoizar la lista filtrada para evitar recálculos innecesarios
   const filteredConversations = useMemo(() => {
+    const q = searchQuery.toLowerCase()
     return conversations.filter((c: any) =>
-      (c.name || c.sessionId || "")
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      `${displayName(c)} ${c.sessionId || ""}`.toLowerCase().includes(q),
     )
-  }, [conversations, searchQuery])
+  }, [conversations, searchQuery, displayName])
 
   // Manejador de click en la conversación
   const handleConversationClick = useCallback(async (id: string) => {
@@ -73,7 +119,8 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
   // Renderizado de una sola tarjeta de conversación
   const ConversationCard: React.FC<{ conversation: any }> = ({ conversation }) => {
-    const { id, name, sessionId, isFavorite } = conversation
+    const { id, sessionId, isFavorite } = conversation
+    const name = displayName(conversation)
     const { particles, burst } = useParticleBurst({ count: 10 })
     const isLoadingThis = isLoadingMessages && selectedConversation?.id === id
 
@@ -90,16 +137,14 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
           handleConversationClick(id)
         }}
       >
-        <img
-          src="/images/nik.svg"
-          alt=""
-          className="w-9 h-9 rounded-full bg-brand_blue/10 p-1.5 flex-shrink-0"
-        />
+        <div className="w-9 h-9 rounded-full overflow-hidden bg-brand_blue/10 flex-shrink-0">
+          <ClientFace className="w-full h-full" />
+        </div>
 
         <div className="flex-grow min-w-0">
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm font-satoBold text-brand_dark truncate">
-              {name || `Sesión ${sessionId}`}
+              {name}
             </p>
             {isFavorite && (
               <svg className="w-3 h-3 text-brand_blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
@@ -121,7 +166,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[320px,1fr] gap-4 min-h-[calc(100vh-220px)]">
+    <div className="grid grid-cols-1 lg:grid-cols-[320px,1fr] gap-6 flex-1 min-h-0">
       {/* Left — Conversation list */}
       <div className="flex flex-col bg-white rounded-2xl overflow-hidden">
         <div className="flex-grow overflow-y-auto p-3 space-y-2">
@@ -161,14 +206,12 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
           <>
             <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between bg-white/80 backdrop-blur-sm">
               <div className="flex items-center gap-3">
-                <img
-                  src="/images/nik.svg"
-                  alt=""
-                  className="w-9 h-9 rounded-full bg-brand_blue/10 p-1.5"
-                />
+                <div className="w-9 h-9 rounded-full overflow-hidden bg-brand_blue/10">
+                  <ClientFace className="w-full h-full" />
+                </div>
                 <div>
-                  <p className="font-satoBold text-sm text-brand_dark">
-                    {selectedConversation.name || `Sesión ${selectedConversation.sessionId}`}
+                  <p className="font-satoBold text-base text-brand_dark">
+                    {displayName(selectedConversation)}
                   </p>
                   <p className="text-[11px] text-brand_gray">
                     {messages.length} mensaje{messages.length !== 1 ? "s" : ""}
@@ -176,36 +219,29 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onToggleFavorite(selectedConversation.id)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-brand_blue/10 text-brand_blue hover:bg-brand_blue/20 transition-colors"
-                  aria-label="Favorito"
-                >
-                  <svg className="w-4 h-4" fill={selectedConversation.isFavorite ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </button>
-                <button
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100 text-orange-500 hover:bg-orange-200 transition-colors"
-                  aria-label="Descargar"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => onDelete(selectedConversation.id)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition-colors"
-                  aria-label="Eliminar"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
-                  </svg>
-                </button>
+                <Tooltip label="Descargar conversación">
+                  <button
+                    onClick={handleDownload}
+                    disabled={messages.length === 0}
+                    className="w-10 h-10 flex items-center justify-center rounded-full text-brand_gray hover:bg-gray-200 hover:text-brand_dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Descargar"
+                  >
+                    <Download className="w-8 h-8" fill="currentColor" />
+                  </button>
+                </Tooltip>
+                <Tooltip label="Eliminar conversación">
+                  <button
+                    onClick={() => setConfirmDeleteId(selectedConversation.id)}
+                    className="w-10 h-10 flex items-center justify-center rounded-full text-brand_red hover:bg-brand_red/20 transition-colors"
+                    aria-label="Eliminar"
+                  >
+                    <Trash className="w-8 h-8" fill="currentColor" />
+                  </button>
+                </Tooltip>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-5 space-y-3 max-h-[calc(100vh-320px)]">
+            <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-3">
               {isLoadingMessages ? (
                 <div className="text-center p-8 text-brand_gray">Cargando mensajes...</div>
               ) : messages.length > 0 ? (
@@ -243,6 +279,22 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={confirmDeleteId !== null}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={async () => {
+          if (!confirmDeleteId) return
+          const id = confirmDeleteId
+          setConfirmDeleteId(null)
+          await onDelete(id)
+        }}
+        title="¿Eliminar conversación?"
+        description="Se borrará el historial de mensajes de esta conversación. Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        variant="danger"
+        emoji="🗑️"
+      />
     </div>
   )
 }
