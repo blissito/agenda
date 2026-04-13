@@ -9,6 +9,19 @@
 - Es un **stdio MCP server** que proxea HTTP a `/api/mcp/*` de Denik
 - Lo consume `nanoclaw-denik` (droplet `143.198.149.230`) vía `npm install -g @denik.me/mcp@<pin>`
 
+## ¿Cuándo hay que publicar?
+
+**Siempre que se toque `src/index.ts` o `src/client.ts`.** Específicamente:
+
+- ➕ **Tool nueva** → `minor` bump (ej. 0.6.0 → 0.7.0). Los agentes NO la ven hasta que el droplet actualice su pin.
+- ✏️ **Cambio de schema/description de tool existente** → `minor` bump.
+- 🐛 **Fix interno (cliente HTTP, parsing, etc.) sin cambiar API de tools** → `patch` (0.6.0 → 0.6.1).
+- 💥 **Rename/delete de tool o cambio incompatible de inputSchema** → `major`.
+
+**NO hace falta publicar** si solo cambias el backend `/api/mcp/*` sin tocar los intents que usan las tools del paquete. Pero si agregas un intent nuevo y quieres exponerlo al agente, sí hay que registrarlo como tool → publish.
+
+> **Regla de oro**: tools son contrato estático en el paquete. Backend-only ≠ agente lo ve.
+
 ## Pasos
 
 ```bash
