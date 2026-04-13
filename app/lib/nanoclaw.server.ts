@@ -45,7 +45,7 @@ export async function sendToNanoclaw(params: {
   // (@denik.me/mcp) en nombre de esta org específica.
   const org = await db.org.findUnique({
     where: { id: params.orgId },
-    select: { apiKey: true },
+    select: { apiKey: true, name: true },
   });
   if (!org?.apiKey) {
     throw new Error(
@@ -64,6 +64,9 @@ export async function sendToNanoclaw(params: {
       sender: params.senderId,
       sender_name: params.senderName,
       content: params.content,
+      // org_name permite que nanoclaw auto-registre el grupo del webui al
+      // primer mensaje con un CLAUDE.md personalizado (Nik · {orgName}).
+      org_name: org.name,
       // Context para que Nanoclaw arranque el MCP de Denik con el scope
       // correcto. La apiKey autentica todas las tool calls al backend Denik.
       mcp: {
