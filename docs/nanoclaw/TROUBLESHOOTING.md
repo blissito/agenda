@@ -83,3 +83,15 @@ Casos conocidos con síntoma → causa → fix.
 - **Causa A**: polling frontend detenido — refrescar página.
 - **Causa B**: mensaje guardado en otro `orgId` — verificar JID en el request del curl.
 - **Causa C**: DB conectada a otra Mongo — verificar `DATABASE_URL` en Fly vs local.
+
+## 9. Deploy "tomó" pero el código nuevo no corre (dist/ vs src/)
+
+- **Síntoma**: `git pull` OK, `systemctl restart` OK, servicio `active`, POST a `/message` responde 200 — pero los `logger.info` que agregaste no aparecen, y el comportamiento nuevo no ocurre. Como si el deploy no hubiera pasado.
+- **Causa**: nanoclaw corre `node dist/index.js`. Si no recompilas TS, `dist/` sigue teniendo la versión vieja aunque `src/` esté actualizado. `./container/build.sh` **NO** recompila `dist/` — solo reconstruye la imagen docker del agent-runner. Agravante: `git pull` por SSH root deja archivos owned by `root:root`, y `npm run build` bajo user `nanoclaw` falla silencioso o escribe `dist/` con owner equivocado.
+- **Diagnóstico rápido**:
+  ```bash
+  ssh root@143.198.149.230 'ls -la /home/nanoclaw/app/dist/channels/webhook.js /home/nanoclaw/app/src/channels/webhook.ts'
+  ```
+  Si `src/` es más reciente que `dist/` → dist quedó viejo.
+  Otra verificación: `grep -c "<nombre-función-nueva>" /home/nanoclaw/app/dist/**/file.js` debe ser > 0.
+- **Fix**: seguir el procedimiento actualizado en README §"Actualizar código" — siempre `chown -R nanoclaw:nanoclaw src dist package*.json` + `sudo -u nanoclaw npm run build` antes del restart.
