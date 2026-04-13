@@ -154,15 +154,33 @@ Edita remotamente con nano y reinicia el servicio al salir.
 
 ### Actualizar código
 
+**⚠️ CRÍTICO**: el proceso principal de nanoclaw corre desde `dist/` (TypeScript compilado). `systemctl restart` **no recompila nada** — si no haces `npm run build` antes, queda corriendo el `dist/` viejo y tu cambio no existe en prod aunque el `src/` esté actualizado. Síntoma clásico: POST a `/message` devuelve 200 pero ningún log del handler aparece.
+
+Además, `git pull` vía `ssh root@...` deja archivos como `root:root` — `npm run build` falla silencioso o escribe `dist/` con owner equivocado. Siempre `chown -R nanoclaw:nanoclaw` después del pull.
+
 Solo cambios de TS (no Dockerfile):
 ```bash
-ssh root@143.198.149.230 'cd /home/nanoclaw/app && git pull && systemctl restart nanoclaw'
+ssh root@143.198.149.230 '
+  cd /home/nanoclaw/app &&
+  git pull &&
+  chown -R nanoclaw:nanoclaw /home/nanoclaw/app/src /home/nanoclaw/app/dist /home/nanoclaw/app/package*.json &&
+  sudo -u nanoclaw npm run build &&
+  systemctl restart nanoclaw'
 ```
 
-Cambios en Dockerfile / deps globales:
+Cambios en Dockerfile / deps del agent-runner (imagen docker que spawnea el agente, NO el proceso principal):
 ```bash
-ssh root@143.198.149.230 'cd /home/nanoclaw/app && git pull && ./container/build.sh && chown -R nanoclaw:nanoclaw /home/nanoclaw/app/data/sessions/ && systemctl restart nanoclaw'
+ssh root@143.198.149.230 '
+  cd /home/nanoclaw/app &&
+  git pull &&
+  chown -R nanoclaw:nanoclaw src dist package*.json &&
+  sudo -u nanoclaw npm run build &&           # compila el main process
+  ./container/build.sh &&                     # reconstruye la imagen del agent
+  chown -R nanoclaw:nanoclaw /home/nanoclaw/app/data/sessions/ &&
+  systemctl restart nanoclaw'
 ```
+
+**Verificar que el deploy tomó**: `grep -c "<símbolo-de-tu-fix>" /home/nanoclaw/app/dist/**/archivo.js` debe ser > 0.
 
 ---
 

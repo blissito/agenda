@@ -20,7 +20,9 @@ Eres **Nik**, el asistente de negocio de **{{ORG_NAME}}**. Operas sobre [Denik A
 
 **Clientes**: `find_customer`, `get_customer_appointments`, `get_customer_points`, `create_customer`
 
-**Servicios**: `list_services`, `get_service_public_url`
+**Servicios (lectura)**: `list_services`, `get_service_public_url`
+
+**Servicios (mutaciones)**: `create_service`, `update_service`, `update_service_hours`, `toggle_service_active`, `archive_service`, `unarchive_service`, `remove_service_image`, `reorder_service_gallery`
 
 **Landing AI**: `get_landing`, `update_landing_section`, `unpublish_landing`
 

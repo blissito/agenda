@@ -9,7 +9,7 @@ import { z } from "zod"
 import { denikGet, denikPost } from "./client.js"
 
 const server = new Server(
-  { name: "denik-mcp", version: "0.1.0" },
+  { name: "denik-mcp", version: "0.6.0" },
   { capabilities: { tools: {} } },
 )
 
@@ -239,6 +239,136 @@ const tools = [
       "Despublica la landing (la quita del sitio público). Úsalo solo si algo salió mal; los cambios normales preservan el estado.",
     inputSchema: { type: "object", properties: {} },
     handler: async () => denikPost("landing", { intent: "unpublish" }),
+  },
+  // ==================== Services CRUD (Phase 4) ====================
+  {
+    name: "create_service",
+    description:
+      "Crea un servicio nuevo. Solo `name` es requerido; el resto usa defaults sensatos (MXN, 30min, INPLACE, videoProvider auto, isActive false). Genera slug único automáticamente.",
+    inputSchema: {
+      type: "object",
+      required: ["name"],
+      properties: {
+        name: { type: "string" },
+        description: { type: "string" },
+        price: { type: "number", description: "En centavos o unidades según tu org" },
+        currency: { type: "string", default: "MXN" },
+        duration: { type: "number", description: "Minutos" },
+        points: { type: "number", description: "Puntos de lealtad por cita" },
+        videoProvider: { type: "string", enum: ["auto", "meet", "zoom", "none"] },
+        place: { type: "string", enum: ["INPLACE", "ONLINE"] },
+        isActive: { type: "boolean" },
+      },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "create", ...args }),
+  },
+  {
+    name: "update_service",
+    description:
+      "Actualiza campos de un servicio existente. Pasa solo los campos a cambiar. NO regenera el slug aunque cambie el nombre (para no romper URLs públicas).",
+    inputSchema: {
+      type: "object",
+      required: ["serviceId"],
+      properties: {
+        serviceId: { type: "string" },
+        name: { type: "string" },
+        description: { type: "string" },
+        price: { type: "number" },
+        currency: { type: "string" },
+        duration: { type: "number" },
+        points: { type: "number" },
+        videoProvider: { type: "string", enum: ["auto", "meet", "zoom", "none"] },
+        place: { type: "string" },
+        isActive: { type: "boolean" },
+        address: { type: "string" },
+        lat: { type: "number" },
+        lng: { type: "number" },
+        employeeName: { type: "string" },
+        allowMultiple: { type: "boolean" },
+        seats: { type: "number" },
+      },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "update", ...args }),
+  },
+  {
+    name: "update_service_hours",
+    description:
+      "Actualiza horarios (weekDays) de un servicio. Keys en INGLÉS: monday..sunday. Cada día es un arreglo de slots {start,end} en HH:MM. Opcionalmente `duration` en minutos.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceId", "weekDays"],
+      properties: {
+        serviceId: { type: "string" },
+        weekDays: {
+          type: "object",
+          description: "Ej: {monday:[{start:'09:00',end:'18:00'}], tuesday:[...]}",
+        },
+        duration: { type: "number" },
+      },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "update_hours", ...args }),
+  },
+  {
+    name: "archive_service",
+    description: "Archiva un servicio (soft delete). Deja de aparecer en listados y landing.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceId"],
+      properties: { serviceId: { type: "string" } },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "archive", serviceId: args.serviceId }),
+  },
+  {
+    name: "unarchive_service",
+    description: "Restaura un servicio archivado.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceId"],
+      properties: { serviceId: { type: "string" } },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "unarchive", serviceId: args.serviceId }),
+  },
+  {
+    name: "toggle_service_active",
+    description:
+      "Activa/desactiva un servicio. Si se pasa `isActive` lo fuerza; sin arg hace flip.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceId"],
+      properties: {
+        serviceId: { type: "string" },
+        isActive: { type: "boolean" },
+      },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "toggle_active", ...args }),
+  },
+  {
+    name: "remove_service_image",
+    description:
+      "Quita una imagen de la galería del servicio por su `key` (ej. 'services/abc123/169...-foto.jpg'). No borra el archivo físico de Tigris.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceId", "key"],
+      properties: {
+        serviceId: { type: "string" },
+        key: { type: "string" },
+      },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "gallery_remove", ...args }),
+  },
+  {
+    name: "reorder_service_gallery",
+    description:
+      "Reordena la galería. Debe contener exactamente las mismas keys que la galería actual (solo reorden, no agrega ni quita). El índice [0] es la imagen principal.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceId", "gallery"],
+      properties: {
+        serviceId: { type: "string" },
+        gallery: { type: "array", items: { type: "string" } },
+      },
+    },
+    handler: async (args: any) => denikPost("services", { intent: "gallery_reorder", ...args }),
   },
   {
     name: "get_org_stats",

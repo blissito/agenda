@@ -15,16 +15,28 @@ Log cronológico de cambios aplicados al droplet `nanoclaw-denik` (143.198.149.2
 
 ## Políticas
 
-### MCP `@denik.me/mcp` — pinned a `^0.5.0`
+### MCP `@denik.me/mcp` — pinned a `^0.6.0`
 
-Solo aceptamos **patches dentro de la línea 5.x** (0.5.1, 0.5.2, ...). Cualquier bump a 0.6+ requiere:
+Solo aceptamos **patches/minors dentro de la línea 6.x** (0.6.1, 0.7.0, ...). Cualquier bump a 1.0+ requiere:
 1. Revisar CHANGELOG del MCP
 2. Validar breaking changes contra Nik persona y agent-runner
 3. Decisión explícita antes de cambiar el Dockerfile del fork
 
-Enforcement: `container/Dockerfile` pinea `'@denik.me/mcp@^0.5.0'` en el `npm install -g`.
+Enforcement: `container/Dockerfile` pinea `'@denik.me/mcp@^0.6.0'` en el `npm install -g`.
+
+Proceso de publish: ver `packages/denik-mcp/PUBLISH.md`.
 
 ---
+
+## 2026-04-12
+
+### `@denik.me/mcp@0.6.0` publicado — Services CRUD
+
+- **Motivo**: Nik ahora puede crear/editar servicios, horarios e imágenes desde WhatsApp.
+- **Tools nuevas** (8): `create_service`, `update_service`, `update_service_hours`, `archive_service`, `unarchive_service`, `toggle_service_active`, `remove_service_image`, `reorder_service_gallery`.
+- **Backend**: `app/routes/api/mcp.services.ts` agregó `action` con intents correspondientes (commit `798de51`).
+- **Pendiente en droplet**: actualizar `container/Dockerfile` del fork `blissito/nanoclaw-denik` al pin `^0.6.0`, hacer pull + restart.
+- **Reversión**: pin a `^0.5.0` en Dockerfile → rebuild nanoclaw.
 
 ## 2026-04-12
 
