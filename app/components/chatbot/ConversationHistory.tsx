@@ -79,10 +79,10 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
     return (
       <div
-        className={`relative flex items-center p-3 mb-2 rounded-lg cursor-pointer transition-all border ${
+        className={`relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
           selectedConversation?.id === id
-            ? "bg-brand_blue/10 border-brand_blue shadow-md"
-            : "bg-white border-gray-200 hover:bg-gray-50"
+            ? "bg-brand_blue/10"
+            : "hover:bg-gray-50"
         }`}
         onClick={() => {
           burst()
@@ -90,58 +90,40 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
           handleConversationClick(id)
         }}
       >
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            onToggleFavorite(id)
-          }}
-          className="text-gray-400 hover:text-yellow-500 mr-2 transition-colors"
-          aria-label="Marcar como favorito"
-        >
-          {isFavorite ? '⭐' : '☆'}
-        </button>
+        <img
+          src="/images/nik.svg"
+          alt=""
+          className="w-9 h-9 rounded-full bg-brand_blue/10 p-1.5 flex-shrink-0"
+        />
 
         <div className="flex-grow min-w-0">
-          <p className="text-sm font-semibold text-brand_dark truncate">{name || `Sesión ${sessionId}`}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-satoBold text-brand_dark truncate">
+              {name || `Sesión ${sessionId}`}
+            </p>
+            {isFavorite && (
+              <svg className="w-3 h-3 text-brand_blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            )}
+          </div>
           <p className="text-xs text-brand_gray truncate">
-            {sessionId ? `ID: ${sessionId.substring(0, 10)}...` : "Sin título"}
+            {sessionId ? `Con quién hablaste hace 6 d...` : "Sin mensajes"}
           </p>
         </div>
 
-        <div className="flex space-x-2 ml-2 items-center">
-          {isLoadingThis && (
-            <span className="inline-block h-3 w-3 rounded-full border-2 border-brand_blue/30 border-t-brand_blue animate-spin" />
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(id)
-            }}
-            className="text-red-400 hover:text-red-600 p-1 rounded-full transition-colors"
-            aria-label="Eliminar conversación"
-          >
-            🗑️
-          </button>
-        </div>
+        {isLoadingThis && (
+          <span className="inline-block h-3 w-3 rounded-full border-2 border-brand_blue/30 border-t-brand_blue animate-spin" />
+        )}
         <ParticleLayer particles={particles} />
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[360px,1fr] gap-6 min-h-[calc(100vh-220px)]">
+    <div className="grid grid-cols-1 lg:grid-cols-[320px,1fr] gap-4 min-h-[calc(100vh-220px)]">
       {/* Left — Conversation list */}
-      <div className="flex flex-col bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-gray-200">
-          <input
-            type="text"
-            placeholder="Buscar conversaciones por nombre o ID..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-brand_blue focus:border-brand_blue shadow-sm text-sm"
-          />
-        </div>
-
+      <div className="flex flex-col bg-white rounded-2xl overflow-hidden">
         <div className="flex-grow overflow-y-auto p-3 space-y-2">
           {isLoading ? (
             <div className="text-center p-8 text-brand_gray">Cargando...</div>
@@ -168,27 +150,62 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       </div>
 
       {/* Right — Messages panel */}
-      <div className="bg-white rounded-2xl shadow-sm flex flex-col overflow-hidden">
+      <div
+        className="bg-white rounded-2xl flex flex-col overflow-hidden relative"
+        style={{
+          backgroundImage: "url('/images/denik-pattern.svg')",
+          backgroundRepeat: "repeat",
+        }}
+      >
         {selectedConversation ? (
           <>
-            <div className="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-              <div>
-                <p className="font-satoBold text-brand_dark">
-                  {selectedConversation.name || `Sesión ${selectedConversation.sessionId}`}
-                </p>
-                <p className="text-xs text-brand_gray">
-                  {messages.length} mensaje{messages.length !== 1 ? "s" : ""}
-                </p>
+            <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between bg-white/80 backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/images/nik.svg"
+                  alt=""
+                  className="w-9 h-9 rounded-full bg-brand_blue/10 p-1.5"
+                />
+                <div>
+                  <p className="font-satoBold text-sm text-brand_dark">
+                    {selectedConversation.name || `Sesión ${selectedConversation.sessionId}`}
+                  </p>
+                  <p className="text-[11px] text-brand_gray">
+                    {messages.length} mensaje{messages.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
               </div>
-              <button
-                onClick={() => onSelectConversation("")}
-                className="text-brand_gray hover:text-brand_dark text-sm lg:hidden"
-              >
-                ← Volver
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onToggleFavorite(selectedConversation.id)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-brand_blue/10 text-brand_blue hover:bg-brand_blue/20 transition-colors"
+                  aria-label="Favorito"
+                >
+                  <svg className="w-4 h-4" fill={selectedConversation.isFavorite ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </button>
+                <button
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100 text-orange-500 hover:bg-orange-200 transition-colors"
+                  aria-label="Descargar"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => onDelete(selectedConversation.id)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-red-100 text-red-500 hover:bg-red-200 transition-colors"
+                  aria-label="Eliminar"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 max-h-[calc(100vh-320px)]">
+            <div className="flex-1 overflow-y-auto p-5 space-y-3 max-h-[calc(100vh-320px)]">
               {isLoadingMessages ? (
                 <div className="text-center p-8 text-brand_gray">Cargando mensajes...</div>
               ) : messages.length > 0 ? (
@@ -199,10 +216,10 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                   return (
                     <div key={msg.id || i} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
                       <div
-                        className={`px-3 py-2 rounded-xl text-sm max-w-[75%] ${
+                        className={`px-4 py-2.5 rounded-2xl text-sm max-w-[75%] shadow-sm ${
                           isUser
-                            ? "bg-brand_blue text-white rounded-br-sm"
-                            : "bg-white border border-gray-200 text-gray-700 rounded-bl-sm"
+                            ? "bg-brand_dark text-white rounded-br-sm"
+                            : "bg-white border border-gray-100 text-brand_dark rounded-bl-sm"
                         }`}
                       >
                         <p className="whitespace-pre-wrap break-words">{text}</p>

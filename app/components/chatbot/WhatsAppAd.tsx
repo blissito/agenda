@@ -61,7 +61,7 @@ export const WhatsAppAd = () => {
   }
 
   return (
-    <div className="relative w-full max-w-[420px] mx-auto overflow-hidden rounded-3xl bg-gradient-to-br from-[#25D366] via-[#1faa54] to-[#128C7E] p-6 shadow-xl">
+    <div className="relative w-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#25D366] via-[#1faa54] to-[#128C7E] p-6 shadow-xl">
       {/* Decorative blobs */}
       <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-[#DCF8C6]/30 blur-xl" />
@@ -88,24 +88,25 @@ export const WhatsAppAd = () => {
         </div>
       </div>
 
-      <button
-        onClick={handleConnect}
-        disabled={loading}
-        className="relative mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-white text-[#128C7E] font-satoBold py-3 text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70"
-      >
-        <FaWhatsapp className="text-lg" />
-        {loading ? "Cargando…" : "Conectar con WhatsApp"}
-      </button>
+      <div className="relative mt-3 flex items-center justify-between gap-4">
+        <button
+          onClick={handleConnect}
+          disabled={loading}
+          className="shrink-0 flex items-center justify-center gap-2 rounded-full bg-white text-[#128C7E] font-satoBold px-5 py-3 text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70"
+        >
+          <FaWhatsapp className="text-lg" />
+          {loading ? "Cargando…" : "Conectar con WhatsApp"}
+        </button>
+        <p className="text-white/70 text-[10px]">
+          Vía Meta Embedded Signup · Coexistencia
+        </p>
+      </div>
 
       {notice && (
         <div className="relative mt-3 rounded-xl bg-white/95 text-[#128C7E] text-center text-[13px] font-satoMedium px-3 py-2">
           {notice}
         </div>
       )}
-
-      <p className="relative mt-3 text-center text-white/70 text-[10px]">
-        Vía Meta Embedded Signup · Coexistencia
-      </p>
 
       <style>{`
         @keyframes nikWobble {

@@ -2,6 +2,14 @@ import { useEffect, useState } from "react"
 import { useFetcher } from "react-router"
 import { ChatbotConfig } from "~/components/chatbot/ChatbotConfig"
 import { ConversationHistory } from "~/components/chatbot/ConversationHistory"
+import { EditSquare } from "~/components/icons/EditSquare"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrump"
 import type { Route } from "./+types/dash.chatbot"
 
 export { loader, action } from "./dash.chatbot.server"
@@ -86,35 +94,72 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
     )
   }
 
-  const tabs: { id: Tab; label: string }[] = [
-    { id: "conversations", label: "Conversaciones" },
-    { id: "config", label: "Configuración" },
-  ]
-
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-xl font-satoBold text-brand_dark">Chatbot</h1>
-        <p className="text-sm text-brand_gray mt-1">
-          Gestiona las conversaciones y configura tu asistente.
-        </p>
+    <div className="h-full flex flex-col">
+      <div className="mb-4">
+        {activeTab === "config" ? (
+          <Breadcrumb className="text-brand_gray">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setActiveTab("conversations")
+                  }}
+                  className="cursor-pointer"
+                >
+                  Ghosty: Tu chatbot IA
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()}>
+                  Configuración de Chatbot
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        ) : (
+          <h1 className="text-3xl font-satoBold text-brand_dark">
+            Ghosty: Tu chatbot IA
+          </h1>
+        )}
       </div>
 
-      <div className="flex gap-1 mb-6 bg-gray-100 rounded-xl p-1 w-fit">
-        {tabs.map((tab) => (
+      {activeTab === "conversations" && (
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 relative">
+            <svg
+              className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z"
+              />
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar mensaje"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-12 pr-5 py-3 bg-white rounded-full border-0 focus:outline-none focus:ring-0 text-sm"
+            />
+          </div>
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`px-5 py-2 rounded-lg text-sm font-satoMedium transition-all ${
-              activeTab === tab.id
-                ? "bg-white text-brand_dark shadow-sm"
-                : "text-gray-500 hover:text-brand_dark"
-            }`}
+            onClick={() => setActiveTab("config")}
+            className="flex items-center justify-center w-11 h-11 bg-white rounded-full text-gray-600 hover:text-brand_blue transition-colors"
+            aria-label="Configurar chatbot"
           >
-            {tab.label}
+            <EditSquare className="w-5 h-5" />
           </button>
-        ))}
-      </div>
+        </div>
+      )}
 
       {activeTab === "conversations" && (
         <ConversationHistory

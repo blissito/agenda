@@ -205,14 +205,14 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
           </div>
 
           {/* Powered by */}
-          <div className="text-center py-1 bg-gray-50 border-t border-gray-100">
+          <div className="text-center py-1 bg-white">
             <span className="text-[10px] text-gray-400">
               Powered by Formmy.app
             </span>
           </div>
 
           {/* Input */}
-          <div className="px-3 py-2 border-t border-gray-200 bg-white flex items-center gap-2">
+          <div className="px-3 py-2 bg-white flex items-center gap-2">
             <input
               ref={inputRef}
               type="text"
@@ -321,7 +321,7 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-gray-50">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-white">
         {config.greeting && messages.length === 0 && (
           <div className="flex gap-2">
             <div
@@ -363,12 +363,11 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
                 </div>
               )}
               <div
-                className={`px-3 py-2 text-sm max-w-[260px] ${
+                className={`px-3 py-2 text-sm max-w-[260px] shadow-sm ${
                   isUser
-                    ? "text-white rounded-xl rounded-br-sm"
-                    : "bg-white border border-gray-200 text-gray-700 rounded-xl rounded-bl-sm"
+                    ? "bg-brand_dark text-white rounded-2xl rounded-br-sm"
+                    : "bg-white border border-gray-100 text-brand_dark rounded-2xl rounded-bl-sm"
                 }`}
-                style={isUser ? { backgroundColor: config.primaryColor || "#5158F6" } : undefined}
               >
                 <p className="whitespace-pre-wrap break-words">{text}</p>
               </div>
@@ -393,12 +392,12 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
       </div>
 
       {/* Powered by */}
-      <div className="text-center py-1 bg-gray-50 border-t border-gray-100">
+      <div className="text-center py-1 bg-white">
         <span className="text-[10px] text-gray-400">Powered by Formmy.app</span>
       </div>
 
       {/* Input */}
-      <div className="px-3 py-2 border-t border-gray-200 bg-white flex items-center gap-2">
+      <div className="px-3 py-2 bg-white flex items-center gap-2">
         <input
           ref={inputRef}
           type="text"
@@ -443,7 +442,7 @@ function ChatWidgetInlineStatic({ config }: { config: ChatConfig }) {
         </div>
         <p className="font-semibold text-sm truncate">{config.name || "Asistente"}</p>
       </div>
-      <div className="flex-1 px-4 py-3 bg-gray-50">
+      <div className="flex-1 px-4 py-3 bg-white">
         <div className="flex gap-2">
           <div
             className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
@@ -462,10 +461,10 @@ function ChatWidgetInlineStatic({ config }: { config: ChatConfig }) {
           </div>
         </div>
       </div>
-      <div className="text-center py-1 bg-gray-50 border-t border-gray-100">
+      <div className="text-center py-1 bg-white">
         <span className="text-[10px] text-gray-400">Powered by Formmy.app</span>
       </div>
-      <div className="px-3 py-2 border-t border-gray-200 bg-white flex items-center gap-2">
+      <div className="px-3 py-2 bg-white flex items-center gap-2">
         <div className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl text-gray-400">
           Escribe un mensaje...
         </div>

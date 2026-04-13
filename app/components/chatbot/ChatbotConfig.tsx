@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import { BasicInput } from "~/components/forms/BasicInput"
 import { ChatWidgetInline, type ChatConfig } from "./ChatWidget"
 import { WhatsAppAd } from "./WhatsAppAd"
 
@@ -27,9 +28,25 @@ export function ChatbotConfig({
   const [greeting, setGreeting] = useState(
     initialConfig?.greeting || "¡Hola! ¿En qué puedo ayudarte?",
   )
+  const [farewell, setFarewell] = useState(
+    initialConfig?.farewell ||
+      "Si necesitas ayuda con algo más, escríbeme, estoy aquí para ayudarte.",
+  )
+  const [widgetStyle, setWidgetStyle] = useState<ChatConfig["widgetStyle"]>(
+    initialConfig?.widgetStyle || "bubble",
+  )
+  const [showStylePicker, setShowStylePicker] = useState(false)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState(avatarUrl)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const WIDGET_STYLES: { value: ChatConfig["widgetStyle"]; label: string }[] = [
+    { value: "bubble", label: "Bubble clásico" },
+    { value: "sidebar", label: "Sidebar" },
+    { value: "bar", label: "Barra inferior" },
+  ]
+  const currentStyleLabel =
+    WIDGET_STYLES.find((s) => s.value === widgetStyle)?.label || "Bubble clásico"
 
   const handleAvatarDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -71,8 +88,8 @@ export function ChatbotConfig({
       avatarUrl: finalAvatarUrl,
       primaryColor,
       greeting,
-      farewell: initialConfig?.farewell || "",
-      widgetStyle: initialConfig?.widgetStyle || "bubble",
+      farewell,
+      widgetStyle,
     })
   }
 
@@ -82,27 +99,79 @@ export function ChatbotConfig({
     avatarUrl: previewUrl || avatarUrl,
     primaryColor,
     greeting,
-    farewell: "",
-    widgetStyle: "bubble",
+    farewell,
+    widgetStyle,
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8 min-h-[calc(100vh-220px)]">
+    <div className="bg-white rounded-2xl p-6 flex-1 grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8">
       {/* Left column — Form */}
-      <div className="flex flex-col bg-white rounded-2xl p-6 shadow-sm">
+      <div className="flex flex-col">
         <h2 className="text-2xl font-satoBold text-brand_dark mb-5">
           Estilo de tu chat
         </h2>
 
+        {/* Widget style selector — deshabilitado hasta que el SDK de Formmy soporte variantes (sidebar/bar). Hoy widgetStyle se guarda pero no afecta el render. */}
+        {/*
+        <div className="mb-5 relative">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl">
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-4 h-4 rounded-full border-2 border-brand_blue">
+                <span className="w-2 h-2 rounded-full bg-brand_blue" />
+              </span>
+              <div>
+                <p className="text-xs text-brand_gray">Estilo del Widget</p>
+                <p className="text-sm font-satoMedium text-brand_dark">
+                  {currentStyleLabel}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowStylePicker((v) => !v)}
+              className="text-sm text-brand_blue font-satoMedium hover:underline"
+            >
+              Cambiar
+            </button>
+          </div>
+          {showStylePicker && (
+            <div className="absolute z-10 mt-2 w-full bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden">
+              {WIDGET_STYLES.map((s) => (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => {
+                    setWidgetStyle(s.value)
+                    setShowStylePicker(false)
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                    widgetStyle === s.value ? "bg-brand_blue/5" : ""
+                  }`}
+                >
+                  <span className="flex items-center justify-center w-4 h-4 rounded-full border-2 border-brand_blue">
+                    {widgetStyle === s.value && (
+                      <span className="w-2 h-2 rounded-full bg-brand_blue" />
+                    )}
+                  </span>
+                  <span className="text-sm font-satoMedium text-brand_dark">
+                    {s.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        */}
+
         {/* Avatar + Name + Color — side by side */}
-        <div className="flex gap-6 mb-5">
+        <div className="flex gap-6 mb-5 items-stretch">
           {/* Avatar dropzone */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 self-stretch">
             <div
               onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleAvatarDrop}
-              className="w-[140px] h-[140px] border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center cursor-pointer hover:border-brand_blue/40 transition-colors overflow-hidden"
+              className="w-[140px] h-full min-h-[140px] border border-dashed border-gray-200 bg-[#81838E]/5 rounded-xl flex items-center justify-center cursor-pointer hover:border-brand_blue/40 transition-colors overflow-hidden"
             >
               {previewUrl || avatarUrl ? (
                 <img
@@ -127,21 +196,16 @@ export function ChatbotConfig({
 
           {/* Name + Color */}
           <div className="flex-1 space-y-4">
-            <div>
-              <label className="block text-sm font-satoMedium text-brand_dark mb-2">
-                Nombre
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2.5 bg-white rounded-xl text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand_blue/20"
-                placeholder="Nombre de tu chatbot"
-              />
-            </div>
+            <BasicInput
+              name="name"
+              label="Nombre"
+              placeholder="Nombre de tu chatbot"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
 
             <div>
-              <label className="block text-sm font-satoMedium text-brand_dark mb-2">
+              <label className="block font-satoMedium text-brand_dark mb-1">
                 Color
               </label>
               <div className="flex items-center gap-3">
@@ -149,13 +213,13 @@ export function ChatbotConfig({
                   type="color"
                   value={primaryColor}
                   onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-9 h-9 rounded-full border border-gray-200 cursor-pointer p-0 overflow-hidden"
+                  className="w-12 h-12 rounded-2xl border border-gray-200 cursor-pointer p-0 overflow-hidden [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-2xl [&::-moz-color-swatch]:border-none [&::-moz-color-swatch]:rounded-2xl"
                 />
                 <input
                   type="text"
                   value={primaryColor}
                   onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-32 px-3 py-2 bg-white rounded-xl text-sm font-mono border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand_blue/20"
+                  className="w-32 h-12 px-4 bg-white rounded-2xl text-sm font-mono border border-gray-200 text-brand_gray focus:border-brand_blue focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
@@ -164,15 +228,25 @@ export function ChatbotConfig({
 
         {/* Greeting */}
         <div className="mb-5">
-          <label className="block text-sm font-satoMedium text-brand_dark mb-2">
-            Saludo inicial
-          </label>
-          <textarea
-            value={greeting}
-            onChange={(e) => setGreeting(e.target.value)}
-            rows={3}
-            className="w-full px-4 py-2.5 bg-white rounded-xl text-sm border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand_blue/20 resize-none"
+          <BasicInput
+            as="textarea"
+            name="greeting"
+            label="Saludo inicial"
             placeholder="Mensaje de bienvenida..."
+            value={greeting}
+            onChange={(e) => setGreeting(e.target.value as any)}
+          />
+        </div>
+
+        {/* Farewell */}
+        <div className="mb-5">
+          <BasicInput
+            as="textarea"
+            name="farewell"
+            label="Despedida"
+            placeholder="Mensaje de despedida..."
+            value={farewell}
+            onChange={(e) => setFarewell(e.target.value as any)}
           />
         </div>
 
@@ -195,10 +269,10 @@ export function ChatbotConfig({
 
       {/* Right column — Live preview */}
       <div
-        className="bg-[#f0f2f8] rounded-2xl flex items-center justify-center p-3"
+        className="bg-[#F0F5FC] rounded-2xl flex items-center justify-center p-3"
         style={{
           backgroundImage:
-            "radial-gradient(circle, #c8ccd8 1.5px, transparent 1.5px), radial-gradient(circle, transparent 3px, #c8ccd8 3px, #c8ccd8 4px, transparent 4px)",
+            "radial-gradient(circle, transparent 3px, #c8ccd8 3px, #c8ccd8 4px, transparent 4px)",
           backgroundSize: "40px 40px",
         }}
       >
