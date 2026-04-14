@@ -2,7 +2,6 @@ import type { Customer, Event, Service } from "@prisma/client"
 import { AnimatePresence, motion } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { FaRegClock } from "react-icons/fa6"
 import { useFetcher } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
@@ -62,6 +61,31 @@ function formatEventTime(start: Date, durationMin: number) {
     return `${h}:${m}`
   }
   return `${fmt(d)} a ${fmt(end)} hrs`
+}
+
+// ── Date pill (calendar leaf) ──────────────────────────────────
+
+const DatePill = ({ start, isPast }: { start: Date; isPast?: boolean }) => {
+  const d = new Date(start)
+  const monthShort = d
+    .toLocaleDateString("es-MX", { month: "short" })
+    .replace(".", "")
+    .toUpperCase()
+  const day = d.getDate()
+  return (
+    <div
+      className={`inline-flex flex-col items-center justify-center w-[48px] rounded-lg py-1.5 ${
+        isPast
+          ? "bg-brand_stroke text-brand_dark"
+          : "bg-brand_blue/10 text-brand_dark"
+      }`}
+    >
+      <span className="text-[10px] font-satoMedium leading-tight">
+        {monthShort}
+      </span>
+      <span className="text-lg font-satoBold leading-tight">{day}</span>
+    </div>
+  )
 }
 
 // ── Avatar helpers ──────────────────────────────────────────────
@@ -314,7 +338,7 @@ const CitaRow = ({
   return (
     <div className={`${grid} items-center px-6 py-3 hover:bg-slate-50 transition-colors`}>
       <div className="flex items-center gap-2">
-        <span className="text-brand_gray"><FaRegClock /></span>
+        <DatePill start={event.start} isPast={isPast} />
         <div className="flex flex-col leading-tight">
           <span className="text-[12px] font-satoMedium text-brand_gray">{formatEventDate(event.start)}</span>
           <span className="text-[10px] text-brand_iron">{formatEventTime(event.start, Number(event.duration))}</span>
@@ -386,8 +410,8 @@ const CitaCardMobile = ({
     <div>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-brand_gray shrink-0"><FaRegClock size={14} /></span>
+          <div className="flex items-center gap-2 mb-2">
+            <DatePill start={event.start} isPast={isPast} />
             <span className="text-[12px] text-brand_gray">{formatEventDate(event.start)}</span>
           </div>
           {!hideClient ? (

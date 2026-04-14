@@ -138,7 +138,7 @@ export default function Clients() {
               ["Puntos", "col-span-2 text-center"],
               ["Citas", "col-span-1 text-center"],
               ["Próxima cita", "col-span-2 text-center"],
-              ["Acciones", "col-start-11 col-span-1 text-right"],
+              ["Acciones", "col-start-12 col-span-1 text-center"],
             ]}
           />
 
@@ -228,7 +228,7 @@ export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
         return (
           <h3
             className={twMerge(
-              "capitalize whitespace-nowrap",
+              "whitespace-nowrap",
               classes,
               responsiveHide,
             )}

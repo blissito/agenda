@@ -187,6 +187,78 @@ export const refreshMercadoPagoToken = async (
   return data.access_token
 }
 
+// ── Payments search ────────────────────────────────────────────
+// Doc: https://www.mercadopago.com.mx/developers/es/reference/payments/_payments_search/get
+
+export type MpPayment = {
+  id: number
+  status: string
+  status_detail?: string | null
+  transaction_amount: number
+  currency_id: string
+  date_approved: string | null
+  date_created: string
+  money_release_date: string | null
+  payment_method_id?: string
+  payment_type_id?: string
+  description?: string | null
+  external_reference?: string | null
+  transaction_details?: {
+    net_received_amount?: number
+    total_paid_amount?: number
+  }
+  fee_details?: Array<{
+    amount: number
+    fee_payer: string
+    type: string
+  }>
+}
+
+export const searchMpPayments = async ({
+  accessToken,
+  beginDate,
+  endDate,
+  limit = 50,
+  offset = 0,
+}: {
+  accessToken: string
+  beginDate?: Date
+  endDate?: Date
+  limit?: number
+  offset?: number
+}): Promise<{
+  results: MpPayment[]
+  paging: { total: number; limit: number; offset: number }
+}> => {
+  const params = new URLSearchParams({
+    sort: "date_created",
+    criteria: "desc",
+    limit: String(limit),
+    offset: String(offset),
+  })
+  if (beginDate) params.set("begin_date", beginDate.toISOString())
+  if (endDate) params.set("end_date", endDate.toISOString())
+  // status approved → cobros efectivos
+  params.set("status", "approved")
+  params.set("range", "date_created")
+
+  const res = await fetch(
+    `https://api.mercadopago.com/v1/payments/search?${params.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    },
+  )
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "")
+    throw new Error(`MP payments/search ${res.status}: ${text}`)
+  }
+  return res.json()
+}
+
 // Obtener token válido (refresh si es necesario)
 export const getValidAccessToken = async (
   user: {

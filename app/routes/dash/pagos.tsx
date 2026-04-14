@@ -1,9 +1,16 @@
+import { useEffect, useMemo, useState } from "react"
 import { redirect, useFetcher, useSearchParams } from "react-router"
 import invariant from "tiny-invariant"
 import { twMerge } from "tailwind-merge"
-import { getMPAuthUrl } from "~/.server/mercadopago"
+import {
+  getMPAuthUrl,
+  getValidAccessToken,
+  searchMpPayments,
+  type MpPayment,
+} from "~/.server/mercadopago"
 import { createAccountLink, getOrCreateStripeAccount } from "~/.server/stripe"
 import { getUserAndOrgOrRedirect, getUserOrRedirect } from "~/.server/userGetters"
+import { Pagination } from "~/components/common/Pagination"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Spinner } from "~/components/common/Spinner"
 import { SecondaryButton } from "~/components/common/secondaryButton"
@@ -59,6 +66,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const stripeEnabled =
     !!process.env.STRIPE_SECRET_TEST && !!process.env.STRIPE_WEBHOOK_SECRET
 
+  const url = new URL(request.url)
+  const tab = url.searchParams.get("tab") === "deposits" ? "deposits" : "sales"
+
   // Si no hay org (cliente sin negocio), responder con shape mínima
   if (!org) {
     return {
@@ -68,6 +78,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       stripeEnabled,
       stats: null,
       events: [] as CitaEvent[],
+      deposits: null as DepositsData | null,
     }
   }
 
@@ -92,12 +103,26 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     onlineRevenue: 0,
     sucursalRevenue: 0,
     paidCount: 0,
+    pendingRevenue: 0,
+    pendingCount: 0,
     sucursalBreakdown: { cash: 0, transfer: 0, card: 0 },
   }
 
   for (const e of events) {
-    if (!e.paid || !e.service) continue
+    if (!e.service) continue
     const price = Number(e.service.price)
+
+    // Citas futuras sin pagar y no canceladas → por cobrar
+    if (
+      !e.paid &&
+      e.start >= now &&
+      e.status !== "CANCELLED"
+    ) {
+      totals.pendingRevenue += price
+      totals.pendingCount += 1
+    }
+
+    if (!e.paid) continue
     totals.paidCount += 1
     if (e.createdAt >= startOfMonth) totals.monthRevenue += price
 
@@ -112,6 +137,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }
   }
 
+  // Solo trae depósitos cuando la pestaña es "deposits" y MP está conectado.
+  let deposits: DepositsData | null = null
+  if (tab === "deposits" && user.mercadopago?.access_token) {
+    deposits = await loadDeposits(user).catch((err) => {
+      console.error("[pagos] mp deposits failed:", err)
+      return { error: (err as Error).message } as DepositsData
+    })
+  }
+
   return {
     mpConnected: !!user.mercadopago?.access_token,
     mpUserId: user.mercadopago?.user_id,
@@ -119,6 +153,117 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     stripeEnabled,
     stats: totals,
     events,
+    deposits,
+  }
+}
+
+// ── Deposits (MercadoPago) ─────────────────────────────────────
+
+type DepositGroup = {
+  date: string // YYYY-MM-DD
+  count: number
+  gross: number
+  net: number
+  fees: number
+}
+
+type DepositsData =
+  | { error: string }
+  | {
+      currency: string
+      releasedTotal: number
+      pendingTotal: number
+      feesTotal: number
+      payouts: number
+      nextRelease: { date: string; amount: number } | null
+      groupsPending: DepositGroup[]
+      groupsReleased: DepositGroup[]
+      payments: MpPayment[]
+    }
+
+const loadDeposits = async (user: {
+  id: string
+  mercadopago?: {
+    access_token: string
+    refresh_token: string
+    expires_at: Date
+  } | null
+}): Promise<DepositsData> => {
+  const accessToken = await getValidAccessToken(user)
+  if (!accessToken) return { error: "no_token" }
+
+  const now = new Date()
+  const beginDate = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+  const { results } = await searchMpPayments({
+    accessToken,
+    beginDate,
+    endDate: now,
+    limit: 100,
+  })
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const groupMap: Record<string, DepositGroup> = {}
+  let releasedTotal = 0
+  let pendingTotal = 0
+  let feesTotal = 0
+  let nextRelease: { date: string; amount: number } | null = null
+
+  for (const p of results) {
+    const net =
+      p.transaction_details?.net_received_amount ?? p.transaction_amount
+    const fee = (p.fee_details ?? []).reduce((s, f) => s + f.amount, 0)
+    feesTotal += fee
+
+    if (!p.money_release_date) continue
+    const release = new Date(p.money_release_date)
+    const key = release.toISOString().slice(0, 10)
+    const isReleased = release <= today
+
+    if (isReleased) releasedTotal += net
+    else {
+      pendingTotal += net
+      if (!nextRelease || release < new Date(nextRelease.date)) {
+        nextRelease = { date: p.money_release_date, amount: net }
+      }
+    }
+
+    const g =
+      groupMap[key] ??
+      (groupMap[key] = { date: key, count: 0, gross: 0, net: 0, fees: 0 })
+    g.count += 1
+    g.gross += p.transaction_amount
+    g.net += net
+    g.fees += fee
+  }
+
+  const all = Object.values(groupMap).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  )
+  const groupsPending = all
+    .filter((g) => new Date(g.date) > today)
+    .sort((a, b) => a.date.localeCompare(b.date))
+  const groupsReleased = all
+    .filter((g) => new Date(g.date) <= today)
+    .sort((a, b) => b.date.localeCompare(a.date))
+
+  // Si hay un próximo release, redondea al monto del grupo
+  if (nextRelease) {
+    const g = groupMap[nextRelease.date.slice(0, 10)]
+    if (g) nextRelease = { date: g.date, amount: g.net }
+  }
+
+  return {
+    currency: results[0]?.currency_id ?? "MXN",
+    releasedTotal,
+    pendingTotal,
+    feesTotal,
+    payouts: results.length,
+    nextRelease,
+    groupsPending,
+    groupsReleased,
+    payments: results,
   }
 }
 
@@ -130,6 +275,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
     stripeEnabled,
     stats,
     events,
+    deposits,
   } = loaderData
   const [searchParams, setSearchParams] = useSearchParams()
   const fetcher = useFetcher()
@@ -206,43 +352,16 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
         <SalesView stats={stats} events={events ?? []} />
       ) : null}
 
-      {showEmptyState ? (
-        <section className="flex min-h-[560px] flex-col items-center justify-center px-4 py-10 text-center md:min-h-[640px]">
-          <img
-            src="/images/emptyState/payments.webp"
-            alt=""
-            className="mb-8 w-full max-w-[240px] md:max-w-[240px]"
-          />
+      {!showEmptyState && activeTab === "deposits" && mpConnected ? (
+        <DepositsView deposits={deposits} mpConnected={mpConnected} />
+      ) : null}
 
-          <div className="max-w-[620px]">
-            <h2 className="text-[24px] font-satoBold">
-              Conecta tu cuenta MELI para empezar a recibir pagos
-            </h2>
-
-            <p className="mt-3 text-[18px] font-satoMedium text-brand_gray">
-              Denik colabora con Mercado Libre para ofrecerte pagos seguros
-            </p>
-          </div>
-
-          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
-            <SecondaryButton type="button" className="min-w-[160px]">
-              Configurar después
-            </SecondaryButton>
-
-            <PrimaryButton
-              type="button"
-              onClick={connectMercadoPago}
-              disabled={isLoading}
-              className="min-w-[160px]"
-            >
-              <span className="flex items-center justify-center gap-2">
-                <span>Empezar</span>
-                <ArrowRight />
-                {isLoading ? <Spinner /> : null}
-              </span>
-            </PrimaryButton>
-          </div>
-        </section>
+      {(showEmptyState || (activeTab === "deposits" && !mpConnected)) ? (
+        <MercadoPagoEmptyState
+          onConnect={connectMercadoPago}
+          isLoading={isLoading}
+          showSecondary={activeTab !== "deposits"}
+        />
       ) : null}
 
       {/*
@@ -328,6 +447,8 @@ type SalesStats = {
   onlineRevenue: number
   sucursalRevenue: number
   paidCount: number
+  pendingRevenue: number
+  pendingCount: number
   sucursalBreakdown: { cash: number; transfer: number; card: number }
 }
 
@@ -346,6 +467,8 @@ const SalesView = ({
     onlineRevenue: 0,
     sucursalRevenue: 0,
     paidCount: 0,
+    pendingRevenue: 0,
+    pendingCount: 0,
     sucursalBreakdown: { cash: 0, transfer: 0, card: 0 },
   }
 
@@ -370,11 +493,11 @@ const SalesView = ({
           title="Ingresos en sucursal"
           value={formatCurrency(safeStats.sucursalRevenue)}
           subtitle="Efectivo, transferencia y tarjeta"
-          className="bg-[#FFAB61]"
-          icon="/images/profile.svg"
+          className="bg-brand_lime"
+          icon="/images/sucursal.svg"
         />
         <SalesCard
-          title="Tickets pagados"
+          title="Pagos recibidos"
           value={String(safeStats.paidCount)}
           subtitle="Total histórico"
           className="bg-[#EEC446]"
@@ -382,7 +505,7 @@ const SalesView = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <SucursalBreakdown
           label="Efectivo"
           value={formatCurrency(safeStats.sucursalBreakdown.cash)}
@@ -395,19 +518,315 @@ const SalesView = ({
           label="Tarjeta (sucursal)"
           value={formatCurrency(safeStats.sucursalBreakdown.card)}
         />
+        <SucursalBreakdown
+          label="Por cobrar"
+          value={formatCurrency(safeStats.pendingRevenue)}
+          hint={`${safeStats.pendingCount} cita${safeStats.pendingCount === 1 ? "" : "s"} pendiente${safeStats.pendingCount === 1 ? "" : "s"}`}
+        />
       </div>
 
-      <div>
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-lg font-satoBold text-brand_dark">Citas y cobros</h3>
-          <span className="text-xs text-brand_gray">
-            {events.length} cita{events.length === 1 ? "" : "s"}
-          </span>
-        </div>
-        <CitasTable events={events} />
-      </div>
+      <DailyClosingTable events={events} />
     </section>
   )
+}
+
+// ── Cierre de caja diario ──────────────────────────────────────
+
+type DailyTotals = {
+  date: string // YYYY-MM-DD
+  count: number
+  mp: number
+  cash: number
+  transfer: number
+  card: number
+  total: number
+}
+
+// Select homologado: h-12 (48px), rounded-lg, chevron custom
+const SELECT_CLASS =
+  "appearance-none cursor-pointer h-12 rounded-full border border-brand_stroke bg-white pl-4 pr-10 text-sm text-brand_gray outline-none focus:border-brand_blue bg-no-repeat hover:bg-brand_blue/5 transition-colors"
+
+const SELECT_STYLE: React.CSSProperties = {
+  backgroundImage:
+    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'><path d='M1 1L5 5L9 1' stroke='%238A90A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
+  backgroundPosition: "right 12px center",
+  backgroundSize: "10px 6px",
+}
+
+const MONTH_NAMES_LONG = [
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+]
+
+const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
+  const now = new Date()
+  const [year, setYear] = useState(now.getFullYear())
+  const [month, setMonth] = useState(now.getMonth()) // 0-11
+
+  // Años disponibles = años con eventos pagados (mínimo el actual)
+  const yearsAvailable = useMemo(() => {
+    const set = new Set<number>([now.getFullYear()])
+    for (const e of events) {
+      if (e.paid && e.start) set.add(new Date(e.start).getFullYear())
+    }
+    return Array.from(set).sort((a, b) => b - a)
+  }, [events, now])
+
+  const days = useMemo<DailyTotals[]>(() => {
+    // 1. Inicializa todos los días del mes con ceros
+    const map = new Map<string, DailyTotals>()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+    for (let day = 1; day <= daysInMonth; day++) {
+      const d = new Date(year, month, day)
+      const key = d.toISOString().slice(0, 10)
+      map.set(key, {
+        date: key,
+        count: 0,
+        mp: 0,
+        cash: 0,
+        transfer: 0,
+        card: 0,
+        total: 0,
+      })
+    }
+    // 2. Suma los eventos pagados que caen en el mes
+    for (const e of events) {
+      if (!e.paid || !e.service) continue
+      const d = new Date(e.start)
+      if (d.getFullYear() !== year || d.getMonth() !== month) continue
+      const key = d.toISOString().slice(0, 10)
+      const row = map.get(key)
+      if (!row) continue
+      const price = Number(e.service.price)
+      row.count += 1
+      row.total += price
+      const method = (e.payment_method ?? "").toLowerCase()
+      if (
+        method === "mercadopago" ||
+        method === "stripe" ||
+        e.mp_payment_id ||
+        e.stripe_payment_intent_id
+      ) {
+        row.mp += price
+      } else if (method === "cash") row.cash += price
+      else if (method === "transfer") row.transfer += price
+      else if (method === "card") row.card += price
+    }
+    return Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date))
+  }, [events, year, month])
+
+  const totals = useMemo(
+    () =>
+      days.reduce(
+        (acc, d) => ({
+          count: acc.count + d.count,
+          mp: acc.mp + d.mp,
+          cash: acc.cash + d.cash,
+          transfer: acc.transfer + d.transfer,
+          card: acc.card + d.card,
+          total: acc.total + d.total,
+        }),
+        { count: 0, mp: 0, cash: 0, transfer: 0, card: 0, total: 0 },
+      ),
+    [days],
+  )
+
+  return (
+    <div>
+      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="text-lg font-satoBold text-brand_dark">Cierre de caja diario</h3>
+        <div className="flex items-center gap-2">
+          <select
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+            className={SELECT_CLASS}
+            style={SELECT_STYLE}
+          >
+            {MONTH_NAMES_LONG.map((name, i) => (
+              <option key={name} value={i}>
+                {name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className={SELECT_CLASS}
+            style={SELECT_STYLE}
+          >
+            {yearsAvailable.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Desktop */}
+      <div className="hidden lg:block w-full overflow-x-auto rounded-2xl">
+        <div className="min-w-[820px]">
+          <div className="grid gap-x-4 grid-cols-[160px_80px_1fr_1fr_1fr_1fr_140px] rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray uppercase tracking-wide">
+            <div>Día</div>
+            <div className="text-right">Citas</div>
+            <div className="text-right">MP</div>
+            <div className="text-right">Efectivo</div>
+            <div className="text-right">Transfer</div>
+            <div className="text-right">Tarjeta</div>
+            <div className="text-right">Total</div>
+          </div>
+          <div className="bg-white divide-y divide-brand_stroke">
+            {totals.count > 0 ? (
+              <div className="grid gap-x-4 grid-cols-[160px_80px_1fr_1fr_1fr_1fr_140px] items-center px-6 py-3 bg-brand_blue/5 border-b-2 border-brand_blue/20">
+                <div className="text-[13px] text-brand_dark font-satoBold uppercase tracking-wide">
+                  Total del mes
+                </div>
+                <div className="text-[13px] text-brand_dark text-right tabular-nums font-satoBold">
+                  {totals.count}
+                </div>
+                <div className="text-[13px] text-brand_dark text-right tabular-nums font-satoBold">
+                  {formatCurrency(totals.mp)}
+                </div>
+                <div className="text-[13px] text-brand_dark text-right tabular-nums font-satoBold">
+                  {formatCurrency(totals.cash)}
+                </div>
+                <div className="text-[13px] text-brand_dark text-right tabular-nums font-satoBold">
+                  {formatCurrency(totals.transfer)}
+                </div>
+                <div className="text-[13px] text-brand_dark text-right tabular-nums font-satoBold">
+                  {formatCurrency(totals.card)}
+                </div>
+                <div className="text-[14px] text-brand_dark text-right tabular-nums font-satoBold">
+                  {formatCurrency(totals.total)}
+                </div>
+              </div>
+            ) : null}
+            {totals.count === 0 ? (
+              <DailyEmptyState month={month} year={year} />
+            ) : (
+              days.map((d) => (
+                <div
+                  key={d.date}
+                  className="grid gap-x-4 grid-cols-[160px_80px_1fr_1fr_1fr_1fr_140px] items-center px-6 py-3 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="text-[13px] text-brand_dark font-satoMedium">
+                    {formatDayCell(d.date)}
+                  </div>
+                  <div className="text-[13px] text-brand_gray text-right tabular-nums">
+                    {d.count}
+                  </div>
+                  <DailyAmount amount={d.mp} />
+                  <DailyAmount amount={d.cash} />
+                  <DailyAmount amount={d.transfer} />
+                  <DailyAmount amount={d.card} />
+                  <div className="text-[13px] text-brand_dark text-right tabular-nums font-satoBold">
+                    {formatCurrency(d.total)}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile */}
+      <div className="lg:hidden rounded-2xl bg-white divide-y divide-brand_stroke overflow-hidden">
+        {totals.count > 0 ? (
+          <div className="p-4 bg-brand_blue/5 flex items-center justify-between">
+            <span className="text-sm font-satoBold text-brand_dark uppercase tracking-wide">
+              Total del mes
+            </span>
+            <span className="text-sm font-satoBold text-brand_dark tabular-nums">
+              {formatCurrency(totals.total)}
+            </span>
+          </div>
+        ) : null}
+        {totals.count === 0 ? (
+          <DailyEmptyState month={month} year={year} />
+        ) : (
+          days
+            .filter((d) => d.count > 0)
+            .map((d) => (
+            <div key={d.date} className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-sm font-satoBold text-brand_dark">
+                    {formatDayCell(d.date)}
+                  </span>
+                  <span className="text-[11px] text-brand_gray">
+                    {d.count} cita{d.count === 1 ? "" : "s"}
+                  </span>
+                </div>
+                <span className="text-sm font-satoBold text-brand_dark tabular-nums">
+                  {formatCurrency(d.total)}
+                </span>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-brand_gray">
+                {d.mp > 0 && <span>MP: {formatCurrency(d.mp)}</span>}
+                {d.cash > 0 && <span>Efectivo: {formatCurrency(d.cash)}</span>}
+                {d.transfer > 0 && (
+                  <span>Transfer: {formatCurrency(d.transfer)}</span>
+                )}
+                {d.card > 0 && <span>Tarjeta: {formatCurrency(d.card)}</span>}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  )
+}
+
+const DailyEmptyState = ({
+  month,
+  year,
+}: {
+  month: number
+  year: number
+}) => (
+  <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+    <img
+      src="/images/emptyState/payments.webp"
+      alt=""
+      className="w-40 mb-6 opacity-90"
+    />
+    <p className="text-lg font-satoBold text-brand_dark">
+      Sin cobros en {MONTH_NAMES_LONG[month]} {year}
+    </p>
+    <p className="mt-2 text-sm text-brand_gray max-w-[360px]">
+      Cuando registres pagos en este mes, verás aquí el desglose por día y
+      método de cobro.
+    </p>
+  </div>
+)
+
+const DailyAmount = ({ amount }: { amount: number }) => (
+  <div
+    className={`text-[13px] text-right tabular-nums ${
+      amount > 0 ? "text-brand_dark" : "text-brand_iron"
+    }`}
+  >
+    {amount > 0 ? formatCurrency(amount) : "—"}
+  </div>
+)
+
+const formatDayCell = (iso: string) => {
+  const d = new Date(iso + "T00:00:00")
+  return d.toLocaleDateString("es-MX", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  })
 }
 
 const SalesCard = ({
@@ -437,10 +856,10 @@ const SalesCard = ({
       />
     ) : null}
     <div className="text-white">
-      <p className="text-sm">{title}</p>
-      <h3 className="text-2xl font-satoBold leading-tight">{value}</h3>
+      <p className="text-base md:text-lg">{title}</p>
+      <h3 className="text-3xl md:text-4xl font-satoBold leading-tight mt-1">{value}</h3>
       {subtitle ? (
-        <p className="mt-1 text-[12px] opacity-90">{subtitle}</p>
+        <p className="mt-2 text-[13px] opacity-90">{subtitle}</p>
       ) : null}
     </div>
   </section>
@@ -449,14 +868,373 @@ const SalesCard = ({
 const SucursalBreakdown = ({
   label,
   value,
+  hint,
 }: {
   label: string
   value: string
+  hint?: string
 }) => (
-  <div className="rounded-2xl bg-white px-4 py-3 flex items-center justify-between">
-    <span className="text-sm text-brand_gray">{label}</span>
-    <span className="text-sm font-satoBold text-brand_dark tabular-nums">
+  <div className="rounded-2xl bg-white px-4 py-3 flex items-center justify-between gap-3">
+    <div className="flex flex-col min-w-0">
+      <span className="text-sm text-brand_gray">{label}</span>
+      {hint ? (
+        <span className="text-[11px] text-brand_iron truncate">{hint}</span>
+      ) : null}
+    </div>
+    <span className="text-sm font-satoBold text-brand_dark tabular-nums shrink-0">
       {value}
     </span>
   </div>
 )
+
+// ── MP empty state (compartido) ────────────────────────────────
+
+const MercadoPagoEmptyState = ({
+  onConnect,
+  isLoading,
+  showSecondary = true,
+}: {
+  onConnect: () => void
+  isLoading: boolean
+  showSecondary?: boolean
+}) => (
+  <section className="flex min-h-[calc(100vh-12rem)] flex-col items-center justify-center px-4 py-10 text-center">
+    <img
+      src="/images/emptyState/payments.webp"
+      alt=""
+      className="mb-8 w-full max-w-[240px] md:max-w-[240px]"
+    />
+    <div className="max-w-[620px]">
+      <h2 className="text-[24px] font-satoBold">
+        Conecta tu cuenta MELI para empezar a recibir pagos
+      </h2>
+      <p className="mt-3 text-[18px] font-satoMedium text-brand_gray">
+        Denik colabora con Mercado Libre para ofrecerte pagos seguros
+      </p>
+    </div>
+    <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+      {showSecondary ? (
+        <SecondaryButton type="button" className="min-w-[160px]">
+          Configurar después
+        </SecondaryButton>
+      ) : null}
+      <PrimaryButton
+        type="button"
+        onClick={onConnect}
+        disabled={isLoading}
+        className="min-w-[160px]"
+      >
+        <span className="flex items-center justify-center gap-2">
+          <span>Empezar</span>
+          <ArrowRight />
+          {isLoading ? <Spinner /> : null}
+        </span>
+      </PrimaryButton>
+    </div>
+  </section>
+)
+
+// ── Deposits view ──────────────────────────────────────────────
+
+const formatMoney = (amount: number, currency = "MXN") =>
+  amount.toLocaleString("es-MX", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })
+
+const formatDateLong = (iso: string) => {
+  const d = new Date(iso)
+  return d.toLocaleDateString("es-MX", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  })
+}
+
+const DepositsView = ({
+  deposits,
+}: {
+  deposits: DepositsData | null
+  mpConnected?: boolean
+}) => {
+  if (!deposits) {
+    return (
+      <section className="mt-6 rounded-2xl bg-white p-8 text-center">
+        <p className="text-brand_gray text-sm">Cargando depósitos...</p>
+      </section>
+    )
+  }
+
+  if ("error" in deposits) {
+    return (
+      <section className="mt-6 rounded-2xl bg-white p-8 text-center">
+        <p className="text-brand_dark font-satoBold">
+          No pudimos traer tus depósitos
+        </p>
+        <p className="mt-2 text-brand_gray text-sm">
+          {deposits.error === "no_token"
+            ? "Tu sesión de MercadoPago expiró. Reconéctala para volver a verlos."
+            : "Intenta de nuevo en unos minutos."}
+        </p>
+      </section>
+    )
+  }
+
+  const c = deposits.currency
+  const hasData = deposits.payments.length > 0
+
+  return (
+    <section className="mt-6 flex flex-col gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SalesCard
+          title="Próximo depósito"
+          value={
+            deposits.nextRelease
+              ? formatMoney(deposits.nextRelease.amount, c)
+              : "—"
+          }
+          subtitle={
+            deposits.nextRelease
+              ? formatDateLong(deposits.nextRelease.date)
+              : "Sin pagos pendientes de liberar"
+          }
+          className="bg-[#615FFF]"
+          icon="/images/agenda-dash.svg"
+        />
+        <SalesCard
+          title="Liberado (60 días)"
+          value={formatMoney(deposits.releasedTotal, c)}
+          subtitle="Disponible en tu balance MP"
+          className="bg-[#64D0C5]"
+          icon="/images/chart.svg"
+        />
+        <SalesCard
+          title="Pendiente de liberar"
+          value={formatMoney(deposits.pendingTotal, c)}
+          subtitle="Aún en proceso de retención"
+          className="bg-[#FFAB61]"
+          icon="/images/profile.svg"
+        />
+        <SalesCard
+          title="Comisiones MP"
+          value={formatMoney(deposits.feesTotal, c)}
+          subtitle={`${deposits.payouts} cobro${deposits.payouts === 1 ? "" : "s"} procesado${deposits.payouts === 1 ? "" : "s"}`}
+          className="bg-[#EEC446]"
+          icon="/images/cancel.svg"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <DepositsList
+          title="Próximos depósitos"
+          empty="No hay depósitos pendientes."
+          groups={deposits.groupsPending}
+          currency={c}
+          highlight
+        />
+        <DepositsList
+          title="Depósitos liberados"
+          empty="Aún no se ha liberado ningún depósito."
+          groups={deposits.groupsReleased}
+          currency={c}
+        />
+      </div>
+
+      {hasData ? <DepositsTable payments={deposits.payments} currency={c} /> : null}
+    </section>
+  )
+}
+
+const DepositsList = ({
+  title,
+  empty,
+  groups,
+  currency,
+  highlight,
+}: {
+  title: string
+  empty: string
+  groups: DepositGroup[]
+  currency: string
+  highlight?: boolean
+}) => (
+  <div className="rounded-2xl bg-white p-5">
+    <h3 className="text-base font-satoBold text-brand_dark mb-4">{title}</h3>
+    {groups.length === 0 ? (
+      <p className="text-sm text-brand_gray">{empty}</p>
+    ) : (
+      <ul className="flex flex-col gap-3">
+        {groups.slice(0, 6).map((g) => (
+          <li
+            key={g.date}
+            className={twMerge(
+              "flex items-center justify-between rounded-xl px-4 py-3",
+              highlight ? "bg-brand_blue/5" : "bg-slate-50",
+            )}
+          >
+            <div className="flex flex-col">
+              <span className="text-sm font-satoMedium text-brand_dark">
+                {formatDateLong(g.date)}
+              </span>
+              <span className="text-[11px] text-brand_gray">
+                {g.count} cobro{g.count === 1 ? "" : "s"} · comisión{" "}
+                {formatMoney(g.fees, currency)}
+              </span>
+            </div>
+            <span className="text-sm font-satoBold text-brand_dark tabular-nums">
+              {formatMoney(g.net, currency)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)
+
+const DepositsTable = ({
+  payments,
+  currency,
+}: {
+  payments: MpPayment[]
+  currency: string
+}) => {
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const total = payments.length
+  const paginated = payments.slice((page - 1) * perPage, page * perPage)
+
+  return (
+    <div>
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-lg font-satoBold text-brand_dark">
+          Movimientos MercadoPago
+        </h3>
+        <span className="text-xs text-brand_gray">
+          {total} cobro{total === 1 ? "" : "s"}
+        </span>
+      </div>
+      <div className="hidden lg:block w-full overflow-x-auto rounded-2xl">
+        <div className="min-w-[820px]">
+          <div className="grid gap-x-4 grid-cols-[140px_1fr_120px_120px_120px_140px] rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray uppercase tracking-wide">
+            <div>Fecha cobro</div>
+            <div>Método</div>
+            <div className="text-right">Bruto</div>
+            <div className="text-right">Comisión</div>
+            <div className="text-right">Neto</div>
+            <div>Liberación</div>
+          </div>
+          <div className="rounded-b-2xl bg-white divide-y divide-brand_stroke">
+            {paginated.map((p) => {
+              const fee = (p.fee_details ?? []).reduce(
+                (s, f) => s + f.amount,
+                0,
+              )
+              const net =
+                p.transaction_details?.net_received_amount ??
+                p.transaction_amount
+              const released =
+                p.money_release_date && new Date(p.money_release_date) <= new Date()
+              return (
+                <div
+                  key={p.id}
+                  className="grid gap-x-4 grid-cols-[140px_1fr_120px_120px_120px_140px] items-center px-6 py-3 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="text-[12px] text-brand_gray">
+                    {p.date_approved
+                      ? formatDateLong(p.date_approved)
+                      : formatDateLong(p.date_created)}
+                  </div>
+                  <div className="text-[13px] text-brand_dark capitalize truncate">
+                    {p.payment_method_id ?? p.payment_type_id ?? "—"}
+                  </div>
+                  <div className="text-[13px] text-brand_gray text-right tabular-nums">
+                    {formatMoney(p.transaction_amount, currency)}
+                  </div>
+                  <div className="text-[13px] text-brand_gray text-right tabular-nums">
+                    {formatMoney(fee, currency)}
+                  </div>
+                  <div className="text-[13px] text-brand_dark text-right tabular-nums font-satoBold">
+                    {formatMoney(net, currency)}
+                  </div>
+                  <div className="text-[12px]">
+                    {p.money_release_date ? (
+                      <span
+                        className={twMerge(
+                          "inline-flex px-2 py-[3px] rounded text-[11px] font-satoMedium",
+                          released
+                            ? "bg-[#d5faf1] text-[#2a645f]"
+                            : "bg-[#fff8e1] text-[#8b6914]",
+                        )}
+                      >
+                        {released ? "Liberado" : formatDateLong(p.money_release_date)}
+                      </span>
+                    ) : (
+                      <span className="text-brand_gray">—</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile */}
+      <div className="lg:hidden rounded-2xl bg-white divide-y divide-brand_stroke">
+        {paginated.map((p) => {
+          const fee = (p.fee_details ?? []).reduce((s, f) => s + f.amount, 0)
+          const net =
+            p.transaction_details?.net_received_amount ?? p.transaction_amount
+          const released =
+            p.money_release_date && new Date(p.money_release_date) <= new Date()
+          return (
+            <div key={p.id} className="p-4">
+              <div className="flex justify-between items-start gap-3">
+                <div className="min-w-0">
+                  <p className="text-[12px] text-brand_gray">
+                    {p.date_approved
+                      ? formatDateLong(p.date_approved)
+                      : formatDateLong(p.date_created)}
+                  </p>
+                  <p className="text-[14px] font-satoBold text-brand_dark capitalize">
+                    {p.payment_method_id ?? p.payment_type_id ?? "—"}
+                  </p>
+                </div>
+                <span className="text-[14px] font-satoBold text-brand_dark tabular-nums">
+                  {formatMoney(net, currency)}
+                </span>
+              </div>
+              <div className="mt-2 flex justify-between items-center text-[11px] text-brand_gray">
+                <span>Comisión {formatMoney(fee, currency)}</span>
+                {p.money_release_date ? (
+                  <span
+                    className={twMerge(
+                      "inline-flex px-2 py-[3px] rounded font-satoMedium",
+                      released
+                        ? "bg-[#d5faf1] text-[#2a645f]"
+                        : "bg-[#fff8e1] text-[#8b6914]",
+                    )}
+                  >
+                    {released ? "Liberado" : formatDateLong(p.money_release_date)}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {total > 0 && (
+        <Pagination
+          total={total}
+          page={page}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={setPerPage}
+        />
+      )}
+    </div>
+  )
+}
