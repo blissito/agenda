@@ -5,7 +5,7 @@ import {
   type UseFormRegister,
   useForm,
 } from "react-hook-form"
-import { Form } from "react-router"
+import { Form, Link } from "react-router"
 import { z } from "zod"
 import { BasicInput } from "../BasicInput"
 import { TextAreaInput } from "../TextAreaInput"
@@ -34,11 +34,13 @@ export const ServiceGeneralForm = ({
   onSubmit,
   formRef,
   errors = {},
+  loyaltyEnabled = false,
 }: {
   errors?: Record<string, FieldError>
   formRef?: RefObject<HTMLFormElement | null>
   onSubmit?: (values: GeneralFormFields) => void
   defaultValues?: GeneralFormFields
+  loyaltyEnabled?: boolean
 }) => {
   const { handleSubmit, register } = useForm({
     defaultValues,
@@ -81,7 +83,20 @@ export const ServiceGeneralForm = ({
         registerOptions={{ required: false }}
         register={register}
         placeholder="100"
-        label="¿A cuántos puntos de recompensas equivale el servicio?"
+        isDisabled={!loyaltyEnabled}
+        label={
+          <>
+            ¿A cuántos puntos de lealtad equivale el servicio?{" "}
+            {!loyaltyEnabled && (
+              <span className="font-satoshi text-brand_gray text-sm">
+                <Link to="/dash/lealtad" className="text-brand_blue underline">
+                  Activa el programa
+                </Link>{" "}
+                de lealtad para activar
+              </span>
+            )}
+          </>
+        }
         name="points"
       />
       <TextAreaInput

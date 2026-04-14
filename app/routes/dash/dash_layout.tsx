@@ -13,7 +13,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function DashLayout({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData
   const navigation = useNavigation()
-  const isNavigating = Boolean(navigation.location)
+  const isPostSaveNav = navigation.location?.search?.includes("saved=")
+  const isNavigating = Boolean(navigation.location) && !isPostSaveNav
 
   const matches = useMatches()
   const hideSidebar = matches.some(

@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react"
 import { type ChangeEvent, useEffect, useRef, useState } from "react"
 import { FaRegTrashAlt } from "react-icons/fa"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
 import { cn } from "~/utils/cn"
 import { DAY_LABELS } from "~/utils/weekDays"
 import { SelectInput } from "../SelectInput"
@@ -27,16 +28,58 @@ type DayName =
   | "saturday"
   | "sunday"
 
+export type ScheduleMode = "inherit" | "specific"
+
+export type SchedulePayload = {
+  duration: number
+  breakTime: number
+  mode: ScheduleMode
+  weekDays: Week | null
+}
+
+const DURATION_OPTIONS = [
+  { title: "15 minutos", value: "15" },
+  { title: "30 minutos", value: "30" },
+  { title: "45 minutos", value: "45" },
+  { title: "60 minutos", value: "60" },
+  { title: "1 hora 15 minutos", value: "75" },
+  { title: "1 hora 30 minutos", value: "90" },
+  { title: "2 horas", value: "120" },
+]
+
+const BREAK_OPTIONS = [
+  { title: "Sin descanso", value: "0" },
+  { title: "5 minutos", value: "5" },
+  { title: "10 minutos", value: "10" },
+  { title: "15 minutos", value: "15" },
+  { title: "20 minutos", value: "20" },
+  { title: "30 minutos", value: "30" },
+  { title: "45 minutos", value: "45" },
+  { title: "60 minutos", value: "60" },
+]
+
 export const SimpleTimeSelector = ({
   onSubmit,
   isLoading,
   defaultValue,
+  defaultDuration = 60,
+  defaultBreakTime = 0,
+  cancelHref = "/dash/servicios",
 }: {
   isLoading?: boolean
   defaultValue?: Week
-  onSubmit: (arg0: Week) => void
+  defaultDuration?: number
+  defaultBreakTime?: number
+  cancelHref?: string
+  onSubmit: (payload: SchedulePayload) => void
 }) => {
   const [week, setWeek] = useState<Week>(defaultValue || {})
+  const [duration, setDuration] = useState<number>(defaultDuration)
+  const [breakTime, setBreakTime] = useState<number>(defaultBreakTime)
+  const [mode, setMode] = useState<ScheduleMode>(
+    defaultValue ? "specific" : "inherit",
+  )
+
   const handleDayChange = (dayName: DayName) => (gaps: Gaps) => {
     const w = { ...week }
     w[dayName] = gaps
@@ -49,45 +92,101 @@ export const SimpleTimeSelector = ({
     setWeek(w)
   }
 
-  // debug
-  useEffect(() => {
-    // console.log("week: ", week);
-  }, [])
-
   const handleSubmit = () => {
-    onSubmit?.(week)
-    // @todo if empty delete from service?
+    onSubmit?.({
+      duration,
+      breakTime,
+      mode,
+      weekDays: mode === "specific" ? week : null,
+    })
   }
 
   return (
-    <article className="my-3 rounded-xl bg-white shadow py-6 px-6 max-w-2xl mx-auto flex flex-col">
-      <h3>Actualiza los días y horarios en los que ofreces servicio</h3>
-      <section>
-        {[
-          "monday",
-          "tuesday",
-          "wednesday",
-          "thursday",
-          "friday",
-          "saturday",
-          "sunday",
-        ].map((dayName) => (
-          <DaySelector
-            defaultValue={week[dayName]}
-            key={dayName}
-            onDeactivate={handleRemove(dayName as DayName)}
-            dayName={dayName}
-            onChange={handleDayChange(dayName as DayName)}
+    <article className="my-3 rounded-2xl bg-white shadow p-8 max-w-3xl flex flex-col">
+      <h2 className="font-satoMiddle text-xl text-brand_dark mb-6">Horario</h2>
+
+      <div className="mb-6">
+        <label className="block text-brand_dark font-satoMiddle mb-1">
+          ¿Cuánto dura cada sesión?
+        </label>
+        <SelectInput
+          options={DURATION_OPTIONS}
+          value={String(duration)}
+          onChange={(e) => setDuration(Number(e.currentTarget.value))}
+          placeholder="Selecciona una opción"
+        />
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-brand_dark font-satoMiddle mb-1">
+          ¿De cuánto tiempo es el descanso entre sesiones?
+        </label>
+        <SelectInput
+          options={BREAK_OPTIONS}
+          value={String(breakTime)}
+          onChange={(e) => setBreakTime(Number(e.currentTarget.value))}
+          placeholder="Selecciona una opción"
+        />
+      </div>
+
+      <div className="text-brand_gray mb-2">
+        <p className="text-brand_dark font-satoMiddle">
+          ¿En que horario ofrecerás este servicio?
+        </p>
+        <label className="flex items-center gap-2 mt-3 cursor-pointer">
+          <input
+            type="radio"
+            name="scheduleMode"
+            value="inherit"
+            checked={mode === "inherit"}
+            onChange={() => setMode("inherit")}
+            className="accent-brand_blue"
           />
-        ))}
-      </section>
-      <nav className="flex gap-4 ml-auto mt-8">
-        <PrimaryButton as="Link" to="/dash/servicios" mode="cancel">
-          cancelar
-        </PrimaryButton>
+          <span className="font-satoshi">El mismo horario que mi negocio</span>
+        </label>
+        <label className="flex items-center gap-2 mt-3 cursor-pointer">
+          <input
+            type="radio"
+            name="scheduleMode"
+            value="specific"
+            checked={mode === "specific"}
+            onChange={() => setMode("specific")}
+            className="accent-brand_blue"
+          />
+          <span className="font-satoshi">
+            Un horario específico para este servicio
+          </span>
+        </label>
+      </div>
+
+      {mode === "specific" && (
+        <section className="border-t border-gray-100 mt-4 pt-2">
+          {[
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday",
+          ].map((dayName) => (
+            <DaySelector
+              defaultValue={week[dayName]}
+              key={dayName}
+              onDeactivate={handleRemove(dayName as DayName)}
+              dayName={dayName}
+              onChange={handleDayChange(dayName as DayName)}
+            />
+          ))}
+        </section>
+      )}
+
+      <nav className="flex gap-6 justify-end mt-8">
+        <SecondaryButton as="Link" to={cancelHref} className="w-[120px]">
+          Cancelar
+        </SecondaryButton>
         <PrimaryButton isLoading={isLoading} onClick={handleSubmit}>
-          {" "}
-          guardar
+          Guardar
         </PrimaryButton>
       </nav>
     </article>
@@ -127,11 +226,6 @@ const DaySelector = ({
     setIsActive(bool)
   }
 
-  // debug
-  useEffect(() => {
-    // console.log("Gaps: ", gaps);
-  }, [])
-
   const handleAddGap = () => {
     const gs = [...gaps]
     gs.push(["09:00", "17:00"])
@@ -147,9 +241,9 @@ const DaySelector = ({
   }
 
   return (
-    <section className="flex items-start gap-8 py-4">
-      <header className="flex gap-4 py-3">
-        <h4 className="w-20">
+    <section className="flex items-start gap-8 py-[5px]">
+      <header className="flex gap-4 py-[5px] min-w-[180px]">
+        <h4 className="w-20 text-brand_dark">
           {DAY_LABELS[dayName as keyof typeof DAY_LABELS] || dayName}
         </h4>
         <SimpleSwitch value={isActive} onChange={handleActivation} />
@@ -174,7 +268,7 @@ const DaySelector = ({
             disabled={!isActive}
             onClick={handleAddGap}
             className={cn(
-              "text-gray-500 enabled:hover:text-gray-600 p-3",
+              "text-brand_gray enabled:hover:text-brand_dark p-3 whitespace-nowrap",
               "disabled:text-gray-300",
             )}
           >
@@ -189,7 +283,7 @@ const DaySelector = ({
 
 const generateHours = () => {
   const hrs = Array.from({ length: 24 }).map((_, i) => {
-    const h = i < 10 ? `0${i}` : i // @todo half hours?
+    const h = i < 10 ? `0${i}` : i
     return {
       value: `${h}:00`,
       title: `${h}:00`,
@@ -220,7 +314,6 @@ const Gap = ({
     let err = null
     const n1 = Number(pair[0].split(":")[0])
     const n2 = Number(pair[1].split(":")[0])
-    // console.log("Validating", n1, n2, n1 < n2);
     const valid = n1 < n2
     if (!valid) {
       err = "La hora final, no puede ser menor."
@@ -313,19 +406,16 @@ export const SimpleSwitch = ({
     >
       <div
         className={cn(
-          "flex bg-gray-100 w-7 p-1 rounded-full",
-
+          "flex bg-gray-200 w-10 p-1 rounded-full transition-colors",
           {
-            "justify-end bg-brand_blue/30 shadow": isOn,
+            "justify-end bg-brand_blue": isOn,
           },
         )}
       >
         <motion.div
           transition={{ type: "spring" }}
           layout
-          className={cn("bg-gray-300 h-3 w-3 rounded-full", {
-            "bg-brand_blue ": isOn,
-          })}
+          className={cn("bg-white h-4 w-4 rounded-full shadow")}
         ></motion.div>
       </div>
       <input
@@ -334,7 +424,6 @@ export const SimpleSwitch = ({
         className="hidden"
         disabled={isDisabled}
         type="checkbox"
-        // {...register?.(name, registerOptions)}
       />
     </button>
   )

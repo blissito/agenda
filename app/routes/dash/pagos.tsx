@@ -1,12 +1,14 @@
 import { redirect, useFetcher, useSearchParams } from "react-router"
 import invariant from "tiny-invariant"
+import { twMerge } from "tailwind-merge"
 import { getMPAuthUrl } from "~/.server/mercadopago"
 import { createAccountLink, getOrCreateStripeAccount } from "~/.server/stripe"
-import { getUserOrRedirect } from "~/.server/userGetters"
+import { getUserAndOrgOrRedirect, getUserOrRedirect } from "~/.server/userGetters"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Spinner } from "~/components/common/Spinner"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { ArrowRight } from "~/components/icons/arrowRight"
+import { CitasTable, type CitaEvent } from "~/components/dash/CitasTable"
 import { db } from "~/utils/db.server"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import type { Route } from "./+types/pagos"
@@ -52,21 +54,83 @@ export const action = async ({ request }: Route.ActionArgs) => {
 }
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const user = await getUserOrRedirect(request)
+  const { user, org } = await getUserAndOrgOrRedirect(request)
   const stripeData = user.stripe as { id: string } | null
   const stripeEnabled =
     !!process.env.STRIPE_SECRET_TEST && !!process.env.STRIPE_WEBHOOK_SECRET
+
+  // Si no hay org (cliente sin negocio), responder con shape mínima
+  if (!org) {
+    return {
+      mpConnected: !!user.mercadopago?.access_token,
+      mpUserId: user.mercadopago?.user_id,
+      stripeAccountId: stripeData?.id || null,
+      stripeEnabled,
+      stats: null,
+      events: [] as CitaEvent[],
+    }
+  }
+
+  const now = new Date()
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+
+  const events = await db.event.findMany({
+    where: {
+      orgId: org.id,
+      archived: false,
+      type: { not: "BLOCK" },
+    },
+    include: { service: true, customer: true },
+    orderBy: { start: "desc" },
+  })
+
+  const ONLINE_METHODS = new Set(["mercadopago", "stripe"])
+  const SUCURSAL_METHODS = new Set(["cash", "transfer", "card"])
+
+  const totals = {
+    monthRevenue: 0,
+    onlineRevenue: 0,
+    sucursalRevenue: 0,
+    paidCount: 0,
+    sucursalBreakdown: { cash: 0, transfer: 0, card: 0 },
+  }
+
+  for (const e of events) {
+    if (!e.paid || !e.service) continue
+    const price = Number(e.service.price)
+    totals.paidCount += 1
+    if (e.createdAt >= startOfMonth) totals.monthRevenue += price
+
+    const method = (e.payment_method ?? "").toLowerCase()
+    if (ONLINE_METHODS.has(method) || e.mp_payment_id || e.stripe_payment_intent_id) {
+      totals.onlineRevenue += price
+    } else if (SUCURSAL_METHODS.has(method)) {
+      totals.sucursalRevenue += price
+      if (method === "cash") totals.sucursalBreakdown.cash += price
+      if (method === "transfer") totals.sucursalBreakdown.transfer += price
+      if (method === "card") totals.sucursalBreakdown.card += price
+    }
+  }
 
   return {
     mpConnected: !!user.mercadopago?.access_token,
     mpUserId: user.mercadopago?.user_id,
     stripeAccountId: stripeData?.id || null,
     stripeEnabled,
+    stats: totals,
+    events,
   }
 }
 
 export default function Pagos({ loaderData }: Route.ComponentProps) {
-  const { mpConnected, mpUserId, stripeAccountId, stripeEnabled } = loaderData
+  const {
+    mpConnected,
+    mpUserId,
+    stripeAccountId,
+    stripeEnabled,
+    stats,
+    events,
+  } = loaderData
   const [searchParams, setSearchParams] = useSearchParams()
   const fetcher = useFetcher()
 
@@ -103,7 +167,8 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
   }
 
   const isLoading = fetcher.state !== "idle"
-  const showEmptyState = !mpConnected && !stripeAccountId
+  const hasAnyData = (events?.length ?? 0) > 0 || mpConnected || !!stripeAccountId
+  const showEmptyState = !hasAnyData
 
   return (
     <article className="w-full max-w-8xl mx-auto">
@@ -136,6 +201,10 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
             )}
           </button>
         </div>
+
+      {!showEmptyState && activeTab === "sales" ? (
+        <SalesView stats={stats} events={events ?? []} />
+      ) : null}
 
       {showEmptyState ? (
         <section className="flex min-h-[560px] flex-col items-center justify-center px-4 py-10 text-center md:min-h-[640px]">
@@ -251,3 +320,143 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
     </article>
   )
 }
+
+// ── Sales view ─────────────────────────────────────────────────
+
+type SalesStats = {
+  monthRevenue: number
+  onlineRevenue: number
+  sucursalRevenue: number
+  paidCount: number
+  sucursalBreakdown: { cash: number; transfer: number; card: number }
+}
+
+const formatCurrency = (cents: number) =>
+  `$${(cents / 100).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+
+const SalesView = ({
+  stats,
+  events,
+}: {
+  stats: SalesStats | null
+  events: CitaEvent[]
+}) => {
+  const safeStats: SalesStats = stats ?? {
+    monthRevenue: 0,
+    onlineRevenue: 0,
+    sucursalRevenue: 0,
+    paidCount: 0,
+    sucursalBreakdown: { cash: 0, transfer: 0, card: 0 },
+  }
+
+  return (
+    <section className="mt-6 flex flex-col gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <SalesCard
+          title="Ventas del mes"
+          value={formatCurrency(safeStats.monthRevenue)}
+          subtitle={`${safeStats.paidCount} cobros pagados`}
+          className="bg-[#64D0C5]"
+          icon="/images/chart.svg"
+        />
+        <SalesCard
+          title="Ingresos MercadoPago"
+          value={formatCurrency(safeStats.onlineRevenue)}
+          subtitle="Cobrado online al agendar"
+          className="bg-[#615FFF]"
+          icon="/images/agenda-dash.svg"
+        />
+        <SalesCard
+          title="Ingresos en sucursal"
+          value={formatCurrency(safeStats.sucursalRevenue)}
+          subtitle="Efectivo, transferencia y tarjeta"
+          className="bg-[#FFAB61]"
+          icon="/images/profile.svg"
+        />
+        <SalesCard
+          title="Tickets pagados"
+          value={String(safeStats.paidCount)}
+          subtitle="Total histórico"
+          className="bg-[#EEC446]"
+          icon="/images/cancel.svg"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <SucursalBreakdown
+          label="Efectivo"
+          value={formatCurrency(safeStats.sucursalBreakdown.cash)}
+        />
+        <SucursalBreakdown
+          label="Transferencia"
+          value={formatCurrency(safeStats.sucursalBreakdown.transfer)}
+        />
+        <SucursalBreakdown
+          label="Tarjeta (sucursal)"
+          value={formatCurrency(safeStats.sucursalBreakdown.card)}
+        />
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-lg font-satoBold text-brand_dark">Citas y cobros</h3>
+          <span className="text-xs text-brand_gray">
+            {events.length} cita{events.length === 1 ? "" : "s"}
+          </span>
+        </div>
+        <CitasTable events={events} />
+      </div>
+    </section>
+  )
+}
+
+const SalesCard = ({
+  icon,
+  title,
+  value,
+  subtitle,
+  className,
+}: {
+  icon?: string
+  title: string
+  value: string
+  subtitle?: string
+  className?: string
+}) => (
+  <section
+    className={twMerge(
+      "rounded-2xl h-[160px] relative flex flex-col justify-end p-4 group overflow-hidden",
+      className,
+    )}
+  >
+    {icon ? (
+      <img
+        className="absolute right-0 top-0 w-[64px] opacity-90 group-hover:scale-95 transition-all"
+        src={icon}
+        alt=""
+      />
+    ) : null}
+    <div className="text-white">
+      <p className="text-sm">{title}</p>
+      <h3 className="text-2xl font-satoBold leading-tight">{value}</h3>
+      {subtitle ? (
+        <p className="mt-1 text-[12px] opacity-90">{subtitle}</p>
+      ) : null}
+    </div>
+  </section>
+)
+
+const SucursalBreakdown = ({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) => (
+  <div className="rounded-2xl bg-white px-4 py-3 flex items-center justify-between">
+    <span className="text-sm text-brand_gray">{label}</span>
+    <span className="text-sm font-satoBold text-brand_dark tabular-nums">
+      {value}
+    </span>
+  </div>
+)

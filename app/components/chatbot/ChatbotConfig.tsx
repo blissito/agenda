@@ -104,7 +104,10 @@ export function ChatbotConfig({
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 flex-1 grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8">
+    <div
+      className="bg-white rounded-2xl p-6 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8"
+      style={{ gridTemplateRows: "1fr" }}
+    >
       {/* Left column — Form */}
       <div className="flex flex-col">
         <h2 className="text-2xl font-satoBold text-brand_dark mb-5">

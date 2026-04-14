@@ -8,6 +8,7 @@ import * as React from "react"
 import { useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Tooltip } from "~/components/common/Tooltip"
 import { Edit2 } from "~/components/icons/Edit2"
 import { Share } from "~/components/icons/Share"
 import { Website as WebsiteIcon } from "~/components/icons/Website"
@@ -104,7 +105,6 @@ const RoundAction = (props: RoundActionProps) => {
   const common = {
     className: props.className ? `${base} ${props.className}` : base,
     "aria-label": props.label,
-    title: props.title ?? props.label,
   }
 
   if (props.as === "a") {
@@ -145,19 +145,29 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         <RouteTitle className="mb-0">Sitio web</RouteTitle>
 
         <div className="flex gap-3">
-          <RoundAction as="a" href={url} label="Abrir sitio web">
-            <WebsiteIcon className="w-5 h-5" />
-          </RoundAction>
+          <Tooltip label="Ver sitio web">
+            <span className="inline-flex">
+              <RoundAction as="a" href={url} label="Abrir sitio web">
+                <WebsiteIcon className="w-5 h-5" />
+              </RoundAction>
+            </span>
+          </Tooltip>
 
-          <RoundAction label="Compartir" onClick={onShare}>
-            <Share className="w-5 h-5" />
-          </RoundAction>
+          <Tooltip label="Compartir">
+            <span className="inline-flex">
+              <RoundAction label="Compartir" onClick={onShare}>
+                <Share className="w-5 h-5" />
+              </RoundAction>
+            </span>
+          </Tooltip>
 
-          <Link to="/dash/website/ai">
-            <RoundAction label="Editar sitio web">
-              <Edit2 className="w-5 h-5" />
-            </RoundAction>
-          </Link>
+          <Tooltip label="Editar sitio web">
+            <Link to="/dash/website/ai" className="inline-flex">
+              <RoundAction label="Editar sitio web">
+                <Edit2 className="w-5 h-5" />
+              </RoundAction>
+            </Link>
+          </Tooltip>
         </div>
       </div>
 

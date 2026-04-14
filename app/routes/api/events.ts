@@ -39,6 +39,18 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!org) {
       return Response.json({ error: "Organization not found" }, { status: 404 })
     }
+    const existing = await db.event.findFirst({
+      where: { id: eventId, orgId: org.id },
+      select: { start: true },
+    })
+    // Periodo de gracia: 2 días después de la cita ya no se puede eliminar.
+    const DELETE_GRACE_MS = 2 * 24 * 60 * 60 * 1000
+    if (existing && Date.now() - existing.start.getTime() > DELETE_GRACE_MS) {
+      return Response.json(
+        { error: "No se puede eliminar una cita que pasó hace más de 2 días" },
+        { status: 400 },
+      )
+    }
     const updated = await cancelEventFully({ eventId, orgId: org.id })
     if (!updated) {
       return Response.json({ error: "Event not found" }, { status: 404 })

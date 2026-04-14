@@ -1,5 +1,6 @@
+import { useEffect, useRef, useState } from "react"
 import { FaWhatsapp } from "react-icons/fa6"
-import { useFetcher } from "react-router"
+import { useFetcher, useNavigate } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Switch } from "~/components/common/Switch"
 import { SecondaryButton } from "~/components/common/secondaryButton"
@@ -55,6 +56,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         data: rest,
       })
     }
+    return { ok: true }
   }
   return null
 }
@@ -62,29 +64,49 @@ export const action = async ({ request }: Route.ActionArgs) => {
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { service } = loaderData
   const fetcher = useFetcher()
-  const handleSwitchChange = (name: string, checked: boolean) => {
-    if (name === "payment") {
-      fetcher.submit(
-        {
-          intent: "update_service",
-          data: JSON.stringify({ payment: checked, id: service.id }),
-        },
-        { method: "post" },
-      )
-      return
-    }
+  const navigate = useNavigate()
+  const handledRef = useRef<unknown>(null)
 
+  const [payment, setPayment] = useState<boolean>(!!service.payment)
+  const [reminder, setReminder] = useState<boolean>(!!service.config?.reminder)
+  const [whatsappReminder, setWhatsappReminder] = useState<boolean>(
+    !!service.config?.whatsapp_reminder,
+  )
+  const [survey, setSurvey] = useState<boolean>(!!service.config?.survey)
+
+  const isSaving = fetcher.state !== "idle"
+
+  useEffect(() => {
+    if (
+      fetcher.state === "idle" &&
+      fetcher.data &&
+      fetcher.data !== handledRef.current &&
+      (fetcher.data as { ok?: boolean }).ok
+    ) {
+      handledRef.current = fetcher.data
+      navigate(`/dash/servicios/${service.id}?saved=cobros`)
+    }
+  }, [fetcher.state, fetcher.data, navigate, service.id])
+
+  const handleSave = () => {
     fetcher.submit(
       {
         intent: "update_service",
         data: JSON.stringify({
           id: service.id,
-          config: { ...service.config, [name]: checked },
+          payment,
+          config: {
+            ...service.config,
+            reminder,
+            whatsapp_reminder: whatsappReminder,
+            survey,
+          },
         }),
       },
       { method: "post" },
     )
   }
+
   return (
     <section>
       <Breadcrumb className="text-brand_gray">
@@ -100,7 +122,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/servicios/serviceid/horario">
+            <BreadcrumbLink
+              href={`/dash/servicios/${service.id}/cobros`}
+            >
               Cobros y recordatorios
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -112,51 +136,33 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         </h2>
         <div className="flex flex-col gap-6">
           <Switch
-            defaultChecked={service.payment}
-            onChange={(checked: boolean) =>
-              handleSwitchChange("payment", checked)
-            }
+            defaultChecked={payment}
+            onChange={setPayment}
             name="payment"
             label="Pago al agendar"
             subtitle="Activar los pagos para este servicio"
           />
           <Switch
-            defaultChecked={service.config?.confirmation}
-            onChange={(checked: boolean) =>
-              handleSwitchChange("confirmation", checked)
-            }
-            name="confirmation"
-            label="Mail de confirmación"
-            subtitle="Lo enviaremos en cuanto se complete la reservación"
-          />
-          <Switch
-            defaultChecked={service.config?.whatsapp_confirmation ?? false}
-            onChange={(checked: boolean) =>
-              handleSwitchChange("whatsapp_confirmation", checked)
-            }
-            name="whatsapp_confirmation"
-            label="Whatsapp de confirmación"
-            subtitle="Lo enviaremos en cuanto se complete la reservación"
-            icon={<FaWhatsapp />}
-          />
-          <Switch
-            defaultChecked={service.config?.reminder}
-            onChange={(checked: boolean) =>
-              handleSwitchChange("reminder", checked)
-            }
+            defaultChecked={reminder}
+            onChange={setReminder}
             name="reminder"
             label="Mail de recordatorio"
-            subtitle="Lo enviaremos 24 hrs antes de la sesión"
+            subtitle="Lo enviaremos 12 hrs antes de la sesión"
           />
           <Switch
-            defaultChecked={service.config?.whatsapp_reminder ?? false}
-            onChange={(checked: boolean) =>
-              handleSwitchChange("whatsapp_reminder", checked)
-            }
+            defaultChecked={whatsappReminder}
+            onChange={setWhatsappReminder}
             name="whatsapp_reminder"
             label="Whatsapp de recordatorio"
-            subtitle="Lo enviaremos 24 hrs antes de la sesión"
+            subtitle="Lo enviaremos 4 hrs antes de la sesión"
             icon={<FaWhatsapp />}
+          />
+          <Switch
+            defaultChecked={survey}
+            onChange={setSurvey}
+            name="survey"
+            label="Mail de evaluación"
+            subtitle="Lo enviaremos 10 min después de terminar la sesión"
           />
         </div>
 
@@ -168,7 +174,11 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           >
             Cancelar
           </SecondaryButton>
-          <PrimaryButton as="Link" to={`/dash/servicios/${service.id}`}>
+          <PrimaryButton
+            as="button"
+            isLoading={isSaving}
+            onClick={handleSave}
+          >
             Guardar
           </PrimaryButton>
         </div>

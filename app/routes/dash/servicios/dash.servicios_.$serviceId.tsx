@@ -3,6 +3,7 @@ import * as React from "react"
 import * as ReactRouter from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { formatRange } from "~/components/common/FormatRange"
+import { SuccessToast } from "~/components/common/SuccessToast"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { Edit } from "~/components/icons/edit"
 import {
@@ -94,8 +95,31 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 }
 
 
+const SAVED_MESSAGES: Record<string, string> = {
+  general: "Información actualizada",
+  horario: "Horario guardado",
+  cobros: "Cambios guardados",
+}
+
 export default function Page({ loaderData }: Route.ComponentProps) {
   const { service, galleryImages, orgWeekDays } = loaderData
+  const [toastMessage, setToastMessage] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return
+    const url = new URL(window.location.href)
+    const savedKey = url.searchParams.get("saved")
+    if (!savedKey) return
+    setToastMessage(SAVED_MESSAGES[savedKey] || "Cambios guardados")
+    url.searchParams.delete("saved")
+    window.history.replaceState(null, "", url.pathname + url.search)
+  }, [])
+
+  React.useEffect(() => {
+    if (!toastMessage) return
+    const t = setTimeout(() => setToastMessage(null), 2500)
+    return () => clearTimeout(t)
+  }, [toastMessage])
 
   return (
     <section className="pb-10 max-w-8xl mx-auto">
@@ -122,6 +146,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           orgWeekDays={orgWeekDays}
         />
       </div>
+      <SuccessToast message={toastMessage} />
     </section>
   )
 }
@@ -503,18 +528,28 @@ export const ServiceDetail = ({
 
           <p className="-mt-2 font-satoMedium text-brand_gray">
             Sesiones de{" "}
-            <span className="text-brand_dark">{service.duration} minutos</span>{" "}
-            con <span className="text-brand_dark">0 minutos</span> de descanso.
+            <span className="text-brand_dark">
+              {Number(service.duration)} minutos
+            </span>{" "}
+            con{" "}
+            <span className="text-brand_dark">
+              {service.breakTime ? Number(service.breakTime) : 0} minutos
+            </span>{" "}
+            de descanso.
           </p>
 
           <div className="mt-5 space-y-4">
-            {WEEK_DAYS_LIST.map(({ key, label }) => (
-              <WeekDayRow
-                key={key}
-                day={label}
-                schedule={formatRange(orgWeekDays[key])}
-              />
-            ))}
+            {WEEK_DAYS_LIST.map(({ key, label }) => {
+              const scheduleSource =
+                (service as any).weekDays ?? orgWeekDays ?? {}
+              return (
+                <WeekDayRow
+                  key={key}
+                  day={label}
+                  schedule={formatRange(scheduleSource[key])}
+                />
+              )
+            })}
           </div>
         </div>
 
@@ -536,28 +571,10 @@ export const ServiceDetail = ({
             />
 
             <DetailItem
-              label="Mail de confirmación"
-              value={
-                (service as any).config?.confirmation
-                  ? "Lo enviaremos en cuanto se complete la reservación"
-                  : "Desactivado"
-              }
-            />
-
-            <DetailItem
-              label="Whatsapp de confirmación"
-              value={
-                (service as any).config?.whatsapp_confirmation
-                  ? "Lo enviaremos en cuanto se complete la reservación"
-                  : "Desactivado"
-              }
-            />
-
-            <DetailItem
               label="Mail de recordatorio"
               value={
                 (service as any).config?.reminder
-                  ? "Lo enviaremos 24 hrs antes de la sesión"
+                  ? "Lo enviaremos 12 hrs antes de la sesión"
                   : "Desactivado"
               }
             />
@@ -566,7 +583,7 @@ export const ServiceDetail = ({
               label="Whatsapp de recordatorio"
               value={
                 (service as any).config?.whatsapp_reminder
-                  ? "Lo enviaremos 24 hrs antes de la sesión"
+                  ? "Lo enviaremos 4 hrs antes de la sesión"
                   : "Desactivado"
               }
             />

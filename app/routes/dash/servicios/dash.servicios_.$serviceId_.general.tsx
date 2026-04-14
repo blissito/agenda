@@ -1,6 +1,6 @@
-import { redirect, useFetcher } from "react-router"
+import { useEffect, useRef } from "react"
+import { Link, useFetcher, useNavigate } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
-import { Spinner } from "~/components/common/Spinner"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { AddressAutocomplete } from "~/components/forms/AddressAutocomplete"
 import { BasicInput } from "~/components/forms/BasicInput"
@@ -33,7 +33,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       where: { id },
       data: updateData,
     })
-    return redirect(`/dash/servicios/${id}`)
+    return { ok: true }
   }
   return null
 }
@@ -44,20 +44,42 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
   if (!service) throw new Response(null, { status: 404 })
   const org = await db.org.findUnique({
     where: { id: service.orgId },
-    select: { googleCalendarToken: true, zoomToken: true },
+    select: {
+      googleCalendarToken: true,
+      zoomToken: true,
+      loyaltyEnabled: true,
+    },
+  })
+  const levelsCount = await db.loyaltyLevel.count({
+    where: { orgId: service.orgId },
   })
 
   return {
     service,
     hasMeet: !!org?.googleCalendarToken,
     hasZoom: !!org?.zoomToken,
+    loyaltyEnabled: !!org?.loyaltyEnabled && levelsCount > 0,
   }
 }
 
 export default function Index({ loaderData }: Route.ComponentProps) {
-  const { service, hasMeet, hasZoom } = loaderData
+  const { service, hasMeet, hasZoom, loyaltyEnabled } = loaderData
   const fetcher = useFetcher()
+  const navigate = useNavigate()
+  const handledRef = useRef<unknown>(null)
   const isFetching = fetcher.state !== "idle"
+
+  useEffect(() => {
+    if (
+      fetcher.state === "idle" &&
+      fetcher.data &&
+      fetcher.data !== handledRef.current &&
+      (fetcher.data as { ok?: boolean }).ok
+    ) {
+      handledRef.current = fetcher.data
+      navigate(`/dash/servicios/${service.id}?saved=general`)
+    }
+  }, [fetcher.state, fetcher.data, navigate, service.id])
 
   return (
     <section>
@@ -111,7 +133,23 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           <BasicInput
             name="points"
             placeholder="100"
-            label="¿A cuántos puntos de recompensas equivale el servicio?"
+            isDisabled={!loyaltyEnabled}
+            label={
+              <>
+                ¿A cuántos puntos de lealtad equivale el servicio?{" "}
+                {!loyaltyEnabled && (
+                  <span className="font-satoshi text-brand_gray text-sm">
+                    <Link
+                      to="/dash/lealtad"
+                      className="text-brand_blue underline"
+                    >
+                      Activa el programa
+                    </Link>{" "}
+                    de lealtad para activar
+                  </span>
+                )}
+              </>
+            }
             defaultValue={Number(service.points)}
           />
           <BasicInput
@@ -161,12 +199,12 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             Cancelar
           </SecondaryButton>
           <PrimaryButton
-            isDisabled={isFetching}
+            isLoading={isFetching}
             name="intent"
             value="update_service"
             type="submit"
           >
-            {isFetching ? <Spinner /> : "Guardar"}
+            Guardar
           </PrimaryButton>
         </div>
       </fetcher.Form>

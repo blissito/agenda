@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { BsFillSendFill } from "react-icons/bs"
 import {
   useFormmyChat,
   useFormmyOptional,
@@ -39,7 +40,7 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const { messages, sendMessage, status } = useFormmyChat({
+  const { messages, sendMessage, status, reset } = useFormmyChat({
     agentId,
   })
 
@@ -74,7 +75,7 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
       {/* Chat Panel */}
       {isOpen && (
         <div
-          className="fixed bottom-24 right-6 z-50 w-[360px] max-h-[520px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-fade-in"
+          className="fixed bottom-24 right-6 z-50 w-[360px] h-[560px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-fade-in"
           style={{ animationDuration: "150ms" }}
         >
           {/* Header */}
@@ -113,18 +114,31 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                 {isStreaming ? "Escribiendo..." : "En linea"}
               </p>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={reset}
+                disabled={isStreaming || messages.length === 0}
+                title="Nueva conversación"
+                className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                title="Cerrar"
+                className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-[200px] max-h-[340px] bg-gray-50">
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-white">
             {/* Greeting */}
             {config.greeting && messages.length === 0 && (
               <div className="flex gap-2">
@@ -171,12 +185,11 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                     </div>
                   )}
                   <div
-                    className={`px-3 py-2 text-sm max-w-[260px] ${
+                    className={`px-3 py-2 text-sm max-w-[260px] shadow-sm ${
                       isUser
-                        ? "text-white rounded-xl rounded-br-sm"
-                        : "bg-white border border-gray-200 text-gray-700 rounded-xl rounded-bl-sm"
+                        ? "bg-brand_dark text-white rounded-2xl rounded-br-sm"
+                        : "bg-white border border-gray-100 text-brand_dark rounded-2xl rounded-bl-sm"
                     }`}
-                    style={isUser ? { backgroundColor: config.primaryColor || "#5158F6" } : undefined}
                   >
                     <p className="whitespace-pre-wrap break-words">{text}</p>
                   </div>
@@ -220,7 +233,7 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Escribe un mensaje..."
-              className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand_blue/20"
+              className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-0 focus:border-brand_blue focus:shadow-none"
               disabled={isStreaming}
             />
             <button
@@ -229,9 +242,7 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
               className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
               style={{ backgroundColor: config.primaryColor || "#5158F6" }}
             >
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-7 7m7-7l7 7" />
-              </svg>
+              <BsFillSendFill className="w-4 h-4 text-white" />
             </button>
           </div>
         </div>
@@ -414,9 +425,7 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
           className="w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-30"
           style={{ backgroundColor: config.primaryColor || "#5158F6" }}
         >
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-7 7m7-7l7 7" />
-          </svg>
+          <BsFillSendFill className="w-4 h-4 text-white" />
         </button>
       </div>
     </div>
@@ -472,9 +481,7 @@ function ChatWidgetInlineStatic({ config }: { config: ChatConfig }) {
           className="w-9 h-9 rounded-full flex items-center justify-center opacity-30"
           style={{ backgroundColor: config.primaryColor || "#5158F6" }}
         >
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-7 7m7-7l7 7" />
-          </svg>
+          <BsFillSendFill className="w-4 h-4 text-white" />
         </div>
       </div>
     </div>

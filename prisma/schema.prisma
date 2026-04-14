@@ -462,6 +462,7 @@ model Service {
   currency      String
   description   String?
   duration      BigInt
+  breakTime     BigInt?
   employeeName  String?
   isActive      Boolean
   limit         ServiceLimit?

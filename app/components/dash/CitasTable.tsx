@@ -1,7 +1,12 @@
 import type { Customer, Event, Service } from "@prisma/client"
+import { AnimatePresence, motion } from "motion/react"
+import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { FaRegClock } from "react-icons/fa6"
 import { useFetcher } from "react-router"
+import { twMerge } from "tailwind-merge"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { useOutsideClick } from "~/components/hooks/useOutsideClick"
 import { ClientAvatar } from "~/routes/dash/dash.clientes"
 
 export type CitaEvent = Event & {
@@ -85,8 +90,22 @@ function getInitials(name: string) {
 
 // ── Row menu (delete) ──────────────────────────────────────────
 
-const RowMenu = ({ eventId }: { eventId: string }) => {
+// Periodo de gracia: las citas se pueden eliminar hasta 2 días después de pasar.
+const DELETE_GRACE_MS = 2 * 24 * 60 * 60 * 1000
+
+export function canDeleteEvent(start: Date | string) {
+  return Date.now() - new Date(start).getTime() < DELETE_GRACE_MS
+}
+
+const RowMenu = ({
+  eventId,
+  canDelete,
+}: {
+  eventId: string
+  canDelete?: boolean
+}) => {
   const fetcher = useFetcher()
+  if (!canDelete) return null
   const handleDelete = () => {
     if (!window.confirm("¿Cancelar esta cita? Se eliminará de la agenda.")) return
     fetcher.submit(null, {
@@ -103,45 +122,119 @@ const RowMenu = ({ eventId }: { eventId: string }) => {
 
 // ── Attendance dropdown (past events only) ─────────────────────
 
+type AttendanceValue = "null" | "true" | "false"
+
+const ATTENDANCE_OPTIONS: { value: AttendanceValue; label: string }[] = [
+  { value: "null", label: "Por confirmar" },
+  { value: "true", label: "Asistió" },
+  { value: "false", label: "No asistió" },
+]
+
 const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
   const fetcher = useFetcher()
   const current =
     fetcher.formData?.get("attended") ?? String(event.attended)
-  const value =
+  const value: AttendanceValue =
     current === "true" ? "true" : current === "false" ? "false" : "null"
+  const currentLabel =
+    ATTENDANCE_OPTIONS.find((o) => o.value === value)?.label ?? "Por confirmar"
+
+  const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const menuRef = useOutsideClick<HTMLDivElement>({
+    isActive: open,
+    onClickOutside: () => setOpen(false),
+    keyboardListener: true,
+  })
+
+  useEffect(() => {
+    if (!open || !btnRef.current) return
+    const update = () => {
+      if (!btnRef.current) return
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 4, left: r.left, width: r.width })
+    }
+    update()
+    window.addEventListener("scroll", update, true)
+    window.addEventListener("resize", update)
+    return () => {
+      window.removeEventListener("scroll", update, true)
+      window.removeEventListener("resize", update)
+    }
+  }, [open])
+
+  const handlePick = (next: AttendanceValue) => {
+    setOpen(false)
+    if (next === value) return
+    const fd = new FormData()
+    fd.set("eventId", event.id)
+    fd.set("attended", next)
+    fetcher.submit(fd, {
+      method: "post",
+      action: "/api/events?intent=mark_attendance",
+    })
+  }
 
   return (
-    <fetcher.Form
-      method="post"
-      action="/api/events?intent=mark_attendance"
-    >
-      <input type="hidden" name="eventId" value={event.id} />
-      <select
-        name="attended"
-        value={value}
-        onChange={(e) => {
-          const fd = new FormData()
-          fd.set("eventId", event.id)
-          fd.set("attended", e.target.value)
-          fetcher.submit(fd, {
-            method: "post",
-            action: "/api/events?intent=mark_attendance",
-          })
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="cursor-pointer text-[12px] rounded-lg bg-white pl-3 pr-7 py-[4px] text-brand_gray border border-gray-200 outline-none focus:outline-none hover:bg-brand_blue/5 transition-colors bg-no-repeat text-left min-w-[120px]"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'><path d='M1 1L5 5L9 1' stroke='%238A90A2' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
+          backgroundPosition: "right 8px center",
+          backgroundSize: "10px 6px",
         }}
-        className="text-[12px] rounded border border-gray-200 bg-white px-2 py-[2px] text-brand_gray focus:outline-none"
       >
-        <option value="null">Sin marcar</option>
-        <option value="true">Asistió</option>
-        <option value="false">No asistió</option>
-      </select>
-    </fetcher.Form>
+        {currentLabel}
+      </button>
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {open && pos && (
+              <motion.div
+                ref={menuRef}
+                initial={{ opacity: 0, y: -3 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -3 }}
+                style={{
+                  position: "fixed",
+                  top: pos.top,
+                  left: pos.left,
+                  width: pos.width,
+                }}
+                className="z-50 bg-white rounded-xl shadow-[0_8px_24px_rgba(16,24,40,0.12)] p-1 border-0 outline-none"
+              >
+                {ATTENDANCE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => handlePick(opt.value)}
+                    className={twMerge(
+                      "w-full text-left text-[12px] px-3 py-2 rounded-lg text-brand_gray hover:bg-brand_blue/5 transition-colors",
+                      opt.value === value && "bg-brand_blue/5 text-brand_dark font-satoMedium",
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
+    </>
   )
 }
 
 // ── Table ───────────────────────────────────────────────────────
 
-const GRID_WITH_CLIENT = "grid grid-cols-[150px_1.5fr_1fr_1fr_90px_1fr_44px]"
-const GRID_NO_CLIENT = "grid grid-cols-[150px_1fr_1fr_90px_90px_1fr_44px]"
+const GRID_WITH_CLIENT = "grid gap-x-4 grid-cols-[150px_1.5fr_1fr_1fr_90px_1fr_120px_44px]"
+const GRID_NO_CLIENT = "grid gap-x-4 grid-cols-[150px_1fr_1fr_90px_90px_1fr_120px_44px]"
 
 export const CitasTable = ({
   events,
@@ -165,6 +258,7 @@ export const CitasTable = ({
             {hideClient && <div className="text-left">Puntos</div>}
             <div className="text-left">Precio</div>
             <div className="text-left">Estatus</div>
+            <div className="text-left">Asistencia</div>
             <div className="text-right" />
           </div>
           <div className="rounded-b-2xl bg-white divide-y divide-brand_stroke">
@@ -215,6 +309,8 @@ const CitaRow = ({
   grid: string
 }) => {
   const name = event.customer?.displayName || "Sin cliente"
+  const isPast = new Date(event.start) < new Date()
+  const canDelete = canDeleteEvent(event.start)
   return (
     <div className={`${grid} items-center px-6 py-3 hover:bg-slate-50 transition-colors`}>
       <div className="flex items-center gap-2">
@@ -259,10 +355,16 @@ const CitaRow = ({
       <div className="flex items-center gap-2 flex-wrap">
         <StatusTag variant={getStatusVariant(event.status)} />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
-        {new Date(event.start) < new Date() && <AttendanceDropdown event={event} />}
+      </div>
+      <div className="flex items-center">
+        {isPast ? (
+          <AttendanceDropdown event={event} />
+        ) : (
+          <span className="text-[12px] text-brand_iron">—</span>
+        )}
       </div>
       <div className="flex items-center justify-end">
-        <RowMenu eventId={event.id} />
+        <RowMenu eventId={event.id} canDelete={canDelete} />
       </div>
     </div>
   )
@@ -278,6 +380,8 @@ const CitaCardMobile = ({
   hideClient?: boolean
 }) => {
   const name = event.customer?.displayName || "Sin cliente"
+  const isPast = new Date(event.start) < new Date()
+  const canDelete = canDeleteEvent(event.start)
   return (
     <div>
       <div className="flex items-start justify-between gap-3">
@@ -304,7 +408,7 @@ const CitaCardMobile = ({
           )}
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
-          <RowMenu eventId={event.id} />
+          <RowMenu eventId={event.id} canDelete={canDelete} />
           <p className="text-[12px] font-satoMedium text-brand_gray tabular-nums">
             {event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"}
           </p>
@@ -313,11 +417,18 @@ const CitaCardMobile = ({
       <div className="mt-2 flex items-center gap-2 flex-wrap">
         <StatusTag variant={getStatusVariant(event.status)} />
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
-        {new Date(event.start) < new Date() && <AttendanceDropdown event={event} />}
         {hideClient && (
           <span className="text-[11px] text-brand_gray">{String(event.service?.points ?? 0)} pts</span>
         )}
       </div>
+      {isPast && (
+        <div className="mt-2 flex items-center gap-2">
+          <span className="text-[11px] font-satoMedium text-brand_gray uppercase tracking-wide">
+            Asistencia
+          </span>
+          <AttendanceDropdown event={event} />
+        </div>
+      )}
     </div>
   )
 }

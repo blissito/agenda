@@ -1,11 +1,10 @@
-import { useState } from "react"
-import { useFetcher } from "react-router"
-import { PrimaryButton } from "~/components/common/primaryButton"
+import { useEffect, useRef } from "react"
+import { useFetcher, useNavigate } from "react-router"
 import {
   SimpleTimeSelector,
+  type SchedulePayload,
   type Week,
 } from "~/components/forms/services_model/SimpleTimeSelector"
-import { useToast } from "~/components/hooks/useToaster"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,31 +19,55 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId
   const service = await db.service.findUnique({ where: { id: serviceId } })
   if (!service) throw new Response(null, { status: 404 })
-  return { service }
+  return {
+    service: {
+      ...service,
+      duration: Number(service.duration),
+      breakTime: service.breakTime ? Number(service.breakTime) : 0,
+      price: Number(service.price),
+      points: Number(service.points),
+      seats: Number(service.seats),
+    },
+  }
 }
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   const { service } = loaderData
   const fetcher = useFetcher()
-  const toast = useToast()
-  const [showForm, setShowForm] = useState(false)
+  const navigate = useNavigate()
+  const submittedRef = useRef(false)
 
-  const handleSubmit = (weekDays: Week) => {
-    if (Object.values(weekDays).length < 1) return
+  const handleSubmit = (payload: SchedulePayload) => {
+    const data: Record<string, unknown> = {
+      id: service.id,
+      duration: payload.duration,
+      breakTime: payload.breakTime,
+    }
+    if (payload.mode === "specific" && payload.weekDays) {
+      data.weekDays = { set: payload.weekDays }
+    } else {
+      data.weekDays = { unset: true }
+    }
 
+    submittedRef.current = true
     fetcher.submit(
-      {
-        data: JSON.stringify({ weekDays, id: service.id }),
-        intent: "service_update",
-      },
+      { data: JSON.stringify(data), intent: "service_update" },
       { method: "post", action: "/api/services" },
     )
-    toast.success({ text: "Los horarios se guardarón con éxito " })
   }
 
-  const isLoading = fetcher.state !== "idle"
+  useEffect(() => {
+    if (
+      submittedRef.current &&
+      fetcher.state === "idle" &&
+      fetcher.data !== undefined
+    ) {
+      submittedRef.current = false
+      navigate(`/dash/servicios/${service.id}?saved=horario`)
+    }
+  }, [fetcher.state, fetcher.data, navigate, service.id])
 
-  // Cast service.weekDays to Week type for SimpleTimeSelector
+  const isLoading = fetcher.state !== "idle"
   const weekDaysForSelector = service.weekDays as Week | null
 
   return (
@@ -62,50 +85,20 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink href="/dash/servicios/serviceid/horario">
+            <BreadcrumbLink href={`/dash/servicios/${service.id}/horario`}>
               Horario
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      {weekDaysForSelector || showForm ? (
-        <SimpleTimeSelector
-          isLoading={isLoading}
-          defaultValue={weekDaysForSelector ?? undefined}
-          onSubmit={handleSubmit}
-        />
-      ) : (
-        <div className="bg-white rounded-2xl max-w-3xl p-8 mt-6">
-          <h2
-            className="font-satoMiddle mb-8 text-xl
-        "
-          >
-            Horario: Actualiza los días y horarios en los que ofreces servicio
-          </h2>
-          <section>
-            <h2>
-              Este servicio utiliza los mismos horarios que la organización
-            </h2>
-            {/* <TimesForm /> */}
-            <nav className="flex gap-4">
-              <PrimaryButton
-                as="Link"
-                to={`/dash/servicios/${service.id}`}
-                className="my-4"
-              >
-                Volver
-              </PrimaryButton>
-              <PrimaryButton
-                as="button"
-                className="my-4 disabled:bg-yellow-500/40"
-                onClick={() => setShowForm(true)}
-              >
-                Crear horarios específicos
-              </PrimaryButton>
-            </nav>
-          </section>
-        </div>
-      )}
+      <SimpleTimeSelector
+        isLoading={isLoading}
+        defaultValue={weekDaysForSelector ?? undefined}
+        defaultDuration={service.duration || 60}
+        defaultBreakTime={service.breakTime || 0}
+        cancelHref={`/dash/servicios/${service.id}`}
+        onSubmit={handleSubmit}
+      />
     </section>
   )
 }

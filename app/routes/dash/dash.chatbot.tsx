@@ -95,7 +95,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100svh-160px)] lg:h-[calc(100svh-120px)]">
+    <div className="flex flex-col h-[calc(100svh-120px)] lg:h-[calc(100svh-80px)]">
       <div className="mb-4">
         {activeTab === "config" ? (
           <Breadcrumb className="text-brand_gray">
@@ -228,8 +228,13 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
       )}
 
       {saveMessage && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-green-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
-          {saveMessage}
+        <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+          <div className="px-5 py-3 bg-white text-brand_dark rounded-full shadow-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap pointer-events-auto">
+            <svg className="w-5 h-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+            </svg>
+            {saveMessage}
+          </div>
         </div>
       )}
     </div>

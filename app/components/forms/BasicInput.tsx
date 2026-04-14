@@ -74,7 +74,6 @@ export const BasicInput = ({
             onBlur={onBlur}
             onChange={onChange as any}
             name={name}
-            disabled={isDisabled}
             placeholder={placeholder}
             className={twMerge(
               "min-h-40 text-brand_gray",
@@ -88,6 +87,7 @@ export const BasicInput = ({
             )}
             {...(props as any)}
             {...register?.(name, registerOptions)}
+            disabled={isDisabled}
           />
         ) : (
           <input
@@ -96,7 +96,6 @@ export const BasicInput = ({
             onFocus={onFocus}
             onChange={onChange}
             name={name}
-            disabled={isDisabled}
             type={type}
             placeholder={placeholder}
             className={twMerge(
@@ -110,6 +109,7 @@ export const BasicInput = ({
             )}
             {...(props as any)}
             {...register?.(name, registerOptions)}
+            disabled={isDisabled}
           />
         )}
       </div>

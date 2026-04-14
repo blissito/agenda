@@ -9,6 +9,7 @@ import type {
   Section3,
 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
+import { ChatWidget } from "~/components/chatbot/ChatWidget"
 import TemplateOne from "~/components/templates/TemplateOne"
 import TemplateTwo from "~/components/templates/TemplateTwo"
 import { db } from "~/utils/db.server"
@@ -74,12 +75,24 @@ export default function OrgLanding({ loaderData }: Route.ComponentProps) {
 
   // AI landing takes priority
   if (aiLandingHtml) {
+    const showChatbot =
+      org.landingChatbotEnabled !== false &&
+      Boolean(org.chatbotAgentId) &&
+      Boolean(org.chatbotConfig)
     return (
-      <iframe
-        srcDoc={aiLandingHtml}
-        style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
-        title="Landing"
-      />
+      <>
+        <iframe
+          srcDoc={aiLandingHtml}
+          style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
+          title="Landing"
+        />
+        {showChatbot && (
+          <ChatWidget
+            agentId={org.chatbotAgentId as string}
+            config={org.chatbotConfig as any}
+          />
+        )}
+      </>
     )
   }
 

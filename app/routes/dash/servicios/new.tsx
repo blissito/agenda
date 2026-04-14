@@ -43,7 +43,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       },
     })
   }
-  return { id, service, orgAddress: org?.address ?? null }
+  const levelsCount = org
+    ? await db.loyaltyLevel.count({ where: { orgId: org.id } })
+    : 0
+  return {
+    id,
+    service,
+    orgAddress: org?.address ?? null,
+    loyaltyEnabled: !!org?.loyaltyEnabled && levelsCount > 0,
+  }
 }
 
 const formatErrors = (zodError: ZodError): Record<string, FieldError> => {
@@ -58,7 +66,7 @@ const formatErrors = (zodError: ZodError): Record<string, FieldError> => {
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { id, service, orgAddress } = loaderData
+  const { id, service, orgAddress, loyaltyEnabled } = loaderData
   const [errors, setErrors] = useState<Record<string, FieldError>>({})
   const formRef = useRef<HTMLFormElement>(null)
   const [index, setIndex] = useState(id ? 1 : 0)
@@ -161,7 +169,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </h1>
           <Steper currentIndex={index} />
           {index === 0 && (
-            <ServiceGeneralForm errors={errors} formRef={formRef} />
+            <ServiceGeneralForm
+              errors={errors}
+              formRef={formRef}
+              loyaltyEnabled={loyaltyEnabled}
+            />
           )}
           {index === 1 && (
             <ServicePhotoForm
