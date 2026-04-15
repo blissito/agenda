@@ -166,7 +166,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[320px,1fr] gap-6 flex-1 min-h-0">
+    <div className="grid grid-cols-1 lg:grid-cols-[320px,1fr] gap-4 md:gap-6 flex-1 min-h-0">
       {/* Left — Conversation list */}
       <div className="flex flex-col bg-white rounded-2xl overflow-hidden">
         <div className="flex-grow overflow-y-auto p-3 space-y-2">

@@ -66,30 +66,32 @@ export const WhatsAppAd = () => {
       <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
       <div className="pointer-events-none absolute -left-8 -bottom-8 h-32 w-32 rounded-full bg-[#DCF8C6]/30 blur-xl" />
 
-      <div className="relative flex items-center gap-4">
-        <img
-          src="/images/nik-white.svg"
-          alt="Nik"
-          className="h-20 w-20 shrink-0 drop-shadow-md animate-[nikWobble_3s_ease-in-out_infinite]"
-        />
-        <div className="flex-1 text-white min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <FaWhatsapp className="text-white text-xl" />
-            <span className="text-[11px] uppercase tracking-wide font-satoBold bg-white/20 rounded-full px-2 py-0.5">
-              Nuevo
-            </span>
+      <div className="relative flex flex-col md:flex-row md:items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0">
+          <img
+            src="/images/nik-white.svg"
+            alt="Nik"
+            className="h-16 w-16 md:h-20 md:w-20 shrink-0 drop-shadow-md animate-[nikWobble_3s_ease-in-out_infinite]"
+          />
+          <div className="flex-1 text-white min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <FaWhatsapp className="text-white text-xl" />
+              <span className="text-[11px] uppercase tracking-wide font-satoBold bg-white/20 rounded-full px-2 py-0.5">
+                Nuevo
+              </span>
+            </div>
+            <h3 className="font-satoBold text-white text-base md:text-[18px] leading-tight">
+              Conecta tu chatbot a WhatsApp
+            </h3>
+            <p className="text-white/90 text-[13px] mt-1 leading-snug">
+              Atiende a tus clientes desde donde ya están chateando.
+            </p>
           </div>
-          <h3 className="font-satoBold text-white text-[18px] leading-tight">
-            Conecta tu chatbot a WhatsApp
-          </h3>
-          <p className="text-white/90 text-[13px] mt-1 leading-snug">
-            Atiende a tus clientes desde donde ya están chateando.
-          </p>
         </div>
         <button
           onClick={handleConnect}
           disabled={loading}
-          className="shrink-0 flex items-center justify-center gap-2 rounded-full bg-white text-[#128C7E] font-satoBold px-5 py-3 text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70"
+          className="shrink-0 w-full md:w-auto flex items-center justify-center gap-2 rounded-full bg-white text-[#128C7E] font-satoBold px-5 py-3 text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70"
         >
           <FaWhatsapp className="text-lg" />
           {loading ? "Cargando…" : "Conectar WhatsApp"}

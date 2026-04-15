@@ -128,7 +128,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
       </div>
 
       {activeTab === "conversations" && (
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-4 md:mb-6">
           <div className="flex-1 relative">
             <svg
               className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"

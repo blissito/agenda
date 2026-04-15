@@ -105,18 +105,18 @@ export function ChatbotConfig({
 
   return (
     <div
-      className="bg-white rounded-2xl p-6 flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8"
+      className="bg-white rounded-2xl p-6 pb-6 flex-1 min-h-0 overflow-y-auto grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8"
       style={{ gridTemplateRows: "1fr" }}
     >
       {/* Left column — Form */}
       <div className="flex flex-col">
-        <h2 className="text-2xl font-satoBold text-brand_dark mb-5">
+        <h2 className="text-xl md:text-2xl font-satoBold text-brand_dark mb-4">
           Estilo de tu chat
         </h2>
 
         {/* Widget style selector — deshabilitado hasta que el SDK de Formmy soporte variantes (sidebar/bar). Hoy widgetStyle se guarda pero no afecta el render. */}
         {/*
-        <div className="mb-5 relative">
+        <div className="mb-4 relative">
           <div className="flex items-center justify-between gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl">
             <div className="flex items-center gap-3">
               <span className="flex items-center justify-center w-4 h-4 rounded-full border-2 border-brand_blue">
@@ -167,7 +167,7 @@ export function ChatbotConfig({
         */}
 
         {/* Avatar + Name + Color — side by side */}
-        <div className="flex gap-6 mb-5 items-stretch">
+        <div className="flex gap-6 mb-4 items-stretch">
           {/* Avatar dropzone */}
           <div className="flex-shrink-0 self-stretch">
             <div
@@ -230,7 +230,7 @@ export function ChatbotConfig({
         </div>
 
         {/* Greeting */}
-        <div className="mb-5">
+        <div className="mb-4">
           <BasicInput
             as="textarea"
             name="greeting"
@@ -242,7 +242,7 @@ export function ChatbotConfig({
         </div>
 
         {/* Farewell */}
-        <div className="mb-5">
+        <div className="mb-4">
           <BasicInput
             as="textarea"
             name="farewell"
@@ -254,7 +254,7 @@ export function ChatbotConfig({
         </div>
 
         {/* WhatsApp Ad — pushed to bottom above Save */}
-        <div className="mt-auto pt-10">
+        <div className="mt-auto pt-10 hidden md:block">
           <WhatsAppAd />
         </div>
 
@@ -272,14 +272,16 @@ export function ChatbotConfig({
 
       {/* Right column — Live preview */}
       <div
-        className="bg-[#F0F5FC] rounded-2xl flex items-center justify-center p-3"
+        className="bg-[#F0F5FC] rounded-2xl w-full flex items-center justify-center p-3"
         style={{
           backgroundImage:
             "radial-gradient(circle, transparent 3px, #c8ccd8 3px, #c8ccd8 4px, transparent 4px)",
           backgroundSize: "40px 40px",
         }}
       >
-        <ChatWidgetInline agentId={agentId ?? ""} config={previewConfig} />
+        <div className="w-full flex justify-center">
+          <ChatWidgetInline agentId={agentId ?? ""} config={previewConfig} />
+        </div>
       </div>
     </div>
   )

@@ -999,17 +999,17 @@ export { TabButton } from "~/components/common/TabButton"
 
 export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
   return (
-    <div className="mt-10 flex h-[80vh] w-full items-center justify-center bg-cover">
+    <div className="mt-10 flex h-[80vh] w-full items-center justify-center bg-cover px-4">
       <div className="text-center">
         <img
-          className="mx-auto mb-4"
+          className="mx-auto mb-4 w-[200px] md:w-auto"
           src="/images/emptyState/loyalty.webp"
           alt=""
         />
-        <p className="text-2xl font-satoBold">
+        <p className="text-xl md:text-2xl font-satoBold">
           ¡Convierte visitas en clientes frecuentes!
         </p>
-        <p className="mx-auto mt-2 max-w-[780px] text-center text-[18px] text-brand_gray">
+        <p className="mx-auto mt-2 max-w-[780px] text-center text-base md:text-[18px] font-satoshi text-brand_gray">
           Activa el programa de lealtad y ofrece descuentos permanentes a tus
           clientes mas fieles, ademas de promociones para temporadas especiales
         </p>

@@ -310,7 +310,7 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
   }
 
   return (
-    <div className="w-full max-w-[360px] bg-white rounded-2xl shadow-[0px_8px_32px_0px_rgba(0,0,0,0.05)] border border-gray-200 flex flex-col h-[560px] overflow-hidden">
+    <div className="w-full md:max-w-[360px] bg-white rounded-2xl shadow-[0px_8px_32px_0px_rgba(0,0,0,0.05)] border border-gray-200 flex flex-col h-[560px] overflow-hidden">
       {/* Header */}
       <div
         className="px-4 py-3 flex items-center gap-3 text-white"
@@ -416,7 +416,7 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Escribe un mensaje..."
-          className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand_blue/20"
+          className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-0 focus:border-brand_blue focus:shadow-none"
           disabled={isStreaming}
         />
         <button
@@ -435,7 +435,7 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
 /** Static fallback when FormmyProvider is not available */
 function ChatWidgetInlineStatic({ config }: { config: ChatConfig }) {
   return (
-    <div className="w-full max-w-[360px] bg-white rounded-2xl shadow-[0px_8px_32px_0px_rgba(0,0,0,0.05)] border border-gray-200 flex flex-col h-[560px] overflow-hidden">
+    <div className="w-full md:max-w-[360px] bg-white rounded-2xl shadow-[0px_8px_32px_0px_rgba(0,0,0,0.05)] border border-gray-200 flex flex-col h-[560px] overflow-hidden">
       <div
         className="px-4 py-3 flex items-center gap-3 text-white"
         style={{ backgroundColor: config.primaryColor || "#5158F6" }}
