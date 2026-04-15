@@ -1,5 +1,5 @@
 import { type User as PrismaUser } from "@prisma/client"
-import { AnimatePresence, motion, useMotionValue, type Transition } from "motion/react"
+import { AnimatePresence, motion, type Transition } from "motion/react"
 import {
   Children,
   cloneElement,
@@ -430,7 +430,6 @@ const OnboardingBanner = () => {
 const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
   const location = useLocation()
   const [showMore, setShowMore] = useState(false)
-  const y = useMotionValue(0)
   const match = (s: string) => location.pathname.includes(s)
   const matchIndex = () => /^\/dash$/.test(location.pathname)
 
@@ -438,10 +437,6 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
   useEffect(() => {
     setShowMore(false)
   }, [location.pathname])
-
-  useEffect(() => {
-    if (showMore) y.set(0)
-  }, [showMore, y])
 
   const tabs = [
     { to: "/dash", label: "Inicio", icon: <Dashboard />, active: matchIndex() },
@@ -547,7 +542,7 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
               drag="y"
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={{ top: 0, bottom: 0.6 }}
-              style={{ y }}
+              dragSnapToOrigin
               onDragEnd={(_, info) => {
                 if (info.offset.y > 120 || info.velocity.y > 500) {
                   setShowMore(false)
