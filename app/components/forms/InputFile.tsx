@@ -25,6 +25,7 @@ type Props = {
   description?: string
   error?: FieldError
   className?: string
+  containerClassName?: string
   registerOptions?: { required: string | boolean }
   multiple?: boolean
   onUploadComplete?: (key: string) => void
@@ -42,6 +43,7 @@ export const InputFile = ({
   name,
   multiple,
   className,
+  containerClassName,
   onUploadComplete,
   onDelete,
 }: Props) => {
@@ -114,7 +116,7 @@ export const InputFile = ({
   }
 
   return (
-    <div className="mb-8">
+    <div className={twMerge("mb-8", containerClassName)}>
       {title && <p className="text-brand_dark font-satoMiddle">{title}</p>}
       {description && (
         <p className="text-brand_gray text-sm">{description}</p>

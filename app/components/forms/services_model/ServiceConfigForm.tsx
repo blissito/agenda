@@ -72,35 +72,36 @@ export const ServiceConfigForm = ({
           label="  Después de agendar (tu cliente no necesita pagar para reservar, podrás cobrarle en el establecimiento)"
         />
         <p className="text-red-500 text-xs">{errors?.payment?.message}</p>
-        <p className="mt-8 mb-2 text-brand_dark font-satoMiddle">
+        <p className="mt-6 md:mt-8 mb-2 text-brand_dark font-satoMiddle">
           ¿Qué notificaciones quieres que enviemos a tus clientes?
         </p>
         {errors?.config && <p className="text-xs text-red-500">Enciende una</p>}
-        <SwitchOption
-          defaultChecked={defaultValues?.config.confirmation}
-          register={register}
-          name="confirmation"
-          title="Mail de recordatorio"
-          description="Lo enviaremos 12 hrs antes de la sesión"
-          registerOptions={{ required: false }}
-        />
-        <SwitchOption
-          defaultChecked={defaultValues?.config.reminder}
-          register={register}
-          name="reminder"
-          title="Whats app de recordatorio"
-          description="Lo enviaremos 4hrs antes de la sesión"
-          registerOptions={{ required: false }}
-        />
-
-        <SwitchOption
-          defaultChecked={defaultValues?.config.survey}
-          register={register}
-          name="survey"
-          title="  Mail de evaluación"
-          description="Lo enviaremos 10 min después de terminar la sesión"
-          registerOptions={{ required: false }}
-        />
+        <div className="flex flex-col gap-4">
+          <SwitchOption
+            defaultChecked={defaultValues?.config.confirmation}
+            register={register}
+            name="confirmation"
+            title="Mail de recordatorio"
+            description="Lo enviaremos 12 hrs antes de la sesión"
+            registerOptions={{ required: false }}
+          />
+          <SwitchOption
+            defaultChecked={defaultValues?.config.reminder}
+            register={register}
+            name="reminder"
+            title="Whats app de recordatorio"
+            description="Lo enviaremos 4hrs antes de la sesión"
+            registerOptions={{ required: false }}
+          />
+          <SwitchOption
+            defaultChecked={defaultValues?.config.survey}
+            register={register}
+            name="survey"
+            title="  Mail de evaluación"
+            description="Lo enviaremos 10 min después de terminar la sesión"
+            registerOptions={{ required: false }}
+          />
+        </div>
       </div>
     </Form>
   )

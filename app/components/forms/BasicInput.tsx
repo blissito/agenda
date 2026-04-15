@@ -103,7 +103,7 @@ export const BasicInput = ({
               "focus:border-brand_blue focus:outline-none focus:ring-0",
               "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
-              !!error && "border-red-full",
+              !!error && "border-red-500",
               icon && "pl-12",
               inputClassName,
             )}

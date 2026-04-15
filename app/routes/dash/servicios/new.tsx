@@ -72,6 +72,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [index, setIndex] = useState(id ? 1 : 0)
   const [times, setTimes] = useState<WeekSchema>({})
   const [serviceId, setServiceId] = useState<string | null>(id)
+  const [serviceName, setServiceName] = useState<string>(service?.name || "")
   const [photoAction, setPhotoAction] = useState<PhotoAction | undefined>()
   const [addressWarning, setAddressWarning] = useState(false)
   const [paymentSelected, setPaymentSelected] = useState(false)
@@ -117,6 +118,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     const form = Object.fromEntries(fd)
     const { success, error, data } = parse(form)
     if (success) {
+      if (intent === "general_form" && typeof (data as any).name === "string") {
+        setServiceName((data as any).name)
+      }
       fetcher.submit(
         { data: JSON.stringify({ ...data, id: serviceId }), intent },
         { method: "post", action: "/api/services" },
@@ -154,17 +158,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }, [photoUrlsFetcher.data])
 
   return (
-    <article className="h-screen bg-white fixed inset-0 pt-10 overflow-y-auto z-[600]">
+    <article className="h-screen bg-white fixed inset-0 pt-6 md:pt-10 overflow-y-auto z-[600]">
       <Link
         to="/dash/servicios"
         aria-label="Cerrar"
-        className="absolute right-10 top-10 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
+        className="absolute right-4 top-4 md:right-10 md:top-10 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
       >
         <IoClose className="text-2xl" />
       </Link>
       {index !== 4 && (
-        <section className="max-w-xl mx-auto h-full flex flex-col">
-          <h1 className="text-center text-2xl">
+        <section className="max-w-xl mx-auto h-full flex flex-col px-4 md:px-0">
+          <h1 className="text-center text-xl md:text-2xl pr-10 md:pr-0">
             ¡Empecemos! Describe tu servicio
           </h1>
           <Steper currentIndex={index} />
@@ -210,14 +214,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </section>
       )}
       {index === 4 && (
-        <section className="flex flex-col justify-center gap-2 place-items-center h-full">
+        <section className="flex flex-col justify-center gap-2 place-items-center h-full px-4 text-center">
           <EmojiConfetti />
-          <img src="/steper/pencil_paper.svg" />
-          <h1 className="text-2xl font-satoBold">¡Tu servicio ha sido agregado!</h1>
-          <p className="max-w-xl text-center text-lg text-brand_gray">
-            Tu servicio <span className="font-satoBold">“{service?.name}”</span> está listo para recibir clientes.
+          <img src="/steper/pencil_paper.svg" className="w-[200px] md:w-auto" />
+          <h1 className="text-xl md:text-2xl font-satoBold">¡Tu servicio ha sido agregado!</h1>
+          <p className="max-w-xl text-base md:text-lg text-brand_gray">
+            Tu servicio <span className="font-satoBold">“{serviceName || service?.name}”</span> está listo para recibir clientes.
           </p>
-          <SecondaryButton as="Link" to="/dash/servicios" className="mt-12">
+          <SecondaryButton as="Link" to="/dash/servicios" className="mt-8 md:mt-12">
             Ir a mis servicios
           </SecondaryButton>
         </section>
@@ -228,7 +232,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
 const Steper = ({ currentIndex }: { currentIndex: number }) => {
   return (
-    <nav className="flex items-center py-10 justify-center">
+    <nav className="flex items-center py-6 md:py-10 justify-center">
       <StepNumber isActive={currentIndex >= 0}>1</StepNumber>
       <Dots isActive={currentIndex >= 1} />
       <StepNumber isActive={currentIndex >= 1}>2</StepNumber>
@@ -243,7 +247,7 @@ const Steper = ({ currentIndex }: { currentIndex: number }) => {
 const Dots = ({ isActive }: { isActive?: boolean }) => {
   return (
     <hr
-      className={`w-20 border-b-0 border-[10px] border-dotted ${
+      className={`w-8 md:w-20 border-0 border-t-[8px] md:border-t-[10px] border-dotted ${
         isActive ? "border-brand_blue" : "border-gray-300"
       }`}
     />
@@ -260,7 +264,7 @@ const StepNumber = ({
   return (
     <p
       className={cn(
-        "w-7 h-7 grid place-items-center bg-gray-300 text-gray-400 rounded-full mx-2",
+        "w-7 h-7 grid place-items-center bg-gray-300 text-gray-400 rounded-full mx-1 md:mx-2 shrink-0 text-sm",
         {
           "bg-brand_blue text-white": isActive,
         },
@@ -284,7 +288,7 @@ export const ServiceFormFooter = ({
   isLoading?: boolean
   isDisabled?: boolean
 }) => (
-  <footer className="items-center pb-4 px-4 w-full max-w-xl justify-between flex mt-auto">
+  <footer className="items-center pb-4 pt-4 px-0 md:px-4 w-full max-w-xl justify-between flex mt-auto gap-2">
     {onBack ? (
       <PrimaryButton
         type="button"

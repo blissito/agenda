@@ -122,7 +122,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }, [toastMessage])
 
   return (
-    <section className="pb-10 max-w-8xl mx-auto">
+    <section className="md:pb-10 max-w-8xl mx-auto">
       <div className="relative">
         <Breadcrumb className="text-brand_gray">
           <BreadcrumbList>
@@ -454,7 +454,7 @@ export const ServiceDetail = ({
 }) => {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-stretch">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 items-stretch">
         <div className="bg-white rounded-2xl p-6 lg:col-span-5 border border-brand_stroke/60 h-full flex flex-col">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
@@ -516,7 +516,7 @@ export const ServiceDetail = ({
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
         <div className="bg-white rounded-2xl p-6 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
             <h3 className="font-satoBold text-lg text-brand_dark">Horario</h3>
@@ -564,7 +564,7 @@ export const ServiceDetail = ({
             />
           </div>
 
-          <div className="mt-4 space-y-6">
+          <div className="mt-4 space-y-4 md:space-y-6">
             <DetailItem
               label="Pago"
               value={service.payment ? "Al agendar" : "Despues de la cita"}

@@ -318,7 +318,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
 
   return (
     <article className="w-full max-w-8xl mx-auto">
-      <RouteTitle>Ventas</RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl">Ventas</RouteTitle>
 
         <div className="flex items-center gap-6">
           <button
@@ -902,13 +902,13 @@ const MercadoPagoEmptyState = ({
     <img
       src="/images/emptyState/payments.webp"
       alt=""
-      className="mb-8 w-full max-w-[240px] md:max-w-[240px]"
+      className="mb-6 md:mb-8 w-[180px] md:w-full md:max-w-[240px]"
     />
     <div className="max-w-[620px]">
-      <h2 className="text-[24px] font-satoBold">
+      <h2 className="text-xl md:text-[24px] font-satoBold">
         Conecta tu cuenta MELI para empezar a recibir pagos
       </h2>
-      <p className="mt-3 text-[18px] font-satoMedium text-brand_gray">
+      <p className="mt-2 md:mt-3 text-base md:text-[18px] font-satoMedium text-brand_gray">
         Denik colabora con Mercado Libre para ofrecerte pagos seguros
       </p>
     </div>

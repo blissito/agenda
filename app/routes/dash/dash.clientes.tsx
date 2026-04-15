@@ -119,7 +119,7 @@ export default function Clients() {
 
   return (
     <div className="max-w-8xl mx-auto">
-      <RouteTitle>Clientes</RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl">Clientes</RouteTitle>
 
       {clients.length > 0 ? (
         <>
@@ -532,7 +532,7 @@ const EmptyStateClients = ({ link }: { link: string }) => {
     <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center px-4">
       <div className="text-center">
         <img
-          className="mx-auto mb-4 max-w-full"
+          className="mx-auto mb-4 w-[200px] md:w-auto max-w-full"
           src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />

@@ -109,7 +109,7 @@ export const ServiceTimesForm = ({
           placeholder="Selecciona una opción"
           label="¿Cuánto dura cada sesión?"
         />
-        <div className="text-brand_gray mt-8">
+        <div className="text-brand_gray mt-6">
           <p className="text-brand_dark font-satoMiddle">
             ¿En que horario ofrecerás este servicio?
           </p>

@@ -12,10 +12,16 @@ import { TextAreaInput } from "../TextAreaInput"
 
 // Type stuff
 export const generalFormSchema = z.object({
-  name: z.string().min(1),
-  price: z.coerce.number().min(0),
+  name: z
+    .string({ error: "El nombre es obligatorio" })
+    .min(1, "El nombre es obligatorio"),
+  price: z.coerce
+    .number({ error: "Ingresa un precio válido" })
+    .min(0, "El precio debe ser mayor o igual a 0"),
   points: z.coerce.number().optional(),
-  description: z.string().min(5),
+  description: z
+    .string({ error: "La descripción es obligatoria" })
+    .min(5, "La descripción debe tener al menos 5 caracteres"),
 })
 export type GeneralFormFields = z.infer<typeof generalFormSchema>
 const initialValues: GeneralFormFields = {
@@ -56,9 +62,9 @@ export const ServiceGeneralForm = ({
       ref={formRef}
       onSubmit={handleSubmit(submit)}
       method="post"
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-6"
     >
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
         <BasicInput
           error={errors.name}
           register={register}

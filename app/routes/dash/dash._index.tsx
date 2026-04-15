@@ -214,10 +214,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
 const EmptyStateDash = () => {
   return (
-    <div className="bg-dashEmpty w-full flex-1 bg-cover mt-10 flex justify-center items-center">
+    <div className="bg-dashEmpty w-full flex-1 bg-cover mt-4 lg:mt-8 flex justify-center items-center">
       <div className="text-center">
-        <img className="mx-auto" src="/images/no-files.svg" />
-        <p className="font-satoMedium text-xl font-bold">
+        <img className="mx-auto w-[160px] md:w-auto" src="/images/no-files.svg" />
+        <p className="font-satoBold text-xl font-bold">
           Un poco de paciencia 🧘🏻
         </p>
         <p className="mt-2 text-brand_gray">
@@ -577,7 +577,7 @@ const Summary = ({ user, stats }: { user: User; stats: Stats | null }) => {
   }
 
   return (
-    <div className="grid grid-cols-6 gap-6 lg:gap-10">
+    <div className="grid grid-cols-6 gap-4 md:gap-6 lg:gap-10">
       <div className="col-span-6 xl:col-span-2 flex items-center">
         <div>
           <h2 className="text-2xl md:text-4xl font-satoBold leading-normal">
@@ -588,7 +588,7 @@ const Summary = ({ user, stats }: { user: User; stats: Stats | null }) => {
           </p>
         </div>
       </div>
-      <div className="col-span-6 xl:col-span-4 flex flex-wrap lg:flex-nowrap justify-end gap-6 md:gap-6 overflow-hidden">
+      <div className="col-span-6 xl:col-span-4 flex flex-wrap lg:flex-nowrap justify-end gap-4 md:gap-6 overflow-hidden">
         <DashCard
           className="bg-[#64D0C5] "
           title="Ventas del mes"

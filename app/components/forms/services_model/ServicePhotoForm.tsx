@@ -108,10 +108,16 @@ export const ServicePhotoForm = ({
   const isUploadReady = Boolean(photoAction?.putUrl)
 
   return (
-    <Form ref={formRef} method="post" action="/api/services">
+    <Form
+      ref={formRef}
+      method="post"
+      action="/api/services"
+      className="flex flex-col gap-6"
+    >
       {/* Hidden input for the new photo key to add to gallery */}
       <input type="hidden" name="gallery" value={newPhoto} />
       <InputFile
+        containerClassName="mb-0"
         action={photoAction}
         name="gallery_file"
         title="Foto de portada"
@@ -133,28 +139,29 @@ export const ServicePhotoForm = ({
         </div>
       </InputFile>
 
-      <SelectInput
-        error={errors.place as import("react-hook-form").FieldError | undefined}
-        register={register}
-        className="mt-8"
-        options={OPTIONS}
-        name="place"
-        placeholder="Selecciona una opción"
-        label="¿En donde se realiza el servicio?"
-      />
-      {showAddressWarning && (
-        <p className="mt-2 text-xs text-red-500 font-satoshi">
-          Aún no tienes una dirección registrada.{" "}
-          <Link
-            to="/dash/ajustes"
-            className="underline text-red-500 hover:text-red-600"
-          >
-            Agrega tu dirección
-          </Link>{" "}
-          para poder ofrecer este servicio en el negocio.
-        </p>
-      )}
-      <div className="mt-8">
+      <div>
+        <SelectInput
+          error={errors.place as import("react-hook-form").FieldError | undefined}
+          register={register}
+          options={OPTIONS}
+          name="place"
+          placeholder="Selecciona una opción"
+          label="¿En donde se realiza el servicio?"
+        />
+        {showAddressWarning && (
+          <p className="mt-2 text-xs text-red-500 font-satoshi">
+            Aún no tienes una dirección registrada.{" "}
+            <Link
+              to="/dash/ajustes"
+              className="underline text-red-500 hover:text-red-600"
+            >
+              Agrega tu dirección
+            </Link>{" "}
+            para poder ofrecer este servicio en el negocio.
+          </p>
+        )}
+      </div>
+      <div className="flex flex-col gap-3 md:gap-6">
         <SwitchOption
           defaultChecked={defaultValues.isActive}
           register={register}
@@ -162,15 +169,15 @@ export const ServicePhotoForm = ({
           name="isActive"
           title="Permitir que este servicio se agende en línea"
         />
+        <SwitchOption
+          defaultChecked={defaultValues.allowMultiple}
+          registerOptions={{ required: false }}
+          register={register}
+          setValue={setValue}
+          name="allowMultiple"
+          title="Permitir que 2 o más clientes agenden al mismo tiempo"
+        />
       </div>
-      <SwitchOption
-        defaultChecked={defaultValues.allowMultiple}
-        registerOptions={{ required: false }}
-        register={register}
-        setValue={setValue}
-        name="allowMultiple"
-        title="Permitir que 2 o más clientes agenden al mismo tiempo"
-      />
       <AnimatePresence>
         {watch("allowMultiple") && (
           <motion.div
@@ -178,9 +185,9 @@ export const ServicePhotoForm = ({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.25 }}
-            className="overflow-hidden -mt-6 mb-6"
+            className="overflow-hidden"
           >
-            <div className="pt-6">
+            <div>
               <label className="text-brand_dark font-satoMiddle" htmlFor="seats">
                 ¿Cuántas personas pueden agendar al mismo tiempo?
               </label>
@@ -237,7 +244,7 @@ export const SwitchOption = ({
     <button
       type="button"
       onClick={isDisabled ? undefined : onClick}
-      className="flex justify-between items-center w-full mb-6"
+      className="flex justify-between items-center w-full gap-4"
     >
       <div className="text-left">
         <p

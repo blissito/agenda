@@ -71,9 +71,9 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
         <img
           src="/images/illustrations/ghosty-puzzle.svg"
           alt="Ghosty - asistente inteligente"
-          className="mb-8 w-[304px] h-[206px]"
+          className="mb-8 w-[200px] h-auto md:w-[304px] md:h-[206px]"
         />
-        <h1 className="text-2xl font-satoBold text-brand_dark mb-2">
+        <h1 className="text-xl md:text-2xl font-satoBold text-brand_dark mb-2">
           Conoce a Ghosty: tu asistente inteligente de agendamiento
         </h1>
         <p className="text-base text-brand_gray max-w-2xl">
@@ -121,7 +121,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
             </BreadcrumbList>
           </Breadcrumb>
         ) : (
-          <h1 className="text-3xl font-satoBold text-brand_dark">
+          <h1 className="text-2xl md:text-3xl font-satoBold text-brand_dark">
             Ghosty: Tu chatbot IA
           </h1>
         )}

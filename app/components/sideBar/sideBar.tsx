@@ -1,5 +1,5 @@
 import { type User as PrismaUser } from "@prisma/client"
-import { AnimatePresence, motion, type Transition } from "motion/react"
+import { AnimatePresence, motion, useMotionValue, type Transition } from "motion/react"
 import {
   Children,
   cloneElement,
@@ -430,6 +430,7 @@ const OnboardingBanner = () => {
 const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
   const location = useLocation()
   const [showMore, setShowMore] = useState(false)
+  const y = useMotionValue(0)
   const match = (s: string) => location.pathname.includes(s)
   const matchIndex = () => /^\/dash$/.test(location.pathname)
 
@@ -437,6 +438,10 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
   useEffect(() => {
     setShowMore(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    if (showMore) y.set(0)
+  }, [showMore, y])
 
   const tabs = [
     { to: "/dash", label: "Inicio", icon: <Dashboard />, active: matchIndex() },
@@ -474,42 +479,50 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
       {/* Bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 md:hidden safe-bottom">
         <div className="flex justify-around items-center h-16">
-          {tabs.map((tab) => (
-            <Link
-              key={tab.to}
-              to={tab.to}
-              prefetch="intent"
-              className={twMerge(
-                "flex flex-col items-center justify-center gap-0.5 flex-1 h-full",
-                tab.active ? "text-brand_blue" : "text-gray-400",
-              )}
-            >
-              <MobileIcon active={tab.active}>{tab.icon}</MobileIcon>
-              <span className="text-[10px] leading-tight">{tab.label}</span>
-            </Link>
-          ))}
-          <button
-            onClick={() => setShowMore(true)}
-            className={twMerge(
-              "flex flex-col items-center justify-center gap-0.5 flex-1 h-full cursor-pointer",
-              moreActive || showMore ? "text-brand_blue" : "text-gray-400",
-            )}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
-            <span className="text-[10px] leading-tight">Más</span>
-          </button>
+          {tabs.map((tab) => {
+            const color = tab.active ? "#5158F6" : "#11151A"
+            return (
+              <Link
+                key={tab.to}
+                to={tab.to}
+                prefetch="intent"
+                style={{ color }}
+                className="flex flex-col items-center justify-center gap-1 flex-1 h-full"
+              >
+                <MobileIcon active={tab.active}>{tab.icon}</MobileIcon>
+                <span style={{ color }} className="text-xs leading-tight">
+                  {tab.label}
+                </span>
+              </Link>
+            )
+          })}
+          {(() => {
+            const moreColor = moreActive || showMore ? "#5158F6" : "#11151A"
+            return (
+              <button
+                onClick={() => setShowMore(true)}
+                style={{ color: moreColor }}
+                className="flex flex-col items-center justify-center gap-1 flex-1 h-full cursor-pointer"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                </svg>
+                <span style={{ color: moreColor }} className="text-xs leading-tight">
+                  Más
+                </span>
+              </button>
+            )
+          })()}
         </div>
       </nav>
 
@@ -531,10 +544,19 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
               exit={{ y: "100%" }}
               transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
               onClick={(e) => e.stopPropagation()}
-              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl overflow-auto max-h-[85vh]"
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.6 }}
+              style={{ y }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 120 || info.velocity.y > 500) {
+                  setShowMore(false)
+                }
+              }}
+              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl overflow-auto max-h-[85vh] touch-pan-y"
             >
               {/* Handle bar */}
-              <div className="flex justify-center pt-3 pb-2">
+              <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
                 <div className="w-10 h-1 bg-gray-300 rounded-full" />
               </div>
 
@@ -626,16 +648,14 @@ const MobileIcon = ({
   active: boolean
   children: ReactNode
 }) => (
-  <i className="[&>svg]:w-5 [&>svg]:h-5">
-    {active
-      ? Children.map(children, (c) =>
-          isValidElement(c)
-            ? cloneElement(c as ReactElement<{ fill?: string }>, {
-                fill: "#5158F6",
-              })
-            : c,
-        )
-      : children}
+  <i className="[&>svg]:w-6 [&>svg]:h-6">
+    {Children.map(children, (c) =>
+      isValidElement(c)
+        ? cloneElement(c as ReactElement<{ fill?: string }>, {
+            fill: active ? "#5158F6" : "#11151A",
+          })
+        : c,
+    )}
   </i>
 )
 

@@ -993,7 +993,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)] max-w-8xl mx-auto">
-      <h1 className="text-xl md:text-3xl font-satoBold mb-1 md:mb-2">Mi agenda</h1>
+      <h1 className="text-2xl md:text-3xl font-satoBold mb-1 md:mb-2">Mi agenda</h1>
 
       <div className="flex gap-6 flex-1">
         <div ref={calendarRef} className="flex-1 min-w-0 flex flex-col">

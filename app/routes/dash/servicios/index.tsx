@@ -51,7 +51,7 @@ export default function Services({ loaderData }: Route.ComponentProps) {
 
   return (
     <main className="max-w-8xl mx-auto">
-      <RouteTitle>Servicios </RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl">Servicios </RouteTitle>
 
       {!services.length ? (
         <EmptyStateServices />
@@ -92,7 +92,7 @@ const EmptyStateServices = () => {
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
         <img
-          className="mx-auto mb-4"
+          className="mx-auto mb-4 w-[200px] md:w-auto"
           src="/images/emptyState/access-empty.webp"
           alt="illustration"
         />
