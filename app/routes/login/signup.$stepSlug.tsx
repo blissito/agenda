@@ -102,7 +102,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         />
       </div>
 
-      <header className="relative z-10 flex items-center justify-between px-10 pt-8">
+      <header className="relative z-10 flex items-center justify-between px-4 md:px-10 pt-8">
         <div className="flex items-center gap-2">
           <Denik fill="#4F63FF" className="h-8 w-auto" />
         </div>
@@ -116,7 +116,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       </header>
 
       <div className="absolute inset-0 z-0 pointer-events-none select-none"></div>
-      <main className="relative z-10 mx-auto w-full max-w-6xl px-10">
+      <main className="relative z-10 mx-auto w-full max-w-6xl px-4 md:px-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={stepSlug}
@@ -168,10 +168,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </AnimatePresence>
       </main>
 
-      <footer className="absolute bottom-6 left-0 right-0 px-10 text-xs text-neutral-400">
+      <footer className="absolute bottom-6 left-0 right-0 px-4 md:px-10 text-xs text-neutral-400">
         <div className="flex items-center justify-between">
-          <span>Todos los derechos reservados Denik® 2024</span>
-          <a className="hover:text-neutral-600" href="/avisodeprivacidad">
+          <span>Todos los derechos reservados Denik® 2026</span>
+          <a className="hover:text-neutral-600 text-right" href="/avisodeprivacidad">
             Aviso de Privacidad
           </a>
         </div>
@@ -194,19 +194,17 @@ export const LoaderScreen = ({ title }: { title: string }) => {
     <section className="absolute inset-0 z-10 bg-white">
       <div className="mx-auto flex min-h-[calc(100vh-170px)] w-full max-w-6xl flex-col items-center justify-center px-6 text-center">
         <img
-          className="h-[312px] w-auto select-none pointer-events-none"
+          className="h-[240px] w-auto select-none pointer-events-none"
           src="/images/denik.png"
           alt="figura"
           draggable={false}
         />
 
-        <h1 className="font-satoBold text-4xl leading-[44px] text-brand_dark">
-          {/*4xl= 36 */}
+        <h1 className="font-satoBold text-[28px] leading-[36px] text-brand_dark">
           {text}
         </h1>
 
-        <p className="font-jakarta  text-lg leading-[24px] text-brand_gray mt-4">
-          {/*lg= 18px */}
+        <p className="font-jakarta text-base leading-[22px] text-brand_gray mt-4">
           Configura tus servicios, comparte tu agenda y empieza a recibir
           reservas desde tu página web en Denik.
         </p>
@@ -217,7 +215,7 @@ export const LoaderScreen = ({ title }: { title: string }) => {
               <PrimaryButton
                 to="/dash"
                 as="Link"
-                className="px-8"
+                className="w-[190px]"
                 type="button"
                 isDisabled={false}
                 isLoading={false}
@@ -230,7 +228,7 @@ export const LoaderScreen = ({ title }: { title: string }) => {
           ) : (
             <PrimaryButton
               type="button"
-              className="px-8 font-satoshi font-medium text-[16px] leading-[24px]"
+              className="w-[190px] font-satoshi font-medium text-[16px] leading-[24px]"
               isDisabled={false}
               isLoading={true}
             >

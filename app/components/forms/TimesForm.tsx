@@ -208,7 +208,7 @@ export const TimesForm = ({
         ) : noSubmit ? null : (
           <PrimaryButton
             isLoading={fetcher.state !== "idle"}
-            className="w-fit mt-auto"
+            className="w-[190px] mt-auto"
             isDisabled={isDisabled}
             type="submit"
           >

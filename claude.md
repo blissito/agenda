@@ -334,6 +334,16 @@ ADMIN_EMAILS=email1@x.com,email2@x.com
   - `app/components/forms/VideoProviderSelect.tsx` — dropdown custom con logos oficiales (Meet/Zoom) + "Denik Link próximamente"
   - `Service.videoProvider` (default del servicio: "auto" | "meet" | "zoom" | "none") y `Event.videoProvider` (snapshot)
 
+## Onboarding — tamaños tipográficos
+
+Estándares para pantallas del flujo `/signup/*`:
+
+- **Success screen** (`LoaderScreen` en `app/routes/login/signup.$stepSlug.tsx`):
+  - Título: `text-[28px] leading-[36px]` (antes `text-4xl`/36px)
+  - Texto secundario: `text-base` (16px, antes `text-lg`/18px)
+  - Imagen hero: `h-[240px]` (antes 312px)
+- Botones "Continuar" en todo el onboarding: `w-[190px]` (ancho uniforme)
+
 ## Componentes/Assets reutilizables
 
 - **`app/components/common/CopyLinkButton.tsx`** — Botón copiar URL con animación de partículas (14 partículas multicolor, state "¡Copiado!" por 1.5s). Uso: `<CopyLinkButton url="..." />`.

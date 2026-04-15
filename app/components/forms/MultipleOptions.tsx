@@ -139,9 +139,9 @@ export const Option = ({
       className={twMerge(
         "active:scale-95 active:shadow-inner",
         "relative",
-        "inline-flex items-center gap-3",
+        "inline-flex items-center gap-2",
         "rounded-full border bg-white",
-        "px-4 py-2.5 min-h-[44px]",
+        "px-3 py-1.5 min-h-[34px] text-sm",
         "w-auto max-w-none overflow-visible",
         "hover:bg-neutral-50",
         isCurrent ? "border-transparent" : "border-gray-200",
@@ -208,15 +208,12 @@ export const Otro = ({
             register={register}
           />
         </div>
-        <button onClick={onCancel} className="active:opacity-50">
-          Cancelar
-        </button>
       </motion.div>
     )
   }
   return (
     <button onClick={onClick} type="button">
-      <h2 className="shadow rounded-full h-[44px] flex justify-start px-4 items-center text-brand_gray border border-gray-200 bg-white hover:bg-neutral-50">
+      <h2 className="shadow rounded-full h-[34px] flex justify-start px-3 items-center text-sm text-brand_gray border border-gray-200 bg-white hover:bg-neutral-50">
         Otro
       </h2>
     </button>

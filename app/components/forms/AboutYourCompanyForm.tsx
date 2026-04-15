@@ -190,7 +190,7 @@ export const AboutYourCompanyForm = ({
                   onClick={goNext as any}
                   isLoading={false}
                   isDisabled={false}
-                  className="px-8"
+                  className="w-[190px]"
                 >
                   Continuar <ArrowRight />
                 </PrimaryButton>
@@ -243,7 +243,7 @@ export const AboutYourCompanyForm = ({
                       onClick={goNext as any}
                       isLoading={false}
                       isDisabled={false}
-                      className="px-8"
+                      className="w-[190px]"
                     >
                       Continuar <ArrowRight />
                     </PrimaryButton>
@@ -344,7 +344,7 @@ export const AboutYourCompanyForm = ({
                         isDisabled={false}
                         isLoading={fetcher.state !== "idle"}
                         type="submit"
-                        className="px-8"
+                        className="w-[190px]"
                       >
                         Continuar <ArrowRight />
                       </PrimaryButton>
@@ -608,12 +608,12 @@ function FloatingEmojisStep1() {
       <FloatingPillImageText
         src="/images/denik-white.png"
         text="Agenda tu cita"
-        className="left-[-2%] top-[45%]"
+        className="hidden md:flex left-[-2%] top-[45%]"
       />
       <FloatingPillImageText
         src="/images/denik-white.png"
         text="¿Qué horario prefieres?"
-        className="right-[-4%] top-[35%]"
+        className="hidden md:flex right-[-4%] top-[35%]"
       />
     </div>
   )
@@ -626,7 +626,7 @@ function FloatingEmojisStep2() {
         className={twMerge(
           "absolute flex items-center justify-center",
           "h-14 w-14 rounded-full shadow-sm bg-brand_blue",
-          "right-[20%] top-[18%] -translate-x-1/2",
+          "right-[20%] top-[4%] md:top-[18%] -translate-x-1/2",
         )}
         initial={{ opacity: 0, scale: 0.9, y: 10, filter: "blur(8px)" }}
         animate={{
@@ -650,8 +650,8 @@ function FloatingEmojisStep2() {
         />
       </motion.div>
 
-      <FloatingEmojiText emoji="👋" className="right-[-10%] top-[22%]" />
-      <FloatingEmojiText emoji="🧑‍🏫" className="left-[38%] top-[36%]" />
+      <FloatingEmojiText emoji="👋" className="right-[-10%] top-[8%] md:top-[22%]" />
+      <FloatingEmojiText emoji="🧑‍🏫" className="left-[38%] top-[20%] md:top-[36%]" />
       <FloatingEmojiText emoji="🚀" className="left-[45%] top-[80%]" />
       <FloatingEmojiText emoji="🎨" className="left-[65%] top-[100%]" />
       <FloatingEmojiText emoji="💃🏻" className="right-[-5%] top-[79%]" />

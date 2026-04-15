@@ -72,17 +72,17 @@ export default function DashOnboarding() {
   }, [])
 
   return (
-    <main className="max-w-7xl  mx-auto pt-28  max-h-screen  ">
-      <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl border-[#EFEFEF]">
+    <main className="max-w-7xl mx-auto pt-6 md:pt-28 px-4 md:px-0 pb-10">
+      <div className="max-w-2xl mx-auto bg-white p-5 md:p-8 rounded-2xl border-[#EFEFEF]">
         <div>
-          <h3 className="text-2xl font-satoMiddle">
+          <h3 className="text-xl md:text-2xl font-satoMiddle">
             ¡Ya casi terminas de configurar tu agenda!
           </h3>
-          <p className="text-brand_gray mt-1">
+          <p className="text-brand_gray mt-1 text-sm md:text-base">
             Estás a unos pasos de empezar a recibir a tus clientes
           </p>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-4">
           <p className="text-sm text-brand_gray">
             {getCompletedCount()} de 5 pasos completados
           </p>
@@ -91,7 +91,7 @@ export default function DashOnboarding() {
               <div
                 key={step}
                 className={twMerge(
-                  "w-8 h-2 rounded-full",
+                  "flex-1 sm:flex-none sm:w-8 h-2 rounded-full",
                   step <= getCompletedCount() ? "bg-brand_blue" : "bg-gray-200",
                 )}
               />
@@ -235,15 +235,15 @@ export default function DashOnboarding() {
           />
         </div>
       </div>
-      <div className="max-w-2xl h-[72px] mx-auto items-center bg-white px-8 py-6 mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden">
-        <p>
+      <div className="max-w-2xl mx-auto items-center bg-white px-5 md:px-8 py-4 md:py-6 mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden gap-4">
+        <p className="text-sm md:text-base">
           ¿Tienes alguna duda? Escríbenos a{" "}
           <a href="mailto:hola@denik.me" className="text-brand_blue underline">
             hola@denik.me
           </a>{" "}
         </p>
         <img
-          className="w-[140px] h-[140px]"
+          className="w-20 h-20 md:w-[140px] md:h-[140px] shrink-0"
           src="/images/chat.gif"
           alt="dancer"
         />
@@ -254,7 +254,7 @@ export default function DashOnboarding() {
 
 const StepCheck = () => {
   return (
-    <section className="w-[120px] flex justify-center">
+    <section className="w-auto sm:w-[120px] flex justify-center shrink-0">
       <StepDone />
     </section>
   )
@@ -276,17 +276,17 @@ const Step = ({
   cta?: ReactNode
 }) => {
   return (
-    <section className="flex justify-between items-center">
-      <div className="flex  gap-4">
-        <div className="bg-[#F9F9FB] w-16 h-14 flex justify-center items-center rounded">
+    <section className="flex justify-between items-center gap-3">
+      <div className="flex gap-3 md:gap-4 items-center min-w-0 flex-1">
+        <div className="bg-[#F9F9FB] w-12 h-12 md:w-16 md:h-14 flex justify-center items-center rounded shrink-0">
           {icon}
         </div>
-        <div>
-          <p className="font-satoMiddle">{title}</p>
-          <p className="text-brand_gray">{description}</p>
+        <div className="min-w-0">
+          <p className="font-satoMiddle text-sm md:text-base">{title}</p>
+          <p className="text-brand_gray text-xs md:text-base">{description}</p>
         </div>
       </div>
-      {cta}
+      <div className="shrink-0 relative">{cta}</div>
     </section>
   )
 }

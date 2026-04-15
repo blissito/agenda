@@ -188,7 +188,7 @@ export const BussinesTypeForm = ({ org }: { org: Org }) => {
         <div className="mt-6">
           <MultipleOptions
             name="businessType"
-            className="flex flex-wrap gap-3"
+            className="flex flex-wrap gap-2"
             options={OPTIONS}
             renderFunction={(option: string, index: number) => {
               if (index === OPTIONS.length - 1) {
