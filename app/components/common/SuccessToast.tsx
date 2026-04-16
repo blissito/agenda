@@ -1,7 +1,7 @@
 export const SuccessToast = ({ message }: { message: string | null }) => {
   if (!message) return null
   return (
-    <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+    <div className="fixed bottom-6 left-0 right-0 z-[600] flex justify-center pointer-events-none">
       <div className="px-5 py-3 bg-white text-brand_dark rounded-full shadow-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap pointer-events-auto">
         <svg
           className="w-5 h-5 text-green-500"

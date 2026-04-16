@@ -6,7 +6,7 @@ import { Linkedin } from "~/components/icons/linkedin"
 import { QrCode } from "~/components/icons/QrCode"
 import { Twitter } from "~/components/icons/twitter"
 import { WhatsApp } from "~/components/icons/WhatsApp"
-import { X } from "~/components/icons/X"
+import { IoClose } from "react-icons/io5"
 
 type Props = {
   open: boolean
@@ -77,17 +77,15 @@ const ShareButton = (props: ShareButtonProps) => {
   )
 }
 
-/** Close button encapsulado (círculo + icono X) */
+/** Close button homologado con ConfirmModal */
 const CloseButton = ({ onClick }: { onClick: () => void }) => (
   <button
     type="button"
-    className="absolute right-5 top-5 h-8 w-8 rounded-full border border-brand_stroke bg-white hover:bg-brand_light_gray flex items-center justify-center"
     onClick={onClick}
+    className="absolute right-6 top-6 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
     aria-label="Cerrar"
-    title="Cerrar"
   >
-    {/* No le pasamos className: tu x.tsx ya define el tamaño/estilo */}
-    <X />
+    <IoClose className="text-2xl" />
   </button>
 )
 
@@ -192,20 +190,22 @@ export const ShareWebsiteModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-center justify-center bg-brand_gray/15 backdrop-blur-sm"
+      className="fixed inset-0 z-[999] flex items-center justify-center px-4 bg-black/35 backdrop-blur-[16px]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
+      role="dialog"
+      aria-modal="true"
     >
-      <div className="relative w-full max-w-[608px]">
-        {/* Badge */}
-        <div className="absolute left-1/2 -top-14 -translate-x-1/2 z-20">
-          <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
-            <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
+      <div className="relative w-full max-w-[640px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi">
+        {/* Badge superior */}
+        <div className="absolute left-1/2 -top-10 -translate-x-1/2 z-20">
+          <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center">
+            <div className="h-16 w-16 rounded-full bg-brand_sky flex items-center justify-center">
               <span
                 role="img"
                 aria-label="link"
-                className="text-6xl leading-none"
+                className="text-3xl leading-none"
               >
                 🔗
               </span>
@@ -213,83 +213,81 @@ export const ShareWebsiteModal = ({
           </div>
         </div>
 
-        <div className="relative rounded-2xl bg-white shadow-xl pt-20 border border-brand_stroke">
-          <CloseButton onClick={onClose} />
+        <CloseButton onClick={onClose} />
 
-          <div className="px-8 pb-8">
-            <h3 className="text-center text-2xl font-satoBold">
-              ¡Comparte con tus clientes!
-            </h3>
+        <div className="w-full px-6 md:px-12 pt-12 pb-8 flex flex-col items-center">
+          <h3 className="text-center font-satoBold text-[20px] leading-[28px] text-brand_dark">
+            ¡Comparte con tus clientes!
+          </h3>
 
-            <p className="mt-4 mx-auto max-w-[540px] text-center text-base font-satoMedium text-brand_gray">
-              Es hora de que tus clientes se enteren de que tus servicios ya
-              están disponibles. Comparte ya en tus redes sociales.
-            </p>
+          <p className="mt-[16px] text-center font-normal font-satoshi text-[16px] leading-[22px] text-brand_gray">
+            Es hora de que tus clientes se enteren de que tus servicios ya
+            están disponibles. Comparte ya en tus redes sociales.
+          </p>
 
-            <div className="mt-8">
-              <div className="mx-auto w-[544px] h-12 flex items-center gap-3 rounded-xl bg-brand_sky px-6">
-                <p className="flex-1 truncate text-center text-sm font-satoMedium text-brand_gray">
-                  {url}
-                </p>
+          <div className="mt-8 w-full">
+            <div className="w-full h-12 flex items-center gap-3 rounded-xl bg-brand_sky px-4 sm:px-6">
+              <p className="flex-1 truncate text-sm font-satoMedium text-brand_gray">
+                {url}
+              </p>
 
-                <button
-                  type="button"
-                  onClick={copyToClipboard}
-                  className="h-10 w-10 flex items-center justify-center hover:opacity-80 transition-opacity flex-shrink-0"
-                  title={copied ? "Copiado" : "Copiar"}
-                  aria-label={copied ? "Copiado" : "Copiar"}
-                >
-                  <Copy
-                    className={copied ? "text-green-600" : "text-brand_gray"}
-                  />
-                </button>
-              </div>
-            </div>
-
-            <div className="mx-auto mt-6 w-[544px] flex items-center justify-center gap-4">
-              <ShareButton
-                label="Facebook"
-                href={shareLinks.facebook}
-                bgClassName="bg-[#1877F2] text-white"
-                icon={<Facebook />}
-                onAfterClick={onClose}
-              />
-              <a
-                href={shareLinks.twitter}
-                target="_blank"
-                rel="noreferrer"
-                className="h-10 w-10 flex items-center justify-center"
-                title="Twitter"
-                aria-label="Twitter"
-                onClick={onClose}
+              <button
+                type="button"
+                onClick={copyToClipboard}
+                className="h-10 w-10 flex items-center justify-center hover:opacity-80 transition-opacity flex-shrink-0"
+                title={copied ? "Copiado" : "Copiar"}
+                aria-label={copied ? "Copiado" : "Copiar"}
               >
-                <Twitter />
-              </a>
-
-              <ShareButton
-                label="WhatsApp"
-                href={shareLinks.whatsapp}
-                bgClassName="bg-[#25D366] text-white"
-                icon={<WhatsApp />}
-                onAfterClick={onClose}
-              />
-
-              <ShareButton
-                label="Linkedin"
-                href={shareLinks.linkedin}
-                bgClassName="bg-[#0A66C2] text-white"
-                icon={<Linkedin className="fill-white text-white" />}
-                onAfterClick={onClose}
-              />
-
-              <ShareButton
-                label={downloadingQr ? "Generando…" : "Descargar QR"}
-                onClick={downloadQr}
-                disabled={downloadingQr}
-                bgClassName="bg-brand_yellow text-brand_dark"
-                icon={<QrCode className="h-5 w-5 text-brand_dark" />}
-              />
+                <Copy
+                  className={copied ? "text-green-600" : "text-brand_gray"}
+                />
+              </button>
             </div>
+          </div>
+
+          <div className="mt-6 w-full flex flex-wrap items-center justify-center gap-4">
+            <ShareButton
+              label="Facebook"
+              href={shareLinks.facebook}
+              bgClassName="bg-[#1877F2] text-white"
+              icon={<Facebook />}
+              onAfterClick={onClose}
+            />
+            <a
+              href={shareLinks.twitter}
+              target="_blank"
+              rel="noreferrer"
+              className="h-10 w-10 flex items-center justify-center"
+              title="Twitter"
+              aria-label="Twitter"
+              onClick={onClose}
+            >
+              <Twitter />
+            </a>
+
+            <ShareButton
+              label="WhatsApp"
+              href={shareLinks.whatsapp}
+              bgClassName="bg-[#25D366] text-white"
+              icon={<WhatsApp />}
+              onAfterClick={onClose}
+            />
+
+            <ShareButton
+              label="Linkedin"
+              href={shareLinks.linkedin}
+              bgClassName="bg-[#0A66C2] text-white"
+              icon={<Linkedin className="fill-white text-white" />}
+              onAfterClick={onClose}
+            />
+
+            <ShareButton
+              label={downloadingQr ? "Generando…" : "Descargar QR"}
+              onClick={downloadQr}
+              disabled={downloadingQr}
+              bgClassName="bg-brand_yellow text-brand_dark"
+              icon={<QrCode className="h-5 w-5 text-brand_dark" />}
+            />
           </div>
         </div>
       </div>

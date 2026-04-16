@@ -300,9 +300,9 @@ export const CitasTable = ({
       {/* Mobile */}
       <div className="lg:hidden">
         <div className="rounded-2xl bg-white overflow-hidden">
-          <div className="px-4 py-3 grid grid-cols-2 gap-x-6 text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide">
-            <span>Fecha</span>
-            <span className="text-right">{hideClient ? "Servicio" : "Cliente"}</span>
+          <div className="px-4 py-3 flex items-center justify-between text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide border-b border-brand_stroke">
+            <span>{hideClient ? "Servicio" : "Cliente"}</span>
+            <span>Precio</span>
           </div>
           <div className="divide-y divide-brand_stroke">
             {events.length > 0 ? (
@@ -406,16 +406,15 @@ const CitaCardMobile = ({
   const name = event.customer?.displayName || "Sin cliente"
   const isPast = new Date(event.start) < new Date()
   const canDelete = canDeleteEvent(event.start)
+  const price = event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"
+
   return (
-    <div>
+    <div className="flex flex-col gap-3">
+      {/* Top: identidad + precio/menu */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <DatePill start={event.start} isPast={isPast} />
-            <span className="text-[12px] text-brand_gray">{formatEventDate(event.start)}</span>
-          </div>
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           {!hideClient ? (
-            <div className="flex items-center gap-3">
+            <>
               <ClientAvatar
                 photoUrl={null}
                 initials={getInitials(name)}
@@ -423,30 +422,49 @@ const CitaCardMobile = ({
                 className={getAvatarColor(name)}
               />
               <div className="min-w-0">
-                <p className="text-[13px] font-satoBold text-brand_dark truncate">{name}</p>
-                <p className="text-[11px] text-brand_gray truncate">{event.service?.name || "—"}</p>
+                <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">{name}</p>
+                <p className="text-[12px] text-brand_gray truncate mt-0.5">{event.service?.name || "—"}</p>
               </div>
-            </div>
+            </>
           ) : (
-            <p className="text-[13px] font-satoBold text-brand_dark truncate">{event.service?.name || "—"}</p>
+            <div className="min-w-0">
+              <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">{event.service?.name || "—"}</p>
+              <p className="text-[12px] text-brand_gray truncate mt-0.5">
+                {event.service?.employeeName || "—"}
+              </p>
+            </div>
           )}
         </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          <RowMenu eventId={event.id} canDelete={canDelete} />
-          <p className="text-[12px] font-satoMedium text-brand_gray tabular-nums">
-            {event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"}
+        <div className="flex items-start gap-1 shrink-0">
+          <p className="text-[14px] font-satoBold text-brand_dark tabular-nums whitespace-nowrap">
+            {price}
           </p>
+          <RowMenu eventId={event.id} canDelete={canDelete} />
         </div>
       </div>
-      <div className="mt-2 flex items-center gap-2 flex-wrap">
-        <StatusTag variant={getStatusVariant(event.status)} />
-        <StatusTag variant={event.paid ? "paid" : "unpaid"} />
-        {hideClient && (
-          <span className="text-[11px] text-brand_gray">{String(event.service?.points ?? 0)} pts</span>
-        )}
+
+      {/* Fecha + tags */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <DatePill start={event.start} isPast={isPast} />
+          <div className="flex flex-col leading-tight min-w-0">
+            <span className="text-[13px] font-satoMedium text-brand_dark truncate">
+              {formatEventDate(event.start)}
+            </span>
+            <span className="text-[11px] text-brand_iron">
+              {formatEventTime(event.start, Number(event.duration))}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 flex-wrap justify-end shrink-0">
+          <StatusTag variant={getStatusVariant(event.status)} />
+          <StatusTag variant={event.paid ? "paid" : "unpaid"} />
+        </div>
       </div>
+
+      {/* Asistencia */}
       {isPast && (
-        <div className="mt-2 flex items-center gap-2">
+        <div className="flex items-center justify-between gap-2 pt-3 border-t border-dotted border-brand_stroke">
           <span className="text-[11px] font-satoMedium text-brand_gray uppercase tracking-wide">
             Asistencia
           </span>

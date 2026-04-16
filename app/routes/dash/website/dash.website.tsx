@@ -8,6 +8,8 @@ import * as React from "react"
 import { useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { PrimaryButton } from "~/components/common/primaryButton"
 import { Tooltip } from "~/components/common/Tooltip"
 import { Edit2 } from "~/components/icons/Edit2"
 import { Share } from "~/components/icons/Share"
@@ -128,6 +130,17 @@ export default function Website({ loaderData }: Route.ComponentProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
   const [shareOpen, setShareOpen] = useState(false)
+  const [editBlockedOpen, setEditBlockedOpen] = useState(false)
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 1023px)").matches
+    ) {
+      e.preventDefault()
+      setEditBlockedOpen(true)
+    }
+  }
 
   const iframeSrc = useMemo(() => {
     const u = (previewUrl ?? "").trim()
@@ -162,7 +175,11 @@ export default function Website({ loaderData }: Route.ComponentProps) {
           </Tooltip>
 
           <Tooltip label="Editar sitio web">
-            <Link to="/dash/website/ai" className="inline-flex">
+            <Link
+              to="/dash/website/ai"
+              className="inline-flex"
+              onClick={handleEditClick}
+            >
               <RoundAction label="Editar sitio web">
                 <Edit2 className="w-5 h-5" />
               </RoundAction>
@@ -200,6 +217,25 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         orgName={org?.name}
         orgSlug={org?.slug}
       />
+
+      <ConfirmModal
+        isOpen={editBlockedOpen}
+        onClose={() => setEditBlockedOpen(false)}
+        onConfirm={() => setEditBlockedOpen(false)}
+        title="Edita tu sitio desde una computadora"
+        description="El editor del sitio web está optimizado para pantallas grandes. Inicia sesión en Denik desde tu computadora para continuar editando."
+        emoji="💻"
+        hideButtons
+      >
+        <div className="mt-10 flex items-center justify-center">
+          <PrimaryButton
+            onClick={() => setEditBlockedOpen(false)}
+            className="w-[190px] h-12 min-h-12"
+          >
+            Entendido
+          </PrimaryButton>
+        </div>
+      </ConfirmModal>
     </main>
   )
 }

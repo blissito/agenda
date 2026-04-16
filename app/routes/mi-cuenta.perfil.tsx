@@ -425,57 +425,56 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
               </div>
             )}
 
-            {/* Select + view toggle — same row on desktop, wraps on mobile */}
-            <div className="flex items-center gap-3 w-full sm:w-auto sm:ml-auto">
-              {data.orgs.length > 1 &&
-                (activeTab === "upcoming"
-                  ? data.upcoming.length > 0
-                  : data.past.length > 0) && (
-                  <SelectStylized
-                    choices={[
-                      { value: "all", label: "Todos los negocios" },
-                      ...data.orgs.map((org) => ({
-                        value: org.id,
-                        label: org.name,
-                      })),
-                    ]}
-                    value={orgFilter}
-                    onChange={(value) => setOrgFilter(value)}
-                    placeholder="Todos los negocios"
-                    className="w-[240px]"
-                    inputClassName="rounded-full border-0"
-                  />
-                )}
-              {activeTab === "upcoming" && filteredUpcoming.length > 0 && (
-                <div className="flex items-center bg-white rounded-full h-12 p-1 ml-auto sm:ml-0">
-              
-                  <button
-                    type="button"
-                    onClick={() => setUpcomingView("calendar")}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
-                      upcomingView === "calendar"
-                        ? "bg-brand_blue text-white"
-                        : "text-brand_gray hover:text-brand_dark"
-                    }`}
-                    title="Vista calendario"
-                  >
-                    <Calendar2 className="w-[22px] h-[22px]" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setUpcomingView("table")}
-                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
-                      upcomingView === "table"
-                        ? "bg-brand_blue text-white"
-                        : "text-brand_gray hover:text-brand_dark"
-                    }`}
-                    title="Vista tabla"
-                  >
-                    <TbList size={22} />
-                  </button>
-                </div>
+            {/* Select org filter */}
+            {data.orgs.length > 1 &&
+              (activeTab === "upcoming"
+                ? data.upcoming.length > 0
+                : data.past.length > 0) && (
+                <SelectStylized
+                  choices={[
+                    { value: "all", label: "Todos los negocios" },
+                    ...data.orgs.map((org) => ({
+                      value: org.id,
+                      label: org.name,
+                    })),
+                  ]}
+                  value={orgFilter}
+                  onChange={(value) => setOrgFilter(value)}
+                  placeholder="Todos los negocios"
+                  className="w-[240px]"
+                  inputClassName="rounded-full border-0"
+                />
               )}
-            </div>
+
+            {/* View toggle — extrema derecha */}
+            {activeTab === "upcoming" && filteredUpcoming.length > 0 && (
+              <div className="flex items-center bg-white rounded-full h-12 p-1 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => setUpcomingView("calendar")}
+                  className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                    upcomingView === "calendar"
+                      ? "bg-brand_blue text-white"
+                      : "text-brand_gray hover:text-brand_dark"
+                  }`}
+                  title="Vista calendario"
+                >
+                  <Calendar2 className="w-[22px] h-[22px]" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUpcomingView("table")}
+                  className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                    upcomingView === "table"
+                      ? "bg-brand_blue text-white"
+                      : "text-brand_gray hover:text-brand_dark"
+                  }`}
+                  title="Vista tabla"
+                >
+                  <TbList size={22} />
+                </button>
+              </div>
+            )}
           </div>
         )}
 

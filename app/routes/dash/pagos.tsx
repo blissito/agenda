@@ -474,7 +474,7 @@ const SalesView = ({
 
   return (
     <section className="mt-6 flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <SalesCard
           title="Ventas del mes"
           value={formatCurrency(safeStats.monthRevenue)}
@@ -505,7 +505,7 @@ const SalesView = ({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <SucursalBreakdown
           label="Efectivo"
           value={formatCurrency(safeStats.sucursalBreakdown.cash)}
@@ -649,7 +649,7 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
-            className={SELECT_CLASS}
+            className={`${SELECT_CLASS} flex-1 md:flex-none`}
             style={SELECT_STYLE}
           >
             {MONTH_NAMES_LONG.map((name, i) => (
@@ -800,10 +800,10 @@ const DailyEmptyState = ({
       alt=""
       className="w-40 mb-6 opacity-90"
     />
-    <p className="text-lg font-satoBold text-brand_dark">
+    <p className="text-xl md:text-2xl font-satoBold text-brand_dark">
       Sin cobros en {MONTH_NAMES_LONG[month]} {year}
     </p>
-    <p className="mt-2 text-sm text-brand_gray max-w-[360px]">
+    <p className="mt-2 text-base text-brand_gray max-w-[360px]">
       Cuando registres pagos en este mes, verás aquí el desglose por día y
       método de cobro.
     </p>
@@ -844,7 +844,7 @@ const SalesCard = ({
 }) => (
   <section
     className={twMerge(
-      "rounded-2xl h-[160px] relative flex flex-col justify-end p-4 group overflow-hidden",
+      "rounded-2xl h-[140px] md:h-[160px] relative flex flex-col justify-end p-4 group overflow-hidden",
       className,
     )}
   >
@@ -859,7 +859,7 @@ const SalesCard = ({
       <p className="text-base md:text-lg">{title}</p>
       <h3 className="text-3xl md:text-4xl font-satoBold leading-tight mt-1">{value}</h3>
       {subtitle ? (
-        <p className="mt-2 text-[13px] opacity-90">{subtitle}</p>
+        <p className="mt-2 text-[13px] opacity-90 hidden md:block">{subtitle}</p>
       ) : null}
     </div>
   </section>
@@ -878,7 +878,7 @@ const SucursalBreakdown = ({
     <div className="flex flex-col min-w-0">
       <span className="text-sm text-brand_gray">{label}</span>
       {hint ? (
-        <span className="text-[11px] text-brand_iron truncate">{hint}</span>
+        <span className="text-[11px] text-brand_iron truncate hidden md:inline">{hint}</span>
       ) : null}
     </div>
     <span className="text-sm font-satoBold text-brand_dark tabular-nums shrink-0">
@@ -987,61 +987,6 @@ const DepositsView = ({
 
   return (
     <section className="mt-6 flex flex-col gap-6">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <SalesCard
-          title="Próximo depósito"
-          value={
-            deposits.nextRelease
-              ? formatMoney(deposits.nextRelease.amount, c)
-              : "—"
-          }
-          subtitle={
-            deposits.nextRelease
-              ? formatDateLong(deposits.nextRelease.date)
-              : "Sin pagos pendientes de liberar"
-          }
-          className="bg-[#615FFF]"
-          icon="/images/agenda-dash.svg"
-        />
-        <SalesCard
-          title="Liberado (60 días)"
-          value={formatMoney(deposits.releasedTotal, c)}
-          subtitle="Disponible en tu balance MP"
-          className="bg-[#64D0C5]"
-          icon="/images/chart.svg"
-        />
-        <SalesCard
-          title="Pendiente de liberar"
-          value={formatMoney(deposits.pendingTotal, c)}
-          subtitle="Aún en proceso de retención"
-          className="bg-[#FFAB61]"
-          icon="/images/profile.svg"
-        />
-        <SalesCard
-          title="Comisiones MP"
-          value={formatMoney(deposits.feesTotal, c)}
-          subtitle={`${deposits.payouts} cobro${deposits.payouts === 1 ? "" : "s"} procesado${deposits.payouts === 1 ? "" : "s"}`}
-          className="bg-[#EEC446]"
-          icon="/images/cancel.svg"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <DepositsList
-          title="Próximos depósitos"
-          empty="No hay depósitos pendientes."
-          groups={deposits.groupsPending}
-          currency={c}
-          highlight
-        />
-        <DepositsList
-          title="Depósitos liberados"
-          empty="Aún no se ha liberado ningún depósito."
-          groups={deposits.groupsReleased}
-          currency={c}
-        />
-      </div>
-
       {hasData ? <DepositsTable payments={deposits.payments} currency={c} /> : null}
     </section>
   )

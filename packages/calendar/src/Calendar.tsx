@@ -422,7 +422,6 @@ export function Calendar({
           >
             <div
               className="sticky left-0 z-30 w-full h-full grid place-items-center place-self-stretch -my-4 py-4"
-              style={{ backgroundColor: "white" }}
             >
               {!isMobile && (
                 <span className="text-sm text-gray-500">

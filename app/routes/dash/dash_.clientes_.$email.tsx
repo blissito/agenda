@@ -339,7 +339,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   <div className="md:pl-0"></div>
 
                   <div className="pl-4 md:pl-0">
-                    <div className="grid grid-cols-3 gap-4 md:grid-cols-1 md:gap-0">
+                    <div className="grid grid-cols-3 gap-4 md:grid-cols-1 md:gap-0 text-center md:text-left">
                       <div className="md:mb-4">
                         <p className="text-xl sm:text-2xl font-satoBold text-brand_dark">
                           {stats.eventCount}{" "}
@@ -351,7 +351,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                       </div>
 
                       <div className="md:mb-4">
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-center md:justify-start gap-1">
                           <span className="text-xl sm:text-2xl font-satoBold text-brand_dark">
                             {stats.commentsCount}
                           </span>
@@ -378,7 +378,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Filter Section */}
-          <div className="flex items-center gap-3 mt-8 mb-0">
+          <div className="flex items-center gap-3 mt-4 sm:mt-8 mb-0">
             <h2 className="text-lg font-satoBold text-brand_dark">Historial de citas</h2>
             <div className="flex-1" />
 
@@ -427,7 +427,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Events */}
-          <div className="mt-6">
+          <div className="mt-4 sm:mt-6">
             {paginated.length === 0 ? (
               <div className="bg-white rounded-2xl p-6 text-sm font-satoMedium text-brand_gray">
                 {hasActiveFilters ? "No hay citas que coincidan con los filtros." : "Este cliente aún no tiene citas."}

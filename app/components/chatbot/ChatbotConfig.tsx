@@ -1,4 +1,6 @@
 import { useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import { IoClose } from "react-icons/io5"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { ChatWidgetInline, type ChatConfig } from "./ChatWidget"
 import { WhatsAppAd } from "./WhatsAppAd"
@@ -36,6 +38,7 @@ export function ChatbotConfig({
     initialConfig?.widgetStyle || "bubble",
   )
   const [showStylePicker, setShowStylePicker] = useState(false)
+  const [showFullPreview, setShowFullPreview] = useState(false)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState(avatarUrl)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -105,14 +108,36 @@ export function ChatbotConfig({
 
   return (
     <div
-      className="bg-white rounded-2xl p-6 pb-6 flex-1 min-h-0 overflow-y-auto grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8"
+      className="bg-white rounded-2xl p-4 md:p-6 flex-1 min-h-0 overflow-y-auto grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8"
       style={{ gridTemplateRows: "1fr" }}
     >
       {/* Left column — Form */}
       <div className="flex flex-col">
-        <h2 className="text-xl md:text-2xl font-satoBold text-brand_dark mb-4">
-          Estilo de tu chat
-        </h2>
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <h2 className="text-xl md:text-2xl font-satoBold text-brand_dark">
+            Estilo de tu chat
+          </h2>
+          <button
+            type="button"
+            onClick={() => setShowFullPreview(true)}
+            className="flex items-center justify-center w-11 h-11 bg-transparent border border-brand_stroke rounded-full text-gray-600 hover:text-brand_blue transition-colors shrink-0"
+            aria-label="Ver preview del chat"
+            title="Ver preview del chat"
+          >
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        </div>
 
         {/* Widget style selector — deshabilitado hasta que el SDK de Formmy soporte variantes (sidebar/bar). Hoy widgetStyle se guarda pero no afecta el render. */}
         {/*
@@ -167,14 +192,14 @@ export function ChatbotConfig({
         */}
 
         {/* Avatar + Name + Color — side by side */}
-        <div className="flex gap-6 mb-4 items-stretch">
+        <div className="flex gap-3 md:gap-6 mb-4 items-stretch">
           {/* Avatar dropzone */}
           <div className="flex-shrink-0 self-stretch">
             <div
               onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleAvatarDrop}
-              className="w-[140px] h-full min-h-[140px] border border-dashed border-gray-200 bg-[#81838E]/5 rounded-xl flex items-center justify-center cursor-pointer hover:border-brand_blue/40 transition-colors overflow-hidden"
+              className="w-[108px] md:w-[140px] h-full min-h-[108px] md:min-h-[140px] border border-dashed border-gray-200 bg-[#81838E]/5 rounded-xl flex items-center justify-center cursor-pointer hover:border-brand_blue/40 transition-colors overflow-hidden"
             >
               {previewUrl || avatarUrl ? (
                 <img
@@ -198,7 +223,7 @@ export function ChatbotConfig({
           </div>
 
           {/* Name + Color */}
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 min-w-0 space-y-4">
             <BasicInput
               name="name"
               label="Nombre"
@@ -211,18 +236,18 @@ export function ChatbotConfig({
               <label className="block font-satoMedium text-brand_dark mb-1">
                 Color
               </label>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 <input
                   type="color"
                   value={primaryColor}
                   onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-12 h-12 rounded-2xl border border-gray-200 cursor-pointer p-0 overflow-hidden [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-2xl [&::-moz-color-swatch]:border-none [&::-moz-color-swatch]:rounded-2xl"
+                  className="w-12 h-12 shrink-0 rounded-2xl border border-gray-200 cursor-pointer p-0 overflow-hidden [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:border-none [&::-webkit-color-swatch]:rounded-2xl [&::-moz-color-swatch]:border-none [&::-moz-color-swatch]:rounded-2xl"
                 />
                 <input
                   type="text"
                   value={primaryColor}
                   onChange={(e) => setPrimaryColor(e.target.value)}
-                  className="w-32 h-12 px-4 bg-white rounded-2xl text-sm font-mono border border-gray-200 text-brand_gray focus:border-brand_blue focus:outline-none focus:ring-0"
+                  className="flex-1 min-w-0 md:flex-none md:w-32 h-12 px-4 bg-white rounded-2xl text-sm font-mono border border-gray-200 text-brand_gray focus:border-brand_blue focus:outline-none focus:ring-0"
                 />
               </div>
             </div>
@@ -270,9 +295,9 @@ export function ChatbotConfig({
         </div>
       </div>
 
-      {/* Right column — Live preview */}
+      {/* Right column — Live preview (oculto en mobile, se abre fullscreen desde el botón) */}
       <div
-        className="bg-[#F0F5FC] rounded-2xl w-full flex items-center justify-center p-3"
+        className="hidden lg:flex bg-[#F0F5FC] rounded-2xl w-full items-center justify-center p-3"
         style={{
           backgroundImage:
             "radial-gradient(circle, transparent 3px, #c8ccd8 3px, #c8ccd8 4px, transparent 4px)",
@@ -283,6 +308,33 @@ export function ChatbotConfig({
           <ChatWidgetInline agentId={agentId ?? ""} config={previewConfig} />
         </div>
       </div>
+
+      {showFullPreview && typeof document !== "undefined" &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[999] flex items-center justify-center bg-[#F0F5FC] p-4 md:p-8"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle, transparent 3px, #c8ccd8 3px, #c8ccd8 4px, transparent 4px)",
+              backgroundSize: "40px 40px",
+            }}
+            role="dialog"
+            aria-modal="true"
+          >
+            <button
+              type="button"
+              onClick={() => setShowFullPreview(false)}
+              className="absolute right-6 top-6 z-10 text-brand_gray rounded-full border border-ash bg-white h-10 w-10 flex items-center justify-center transition-all active:scale-95 hover:bg-gray-50"
+              aria-label="Cerrar preview"
+            >
+              <IoClose className="text-2xl" />
+            </button>
+            <div className="w-full h-full flex items-center justify-center">
+              <ChatWidgetInline agentId={agentId ?? ""} config={previewConfig} />
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

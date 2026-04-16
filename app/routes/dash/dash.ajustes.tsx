@@ -1,10 +1,11 @@
-import { type ReactNode, useMemo, useState } from "react"
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
 import { FaCheck } from "react-icons/fa6"
 import { FaInstagram, FaFacebookF, FaTiktok, FaYoutube, FaLinkedinIn } from "react-icons/fa6"
 import { Trash } from "~/components/icons/trash"
 import { Form, useFetcher, useLoaderData, useSearchParams } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { SuccessToast } from "~/components/common/SuccessToast"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Switch } from "~/components/common/Switch"
 import { BasicInput } from "~/components/forms/BasicInput"
@@ -46,6 +47,13 @@ export default function Ajustes() {
   const { countries, timeZones, collaborators, org, logoAction } =
     useLoaderData<typeof loader>()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const t = setTimeout(() => setToastMessage(null), 2500)
+    return () => clearTimeout(t)
+  }, [toastMessage])
 
   const rawTab = searchParams.get("tab")
   const activeTab: Tab = TABS.includes(rawTab as Tab)
@@ -66,7 +74,7 @@ export default function Ajustes() {
     <main className=" max-w-8xl mx-auto">
       <RouteTitle className="text-xl md:text-3xl">Ajustes</RouteTitle>
 
-      <div className="flex items-center gap-6 mb-4 md:mb-6 overflow-x-auto">
+      <div className="flex items-center gap-6 mb-4 md:mb-6 overflow-x-auto no-scrollbar">
         {TABS.map((tab) => (
           <TabButton
             key={tab}
@@ -77,15 +85,29 @@ export default function Ajustes() {
         ))}
       </div>
 
-      {activeTab === "general" && <InfoGeneralTab org={org} logoAction={logoAction} />}
-      {activeTab === "horarios" && <HorariosTab org={org} />}
+      {activeTab === "general" && (
+        <InfoGeneralTab
+          org={org}
+          logoAction={logoAction}
+          onSaved={() => setToastMessage("Información actualizada")}
+        />
+      )}
+      {activeTab === "horarios" && (
+        <HorariosTab org={org} onSaved={() => setToastMessage("Horario guardado")} />
+      )}
       {activeTab === "configuracion" && (
-        <ConfiguracionTab countries={countries} timeZones={timeZones} org={org} />
+        <ConfiguracionTab
+          countries={countries}
+          timeZones={timeZones}
+          org={org}
+          onSaved={() => setToastMessage("Cambios guardados")}
+        />
       )}
       {activeTab === "integraciones" && <IntegracionesTab org={org} />}
       {activeTab === "colaboradores" && (
         <ColaboradoresTab collaborators={collaborators} ownerId={org.ownerId} />
       )}
+      <SuccessToast message={toastMessage} />
     </main>
   )
 }
@@ -97,11 +119,21 @@ const DESC_MAX = 300
 function InfoGeneralTab({
   org,
   logoAction,
+  onSaved,
 }: {
   org: any
   logoAction: { putUrl: string; removeUrl: string; readUrl: string; logoKey: string }
+  onSaved?: () => void
 }) {
   const fetcher = useFetcher()
+  const prevState = useRef(fetcher.state)
+  useEffect(() => {
+    if (prevState.current !== "idle" && fetcher.state === "idle") {
+      const data = fetcher.data as any
+      if (!data || (!data.error && !data.errors)) onSaved?.()
+    }
+    prevState.current = fetcher.state
+  }, [fetcher.state, fetcher.data, onSaved])
   const [name, setName] = useState(org.name || "")
   const [shopKeeper, setShopKeeper] = useState(org.shopKeeper || "")
   const [email, setEmail] = useState(org.email || "")
@@ -298,8 +330,16 @@ function InfoGeneralTab({
 
 /* ==================== Horarios Tab ==================== */
 
-function HorariosTab({ org }: { org: any }) {
+function HorariosTab({ org, onSaved }: { org: any; onSaved?: () => void }) {
   const fetcher = useFetcher()
+  const prevState = useRef(fetcher.state)
+  useEffect(() => {
+    if (prevState.current !== "idle" && fetcher.state === "idle") {
+      const data = fetcher.data as any
+      if (!data || (!data.error && !data.errors)) onSaved?.()
+    }
+    prevState.current = fetcher.state
+  }, [fetcher.state, fetcher.data, onSaved])
 
   const handleSubmit = (weekDays: WeekSchema) => {
     weekDaysOrgSchema.parse({ weekDays })
@@ -340,12 +380,22 @@ function ConfiguracionTab({
   countries,
   timeZones,
   org,
+  onSaved,
 }: {
   countries: Choice[]
   timeZones: Choice[]
   org: any
+  onSaved?: () => void
 }) {
   const fetcher = useFetcher()
+  const prevState = useRef(fetcher.state)
+  useEffect(() => {
+    if (prevState.current !== "idle" && fetcher.state === "idle") {
+      const data = fetcher.data as any
+      if (!data || (!data.error && !data.errors)) onSaved?.()
+    }
+    prevState.current = fetcher.state
+  }, [fetcher.state, fetcher.data, onSaved])
   const existingConfig = (org.config || {}) as Record<string, any>
 
   const [country, setCountry] = useState<string>(existingConfig.country || "")
