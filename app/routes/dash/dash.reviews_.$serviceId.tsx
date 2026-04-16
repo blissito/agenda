@@ -84,7 +84,7 @@ export default function ServiceReviewDetail() {
   return (
     <main className="max-w-8xl mx-auto h-full flex flex-col">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-sm mb-6 font-satoMedium">
+      <nav className="flex items-center gap-2 text-sm mb-4 md:mb-6 font-satoMedium">
         <Link
           to="/dash/evaluaciones"
           className="text-brand_gray hover:text-brand_blue"
@@ -99,7 +99,7 @@ export default function ServiceReviewDetail() {
       <ServiceHeaderCard service={service} stats={stats} />
 
       {/* Reviews List */}
-      <section className={`bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-[24px] max-w-[845px] flex flex-col ${reviews.length <= 1 ? "" : "flex-1"}`}>
+      <section className={`bg-white rounded-2xl mt-4 md:mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-4 md:p-[24px] max-w-[845px] flex flex-col ${reviews.length <= 1 ? "" : "flex-1"}`}>
         {reviews.length > 0 ? (
           reviews.map((review, index) => (
             <ReviewCard
@@ -137,10 +137,10 @@ const ServiceHeaderCard = ({
   const maxRatingCount = Math.max(...stats.ratingDistribution, 1)
 
   return (
-    <section className="bg-white rounded-2xl p-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] max-w-[845px]">
-      <div className="flex gap-6">
+    <section className="bg-white rounded-2xl p-4 md:p-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] max-w-[845px]">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
         {/* Service Image */}
-        <div className="w-[193px] h-[120px] rounded-2xl overflow-hidden bg-gray-200 flex-shrink-0">
+        <div className="w-full h-[160px] md:w-[193px] md:h-[120px] rounded-2xl overflow-hidden bg-gray-200 flex-shrink-0">
           <Image
             src={service.gallery?.[0] || "/images/serviceDefault.png"}
             alt={service.name}
@@ -149,12 +149,12 @@ const ServiceHeaderCard = ({
         </div>
 
         {/* Service Info */}
-        <div className="flex-1">
-          <h2 className="text-2xl font-satoBold text-brand_dark">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl md:text-2xl font-satoBold text-brand_dark">
             {service.name}
           </h2>
           {service.description && (
-            <p className="text-base text-[#606264] font-satoMedium mt-1">
+            <p className="text-sm md:text-base text-[#606264] font-satoMedium mt-1">
               {service.description}
             </p>
           )}
@@ -162,13 +162,13 @@ const ServiceHeaderCard = ({
       </div>
 
       {/* Stats Section */}
-      <div className="flex mt-6 gap-6">
+      <div className="flex flex-col md:flex-row mt-6 gap-4 md:gap-6">
         {/* Rating Number and Stars */}
-        <div className="flex-shrink-0">
-          <p className="text-6xl font-satoBold text-black">
+        <div className="flex-shrink-0 flex md:block items-center gap-4">
+          <p className="text-5xl md:text-6xl font-satoBold text-black">
             {stats.averageRating.toFixed(1)}
           </p>
-          <div className="flex gap-2 mt-2">
+          <div className="flex gap-1.5 md:gap-2 md:mt-2 [&_svg]:w-5 [&_svg]:h-5 md:[&_svg]:w-6 md:[&_svg]:h-6">
             {[1, 2, 3, 4, 5].map((star) => (
               <StarIcon
                 key={star}
@@ -184,13 +184,13 @@ const ServiceHeaderCard = ({
         </div>
 
         {/* Rating Distribution Bars */}
-        <div className="flex-1 flex flex-col justify-center gap-2">
+        <div className="flex-1 flex flex-col justify-center gap-2 min-w-0">
           {[5, 4, 3, 2, 1].map((rating) => {
             const count = stats.ratingDistribution[rating - 1]
             const percentage = (count / maxRatingCount) * 100
             return (
               <div key={rating} className="flex items-center gap-3">
-                <span className="text-base text-[#606264] font-satoMedium w-4">
+                <span className="text-sm md:text-base text-[#606264] font-satoMedium w-4">
                   {rating}
                 </span>
                 <div className="flex-1 h-3 bg-[#e5e7f0] rounded-full overflow-hidden max-w-full">
@@ -205,26 +205,30 @@ const ServiceHeaderCard = ({
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-gray-200" />
+        <div className="hidden md:block w-px bg-gray-200" />
 
         {/* Stats Numbers */}
-        <div className="flex flex-col justify-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl font-satoBold text-brand_dark">
-              {stats.totalReviews}
+        <div className="flex md:flex-col flex-row items-center md:items-start justify-around md:justify-center gap-6 md:gap-4 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100">
+          <div className="flex flex-col items-center md:items-start">
+            <div className="flex items-center gap-2">
+              <span className="text-xl md:text-2xl font-satoBold text-brand_dark">
+                {stats.totalReviews}
+              </span>
+              <StarIcon filled size={20} />
+            </div>
+            <span className="text-xs text-[#606264] font-satoMedium mt-1 md:-mt-1">
+              {stats.totalReviews === 1 ? "comentario" : "comentarios"}
             </span>
-            <StarIcon filled size={20} />
           </div>
-          <span className="text-xs text-[#606264] font-satoMedium -mt-3">
-            {stats.totalReviews === 1 ? "comentario" : "comentarios"}
-          </span>
 
-          <span className="text-2xl font-satoBold text-brand_dark">
-            {stats.uniqueCustomers}
-          </span>
-          <span className="text-xs text-[#606264] font-satoMedium -mt-3">
-            clientes
-          </span>
+          <div className="flex flex-col items-center md:items-start">
+            <span className="text-xl md:text-2xl font-satoBold text-brand_dark">
+              {stats.uniqueCustomers}
+            </span>
+            <span className="text-xs text-[#606264] font-satoMedium mt-1 md:-mt-1">
+              clientes
+            </span>
+          </div>
         </div>
       </div>
     </section>
@@ -247,36 +251,37 @@ const ReviewCard = ({
 
   return (
     <>
-      <div className="flex gap-6 py-6">
-        {/* Avatar */}
-        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 overflow-hidden">
-          {review.avatarUrl ? (
-            <img
-              src={review.avatarUrl}
-              alt={review.customerName}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-sm font-satoBold text-gray-600">
-              {initials}
-            </span>
-          )}
-        </div>
+      <div className="flex flex-col md:flex-row gap-3 md:gap-6 py-5 md:py-6">
+        {/* Customer row (avatar + name) */}
+        <div className="flex items-center gap-3 md:gap-6 md:items-start">
+          <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            {review.avatarUrl ? (
+              <img
+                src={review.avatarUrl}
+                alt={review.customerName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="text-sm font-satoBold text-gray-600">
+                {initials}
+              </span>
+            )}
+          </div>
 
-        {/* Customer Info */}
-        <div className="flex-shrink-0 w-[200px]">
-          <p className="font-satoBold text-sm text-brand_dark">
-            {review.customerName}
-          </p>
-          <p className="text-xs text-[#606264] font-satoMedium">
-            {review.customerEmail}
-          </p>
+          <div className="flex-1 md:flex-shrink-0 md:w-[200px] min-w-0">
+            <p className="font-satoBold text-sm text-brand_dark truncate">
+              {review.customerName}
+            </p>
+            <p className="text-xs text-[#606264] font-satoMedium truncate">
+              {review.customerEmail}
+            </p>
+          </div>
         </div>
 
         {/* Rating and Comment */}
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex gap-1.5 md:gap-2 [&_svg]:w-5 [&_svg]:h-5 md:[&_svg]:w-6 md:[&_svg]:h-6">
               {[1, 2, 3, 4, 5].map((star) => (
                 <StarIcon key={star} filled={star <= review.rating} size={24} />
               ))}

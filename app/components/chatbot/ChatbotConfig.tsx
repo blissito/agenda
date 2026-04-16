@@ -263,7 +263,7 @@ export function ChatbotConfig({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="px-10 py-3 bg-brand_blue text-white rounded-full font-satoMedium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="px-10 h-12 bg-brand_blue text-white rounded-full font-satoMedium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isSaving ? "Guardando..." : "Guardar"}
           </button>

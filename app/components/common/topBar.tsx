@@ -7,6 +7,7 @@ import { PrimaryButton } from "./primaryButton"
 
 const NAV_LINKS = [
   { to: "/funcionalidades", label: "Funcionalidades" },
+  { to: "/ia", label: "IA✨" },
   { to: "/negocios", label: "Negocios" },
   { to: "/planes", label: "Planes" },
 ]
@@ -67,7 +68,7 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
       {menuOpen && (
         <div
           className={`md:hidden absolute ${
-            withBanner ? "top-32" : "top-24"
+            withBanner ? "top-36" : "top-28"
           } left-4 right-4 bg-white/95 backdrop-blur-lg border border-brand_pale rounded-2xl shadow-lg p-6 flex flex-col gap-4`}
         >
           {NAV_LINKS.map((link) => (

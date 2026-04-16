@@ -69,15 +69,15 @@ export default function Index() {
 
 const Features = () => {
   return (
-    <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto lg:py-[24%] xl:pt-[16%] pb-20 lg:pb-[160px]">
-      <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+    <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:py-[24%] xl:pt-[16%] pb-0 lg:pb-[160px]">
+      <h2 className="group text-3xl lg:text-6xl	font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
         <span className="mr-4"> Funcionalidades </span>
         <UserFeatures className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] md:w-16 md:h-16 mr-3" />
       </h2>
-      <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[90%]">
+      <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-4 md:mt-6 w-full mx-auto md:w-[90%]">
         Prueba todo lo que Deník tiene para ti y tu negocio
       </p>
-      <div className="mt-20 flex flex-col gap-8">
+      <div className="mt-12 md:mt-20 flex flex-col gap-8">
         {/* Row 1: 5+3 */}
         <div className="grid grid-cols-1 md:grid-cols-8 gap-8">
           <div className="md:col-span-5 min-h-[240px] md:h-[480px] p-8 text-left rounded-2xl border border-[#EFEFEF] relative group transition-all cursor-pointer hover:-translate-x-1 hover:-translate-y-1">
@@ -138,7 +138,7 @@ const Features = () => {
           </div>
         </div>
         {/* Row AI: full width highlight */}
-        <div className="min-h-[320px] p-8 md:p-12 rounded-2xl bg-brand_dark relative group transition-all cursor-pointer hover:-translate-y-1 overflow-hidden">
+        <div id="ia" className="scroll-mt-28 min-h-[320px] p-8 md:p-12 rounded-2xl bg-brand_dark relative group transition-all cursor-pointer hover:-translate-y-1 overflow-hidden">
           <OrbitingStars />
           <div className="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-8">
             <div className="flex-1 text-left">

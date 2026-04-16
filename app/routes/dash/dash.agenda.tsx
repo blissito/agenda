@@ -1056,7 +1056,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     }}
                     onMouseLeave={handleEventMouseLeave}
                   >
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
                     <span className="font-medium truncate text-brand_dark">{event.title}</span>
                     <span className="text-brand_gray truncate text-[10px]">{event.service?.name}</span>
                   </div>

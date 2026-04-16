@@ -119,15 +119,30 @@ export default function Help() {
 
   return (
     <main className="bg-brand_dark">
-      <div className="bg-white rounded-b-[40px] pb-[120px]">
+      <div className="bg-white rounded-b-[40px] pb-20 md:pb-[120px]">
         <TopBar />
 
-        <div className="grid grid-cols-1 lg:grid-cols-8 max-w-[90%] xl:max-w-7xl mx-auto gap-12 pt-[240px]">
-          {/* Sidebar */}
-          <Catalogue search={search} setSearch={setSearch} activeSlug={activeSlug} onItemClick={handleSidebarClick} />
+        <div className="max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[240px]">
+          {/* Title — always on top on mobile, inside grid on lg */}
+          <div className="lg:hidden mb-8">
+            <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center justify-start">
+              <span className="mr-4">Ayuda,</span>
+              <HelpIcon className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10" />
+              <span className="ml-4 mr-4">recursos</span> y soporte
+            </h2>
+            <p className="mt-4 text-brand_gray text-lg">
+              Encuentra las respuestas que necesitas para aprovechar todo el potencial
+              de Deník.
+            </p>
+          </div>
 
-          {/* Main content */}
-          <Content filtered={filtered} search={search} />
+          <div className="grid grid-cols-1 lg:grid-cols-8 gap-12">
+            {/* Sidebar */}
+            <Catalogue search={search} setSearch={setSearch} activeSlug={activeSlug} onItemClick={handleSidebarClick} />
+
+            {/* Main content */}
+            <Content filtered={filtered} search={search} />
+          </div>
         </div>
       </div>
       <Footer />
@@ -144,22 +159,24 @@ const Content = ({
 }) => {
   return (
     <section className="lg:col-span-6">
-      <h2 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center justify-start">
-        <span className="mr-4">Ayuda,</span>
-        <HelpIcon className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10 lg:w-14 lg:h-14" />
-        <span className="ml-4 mr-4">recursos</span> y soporte
-      </h2>
-      <p className="mt-6 text-brand_gray text-lg">
-        Encuentre las respuestas que necesita para aprovechar todo el potencial
-        de Deník e impulsa las ventas de tu negocio. Chatea con nuestro equipo
-        o envia un correo electronico a{" "}
-        <a href="mailto:hola@denik.me" className="text-brand_blue underline">
-          hola@denik.me
-        </a>
-      </p>
+      <div className="hidden lg:block">
+        <h2 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center justify-start">
+          <span className="mr-4">Ayuda,</span>
+          <HelpIcon className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10 lg:w-14 lg:h-14" />
+          <span className="ml-4 mr-4">recursos</span> y soporte
+        </h2>
+        <p className="mt-6 text-brand_gray text-lg">
+          Encuentra las respuestas que necesitas para aprovechar todo el potencial
+          de Deník e impulsa las ventas de tu negocio. Chatea con nuestro equipo
+          o envía un correo electrónico a{" "}
+          <a href="mailto:hola@denik.me" className="text-brand_blue underline">
+            hola@denik.me
+          </a>
+        </p>
+      </div>
 
       {/* Articles */}
-      <div className="mt-16">
+      <div className=" mt-0 md:mt-16">
         <h3 className="text-2xl lg:text-3xl font-satoBold text-brand_dark border-b border-brand_pale pb-4">
           Documentos de ayuda
         </h3>

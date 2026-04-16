@@ -15,8 +15,8 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 
   return (
     <main className=" ">
-      <RouteTitle>Mi perfil </RouteTitle>
-      <section className="flex gap-3 md:gap-8 items-center bg-white p-6 rounded-2xl max-w-3xl">
+      <RouteTitle className="text-xl md:text-3xl">Mi perfil </RouteTitle>
+      <section className="flex gap-3 md:gap-8 items-center bg-white p-4 md:p-6 rounded-2xl max-w-3xl">
         <div className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full border-[1px] border-brand_stroke relative">
           {user.providerId ? null : (
             <Camera className="absolute right-0 bottom-0" />
@@ -46,7 +46,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
           price="249.00 mxn"
           nextPayment="18 de Agosto 2024"
         >
-          <ul className="text-left flex gap-4 flex-col text-lg text-brand_gray font-satoshi ">
+          <ul className="text-left flex gap-3 md:gap-4 flex-col text-base md:text-lg text-brand_gray font-satoshi ">
             <li className="flex gap-3">
               {" "}
               <Check /> Agenda en línea
@@ -93,10 +93,10 @@ const PlanCard = ({
   plan: string
 }) => {
   return (
-    <section className="flex flex-col gap-4 bg-white p-6 rounded-2xl max-w-3xl my-8">
+    <section className="flex flex-col gap-4 bg-white p-4 md:p-6 rounded-2xl max-w-3xl my-4 md:my-8">
       <div className="flex justify-between items-center flex-wrap">
-        <h3 className="mb-4 md:mb-6 text-2xl font-bold font-title">{plan}</h3>
-        <p className="mb-4 md:mb-6 text-2xl font-satoshi font-bold">
+        <h3 className="mb-0 md:mb-6 text-lg md:text-2xl font-satoBold font-bold">{plan}</h3>
+        <p className="mb-0 md:mb-6 text-lg md:text-2xl font-satoshi font-bold">
           ${price} / mes
         </p>
       </div>

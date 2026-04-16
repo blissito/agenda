@@ -6,13 +6,13 @@ import { Meteors } from "./Meteors"
 // @ Meteors require Banner to be wrapped in a Suspense!
 export const Banner = () => {
   return (
-    <section className="max-w-[90%] xl:max-w-7xl w-full mx-auto rounded-[40px] bg-brand_dark my-[120px] md:my-[160px] p-8 md:py-16 md:px-[10%] xl:px-[5%] relative overflow-hidden text-center">
+    <section className="max-w-[90%] xl:max-w-7xl w-full mx-auto rounded-[40px] bg-brand_dark my-20 md:my-[160px] p-8 md:py-16 md:px-[10%] xl:px-[5%] relative overflow-hidden text-center">
       <h2 className="text-2xl lg:text-4xl text-white font-bold">
-        ¡Prueba Deník y crece tu negocio!
+        30 días gratis para transformar tu agenda
       </h2>
       <p className="text-xl lg:text-2xl text-brand_ash/80 mt-6 font-satoshi">
-        Si tienes alguna duda, agenda un demo en línea para que nuestro equipo
-        te muestre todo lo que puedes hacer con Denik. ¡Escríbenos!
+        Agenda citas, cobra en línea y deja que la IA atienda a tus clientes
+        mientras tú te enfocas en lo que mejor haces.
       </p>
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 mt-12 justify-center">
         {/* <PrimaryButton className="w-full md:w-[180px]">

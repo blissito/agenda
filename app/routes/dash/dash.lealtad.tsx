@@ -128,7 +128,7 @@ export default function Lealtad() {
   if (shouldShowEmptyState) {
     return (
       <main className="max-w-8xl mx-auto">
-        <RouteTitle className="text-2xl md:text-3xl mb-6 md:mb-8">Lealtad</RouteTitle>
+        <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">Lealtad</RouteTitle>
 
         <EmptyStateLoyalty onStart={() => setIsCreateWizardOpen(true)} />
 
@@ -163,9 +163,9 @@ export default function Lealtad() {
 
   return (
     <main className="max-w-8xl mx-auto">
-      <RouteTitle className="text-2xl md:text-3xl mb-6 md:mb-8">Lealtad</RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">Lealtad</RouteTitle>
 
-      <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mt-4 flex flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <TabButton
             label="Niveles"

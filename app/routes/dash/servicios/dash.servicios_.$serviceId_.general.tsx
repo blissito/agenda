@@ -104,19 +104,19 @@ export default function Index({ loaderData }: Route.ComponentProps) {
       </Breadcrumb>
       <fetcher.Form
         method="post"
-        className="bg-white rounded-2xl max-w-3xl p-8 mt-6"
+        className="bg-white rounded-2xl max-w-3xl p-4 md:p-8 mt-6"
       >
         <input type="hidden" name="id" value={service.id} />
         <input type="hidden" name="slug" value={service.slug} />
         <input type="hidden" name="orgId" value={service.orgId} />
 
         <h2
-          className="font-satoBold mb-8 text-xl
+          className="font-satoBold mb-4 md:mb-8 text-xl
         "
         >
           Información General
         </h2>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           <BasicInput
             placeholder="Clase de piano"
             label="Nombre del servicio"
@@ -190,7 +190,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           )}
         </div>
 
-        <div className="flex mt-16 justify-end gap-6">
+        <div className="flex mt-12 justify-end gap-6">
           <SecondaryButton
             as="Link"
             to={`/dash/servicios/${service.id}`}

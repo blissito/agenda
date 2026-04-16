@@ -158,7 +158,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }, [photoUrlsFetcher.data])
 
   return (
-    <article className="h-screen bg-white fixed inset-0 pt-6 md:pt-10 overflow-y-auto z-[600]">
+    <article className="h-screen bg-white fixed inset-0 pt-14 md:pt-10 overflow-y-auto z-[600]">
       <Link
         to="/dash/servicios"
         aria-label="Cerrar"
@@ -168,7 +168,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       </Link>
       {index !== 4 && (
         <section className="max-w-xl mx-auto h-full flex flex-col px-4 md:px-0">
-          <h1 className="text-center text-xl md:text-2xl pr-10 md:pr-0">
+          <h1 className="text-center text-xl md:text-2xl">
             ¡Empecemos! Describe tu servicio
           </h1>
           <Steper currentIndex={index} />

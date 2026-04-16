@@ -195,8 +195,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       recentEvents.length > 0)
 
   return (
-    <section className="w-full h-[calc(100vh-3rem)] lg:h-[calc(100vh-5rem)]">
-      <div className="h-full flex flex-col box-border overflow-hidden max-w-8xl mx-auto">
+    <section className="w-full lg:h-[calc(100vh-5rem)]">
+      <div className="h-full flex flex-col gap-4 lg:gap-6 box-border max-w-8xl mx-auto">
         <Summary user={user} stats={stats} />
         {hasData ? (
           <DashboardData
@@ -362,11 +362,11 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [pill, setPill] = useState({ left: 0, width: 0 })
 
-  const filters: { key: SalesFilter; label: string }[] = [
-    { key: "semana", label: "Semana" },
-    { key: "mes", label: "Mes" },
-    { key: "trimestre", label: "Trimestre" },
-    { key: "anual", label: "Anual" },
+  const filters: { key: SalesFilter; label: string; shortLabel: string }[] = [
+    { key: "semana", label: "Semana", shortLabel: "S" },
+    { key: "mes", label: "Mes", shortLabel: "M" },
+    { key: "trimestre", label: "Trimestre", shortLabel: "T" },
+    { key: "anual", label: "Anual", shortLabel: "A" },
   ]
 
   const handleFilter = (key: SalesFilter, el: HTMLButtonElement) => {
@@ -382,7 +382,7 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 mt-6 flex-1 min-h-0 flex flex-col">
+    <div className="bg-white rounded-2xl p-4 lg:p-6 mt-6 flex-1 min-h-0 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-satoBold">Ventas</h3>
         <div
@@ -420,12 +420,13 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
                   : "text-brand_gray hover:text-brand_dark"
               }`}
             >
-              {f.label}
+              <span className="hidden md:inline">{f.label}</span>
+              <span className="md:hidden">{f.shortLabel}</span>
             </button>
           ))}
         </div>
       </div>
-      <div className="flex-1 min-h-[200px]">
+      <div className="flex-1 min-h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#F0F0F0" />
@@ -441,7 +442,7 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
               tick={{ fontSize: 12, fill: "#8A90A2" }}
               axisLine={false}
               tickLine={false}
-              width={70}
+              width={50}
             />
             <Tooltip
               formatter={(value) => [
@@ -489,12 +490,12 @@ const DashboardData = ({
   const totalEvents = topServices.reduce((sum, s) => sum + s.eventCount, 0)
 
   return (
-    <div className="grid grid-cols-6 gap-6 mt-6  flex-1 min-h-0 overflow-hidden">
+    <div className="grid grid-cols-6 gap-4 lg:gap-6 flex-1 min-h-0">
       <div className="col-span-6 xl:col-span-4 flex flex-col">
         {topServices.length > 0 && (
-          <div className="bg-white rounded-2xl p-4 lg:p-6">
+          <div className="lg:bg-white lg:rounded-2xl lg:p-6">
             <h3 className="text-lg font-satoBold">Servicios</h3>
-            <div className="flex gap-6 mt-6 overflow-x-auto">
+            <div className="flex gap-4 lg:gap-6 mt-4 lg:mt-6 overflow-x-auto scrollbar-hide">
               {topServices.map((s) => (
                 <SummaryCard
                   key={s.id}
@@ -513,8 +514,8 @@ const DashboardData = ({
         )}
         <SalesChart data={salesTimeline} />
       </div>
-      <div className="bg-white rounded-2xl overflow-y-scroll h-full col-span-6 xl:col-span-2 pb-6">
-        <div className="bg-white/80 z-10 backdrop-blur py-4 sticky top-0 px-6 flex items-center justify-between">
+      <div className="bg-white rounded-2xl overflow-y-scroll h-full col-span-6 xl:col-span-2 pb-4 lg:pb-6">
+        <div className="bg-white/80 z-10 backdrop-blur py-4 sticky top-0 px-4 lg:px-6 flex items-center justify-between">
           <h3 className="text-lg font-satoBold">
             Servicios agendados recientemente
           </h3>
@@ -522,11 +523,12 @@ const DashboardData = ({
             Ver todas
           </Link>
         </div>
-        <div className="mt-0 overflow-y-scroll px-6">
+        <div className="mt-0 overflow-y-scroll px-4 lg:px-6">
           {recentEvents.length > 0 ? (
-            recentEvents.map((e) => (
+            recentEvents.slice(0, 10).map((e, i) => (
               <AppointmentItem
                 key={e.id}
+                className={i >= 5 ? "hidden md:flex" : undefined}
                 service={e.serviceName}
                 client={e.customerName}
                 date={formatEventDate(e.start)}
@@ -630,7 +632,7 @@ const SummaryCard = ({
   data: string
 }) => {
   return (
-    <section className="border-[1px] min-w-[132px]  border-brand_stroke rounded-2xl flex flex-col items-center text-center p-3 hover:scale-95 transition-all">
+    <section className="border-[1px] min-w-[132px] border-brand_stroke rounded-2xl flex flex-col items-center text-center p-3 hover:scale-95 transition-all bg-white">
       <img
         className="h-12 w-12 rounded-full object-cover"
         src={img ? img : "/images/serviceDefault.png"}

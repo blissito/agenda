@@ -411,25 +411,25 @@ export function Calendar({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <article className="w-full bg-white shadow rounded-xl">
-        {/* Scrollable container for resource mode */}
-        <div
-          ref={scrollContainerRef}
-          className={cn(
-            (isResourceMode || isMobile) && "overflow-x-auto"
-          )}
-          style={isMobile ? { WebkitOverflowScrolling: "touch" } : undefined}
-        >
+      <article className="w-full bg-white shadow rounded-xl max-h-[70vh] overflow-auto"
+        ref={scrollContainerRef}
+        style={isMobile ? { WebkitOverflowScrolling: "touch" } : undefined}
+      >
           {/* Header */}
           <section
             style={resourceGridStyle}
-            className="place-items-center py-4 border-b sticky top-0 bg-white z-10"
+            className="place-items-center py-4 border-b sticky top-0 bg-white z-20"
           >
-            <p>
-              <span className={cn("text-sm text-gray-500", isMobile && "text-[8px] leading-tight")}>
-                {isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone}
-              </span>
-            </p>
+            <div
+              className="sticky left-0 z-30 w-full h-full grid place-items-center place-self-stretch -my-4 py-4"
+              style={{ backgroundColor: "white" }}
+            >
+              {!isMobile && (
+                <span className="text-sm text-gray-500">
+                  {isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone}
+                </span>
+              )}
+            </div>
             {isResourceMode
               ? resources!.map((resource, index) => (
                   <DayHeader
@@ -455,9 +455,6 @@ export function Calendar({
           {/* Grid */}
           <section
             style={resourceGridStyle}
-            className={cn(
-              !isMobile && "max-h-[70vh] overflow-y-auto"
-            )}
           >
             <TimeColumn hoursStart={hoursStart} hoursEnd={hoursEnd} cellHeight={CELL_H} compact={isMobile} />
             {Array.from({ length: columnCount }, (_, colIndex) => (
@@ -480,7 +477,6 @@ export function Calendar({
               />
             ))}
           </section>
-        </div>
       </article>
       <DragOverlay>
         {activeEvent ? <EventOverlay event={activeEvent} config={config} /> : null}
@@ -800,15 +796,19 @@ const TimeColumn = ({
   cellHeight?: number;
   compact?: boolean;
 }) => (
-  <div className="grid">
+  <div className="sticky left-0 z-10" style={{ backgroundColor: "white" }}>
     {Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
       const hour = hoursStart + i;
       return (
-        <Cell key={hour} cellHeight={cellHeight}>
+        <div
+          key={hour}
+          style={{ height: cellHeight, backgroundColor: "white", border: "none" }}
+          className="w-full text-gray-500 relative grid place-items-center"
+        >
           <span className={cn(compact && "text-[11px]")}>
             {`${hour < 10 ? "0" : ""}${hour}:00`}
           </span>
-        </Cell>
+        </div>
       );
     })}
   </div>

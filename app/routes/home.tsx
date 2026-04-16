@@ -137,7 +137,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
       >
         ✨ Prueba Deník gratis por 30 días — sin tarjeta de crédito
       </Link>
-      <div className="bg-white rounded-b-[40px]">
+      <div className="bg-white rounded-b-[40px] overflow-x-clip">
         <TopBar withBanner />
         <ParallaxHero>
           <Hero />

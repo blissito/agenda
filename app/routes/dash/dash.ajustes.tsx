@@ -63,10 +63,10 @@ export default function Ajustes() {
   }
 
   return (
-    <main className="pb-10 max-w-8xl mx-auto">
-      <RouteTitle>Ajustes</RouteTitle>
+    <main className=" max-w-8xl mx-auto">
+      <RouteTitle className="text-xl md:text-3xl">Ajustes</RouteTitle>
 
-      <div className="flex items-center gap-6 mb-6 overflow-x-auto">
+      <div className="flex items-center gap-6 mb-4 md:mb-6 overflow-x-auto">
         {TABS.map((tab) => (
           <TabButton
             key={tab}
@@ -84,7 +84,7 @@ export default function Ajustes() {
       )}
       {activeTab === "integraciones" && <IntegracionesTab org={org} />}
       {activeTab === "colaboradores" && (
-        <ColaboradoresTab collaborators={collaborators} />
+        <ColaboradoresTab collaborators={collaborators} ownerId={org.ownerId} />
       )}
     </main>
   )
@@ -150,17 +150,17 @@ function InfoGeneralTab({
 
   return (
     <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
-      <form onSubmit={handleSubmit} className="p-6 lg:p-8">
+      <form onSubmit={handleSubmit} className="p-4 md:p-6 lg:p-8">
         <h3 className="text-lg font-satoBold">
           Información general{" "}
         </h3>
 
         {/* Logo + Name fields row */}
-        <div className="flex flex-col md:flex-row md:items-stretch gap-6 mt-6">
-          <div className="[&>div]:mb-0 [&>div]:h-full">
+        <div className="flex flex-col md:flex-row md:items-stretch gap-4 md:gap-6 mt-4 md:mt-6">
+          <div className="[&>div]:mb-0 md:[&>div]:h-full">
             <InputFile
               name="logo"
-              className="w-[160px] h-full mt-0"
+              className="w-full h-[140px] md:w-[160px] md:h-full mt-0"
               action={logoAction}
               onUploadComplete={(key) => setLogoKey(key)}
               onDelete={() => setLogoKey(null)}
@@ -282,8 +282,7 @@ function InfoGeneralTab({
           />
         </div>
 
-        <div className="flex justify-end mt-12en Horarios, ajusta el font del titulo, y el padding de la card
-        ">
+        <div className="flex justify-end mt-12">
           <PrimaryButton
             type="submit"
             isLoading={isLoading}
@@ -315,7 +314,7 @@ function HorariosTab({ org }: { org: any }) {
 
   return (
     <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
-      <div className="p-6 lg:p-8">
+      <div className="p-4 md:p-6 lg:p-8">
         <h3 className="text-lg font-satoBold mb-2">Horario: Actualiza los días y horarios en los que ofreces servicio</h3>
         <div className="mt-6 [&>form]:mx-0 [&>form]:px-0 [&>form]:pt-0 [&>form]:max-w-none">
           <TimesForm org={org} onSubmit={handleSubmit}>
@@ -389,7 +388,7 @@ function ConfiguracionTab({
 
   return (
     <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
-      <form onSubmit={handleSubmit} className="p-6 lg:p-8">
+      <form onSubmit={handleSubmit} className="p-4 md:p-6 lg:p-8">
         <h3 className="text-lg font-satoBold">General</h3>
         <OptionBox
           title="Ubicación de tu negocio"
@@ -435,7 +434,7 @@ function ConfiguracionTab({
             onChange={setSimultaneousServices}
           />
         </OptionBox>
-        <hr className="bg-brand_stroke my-6" />
+        <hr className="bg-brand_stroke my-4 md:my-6" />
 
         <h3 className="text-lg font-satoBold">
           Política de agendamiento y cancelación
@@ -484,7 +483,7 @@ function ConfiguracionTab({
             onChange={setCancellationWindow}
           />
         </OptionBox>
-        <hr className="bg-brand_stroke my-6" />
+        <hr className="bg-brand_stroke my-4 md:my-6" />
         <h3 className="text-lg font-satoBold">Términos y condiciones</h3>
         <div className="mt-6">
           <p className="text-brand_dark font-satoshi">
@@ -504,7 +503,7 @@ function ConfiguracionTab({
             onChange={(e: any) => setTermsAndConditions(e.target.value)}
           />
         </div>
-        <hr className="bg-brand_stroke my-6" />
+        <hr className="bg-brand_stroke my-4 md:my-6" />
         <h3 className="text-lg font-satoBold">Encuestas</h3>
         <OptionBox
           title="Encuesta de satisfacción"
@@ -538,8 +537,8 @@ function IntegracionesTab({ org }: { org: any }) {
   const isGoogleMeetConnected = Boolean(org.googleCalendarToken)
   const isZoomConnected = Boolean(org.zoomToken)
   return (
-    <section className="bg-white rounded-2xl max-w-4xl pb-10 overflow-hidden">
-      <div className="p-6">
+    <section className="bg-white rounded-2xl max-w-4xl pb-4 md:pb-10 overflow-hidden">
+      <div className="p-4 md:p-6">
         <h3 className="text-lg font-bold">Integraciones</h3>
         <p className="text-brand_dark font-satoshi mt-4 mb-4">
           {" "}
@@ -574,15 +573,12 @@ function IntegracionesTab({ org }: { org: any }) {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
           {isZoomConnected ? (
-            <div className="relative col-span-1 md:col-span-2">
+            <div className="col-span-1 md:col-span-2">
               <IntegrationCard
                 icon="/images/zoom.svg"
                 tool="Zoom"
                 description="Zoom conectado. Se generarán enlaces automáticamente en tus citas."
-              />
-              <button
-                type="button"
-                onClick={() => {
+                onDisconnect={() => {
                   if (window.confirm("¿Desconectar Zoom?")) {
                     fetcher.submit(
                       { intent: "disconnect_zoom" },
@@ -590,13 +586,10 @@ function IntegracionesTab({ org }: { org: any }) {
                     )
                   }
                 }}
-                className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 transition-colors"
-              >
-                Desconectar
-              </button>
+              />
             </div>
           ) : (
-            <a href="/dash/zoom/connect">
+            <a href="/dash/zoom/connect" className="col-span-1 md:col-span-2">
               <IntegrationCardDisconnected
                 icon="/images/zoom.svg"
                 tool="Zoom"
@@ -605,15 +598,12 @@ function IntegracionesTab({ org }: { org: any }) {
             </a>
           )}
           {isGoogleMeetConnected ? (
-            <div className="relative col-span-1 md:col-span-2">
+            <div className="col-span-1 md:col-span-2">
               <IntegrationCard
                 icon="/images/google-meet.svg"
                 tool="Google Meet"
                 description="Usa Google Meet para generar citas en línea."
-              />
-              <button
-                type="button"
-                onClick={() => {
+                onDisconnect={() => {
                   if (window.confirm("¿Desconectar Google Meet?")) {
                     fetcher.submit(
                       { intent: "disconnect_google" },
@@ -621,13 +611,10 @@ function IntegracionesTab({ org }: { org: any }) {
                     )
                   }
                 }}
-                className="absolute top-2 right-2 text-xs text-red-400 hover:text-red-600 transition-colors"
-              >
-                Desconectar
-              </button>
+              />
             </div>
           ) : (
-            <a href="/dash/google-calendar/connect">
+            <a href="/dash/google-calendar/connect" className="col-span-1 md:col-span-2">
               <IntegrationCardDisconnected
                 icon="/images/google-meet.svg"
                 tool="Google Meet"
@@ -661,6 +648,7 @@ function IntegracionesTab({ org }: { org: any }) {
 
 function ColaboradoresTab({
   collaborators,
+  ownerId,
 }: {
   collaborators: Array<{
     id: string
@@ -669,6 +657,7 @@ function ColaboradoresTab({
     photoURL: string | null
     role: string | null
   }>
+  ownerId: string
 }) {
   const [search, setSearch] = useState("")
   const [showInvite, setShowInvite] = useState(false)
@@ -744,12 +733,12 @@ function ColaboradoresTab({
         <div className="bg-white rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="grid grid-cols-12 px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 border-b border-brand_stroke">
-            <span className="col-span-5 pl-2">Colaborador</span>
+            <span className="col-span-10 sm:col-span-5 pl-2">Colaborador</span>
             <span className="col-span-3 hidden sm:block text-left">
               Email
             </span>
             <span className="col-span-2 hidden sm:block text-left">Rol</span>
-            <span className="col-span-2 text-center">Acciones</span>
+            <span className="col-span-2 text-right sm:text-center pr-2">Acciones</span>
           </div>
           {/* Rows */}
           {filtered.map((c, i) => {
@@ -762,7 +751,7 @@ function ColaboradoresTab({
                   i < filtered.length - 1 && "border-b border-brand_stroke",
                 )}
               >
-                <div className="col-span-5 flex items-center gap-3 min-w-0">
+                <div className="col-span-10 sm:col-span-5 flex items-center gap-3 min-w-0">
                   <ClientAvatar
                     photoUrl={c.photoURL}
                     initials={initials}
@@ -783,16 +772,17 @@ function ColaboradoresTab({
                 <p className="col-span-2 hidden sm:block text-sm text-left text-brand_gray capitalize">
                   {ROLE_LABELS[c.role || "GUEST"] || c.role}
                 </p>
-                <div className="col-span-2 flex justify-center">
+                <div className="col-span-2 flex justify-end sm:justify-center">
                   <Form method="post">
                     <input type="hidden" name="intent" value="delete" />
                     <input type="hidden" name="userId" value={c.id} />
                     <button
                       type="submit"
-                      className="text-red-400 hover:text-red-600 p-2 rounded-full hover:bg-red-50 transition-colors"
-                      title="Remover del equipo"
+                      disabled={c.id === ownerId}
+                      className="text-red-400 hover:text-red-600 p-2.5 rounded-full hover:bg-red-50 transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                      title={c.id === ownerId ? "No puedes remover al owner" : "Remover del equipo"}
                     >
-                      <Trash className="w-4 h-4" />
+                      <Trash className="w-8 h-8" />
                     </button>
                   </Form>
                 </div>
@@ -851,10 +841,12 @@ export const IntegrationCard = ({
   icon,
   tool,
   description,
+  onDisconnect,
 }: {
   icon: string
   tool: string
   description: string
+  onDisconnect?: () => void
 }) => {
   return (
     <section className="col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative cursor-pointer group">
@@ -868,6 +860,17 @@ export const IntegrationCard = ({
               Conectado
             </span>
           </div>
+          {onDisconnect && (
+            <button
+              type="button"
+              onClick={onDisconnect}
+              aria-label="Desconectar"
+              title="Desconectar"
+              className="[&_path]:fill-red-500 hover:[&_path]:fill-red-600 transition-colors"
+            >
+              <DisconnectedIcon />
+            </button>
+          )}
         </div>
         <p className="text-brand_gray text-sm mt-1">{description}</p>
       </div>
@@ -969,7 +972,7 @@ export const OptionBox = ({
   description?: string
 }) => {
   return (
-    <section className="grid grid-cols-8 gap-6 my-6">
+    <section className="grid grid-cols-8 gap-6 my-4 md:my-6">
       <div className="col-span-5">
         <p className="col-span-3 text-brand_dark font-satoshi">
           {" "}

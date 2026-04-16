@@ -318,7 +318,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
 
   return (
     <article className="w-full max-w-8xl mx-auto">
-      <RouteTitle className="text-2xl md:text-3xl mb-6 md:mb-8">Ventas</RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">Ventas</RouteTitle>
 
         <div className="flex items-center gap-6">
           <button

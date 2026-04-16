@@ -222,8 +222,7 @@ export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
         const classes = Array.isArray(t) ? t[1] : "col-span-2 text-center"
 
         const isName = title.toLowerCase() === "cliente"
-        const isActions = title.toLowerCase() === "acciones"
-        const responsiveHide = isName || isActions ? "" : "hidden sm:block"
+        const responsiveHide = isName ? "" : "hidden sm:block"
 
         return (
           <h3

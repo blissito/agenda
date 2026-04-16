@@ -76,7 +76,7 @@ export default function Reviews() {
 
   return (
     <main className="max-w-8xl mx-auto">
-      <RouteTitle>Evaluaciones</RouteTitle>
+      <RouteTitle className="text-[20px] md:text-3xl mb-4 md:mb-8">Evaluaciones</RouteTitle>
 
       {hasServices ? (
         <>
@@ -92,13 +92,13 @@ export default function Reviews() {
 
 const SummaryCard = ({ average }: { average: number }) => {
   return (
-    <section className="bg-white rounded-2xl px-6 py-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] w-fit">
-      <p className="text-lg text-brand_gray font-satoMedium">
+    <section className="bg-white rounded-2xl px-4 md:px-6 py-5 md:py-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] w-full md:w-fit">
+      <p className="text-base md:text-lg text-brand_gray font-satoMedium">
         Tus clientes han hablado ✓ ... la calificación promedio de tus
         servicios es
       </p>
-      <div className="flex items-center gap-6 mt-6">
-        <div className="flex gap-5">
+      <div className="flex items-center gap-3 md:gap-6 mt-4 md:mt-6">
+        <div className="flex gap-1.5 md:gap-5 [&_svg]:w-7 [&_svg]:h-7 md:[&_svg]:w-16 md:[&_svg]:h-16">
           {[1, 2, 3, 4, 5].map((star) => (
             <StarIcon
               key={star}
@@ -108,7 +108,7 @@ const SummaryCard = ({ average }: { average: number }) => {
             />
           ))}
         </div>
-        <span className="text-5xl font-satoBold text-brand_dark">
+        <span className="text-3xl md:text-5xl font-satoBold text-brand_dark">
           {average.toFixed(1)}
         </span>
       </div>
@@ -120,10 +120,10 @@ const ReviewsTable = ({ services }: { services: ServiceReview[] }) => {
   return (
     <section className="bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] overflow-hidden max-w-6xl">
       {/* Header */}
-      <div className="grid grid-cols-[1fr_auto_auto] text-xs text-[#606264] font-satoMedium py-3 px-10">
+      <div className="grid grid-cols-3 md:grid-cols-[1fr_180px_220px] items-center gap-3 text-xs text-brand_gray font-satoMedium py-3 px-4 md:px-10">
         <span>Servicio</span>
-        <span className="w-28 text-center">Opiniones</span>
-        <span className="w-52 text-center">Puntuación</span>
+        <span className="hidden md:inline text-center -ml-6">Opiniones</span>
+        <span className="text-left  col-start-3 -ml-2 md:ml-4">Puntuación</span>
       </div>
       {/* Divider line */}
       <div className="h-px bg-gray-100 mx-0" />
@@ -140,32 +140,32 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
   return (
     <Link
       to={`/dash/evaluaciones/${service.id}`}
-      className="grid grid-cols-[1fr_auto_auto] items-center py-4 px-10 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+      className="grid grid-cols-3 md:grid-cols-[1fr_180px_220px] items-center gap-0 md:gap-3 py-4 px-4 md:px-10 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
     >
       {/* Service info */}
-      <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-200 flex-shrink-0">
+      <div className="flex items-center gap-3 min-w-0 col-span-2 md:col-span-1">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden bg-gray-200 flex-shrink-0">
           <Image
             src={service.image || "/images/serviceDefault.png"}
             alt={service.name}
             className="w-full h-full object-cover"
           />
         </div>
-        <span className="font-satoBold text-sm text-brand_dark">
+        <span className="font-satoBold text-sm text-brand_dark truncate">
           {service.name}
         </span>
       </div>
 
       {/* Review count */}
-      <div className="w-28 text-center">
+      <div className="hidden md:block w-28 text-center">
         <span className="text-sm text-brand_gray font-satoMedium">
           {service.reviewCount}
         </span>
       </div>
 
       {/* Rating */}
-      <div className="w-52 flex items-center justify-center gap-3">
-        <div className="flex gap-2">
+      <div className="col-start-3 w-auto md:w-52 flex items-center justify-start md:justify-center gap-2 md:gap-3 [&_svg]:w-4 [&_svg]:h-4 md:[&_svg]:w-6 md:[&_svg]:h-6">
+        <div className="flex gap-1 md:gap-2">
           {[1, 2, 3, 4, 5].map((star) => (
             <StarIcon
               key={star}

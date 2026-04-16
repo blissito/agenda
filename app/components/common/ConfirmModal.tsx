@@ -67,16 +67,16 @@ export const ConfirmModal = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 6 }}
             transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="relative w-[640px]  rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi"
+            className="relative w-full max-w-[640px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi"
           >
             {/* badge superior (agregado) */}
-            <div className="absolute left-1/2 -top-16 -translate-x-1/2 z-20">
-              <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
-                <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
+            <div className="absolute left-1/2 -top-10 -translate-x-1/2 z-20">
+              <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center">
+                <div className="h-16 w-16 rounded-full bg-brand_sky flex items-center justify-center">
                   <span
                     role="img"
                     aria-label="link"
-                    className="text-6xl leading-none"
+                    className="text-3xl leading-none"
                   >
                     {emoji}
                   </span>
@@ -95,8 +95,8 @@ export const ConfirmModal = ({
             </button>
 
             {/* content */}
-            <div className="w-full px-12 pt-16 pb-8 flex flex-col items-center">
-              <h3 className="text-center font-satoBold text-2xl leading-[32px] text-brand_dark">
+            <div className="w-full px-6 md:px-12 pt-12 pb-8 flex flex-col items-center">
+              <h3 className="text-center font-satoBold text-[20px] leading-[28px] text-brand_dark">
                 {title}
               </h3>
 
@@ -110,8 +110,8 @@ export const ConfirmModal = ({
 
               {/* buttons */}
               {!hideButtons && (
-                <div className="mt-12 flex items-center justify-center gap-8">
-                  <SecondaryButton onClick={onClose} className="w-[160px] h-10">
+                <div className="mt-10 flex items-center justify-center gap-4 md:gap-8">
+                  <SecondaryButton onClick={onClose} className="w-[160px] h-12 min-h-12">
                     {cancelText}
                   </SecondaryButton>
 
@@ -119,8 +119,8 @@ export const ConfirmModal = ({
                     onClick={onConfirm}
                     className={
                       variant === "danger"
-                        ? "w-[160px] h-10 bg-[#CA5757] hover:bg-[#B84E4E]"
-                        : "w-[160px] h-10"
+                        ? "w-[160px] h-12 min-h-12 bg-[#CA5757] hover:bg-[#B84E4E]"
+                        : "w-[160px] h-12 min-h-12"
                     }
                   >
                     {confirmText}

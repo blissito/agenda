@@ -465,8 +465,8 @@ export function CreateLevelWizard({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white">
-      <div className="relative flex min-h-[100dvh] w-full flex-col overflow-y-auto bg-white px-4 py-5 sm:px-8 sm:py-6">
+    <div className="fixed inset-0 z-[70] bg-white">
+      <div className="relative flex min-h-[100dvh] w-full flex-col overflow-y-auto bg-white px-4 pt-5 pb-4 sm:px-8 sm:py-6">
         <button
           type="button"
           onClick={onClose}
@@ -521,10 +521,10 @@ export function CreateLevelWizard({
 function WizardHeader({ currentStep }: { currentStep: 1 | 2 }) {
   return (
     <div className="mx-auto w-full pt-10 text-center sm:pt-8">
-      <h2 className="text-2xl font-satoBold text-brand_dark">
+      <h2 className="text-[20px] leading-[28px] font-satoBold text-brand_dark">
         ¡Empecemos! Crea un nuevo nivel para tus clientes
       </h2>
-      <div className="mt-5 flex justify-center">
+      <div className="mt-4 sm:mt-5 flex justify-center">
         <WizardStepper currentStep={currentStep} />
       </div>
     </div>
@@ -567,7 +567,7 @@ function WizardStepOne({
   }
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
+    <div className="mx-auto mt-6 w-full max-w-[440px] pb-6">
       <WizardInput
         label="Nombre del nivel"
         required
@@ -578,7 +578,7 @@ function WizardStepOne({
         showError={showValidation}
       />
 
-      <div className="mt-5">
+      <div className="mt-4 sm:mt-5">
         <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
           Imagen
         </label>
@@ -616,7 +616,7 @@ function WizardStepOne({
         </label>
       </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-4">
+      <div className="mt-4 sm:mt-5 grid grid-cols-2 gap-4">
         <WizardInput
           label="Puntos requeridos"
           required
@@ -667,7 +667,7 @@ function WizardStepTwo({
   error: string | null
 }) {
   return (
-    <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
+    <div className="mx-auto mt-6 w-full max-w-[440px] pb-6">
       <div className="space-y-4">
         <ServiceToggleRow
           label="Aplicable para todos los servicios"
@@ -708,7 +708,7 @@ function WizardStepTwo({
 
 function WizardSuccessScreen({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 bg-white">
+    <div className="fixed inset-0 z-[70] bg-white">
       <div className="relative flex min-h-[100dvh] flex-1 items-center justify-center overflow-hidden px-4">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[220px] overflow-hidden">
           <EmojiConfetti />
@@ -717,23 +717,21 @@ function WizardSuccessScreen({ onClose }: { onClose: () => void }) {
           <img
             src="/images/dancing-tag.webp"
             alt="Nivel creado exitosamente"
-            className="mx-auto mb-6 w-[150px] sm:w-[190px] md:w-[220px]"
+            className="mx-auto mb-6 w-[200px] md:w-auto"
           />
-          <h3 className="text-2xl font-satoBold text-brand_dark">
+          <h3 className="text-xl md:text-2xl font-satoBold text-brand_dark">
             ¡Eso sí es consentir clientes!
           </h3>
-          <p className="mx-auto mt-3 max-w-[420px] text-[18px] text-brand_gray">
+          <p className="mx-auto mt-3 max-w-xl text-base md:text-lg text-brand_gray">
             Ahora tus clientes pueden disfrutar de descuentos y beneficios ✨
           </p>
-          <div className="mt-12">
-            <SecondaryButton
-              type="button"
-              onClick={onClose}
-              className="mx-auto h-10 min-w-[180px] text-brand_dark"
-            >
-              Volver
-            </SecondaryButton>
-          </div>
+          <SecondaryButton
+            type="button"
+            onClick={onClose}
+            className="mx-auto mt-8 md:mt-12 text-brand_dark"
+          >
+            Volver
+          </SecondaryButton>
         </div>
       </div>
     </div>
@@ -753,7 +751,7 @@ function WizardFooter({
   nextText: string
 }) {
   return (
-    <div className="mx-auto mt-auto flex w-full max-w-[440px] items-center justify-between pb-3 pt-6">
+    <div className="mx-auto mt-auto flex w-full max-w-[440px] items-center justify-between pt-6">
       <SecondaryButton
         type="button"
         onClick={onBack}

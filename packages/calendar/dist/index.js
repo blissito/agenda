@@ -452,22 +452,27 @@ function Calendar({
       onDragEnd: handleDragEnd,
       onDragCancel: handleDragCancel,
       children: [
-        /* @__PURE__ */ jsx("article", { className: "w-full bg-white shadow rounded-xl", children: /* @__PURE__ */ jsxs(
-          "div",
+        /* @__PURE__ */ jsxs(
+          "article",
           {
+            className: "w-full bg-white shadow rounded-xl max-h-[70vh] overflow-auto",
             ref: scrollContainerRef,
-            className: cn(
-              (isResourceMode || isMobile) && "overflow-x-auto"
-            ),
             style: isMobile ? { WebkitOverflowScrolling: "touch" } : void 0,
             children: [
               /* @__PURE__ */ jsxs(
                 "section",
                 {
                   style: resourceGridStyle,
-                  className: "place-items-center py-4 border-b sticky top-0 bg-white z-10",
+                  className: "place-items-center py-4 border-b sticky top-0 bg-white z-20",
                   children: [
-                    /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx("span", { className: cn("text-sm text-gray-500", isMobile && "text-[8px] leading-tight"), children: isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone }) }),
+                    /* @__PURE__ */ jsx(
+                      "div",
+                      {
+                        className: "sticky left-0 z-30 w-full h-full grid place-items-center place-self-stretch -my-4 py-4",
+                        style: { backgroundColor: "white" },
+                        children: !isMobile && /* @__PURE__ */ jsx("span", { className: "text-sm text-gray-500", children: isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone })
+                      }
+                    ),
                     isResourceMode ? resources.map((resource, index) => /* @__PURE__ */ jsx(
                       DayHeader,
                       {
@@ -495,9 +500,6 @@ function Calendar({
                 "section",
                 {
                   style: resourceGridStyle,
-                  className: cn(
-                    !isMobile && "max-h-[70vh] overflow-y-auto"
-                  ),
                   children: [
                     /* @__PURE__ */ jsx(TimeColumn, { hoursStart, hoursEnd, cellHeight: CELL_H, compact: isMobile }),
                     Array.from({ length: columnCount }, (_, colIndex) => /* @__PURE__ */ jsx(
@@ -525,7 +527,7 @@ function Calendar({
               )
             ]
           }
-        ) }),
+        ),
         /* @__PURE__ */ jsx(DragOverlay, { children: activeEvent ? /* @__PURE__ */ jsx(EventOverlay, { event: activeEvent, config }) : null })
       ]
     }
@@ -767,9 +769,17 @@ var TimeColumn = ({
   hoursEnd = 24,
   cellHeight = 64,
   compact = false
-}) => /* @__PURE__ */ jsx("div", { className: "grid", children: Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
+}) => /* @__PURE__ */ jsx("div", { className: "sticky left-0 z-10", style: { backgroundColor: "white" }, children: Array.from({ length: hoursEnd - hoursStart }, (_, i) => {
   const hour = hoursStart + i;
-  return /* @__PURE__ */ jsx(Cell, { cellHeight, children: /* @__PURE__ */ jsx("span", { className: cn(compact && "text-[11px]"), children: `${hour < 10 ? "0" : ""}${hour}:00` }) }, hour);
+  return /* @__PURE__ */ jsx(
+    "div",
+    {
+      style: { height: cellHeight, backgroundColor: "white", border: "none" },
+      className: "w-full text-gray-500 relative grid place-items-center",
+      children: /* @__PURE__ */ jsx("span", { className: cn(compact && "text-[11px]"), children: `${hour < 10 ? "0" : ""}${hour}:00` })
+    },
+    hour
+  );
 }) });
 var DraggableEvent = ({
   event,

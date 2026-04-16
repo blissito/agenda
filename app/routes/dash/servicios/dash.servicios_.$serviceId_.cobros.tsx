@@ -130,11 +130,11 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="bg-white rounded-2xl max-w-3xl p-8 mt-6">
-        <h2 className="font-satoMiddle mb-8 text-xl">
+      <div className="bg-white rounded-2xl max-w-3xl p-4 md:p-8 mt-6">
+        <h2 className="font-satoBold mb-4 md:mb-8 text-xl">
           Actualiza tus cobros y recordatorios
         </h2>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           <Switch
             defaultChecked={payment}
             onChange={setPayment}
@@ -166,7 +166,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           />
         </div>
 
-        <div className="flex mt-16 justify-end gap-6">
+        <div className="flex mt-12 justify-end gap-6">
           <SecondaryButton
             as="Link"
             to={`/dash/servicios/${service.id}`}

@@ -34,16 +34,16 @@ export default function ComoFunciona() {
         <Business />
 
         {/* Hero */}
-        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto my-[160px] pt-10">
-          <h1 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
+        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto my-20 md:my-[160px] pt-10">
+          <h1 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
             <span className="mr-4">Cómo funciona</span>
             <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
           </h1>
-          <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[70%]">
+          <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[70%]">
             En solo 3 pasos tendrás tu agenda en línea lista para recibir citas
             y hacer crecer tu negocio.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mt-16 lg:mt-20">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mt-10 lg:mt-20">
             <StepCard
               step={1}
               title="Crea tu cuenta"
@@ -69,7 +69,7 @@ export default function ComoFunciona() {
         <MidBanner />
 
         {/* Social Proof */}
-        <section className="max-w-[90%] xl:max-w-7xl mx-auto mt-[120px] lg:mt-[160px]">
+        <section className="max-w-[90%] xl:max-w-7xl mx-auto mt-[80px] lg:mt-[160px]">
           <h2 className="group text-3xl lg:text-5xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
             <span className="mr-4">Lo que dicen</span>
             <Lamp className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10 lg:w-14 lg:h-14" />
@@ -78,7 +78,7 @@ export default function ComoFunciona() {
           <p className="text-lg text-brand_gray font-satoshi mt-4 text-center">
             Esto es lo que opinan quienes ya usan Deník para gestionar sus citas.
           </p>
-          <div className="mt-16 columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
+          <div className="mt-10 md:mt-16 columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
             {testimonials.map((t) => (
               <TestimonialCard key={t.name} {...t} />
             ))}
@@ -86,7 +86,7 @@ export default function ComoFunciona() {
         </section>
         {/* Final CTA */}
         <FinalCta>
-          <h2 className="group text-4xl xl:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
+          <h2 className="group text-4xl xl:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center px-1">
             <span className="mr-4">¿Listo para</span>
             <Rocket className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
             <span className="ml-4">empezar?</span>
@@ -132,8 +132,8 @@ function StepCard({
 
 function MidBanner() {
   return (
-    <section className="max-w-[90%] xl:max-w-7xl mx-auto mt-[120px] lg:mt-[160px]">
-      <div className="relative rounded-[40px] bg-gradient-to-br from-brand_blue to-blue-600 p-10 md:p-16 overflow-hidden">
+    <section className="max-w-[90%] xl:max-w-7xl mx-auto mt-[80px] lg:mt-[160px]">
+      <div className="relative rounded-[40px] bg-gradient-to-br from-brand_blue to-blue-600 p-6 md:p-16 overflow-hidden">
         {/* Decorative circles */}
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
         <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
@@ -1033,12 +1033,12 @@ const Business = () => {
   ))
   return (
     <section className="relative">
-      <div className=" h-[1200px] mx-auto rounded-[40px] max-w-7xl  max-w-[90%] xl:max-w-7xl mx-auto pt-[200px] lg:pt-[24%] xl:pt-[16%] ">
-        <h2 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
+      <div className="h-[1200px] mx-auto rounded-[40px] max-w-7xl  max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[24%] xl:pt-[16%] ">
+        <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
           <span className="mr-4">Para todos los negocios</span>
           <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />
         </h2>
-        <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6 w-full text-center mx-auto md:w-[90%]">
+        <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-4 md:mt-6 w-full text-center mx-auto md:w-[90%]">
           Deník se adapta a cualquier tipo de negocio. Descubre cómo podemos
           ayudarte a gestionar tus citas y hacer crecer tu marca.
         </p>
@@ -1046,7 +1046,7 @@ const Business = () => {
           <NegociosSlugBar />
         </div>
       </div>
-      <div className="-mt-[640px]">
+      <div className="-mt-[700px] md:-mt-[640px]">
         <Carousel items={cards} />
       </div>
     </section>
@@ -1092,9 +1092,9 @@ function NegociosSlugBar() {
           type="button"
           onClick={goSignin}
           disabled={isDisabled}
-          className="bg-brand_blue text-white px-6 py-3 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap transition disabled:bg-brand_blue/40 disabled:cursor-not-allowed enabled:hover:-translate-y-0.5"
+          className="bg-brand_blue text-white lg:px-6 px-4 py-3 rounded-full text-sm md:text-base font-satoMedium whitespace-nowrap transition disabled:bg-brand_blue/40 disabled:cursor-not-allowed enabled:hover:-translate-y-0.5"
         >
-          Crear mi agenda en línea
+          Crear mi agenda <span className="hidden md:inline"> en línea </span>
         </button>
       </div>
     </div>

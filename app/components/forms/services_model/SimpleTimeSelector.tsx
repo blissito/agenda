@@ -102,10 +102,10 @@ export const SimpleTimeSelector = ({
   }
 
   return (
-    <article className="my-3 rounded-2xl bg-white shadow p-8 max-w-3xl flex flex-col">
-      <h2 className="font-satoMiddle text-xl text-brand_dark mb-6">Horario</h2>
+    <article className="my-3 rounded-2xl bg-white shadow p-4 md:p-8 max-w-3xl flex flex-col">
+      <h2 className="font-satoBold text-xl text-brand_dark mb-4 md:mb-8">Horario</h2>
 
-      <div className="mb-6">
+      <div className="mb-4 md:mb-6">
         <label className="block text-brand_dark font-satoMiddle mb-1">
           ¿Cuánto dura cada sesión?
         </label>
@@ -117,7 +117,7 @@ export const SimpleTimeSelector = ({
         />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4 md:mb-6">
         <label className="block text-brand_dark font-satoMiddle mb-1">
           ¿De cuánto tiempo es el descanso entre sesiones?
         </label>
@@ -181,7 +181,7 @@ export const SimpleTimeSelector = ({
         </section>
       )}
 
-      <nav className="flex gap-6 justify-end mt-8">
+      <nav className="flex gap-6 justify-end mt-12">
         <SecondaryButton as="Link" to={cancelHref} className="w-[120px]">
           Cancelar
         </SecondaryButton>

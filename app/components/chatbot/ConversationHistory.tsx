@@ -6,7 +6,8 @@
  * @date 2026-04-08
  */
 
-import React, { useState, useCallback, useMemo } from "react"
+import React, { useState, useCallback, useMemo, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { useFetcher } from "react-router"
 import {
   ParticleLayer,
@@ -165,10 +166,122 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
     )
   }
 
+  const isMobileDetailOpen = !!selectedConversation
+  const [sheetMounted, setSheetMounted] = useState(false)
+  const [sheetVisible, setSheetVisible] = useState(false)
+
+  useEffect(() => {
+    if (isMobileDetailOpen) {
+      setSheetMounted(true)
+      let raf2 = 0
+      const raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => setSheetVisible(true))
+      })
+      document.body.style.overflow = "hidden"
+      return () => {
+        cancelAnimationFrame(raf1)
+        cancelAnimationFrame(raf2)
+        document.body.style.overflow = ""
+      }
+    } else if (sheetMounted) {
+      setSheetVisible(false)
+      const t = setTimeout(() => setSheetMounted(false), 260)
+      return () => clearTimeout(t)
+    }
+  }, [isMobileDetailOpen])
+
+  const detailInner = selectedConversation ? (
+    <>
+      <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between bg-white/80 backdrop-blur-sm">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => onSelectConversation("")}
+            className="lg:hidden w-9 h-9 flex items-center justify-center rounded-full text-brand_gray hover:bg-gray-100 flex-shrink-0"
+            aria-label="Cerrar"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="w-9 h-9 rounded-full overflow-hidden bg-brand_blue/10 flex-shrink-0">
+            <ClientFace className="w-full h-full" />
+          </div>
+          <div className="min-w-0">
+            <p className="font-satoBold text-base text-brand_dark truncate">
+              {displayName(selectedConversation)}
+            </p>
+            <p className="text-[11px] text-brand_gray">
+              {messages.length} mensaje{messages.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <Tooltip label="Descargar conversación">
+            <button
+              onClick={handleDownload}
+              disabled={messages.length === 0}
+              className="w-10 h-10 flex items-center justify-center rounded-full text-brand_gray hover:bg-gray-200 hover:text-brand_dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Descargar"
+            >
+              <Download className="w-8 h-8" fill="currentColor" />
+            </button>
+          </Tooltip>
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              setConfirmDeleteId(selectedConversation.id)
+            }}
+            className="w-10 h-10 flex items-center justify-center rounded-full text-brand_red hover:bg-brand_red/20 transition-colors"
+            aria-label="Eliminar conversación"
+            title="Eliminar conversación"
+          >
+            <Trash className="w-8 h-8" fill="currentColor" />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-3">
+        {isLoadingMessages ? (
+          <div className="text-center p-8 text-brand_gray">Cargando mensajes...</div>
+        ) : messages.length > 0 ? (
+          messages.map((msg: any, i: number) => {
+            const isUser = msg.role === "user"
+            const text = msg.content || msg.text || ""
+            if (!text) return null
+            return (
+              <div key={msg.id || i} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`px-4 py-2.5 rounded-2xl text-sm max-w-[75%] shadow-sm ${
+                    isUser
+                      ? "bg-brand_dark text-white rounded-br-sm"
+                      : "bg-white border border-gray-100 text-brand_dark rounded-bl-sm"
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap break-words">{text}</p>
+                  {msg.createdAt && (
+                    <p className={`text-[10px] mt-1 ${isUser ? "text-white/60" : "text-gray-400"}`}>
+                      {new Date(msg.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )
+          })
+        ) : (
+          <div className="text-center p-8 text-brand_gray text-sm">Sin mensajes</div>
+        )}
+      </div>
+    </>
+  ) : (
+    <div className="flex-1 flex items-center justify-center text-brand_gray text-sm">
+      Selecciona una conversación para ver los mensajes
+    </div>
+  )
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[320px,1fr] gap-4 md:gap-6 flex-1 min-h-0">
+    <div className="flex flex-col lg:grid lg:grid-cols-[320px,1fr] gap-4 md:gap-6 flex-1 min-h-0">
       {/* Left — Conversation list */}
-      <div className="flex flex-col bg-white rounded-2xl overflow-hidden">
+      <div className="flex flex-col bg-white rounded-2xl overflow-hidden flex-1 lg:flex-initial min-h-0">
         <div className="flex-grow overflow-y-auto p-3 space-y-2">
           {isLoading ? (
             <div className="text-center p-8 text-brand_gray">Cargando...</div>
@@ -194,107 +307,71 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
         </div>
       </div>
 
-      {/* Right — Messages panel */}
+      {/* Right — Messages panel (desktop inline). */}
       <div
-        className="bg-white rounded-2xl flex flex-col overflow-hidden relative"
+        className="hidden lg:flex bg-white rounded-2xl flex-col overflow-hidden relative"
         style={{
           backgroundImage: "url('/images/denik-pattern.svg')",
           backgroundRepeat: "repeat",
         }}
       >
-        {selectedConversation ? (
-          <>
-            <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between bg-white/80 backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full overflow-hidden bg-brand_blue/10">
-                  <ClientFace className="w-full h-full" />
-                </div>
-                <div>
-                  <p className="font-satoBold text-base text-brand_dark">
-                    {displayName(selectedConversation)}
-                  </p>
-                  <p className="text-[11px] text-brand_gray">
-                    {messages.length} mensaje{messages.length !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Tooltip label="Descargar conversación">
-                  <button
-                    onClick={handleDownload}
-                    disabled={messages.length === 0}
-                    className="w-10 h-10 flex items-center justify-center rounded-full text-brand_gray hover:bg-gray-200 hover:text-brand_dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label="Descargar"
-                  >
-                    <Download className="w-8 h-8" fill="currentColor" />
-                  </button>
-                </Tooltip>
-                <Tooltip label="Eliminar conversación">
-                  <button
-                    onClick={() => setConfirmDeleteId(selectedConversation.id)}
-                    className="w-10 h-10 flex items-center justify-center rounded-full text-brand_red hover:bg-brand_red/20 transition-colors"
-                    aria-label="Eliminar"
-                  >
-                    <Trash className="w-8 h-8" fill="currentColor" />
-                  </button>
-                </Tooltip>
-              </div>
-            </div>
-
-            <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-3">
-              {isLoadingMessages ? (
-                <div className="text-center p-8 text-brand_gray">Cargando mensajes...</div>
-              ) : messages.length > 0 ? (
-                messages.map((msg: any, i: number) => {
-                  const isUser = msg.role === "user"
-                  const text = msg.content || msg.text || ""
-                  if (!text) return null
-                  return (
-                    <div key={msg.id || i} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-                      <div
-                        className={`px-4 py-2.5 rounded-2xl text-sm max-w-[75%] shadow-sm ${
-                          isUser
-                            ? "bg-brand_dark text-white rounded-br-sm"
-                            : "bg-white border border-gray-100 text-brand_dark rounded-bl-sm"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap break-words">{text}</p>
-                        {msg.createdAt && (
-                          <p className={`text-[10px] mt-1 ${isUser ? "text-white/60" : "text-gray-400"}`}>
-                            {new Date(msg.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })
-              ) : (
-                <div className="text-center p-8 text-brand_gray text-sm">Sin mensajes</div>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-brand_gray text-sm">
-            Selecciona una conversación para ver los mensajes
-          </div>
-        )}
+        {detailInner}
       </div>
 
-      <ConfirmModal
-        isOpen={confirmDeleteId !== null}
-        onClose={() => setConfirmDeleteId(null)}
-        onConfirm={async () => {
-          if (!confirmDeleteId) return
-          const id = confirmDeleteId
-          setConfirmDeleteId(null)
-          await onDelete(id)
-        }}
-        title="¿Eliminar conversación?"
-        description="Se borrará el historial de mensajes de esta conversación. Esta acción no se puede deshacer."
-        confirmText="Eliminar"
-        variant="danger"
-        emoji="🗑️"
-      />
+      {/* Mobile bottom sheet portal */}
+      {sheetMounted && typeof document !== "undefined" &&
+        createPortal(
+          <div className="lg:hidden fixed inset-0" style={{ zIndex: 100 }}>
+            <div
+              className={`absolute inset-0 bg-black transition-opacity ease-out ${
+                sheetVisible ? "opacity-50 duration-[400ms]" : "opacity-0 duration-[220ms]"
+              }`}
+              onClick={() => onSelectConversation("")}
+            />
+            <div
+              className={`absolute inset-x-0 bottom-0 top-0 bg-white flex flex-col overflow-hidden will-change-transform ${
+                sheetVisible ? "translate-y-0" : "translate-y-full"
+              }`}
+              style={{
+                backgroundImage: "url('/images/denik-pattern.svg')",
+                backgroundRepeat: "repeat",
+                transitionProperty: "transform",
+                transitionDuration: sheetVisible ? "400ms" : "260ms",
+                transitionTimingFunction: sheetVisible
+                  ? "cubic-bezier(0.16, 1, 0.3, 1)"
+                  : "cubic-bezier(0.4, 0, 1, 1)",
+                boxShadow: sheetVisible
+                  ? "0 -12px 40px -8px rgba(0,0,0,0.25)"
+                  : "none",
+              }}
+            >
+              {detailInner}
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {typeof document !== "undefined" &&
+        createPortal(
+          <div style={{ position: "relative", zIndex: 200 }}>
+            <ConfirmModal
+              isOpen={confirmDeleteId !== null}
+              onClose={() => setConfirmDeleteId(null)}
+              onConfirm={async () => {
+                if (!confirmDeleteId) return
+                const id = confirmDeleteId
+                setConfirmDeleteId(null)
+                await onDelete(id)
+              }}
+              title="¿Eliminar conversación?"
+              description="Se borrará el historial de mensajes de esta conversación. Esta acción no se puede deshacer."
+              confirmText="Eliminar"
+              variant="danger"
+              emoji="🗑️"
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   )
 }

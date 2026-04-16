@@ -132,7 +132,7 @@ export function SideBar({
       </motion.button>
       <motion.section
         style={{ paddingLeft: sidebar.contentPadding }}
-        className="dash-content pl-[360px] lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-24 md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
+        className="dash-content pl-[360px] lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-[88px] md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
       >
         {children}
       </motion.section>
@@ -621,10 +621,10 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
                     type="submit"
                     name="intent"
                     value="logout"
-                    className="flex items-center gap-3 px-6 py-3 w-full text-left text-gray-500 hover:bg-gray-50"
+                    className="flex items-center gap-3 px-6 py-3.5 w-full text-left text-brand_dark hover:bg-gray-50"
                   >
                     <Out />
-                    <span>Cerrar sesión</span>
+                    <span className="text-sm">Cerrar sesión</span>
                   </button>
                 </Form>
               </div>

@@ -4,7 +4,7 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
   <section className="overflow-hidden relative">
     <img
       alt="line left"
-      className="absolute -left-20 hover:animate-pulse transition-all w-[148px] lg:w-[298px "
+      className="absolute -left-20 hover:animate-pulse transition-all w-[148px] lg:w-[298px] "
       src="/images/line.svg"
     />
     <img

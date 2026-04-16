@@ -72,10 +72,10 @@ export default function DashOnboarding() {
   }, [])
 
   return (
-    <main className="max-w-7xl mx-auto pt-6 md:pt-28 px-4 md:px-0 pb-10">
+    <main className="max-w-7xl mx-auto pt-6 md:pt-28 px-4 md:px-0">
       <div className="max-w-2xl mx-auto bg-white p-5 md:p-8 rounded-2xl border-[#EFEFEF]">
         <div>
-          <h3 className="text-xl md:text-2xl font-satoMiddle">
+          <h3 className="text-xl md:text-2xl font-satoBold">
             ¡Ya casi terminas de configurar tu agenda!
           </h3>
           <p className="text-brand_gray mt-1 text-sm md:text-base">

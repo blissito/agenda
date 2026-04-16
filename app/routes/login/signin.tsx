@@ -117,19 +117,19 @@ export default function Page() {
             <img
               src="/images/signin/sending-bell.svg"
               alt="illustration"
-              className="w-[240px] h-[240px]"
+              className="w-[180px] h-[180px] md:w-[240px] md:h-[240px]"
             />
-            <h1 className="mt-8 font-jakarta-bold text-[24px] text-brand_dark">
+            <h1 className="mt-8 font-satoBold text-xl md:text-2xl text-brand_dark">
               ¡Hemos enviado un mail a tu correo! 👋🏻
             </h1>
-            <p className="mt-4 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
+            <p className="mt-4 font-satoMedium text-base lg:text-lg text-brand_gray max-w-[800px]">
               Por favor revisa tu bandeja de entrada y{" "}
               <strong className="text-brand_dark font-satoBold">
                 da clic en el enlace
               </strong>{" "}
               del mail para iniciar sesión.
             </p>
-            <p className="mt-3 font-satoMedium text-[18px] text-brand_gray max-w-[800px]">
+            <p className="mt-3 font-satoMedium text-base lg:text-lg  text-brand_gray max-w-[800px]">
               ¡A veces el mail puede terminar en SPAM! Esperamos que ese no sea
               el caso, pero si no llega entre uno y tres minutos, ya sabes donde
               encontrarlo.
@@ -143,7 +143,7 @@ export default function Page() {
   }
 
   return (
-    <section className="relative bg-white">
+    <section className="relative bg-white h-svh overflow-hidden">
       {loaderData?.alert && (
         <div>
           <p
@@ -171,7 +171,7 @@ export default function Page() {
       <TopBar />
 
       {/* Layout 2 columnas */}
-      <section className="relative z-10 flex min-h-screen w-full">
+      <section className="relative z-10 flex h-full w-full">
         {/* LADO IZQUIERDO  */}
         <aside className="hidden lg:block lg:w-[35%] relative">
           <img

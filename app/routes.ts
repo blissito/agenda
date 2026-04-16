@@ -10,6 +10,7 @@ export default [
   index("routes/home.tsx"),
   route("planes", "routes/planes.tsx"),
   route("funcionalidades", "routes/features.tsx"),
+  route("ia", "routes/ia.tsx"),
   route("negocios", "routes/como-funciona.tsx"),
   route("community", "routes/Community/Community.tsx"),
   route("terminosycondiciones", "routes/terminosycondiciones.tsx"),
