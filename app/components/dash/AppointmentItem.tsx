@@ -38,7 +38,9 @@ export const AppointmentItem = ({
   const initials = getInitials(client)
 
   return (
-    <section className={`flex items-center gap-2 py-4 border-b border-brand_stroke justify-between hover:scale-95 transition-all ${className ?? ""}`}>
+    <section
+      className={`flex items-center gap-2 py-4 border-b border-brand_stroke justify-between hover:scale-95 transition-all ${className ?? ""}`}
+    >
       <div className="flex gap-2 items-center">
         {img ? (
           <img className="h-10 w-10 rounded-full object-cover" src={img} />

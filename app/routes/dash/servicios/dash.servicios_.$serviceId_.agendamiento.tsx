@@ -60,6 +60,6 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   )
 }
 
-const Info = ({ service }: { service: Partial<Service> }) => {
-  return <></>
+const Info = (_: { service: Partial<Service> }) => {
+  return null
 }

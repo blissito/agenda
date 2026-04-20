@@ -9,7 +9,10 @@ export const RouteTitle = ({
   children: ReactNode
   className?: string
 } & React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h1 className={twMerge("text-3xl font-satoBold mb-4 md:mb-8", className)} {...props}>
+  <h1
+    className={twMerge("text-3xl font-satoBold mb-4 md:mb-8", className)}
+    {...props}
+  >
     {children}
   </h1>
 )

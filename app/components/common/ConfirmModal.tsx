@@ -111,7 +111,10 @@ export const ConfirmModal = ({
               {/* buttons */}
               {!hideButtons && (
                 <div className="mt-10 flex items-center justify-center gap-4 md:gap-8">
-                  <SecondaryButton onClick={onClose} className="w-[160px] h-12 min-h-12">
+                  <SecondaryButton
+                    onClick={onClose}
+                    className="w-[160px] h-12 min-h-12"
+                  >
                     {cancelText}
                   </SecondaryButton>
 

@@ -155,7 +155,10 @@ export const playBurstSound = () => {
 
       gain2.gain.setValueAtTime(0.0001, now + n.start)
       gain2.gain.exponentialRampToValueAtTime(0.035, now + n.start + 0.02)
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + n.start + n.dur * 0.7)
+      gain2.gain.exponentialRampToValueAtTime(
+        0.0001,
+        now + n.start + n.dur * 0.7,
+      )
 
       osc.connect(gain).connect(filter)
       osc2.connect(gain2).connect(filter)

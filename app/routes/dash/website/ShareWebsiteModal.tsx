@@ -1,12 +1,12 @@
 import type { ReactNode } from "react"
 import { useEffect, useMemo, useState } from "react"
+import { IoClose } from "react-icons/io5"
 import { Copy } from "~/components/icons/Copy"
 import { Facebook } from "~/components/icons/facebook"
 import { Linkedin } from "~/components/icons/linkedin"
 import { QrCode } from "~/components/icons/QrCode"
 import { Twitter } from "~/components/icons/twitter"
 import { WhatsApp } from "~/components/icons/WhatsApp"
-import { IoClose } from "react-icons/io5"
 
 type Props = {
   open: boolean
@@ -221,8 +221,8 @@ export const ShareWebsiteModal = ({
           </h3>
 
           <p className="mt-[16px] text-center font-normal font-satoshi text-[16px] leading-[22px] text-brand_gray">
-            Es hora de que tus clientes se enteren de que tus servicios ya
-            están disponibles. Comparte ya en tus redes sociales.
+            Es hora de que tus clientes se enteren de que tus servicios ya están
+            disponibles. Comparte ya en tus redes sociales.
           </p>
 
           <div className="mt-8 w-full">

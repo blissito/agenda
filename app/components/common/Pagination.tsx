@@ -53,10 +53,7 @@ export const Pagination = ({
 
       {/* Controles */}
       <div className="flex items-center gap-1">
-        <PageButton
-          onClick={() => onPageChange(page - 1)}
-          disabled={page <= 1}
-        >
+        <PageButton onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
           <IoChevronBackOutline className="w-4 h-4" />
         </PageButton>
 
@@ -117,10 +114,7 @@ const PageButton = ({
   </button>
 )
 
-function getVisiblePages(
-  current: number,
-  total: number,
-): (number | "...")[] {
+function getVisiblePages(current: number, total: number): (number | "...")[] {
   if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
 
   const pages: (number | "...")[] = [1]

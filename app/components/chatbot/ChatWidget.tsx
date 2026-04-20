@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-import { BsFillSendFill } from "react-icons/bs"
 import {
+  getMessageText,
   useFormmyChat,
   useFormmyOptional,
-  getMessageText,
 } from "@formmy.app/chat/react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { BsFillSendFill } from "react-icons/bs"
 
 export interface ChatConfig {
   name: string
@@ -121,8 +121,18 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                 title="Nueva conversación"
                 className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
               </button>
               <button
@@ -130,8 +140,18 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                 title="Cerrar"
                 className="w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -147,10 +167,24 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                   style={{ backgroundColor: config.primaryColor || "#5158F6" }}
                 >
                   {config.avatarUrl ? (
-                    <img src={config.avatarUrl} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={config.avatarUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    <svg
+                      className="w-3.5 h-3.5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      />
                     </svg>
                   )}
                 </div>
@@ -173,13 +207,29 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                   {!isUser && (
                     <div
                       className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
-                      style={{ backgroundColor: config.primaryColor || "#5158F6" }}
+                      style={{
+                        backgroundColor: config.primaryColor || "#5158F6",
+                      }}
                     >
                       {config.avatarUrl ? (
-                        <img src={config.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={config.avatarUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        <svg
+                          className="w-3.5 h-3.5 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                          />
                         </svg>
                       )}
                     </div>
@@ -206,9 +256,18 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                 />
                 <div className="bg-white border border-gray-200 rounded-xl px-3 py-2">
                   <div className="flex gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -255,11 +314,26 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
         style={{ backgroundColor: config.primaryColor || "#5158F6" }}
       >
         {isOpen ? (
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         ) : (
-          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-6 h-6 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -318,16 +392,34 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
       >
         <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
           {config.avatarUrl ? (
-            <img src={config.avatarUrl} alt="" className="w-full h-full object-cover" />
+            <img
+              src={config.avatarUrl}
+              alt=""
+              className="w-full h-full object-cover"
+            />
           ) : (
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <svg
+              className="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
             </svg>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm truncate">{config.name || "Asistente"}</p>
-          <p className="text-xs opacity-80">{isStreaming ? "Escribiendo..." : "En linea"}</p>
+          <p className="font-semibold text-sm truncate">
+            {config.name || "Asistente"}
+          </p>
+          <p className="text-xs opacity-80">
+            {isStreaming ? "Escribiendo..." : "En linea"}
+          </p>
         </div>
       </div>
 
@@ -340,10 +432,24 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
               style={{ backgroundColor: config.primaryColor || "#5158F6" }}
             >
               {config.avatarUrl ? (
-                <img src={config.avatarUrl} alt="" className="w-full h-full object-cover" />
+                <img
+                  src={config.avatarUrl}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
               ) : (
-                <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                <svg
+                  className="w-3.5 h-3.5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
                 </svg>
               )}
             </div>
@@ -358,17 +464,34 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
           if (!text) return null
           const isUser = msg.role === "user"
           return (
-            <div key={msg.id} className={`flex ${isUser ? "justify-end" : "gap-2"}`}>
+            <div
+              key={msg.id}
+              className={`flex ${isUser ? "justify-end" : "gap-2"}`}
+            >
               {!isUser && (
                 <div
                   className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
                   style={{ backgroundColor: config.primaryColor || "#5158F6" }}
                 >
                   {config.avatarUrl ? (
-                    <img src={config.avatarUrl} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={config.avatarUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    <svg
+                      className="w-3.5 h-3.5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      />
                     </svg>
                   )}
                 </div>
@@ -386,18 +509,32 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
           )
         })}
 
-        {isStreaming && messages.length > 0 && !getMessageText(messages[messages.length - 1]) && (
-          <div className="flex gap-2">
-            <div className="w-7 h-7 rounded-full flex-shrink-0" style={{ backgroundColor: config.primaryColor || "#5158F6" }} />
-            <div className="bg-white border border-gray-200 rounded-xl px-3 py-2">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+        {isStreaming &&
+          messages.length > 0 &&
+          !getMessageText(messages[messages.length - 1]) && (
+            <div className="flex gap-2">
+              <div
+                className="w-7 h-7 rounded-full flex-shrink-0"
+                style={{ backgroundColor: config.primaryColor || "#5158F6" }}
+              />
+              <div className="bg-white border border-gray-200 rounded-xl px-3 py-2">
+                <div className="flex gap-1">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <span
+                    className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
         <div ref={messagesEndRef} />
       </div>
@@ -442,14 +579,30 @@ function ChatWidgetInlineStatic({ config }: { config: ChatConfig }) {
       >
         <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
           {config.avatarUrl ? (
-            <img src={config.avatarUrl} alt="" className="w-full h-full object-cover" />
+            <img
+              src={config.avatarUrl}
+              alt=""
+              className="w-full h-full object-cover"
+            />
           ) : (
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <svg
+              className="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
             </svg>
           )}
         </div>
-        <p className="font-semibold text-sm truncate">{config.name || "Asistente"}</p>
+        <p className="font-semibold text-sm truncate">
+          {config.name || "Asistente"}
+        </p>
       </div>
       <div className="flex-1 px-4 py-3 bg-white">
         <div className="flex gap-2">
@@ -458,10 +611,24 @@ function ChatWidgetInlineStatic({ config }: { config: ChatConfig }) {
             style={{ backgroundColor: config.primaryColor || "#5158F6" }}
           >
             {config.avatarUrl ? (
-              <img src={config.avatarUrl} alt="" className="w-full h-full object-cover" />
+              <img
+                src={config.avatarUrl}
+                alt=""
+                className="w-full h-full object-cover"
+              />
             ) : (
-              <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              <svg
+                className="w-3.5 h-3.5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
               </svg>
             )}
           </div>

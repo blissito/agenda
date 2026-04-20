@@ -122,9 +122,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink
-              href={`/dash/servicios/${service.id}/cobros`}
-            >
+            <BreadcrumbLink href={`/dash/servicios/${service.id}/cobros`}>
               Cobros y recordatorios
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -174,11 +172,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           >
             Cancelar
           </SecondaryButton>
-          <PrimaryButton
-            as="button"
-            isLoading={isSaving}
-            onClick={handleSave}
-          >
+          <PrimaryButton as="button" isLoading={isSaving} onClick={handleSave}>
             Guardar
           </PrimaryButton>
         </div>

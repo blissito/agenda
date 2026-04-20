@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react"
 import { useFetcher, useNavigate } from "react-router"
 import {
-  SimpleTimeSelector,
   type SchedulePayload,
+  SimpleTimeSelector,
   type Week,
 } from "~/components/forms/services_model/SimpleTimeSelector"
 import {

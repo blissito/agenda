@@ -33,7 +33,9 @@ export function resolveVideoProvider({
   service: Pick<Service, "videoProvider"> | null | undefined
   override?: string | null
 }): VideoProvider {
-  const raw = (override || service?.videoProvider || "auto") as VideoProviderSetting
+  const raw = (override ||
+    service?.videoProvider ||
+    "auto") as VideoProviderSetting
 
   const picked: VideoProvider = raw === "auto" ? resolveAuto(org) : raw
 

@@ -21,7 +21,7 @@ const SIDEBAR = {
 } as const
 
 export function useSidebarState() {
-  const [hasVisited, setHasVisited] = useLocalStorage(
+  const [_hasVisited, setHasVisited] = useLocalStorage(
     "denik_sidebar_visited",
     false,
   )

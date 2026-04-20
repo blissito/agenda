@@ -4,11 +4,10 @@ import { useMemo, useState } from "react"
 import { Link, useFetcher, useLoaderData } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { Avatar } from "~/components/common/Avatar"
-import { getAvatarColor } from "~/components/dash/AppointmentItem"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { getAvatarColor } from "~/components/dash/AppointmentItem"
 import { useDownloadToast } from "~/components/downloads/downloadToast"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { useCopyLink } from "~/components/hooks/useCopyLink"
@@ -17,8 +16,6 @@ import { Download } from "~/components/icons/download"
 import { Graph } from "~/components/icons/Graph"
 import { Anchor } from "~/components/icons/link"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
-import { Settings } from "~/components/icons/settings"
-import { Upload } from "~/components/icons/upload"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { db } from "~/utils/db.server"
 import { generateLink } from "~/utils/generateSlug"
@@ -64,18 +61,20 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   })
 
   // TODO: mover filtro a query Prisma (where: { blocked: { not: true } }) cuando todos los documentos tengan el campo `blocked`
-  const clients: Client[] = customers.filter((c) => c.blocked !== true).map((c) => ({
-    id: c.id,
-    displayName: c.displayName,
-    email: c.email,
-    tel: c.tel,
-    comments: c.comments,
-    createdAt: c.createdAt,
-    updatedAt: c.updatedAt,
-    eventCount: c._count.events,
-    nextEventDate: c.events[0]?.start ?? null,
-    loyaltyPoints: c.loyaltyPoints,
-  }))
+  const clients: Client[] = customers
+    .filter((c) => c.blocked !== true)
+    .map((c) => ({
+      id: c.id,
+      displayName: c.displayName,
+      email: c.email,
+      tel: c.tel,
+      comments: c.comments,
+      createdAt: c.createdAt,
+      updatedAt: c.updatedAt,
+      eventCount: c._count.events,
+      nextEventDate: c.events[0]?.start ?? null,
+      loyaltyPoints: c.loyaltyPoints,
+    }))
 
   return {
     orgId: org.id,
@@ -90,13 +89,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 }
 
 export default function Clients() {
-  const {
-    orgId,
-    orgName,
-    stats,
-    clients = [],
-    link,
-  } = useLoaderData<typeof loader>()
+  const { orgName, stats, clients = [], link } = useLoaderData<typeof loader>()
 
   const [search, setSearch] = useState("")
 
@@ -226,11 +219,7 @@ export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
 
         return (
           <h3
-            className={twMerge(
-              "whitespace-nowrap",
-              classes,
-              responsiveHide,
-            )}
+            className={twMerge("whitespace-nowrap", classes, responsiveHide)}
             key={`${title}-${classes}`}
           >
             {title}
@@ -326,10 +315,7 @@ export const ClientRow = ({
         onClick={(e) => e.stopPropagation()}
       >
         <DropdownMenu hideDefaultButton>
-          <MenuButton
-            variant="danger"
-            onClick={() => setShowDeleteModal(true)}
-          >
+          <MenuButton variant="danger" onClick={() => setShowDeleteModal(true)}>
             Eliminar
           </MenuButton>
         </DropdownMenu>

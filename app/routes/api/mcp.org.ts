@@ -22,7 +22,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (intent === "stats") {
     const from = url.searchParams.get("from")
     const to = url.searchParams.get("to")
-    if (!from || !to) return Response.json({ error: "from/to required" }, { status: 400 })
+    if (!from || !to)
+      return Response.json({ error: "from/to required" }, { status: 400 })
     return Response.json(await summarize(org.id, new Date(from), new Date(to)))
   }
 

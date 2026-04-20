@@ -1,14 +1,12 @@
+import type { FormEvent, ReactNode, UIEvent } from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import type {
-  FormEvent,
-  ReactNode,
-  UIEvent,
-} from "react"
 import { useRevalidator } from "react-router"
 import { twMerge } from "tailwind-merge"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
-import { EmojiConfetti } from "~/components/common/EmojiConfetti"
+import { BasicInput } from "~/components/forms/BasicInput"
 import { ArrowRight } from "~/components/icons/arrowRight"
 import { X } from "~/components/icons/X"
 import type {
@@ -16,8 +14,6 @@ import type {
   ServiceOption,
   Transaction,
 } from "~/routes/dash/dash.lealtad"
-import { ConfirmModal } from "~/components/common/ConfirmModal"
-import { BasicInput } from "~/components/forms/BasicInput"
 
 const COUPON_META_PREFIX = "__COUPON_META__:"
 
@@ -37,7 +33,9 @@ type CouponListItem = {
   meta: CouponMeta | null
 }
 
-function parseCouponMeta(description: string | null | undefined): CouponMeta | null {
+function parseCouponMeta(
+  description: string | null | undefined,
+): CouponMeta | null {
   if (!description || !description.startsWith(COUPON_META_PREFIX)) return null
 
   try {
@@ -56,7 +54,9 @@ function parseCouponMeta(description: string | null | undefined): CouponMeta | n
       code: parsed.code || "",
       durationType: normalizedDurationType,
       months:
-        typeof parsed.months === "number" && parsed.months > 0 ? parsed.months : 1,
+        typeof parsed.months === "number" && parsed.months > 0
+          ? parsed.months
+          : 1,
       applyAllServices: Boolean(parsed.applyAllServices),
       serviceIds: Array.isArray(parsed.serviceIds) ? parsed.serviceIds : [],
     }
@@ -201,7 +201,7 @@ function CustomSelect({
 
   return (
     <div ref={wrapperRef} className={`relative w-full ${className}`}>
-     <button
+      <button
         type="button"
         onClick={() => !disabled && setOpen((prev) => !prev)}
         disabled={disabled}
@@ -387,15 +387,20 @@ export function CuponesTab({
     setIsUpdating(true)
     const form = e.currentTarget
 
-    const nextName = (form.elements.namedItem("editName") as HTMLInputElement).value.trim()
-    const nextCode = (form.elements.namedItem("editCode") as HTMLInputElement).value.trim()
+    const nextName = (
+      form.elements.namedItem("editName") as HTMLInputElement
+    ).value.trim()
+    const nextCode = (
+      form.elements.namedItem("editCode") as HTMLInputElement
+    ).value.trim()
     const nextValueRaw = (
       form.elements.namedItem("editValue") as HTMLInputElement
     ).value.trim()
 
-    const nextMonthsRaw = (
-      form.elements.namedItem("editMonths") as HTMLInputElement | null
-    )?.value.trim() || ""
+    const nextMonthsRaw =
+      (
+        form.elements.namedItem("editMonths") as HTMLInputElement | null
+      )?.value.trim() || ""
 
     const numericValue = Number(nextValueRaw || "0")
     const numericMonths = Number(nextMonthsRaw || "1")
@@ -540,11 +545,11 @@ function CouponRow({
 }) {
   return (
     <div
-    className={twMerge(
-      "grid grid-cols-12 items-center bg-white px-2 transition-colors hover:bg-slate-50 sm:px-4",
-      !isLast && "border-b border-slate-200",
-      isLast && "rounded-b-2xl",
-    )}
+      className={twMerge(
+        "grid grid-cols-12 items-center bg-white px-2 transition-colors hover:bg-slate-50 sm:px-4",
+        !isLast && "border-b border-slate-200",
+        isLast && "rounded-b-2xl",
+      )}
     >
       <button
         type="button"
@@ -601,33 +606,33 @@ function CouponRow({
             ref={menuRef}
             className="absolute right-0 top-12 z-20 w-[188px] rounded-[18px] bg-white p-2 shadow-[0_12px_28px_rgba(16,24,40,0.12)] ring-1 ring-[#F2F4F7]"
           >
-           <div>
-  <button
-    type="button"
-    onClick={onToggleActive}
-    className="flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_gray transition hover:bg-[#F5F5F7]"
-  >
-    <span className="flex h-8 w-8 items-center justify-center text-brand_gray">
-      <PauseSmallIcon />
-    </span>
-    <span className="text-base font-satoMedium text-brand_gray">
-      {reward.isActive ? "Desactivar" : "Activar"}
-    </span>
-  </button>
+            <div>
+              <button
+                type="button"
+                onClick={onToggleActive}
+                className="flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_gray transition hover:bg-[#F5F5F7]"
+              >
+                <span className="flex h-8 w-8 items-center justify-center text-brand_gray">
+                  <PauseSmallIcon />
+                </span>
+                <span className="text-base font-satoMedium text-brand_gray">
+                  {reward.isActive ? "Desactivar" : "Activar"}
+                </span>
+              </button>
 
-  <button
-    type="button"
-    onClick={onDelete}
-    className="flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_red transition hover:bg-[#FDF3F3]"
-  >
-    <span className="flex h-8 w-8 items-center justify-center text-brand_red">
-      <TrashSmallIcon />
-    </span>
-    <span className="text-base font-satoMedium text-brand_red">
-      Eliminar
-    </span>
-  </button>
-</div>
+              <button
+                type="button"
+                onClick={onDelete}
+                className="flex h-[52px] w-full items-center gap-3 rounded-[14px] px-4 text-left text-brand_red transition hover:bg-[#FDF3F3]"
+              >
+                <span className="flex h-8 w-8 items-center justify-center text-brand_red">
+                  <TrashSmallIcon />
+                </span>
+                <span className="text-base font-satoMedium text-brand_red">
+                  Eliminar
+                </span>
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -675,7 +680,8 @@ function CuponWizard({
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [couponName, setCouponName] = useState("")
   const [couponCode, setCouponCode] = useState("")
-  const [discountType, setDiscountType] = useState<DiscountType>("discount_percent")
+  const [discountType, setDiscountType] =
+    useState<DiscountType>("discount_percent")
   const [discountValue, setDiscountValue] = useState("")
   const [durationType, setDurationType] = useState<DurationType>("one_time")
   const [months, setMonths] = useState("")
@@ -700,10 +706,8 @@ function CuponWizard({
     pointsCost !== "" &&
     Number.isFinite(parsedPointsCost) &&
     parsedPointsCost >= 1 &&
-    (
-      durationType !== "several_months" ||
-      (months !== "" && Number.isFinite(parsedMonths) && parsedMonths >= 2)
-    )
+    (durationType !== "several_months" ||
+      (months !== "" && Number.isFinite(parsedMonths) && parsedMonths >= 2))
 
   const isStepTwoValid =
     applyAllServices || selectedServiceIds.length > 0 || services.length === 0
@@ -995,7 +999,9 @@ function CouponWizardStepOne({
             type="text"
             inputMode="numeric"
             value={discountValue}
-            onChange={(e) => setDiscountValue(e.target.value.replace(/\D/g, ""))}
+            onChange={(e) =>
+              setDiscountValue(e.target.value.replace(/\D/g, ""))
+            }
             placeholder={discountType === "discount_percent" ? "15%" : "$120"}
             required
           />
@@ -1042,9 +1048,7 @@ function CouponWizardStepOne({
               required
             />
             {showValidation && monthsError && (
-              <p className="mt-1 text-[12px] text-brand_red">
-                {monthsError}
-              </p>
+              <p className="mt-1 text-[12px] text-brand_red">{monthsError}</p>
             )}
           </div>
         ) : (
@@ -1090,27 +1094,31 @@ function CouponWizardStepTwo({
 }) {
   return (
     <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
-     <div>
-  <ServiceToggleRow
-    label="Aplicable para todos los servicios"
-    checked={applyAllServices}
-    onChange={(checked) => {
-      setApplyAllServices(checked)
-    }}
-  />
+      <div>
+        <ServiceToggleRow
+          label="Aplicable para todos los servicios"
+          checked={applyAllServices}
+          onChange={(checked) => {
+            setApplyAllServices(checked)
+          }}
+        />
 
-  <div className="mt-[27px] flex flex-col gap-[26px]">
-    {services.map((service) => (
-      <ServiceToggleRow
-        key={service.id}
-        label={service.name}
-        checked={applyAllServices ? true : selectedServiceIds.includes(service.id)}
-        disabled={applyAllServices}
-        onChange={() => toggleService(service.id)}
-      />
-    ))}
-  </div>
-</div>
+        <div className="mt-[27px] flex flex-col gap-[26px]">
+          {services.map((service) => (
+            <ServiceToggleRow
+              key={service.id}
+              label={service.name}
+              checked={
+                applyAllServices
+                  ? true
+                  : selectedServiceIds.includes(service.id)
+              }
+              disabled={applyAllServices}
+              onChange={() => toggleService(service.id)}
+            />
+          ))}
+        </div>
+      </div>
 
       {error && (
         <div className="mt-4 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-600">
@@ -1253,14 +1261,13 @@ function CouponEditModal({
     selectedServiceIds: string[],
   ) => Promise<void> | void
 }) {
-  const currentMeta =
-    parseCouponMeta(reward.description) || {
-      code: "",
-      durationType: "one_time" as DurationType,
-      months: 1,
-      applyAllServices: true,
-      serviceIds: [],
-    }
+  const currentMeta = parseCouponMeta(reward.description) || {
+    code: "",
+    durationType: "one_time" as DurationType,
+    months: 1,
+    applyAllServices: true,
+    serviceIds: [],
+  }
 
   const [editDiscountType, setEditDiscountType] = useState<DiscountType>(
     reward.type === "discount_fixed" ? "discount_fixed" : "discount_percent",
@@ -1289,23 +1296,29 @@ function CouponEditModal({
   const [hasScrolledTop, setHasScrolledTop] = useState(false)
   const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const scrollRef = useRef<HTMLDivElement | null>(null)
-  
+
   const updateScrollState = (element: HTMLDivElement) => {
     const { scrollTop, scrollHeight, clientHeight } = element
-  
+
     setHasScrolledTop(scrollTop > 0)
     setHasReachedBottom(scrollTop + clientHeight >= scrollHeight - 2)
   }
-  
+
   const handleBodyScroll = (e: UIEvent<HTMLDivElement>) => {
     updateScrollState(e.currentTarget)
   }
-  
+
   useEffect(() => {
     if (scrollRef.current) {
       updateScrollState(scrollRef.current)
     }
-  }, [reward, editDurationType, applyAllServices, selectedServiceIds.length, services.length])
+  }, [
+    reward,
+    editDurationType,
+    applyAllServices,
+    selectedServiceIds.length,
+    services.length,
+  ])
 
   return (
     <Modal onClose={onClose}>
@@ -1338,7 +1351,7 @@ function CouponEditModal({
                   <h3 className="text-[18px] font-satoBold leading-[32px] text-brand_dark">
                     Editar cupón
                   </h3>
-  
+
                   <button
                     type="button"
                     onClick={onClose}
@@ -1349,7 +1362,7 @@ function CouponEditModal({
                   </button>
                 </div>
               </div>
-  
+
               <div
                 className={twMerge(
                   "pointer-events-none h-4 transition-opacity duration-200",
@@ -1359,7 +1372,7 @@ function CouponEditModal({
                 )}
               />
             </div>
-  
+
             <div className="px-[32px] pb-[24px]">
               <div className="space-y-6">
                 <div>
@@ -1371,7 +1384,7 @@ function CouponEditModal({
                     required
                   />
                 </div>
-  
+
                 <div>
                   <BasicInput
                     name="editCode"
@@ -1381,7 +1394,7 @@ function CouponEditModal({
                     required
                   />
                 </div>
-  
+
                 <div className="grid grid-cols-2 gap-x-[24px]">
                   <div>
                     <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_dark">
@@ -1402,7 +1415,7 @@ function CouponEditModal({
                       <option value="discount_fixed">Importe fijo</option>
                     </CustomSelect>
                   </div>
-  
+
                   <div>
                     <BasicInput
                       name="editValue"
@@ -1423,7 +1436,7 @@ function CouponEditModal({
                     />
                   </div>
                 </div>
-  
+
                 <div className="grid grid-cols-2 gap-x-[24px]">
                   <div>
                     <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_dark">
@@ -1447,24 +1460,24 @@ function CouponEditModal({
                       <option value="forever">Para siempre</option>
                     </CustomSelect>
                   </div>
-  
+
                   <div>
                     {editDurationType === "several_months" ? (
-                        <BasicInput
-                          name="editMonths"
-                          type="number"
-                          min={2}
-                          label="No. de meses"
-                          defaultValue={currentMeta.months}
-                          placeholder="2"
-                          required
-                        />
+                      <BasicInput
+                        name="editMonths"
+                        type="number"
+                        min={2}
+                        label="No. de meses"
+                        defaultValue={currentMeta.months}
+                        placeholder="2"
+                        required
+                      />
                     ) : (
                       <div />
                     )}
                   </div>
                 </div>
-  
+
                 <div className="pt-1">
                   <div>
                     <ServiceToggleRow
@@ -1492,7 +1505,7 @@ function CouponEditModal({
                 </div>
               </div>
             </div>
-  
+
             <div className="sticky bottom-0 z-20">
               <div
                 className={twMerge(
@@ -1502,7 +1515,7 @@ function CouponEditModal({
                     : "opacity-0",
                 )}
               />
-  
+
               <div
                 className={twMerge(
                   "px-[32px] pb-[32px] pt-[20px] transition-all duration-200",
@@ -1518,7 +1531,7 @@ function CouponEditModal({
                     >
                       Eliminar cupón
                     </button>
-  
+
                     <PrimaryButton
                       type="submit"
                       isDisabled={isUpdating}

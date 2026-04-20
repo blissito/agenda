@@ -20,7 +20,7 @@ export const HoverEffect = ({
     <div
       className={cn(
         "grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch",
-        className
+        className,
       )}
     >
       {items.map((item) => (
@@ -30,7 +30,7 @@ export const HoverEffect = ({
             "bg-white rounded-2xl max-w-[480px] w-full mx-auto h-full text-left flex flex-col transition-shadow duration-300 hover:shadow-xl",
             item.popular
               ? "border-2 border-brand_blue shadow-[0_0_20px_rgba(59,130,246,0.15)] hover:shadow-[0_0_30px_rgba(59,130,246,0.25)]"
-              : "border border-gray-200 shadow-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+              : "border border-gray-200 shadow-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]",
           )}
         >
           {/* Header */}
@@ -74,7 +74,11 @@ export const HoverEffect = ({
                   key={feature}
                   className="flex items-start gap-3 text-base text-brand_gray font-satoshi"
                 >
-                  <img className="w-5 h-5 shrink-0 mt-0.5" src="/images/star.svg" alt="" />
+                  <img
+                    className="w-5 h-5 shrink-0 mt-0.5"
+                    src="/images/star.svg"
+                    alt=""
+                  />
                   {feature}
                 </li>
               ))}

@@ -184,7 +184,8 @@ export default function Index({ loaderData }: Route.ComponentProps) {
                 <option value="none">Sin link de llamada</option>
               </select>
               <p className="text-xs text-brand_gray">
-                Al reservar una cita se generará automáticamente el link elegido.
+                Al reservar una cita se generará automáticamente el link
+                elegido.
               </p>
             </div>
           )}

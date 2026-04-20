@@ -103,7 +103,9 @@ export const SimpleTimeSelector = ({
 
   return (
     <article className="my-3 rounded-2xl bg-white shadow p-4 md:p-8 max-w-3xl flex flex-col">
-      <h2 className="font-satoBold text-xl text-brand_dark mb-4 md:mb-8">Horario</h2>
+      <h2 className="font-satoBold text-xl text-brand_dark mb-4 md:mb-8">
+        Horario
+      </h2>
 
       <div className="mb-4 md:mb-6">
         <label className="block text-brand_dark font-satoMiddle mb-1">

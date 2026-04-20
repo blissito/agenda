@@ -1,8 +1,8 @@
 import { BsEnvelope, BsTrash } from "react-icons/bs"
 import { Link, useLoaderData } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { Image } from "~/components/common/Image"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { Image } from "~/components/common/Image"
 import { EmptyStateReviews } from "~/components/reviews/EmptyStateReviews"
 import { db } from "~/utils/db.server"
 import { generateLink } from "~/utils/generateSlug"
@@ -99,7 +99,9 @@ export default function ServiceReviewDetail() {
       <ServiceHeaderCard service={service} stats={stats} />
 
       {/* Reviews List */}
-      <section className={`bg-white rounded-2xl mt-4 md:mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-4 md:p-[24px] max-w-[845px] flex flex-col ${reviews.length <= 1 ? "" : "flex-1"}`}>
+      <section
+        className={`bg-white rounded-2xl mt-4 md:mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-4 md:p-[24px] max-w-[845px] flex flex-col ${reviews.length <= 1 ? "" : "flex-1"}`}
+      >
         {reviews.length > 0 ? (
           reviews.map((review, index) => (
             <ReviewCard

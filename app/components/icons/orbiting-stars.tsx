@@ -28,7 +28,12 @@ const stars = [
 ]
 
 export const OrbitingStars = ({ className }: { className?: string }) => (
-  <div className={twMerge("absolute inset-0 overflow-hidden rounded-2xl", className)}>
+  <div
+    className={twMerge(
+      "absolute inset-0 overflow-hidden rounded-2xl",
+      className,
+    )}
+  >
     <style>{`
       @keyframes twinkle { 0%,100%{opacity:0.3} 50%{opacity:0.8} }
       .orbit-s1  { animation: o1  20s linear infinite, twinkle 3s ease-in-out infinite; }

@@ -28,7 +28,10 @@ const SiteScreen = () => (
       <div className="h-[3px] w-8 rounded bg-gray-300 mb-[2px]" />
       <div className="grid grid-cols-3 gap-1 w-full">
         {[0, 1, 2].map((n) => (
-          <div key={n} className="flex flex-col items-center gap-[2px] rounded-md bg-gray-50 p-1">
+          <div
+            key={n}
+            className="flex flex-col items-center gap-[2px] rounded-md bg-gray-50 p-1"
+          >
             <div className="w-full h-3 rounded bg-pink-100/80" />
             <div className="h-[2px] w-3/4 rounded bg-gray-200" />
             <div className="h-[2px] w-1/2 rounded bg-gray-200" />
@@ -39,7 +42,10 @@ const SiteScreen = () => (
     {/* Testimonials */}
     <div className="px-2 py-1 flex gap-1">
       {[0, 1].map((n) => (
-        <div key={n} className="flex-1 rounded-md bg-gray-50 p-1 flex flex-col gap-[2px]">
+        <div
+          key={n}
+          className="flex-1 rounded-md bg-gray-50 p-1 flex flex-col gap-[2px]"
+        >
           <div className="flex items-center gap-[3px]">
             <div className="w-2 h-2 rounded-full bg-pink-200" />
             <div className="h-[2px] w-5 rounded bg-gray-200" />
@@ -60,7 +66,7 @@ export const SiteBuilderIllustration = ({
   <div
     className={twMerge(
       "relative flex items-start justify-center max-w-md mx-auto",
-      className
+      className,
     )}
   >
     {/* Textarea - AI prompt */}
@@ -84,7 +90,13 @@ export const SiteBuilderIllustration = ({
         <div className="h-[3px] w-12 rounded bg-gray-200" />
         <div className="ml-auto w-4 h-4 rounded-full bg-brand_blue flex items-center justify-center">
           <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
-            <path d="M6 2V10M6 2L3 5M6 2L9 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M6 2V10M6 2L3 5M6 2L9 5"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
       </div>

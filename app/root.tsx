@@ -1,3 +1,4 @@
+import { FormmyProvider } from "@formmy.app/chat/react"
 import type { ReactNode } from "react"
 import {
   isRouteErrorResponse,
@@ -10,7 +11,6 @@ import {
   useRouteError,
 } from "react-router"
 import { ParallaxProvider } from "react-scroll-parallax"
-import { FormmyProvider } from "@formmy.app/chat/react"
 import { isOrgDomain, isRouteAllowedOnOrgDomain } from "~/utils/host.server"
 import type { Route } from "./+types/root"
 import stylesheet from "./app.css?url"

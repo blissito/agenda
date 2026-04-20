@@ -1,23 +1,26 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { redirect, useFetcher, useSearchParams } from "react-router"
-import invariant from "tiny-invariant"
 import { twMerge } from "tailwind-merge"
+import invariant from "tiny-invariant"
 import {
   getMPAuthUrl,
   getValidAccessToken,
-  searchMpPayments,
   type MpPayment,
+  searchMpPayments,
 } from "~/.server/mercadopago"
 import { createAccountLink, getOrCreateStripeAccount } from "~/.server/stripe"
-import { getUserAndOrgOrRedirect, getUserOrRedirect } from "~/.server/userGetters"
+import {
+  getUserAndOrgOrRedirect,
+  getUserOrRedirect,
+} from "~/.server/userGetters"
 import { Pagination } from "~/components/common/Pagination"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Spinner } from "~/components/common/Spinner"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { type CitaEvent } from "~/components/dash/CitasTable"
 import { ArrowRight } from "~/components/icons/arrowRight"
-import { CitasTable, type CitaEvent } from "~/components/dash/CitasTable"
-import { db } from "~/utils/db.server"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
+import { db } from "~/utils/db.server"
 import type { Route } from "./+types/pagos"
 
 export const action = async ({ request }: Route.ActionArgs) => {
@@ -113,11 +116,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const price = Number(e.service.price)
 
     // Citas futuras sin pagar y no canceladas → por cobrar
-    if (
-      !e.paid &&
-      e.start >= now &&
-      e.status !== "CANCELLED"
-    ) {
+    if (!e.paid && e.start >= now && e.status !== "CANCELLED") {
       totals.pendingRevenue += price
       totals.pendingCount += 1
     }
@@ -127,7 +126,11 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     if (e.createdAt >= startOfMonth) totals.monthRevenue += price
 
     const method = (e.payment_method ?? "").toLowerCase()
-    if (ONLINE_METHODS.has(method) || e.mp_payment_id || e.stripe_payment_intent_id) {
+    if (
+      ONLINE_METHODS.has(method) ||
+      e.mp_payment_id ||
+      e.stripe_payment_intent_id
+    ) {
       totals.onlineRevenue += price
     } else if (SUCURSAL_METHODS.has(method)) {
       totals.sucursalRevenue += price
@@ -268,20 +271,12 @@ const loadDeposits = async (user: {
 }
 
 export default function Pagos({ loaderData }: Route.ComponentProps) {
-  const {
-    mpConnected,
-    mpUserId,
-    stripeAccountId,
-    stripeEnabled,
-    stats,
-    events,
-    deposits,
-  } = loaderData
+  const { mpConnected, stripeAccountId, stats, events, deposits } = loaderData
   const [searchParams, setSearchParams] = useSearchParams()
   const fetcher = useFetcher()
 
-  const mpSuccess = searchParams.get("mp_success")
-  const mpError = searchParams.get("mp_error")
+  const _mpSuccess = searchParams.get("mp_success")
+  const _mpError = searchParams.get("mp_error")
   const activeTab =
     searchParams.get("tab") === "deposits" ? "deposits" : "sales"
 
@@ -289,7 +284,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
     fetcher.submit({ intent: "connect_mercadopago" }, { method: "post" })
   }
 
-  const disconnectMercadoPago = () => {
+  const _disconnectMercadoPago = () => {
     if (
       confirm(
         "¿Estás seguro de que quieres desconectar tu cuenta de Mercado Pago?",
@@ -299,7 +294,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
     }
   }
 
-  const navigateToStripeAccountLink = () => {
+  const _navigateToStripeAccountLink = () => {
     fetcher.submit(
       { intent: "navigate_to_stripe_account_link" },
       { method: "post" },
@@ -313,40 +308,43 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
   }
 
   const isLoading = fetcher.state !== "idle"
-  const hasAnyData = (events?.length ?? 0) > 0 || mpConnected || !!stripeAccountId
+  const hasAnyData =
+    (events?.length ?? 0) > 0 || mpConnected || !!stripeAccountId
   const showEmptyState = !hasAnyData
 
   return (
     <article className="w-full max-w-8xl mx-auto">
-      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">Ventas</RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">
+        Ventas
+      </RouteTitle>
 
-        <div className="flex items-center gap-6">
-          <button
-            type="button"
-            onClick={() => changeTab("sales")}
-            className={`relative pb-2 text-sm font-medium leading-5 ${
-              activeTab === "sales" ? "text-[#20242D]" : "text-[#8A90A2]"
-            }`}
-          >
-            Ventas
-            {activeTab === "sales" && (
-              <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-[#615FFF]" />
-            )}
-          </button>
+      <div className="flex items-center gap-6">
+        <button
+          type="button"
+          onClick={() => changeTab("sales")}
+          className={`relative pb-2 text-sm font-medium leading-5 ${
+            activeTab === "sales" ? "text-[#20242D]" : "text-[#8A90A2]"
+          }`}
+        >
+          Ventas
+          {activeTab === "sales" && (
+            <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-[#615FFF]" />
+          )}
+        </button>
 
-          <button
-            type="button"
-            onClick={() => changeTab("deposits")}
-            className={`relative pb-2 text-sm font-medium leading-5 ${
-              activeTab === "deposits" ? "text-[#20242D]" : "text-[#8A90A2]"
-            }`}
-          >
-            Depósitos
-            {activeTab === "deposits" && (
-              <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-[#615FFF]" />
-            )}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => changeTab("deposits")}
+          className={`relative pb-2 text-sm font-medium leading-5 ${
+            activeTab === "deposits" ? "text-[#20242D]" : "text-[#8A90A2]"
+          }`}
+        >
+          Depósitos
+          {activeTab === "deposits" && (
+            <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-[#615FFF]" />
+          )}
+        </button>
+      </div>
 
       {!showEmptyState && activeTab === "sales" ? (
         <SalesView stats={stats} events={events ?? []} />
@@ -356,7 +354,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
         <DepositsView deposits={deposits} mpConnected={mpConnected} />
       ) : null}
 
-      {(showEmptyState || (activeTab === "deposits" && !mpConnected)) ? (
+      {showEmptyState || (activeTab === "deposits" && !mpConnected) ? (
         <MercadoPagoEmptyState
           onConnect={connectMercadoPago}
           isLoading={isLoading}
@@ -644,7 +642,9 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
   return (
     <div>
       <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h3 className="text-lg font-satoBold text-brand_dark">Cierre de caja diario</h3>
+        <h3 className="text-lg font-satoBold text-brand_dark">
+          Cierre de caja diario
+        </h3>
         <div className="flex items-center gap-2">
           <select
             value={month}
@@ -757,43 +757,39 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
           days
             .filter((d) => d.count > 0)
             .map((d) => (
-            <div key={d.date} className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex flex-col">
-                  <span className="text-sm font-satoBold text-brand_dark">
-                    {formatDayCell(d.date)}
-                  </span>
-                  <span className="text-[11px] text-brand_gray">
-                    {d.count} cita{d.count === 1 ? "" : "s"}
+              <div key={d.date} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-satoBold text-brand_dark">
+                      {formatDayCell(d.date)}
+                    </span>
+                    <span className="text-[11px] text-brand_gray">
+                      {d.count} cita{d.count === 1 ? "" : "s"}
+                    </span>
+                  </div>
+                  <span className="text-sm font-satoBold text-brand_dark tabular-nums">
+                    {formatCurrency(d.total)}
                   </span>
                 </div>
-                <span className="text-sm font-satoBold text-brand_dark tabular-nums">
-                  {formatCurrency(d.total)}
-                </span>
+                <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-brand_gray">
+                  {d.mp > 0 && <span>MP: {formatCurrency(d.mp)}</span>}
+                  {d.cash > 0 && (
+                    <span>Efectivo: {formatCurrency(d.cash)}</span>
+                  )}
+                  {d.transfer > 0 && (
+                    <span>Transfer: {formatCurrency(d.transfer)}</span>
+                  )}
+                  {d.card > 0 && <span>Tarjeta: {formatCurrency(d.card)}</span>}
+                </div>
               </div>
-              <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-brand_gray">
-                {d.mp > 0 && <span>MP: {formatCurrency(d.mp)}</span>}
-                {d.cash > 0 && <span>Efectivo: {formatCurrency(d.cash)}</span>}
-                {d.transfer > 0 && (
-                  <span>Transfer: {formatCurrency(d.transfer)}</span>
-                )}
-                {d.card > 0 && <span>Tarjeta: {formatCurrency(d.card)}</span>}
-              </div>
-            </div>
-          ))
+            ))
         )}
       </div>
     </div>
   )
 }
 
-const DailyEmptyState = ({
-  month,
-  year,
-}: {
-  month: number
-  year: number
-}) => (
+const DailyEmptyState = ({ month, year }: { month: number; year: number }) => (
   <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
     <img
       src="/images/emptyState/payments.webp"
@@ -821,7 +817,7 @@ const DailyAmount = ({ amount }: { amount: number }) => (
 )
 
 const formatDayCell = (iso: string) => {
-  const d = new Date(iso + "T00:00:00")
+  const d = new Date(`${iso}T00:00:00`)
   return d.toLocaleDateString("es-MX", {
     weekday: "short",
     day: "numeric",
@@ -857,9 +853,13 @@ const SalesCard = ({
     ) : null}
     <div className="text-white">
       <p className="text-base md:text-lg">{title}</p>
-      <h3 className="text-3xl md:text-4xl font-satoBold leading-tight mt-1">{value}</h3>
+      <h3 className="text-3xl md:text-4xl font-satoBold leading-tight mt-1">
+        {value}
+      </h3>
       {subtitle ? (
-        <p className="mt-2 text-[13px] opacity-90 hidden md:block">{subtitle}</p>
+        <p className="mt-2 text-[13px] opacity-90 hidden md:block">
+          {subtitle}
+        </p>
       ) : null}
     </div>
   </section>
@@ -878,7 +878,9 @@ const SucursalBreakdown = ({
     <div className="flex flex-col min-w-0">
       <span className="text-sm text-brand_gray">{label}</span>
       {hint ? (
-        <span className="text-[11px] text-brand_iron truncate hidden md:inline">{hint}</span>
+        <span className="text-[11px] text-brand_iron truncate hidden md:inline">
+          {hint}
+        </span>
       ) : null}
     </div>
     <span className="text-sm font-satoBold text-brand_dark tabular-nums shrink-0">
@@ -987,12 +989,14 @@ const DepositsView = ({
 
   return (
     <section className="mt-6 flex flex-col gap-6">
-      {hasData ? <DepositsTable payments={deposits.payments} currency={c} /> : null}
+      {hasData ? (
+        <DepositsTable payments={deposits.payments} currency={c} />
+      ) : null}
     </section>
   )
 }
 
-const DepositsList = ({
+const _DepositsList = ({
   title,
   empty,
   groups,
@@ -1080,7 +1084,8 @@ const DepositsTable = ({
                 p.transaction_details?.net_received_amount ??
                 p.transaction_amount
               const released =
-                p.money_release_date && new Date(p.money_release_date) <= new Date()
+                p.money_release_date &&
+                new Date(p.money_release_date) <= new Date()
               return (
                 <div
                   key={p.id}
@@ -1113,7 +1118,9 @@ const DepositsTable = ({
                             : "bg-[#fff8e1] text-[#8b6914]",
                         )}
                       >
-                        {released ? "Liberado" : formatDateLong(p.money_release_date)}
+                        {released
+                          ? "Liberado"
+                          : formatDateLong(p.money_release_date)}
                       </span>
                     ) : (
                       <span className="text-brand_gray">—</span>
@@ -1162,7 +1169,9 @@ const DepositsTable = ({
                         : "bg-[#fff8e1] text-[#8b6914]",
                     )}
                   >
-                    {released ? "Liberado" : formatDateLong(p.money_release_date)}
+                    {released
+                      ? "Liberado"
+                      : formatDateLong(p.money_release_date)}
                   </span>
                 ) : null}
               </div>

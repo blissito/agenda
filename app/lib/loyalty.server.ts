@@ -49,7 +49,10 @@ export async function updateLevel(
   if (data.minPoints !== undefined && data.minPoints < 0) {
     throw new Error("minPoints must be >= 0")
   }
-  if (data.discountPercent !== undefined && (data.discountPercent < 0 || data.discountPercent > 100)) {
+  if (
+    data.discountPercent !== undefined &&
+    (data.discountPercent < 0 || data.discountPercent > 100)
+  ) {
     throw new Error("discountPercent must be between 0 and 100")
   }
 
@@ -139,7 +142,11 @@ export async function awardPoints(params: {
     const existingCustomer = await db.customer.findUnique({
       where: { id: customerId },
     })
-    return { customer: existingCustomer, transaction: existingTx, levelUpgrade: false }
+    return {
+      customer: existingCustomer,
+      transaction: existingTx,
+      levelUpgrade: false,
+    }
   }
 
   const customer = await db.customer.findUnique({

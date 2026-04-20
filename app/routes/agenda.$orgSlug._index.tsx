@@ -83,7 +83,13 @@ export default function OrgLanding({ loaderData }: Route.ComponentProps) {
       <>
         <iframe
           srcDoc={aiLandingHtml}
-          style={{ position: "fixed", inset: 0, width: "100%", height: "100%", border: "none" }}
+          style={{
+            position: "fixed",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            border: "none",
+          }}
           title="Landing"
         />
         {showChatbot && (

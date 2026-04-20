@@ -43,8 +43,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!userId || !role) return { error: "Datos incompletos" }
     // Don't allow changing the owner's role
     const targetUser = await db.user.findUnique({ where: { id: userId } })
-    if (targetUser?.id === org.ownerId) return { error: "No puedes cambiar el rol del propietario" }
-    await db.user.update({ where: { id: userId, orgId: org.id }, data: { role } })
+    if (targetUser?.id === org.ownerId)
+      return { error: "No puedes cambiar el rol del propietario" }
+    await db.user.update({
+      where: { id: userId, orgId: org.id },
+      data: { role },
+    })
     return { ok: true }
   }
 
@@ -263,7 +267,13 @@ export default function Colaboradores() {
   )
 }
 
-function RoleSelect({ userId, currentRole }: { userId: string; currentRole: string }) {
+function _RoleSelect({
+  userId,
+  currentRole,
+}: {
+  userId: string
+  currentRole: string
+}) {
   const fetcher = useFetcher()
   return (
     <select

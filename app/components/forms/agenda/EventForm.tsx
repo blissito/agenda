@@ -12,7 +12,10 @@ import { DateInput } from "../DateInput"
 import { EmployeeSelect } from "../EmployeeSelect"
 import { SelectInput } from "../SelectInput"
 import { ServiceSelect } from "../ServiceSelect"
-import { VideoProviderSelect, type VideoProviderValue } from "../VideoProviderSelect"
+import {
+  VideoProviderSelect,
+  type VideoProviderValue,
+} from "../VideoProviderSelect"
 
 const formatDate = (d: Date | string): string =>
   new Date(d).toISOString().substring(0, 10)
@@ -206,7 +209,9 @@ export const EventForm = ({
   }, [_startHour, _endHour])
 
   // Resuelve default de videoProvider según servicio e integraciones.
-  const resolveDefaultProvider = (serviceVP?: string | null): VideoProviderValue => {
+  const resolveDefaultProvider = (
+    serviceVP?: string | null,
+  ): VideoProviderValue => {
     const pref = (serviceVP || "auto") as string
     if (pref === "meet" && hasMeet) return "meet"
     if (pref === "zoom" && hasZoom) return "zoom"
@@ -225,7 +230,10 @@ export const EventForm = ({
   const registerVirtualFields = () => {
     // virtual fields
     register("customerId", { required: true, value: "" })
-    register("serviceId", { required: true, value: defaultValues?.serviceId ?? "" })
+    register("serviceId", {
+      required: true,
+      value: defaultValues?.serviceId ?? "",
+    })
     register("employeeId", { required: true, value: employees[0]?.id })
     register("videoProvider", { required: false, value: initialProvider })
   }
@@ -249,7 +257,10 @@ export const EventForm = ({
       const endMins = startMins + Number(service.duration)
       const endH = String(Math.floor(endMins / 60) % 24).padStart(2, "0")
       const endM = String(endMins % 60).padStart(2, "0")
-      setValue("endHour", `${endH}:${endM}`, { shouldValidate: true, shouldDirty: true })
+      setValue("endHour", `${endH}:${endM}`, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
       setValue(
         "videoProvider",
         resolveDefaultProvider((service as any).videoProvider),
@@ -258,7 +269,9 @@ export const EventForm = ({
     }
   }
 
-  const videoProviderValue = useWatch({ control, name: "videoProvider" }) as string | undefined
+  const videoProviderValue = useWatch({ control, name: "videoProvider" }) as
+    | string
+    | undefined
   const showVideoSelector = !defaultValues.id
 
   const hanldeEmployeeSelect = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -280,125 +293,132 @@ export const EventForm = ({
 
   return (
     <>
-    <Form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
-      {/* @TODO: create a combobox */}
-      <CustomersComboBox
-        onSelect={handleCustomerSelection}
-        customers={customers}
-        onNewClientClick={onNewClientClick}
-        defaultValue={defaultValues.customerId}
-      />
-      <ServiceSelect
-        defaultValue={defaultValues?.serviceId ?? ""}
-        onChange={handleServiceSelect}
-      />
-      <EmployeeSelect
-        defaultValue={employees[0]?.id}
-        onChange={hanldeEmployeeSelect}
-      />
+      <Form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
+        {/* @TODO: create a combobox */}
+        <CustomersComboBox
+          onSelect={handleCustomerSelection}
+          customers={customers}
+          onNewClientClick={onNewClientClick}
+          defaultValue={defaultValues.customerId}
+        />
+        <ServiceSelect
+          defaultValue={defaultValues?.serviceId ?? ""}
+          onChange={handleServiceSelect}
+        />
+        <EmployeeSelect
+          defaultValue={employees[0]?.id}
+          onChange={hanldeEmployeeSelect}
+        />
 
-      {showVideoSelector && (
-        <VideoProviderSelect
-          value={(videoProviderValue as VideoProviderValue) ?? "auto"}
-          onChange={(v) =>
-            setValue("videoProvider", v, { shouldDirty: true })
-          }
-          hasMeet={hasMeet}
-          hasZoom={hasZoom}
-        />
-      )}
-
-      <div className="flex flex-col gap-4">
-        <p className="font-bold">Fecha y hora <span className="text-brand_iron font-normal">({duration}m)</span></p>
-        <div className="flex items-center flex-wrap gap-y-2">
-        <div className="flex-1 min-w-[140px]">
-          <DateInput name="start" register={register} />
-        </div>
-        <span className="px-2">De</span>
-        <DateInput
-          type="time"
-          name="startHour"
-          register={register}
-          onChange={handleHoursChange}
-          error={errors.startHour}
-        />
-        <span className="px-2">a</span>
-        <DateInput
-          name="endHour"
-          register={register}
-          type="time"
-          onChange={handleHoursChange}
-          error={errors.startHour}
-        />
-        </div>
-        {errors.startHour && (
-          <p className="text-red-500">{errors.startHour.message}</p>
-        )}
-        <BasicInput
-          label="Notas"
-          as="textarea"
-          name="notes"
-          register={register}
-          className="min-w-[170px]"
-          placeholder="Agrega una nota o comentario"
-          registerOptions={{ required: false }}
-        />
-      </div>
-      <hr className="border-brand_pale" />
-      {defaultValues.mp_payment_id ? (
-        <>
-          <div className="flex items-center justify-between">
-            <span className="text-brand_dark font-satoMedium">Pagado con MercadoPago</span>
-            <span className="text-xs px-2.5 py-1 rounded-full font-satoMedium bg-[#d5faf1] text-[#2a645f]">💸 Pagada</span>
-          </div>
-          <SelectInput
-            placeholder="Selecciona la forma de pago"
-            name="payment_method"
-            defaultValue="card"
-            label="Forma de pago"
-            isDisabled
-            options={[
-              { value: "card", title: "Tarjeta" },
-              { value: "cash", title: "Efectivo" },
-              { value: "transfer", title: "Transferencia bancaria" },
-            ]}
+        {showVideoSelector && (
+          <VideoProviderSelect
+            value={(videoProviderValue as VideoProviderValue) ?? "auto"}
+            onChange={(v) =>
+              setValue("videoProvider", v, { shouldDirty: true })
+            }
+            hasMeet={hasMeet}
+            hasZoom={hasZoom}
           />
-        </>
-      ) : (
-        <>
-          <Switch
-            label="Pagado"
-            name="paid"
-            defaultChecked={!!defaultValues.paid}
+        )}
+
+        <div className="flex flex-col gap-4">
+          <p className="font-bold">
+            Fecha y hora{" "}
+            <span className="text-brand_iron font-normal">({duration}m)</span>
+          </p>
+          <div className="flex items-center flex-wrap gap-y-2">
+            <div className="flex-1 min-w-[140px]">
+              <DateInput name="start" register={register} />
+            </div>
+            <span className="px-2">De</span>
+            <DateInput
+              type="time"
+              name="startHour"
+              register={register}
+              onChange={handleHoursChange}
+              error={errors.startHour}
+            />
+            <span className="px-2">a</span>
+            <DateInput
+              name="endHour"
+              register={register}
+              type="time"
+              onChange={handleHoursChange}
+              error={errors.startHour}
+            />
+          </div>
+          {errors.startHour && (
+            <p className="text-red-500">{errors.startHour.message}</p>
+          )}
+          <BasicInput
+            label="Notas"
+            as="textarea"
+            name="notes"
             register={register}
+            className="min-w-[170px]"
+            placeholder="Agrega una nota o comentario"
             registerOptions={{ required: false }}
           />
-          {_paid && (
+        </div>
+        <hr className="border-brand_pale" />
+        {defaultValues.mp_payment_id ? (
+          <>
+            <div className="flex items-center justify-between">
+              <span className="text-brand_dark font-satoMedium">
+                Pagado con MercadoPago
+              </span>
+              <span className="text-xs px-2.5 py-1 rounded-full font-satoMedium bg-[#d5faf1] text-[#2a645f]">
+                💸 Pagada
+              </span>
+            </div>
             <SelectInput
               placeholder="Selecciona la forma de pago"
-              register={register}
-              registerOptions={{ required: false }}
               name="payment_method"
-              defaultValue="cash"
+              defaultValue="card"
               label="Forma de pago"
+              isDisabled
               options={[
                 { value: "card", title: "Tarjeta" },
-                {
-                  value: "cash",
-                  title: "Efectivo",
-                },
-                {
-                  value: "transfer",
-                  title: "Transferencia bancaria",
-                },
+                { value: "cash", title: "Efectivo" },
+                { value: "transfer", title: "Transferencia bancaria" },
               ]}
             />
-          )}
-        </>
-      )}
-      <hr className="mt-4 border-none" />
-      <nav className="absolute bottom-0 left-0 right-0 flex justify-end px-6 md:px-8 py-4 gap-4 bg-white">
-        {/* <PrimaryButton
+          </>
+        ) : (
+          <>
+            <Switch
+              label="Pagado"
+              name="paid"
+              defaultChecked={!!defaultValues.paid}
+              register={register}
+              registerOptions={{ required: false }}
+            />
+            {_paid && (
+              <SelectInput
+                placeholder="Selecciona la forma de pago"
+                register={register}
+                registerOptions={{ required: false }}
+                name="payment_method"
+                defaultValue="cash"
+                label="Forma de pago"
+                options={[
+                  { value: "card", title: "Tarjeta" },
+                  {
+                    value: "cash",
+                    title: "Efectivo",
+                  },
+                  {
+                    value: "transfer",
+                    title: "Transferencia bancaria",
+                  },
+                ]}
+              />
+            )}
+          </>
+        )}
+        <hr className="mt-4 border-none" />
+        <nav className="absolute bottom-0 left-0 right-0 flex justify-end px-6 md:px-8 py-4 gap-4 bg-white">
+          {/* <PrimaryButton
           type="button"
           isDisabled={isLoading}
           onClick={onCancel}
@@ -406,35 +426,45 @@ export const EventForm = ({
         >
           Volver
         </PrimaryButton> */}
-        {defaultValues.id && (
+          {defaultValues.id && (
+            <PrimaryButton
+              type="button"
+              isLoading={isLoading}
+              className="bg-[#CA5757] hover:bg-[#B84E4E] text-white"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              Cancelar cita
+            </PrimaryButton>
+          )}
           <PrimaryButton
-            type="button"
+            type="submit"
             isLoading={isLoading}
-            className="bg-[#CA5757] hover:bg-[#B84E4E] text-white"
-            onClick={() => setShowDeleteConfirm(true)}
+            isDisabled={!isDirty || !isValid}
           >
-            Cancelar cita
+            Guardar
           </PrimaryButton>
-        )}
-        <PrimaryButton
-          type="submit"
-          isLoading={isLoading}
-          isDisabled={!isDirty || !isValid}
-        >
-          Guardar
-        </PrimaryButton>
-      </nav>
-    </Form>
-    <ConfirmModal
-      isOpen={showDeleteConfirm}
-      onClose={() => setShowDeleteConfirm(false)}
-      onConfirm={handleDelete}
-      title="¿Seguro que quieres cancelar esta cita? 🫣"
-      description={<>Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span className="font-satoBold text-brand_dark">{customers.find(c => c.id === getValues("customerId"))?.displayName ?? "el cliente"}</span>.</>}
-      confirmText="Sí, cancelar"
-      cancelText="Volver"
-      variant="danger"
-    />
+        </nav>
+      </Form>
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        title="¿Seguro que quieres cancelar esta cita? 🫣"
+        description={
+          <>
+            Al cancelar, la cita será eliminada de la agenda. Enviaremos una
+            notificación a{" "}
+            <span className="font-satoBold text-brand_dark">
+              {customers.find((c) => c.id === getValues("customerId"))
+                ?.displayName ?? "el cliente"}
+            </span>
+            .
+          </>
+        }
+        confirmText="Sí, cancelar"
+        cancelText="Volver"
+        variant="danger"
+      />
     </>
   )
 }

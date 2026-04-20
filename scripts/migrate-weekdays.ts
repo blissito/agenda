@@ -33,9 +33,10 @@ const ENGLISH_DAYS = new Set([
   "sunday",
 ])
 
-function convertKeys(
-  weekDays: Record<string, any>,
-): { converted: Record<string, any>; changed: boolean } {
+function convertKeys(weekDays: Record<string, any>): {
+  converted: Record<string, any>
+  changed: boolean
+} {
   const result: Record<string, any> = {}
   let changed = false
 
@@ -68,7 +69,9 @@ async function main() {
     let orgCount = 0
     for (const org of orgs) {
       if (!org.weekDays) continue
-      const { converted, changed } = convertKeys(org.weekDays as Record<string, any>)
+      const { converted, changed } = convertKeys(
+        org.weekDays as Record<string, any>,
+      )
       if (!changed) continue
 
       orgCount++
@@ -93,7 +96,9 @@ async function main() {
     let serviceCount = 0
     for (const service of services) {
       if (!service.weekDays) continue
-      const { converted, changed } = convertKeys(service.weekDays as Record<string, any>)
+      const { converted, changed } = convertKeys(
+        service.weekDays as Record<string, any>,
+      )
       if (!changed) continue
 
       serviceCount++
@@ -109,7 +114,9 @@ async function main() {
       }
     }
 
-    console.log(`\n${dryRun ? "Would update" : "Updated"}: ${orgCount} orgs, ${serviceCount} services`)
+    console.log(
+      `\n${dryRun ? "Would update" : "Updated"}: ${orgCount} orgs, ${serviceCount} services`,
+    )
   } finally {
     await prisma.$disconnect()
   }

@@ -1,6 +1,6 @@
 import { Link, useLoaderData } from "react-router"
-import { Image } from "~/components/common/Image"
 import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { Image } from "~/components/common/Image"
 import { EmptyStateReviews } from "~/components/reviews/EmptyStateReviews"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { db } from "~/utils/db.server"
@@ -76,7 +76,9 @@ export default function Reviews() {
 
   return (
     <main className="max-w-8xl mx-auto">
-      <RouteTitle className="text-[20px] md:text-3xl mb-4 md:mb-8">Evaluaciones</RouteTitle>
+      <RouteTitle className="text-[20px] md:text-3xl mb-4 md:mb-8">
+        Evaluaciones
+      </RouteTitle>
 
       {hasServices ? (
         <>
@@ -94,8 +96,8 @@ const SummaryCard = ({ average }: { average: number }) => {
   return (
     <section className="bg-white rounded-2xl px-4 md:px-6 py-5 md:py-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] w-full md:w-fit">
       <p className="text-base md:text-lg text-brand_gray font-satoMedium">
-        Tus clientes han hablado ✓ ... la calificación promedio de tus
-        servicios es
+        Tus clientes han hablado ✓ ... la calificación promedio de tus servicios
+        es
       </p>
       <div className="flex items-center gap-3 md:gap-6 mt-4 md:mt-6">
         <div className="flex gap-1.5 md:gap-5 [&_svg]:w-7 [&_svg]:h-7 md:[&_svg]:w-16 md:[&_svg]:h-16">
@@ -236,4 +238,3 @@ const StarIcon = ({
     </svg>
   )
 }
-

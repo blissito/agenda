@@ -20,7 +20,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   if (intent === "get") {
     const eventId = url.searchParams.get("eventId")
-    if (!eventId) return Response.json({ error: "eventId required" }, { status: 400 })
+    if (!eventId)
+      return Response.json({ error: "eventId required" }, { status: 400 })
     const event = await db.event.findFirst({
       where: { id: eventId, orgId: org.id },
       include: { customer: true, service: true },
@@ -37,7 +38,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     const customerId = url.searchParams.get("customerId") ?? undefined
     const attendedRaw = url.searchParams.get("attended")
     const attended =
-      attendedRaw === "true" ? true : attendedRaw === "false" ? false : undefined
+      attendedRaw === "true"
+        ? true
+        : attendedRaw === "false"
+          ? false
+          : undefined
     const limit = Math.min(Number(url.searchParams.get("limit") ?? 50), 200)
 
     const events = await db.event.findMany({
@@ -45,7 +50,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         orgId: org.id,
         archived: false,
         ...(from || to
-          ? { start: { ...(from && { gte: new Date(from) }), ...(to && { lte: new Date(to) }) } }
+          ? {
+              start: {
+                ...(from && { gte: new Date(from) }),
+                ...(to && { lte: new Date(to) }),
+              },
+            }
           : {}),
         ...(status && { status }),
         ...(serviceId && { serviceId }),
@@ -72,15 +82,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const intent = body.intent as string
 
   if (intent === "cancel") {
-    if (!body.eventId) return Response.json({ error: "eventId required" }, { status: 400 })
-    const updated = await cancelEventFully({ eventId: body.eventId, orgId: org.id })
+    if (!body.eventId)
+      return Response.json({ error: "eventId required" }, { status: 400 })
+    const updated = await cancelEventFully({
+      eventId: body.eventId,
+      orgId: org.id,
+    })
     if (!updated) return Response.json({ error: "Not found" }, { status: 404 })
     return Response.json({ ok: true })
   }
 
   if (intent === "reschedule") {
     if (!body.eventId || !body.start)
-      return Response.json({ error: "eventId and start required" }, { status: 400 })
+      return Response.json(
+        { error: "eventId and start required" },
+        { status: 400 },
+      )
     const start = new Date(body.start)
     // Mantener duración previa si no pasan `end`
     const existing = await db.event.findFirst({
@@ -88,7 +105,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     })
     if (!existing) return Response.json({ error: "Not found" }, { status: 404 })
     const duration = Number(existing.duration)
-    const end = body.end ? new Date(body.end) : new Date(start.getTime() + duration * 60_000)
+    const end = body.end
+      ? new Date(body.end)
+      : new Date(start.getTime() + duration * 60_000)
     const updated = await db.event.update({
       where: { id: body.eventId },
       data: { start, end },
@@ -97,7 +116,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (intent === "mark_attendance") {
-    if (!body.eventId) return Response.json({ error: "eventId required" }, { status: 400 })
+    if (!body.eventId)
+      return Response.json({ error: "eventId required" }, { status: 400 })
     const attended =
       body.attended === true ? true : body.attended === false ? false : null
     const updated = await db.event.update({
@@ -114,10 +134,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         { error: "serviceId, customerId, start required" },
         { status: 400 },
       )
-    const service = await db.service.findFirst({ where: { id: serviceId, orgId: org.id } })
-    if (!service) return Response.json({ error: "Service not found" }, { status: 404 })
-    const customer = await db.customer.findFirst({ where: { id: customerId, orgId: org.id } })
-    if (!customer) return Response.json({ error: "Customer not found" }, { status: 404 })
+    const service = await db.service.findFirst({
+      where: { id: serviceId, orgId: org.id },
+    })
+    if (!service)
+      return Response.json({ error: "Service not found" }, { status: 404 })
+    const customer = await db.customer.findFirst({
+      where: { id: customerId, orgId: org.id },
+    })
+    if (!customer)
+      return Response.json({ error: "Customer not found" }, { status: 404 })
 
     const startDate = new Date(start)
     const durationMin = Number(service.duration)
@@ -148,25 +174,48 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     // Usa Service.videoProvider default si existe; si "auto", decide por
     // integraciones conectadas de la org (Meet → Zoom → none).
     try {
-      const provider = resolveVideoProvider({ org, service, override: undefined })
+      const provider = resolveVideoProvider({
+        org,
+        service,
+        override: undefined,
+      })
       if (provider === "meet") {
-        const { meetingLink, calendarEventId, calendarHtmlLink } = await createMeetLink({
-          org, event, service, customer,
-        })
+        const { meetingLink, calendarEventId, calendarHtmlLink } =
+          await createMeetLink({
+            org,
+            event,
+            service,
+            customer,
+          })
         await db.event.update({
           where: { id: event.id },
-          data: { meetingLink, calendarEventId, calendarHtmlLink, videoProvider: "meet" },
+          data: {
+            meetingLink,
+            calendarEventId,
+            calendarHtmlLink,
+            videoProvider: "meet",
+          },
         })
       } else if (provider === "zoom") {
         const { meetingLink, meetingId } = await createZoomMeeting({
-          org, event, service, customer,
+          org,
+          event,
+          service,
+          customer,
         })
         await db.event.update({
           where: { id: event.id },
-          data: { meetingLink, zoomMeetingId: meetingId, videoProvider: "zoom" },
+          data: {
+            meetingLink,
+            zoomMeetingId: meetingId,
+            videoProvider: "zoom",
+          },
         })
       } else {
-        await db.event.update({ where: { id: event.id }, data: { videoProvider: "none" } })
+        await db.event.update({
+          where: { id: event.id },
+          data: { videoProvider: "none" },
+        })
       }
     } catch (e) {
       console.error("[mcp create_event] video link failed", e)
@@ -183,13 +232,17 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (intent === "send_reminder") {
-    if (!body.eventId) return Response.json({ error: "eventId required" }, { status: 400 })
+    if (!body.eventId)
+      return Response.json({ error: "eventId required" }, { status: 400 })
     const event = await db.event.findFirst({
       where: { id: body.eventId, orgId: org.id },
       include: { customer: true, service: { include: { org: true } } },
     })
     if (!event || !event.customer?.email || !event.service)
-      return Response.json({ error: "Event/customer/service incomplete" }, { status: 404 })
+      return Response.json(
+        { error: "Event/customer/service incomplete" },
+        { status: 404 },
+      )
     await sendReminder({ event: event as any, email: event.customer.email })
     return Response.json({ ok: true })
   }

@@ -95,7 +95,9 @@ const PlanCard = ({
   return (
     <section className="flex flex-col gap-4 bg-white p-4 md:p-6 rounded-2xl max-w-3xl my-4 md:my-8">
       <div className="flex justify-between items-center flex-wrap">
-        <h3 className="mb-0 md:mb-6 text-lg md:text-2xl font-satoBold font-bold">{plan}</h3>
+        <h3 className="mb-0 md:mb-6 text-lg md:text-2xl font-satoBold font-bold">
+          {plan}
+        </h3>
         <p className="mb-0 md:mb-6 text-lg md:text-2xl font-satoshi font-bold">
           ${price} / mes
         </p>

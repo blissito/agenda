@@ -54,7 +54,9 @@ export const SecondaryButton = forwardRef<
     "transition duration-400",
     "rounded-full flex items-center justify-center text-center gap-2",
     "transition-all",
-    !isDisabled && !isLoading && "hover:-translate-y-1 active:translate-y-[0.1px]",
+    !isDisabled &&
+      !isLoading &&
+      "hover:-translate-y-1 active:translate-y-[0.1px]",
     "disabled:text-gray-500",
     isLoading && "bg-brand_blue/50 text-gray-600 pointer-events-none",
     className,

@@ -94,7 +94,6 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
   }
 }
 
-
 const SAVED_MESSAGES: Record<string, string> = {
   general: "Información actualizada",
   horario: "Horario guardado",
@@ -242,7 +241,9 @@ function PersistentGallery({
         // Replace temp entry with real one
         setImages((prev) =>
           prev.map((img) =>
-            img.id === tempId ? { ...img, id: key, key, uploading: false } : img,
+            img.id === tempId
+              ? { ...img, id: key, key, uploading: false }
+              : img,
           ),
         )
         setActiveId((prev) => (prev === tempId ? key : prev))
@@ -365,7 +366,10 @@ function PersistentGallery({
                 const isNew = newIds.includes(img.id)
 
                 return (
-                  <div key={img.id} className="relative group overflow-hidden rounded-xl">
+                  <div
+                    key={img.id}
+                    className="relative group overflow-hidden rounded-xl"
+                  >
                     <button
                       data-thumb-id={img.id}
                       type="button"
@@ -512,7 +516,10 @@ export const ServiceDetail = ({
         </div>
 
         <div className="bg-white rounded-2xl p-4 md:p-6 lg:col-span-7 border border-brand_stroke/60 flex flex-col lg:h-[480px] overflow-hidden">
-          <PersistentGallery initialImages={galleryImages} serviceId={service.id} />
+          <PersistentGallery
+            initialImages={galleryImages}
+            serviceId={service.id}
+          />
         </div>
       </div>
 

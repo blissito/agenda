@@ -6,14 +6,14 @@ import {
   rateLimitPresets,
   rateLimitResponse,
 } from "~/.server/rateLimit"
-import { handleMagicLinkLogin, getUserOrNull } from "~/.server/userGetters"
+import { getUserOrNull, handleMagicLinkLogin } from "~/.server/userGetters"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { TopBar } from "~/components/common/topBar"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { ArrowRight } from "~/components/icons/arrowRight"
-import { EmojiConfetti } from "~/components/common/EmojiConfetti"
-import { sendMagicLink } from "~/utils/emails/sendMagicLink"
 import { cn } from "~/utils/cn"
+import { sendMagicLink } from "~/utils/emails/sendMagicLink"
 import type { Route } from "./+types/mi-cuenta._index"
 
 const NEXT = "/mi-cuenta/perfil"
@@ -64,12 +64,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     }
 
     try {
-      await sendMagicLink(
-        email as string,
-        request.url,
-        undefined,
-        "/mi-cuenta",
-      )
+      await sendMagicLink(email as string, request.url, undefined, "/mi-cuenta")
       return { success: true }
     } catch (error) {
       console.error("Failed to send magic link:", error)

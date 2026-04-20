@@ -1,5 +1,5 @@
-import { SUPPORTED_TIMEZONES } from "~/utils/timezone"
 import type { Choice } from "~/components/ui/select"
+import { SUPPORTED_TIMEZONES } from "~/utils/timezone"
 
 export const COUNTRIES: Choice[] = [
   { value: "MX", label: "🇲🇽 México" },

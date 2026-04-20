@@ -57,7 +57,7 @@ export const loader = async ({ request }: { request: Request }) => {
 }
 
 export const action = async ({ request }: { request: Request }) => {
-  const { user, org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await getUserAndOrgOrRedirect(request)
   if (!org) throw new Response("Org not found", { status: 404 })
 
   const formData = await request.formData()
@@ -106,7 +106,10 @@ export const action = async ({ request }: { request: Request }) => {
           })
         } catch (e) {
           console.error("Error updating Formmy agent:", e)
-          return json({ success: true, warning: "Config guardada, pero no se pudo sincronizar con Formmy" })
+          return json({
+            success: true,
+            warning: "Config guardada, pero no se pudo sincronizar con Formmy",
+          })
         }
       }
 
@@ -144,7 +147,9 @@ export const action = async ({ request }: { request: Request }) => {
         // SDK puede devolver { conversation } o directo la conversación
         const conversation = result?.conversation ?? result ?? null
         if (!conversation) {
-          console.warn("[chatbot get_messages] empty result", { conversationId })
+          console.warn("[chatbot get_messages] empty result", {
+            conversationId,
+          })
         }
         return json({ conversation })
       } catch (e) {

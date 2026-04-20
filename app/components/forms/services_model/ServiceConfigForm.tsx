@@ -44,7 +44,10 @@ export const ServiceConfigForm = ({
   onPaymentSelected?: (selected: boolean) => void
 }) => {
   const { register, watch } = useForm({
-    defaultValues: { ...defaultValues, payment: undefined as unknown as string },
+    defaultValues: {
+      ...defaultValues,
+      payment: undefined as unknown as string,
+    },
   })
 
   const paymentValue = watch("payment")

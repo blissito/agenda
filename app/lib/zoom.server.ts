@@ -57,7 +57,8 @@ export async function exchangeZoomCodeForTokens(
       redirect_uri: redirectUri,
     }),
   })
-  if (!res.ok) throw new Error(`Zoom token exchange failed: ${await res.text()}`)
+  if (!res.ok)
+    throw new Error(`Zoom token exchange failed: ${await res.text()}`)
   const data = await res.json()
   return {
     access_token: data.access_token,

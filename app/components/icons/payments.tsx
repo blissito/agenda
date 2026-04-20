@@ -25,7 +25,7 @@ const PaymentItem = ({
   <div
     className={twMerge(
       "flex items-center gap-3 rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3",
-      className
+      className,
     )}
   >
     <div className="w-8 h-8 rounded-full bg-brand_lime/30 flex items-center justify-center shrink-0">
@@ -49,11 +49,7 @@ const PaymentItem = ({
   </div>
 )
 
-export const PaymentsIllustration = ({
-  className,
-}: {
-  className?: string
-}) => (
+export const PaymentsIllustration = ({ className }: { className?: string }) => (
   <div className={twMerge("relative flex flex-col gap-3", className)}>
     <style>{`
       .payment-extra {

@@ -16,7 +16,12 @@ export type PortalLoyalty = {
   org: PortalOrgInfo
   points: number
   totalEarned: number
-  level: { name: string; image: string | null; minPoints: number; discountPercent: number } | null
+  level: {
+    name: string
+    image: string | null
+    minPoints: number
+    discountPercent: number
+  } | null
   nextLevel: {
     name: string
     image: string | null
@@ -156,11 +161,20 @@ export async function getCustomerPortalData(
       const rawLevel = customer.loyaltyLevelId
         ? await db.loyaltyLevel.findUnique({
             where: { id: customer.loyaltyLevelId },
-            select: { name: true, image: true, minPoints: true, discountPercent: true },
+            select: {
+              name: true,
+              image: true,
+              minPoints: true,
+              discountPercent: true,
+            },
           })
         : null
       const level = rawLevel
-        ? { ...rawLevel, image: getPublicImageUrl(rawLevel.image) ?? null, discountPercent: rawLevel.discountPercent }
+        ? {
+            ...rawLevel,
+            image: getPublicImageUrl(rawLevel.image) ?? null,
+            discountPercent: rawLevel.discountPercent,
+          }
         : null
 
       let nextLevel: PortalLoyalty["nextLevel"] = null
@@ -189,7 +203,13 @@ export async function getCustomerPortalData(
       })
 
       loyalty.push({
-        org: { id: org.id, name: org.name, slug: org.slug, logo: org.logo, tel: org.tel ?? null },
+        org: {
+          id: org.id,
+          name: org.name,
+          slug: org.slug,
+          logo: org.logo,
+          tel: org.tel ?? null,
+        },
         points: customer.loyaltyPoints || 0,
         totalEarned: customer.loyaltyTotalEarned || 0,
         level,

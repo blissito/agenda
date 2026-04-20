@@ -85,10 +85,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
     const numMinPoints = Number(minPoints)
     const numDiscountPercent = Number(discountPercent)
-    if (isNaN(numMinPoints)) return Response.json({ error: "minPoints must be a number" }, { status: 400 })
-    if (isNaN(numDiscountPercent)) return Response.json({ error: "discountPercent must be a number" }, { status: 400 })
-    if (numMinPoints < 0) return Response.json({ error: "minPoints must be >= 0" }, { status: 400 })
-    if (numDiscountPercent < 0 || numDiscountPercent > 100) return Response.json({ error: "discountPercent must be between 0 and 100" }, { status: 400 })
+    if (Number.isNaN(numMinPoints))
+      return Response.json(
+        { error: "minPoints must be a number" },
+        { status: 400 },
+      )
+    if (Number.isNaN(numDiscountPercent))
+      return Response.json(
+        { error: "discountPercent must be a number" },
+        { status: 400 },
+      )
+    if (numMinPoints < 0)
+      return Response.json({ error: "minPoints must be >= 0" }, { status: 400 })
+    if (numDiscountPercent < 0 || numDiscountPercent > 100)
+      return Response.json(
+        { error: "discountPercent must be between 0 and 100" },
+        { status: 400 },
+      )
 
     return createLevel({
       orgId: org.id,
@@ -125,10 +138,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       )
     }
     const numBasePoints = Number(basePoints)
-    if (isNaN(numBasePoints) || numBasePoints <= 0) {
-      return Response.json({ error: "basePoints must be a positive number" }, { status: 400 })
+    if (Number.isNaN(numBasePoints) || numBasePoints <= 0) {
+      return Response.json(
+        { error: "basePoints must be a positive number" },
+        { status: 400 },
+      )
     }
-    return awardPoints({ customerId, orgId: org.id, eventId, basePoints: numBasePoints })
+    return awardPoints({
+      customerId,
+      orgId: org.id,
+      eventId,
+      basePoints: numBasePoints,
+    })
   }
 
   if (intent === "adjust") {
@@ -140,10 +161,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       )
     }
     const numPoints = Number(points)
-    if (isNaN(numPoints)) {
-      return Response.json({ error: "points must be a number" }, { status: 400 })
+    if (Number.isNaN(numPoints)) {
+      return Response.json(
+        { error: "points must be a number" },
+        { status: 400 },
+      )
     }
-    return adjustPoints({ customerId, orgId: org.id, points: numPoints, reason })
+    return adjustPoints({
+      customerId,
+      orgId: org.id,
+      points: numPoints,
+      reason,
+    })
   }
 
   // ==================== REWARDS ====================
@@ -176,14 +205,23 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
     const numValue = Number(value)
     const numPointsCost = Number(pointsCost)
-    if (isNaN(numValue) || numValue <= 0) {
-      return Response.json({ error: "value must be a positive number" }, { status: 400 })
+    if (Number.isNaN(numValue) || numValue <= 0) {
+      return Response.json(
+        { error: "value must be a positive number" },
+        { status: 400 },
+      )
     }
-    if (isNaN(numPointsCost) || numPointsCost <= 0) {
-      return Response.json({ error: "pointsCost must be a positive number" }, { status: 400 })
+    if (Number.isNaN(numPointsCost) || numPointsCost <= 0) {
+      return Response.json(
+        { error: "pointsCost must be a positive number" },
+        { status: 400 },
+      )
     }
     if (type === "discount_percent" && numValue > 100) {
-      return Response.json({ error: "discount_percent value must be <= 100" }, { status: 400 })
+      return Response.json(
+        { error: "discount_percent value must be <= 100" },
+        { status: 400 },
+      )
     }
     return createReward({
       orgId: org.id,

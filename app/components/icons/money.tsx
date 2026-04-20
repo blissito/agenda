@@ -26,8 +26,18 @@ export const Money = ({
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M10 4.58333V3.75" stroke={stroke} strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M10 8.75V9.58333" stroke={stroke} strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M10 4.58333V3.75"
+        stroke={stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10 8.75V9.58333"
+        stroke={stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <path
         d="M4.99967 7.08333C5.22979 7.08333 5.41634 6.89679 5.41634 6.66667C5.41634 6.43655 5.22979 6.25 4.99967 6.25C4.76956 6.25 4.58301 6.43655 4.58301 6.66667C4.58301 6.89679 4.76956 7.08333 4.99967 7.08333Z"
         stroke={stroke}

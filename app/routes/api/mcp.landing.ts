@@ -24,7 +24,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   if (intent === "get") {
     const fresh = await db.org.findUnique({
       where: { id: org.id },
-      select: { landingSections: true, landingPublished: true, landingTheme: true },
+      select: {
+        landingSections: true,
+        landingPublished: true,
+        landingTheme: true,
+      },
     })
     const sections = ((fresh?.landingSections as any) ?? []) as Section[]
     return Response.json({
@@ -35,7 +39,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         order: s.order,
         label: s.label,
         type: s.metadata?.type,
-        ...(includeHtml ? { html: s.html } : { htmlPreview: s.html?.slice(0, 200) }),
+        ...(includeHtml
+          ? { html: s.html }
+          : { htmlPreview: s.html?.slice(0, 200) }),
       })),
     })
   }
@@ -66,7 +72,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     })
     const sections = ((fresh?.landingSections as any) ?? []) as Section[]
     const target = sections.find((s) => s.id === sectionId)
-    if (!target) return Response.json({ error: "Section not found" }, { status: 404 })
+    if (!target)
+      return Response.json({ error: "Section not found" }, { status: 404 })
 
     const newHtml = await refineOrgLanding(org.id, target.html, instruction)
     const updated = sections.map((s) =>

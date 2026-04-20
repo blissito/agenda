@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client"
 import { useRef, useState } from "react"
+import { Link } from "react-router"
 import {
   CartesianGrid,
   Line,
@@ -9,13 +10,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { Link } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { getPublicImageUrl } from "~/utils/urls"
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { CustomerDashboard } from "~/components/dash/CustomerDashboard"
 import { db } from "~/utils/db.server"
+import { getPublicImageUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash._index"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -216,7 +216,10 @@ const EmptyStateDash = () => {
   return (
     <div className="bg-dashEmpty w-full flex-1 bg-cover mt-4 lg:mt-8 flex justify-center items-center">
       <div className="text-center">
-        <img className="mx-auto w-[160px] md:w-auto" src="/images/no-files.svg" />
+        <img
+          className="mx-auto w-[160px] md:w-auto"
+          src="/images/no-files.svg"
+        />
         <p className="font-satoBold text-xl font-bold">
           Un poco de paciencia 🧘🏻
         </p>
@@ -268,7 +271,7 @@ function formatEventDate(isoString: string) {
   })
 }
 
-function formatEventHour(isoString: string) {
+function _formatEventHour(isoString: string) {
   const date = new Date(isoString)
   return date.toLocaleTimeString("es-MX", {
     hour: "2-digit",
@@ -519,22 +522,27 @@ const DashboardData = ({
           <h3 className="text-lg font-satoBold">
             Servicios agendados recientemente
           </h3>
-          <Link to="/dash/agenda/citas" className="text-xs text-[#615FFF] underline">
+          <Link
+            to="/dash/agenda/citas"
+            className="text-xs text-[#615FFF] underline"
+          >
             Ver todas
           </Link>
         </div>
         <div className="mt-0 overflow-y-scroll px-4 lg:px-6">
           {recentEvents.length > 0 ? (
-            recentEvents.slice(0, 10).map((e, i) => (
-              <AppointmentItem
-                key={e.id}
-                className={i >= 5 ? "hidden md:flex" : undefined}
-                service={e.serviceName}
-                client={e.customerName}
-                date={formatEventDate(e.start)}
-                time={timeAgo(e.createdAt)}
-              />
-            ))
+            recentEvents
+              .slice(0, 10)
+              .map((e, i) => (
+                <AppointmentItem
+                  key={e.id}
+                  className={i >= 5 ? "hidden md:flex" : undefined}
+                  service={e.serviceName}
+                  client={e.customerName}
+                  date={formatEventDate(e.start)}
+                  time={timeAgo(e.createdAt)}
+                />
+              ))
           ) : (
             <p className="px-6 text-brand_gray text-sm">
               No hay citas recientes

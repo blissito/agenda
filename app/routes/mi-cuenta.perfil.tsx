@@ -5,33 +5,36 @@ import {
 } from "@hectorbliss/denik-calendar"
 import { AnimatePresence, motion } from "motion/react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Form, Link, redirect } from "react-router"
-import { getUserOrNull } from "~/.server/userGetters"
-import { destroySession, getSession } from "~/sessions"
-import { Avatar } from "~/components/common/Avatar"
-import { TabButton } from "~/components/common/TabButton"
-import { type CitaEvent, getStatusVariant } from "~/components/dash/CitasTable"
-import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { FaRegCalendarCheck } from "react-icons/fa6"
+import { FiClock, FiPhone } from "react-icons/fi"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
 import { TbCalendarCancel, TbList } from "react-icons/tb"
-import { ReviewStar } from "~/components/icons/reviewStar"
+import { Form, Link, redirect } from "react-router"
+import { getUserOrNull } from "~/.server/userGetters"
+import { Avatar } from "~/components/common/Avatar"
+import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
+import { Pagination } from "~/components/common/Pagination"
+import { TabButton } from "~/components/common/TabButton"
+import {
+  EventHoverCard,
+  type EventHoverData,
+} from "~/components/dash/agenda/EventHoverCard"
+import { type CitaEvent, getStatusVariant } from "~/components/dash/CitasTable"
 import { Calendar2 } from "~/components/icons/calendar2"
-import { EventHoverCard, type EventHoverData } from "~/components/dash/agenda/EventHoverCard"
-import { FiClock, FiPhone } from "react-icons/fi"
 import { EditPen } from "~/components/icons/editPen"
-import { Trash } from "~/components/icons/trash"
 import { Mail } from "~/components/icons/mail"
 import { MapPin } from "~/components/icons/mapPin"
 import { Phone } from "~/components/icons/phone"
+import { ReviewStar } from "~/components/icons/reviewStar"
+import { Trash } from "~/components/icons/trash"
+import SelectStylized from "~/components/ui/select"
 import {
   getCustomerPortalData,
   type PortalLoyalty,
   type PortalOrgInfo,
   type PortalReview,
 } from "~/lib/customer-portal.server"
-import { Pagination } from "~/components/common/Pagination"
-import SelectStylized from "~/components/ui/select"
+import { destroySession, getSession } from "~/sessions"
 import type { Route } from "./+types/mi-cuenta.perfil"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -73,7 +76,9 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
     setActiveTab(tab)
   }
   const [orgFilter, setOrgFilter] = useState<string>("all")
-  const [upcomingView, setUpcomingView] = useState<"calendar" | "table">("calendar")
+  const [upcomingView, setUpcomingView] = useState<"calendar" | "table">(
+    "calendar",
+  )
   const [cellHeight, setCellHeight] = useState(64)
 
   useEffect(() => {
@@ -111,7 +116,7 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
   }, [data])
 
   const getOrgForEvent = (event: CitaEvent) =>
-    data ? orgById.get(data.eventOrgMap[event.id]) ?? null : null
+    data ? (orgById.get(data.eventOrgMap[event.id]) ?? null) : null
 
   const calendarEvents: CalendarEvent[] = useMemo(
     () =>
@@ -122,9 +127,10 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
         title: e.service?.name ?? "Cita",
         type: "EVENT" as const,
         service: e.service ? { name: e.service.name } : null,
-        color: e.status === "CONFIRMED" || e.status === "confirmed"
-          ? "#BFDD78"
-          : "#FFD75E",
+        color:
+          e.status === "CONFIRMED" || e.status === "confirmed"
+            ? "#BFDD78"
+            : "#FFD75E",
       })),
     [filteredUpcoming],
   )
@@ -135,7 +141,9 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
     const inject = () => {
       const el = calendarRef.current?.querySelector(".text-sm.text-gray-500")
       if (el) {
-        const short = new Intl.DateTimeFormat("es-MX", { timeZoneName: "short" })
+        const short = new Intl.DateTimeFormat("es-MX", {
+          timeZoneName: "short",
+        })
           .formatToParts(new Date())
           .find((p) => p.type === "timeZoneName")?.value
         el.textContent = short ?? ""
@@ -303,10 +311,14 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                     </div>
                     <div>
                       <div className="flex items-center justify-center gap-1">
-                        <span className="text-xl font-satoBold text-brand_dark">{data.stats.reviewCount}</span>
+                        <span className="text-xl font-satoBold text-brand_dark">
+                          {data.stats.reviewCount}
+                        </span>
                         <span className="text-brand_yellow">⭐</span>
                       </div>
-                      <p className="text-xs font-satoMedium text-brand_gray">reseñas</p>
+                      <p className="text-xs font-satoMedium text-brand_gray">
+                        reseñas
+                      </p>
                     </div>
                   </div>
                 </>
@@ -357,7 +369,9 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                   <div className="mb-4">
                     <p className="text-2xl font-satoBold text-brand_dark">
                       {data.stats.eventCount}{" "}
-                      <span>{data.stats.eventCount === 1 ? "cita" : "citas"}</span>
+                      <span>
+                        {data.stats.eventCount === 1 ? "cita" : "citas"}
+                      </span>
                     </p>
                     {data.stats.since && (
                       <p className="text-xs font-satoMedium text-brand_gray">
@@ -367,10 +381,14 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                   </div>
                   <div>
                     <div className="flex items-center gap-1">
-                      <span className="text-2xl font-satoBold text-brand_dark">{data.stats.reviewCount}</span>
+                      <span className="text-2xl font-satoBold text-brand_dark">
+                        {data.stats.reviewCount}
+                      </span>
                       <span className="text-brand_yellow">⭐</span>
                     </div>
-                    <p className="text-xs font-satoMedium text-brand_gray">reseñas</p>
+                    <p className="text-xs font-satoMedium text-brand_gray">
+                      reseñas
+                    </p>
                   </div>
                 </div>
               )}
@@ -394,36 +412,38 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
         {(activeTab === "upcoming" || activeTab === "history") && data && (
           <div className="mt-6 flex flex-wrap items-center gap-3">
             {/* Week controls */}
-            {activeTab === "upcoming" && upcomingView === "calendar" && filteredUpcoming.length > 0 && (
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={controls.goToToday}
-                  disabled={controls.isToday}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors shrink-0 ${
-                    controls.isToday
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-brand_dark text-white hover:bg-brand_dark/90"
-                  }`}
-                >
-                  Hoy
-                </button>
-                <button
-                  onClick={controls.goToPrev}
-                  className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <IoChevronBackOutline className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={controls.goToNext}
-                  className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  <IoChevronForward className="w-4 h-4" />
-                </button>
-                <span className="text-sm font-medium capitalize ml-1 truncate">
-                  {controls.label}
-                </span>
-              </div>
-            )}
+            {activeTab === "upcoming" &&
+              upcomingView === "calendar" &&
+              filteredUpcoming.length > 0 && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={controls.goToToday}
+                    disabled={controls.isToday}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors shrink-0 ${
+                      controls.isToday
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-brand_dark text-white hover:bg-brand_dark/90"
+                    }`}
+                  >
+                    Hoy
+                  </button>
+                  <button
+                    onClick={controls.goToPrev}
+                    className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <IoChevronBackOutline className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={controls.goToNext}
+                    className="p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                  >
+                    <IoChevronForward className="w-4 h-4" />
+                  </button>
+                  <span className="text-sm font-medium capitalize ml-1 truncate">
+                    {controls.label}
+                  </span>
+                </div>
+              )}
 
             {/* Select org filter */}
             {data.orgs.length > 1 &&
@@ -480,9 +500,15 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
 
         {/* Tab content */}
         <div className="mt-4 relative overflow-hidden">
-          {activeTab === "upcoming" && upcomingView === "calendar" && filteredUpcoming.length > 0 && (
-            <img src="/images/nik.svg" alt="calendar" className="w-16 h-16 absolute -top-14 left-1/2 hidden md:block" />
-          )}
+          {activeTab === "upcoming" &&
+            upcomingView === "calendar" &&
+            filteredUpcoming.length > 0 && (
+              <img
+                src="/images/nik.svg"
+                alt="calendar"
+                className="w-16 h-16 absolute -top-14 left-1/2 hidden md:block"
+              />
+            )}
           <AnimatePresence mode="wait" initial={false} custom={tabDirection}>
             <motion.div
               key={activeTab}
@@ -492,86 +518,113 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
               exit={{ opacity: 0, x: tabDirection * -60 }}
               transition={{ duration: 0.25, ease: "easeInOut" }}
             >
-          {!data ? (
-            <EmptyState />
-          ) : activeTab === "upcoming" ? (
-            filteredUpcoming.length === 0 ? (
-              <EmptyState />
-            ) : upcomingView === "calendar" ? (
-              <div ref={calendarRef} className="bg-white rounded-2xl overflow-hidden relative portal-calendar">
-                <Calendar
-                  events={calendarEvents}
-                  date={controls.date}
-                  config={{
-                    hoursStart: 8,
-                    hoursEnd: 21,
-                    cellHeight,
-                    locale: "es-MX",
-                    renderEvent: ({ event }) => {
-                      const full = eventsMap.get(event.id)
-                      const org = full ? getOrgForEvent(full) : null
-                      return (
-                        <div
-                          className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm cursor-pointer"
-                          style={{ backgroundColor: event.color || "#FFD75E" }}
-                          onClick={() => setSelectedEventId(event.id)}
-                          onMouseEnter={(e) =>
-                            handleEventMouseEnter(event.id, e.currentTarget.getBoundingClientRect())
-                          }
-                          onMouseLeave={handleEventMouseLeave}
-                        >
-                          <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
-                          <span className="font-medium truncate text-brand_dark">{event.title}</span>
-                          <span className="text-brand_gray truncate text-[10px]">{org?.name}</span>
-                        </div>
-                      )
-                    },
-                  }}
-                />
-                {/* Desktop hover card */}
-                {hoveredEventId && hoverRect && (() => {
-                  const full = eventsMap.get(hoveredEventId)
-                  if (!full) return null
-                  const hoverData = buildEventHoverData(full, getOrgForEvent(full))
-                  const showAbove = hoverRect.top > 320
-                  return (
-                    <div
-                      className="hidden lg:block fixed z-50"
-                      style={{
-                        top: showAbove ? hoverRect.top - 8 : hoverRect.bottom + 8,
-                        left: hoverRect.left,
-                        transform: showAbove ? "translateY(-100%)" : undefined,
+              {!data ? (
+                <EmptyState />
+              ) : activeTab === "upcoming" ? (
+                filteredUpcoming.length === 0 ? (
+                  <EmptyState />
+                ) : upcomingView === "calendar" ? (
+                  <div
+                    ref={calendarRef}
+                    className="bg-white rounded-2xl overflow-hidden relative portal-calendar"
+                  >
+                    <Calendar
+                      events={calendarEvents}
+                      date={controls.date}
+                      config={{
+                        hoursStart: 8,
+                        hoursEnd: 21,
+                        cellHeight,
+                        locale: "es-MX",
+                        renderEvent: ({ event }) => {
+                          const full = eventsMap.get(event.id)
+                          const org = full ? getOrgForEvent(full) : null
+                          return (
+                            <div
+                              className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm cursor-pointer"
+                              style={{
+                                backgroundColor: event.color || "#FFD75E",
+                              }}
+                              onClick={() => setSelectedEventId(event.id)}
+                              onMouseEnter={(e) =>
+                                handleEventMouseEnter(
+                                  event.id,
+                                  e.currentTarget.getBoundingClientRect(),
+                                )
+                              }
+                              onMouseLeave={handleEventMouseLeave}
+                            >
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
+                              <span className="font-medium truncate text-brand_dark">
+                                {event.title}
+                              </span>
+                              <span className="text-brand_gray truncate text-[10px]">
+                                {org?.name}
+                              </span>
+                            </div>
+                          )
+                        },
                       }}
-                      onMouseEnter={handlePopoverMouseEnter}
-                      onMouseLeave={handlePopoverMouseLeave}
-                    >
-                      <EventHoverCard
-                        data={hoverData}
-                        hidePayment
-                        onEdit={() => setHoveredEventId(null)}
-                        onDelete={() => setHoveredEventId(null)}
-                      />
-                    </div>
-                  )
-                })()}
-              </div>
-
-            ) : (
-              <PortalEventList events={filteredUpcoming} getOrg={getOrgForEvent} />
-            )
-          ) : activeTab === "history" ? (
-            filteredPast.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <PortalEventList events={filteredPast} getOrg={getOrgForEvent} isPast />
-            )
-          ) : activeTab === "comments" ? (
-            <CommentsTab reviews={data.reviews} orgs={data.orgs} />
-          ) : activeTab === "favorites" ? (
-            <FavoritesTab orgs={data.orgs} />
-          ) : activeTab === "loyalty" ? (
-            <LoyaltyTab loyalty={data.loyalty} />
-          ) : null}
+                    />
+                    {/* Desktop hover card */}
+                    {hoveredEventId &&
+                      hoverRect &&
+                      (() => {
+                        const full = eventsMap.get(hoveredEventId)
+                        if (!full) return null
+                        const hoverData = buildEventHoverData(
+                          full,
+                          getOrgForEvent(full),
+                        )
+                        const showAbove = hoverRect.top > 320
+                        return (
+                          <div
+                            className="hidden lg:block fixed z-50"
+                            style={{
+                              top: showAbove
+                                ? hoverRect.top - 8
+                                : hoverRect.bottom + 8,
+                              left: hoverRect.left,
+                              transform: showAbove
+                                ? "translateY(-100%)"
+                                : undefined,
+                            }}
+                            onMouseEnter={handlePopoverMouseEnter}
+                            onMouseLeave={handlePopoverMouseLeave}
+                          >
+                            <EventHoverCard
+                              data={hoverData}
+                              hidePayment
+                              onEdit={() => setHoveredEventId(null)}
+                              onDelete={() => setHoveredEventId(null)}
+                            />
+                          </div>
+                        )
+                      })()}
+                  </div>
+                ) : (
+                  <PortalEventList
+                    events={filteredUpcoming}
+                    getOrg={getOrgForEvent}
+                  />
+                )
+              ) : activeTab === "history" ? (
+                filteredPast.length === 0 ? (
+                  <EmptyState />
+                ) : (
+                  <PortalEventList
+                    events={filteredPast}
+                    getOrg={getOrgForEvent}
+                    isPast
+                  />
+                )
+              ) : activeTab === "comments" ? (
+                <CommentsTab reviews={data.reviews} orgs={data.orgs} />
+              ) : activeTab === "favorites" ? (
+                <FavoritesTab orgs={data.orgs} />
+              ) : activeTab === "loyalty" ? (
+                <LoyaltyTab loyalty={data.loyalty} />
+              ) : null}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -579,91 +632,94 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
 
       {/* Mobile bottom sheet for calendar event details */}
       <AnimatePresence>
-        {selectedEventId && (() => {
-          const full = eventsMap.get(selectedEventId)
-          if (!full) return null
-          const sheetData = buildEventHoverData(full, getOrgForEvent(full))
-          return (
-            <motion.div
-              key="event-sheet"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="lg:hidden fixed inset-0 bg-black/30 z-[60]"
-              onClick={() => setSelectedEventId(null)}
-            >
+        {selectedEventId &&
+          (() => {
+            const full = eventsMap.get(selectedEventId)
+            if (!full) return null
+            const sheetData = buildEventHoverData(full, getOrgForEvent(full))
+            return (
               <motion.div
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                exit={{ y: "100%" }}
-                drag="y"
-                dragConstraints={{ top: 0 }}
-                dragElastic={0.2}
-                onDragEnd={(_e, info) => {
-                  if (info.offset.y > 80 || info.velocity.y > 300) {
-                    setSelectedEventId(null)
-                  }
-                }}
-                transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
-                onClick={(e) => e.stopPropagation()}
-                className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl safe-bottom touch-none"
+                key="event-sheet"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="lg:hidden fixed inset-0 bg-black/30 z-[60]"
+                onClick={() => setSelectedEventId(null)}
               >
-                <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
-                  <div className="w-10 h-1 bg-gray-300 rounded-full" />
-                </div>
-                <div className="px-5 pb-6">
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <p className="font-satoBold text-brand_dark text-lg">
-                        {sheetData.customerName}
-                      </p>
-                      <p className="text-sm text-brand_gray">
-                        {sheetData.serviceName}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setSelectedEventId(null)}
-                        className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                      >
-                        <EditPen fill="#4B5563" className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => setSelectedEventId(null)}
-                        className="p-2 rounded-full hover:bg-red-50 transition-colors"
-                      >
-                        <Trash fill="#CA5757" className="w-5 h-5" />
-                      </button>
-                    </div>
+                <motion.div
+                  initial={{ y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={{ y: "100%" }}
+                  drag="y"
+                  dragConstraints={{ top: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(_e, info) => {
+                    if (info.offset.y > 80 || info.velocity.y > 300) {
+                      setSelectedEventId(null)
+                    }
+                  }}
+                  transition={{ type: "spring", bounce: 0.15, duration: 0.4 }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl safe-bottom touch-none"
+                >
+                  <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing">
+                    <div className="w-10 h-1 bg-gray-300 rounded-full" />
                   </div>
-
-                  {/* Details */}
-                  <div className="space-y-3 text-sm text-brand_gray">
-                    {sheetData.time && (
-                      <div className="flex items-center gap-3">
-                        <FiClock className="w-5 h-5 text-gray-400 shrink-0" />
-                        <span>{sheetData.time}</span>
+                  <div className="px-5 pb-6">
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <p className="font-satoBold text-brand_dark text-lg">
+                          {sheetData.customerName}
+                        </p>
+                        <p className="text-sm text-brand_gray">
+                          {sheetData.serviceName}
+                        </p>
                       </div>
-                    )}
-                    {sheetData.phone && (
-                      <div className="flex items-center gap-3">
-                        <FiPhone className="w-5 h-5 text-gray-400 shrink-0" />
-                        <span>{sheetData.phone}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setSelectedEventId(null)}
+                          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                        >
+                          <EditPen fill="#4B5563" className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => setSelectedEventId(null)}
+                          className="p-2 rounded-full hover:bg-red-50 transition-colors"
+                        >
+                          <Trash fill="#CA5757" className="w-5 h-5" />
+                        </button>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Status */}
-                  <div className="flex items-center gap-2 mt-4">
-                    <MobileStatusTag status={sheetData.status ?? "pending"} />
-                    <MobileStatusTag status={sheetData.paid ? "paid" : "unpaid"} />
+                    {/* Details */}
+                    <div className="space-y-3 text-sm text-brand_gray">
+                      {sheetData.time && (
+                        <div className="flex items-center gap-3">
+                          <FiClock className="w-5 h-5 text-gray-400 shrink-0" />
+                          <span>{sheetData.time}</span>
+                        </div>
+                      )}
+                      {sheetData.phone && (
+                        <div className="flex items-center gap-3">
+                          <FiPhone className="w-5 h-5 text-gray-400 shrink-0" />
+                          <span>{sheetData.phone}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Status */}
+                    <div className="flex items-center gap-2 mt-4">
+                      <MobileStatusTag status={sheetData.status ?? "pending"} />
+                      <MobileStatusTag
+                        status={sheetData.paid ? "paid" : "unpaid"}
+                      />
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          )
-        })()}
+            )
+          })()}
       </AnimatePresence>
     </div>
   )
@@ -693,7 +749,8 @@ function LoyaltyTab({ loyalty }: { loyalty: PortalLoyalty[] }) {
 function LoyaltyCard({ loyalty }: { loyalty: PortalLoyalty }) {
   const levelImage = loyalty.nextLevel?.image ?? loyalty.level?.image
   const levelName = loyalty.nextLevel?.name ?? loyalty.level?.name
-  const discount = loyalty.level?.discountPercent ?? loyalty.nextLevel?.discountPercent
+  const discount =
+    loyalty.level?.discountPercent ?? loyalty.nextLevel?.discountPercent
 
   return (
     <div>
@@ -719,9 +776,7 @@ function LoyaltyCard({ loyalty }: { loyalty: PortalLoyalty }) {
           </span>
         )}
         <span className="text-sm text-brand_gray font-satoMedium ml-auto">
-          {discount
-            ? `${discount}% desc`
-            : `${loyalty.points} puntos`}
+          {discount ? `${discount}% desc` : `${loyalty.points} puntos`}
         </span>
       </div>
     </div>
@@ -733,23 +788,58 @@ function LoyaltyCard({ loyalty }: { loyalty: PortalLoyalty }) {
 // ==================== MOBILE STATUS TAG ====================
 
 function MobileStatusTag({ status }: { status: string }) {
-  const styles: Record<string, { bg: string; text: string; label: string; icon: string }> = {
-    confirmed: { bg: "bg-[#effbd0]", text: "text-[#4f7222]", label: "Confirmada", icon: "🔔" },
-    canceled: { bg: "bg-[#f9e7eb]", text: "text-[#ab4265]", label: "Cancelada", icon: "🚫" },
-    paid: { bg: "bg-[#d5faf1]", text: "text-[#2a645f]", label: "Pagada", icon: "💸" },
-    unpaid: { bg: "bg-[#eef9fd]", text: "text-[#276297]", label: "Sin pagar", icon: "💰" },
-    pending: { bg: "bg-[#fff8e1]", text: "text-[#8b6914]", label: "Reservada", icon: "📣" },
+  const styles: Record<
+    string,
+    { bg: string; text: string; label: string; icon: string }
+  > = {
+    confirmed: {
+      bg: "bg-[#effbd0]",
+      text: "text-[#4f7222]",
+      label: "Confirmada",
+      icon: "🔔",
+    },
+    canceled: {
+      bg: "bg-[#f9e7eb]",
+      text: "text-[#ab4265]",
+      label: "Cancelada",
+      icon: "🚫",
+    },
+    paid: {
+      bg: "bg-[#d5faf1]",
+      text: "text-[#2a645f]",
+      label: "Pagada",
+      icon: "💸",
+    },
+    unpaid: {
+      bg: "bg-[#eef9fd]",
+      text: "text-[#276297]",
+      label: "Sin pagar",
+      icon: "💰",
+    },
+    pending: {
+      bg: "bg-[#fff8e1]",
+      text: "text-[#8b6914]",
+      label: "Reservada",
+      icon: "📣",
+    },
   }
   const variant =
-    status === "CANCELLED" || status === "canceled" ? "canceled"
-    : status === "CONFIRMED" || status === "confirmed" || status === "ACTIVE" ? "confirmed"
-    : status === "paid" ? "paid"
-    : status === "unpaid" ? "unpaid"
-    : "pending"
+    status === "CANCELLED" || status === "canceled"
+      ? "canceled"
+      : status === "CONFIRMED" || status === "confirmed" || status === "ACTIVE"
+        ? "confirmed"
+        : status === "paid"
+          ? "paid"
+          : status === "unpaid"
+            ? "unpaid"
+            : "pending"
   const s = styles[variant]
   return (
-    <span className={`${s.bg} ${s.text} inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-satoMedium`}>
-      <span>{s.icon}</span>{s.label}
+    <span
+      className={`${s.bg} ${s.text} inline-flex items-center gap-1 px-3 py-1 rounded-lg text-sm font-satoMedium`}
+    >
+      <span>{s.icon}</span>
+      {s.label}
     </span>
   )
 }
@@ -778,11 +868,36 @@ function buildEventHoverData(
 // ==================== PORTAL EVENTS TABLE ====================
 
 const STATUS_STYLES = {
-  confirmed: { bg: "bg-[#effbd0]", text: "text-[#4f7222]", label: "Confirmada", icon: "🔔" },
-  canceled: { bg: "bg-[#f9e7eb]", text: "text-[#ab4265]", label: "Cancelada", icon: "🚫" },
-  paid: { bg: "bg-[#d5faf1]", text: "text-[#2a645f]", label: "Pagada", icon: "💸" },
-  unpaid: { bg: "bg-[#eef9fd]", text: "text-[#276297]", label: "Sin pagar", icon: "💰" },
-  pending: { bg: "bg-[#fff8e1]", text: "text-[#8b6914]", label: "Reservada", icon: "📣" },
+  confirmed: {
+    bg: "bg-[#effbd0]",
+    text: "text-[#4f7222]",
+    label: "Confirmada",
+    icon: "🔔",
+  },
+  canceled: {
+    bg: "bg-[#f9e7eb]",
+    text: "text-[#ab4265]",
+    label: "Cancelada",
+    icon: "🚫",
+  },
+  paid: {
+    bg: "bg-[#d5faf1]",
+    text: "text-[#2a645f]",
+    label: "Pagada",
+    icon: "💸",
+  },
+  unpaid: {
+    bg: "bg-[#eef9fd]",
+    text: "text-[#276297]",
+    label: "Sin pagar",
+    icon: "💰",
+  },
+  pending: {
+    bg: "bg-[#fff8e1]",
+    text: "text-[#8b6914]",
+    label: "Reservada",
+    icon: "📣",
+  },
 } as const
 
 type StatusVariant = keyof typeof STATUS_STYLES
@@ -1029,7 +1144,13 @@ function PortalEventCardMobile({
 
 // ==================== EVENT ACTIONS ====================
 
-function EventActions({ isPast, eventId }: { isPast?: boolean; eventId?: string }) {
+function EventActions({
+  isPast,
+  eventId,
+}: {
+  isPast?: boolean
+  eventId?: string
+}) {
   if (isPast && eventId) {
     return (
       <Link
@@ -1043,10 +1164,7 @@ function EventActions({ isPast, eventId }: { isPast?: boolean; eventId?: string 
   }
   return (
     <DropdownMenu hideDefaultButton>
-      <MenuButton
-        icon={<FaRegCalendarCheck />}
-        variant="default"
-      >
+      <MenuButton icon={<FaRegCalendarCheck />} variant="default">
         Reagendar
       </MenuButton>
       <MenuButton
@@ -1184,10 +1302,7 @@ function ReviewCard({
             </p>
           </div>
           <DropdownMenu hideDefaultButton>
-            <MenuButton
-              icon={<Trash />}
-              variant="danger"
-            >
+            <MenuButton icon={<Trash />} variant="danger">
               Eliminar
             </MenuButton>
           </DropdownMenu>
@@ -1195,26 +1310,26 @@ function ReviewCard({
 
         {/* Stars */}
         <div className="flex gap-1 mt-3">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <svg
-            key={star}
-            width={16}
-            height={16}
-            viewBox="0 0 24 24"
-            fill={star <= review.rating ? "#F5A623" : "#E5E7EB"}
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-          </svg>
-        ))}
-      </div>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <svg
+              key={star}
+              width={16}
+              height={16}
+              viewBox="0 0 24 24"
+              fill={star <= review.rating ? "#F5A623" : "#E5E7EB"}
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+            </svg>
+          ))}
+        </div>
 
-      {/* Comment */}
-      {review.comment && (
-        <p className="mt-3 text-sm text-brand_gray font-satoMedium leading-relaxed">
-          {review.comment}
-        </p>
-      )}
+        {/* Comment */}
+        {review.comment && (
+          <p className="mt-3 text-sm text-brand_gray font-satoMedium leading-relaxed">
+            {review.comment}
+          </p>
+        )}
       </div>
     </div>
   )

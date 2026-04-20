@@ -37,7 +37,10 @@ export async function cancelEventFully({
     try {
       await cancelMeetEvent(org, event.calendarEventId)
     } catch (e) {
-      console.error("[cancelEventFully] Meet cancel failed:", e instanceof Error ? e.message : e)
+      console.error(
+        "[cancelEventFully] Meet cancel failed:",
+        e instanceof Error ? e.message : e,
+      )
     }
   }
 
@@ -45,14 +48,20 @@ export async function cancelEventFully({
     try {
       await cancelZoomMeeting(org, event.zoomMeetingId)
     } catch (e) {
-      console.error("[cancelEventFully] Zoom cancel failed:", e instanceof Error ? e.message : e)
+      console.error(
+        "[cancelEventFully] Zoom cancel failed:",
+        e instanceof Error ? e.message : e,
+      )
     }
   }
 
   try {
     await cancelEventJobs(eventId)
   } catch (e) {
-    console.error("[cancelEventFully] jobs cancel failed:", e instanceof Error ? e.message : e)
+    console.error(
+      "[cancelEventFully] jobs cancel failed:",
+      e instanceof Error ? e.message : e,
+    )
   }
 
   return db.event.update({

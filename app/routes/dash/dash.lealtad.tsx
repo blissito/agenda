@@ -2,6 +2,14 @@
 import { useState } from "react"
 import { useLoaderData, useRevalidator, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { PrimaryButton } from "~/components/common/primaryButton"
+import { CuponesTab } from "~/components/loyalty/loyaltycupones"
+import {
+  CreateLevelWizard,
+  EmptyStateLoyalty,
+  NivelesTab,
+  TabButton,
+} from "~/components/loyalty/loyaltyStep"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import {
   getAllRewards,
@@ -11,14 +19,6 @@ import {
 } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.lealtad"
-import {
-  EmptyStateLoyalty,
-  CreateLevelWizard,
-  TabButton,
-  NivelesTab,
-} from "~/components/loyalty/loyaltyStep"
-import { CuponesTab } from "~/components/loyalty/loyaltycupones"
-import { PrimaryButton } from "~/components/common/primaryButton"
 
 // ==================== TYPES ====================
 
@@ -114,7 +114,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
 // ==================== COMPONENT ====================
 
-
 export default function Lealtad() {
   const data = useLoaderData<typeof loader>()
   const revalidator = useRevalidator()
@@ -128,7 +127,9 @@ export default function Lealtad() {
   if (shouldShowEmptyState) {
     return (
       <main className="max-w-8xl mx-auto">
-        <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">Lealtad</RouteTitle>
+        <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">
+          Lealtad
+        </RouteTitle>
 
         <EmptyStateLoyalty onStart={() => setIsCreateWizardOpen(true)} />
 
@@ -163,7 +164,9 @@ export default function Lealtad() {
 
   return (
     <main className="max-w-8xl mx-auto">
-      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">Lealtad</RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">
+        Lealtad
+      </RouteTitle>
 
       <div className="mt-4 flex flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-6">
@@ -180,16 +183,16 @@ export default function Lealtad() {
         </div>
 
         {activeTab === "niveles" && (
-  <div className="flex items-center gap-3">
-    <PrimaryButton
-      type="button"
-      onClick={() => setIsCreateWizardOpen(true)}
-      className="h-10 px-5 text-sm"
-    >
-      + Agregar nivel
-    </PrimaryButton>
-  </div>
-)}
+          <div className="flex items-center gap-3">
+            <PrimaryButton
+              type="button"
+              onClick={() => setIsCreateWizardOpen(true)}
+              className="h-10 px-5 text-sm"
+            >
+              + Agregar nivel
+            </PrimaryButton>
+          </div>
+        )}
         {activeTab === "cupones" && rewards.length > 0 && (
           <div className="flex items-center gap-3">
             <PrimaryButton

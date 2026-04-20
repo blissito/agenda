@@ -1,31 +1,31 @@
-import { useEffect, useRef, useState } from "react";
-import type { LoaderFunctionArgs } from "react-router";
-import { useFetcher, useLoaderData } from "react-router";
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters";
-import { db } from "~/utils/db.server";
-import { getMessagesSince } from "~/lib/nanoclaw.server";
+import { useEffect, useRef, useState } from "react"
+import type { LoaderFunctionArgs } from "react-router"
+import { useFetcher, useLoaderData } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { getMessagesSince } from "~/lib/nanoclaw.server"
+import { db } from "~/utils/db.server"
 
 type Msg = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  status?: string | null;
-  createdAt: string;
-};
+  id: string
+  role: "user" | "assistant"
+  content: string
+  status?: string | null
+  createdAt: string
+}
 
 const SUGGESTIONS: { icon: string; text: string }[] = [
   { icon: "📅", text: "¿Qué citas tengo hoy?" },
   { icon: "💰", text: "Resume mis ventas de la semana" },
   { icon: "🔔", text: "Recuérdame mis próximos pendientes" },
-];
+]
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request);
-  if (!org) throw new Response("Org not found", { status: 404 });
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Response("Org not found", { status: 404 })
 
   // Auto-limpiar pending stale (>2min): si Nanoclaw no respondió en ese
   // tiempo, el mensaje está huérfano — mejor borrarlo que mostrar duplicados.
-  const staleThreshold = new Date(Date.now() - 2 * 60 * 1000);
+  const staleThreshold = new Date(Date.now() - 2 * 60 * 1000)
   await db.assistantMessage.deleteMany({
     where: {
       orgId: org.id,
@@ -33,11 +33,11 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       status: "pending",
       createdAt: { lt: staleThreshold },
     },
-  });
+  })
 
-  const messages = await getMessagesSince(org.id);
-  const host = request.headers.get("host") ?? "";
-  const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1");
+  const messages = await getMessagesSince(org.id)
+  const host = request.headers.get("host") ?? ""
+  const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1")
   const link = await db.whatsAppLink.findFirst({
     where: {
       orgId: org.id,
@@ -45,47 +45,47 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     },
     orderBy: { createdAt: "desc" },
     select: { status: true, inviteUrl: true, groupJid: true },
-  });
-  return { initialMessages: messages, isLocalhost, link };
-};
+  })
+  return { initialMessages: messages, isLocalhost, link }
+}
 
 export default function AsistenteIA() {
-  const { initialMessages, isLocalhost, link } = useLoaderData<typeof loader>();
+  const { initialMessages, isLocalhost, link } = useLoaderData<typeof loader>()
   const [messages, setMessages] = useState<Msg[]>(
     initialMessages.map((m: any) => ({ ...m, createdAt: String(m.createdAt) })),
-  );
-  const [input, setInput] = useState("");
-  const sendFetcher = useFetcher();
-  const pollFetcher = useFetcher<{ messages: Msg[] }>();
-  const bottomRef = useRef<HTMLDivElement>(null);
+  )
+  const [input, setInput] = useState("")
+  const sendFetcher = useFetcher()
+  const pollFetcher = useFetcher<{ messages: Msg[] }>()
+  const bottomRef = useRef<HTMLDivElement>(null)
 
   const waitingAssistant =
     !isLocalhost &&
-    messages.some((m) => m.role === "user" && m.status === "pending");
+    messages.some((m) => m.role === "user" && m.status === "pending")
 
   // Polling a 1s mientras haya mensaje pendiente (nunca en localhost)
   useEffect(() => {
-    if (!waitingAssistant || isLocalhost) return;
+    if (!waitingAssistant || isLocalhost) return
     const id = setInterval(() => {
-      const last = messages[messages.length - 1];
-      const since = last ? new Date(last.createdAt).toISOString() : "";
-      pollFetcher.load(`/api/asistente?since=${encodeURIComponent(since)}`);
-    }, 1000);
-    return () => clearInterval(id);
-  }, [waitingAssistant, messages]);
+      const last = messages[messages.length - 1]
+      const since = last ? new Date(last.createdAt).toISOString() : ""
+      pollFetcher.load(`/api/asistente?since=${encodeURIComponent(since)}`)
+    }, 1000)
+    return () => clearInterval(id)
+  }, [waitingAssistant, messages])
 
   useEffect(() => {
-    const fetched = pollFetcher.data?.messages;
-    if (!fetched?.length) return;
+    const fetched = pollFetcher.data?.messages
+    if (!fetched?.length) return
     setMessages((prev) => {
-      const ids = new Set(prev.map((m) => m.id));
+      const ids = new Set(prev.map((m) => m.id))
       const incoming = fetched
         .filter((m: any) => !ids.has(m.id))
-        .map((m: any) => ({ ...m, createdAt: String(m.createdAt) }));
-      if (!incoming.length) return prev;
+        .map((m: any) => ({ ...m, createdAt: String(m.createdAt) }))
+      if (!incoming.length) return prev
       // Reemplazar optimistic (tmp_*) por el real cuando llega del server
-      const incomingUser = incoming.filter((m) => m.role === "user");
-      const hasAssistant = incoming.some((m) => m.role === "assistant");
+      const incomingUser = incoming.filter((m) => m.role === "user")
+      const hasAssistant = incoming.some((m) => m.role === "assistant")
       const next = prev
         .filter(
           (m) =>
@@ -98,19 +98,19 @@ export default function AsistenteIA() {
           hasAssistant && m.role === "user" && m.status === "pending"
             ? { ...m, status: "delivered" }
             : m,
-        );
-      return [...next, ...incoming];
-    });
-  }, [pollFetcher.data]);
+        )
+      return [...next, ...incoming]
+    })
+  }, [pollFetcher.data])
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length, waitingAssistant]);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages.length, waitingAssistant])
 
   useEffect(() => {
     if (sendFetcher.state === "submitting" && sendFetcher.formData) {
-      const content = String(sendFetcher.formData.get("content") || "");
-      if (!content) return;
+      const content = String(sendFetcher.formData.get("content") || "")
+      if (!content) return
       setMessages((prev) => [
         ...prev,
         {
@@ -120,35 +120,35 @@ export default function AsistenteIA() {
           status: "pending",
           createdAt: new Date().toISOString(),
         },
-      ]);
+      ])
     }
-  }, [sendFetcher.state]);
+  }, [sendFetcher.state])
 
   const submit = (content: string) => {
-    const trimmed = content.trim();
-    if (!trimmed) return;
-    const fd = new FormData();
-    fd.set("intent", "send");
-    fd.set("content", trimmed);
-    sendFetcher.submit(fd, { method: "post", action: "/api/asistente" });
-    setInput("");
-  };
+    const trimmed = content.trim()
+    if (!trimmed) return
+    const fd = new FormData()
+    fd.set("intent", "send")
+    fd.set("content", trimmed)
+    sendFetcher.submit(fd, { method: "post", action: "/api/asistente" })
+    setInput("")
+  }
 
   const onSend = (e: React.FormEvent) => {
-    e.preventDefault();
-    submit(input);
-  };
+    e.preventDefault()
+    submit(input)
+  }
 
-  const isEmpty = messages.length === 0;
+  const isEmpty = messages.length === 0
 
   const onReset = () => {
-    if (!confirm("¿Borrar toda la conversación?")) return;
-    const fd = new FormData();
-    fd.set("intent", "reset");
+    if (!confirm("¿Borrar toda la conversación?")) return
+    const fd = new FormData()
+    fd.set("intent", "reset")
     fetch("/api/asistente", { method: "POST", body: fd }).then(() => {
-      setMessages([]);
-    });
-  };
+      setMessages([])
+    })
+  }
 
   return (
     <main className="flex flex-col h-[calc(100vh-5rem)] max-w-3xl mx-auto px-6 pt-4 gap-4 min-h-0">
@@ -177,8 +177,11 @@ export default function AsistenteIA() {
 
       {isLocalhost && (
         <div className="rounded-2xl bg-brand_cloud/20 border border-brand_cloud/30 px-4 py-3 text-sm text-brand_gray font-satoMedium">
-          <span className="font-satoBold">Asistente no disponible en localhost.</span>{" "}
-          Esta función requiere el droplet de Nanoclaw en producción. Pruébala en{" "}
+          <span className="font-satoBold">
+            Asistente no disponible en localhost.
+          </span>{" "}
+          Esta función requiere el droplet de Nanoclaw en producción. Pruébala
+          en{" "}
           <a
             href="https://www.denik.me/dash/asistente"
             className="underline hover:text-amber-700"
@@ -251,7 +254,9 @@ export default function AsistenteIA() {
         />
         <button
           type="submit"
-          disabled={isLocalhost || !input.trim() || sendFetcher.state !== "idle"}
+          disabled={
+            isLocalhost || !input.trim() || sendFetcher.state !== "idle"
+          }
           className="w-10 h-10 rounded-full bg-brand_blue text-white flex items-center justify-center disabled:opacity-40 transition hover:-translate-y-0.5 active:translate-y-0"
           aria-label="Enviar"
         >
@@ -259,7 +264,7 @@ export default function AsistenteIA() {
         </button>
       </form>
     </main>
-  );
+  )
 }
 
 const TypingDots = () => (
@@ -272,7 +277,7 @@ const TypingDots = () => (
       />
     ))}
   </div>
-);
+)
 
 const SendIcon = () => (
   <svg
@@ -288,52 +293,52 @@ const SendIcon = () => (
     <path d="M22 2 11 13" />
     <path d="M22 2l-7 20-4-9-9-4z" />
   </svg>
-);
+)
 
 type LinkData = {
-  status: string | null;
-  inviteUrl: string | null;
-  groupJid: string | null;
-};
+  status: string | null
+  inviteUrl: string | null
+  groupJid: string | null
+}
 
 function NikGroupButton({ initialLink }: { initialLink: LinkData | null }) {
-  const [link, setLink] = useState<LinkData | null>(initialLink);
-  const [loading, setLoading] = useState(false);
-  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [link, setLink] = useState<LinkData | null>(initialLink)
+  const [loading, setLoading] = useState(false)
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Polling mientras está en pending
   useEffect(() => {
     if (link?.status !== "pending") {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-      return;
+      if (pollingRef.current) clearInterval(pollingRef.current)
+      return
     }
     pollingRef.current = setInterval(async () => {
       try {
-        const res = await fetch("/api/whatsapp/link");
-        if (!res.ok) return;
-        const data = (await res.json()) as LinkData;
-        if (data.status && data.status !== "pending") setLink(data);
+        const res = await fetch("/api/whatsapp/link")
+        if (!res.ok) return
+        const data = (await res.json()) as LinkData
+        if (data.status && data.status !== "pending") setLink(data)
       } catch {}
-    }, 2000);
+    }, 2000)
     return () => {
-      if (pollingRef.current) clearInterval(pollingRef.current);
-    };
-  }, [link?.status]);
+      if (pollingRef.current) clearInterval(pollingRef.current)
+    }
+  }, [link?.status])
 
   const create = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const res = await fetch("/api/whatsapp/link", { method: "POST" });
-      const data = (await res.json()) as LinkData & { error?: string };
+      const res = await fetch("/api/whatsapp/link", { method: "POST" })
+      const data = (await res.json()) as LinkData & { error?: string }
       if (data.error) {
-        alert(data.error);
-        return;
+        alert(data.error)
+        return
       }
-      setLink(data);
+      setLink(data)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Fase 3: provisionado/activo — botón para unirse
   if (link?.inviteUrl) {
@@ -347,7 +352,7 @@ function NikGroupButton({ initialLink }: { initialLink: LinkData | null }) {
         <span className="w-2 h-2 rounded-full bg-white" />
         Hablar por WhatsApp
       </a>
-    );
+    )
   }
 
   // Fase 2: pending
@@ -357,7 +362,7 @@ function NikGroupButton({ initialLink }: { initialLink: LinkData | null }) {
         <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
         Conectando WhatsApp…
       </div>
-    );
+    )
   }
 
   // Fase 1: sin link
@@ -370,12 +375,12 @@ function NikGroupButton({ initialLink }: { initialLink: LinkData | null }) {
       <span className="w-2 h-2 rounded-full bg-[#25D366]" />
       {loading ? "Conectando…" : "Conectar WhatsApp"}
     </button>
-  );
+  )
 }
 
-function WhatsAppChip() {
-  const [open, setOpen] = useState(false);
-  const phone = "5217712412825";
+function _WhatsAppChip() {
+  const [open, setOpen] = useState(false)
+  const phone = "5217712412825"
   return (
     <div className="relative">
       <button
@@ -404,5 +409,5 @@ function WhatsAppChip() {
         </div>
       )}
     </div>
-  );
+  )
 }

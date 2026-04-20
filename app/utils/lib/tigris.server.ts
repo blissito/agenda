@@ -115,7 +115,11 @@ export const removeFileUrl = async (key: string) => {
   )
 }
 
-export const uploadFileToTigris = async (key: string, body: Buffer | Uint8Array, contentType: string) => {
+export const uploadFileToTigris = async (
+  key: string,
+  body: Buffer | Uint8Array,
+  contentType: string,
+) => {
   const fullKey = key.startsWith("denik/") ? key : `denik/${key}`
   await getS3Client().send(
     new PutObjectCommand({

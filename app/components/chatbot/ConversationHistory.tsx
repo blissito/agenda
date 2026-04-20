@@ -6,19 +6,20 @@
  * @date 2026-04-08
  */
 
-import React, { useState, useCallback, useMemo, useEffect } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useFetcher } from "react-router"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
 import {
   ParticleLayer,
   playBurstSound,
   useParticleBurst,
 } from "~/components/common/ParticleBurst"
-import { ConfirmModal } from "~/components/common/ConfirmModal"
-import { Trash } from "~/components/icons/trash"
-import { Download } from "~/components/icons/download"
-import { ClientFace } from "~/components/icons/clientFace"
 import { Tooltip } from "~/components/common/Tooltip"
+import { ClientFace } from "~/components/icons/clientFace"
+import { Download } from "~/components/icons/download"
+import { Trash } from "~/components/icons/trash"
+
 interface Conversation {
   id: string
   name?: string
@@ -54,7 +55,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   onSearch,
   searchQuery,
 }) => {
-  const fetcher = useFetcher()
+  const _fetcher = useFetcher()
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
   // Reescribe nombres genéricos del proveedor (ej. "SDA User 1", "SDK User 1",
@@ -101,9 +102,12 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }, [selectedConversation, messages, displayName])
 
   // Función para manejar la búsqueda de manera eficiente
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onSearch(e.target.value)
-  }, [onSearch])
+  const _handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      onSearch(e.target.value)
+    },
+    [onSearch],
+  )
 
   // Memoizar la lista filtrada para evitar recálculos innecesarios
   const filteredConversations = useMemo(() => {
@@ -114,12 +118,17 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
   }, [conversations, searchQuery, displayName])
 
   // Manejador de click en la conversación
-  const handleConversationClick = useCallback(async (id: string) => {
-    await onSelectConversation(id)
-  }, [onSelectConversation])
+  const handleConversationClick = useCallback(
+    async (id: string) => {
+      await onSelectConversation(id)
+    },
+    [onSelectConversation],
+  )
 
   // Renderizado de una sola tarjeta de conversación
-  const ConversationCard: React.FC<{ conversation: any }> = ({ conversation }) => {
+  const ConversationCard: React.FC<{ conversation: any }> = ({
+    conversation,
+  }) => {
     const { id, sessionId, isFavorite } = conversation
     const name = displayName(conversation)
     const { particles, burst } = useParticleBurst({ count: 10 })
@@ -148,7 +157,11 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               {name}
             </p>
             {isFavorite && (
-              <svg className="w-3 h-3 text-brand_blue flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-3 h-3 text-brand_blue flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             )}
@@ -199,8 +212,18 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             className="lg:hidden w-9 h-9 flex items-center justify-center rounded-full text-brand_gray hover:bg-gray-100 flex-shrink-0"
             aria-label="Cerrar"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
           <div className="w-9 h-9 rounded-full overflow-hidden bg-brand_blue/10 flex-shrink-0">
@@ -242,14 +265,19 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
 
       <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-3">
         {isLoadingMessages ? (
-          <div className="text-center p-8 text-brand_gray">Cargando mensajes...</div>
+          <div className="text-center p-8 text-brand_gray">
+            Cargando mensajes...
+          </div>
         ) : messages.length > 0 ? (
           messages.map((msg: any, i: number) => {
             const isUser = msg.role === "user"
             const text = msg.content || msg.text || ""
             if (!text) return null
             return (
-              <div key={msg.id || i} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+              <div
+                key={msg.id || i}
+                className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+              >
                 <div
                   className={`px-4 py-2.5 rounded-2xl text-sm max-w-[75%] shadow-sm ${
                     isUser
@@ -259,8 +287,13 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
                 >
                   <p className="whitespace-pre-wrap break-words">{text}</p>
                   {msg.createdAt && (
-                    <p className={`text-[10px] mt-1 ${isUser ? "text-white/60" : "text-gray-400"}`}>
-                      {new Date(msg.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                    <p
+                      className={`text-[10px] mt-1 ${isUser ? "text-white/60" : "text-gray-400"}`}
+                    >
+                      {new Date(msg.createdAt).toLocaleTimeString("es-MX", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   )}
                 </div>
@@ -268,7 +301,9 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             )
           })
         ) : (
-          <div className="text-center p-8 text-brand_gray text-sm">Sin mensajes</div>
+          <div className="text-center p-8 text-brand_gray text-sm">
+            Sin mensajes
+          </div>
         )}
       </div>
     </>
@@ -287,7 +322,10 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             <div className="text-center p-8 text-brand_gray">Cargando...</div>
           ) : filteredConversations.length > 0 ? (
             filteredConversations.map((conversation) => (
-              <ConversationCard key={conversation.id} conversation={conversation} />
+              <ConversationCard
+                key={conversation.id}
+                conversation={conversation}
+              />
             ))
           ) : (
             <div className="text-center p-8 text-brand_gray text-sm">
@@ -319,12 +357,15 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
       </div>
 
       {/* Mobile bottom sheet portal */}
-      {sheetMounted && typeof document !== "undefined" &&
+      {sheetMounted &&
+        typeof document !== "undefined" &&
         createPortal(
           <div className="lg:hidden fixed inset-0" style={{ zIndex: 100 }}>
             <div
               className={`absolute inset-0 bg-black transition-opacity ease-out ${
-                sheetVisible ? "opacity-50 duration-[400ms]" : "opacity-0 duration-[220ms]"
+                sheetVisible
+                  ? "opacity-50 duration-[400ms]"
+                  : "opacity-0 duration-[220ms]"
               }`}
               onClick={() => onSelectConversation("")}
             />

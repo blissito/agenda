@@ -1,8 +1,4 @@
-export const ClientFace = ({
-  className,
-}: {
-  className?: string
-}) => (
+export const ClientFace = ({ className }: { className?: string }) => (
   <svg
     className={className}
     viewBox="0 0 77 77"

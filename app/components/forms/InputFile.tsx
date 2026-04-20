@@ -7,8 +7,8 @@ import {
   useState,
 } from "react"
 import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
-import { FaRegTrashCan } from "react-icons/fa6"
 import { BsThreeDotsVertical } from "react-icons/bs"
+import { FaRegTrashCan } from "react-icons/fa6"
 import { twMerge } from "tailwind-merge"
 
 type Props = {
@@ -118,9 +118,7 @@ export const InputFile = ({
   return (
     <div className={twMerge("mb-8", containerClassName)}>
       {title && <p className="text-brand_dark font-satoMiddle">{title}</p>}
-      {description && (
-        <p className="text-brand_gray text-sm">{description}</p>
-      )}
+      {description && <p className="text-brand_gray text-sm">{description}</p>}
 
       <div
         onDrop={handleDragEnd}

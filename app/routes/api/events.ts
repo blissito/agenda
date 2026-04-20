@@ -21,8 +21,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     }
     const eventId = (formData.get("eventId") as string) || ""
     const raw = formData.get("attended") as string | null
-    const attended =
-      raw === "true" ? true : raw === "false" ? false : null
+    const attended = raw === "true" ? true : raw === "false" ? false : null
     if (!eventId) {
       return Response.json({ error: "eventId requerido" }, { status: 400 })
     }
@@ -169,32 +168,63 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
       if (service && fullCustomer && provider === "meet") {
         try {
-          const { meetingLink, calendarEventId, calendarHtmlLink } = await createMeetLink({
-            org, event, service, customer: fullCustomer,
-          })
+          const { meetingLink, calendarEventId, calendarHtmlLink } =
+            await createMeetLink({
+              org,
+              event,
+              service,
+              customer: fullCustomer,
+            })
           await db.event.update({
             where: { id: event.id },
-            data: { meetingLink, calendarEventId, calendarHtmlLink, videoProvider: "meet" },
+            data: {
+              meetingLink,
+              calendarEventId,
+              calendarHtmlLink,
+              videoProvider: "meet",
+            },
           })
         } catch (e) {
-          console.error("[Meet] creation failed:", e instanceof Error ? e.message : e)
-          await db.event.update({ where: { id: event.id }, data: { videoProvider: "none" } })
+          console.error(
+            "[Meet] creation failed:",
+            e instanceof Error ? e.message : e,
+          )
+          await db.event.update({
+            where: { id: event.id },
+            data: { videoProvider: "none" },
+          })
         }
       } else if (service && fullCustomer && provider === "zoom") {
         try {
           const { meetingLink, meetingId } = await createZoomMeeting({
-            org, event, service, customer: fullCustomer,
+            org,
+            event,
+            service,
+            customer: fullCustomer,
           })
           await db.event.update({
             where: { id: event.id },
-            data: { meetingLink, zoomMeetingId: meetingId, videoProvider: "zoom" },
+            data: {
+              meetingLink,
+              zoomMeetingId: meetingId,
+              videoProvider: "zoom",
+            },
           })
         } catch (e) {
-          console.error("[Zoom] creation failed:", e instanceof Error ? e.message : e)
-          await db.event.update({ where: { id: event.id }, data: { videoProvider: "none" } })
+          console.error(
+            "[Zoom] creation failed:",
+            e instanceof Error ? e.message : e,
+          )
+          await db.event.update({
+            where: { id: event.id },
+            data: { videoProvider: "none" },
+          })
         }
       } else {
-        await db.event.update({ where: { id: event.id }, data: { videoProvider: "none" } })
+        await db.event.update({
+          where: { id: event.id },
+          data: { videoProvider: "none" },
+        })
       }
     }
 

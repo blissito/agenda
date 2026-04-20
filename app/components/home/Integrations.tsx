@@ -6,7 +6,10 @@ const INTEGRATIONS = [
   { name: "Formmy", logo: "https://www.formmy.app/dash/logo-full.svg" },
   { name: "MercadoPago", logo: "/images/illustrations/mp.svg" },
   { name: "Stripe", logo: "/images/integrations/stripe.svg" },
-  { name: "AWS", logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" },
+  {
+    name: "AWS",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg",
+  },
 ]
 
 export const Integrations = () => (
@@ -33,10 +36,12 @@ export const Integrations = () => (
           key={item.name}
           className="integration-orbit w-20 h-20 md:w-28 md:h-28 rounded-full bg-white shadow-md border border-brand_pale flex items-center justify-center p-4 md:p-5 hover:scale-110 transition-transform"
           title={item.name}
-          style={{
-            "--orbit-duration": `${4 + (i % 3)}s`,
-            "--orbit-delay": `${i * 0.4}s`,
-          } as React.CSSProperties}
+          style={
+            {
+              "--orbit-duration": `${4 + (i % 3)}s`,
+              "--orbit-delay": `${i * 0.4}s`,
+            } as React.CSSProperties
+          }
         >
           <img
             src={item.logo}

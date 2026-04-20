@@ -145,9 +145,9 @@ const Info = () => {
                 Funcionalidades de IA:
               </strong>{" "}
               herramientas dentro de la Plataforma que utilizan modelos de
-              inteligencia artificial de terceros para generar contenido
-              (texto, imágenes, diseño y código HTML) a partir de
-              instrucciones del Negocio.
+              inteligencia artificial de terceros para generar contenido (texto,
+              imágenes, diseño y código HTML) a partir de instrucciones del
+              Negocio.
             </p>
             <p>
               <strong className="font-satoMiddle">
@@ -159,8 +159,8 @@ const Info = () => {
             <p>
               <strong className="font-satoMiddle">Proveedores de IA:</strong>{" "}
               terceros que proveen los modelos de inteligencia artificial
-              utilizados por la Plataforma, incluyendo de manera enunciativa
-              mas no limitativa a Anthropic (Claude) y OpenAI (DALL-E).
+              utilizados por la Plataforma, incluyendo de manera enunciativa mas
+              no limitativa a Anthropic (Claude) y OpenAI (DALL-E).
             </p>
           </div>
         </Clause>
@@ -186,11 +186,11 @@ const Info = () => {
               del Usuario Final.
             </p>
             <p>
-              Adicionalmente, Stripe y/o MercadoPago por medio de la Plataforma brindará
-              servicios de valor agregado, incluyendo la actuación por orden del
-              Negocio para cobrar y percibir los pagos digitales de los Usuarios
-              finales,además de la conciliación, prevención del fraude, entre
-              otros.
+              Adicionalmente, Stripe y/o MercadoPago por medio de la Plataforma
+              brindará servicios de valor agregado, incluyendo la actuación por
+              orden del Negocio para cobrar y percibir los pagos digitales de
+              los Usuarios finales,además de la conciliación, prevención del
+              fraude, entre otros.
             </p>
             <p>
               <strong className="font-satoMiddle">
@@ -223,12 +223,12 @@ const Info = () => {
                 Negocio ingresa a la Plataforma.
               </li>
               <li>
-                f. Funcionalidades de Inteligencia Artificial para la
-                generación automática de páginas web (landing pages) del
-                Negocio, incluyendo texto, diseño e imágenes, mediante el uso
-                de modelos de IA de terceros (Proveedores de IA). El
-                contenido generado queda sujeto a revisión y aprobación del
-                Negocio antes de su publicación.
+                f. Funcionalidades de Inteligencia Artificial para la generación
+                automática de páginas web (landing pages) del Negocio,
+                incluyendo texto, diseño e imágenes, mediante el uso de modelos
+                de IA de terceros (Proveedores de IA). El contenido generado
+                queda sujeto a revisión y aprobación del Negocio antes de su
+                publicación.
               </li>
             </ul>
             <p>
@@ -555,76 +555,78 @@ const Info = () => {
         >
           <div className="flex flex-col gap-4">
             <p>
-              <strong className="font-satoMiddle">9.1. Descripción.</strong>{" "}
-              La Plataforma ofrece Funcionalidades de IA que permiten al
-              Negocio generar y personalizar páginas web (landing pages) de
-              forma automatizada. Estas funcionalidades utilizan modelos de
+              <strong className="font-satoMiddle">9.1. Descripción.</strong> La
+              Plataforma ofrece Funcionalidades de IA que permiten al Negocio
+              generar y personalizar páginas web (landing pages) de forma
+              automatizada. Estas funcionalidades utilizan modelos de
               inteligencia artificial provistos por terceros (Proveedores de
               IA), incluyendo de manera enunciativa mas no limitativa a
               Anthropic y OpenAI, para producir texto, diseño e imágenes a
-              partir de la información y las instrucciones proporcionadas por
-              el Negocio.
+              partir de la información y las instrucciones proporcionadas por el
+              Negocio.
             </p>
             <p>
               <strong className="font-satoMiddle">
                 9.2. Datos enviados a Proveedores de IA.
               </strong>{" "}
               Para el funcionamiento de las Funcionalidades de IA, cierta
-              información del Negocio (nombre, descripción, servicios
-              ofrecidos, horarios, e imágenes de galería) podrá ser enviada a
-              los servidores de los Proveedores de IA para su procesamiento.
-              Deník no envía datos personales de los Usuarios finales a los
-              Proveedores de IA. Los Proveedores de IA se encuentran ubicados
-              en Estados Unidos de América, por lo que el uso de estas
+              información del Negocio (nombre, descripción, servicios ofrecidos,
+              horarios, e imágenes de galería) podrá ser enviada a los
+              servidores de los Proveedores de IA para su procesamiento. Deník
+              no envía datos personales de los Usuarios finales a los
+              Proveedores de IA. Los Proveedores de IA se encuentran ubicados en
+              Estados Unidos de América, por lo que el uso de estas
               funcionalidades implica la transferencia internacional de datos
               del Negocio. Si el Negocio sube imágenes de referencia para
-              personalizar su landing page, dichas imágenes serán procesadas
-              por los modelos de visión de los Proveedores de IA, por lo que
-              el Negocio debe contar con los derechos y consentimientos
-              necesarios sobre dichas imágenes.
+              personalizar su landing page, dichas imágenes serán procesadas por
+              los modelos de visión de los Proveedores de IA, por lo que el
+              Negocio debe contar con los derechos y consentimientos necesarios
+              sobre dichas imágenes.
             </p>
             <p>
               <strong className="font-satoMiddle">
                 9.3. Responsabilidad sobre el Contenido Generado por IA.
               </strong>{" "}
-              El Negocio es el único y exclusivo responsable de revisar,
-              aprobar y publicar cualquier Contenido Generado por IA. Deník no
-              garantiza la precisión, originalidad, idoneidad, integridad ni
-              veracidad del contenido producido por las Funcionalidades de IA.
-              El Contenido Generado por IA se proporciona "tal cual" (AS IS),
-              sin garantía de resultados específicos. El Negocio se obliga a
-              verificar que el contenido generado no infrinja derechos de
-              propiedad intelectual de terceros, no contenga información falsa
-              o engañosa, y cumpla con la legislación aplicable antes de su
-              publicación.
+              El Negocio es el único y exclusivo responsable de revisar, aprobar
+              y publicar cualquier Contenido Generado por IA. Deník no garantiza
+              la precisión, originalidad, idoneidad, integridad ni veracidad del
+              contenido producido por las Funcionalidades de IA. El Contenido
+              Generado por IA se proporciona "tal cual" (AS IS), sin garantía de
+              resultados específicos. El Negocio se obliga a verificar que el
+              contenido generado no infrinja derechos de propiedad intelectual
+              de terceros, no contenga información falsa o engañosa, y cumpla
+              con la legislación aplicable antes de su publicación.
             </p>
             <p>
               <strong className="font-satoMiddle">
                 9.4. Disponibilidad y limitaciones.
               </strong>{" "}
               Las Funcionalidades de IA dependen de servicios de terceros
-              (Proveedores de IA) que están fuera del control de Deník. Deník
-              no garantiza la disponibilidad ininterrumpida de dichas
-              funcionalidades y no será responsable por interrupciones,
-              cambios en las políticas, precios o capacidades de los
-              Proveedores de IA, ni por la descontinuación de sus servicios.
-              Las Funcionalidades de IA están sujetas a límites de uso
-              mensuales según el Plan contratado por el Negocio.
+              (Proveedores de IA) que están fuera del control de Deník. Deník no
+              garantiza la disponibilidad ininterrumpida de dichas
+              funcionalidades y no será responsable por interrupciones, cambios
+              en las políticas, precios o capacidades de los Proveedores de IA,
+              ni por la descontinuación de sus servicios. Las Funcionalidades de
+              IA están sujetas a límites de uso mensuales según el Plan
+              contratado por el Negocio.
             </p>
             <p>
               <strong className="font-satoMiddle">
                 9.5. Políticas de terceros.
               </strong>{" "}
-              El uso de las Funcionalidades de IA está sujeto, adicionalmente,
-              a los términos de uso y políticas de privacidad de los
-              Proveedores de IA correspondientes. El Negocio reconoce y acepta
-              que los Proveedores de IA pueden actualizar sus términos y
-              políticas en cualquier momento, lo cual podría afectar la
-              disponibilidad o el funcionamiento de las Funcionalidades de IA.
+              El uso de las Funcionalidades de IA está sujeto, adicionalmente, a
+              los términos de uso y políticas de privacidad de los Proveedores
+              de IA correspondientes. El Negocio reconoce y acepta que los
+              Proveedores de IA pueden actualizar sus términos y políticas en
+              cualquier momento, lo cual podría afectar la disponibilidad o el
+              funcionamiento de las Funcionalidades de IA.
             </p>
           </div>
         </Clause>
-        <Clause id="nueve" name="10. Responsabilidades del Negocio (incluye IA)">
+        <Clause
+          id="nueve"
+          name="10. Responsabilidades del Negocio (incluye IA)"
+        >
           <div className="flex flex-col gap-4">
             <p>
               El Negocio asume las siguientes obligaciones y responsabilidades:
@@ -755,16 +757,16 @@ const Info = () => {
               </li>
               <li>
                 H. Deník no será responsable por la precisión, originalidad,
-                idoneidad o veracidad del Contenido Generado por IA. El
-                Negocio actúa como editor final y único responsable del
-                contenido que publique, incluyendo aquel generado mediante las
-                Funcionalidades de IA.
+                idoneidad o veracidad del Contenido Generado por IA. El Negocio
+                actúa como editor final y único responsable del contenido que
+                publique, incluyendo aquel generado mediante las Funcionalidades
+                de IA.
               </li>
               <li>
                 I. Deník no será responsable por interrupciones, cambios o
                 descontinuación de los servicios provistos por los Proveedores
-                de IA, ni por cambios en sus políticas, precios o
-                capacidades, los cuales están fuera del control de Deník.
+                de IA, ni por cambios en sus políticas, precios o capacidades,
+                los cuales están fuera del control de Deník.
               </li>
             </ul>
           </div>
@@ -773,10 +775,9 @@ const Info = () => {
           <p>
             El procesamiento de pagos se lleva a cabo por medio de Stripe y/o
             MercadoPago, según la configuración del Negocio, por lo que los
-            procesos de verificación y validación de pagos son realizados por
-            el procesador de pagos correspondiente de forma directa. Deník no
-            se responsabiliza por los procesos y validación de pagos,
-            devoluciones,
+            procesos de verificación y validación de pagos son realizados por el
+            procesador de pagos correspondiente de forma directa. Deník no se
+            responsabiliza por los procesos y validación de pagos, devoluciones,
           </p>
         </Clause>
         <Clause id="doce" name="13. Auditoría">
@@ -959,11 +960,11 @@ const Info = () => {
           <p>
             El Software, los contenidos de las pantallas relativas a los
             servicios de Deník, como así también los programas, bases de datos,
-            redes y archivos son propiedad de Deník y están protegidas por
-            las leyes y los tratados internacionales de derecho de autor,
-            marcas, patentes, modelos y diseños industriales. El uso indebido y
-            la reproducción total o parcial de dichos contenidos quedan
-            prohibidos, salvo autorización expresa y por escrito de Deník.
+            redes y archivos son propiedad de Deník y están protegidas por las
+            leyes y los tratados internacionales de derecho de autor, marcas,
+            patentes, modelos y diseños industriales. El uso indebido y la
+            reproducción total o parcial de dichos contenidos quedan prohibidos,
+            salvo autorización expresa y por escrito de Deník.
           </p>
           <p className="mt-4">
             {" "}
@@ -985,17 +986,17 @@ const Info = () => {
               Contenido Generado por IA.
             </strong>{" "}
             Respecto del Contenido Generado por IA, el Negocio obtiene una
-            licencia de uso no exclusiva sobre dicho contenido para los fines
-            de su negocio. El Negocio reconoce que: (i) el Contenido Generado
-            por IA puede no ser susceptible de protección por derechos de autor
-            en todas las jurisdicciones; (ii) las imágenes obtenidas de bancos
-            de imágenes (como Pexels) están sujetas a las licencias de sus
-            respectivos proveedores; (iii) las imágenes generadas por modelos
-            de IA (como DALL-E) están sujetas a los términos de uso de sus
+            licencia de uso no exclusiva sobre dicho contenido para los fines de
+            su negocio. El Negocio reconoce que: (i) el Contenido Generado por
+            IA puede no ser susceptible de protección por derechos de autor en
+            todas las jurisdicciones; (ii) las imágenes obtenidas de bancos de
+            imágenes (como Pexels) están sujetas a las licencias de sus
+            respectivos proveedores; (iii) las imágenes generadas por modelos de
+            IA (como DALL-E) están sujetas a los términos de uso de sus
             respectivos Proveedores de IA; y (iv) el Negocio no podrá reclamar
-            derechos de autor exclusivos sobre contenido generado
-            exclusivamente por inteligencia artificial, en la medida que la
-            legislación aplicable así lo determine.
+            derechos de autor exclusivos sobre contenido generado exclusivamente
+            por inteligencia artificial, en la medida que la legislación
+            aplicable así lo determine.
           </p>
         </Clause>
         <Clause id="diezysiete" name="18. Varios">
@@ -1107,7 +1108,9 @@ const Clause = ({
 }) => {
   return (
     <section id={id} className="py-20 lg:py-40">
-      <h3 className="font-title text-xl text-brand_dark font-satoBold">{name}</h3>
+      <h3 className="font-title text-xl text-brand_dark font-satoBold">
+        {name}
+      </h3>
       <p className="mt-4 text-brand_gray">{children}</p>
     </section>
   )

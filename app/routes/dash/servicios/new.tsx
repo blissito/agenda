@@ -217,11 +217,21 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         <section className="flex flex-col justify-center gap-2 place-items-center h-full px-4 text-center">
           <EmojiConfetti />
           <img src="/steper/pencil_paper.svg" className="w-[200px] md:w-auto" />
-          <h1 className="text-xl md:text-2xl font-satoBold">¡Tu servicio ha sido agregado!</h1>
+          <h1 className="text-xl md:text-2xl font-satoBold">
+            ¡Tu servicio ha sido agregado!
+          </h1>
           <p className="max-w-xl text-base md:text-lg text-brand_gray">
-            Tu servicio <span className="font-satoBold">“{serviceName || service?.name}”</span> está listo para recibir clientes.
+            Tu servicio{" "}
+            <span className="font-satoBold">
+              “{serviceName || service?.name}”
+            </span>{" "}
+            está listo para recibir clientes.
           </p>
-          <SecondaryButton as="Link" to="/dash/servicios" className="mt-8 md:mt-12">
+          <SecondaryButton
+            as="Link"
+            to="/dash/servicios"
+            className="mt-8 md:mt-12"
+          >
             Ir a mis servicios
           </SecondaryButton>
         </section>

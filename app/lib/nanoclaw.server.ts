@@ -8,37 +8,37 @@
  * Denik actúa como plataforma: usa jid = webhook_denik_{orgId} para
  * mantener una memoria/grupo aislado por org en nanoclaw.
  */
-import { db } from "~/utils/db.server";
+import { db } from "~/utils/db.server"
 
-const NANOCLAW_URL = process.env.NANOCLAW_URL || "";
-const NANOCLAW_SECRET = process.env.NANOCLAW_SECRET || "";
+const NANOCLAW_URL = process.env.NANOCLAW_URL || ""
+const NANOCLAW_SECRET = process.env.NANOCLAW_SECRET || ""
 
-export const JID_PREFIX = "webhook_denik_";
+export const JID_PREFIX = "webhook_denik_"
 
 export function orgIdToJid(orgId: string): string {
-  return `${JID_PREFIX}${orgId}`;
+  return `${JID_PREFIX}${orgId}`
 }
 
 export function jidToOrgId(jid: string): string | null {
-  if (!jid.startsWith(JID_PREFIX)) return null;
-  return jid.slice(JID_PREFIX.length);
+  if (!jid.startsWith(JID_PREFIX)) return null
+  return jid.slice(JID_PREFIX.length)
 }
 
 export function verifyNanoclawAuth(authHeader: string | null): boolean {
-  if (!NANOCLAW_SECRET) return false;
-  return authHeader === `Bearer ${NANOCLAW_SECRET}`;
+  if (!NANOCLAW_SECRET) return false
+  return authHeader === `Bearer ${NANOCLAW_SECRET}`
 }
 
-const DENIK_BASE_URL = process.env.APP_URL || "https://www.denik.me";
+const DENIK_BASE_URL = process.env.APP_URL || "https://www.denik.me"
 
 export async function sendToNanoclaw(params: {
-  orgId: string;
-  senderId: string;
-  senderName: string;
-  content: string;
+  orgId: string
+  senderId: string
+  senderName: string
+  content: string
 }): Promise<void> {
   if (!NANOCLAW_URL || !NANOCLAW_SECRET) {
-    throw new Error("NANOCLAW_URL o NANOCLAW_SECRET no configurados");
+    throw new Error("NANOCLAW_URL o NANOCLAW_SECRET no configurados")
   }
 
   // Resolver la apiKey de la org para que Nanoclaw pueda llamar al MCP
@@ -46,11 +46,11 @@ export async function sendToNanoclaw(params: {
   const org = await db.org.findUnique({
     where: { id: params.orgId },
     select: { apiKey: true, name: true },
-  });
+  })
   if (!org?.apiKey) {
     throw new Error(
       `Org ${params.orgId} no tiene apiKey — corre scripts/dev/backfill-api-keys.ts`,
-    );
+    )
   }
 
   const res = await fetch(`${NANOCLAW_URL}/message`, {
@@ -77,11 +77,11 @@ export async function sendToNanoclaw(params: {
         },
       },
     }),
-  });
+  })
 
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Nanoclaw respondió ${res.status}: ${text}`);
+    const text = await res.text().catch(() => "")
+    throw new Error(`Nanoclaw respondió ${res.status}: ${text}`)
   }
 }
 
@@ -91,7 +91,7 @@ export async function sendToNanoclaw(params: {
  * No-op silencioso si falla (ej. endpoint no disponible en droplet viejo).
  */
 export async function resetNanoclawSession(orgId: string): Promise<void> {
-  if (!NANOCLAW_URL || !NANOCLAW_SECRET) return;
+  if (!NANOCLAW_URL || !NANOCLAW_SECRET) return
   try {
     const res = await fetch(`${NANOCLAW_URL}/session/reset`, {
       method: "POST",
@@ -100,12 +100,12 @@ export async function resetNanoclawSession(orgId: string): Promise<void> {
         Authorization: `Bearer ${NANOCLAW_SECRET}`,
       },
       body: JSON.stringify({ jid: orgIdToJid(orgId) }),
-    });
+    })
     if (!res.ok) {
-      console.warn(`[nanoclaw] session reset responded ${res.status}`);
+      console.warn(`[nanoclaw] session reset responded ${res.status}`)
     }
   } catch (err) {
-    console.warn("[nanoclaw] session reset failed:", err);
+    console.warn("[nanoclaw] session reset failed:", err)
   }
 }
 
@@ -115,15 +115,15 @@ export async function resetNanoclawSession(orgId: string): Promise<void> {
  * /whatsapp/link/callback con {token, groupJid, inviteUrl}.
  */
 export async function createNanoclawGroup(params: {
-  orgId: string;
-  orgName: string;
-  token: string;
-  apiKey: string;
+  orgId: string
+  orgName: string
+  token: string
+  apiKey: string
 }): Promise<void> {
   if (!NANOCLAW_URL || !NANOCLAW_SECRET) {
-    throw new Error("NANOCLAW_URL o NANOCLAW_SECRET no configurados");
+    throw new Error("NANOCLAW_URL o NANOCLAW_SECRET no configurados")
   }
-  const callbackUrl = `${DENIK_BASE_URL}/whatsapp/link/callback`;
+  const callbackUrl = `${DENIK_BASE_URL}/whatsapp/link/callback`
   const res = await fetch(`${NANOCLAW_URL}/group/create`, {
     method: "POST",
     headers: {
@@ -138,17 +138,17 @@ export async function createNanoclawGroup(params: {
       denikBaseUrl: DENIK_BASE_URL,
       callbackUrl,
     }),
-  });
+  })
   if (!res.ok) {
-    const text = await res.text().catch(() => "");
-    throw new Error(`Nanoclaw /group/create ${res.status}: ${text}`);
+    const text = await res.text().catch(() => "")
+    throw new Error(`Nanoclaw /group/create ${res.status}: ${text}`)
   }
 }
 
 export async function saveUserMessage(orgId: string, content: string) {
   return db.assistantMessage.create({
     data: { orgId, role: "user", content, status: "pending" },
-  });
+  })
 }
 
 export async function saveAssistantMessage(orgId: string, content: string) {
@@ -156,18 +156,18 @@ export async function saveAssistantMessage(orgId: string, content: string) {
   await db.assistantMessage.updateMany({
     where: { orgId, role: "user", status: "pending" },
     data: { status: "delivered" },
-  });
+  })
   return db.assistantMessage.create({
     data: { orgId, role: "assistant", content, status: "delivered" },
-  });
+  })
 }
 
 export async function getMessagesSince(orgId: string, sinceIso?: string) {
-  const where: any = { orgId };
-  if (sinceIso) where.createdAt = { gt: new Date(sinceIso) };
+  const where: any = { orgId }
+  if (sinceIso) where.createdAt = { gt: new Date(sinceIso) }
   return db.assistantMessage.findMany({
     where,
     orderBy: { createdAt: "asc" },
     take: 100,
-  });
+  })
 }

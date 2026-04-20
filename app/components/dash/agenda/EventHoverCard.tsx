@@ -1,7 +1,7 @@
-import { FiClock, FiMail, FiPhone, FiFileText, FiUser } from "react-icons/fi"
+import { FiClock, FiFileText, FiMail, FiPhone, FiUser } from "react-icons/fi"
 import { EditPen } from "~/components/icons/editPen"
-import { Trash } from "~/components/icons/trash"
 import { Money } from "~/components/icons/money"
+import { Trash } from "~/components/icons/trash"
 
 export type EventHoverData = {
   customerName?: string
@@ -15,7 +15,9 @@ export type EventHoverData = {
   paid?: boolean
 }
 
-function getStatusVariant(status: string): "confirmed" | "canceled" | "pending" {
+function getStatusVariant(
+  status: string,
+): "confirmed" | "canceled" | "pending" {
   if (status === "CANCELLED" || status === "canceled") return "canceled"
   if (status === "confirmed" || status === "ACTIVE") return "confirmed"
   return "pending"
@@ -27,16 +29,44 @@ const StatusTag = ({
   variant: "confirmed" | "canceled" | "paid" | "unpaid" | "pending"
 }) => {
   const styles = {
-    confirmed: { bg: "bg-[#effbd0]", text: "text-[#4f7222]", label: "Confirmada", icon: "🔔" },
-    canceled: { bg: "bg-[#f9e7eb]", text: "text-[#ab4265]", label: "Cancelada", icon: "🚫" },
-    paid: { bg: "bg-[#d5faf1]", text: "text-[#2a645f]", label: "Pagada", icon: "💸" },
-    unpaid: { bg: "bg-[#eef9fd]", text: "text-[#276297]", label: "Sin pagar", icon: "💰" },
-    pending: { bg: "bg-[#fff8e1]", text: "text-[#8b6914]", label: "Reservada", icon: "📣" },
+    confirmed: {
+      bg: "bg-[#effbd0]",
+      text: "text-[#4f7222]",
+      label: "Confirmada",
+      icon: "🔔",
+    },
+    canceled: {
+      bg: "bg-[#f9e7eb]",
+      text: "text-[#ab4265]",
+      label: "Cancelada",
+      icon: "🚫",
+    },
+    paid: {
+      bg: "bg-[#d5faf1]",
+      text: "text-[#2a645f]",
+      label: "Pagada",
+      icon: "💸",
+    },
+    unpaid: {
+      bg: "bg-[#eef9fd]",
+      text: "text-[#276297]",
+      label: "Sin pagar",
+      icon: "💰",
+    },
+    pending: {
+      bg: "bg-[#fff8e1]",
+      text: "text-[#8b6914]",
+      label: "Reservada",
+      icon: "📣",
+    },
   } as const
   const style = styles[variant]
   return (
-    <span className={`${style.bg} ${style.text} inline-flex items-center justify-center gap-1 px-2 py-[3px] rounded text-[12px] font-satoMedium whitespace-nowrap`}>
-      <span>{style.icon}</span>{style.label}
+    <span
+      className={`${style.bg} ${style.text} inline-flex items-center justify-center gap-1 px-2 py-[3px] rounded text-[12px] font-satoMedium whitespace-nowrap`}
+    >
+      <span>{style.icon}</span>
+      {style.label}
     </span>
   )
 }
@@ -60,12 +90,17 @@ export function EventHoverCard({
           <p className="font-satoBold text-brand_dark text-base truncate">
             {data.customerName || "Sin cliente"}
           </p>
-          <p className="text-[12px] text-brand_iron truncate">{data.serviceName}</p>
+          <p className="text-[12px] text-brand_iron truncate">
+            {data.serviceName}
+          </p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0 border-b border-l border_brand_ash rounded-bl-[12px] pl-1 pb-1">
           {onDelete && (
             <button
-              onClick={(e) => { e.stopPropagation(); onDelete() }}
+              onClick={(e) => {
+                e.stopPropagation()
+                onDelete()
+              }}
               className="p-1 rounded-md hover:bg-red-50 transition-colors"
             >
               <Trash fill="#CA5757" className="w-5 h-5" />
@@ -73,7 +108,9 @@ export function EventHoverCard({
           )}
           {!hidePayment && (
             <button
-              onClick={(e) => { e.stopPropagation() }}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
               className="p-1 rounded-md hover:bg-gray-100 text-gray-500 transition-colors"
             >
               <Money className="w-5 h-5" />
@@ -81,7 +118,10 @@ export function EventHoverCard({
           )}
           {onEdit && (
             <button
-              onClick={(e) => { e.stopPropagation(); onEdit() }}
+              onClick={(e) => {
+                e.stopPropagation()
+                onEdit()
+              }}
               className="p-1 rounded-md hover:bg-gray-100 text-gray-500 transition-colors"
             >
               <EditPen fill="#4B5563" className="w-5 h-5" />

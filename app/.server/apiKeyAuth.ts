@@ -9,7 +9,10 @@ import { db } from "~/utils/db.server"
 export async function getOrgFromApiKey(request: Request) {
   const apiKey = request.headers.get("x-denik-api-key")
   if (!apiKey) {
-    throw Response.json({ error: "Missing X-Denik-Api-Key header" }, { status: 401 })
+    throw Response.json(
+      { error: "Missing X-Denik-Api-Key header" },
+      { status: 401 },
+    )
   }
   const org = await db.org.findUnique({ where: { apiKey } })
   if (!org) {

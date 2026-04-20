@@ -71,7 +71,6 @@ import { Services } from "../icons/menu/services"
 import { Settings } from "../icons/menu/settings"
 import { Website } from "../icons/menu/webiste"
 
-
 export function SideBar({
   user,
   children,
@@ -512,7 +511,10 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
                     d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
                   />
                 </svg>
-                <span style={{ color: moreColor }} className="text-xs leading-tight">
+                <span
+                  style={{ color: moreColor }}
+                  className="text-xs leading-tight"
+                >
                   Más
                 </span>
               </button>

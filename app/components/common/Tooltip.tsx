@@ -15,14 +15,29 @@ type Side = "top" | "bottom" | "left" | "right"
 const computePos = (rect: DOMRect, side: Side) => {
   switch (side) {
     case "bottom":
-      return { top: rect.bottom + 8, left: rect.left + rect.width / 2, transform: "translate(-50%, 0)" }
+      return {
+        top: rect.bottom + 8,
+        left: rect.left + rect.width / 2,
+        transform: "translate(-50%, 0)",
+      }
     case "left":
-      return { top: rect.top + rect.height / 2, left: rect.left - 8, transform: "translate(-100%, -50%)" }
+      return {
+        top: rect.top + rect.height / 2,
+        left: rect.left - 8,
+        transform: "translate(-100%, -50%)",
+      }
     case "right":
-      return { top: rect.top + rect.height / 2, left: rect.right + 8, transform: "translate(0, -50%)" }
-    case "top":
+      return {
+        top: rect.top + rect.height / 2,
+        left: rect.right + 8,
+        transform: "translate(0, -50%)",
+      }
     default:
-      return { top: rect.top - 8, left: rect.left + rect.width / 2, transform: "translate(-50%, -100%)" }
+      return {
+        top: rect.top - 8,
+        left: rect.left + rect.width / 2,
+        transform: "translate(-50%, -100%)",
+      }
   }
 }
 
@@ -39,7 +54,11 @@ export const Tooltip = ({
 }) => {
   const triggerRef = useRef<HTMLElement>(null)
   const [show, setShow] = useState(false)
-  const [pos, setPos] = useState<{ top: number; left: number; transform: string } | null>(null)
+  const [pos, setPos] = useState<{
+    top: number
+    left: number
+    transform: string
+  } | null>(null)
 
   const update = useCallback(() => {
     const el = triggerRef.current
@@ -75,13 +94,16 @@ export const Tooltip = ({
         ;(triggerRef as any).current = node
         const { ref: childRef } = child as any
         if (typeof childRef === "function") childRef(node)
-        else if (childRef && typeof childRef === "object") childRef.current = node
+        else if (childRef && typeof childRef === "object")
+          childRef.current = node
       },
     }
     return (
       <>
         {cloneElement(child, merged)}
-        {show && pos && typeof document !== "undefined" &&
+        {show &&
+          pos &&
+          typeof document !== "undefined" &&
           createPortal(
             <span
               role="tooltip"
@@ -103,7 +125,9 @@ export const Tooltip = ({
       {...handlers}
     >
       {children}
-      {show && pos && typeof document !== "undefined" &&
+      {show &&
+        pos &&
+        typeof document !== "undefined" &&
         createPortal(
           <span
             role="tooltip"

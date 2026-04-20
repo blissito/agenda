@@ -3,8 +3,9 @@
  *
  * Run with: npx tsx scripts/migrate-gallery.ts
  */
-import { MongoClient } from "mongodb"
+
 import * as dotenv from "dotenv"
+import { MongoClient } from "mongodb"
 
 dotenv.config()
 
@@ -24,9 +25,11 @@ async function migrate() {
     const services = db.collection("Service")
 
     // Find all services that have photoURL but not gallery
-    const servicesWithPhotoURL = await services.find({
-      photoURL: { $exists: true },
-    }).toArray()
+    const servicesWithPhotoURL = await services
+      .find({
+        photoURL: { $exists: true },
+      })
+      .toArray()
 
     console.log(`Found ${servicesWithPhotoURL.length} services with photoURL`)
 
@@ -37,8 +40,8 @@ async function migrate() {
         { _id: service._id },
         {
           $set: { gallery },
-          $unset: { photoURL: "" }
-        }
+          $unset: { photoURL: "" },
+        },
       )
 
       console.log(`Migrated service ${service._id}: ${service.name}`)
@@ -47,12 +50,13 @@ async function migrate() {
     // Also ensure services without photoURL have an empty gallery array
     const result = await services.updateMany(
       { gallery: { $exists: false } },
-      { $set: { gallery: [] } }
+      { $set: { gallery: [] } },
     )
 
-    console.log(`Set empty gallery for ${result.modifiedCount} additional services`)
+    console.log(
+      `Set empty gallery for ${result.modifiedCount} additional services`,
+    )
     console.log("Migration complete!")
-
   } finally {
     await client.close()
   }

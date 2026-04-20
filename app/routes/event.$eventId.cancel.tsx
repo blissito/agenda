@@ -37,7 +37,9 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     throw redirect("/error?reason=event_not_found")
   }
 
-  const org = event.service?.org as { timezone?: string; config?: { cancellationWindow?: string } } | undefined
+  const org = event.service?.org as
+    | { timezone?: string; config?: { cancellationWindow?: string } }
+    | undefined
   const timezone = org?.timezone || DEFAULT_TIMEZONE
 
   // Check cancellation window
@@ -46,10 +48,15 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   let cancellationMessage = ""
   if (cancellationMinutes > 0 && event.status !== "CANCELLED") {
     const now = new Date()
-    const deadline = new Date(event.start.getTime() - cancellationMinutes * 60 * 1000)
+    const deadline = new Date(
+      event.start.getTime() - cancellationMinutes * 60 * 1000,
+    )
     if (now > deadline) {
       canCancel = false
-      const hours = cancellationMinutes >= 60 ? `${cancellationMinutes / 60} horas` : `${cancellationMinutes} minutos`
+      const hours =
+        cancellationMinutes >= 60
+          ? `${cancellationMinutes / 60} horas`
+          : `${cancellationMinutes} minutos`
       cancellationMessage = `Las cancelaciones deben realizarse con al menos ${hours} de anticipación.`
     }
   }
@@ -105,12 +112,19 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     })
     if (!event) return { success: false, message: "Evento no encontrado" }
 
-    const orgConfig = (event.service?.org as { config?: { cancellationWindow?: string } })?.config
+    const orgConfig = (
+      event.service?.org as { config?: { cancellationWindow?: string } }
+    )?.config
     const cancellationMinutes = Number(orgConfig?.cancellationWindow) || 0
     if (cancellationMinutes > 0) {
-      const deadline = new Date(event.start.getTime() - cancellationMinutes * 60 * 1000)
+      const deadline = new Date(
+        event.start.getTime() - cancellationMinutes * 60 * 1000,
+      )
       if (new Date() > deadline) {
-        return { success: false, message: "Ya no es posible cancelar esta cita." }
+        return {
+          success: false,
+          message: "Ya no es posible cancelar esta cita.",
+        }
       }
     }
 
@@ -126,7 +140,8 @@ export default function CancelEventPage({
   loaderData,
   actionData,
 }: Route.ComponentProps) {
-  const { event, service, rebookUrl, canCancel, cancellationMessage } = loaderData
+  const { event, service, rebookUrl, canCancel, cancellationMessage } =
+    loaderData
   const [showConfirm, setShowConfirm] = useState(false)
 
   if (actionData && !actionData.success && !actionData.cancelled) {
@@ -134,13 +149,28 @@ export default function CancelEventPage({
       <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            <svg
+              className="w-8 h-8 text-orange-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+              />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">No se pudo cancelar</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            No se pudo cancelar
+          </h1>
           <p className="text-gray-600 mb-6">{actionData.message}</p>
-          <a href={`/event/${event.id}/modify`} className="inline-block bg-brand_blue text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+          <a
+            href={`/event/${event.id}/modify`}
+            className="inline-block bg-brand_blue text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
             Volver
           </a>
         </div>

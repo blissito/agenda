@@ -16,13 +16,48 @@ export type CitaEvent = Event & {
 // ── Status helpers ──────────────────────────────────────────────
 
 const STATUS_STYLES = {
-  confirmed: { bg: "bg-[#effbd0]", text: "text-[#4f7222]", label: "Confirmada", icon: "🔔" },
-  canceled: { bg: "bg-[#f9e7eb]", text: "text-[#ab4265]", label: "Cancelada", icon: "🚫" },
-  paid: { bg: "bg-[#d5faf1]", text: "text-[#2a645f]", label: "Pagada", icon: "💸" },
-  unpaid: { bg: "bg-[#eef9fd]", text: "text-[#276297]", label: "Sin pagar", icon: "💰" },
-  pending: { bg: "bg-[#fff8e1]", text: "text-[#8b6914]", label: "Reservada", icon: "📣" },
-  attended: { bg: "bg-[#e0f2fe]", text: "text-[#0369a1]", label: "Asistió", icon: "✅" },
-  noshow: { bg: "bg-[#fef2f2]", text: "text-[#991b1b]", label: "No asistió", icon: "❌" },
+  confirmed: {
+    bg: "bg-[#effbd0]",
+    text: "text-[#4f7222]",
+    label: "Confirmada",
+    icon: "🔔",
+  },
+  canceled: {
+    bg: "bg-[#f9e7eb]",
+    text: "text-[#ab4265]",
+    label: "Cancelada",
+    icon: "🚫",
+  },
+  paid: {
+    bg: "bg-[#d5faf1]",
+    text: "text-[#2a645f]",
+    label: "Pagada",
+    icon: "💸",
+  },
+  unpaid: {
+    bg: "bg-[#eef9fd]",
+    text: "text-[#276297]",
+    label: "Sin pagar",
+    icon: "💰",
+  },
+  pending: {
+    bg: "bg-[#fff8e1]",
+    text: "text-[#8b6914]",
+    label: "Reservada",
+    icon: "📣",
+  },
+  attended: {
+    bg: "bg-[#e0f2fe]",
+    text: "text-[#0369a1]",
+    label: "Asistió",
+    icon: "✅",
+  },
+  noshow: {
+    bg: "bg-[#fef2f2]",
+    text: "text-[#991b1b]",
+    label: "No asistió",
+    icon: "❌",
+  },
 } as const
 
 type StatusVariant = keyof typeof STATUS_STYLES
@@ -30,13 +65,18 @@ type StatusVariant = keyof typeof STATUS_STYLES
 const StatusTag = ({ variant }: { variant: StatusVariant }) => {
   const style = STATUS_STYLES[variant]
   return (
-    <span className={`${style.bg} ${style.text} inline-flex items-center justify-center gap-1 px-2 py-[3px] rounded text-[12px] font-satoMedium whitespace-nowrap`}>
-      <span>{style.icon}</span>{style.label}
+    <span
+      className={`${style.bg} ${style.text} inline-flex items-center justify-center gap-1 px-2 py-[3px] rounded text-[12px] font-satoMedium whitespace-nowrap`}
+    >
+      <span>{style.icon}</span>
+      {style.label}
     </span>
   )
 }
 
-export function getStatusVariant(status: string): "confirmed" | "canceled" | "pending" {
+export function getStatusVariant(
+  status: string,
+): "confirmed" | "canceled" | "pending" {
   if (status === "CANCELLED" || status === "canceled") return "canceled"
   if (status === "confirmed" || status === "ACTIVE") return "confirmed"
   return "pending"
@@ -131,7 +171,8 @@ const RowMenu = ({
   const fetcher = useFetcher()
   if (!canDelete) return null
   const handleDelete = () => {
-    if (!window.confirm("¿Cancelar esta cita? Se eliminará de la agenda.")) return
+    if (!window.confirm("¿Cancelar esta cita? Se eliminará de la agenda."))
+      return
     fetcher.submit(null, {
       method: "delete",
       action: `/api/events?intent=delete&eventId=${eventId}`,
@@ -156,15 +197,18 @@ const ATTENDANCE_OPTIONS: { value: AttendanceValue; label: string }[] = [
 
 const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
   const fetcher = useFetcher()
-  const current =
-    fetcher.formData?.get("attended") ?? String(event.attended)
+  const current = fetcher.formData?.get("attended") ?? String(event.attended)
   const value: AttendanceValue =
     current === "true" ? "true" : current === "false" ? "false" : "null"
   const currentLabel =
     ATTENDANCE_OPTIONS.find((o) => o.value === value)?.label ?? "Por confirmar"
 
   const [open, setOpen] = useState(false)
-  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null)
+  const [pos, setPos] = useState<{
+    top: number
+    left: number
+    width: number
+  } | null>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
   const menuRef = useOutsideClick<HTMLDivElement>({
     isActive: open,
@@ -240,7 +284,8 @@ const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
                     onClick={() => handlePick(opt.value)}
                     className={twMerge(
                       "w-full text-left text-[12px] px-3 py-2 rounded-lg text-brand_gray hover:bg-brand_blue/5 transition-colors",
-                      opt.value === value && "bg-brand_blue/5 text-brand_dark font-satoMedium",
+                      opt.value === value &&
+                        "bg-brand_blue/5 text-brand_dark font-satoMedium",
                     )}
                   >
                     {opt.label}
@@ -257,8 +302,10 @@ const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
 
 // ── Table ───────────────────────────────────────────────────────
 
-const GRID_WITH_CLIENT = "grid gap-x-4 grid-cols-[150px_1.5fr_1fr_1fr_90px_1fr_120px_44px]"
-const GRID_NO_CLIENT = "grid gap-x-4 grid-cols-[150px_1fr_1fr_90px_90px_1fr_120px_44px]"
+const GRID_WITH_CLIENT =
+  "grid gap-x-4 grid-cols-[150px_1.5fr_1fr_1fr_90px_1fr_120px_44px]"
+const GRID_NO_CLIENT =
+  "grid gap-x-4 grid-cols-[150px_1fr_1fr_90px_90px_1fr_120px_44px]"
 
 export const CitasTable = ({
   events,
@@ -274,7 +321,9 @@ export const CitasTable = ({
       {/* Desktop */}
       <div className="hidden lg:block w-full overflow-x-auto rounded-2xl">
         <div className="min-w-[920px]">
-          <div className={`${GRID} rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray uppercase tracking-wide`}>
+          <div
+            className={`${GRID} rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray uppercase tracking-wide`}
+          >
             <div className="text-left">Fecha</div>
             {!hideClient && <div className="text-left">Cliente</div>}
             <div className="text-left">Servicio</div>
@@ -288,10 +337,17 @@ export const CitasTable = ({
           <div className="rounded-b-2xl bg-white divide-y divide-brand_stroke">
             {events.length > 0 ? (
               events.map((event) => (
-                <CitaRow event={event} hideClient={hideClient} grid={GRID} key={event.id} />
+                <CitaRow
+                  event={event}
+                  hideClient={hideClient}
+                  grid={GRID}
+                  key={event.id}
+                />
               ))
             ) : (
-              <p className="px-6 py-16 text-center text-brand_gray">No hay citas registradas</p>
+              <p className="px-6 py-16 text-center text-brand_gray">
+                No hay citas registradas
+              </p>
             )}
           </div>
         </div>
@@ -312,7 +368,9 @@ export const CitasTable = ({
                 </div>
               ))
             ) : (
-              <p className="px-4 py-16 text-center text-brand_gray">No hay citas registradas</p>
+              <p className="px-4 py-16 text-center text-brand_gray">
+                No hay citas registradas
+              </p>
             )}
           </div>
         </div>
@@ -336,12 +394,18 @@ const CitaRow = ({
   const isPast = new Date(event.start) < new Date()
   const canDelete = canDeleteEvent(event.start)
   return (
-    <div className={`${grid} items-center px-6 py-3 hover:bg-slate-50 transition-colors`}>
+    <div
+      className={`${grid} items-center px-6 py-3 hover:bg-slate-50 transition-colors`}
+    >
       <div className="flex items-center gap-2">
         <DatePill start={event.start} isPast={isPast} />
         <div className="flex flex-col leading-tight">
-          <span className="text-[12px] font-satoMedium text-brand_gray">{formatEventDate(event.start)}</span>
-          <span className="text-[10px] text-brand_iron">{formatEventTime(event.start, Number(event.duration))}</span>
+          <span className="text-[12px] font-satoMedium text-brand_gray">
+            {formatEventDate(event.start)}
+          </span>
+          <span className="text-[10px] text-brand_iron">
+            {formatEventTime(event.start, Number(event.duration))}
+          </span>
         </div>
       </div>
       {!hideClient && (
@@ -353,16 +417,24 @@ const CitaRow = ({
             className={getAvatarColor(name)}
           />
           <div className="min-w-0">
-            <p className="text-sm font-satoBold text-brand_dark truncate">{name}</p>
-            <p className="text-[12px] text-brand_gray truncate">{event.customer?.email || ""}</p>
+            <p className="text-sm font-satoBold text-brand_dark truncate">
+              {name}
+            </p>
+            <p className="text-[12px] text-brand_gray truncate">
+              {event.customer?.email || ""}
+            </p>
           </div>
         </div>
       )}
       <div className="min-w-0">
-        <p className="text-[14px] font-satoBold text-brand_dark truncate">{event.service?.name || "—"}</p>
+        <p className="text-[14px] font-satoBold text-brand_dark truncate">
+          {event.service?.name || "—"}
+        </p>
       </div>
       <div className="min-w-0">
-        <p className="text-[14px] font-satoMedium text-brand_gray truncate">{event.service?.employeeName || "—"}</p>
+        <p className="text-[14px] font-satoMedium text-brand_gray truncate">
+          {event.service?.employeeName || "—"}
+        </p>
       </div>
       {hideClient && (
         <div>
@@ -406,7 +478,9 @@ const CitaCardMobile = ({
   const name = event.customer?.displayName || "Sin cliente"
   const isPast = new Date(event.start) < new Date()
   const canDelete = canDeleteEvent(event.start)
-  const price = event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"
+  const price = event.service
+    ? `$${Number(event.service.price).toFixed(2)}`
+    : "—"
 
   return (
     <div className="flex flex-col gap-3">
@@ -422,13 +496,19 @@ const CitaCardMobile = ({
                 className={getAvatarColor(name)}
               />
               <div className="min-w-0">
-                <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">{name}</p>
-                <p className="text-[12px] text-brand_gray truncate mt-0.5">{event.service?.name || "—"}</p>
+                <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">
+                  {name}
+                </p>
+                <p className="text-[12px] text-brand_gray truncate mt-0.5">
+                  {event.service?.name || "—"}
+                </p>
               </div>
             </>
           ) : (
             <div className="min-w-0">
-              <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">{event.service?.name || "—"}</p>
+              <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">
+                {event.service?.name || "—"}
+              </p>
               <p className="text-[12px] text-brand_gray truncate mt-0.5">
                 {event.service?.employeeName || "—"}
               </p>

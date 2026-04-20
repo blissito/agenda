@@ -36,13 +36,6 @@ type ActionConfig = {
   }
 }
 
-type ActionState = {
-  type: ActionType
-  enabled: boolean
-  config: ActionConfig[ActionType]
-  id?: string
-}
-
 const ACTION_TYPES: {
   type: ActionType
   name: string

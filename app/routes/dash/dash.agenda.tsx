@@ -10,11 +10,13 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
 import { useFetcher, useNavigate, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-
-import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { CopyLinkButton } from "~/components/common/CopyLinkButton"
-import { EventHoverCard, type EventHoverData } from "~/components/dash/agenda/EventHoverCard"
+import { AppointmentItem } from "~/components/dash/AppointmentItem"
+import {
+  EventHoverCard,
+  type EventHoverData,
+} from "~/components/dash/agenda/EventHoverCard"
 import { ClientFormDrawer } from "~/components/forms/ClientFormDrawer"
 import { EventFormDrawer } from "~/components/forms/EventFormDrawer"
 import { cancelEventFully } from "~/lib/event-cancel.server"
@@ -64,10 +66,24 @@ export const action = async ({ request }: Route.ActionArgs) => {
     })
 
     // Create Google Meet link if connected
-    if (org.googleCalendarToken && validData.serviceId && validData.customerId) {
-      console.log("[Meet] Attempting Google Calendar event creation for org:", org.id)
+    if (
+      org.googleCalendarToken &&
+      validData.serviceId &&
+      validData.customerId
+    ) {
+      console.log(
+        "[Meet] Attempting Google Calendar event creation for org:",
+        org.id,
+      )
       const token = org.googleCalendarToken as any
-      console.log("[Meet] Token exists:", !!token, "expires_at:", token?.expires_at, "now:", Date.now())
+      console.log(
+        "[Meet] Token exists:",
+        !!token,
+        "expires_at:",
+        token?.expires_at,
+        "now:",
+        Date.now(),
+      )
       try {
         const [service, customer] = await Promise.all([
           db.service.findUnique({ where: { id: validData.serviceId } }),
@@ -81,7 +97,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
             service,
             customer,
           })
-          console.log("[Meet] SUCCESS - meetingLink:", meetingLink, "calendarEventId:", calendarEventId)
+          console.log(
+            "[Meet] SUCCESS - meetingLink:",
+            meetingLink,
+            "calendarEventId:",
+            calendarEventId,
+          )
           await db.event.update({
             where: { id: newEvent.id },
             data: { meetingLink, calendarEventId },
@@ -93,7 +114,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
         console.error("[Meet] FAILED:", e instanceof Error ? e.message : e)
       }
     } else {
-      console.log("[Meet] Skipped - googleCalendarToken:", !!org.googleCalendarToken, "serviceId:", !!validData.serviceId, "customerId:", !!validData.customerId)
+      console.log(
+        "[Meet] Skipped - googleCalendarToken:",
+        !!org.googleCalendarToken,
+        "serviceId:",
+        !!validData.serviceId,
+        "customerId:",
+        !!validData.customerId,
+      )
     }
   }
 
@@ -186,48 +214,63 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   // Month range for mini calendar dots (extend to cover full visible grid ~6 weeks)
   const monthStart = new Date(monday.getFullYear(), monday.getMonth(), 1)
   monthStart.setDate(monthStart.getDate() - 7) // include prev month tail
-  const monthEnd = new Date(monday.getFullYear(), monday.getMonth() + 1, 0, 23, 59, 59, 999)
+  const monthEnd = new Date(
+    monday.getFullYear(),
+    monday.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  )
   monthEnd.setDate(monthEnd.getDate() + 7) // include next month head
 
-  const [events, customers, employees, services, upcomingEvents, monthEvents, orgUsers] =
-    await Promise.all([
-      db.event.findMany({
-        where: {
-          orgId: org.id,
-          archived: false,
-          start: { gte: monday, lte: sundayEnd },
-        },
-        include: { service: true, customer: true },
-      }),
-      db.customer.findMany({ take: 1, where: { orgId: org.id } }),
-      db.user.findMany({ take: 1, where: { orgId: org.id } }),
-      db.service.findMany({ take: 1, where: { orgId: org.id } }),
-      db.event.findMany({
-        where: {
-          orgId: org.id,
-          archived: false,
-          type: { not: "BLOCK" },
-          status: { not: "CANCELLED" },
-          start: { gte: new Date() },
-        },
-        include: { service: true, customer: true },
-        orderBy: { start: "asc" },
-        take: 5,
-      }),
-      db.event.findMany({
-        where: {
-          orgId: org.id,
-          archived: false,
-          type: { not: "BLOCK" },
-          start: { gte: monthStart, lte: monthEnd },
-        },
-        select: { start: true },
-      }),
-      db.user.findMany({
-        where: { orgId: org.id },
-        select: { id: true, displayName: true },
-      }),
-    ])
+  const [
+    events,
+    customers,
+    employees,
+    services,
+    upcomingEvents,
+    monthEvents,
+    orgUsers,
+  ] = await Promise.all([
+    db.event.findMany({
+      where: {
+        orgId: org.id,
+        archived: false,
+        start: { gte: monday, lte: sundayEnd },
+      },
+      include: { service: true, customer: true },
+    }),
+    db.customer.findMany({ take: 1, where: { orgId: org.id } }),
+    db.user.findMany({ take: 1, where: { orgId: org.id } }),
+    db.service.findMany({ take: 1, where: { orgId: org.id } }),
+    db.event.findMany({
+      where: {
+        orgId: org.id,
+        archived: false,
+        type: { not: "BLOCK" },
+        status: { not: "CANCELLED" },
+        start: { gte: new Date() },
+      },
+      include: { service: true, customer: true },
+      orderBy: { start: "asc" },
+      take: 5,
+    }),
+    db.event.findMany({
+      where: {
+        orgId: org.id,
+        archived: false,
+        type: { not: "BLOCK" },
+        start: { gte: monthStart, lte: monthEnd },
+      },
+      select: { start: true },
+    }),
+    db.user.findMany({
+      where: { orgId: org.id },
+      select: { id: true, displayName: true },
+    }),
+  ])
 
   return {
     events,
@@ -239,7 +282,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     orgSlug: org.slug,
     isGoogleCalendarConnected: Boolean(org.googleCalendarToken),
     isZoomConnected: Boolean(org.zoomToken),
-    employeeMap: Object.fromEntries(orgUsers.map((u) => [u.id, u.displayName ?? ""])),
+    employeeMap: Object.fromEntries(
+      orgUsers.map((u) => [u.id, u.displayName ?? ""]),
+    ),
     monthEventDates: monthEvents.map((e) => e.start.toISOString()),
     upcomingEvents: upcomingEvents.map((e) => ({
       id: e.id,
@@ -391,7 +436,7 @@ function UpcomingAppointments({
   }[]
   orgSlug: string
 }) {
-  const formatTime = (iso: string) => {
+  const _formatTime = (iso: string) => {
     const d = new Date(iso)
     return d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })
   }
@@ -406,7 +451,10 @@ function UpcomingAppointments({
         <span className="font-satoMedium text-brand_dark text-sm">
           Citas agendadas
         </span>
-        <a href="/dash/agenda/citas" className="text-xs text-[#615FFF] underline">
+        <a
+          href="/dash/agenda/citas"
+          className="text-xs text-[#615FFF] underline"
+        >
           Ver todas
         </a>
       </div>
@@ -628,8 +676,7 @@ function MonthCalendar({
     return map
   }, [events])
 
-  const toKey = (d: Date) =>
-    `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+  const toKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
 
   const MAX_VISIBLE = 3
 
@@ -645,10 +692,7 @@ function MonthCalendar({
           </div>
         ))}
       </div>
-      <div
-        className="grid grid-cols-7 flex-1"
-        style={{ gridAutoRows: "1fr" }}
-      >
+      <div className="grid grid-cols-7 flex-1" style={{ gridAutoRows: "1fr" }}>
         {days.map((d, i) => {
           const isCurrentMonth = d.getMonth() === currentMonth
           const today = isTodayFn(d)
@@ -736,11 +780,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     const customerId = searchParams.get("customerId")
     if (customerId) {
-      setEditableEvent({ start: new Date(), customerId } as Partial<PrismaEvent>)
-      setSearchParams((prev) => {
-        prev.delete("customerId")
-        return prev
-      }, { replace: true })
+      setEditableEvent({
+        start: new Date(),
+        customerId,
+      } as Partial<PrismaEvent>)
+      setSearchParams(
+        (prev) => {
+          prev.delete("customerId")
+          return prev
+        },
+        { replace: true },
+      )
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -818,9 +868,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   // Day view: single resource so Calendar renders one column
   const isDayView = viewMode === "day"
-  const dayResources = isDayView
-    ? [{ id: "day", name: "" }]
-    : undefined
+  const dayResources = isDayView ? [{ id: "day", name: "" }] : undefined
 
   // Map to CalendarEvent format
   const calendarEvents: CalendarEvent[] = useMemo(
@@ -832,7 +880,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         title: e.title,
         type: e.type as "BLOCK" | "EVENT",
         service: e.service ? { name: e.service.name } : null,
-        color: e.type === "BLOCK" ? undefined : e.status === "confirmed" ? "#BFDD78" : "#FFD75E",
+        color:
+          e.type === "BLOCK"
+            ? undefined
+            : e.status === "confirmed"
+              ? "#BFDD78"
+              : "#FFD75E",
         ...(isDayView ? { resourceId: "day" } : {}),
       })),
     [displayEvents, isDayView],
@@ -901,15 +954,24 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     )
   }
 
-  const [confirmDelete, setConfirmDelete] = useState<{ id: string; customerName: string } | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState<{
+    id: string
+    customerName: string
+  } | null>(null)
   const handleRemoveEvent = (eventId: string) => {
     setHoveredEventId(null)
     const full = eventsMap.get(eventId)
-    setConfirmDelete({ id: eventId, customerName: full?.customer?.displayName ?? "el cliente" })
+    setConfirmDelete({
+      id: eventId,
+      customerName: full?.customer?.displayName ?? "el cliente",
+    })
   }
   const handleConfirmDelete = () => {
     if (!confirmDelete) return
-    setOptimisticOps((prev) => [...prev, { type: "remove", eventId: confirmDelete.id }])
+    setOptimisticOps((prev) => [
+      ...prev,
+      { type: "remove", eventId: confirmDelete.id },
+    ])
     mutationFetcher.submit(
       { intent: "delete_event", eventId: confirmDelete.id },
       { method: "POST" },
@@ -955,7 +1017,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       // Available height = container height minus the controls above the calendar
       const containerRect = container.getBoundingClientRect()
       const articleRect = article.getBoundingClientRect()
-      const headerSection = article.querySelector("section:first-child") as HTMLElement | null
+      const headerSection = article.querySelector(
+        "section:first-child",
+      ) as HTMLElement | null
       const headerH = headerSection?.offsetHeight || 0
       const availableH = containerRect.bottom - articleRect.top - headerH
       const totalHours = 21 - 8 // hoursEnd - hoursStart
@@ -993,7 +1057,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-8rem)] max-w-8xl mx-auto">
-      <h1 className="text-2xl md:text-3xl font-satoBold mb-1 md:mb-2">Mi agenda</h1>
+      <h1 className="text-2xl md:text-3xl font-satoBold mb-1 md:mb-2">
+        Mi agenda
+      </h1>
 
       <div className="flex gap-6 flex-1">
         <div ref={calendarRef} className="flex-1 min-w-0 flex flex-col">
@@ -1052,12 +1118,20 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                     className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm"
                     style={{ backgroundColor: event.color || "#FFD75E" }}
                     onMouseEnter={(e) => {
-                      if (!isDragging) handleEventMouseEnter(event.id, e.currentTarget.getBoundingClientRect())
+                      if (!isDragging)
+                        handleEventMouseEnter(
+                          event.id,
+                          e.currentTarget.getBoundingClientRect(),
+                        )
                     }}
                     onMouseLeave={handleEventMouseLeave}
                   >
-                    <span className="font-medium truncate text-brand_dark">{event.title}</span>
-                    <span className="text-brand_gray truncate text-[10px]">{event.service?.name}</span>
+                    <span className="font-medium truncate text-brand_dark">
+                      {event.title}
+                    </span>
+                    <span className="text-brand_gray truncate text-[10px]">
+                      {event.service?.name}
+                    </span>
                   </div>
                 ),
               }}
@@ -1065,7 +1139,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           )}
         </div>
         <aside className="hidden xl:flex flex-col gap-6 w-[300px] shrink-0">
-          <MiniCalendar week={week} onDateClick={handleMiniDateClick} eventDates={eventDateKeys} />
+          <MiniCalendar
+            week={week}
+            onDateClick={handleMiniDateClick}
+            eventDates={eventDateKeys}
+          />
           <UpcomingAppointments events={upcomingEvents} orgSlug={orgSlug} />
         </aside>
       </div>
@@ -1085,45 +1163,64 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         isOpen={showNewClientDrawer}
       />
       {/* Hover card rendered at page level to avoid overflow clipping */}
-      {hoveredEventId && hoverRect && (() => {
-        const full = eventsMap.get(hoveredEventId)
-        if (!full) return null
-        const hoverData: EventHoverData = {
-          customerName: full.customer?.displayName,
-          serviceName: full.service?.name,
-          employeeName: full.employeeId ? employeeMap[full.employeeId] : undefined,
-          phone: full.customer?.tel,
-          email: full.customer?.email,
-          notes: full.notes ?? undefined,
-          status: full.status,
-          paid: full.paid,
-        }
-        const showAbove = hoverRect.top > 320
-        return (
-          <div
-            className="fixed z-50"
-            style={{
-              top: showAbove ? hoverRect.top - 8 : hoverRect.bottom + 8,
-              left: hoverRect.left,
-              transform: showAbove ? "translateY(-100%)" : undefined,
-            }}
-            onMouseEnter={handlePopoverMouseEnter}
-            onMouseLeave={handlePopoverMouseLeave}
-          >
-            <EventHoverCard
-              data={hoverData}
-              onEdit={() => { setEditableEvent(full); setHoveredEventId(null) }}
-              onDelete={() => { handleRemoveEvent(full.id); setHoveredEventId(null) }}
-            />
-          </div>
-        )
-      })()}
+      {hoveredEventId &&
+        hoverRect &&
+        (() => {
+          const full = eventsMap.get(hoveredEventId)
+          if (!full) return null
+          const hoverData: EventHoverData = {
+            customerName: full.customer?.displayName,
+            serviceName: full.service?.name,
+            employeeName: full.employeeId
+              ? employeeMap[full.employeeId]
+              : undefined,
+            phone: full.customer?.tel,
+            email: full.customer?.email,
+            notes: full.notes ?? undefined,
+            status: full.status,
+            paid: full.paid,
+          }
+          const showAbove = hoverRect.top > 320
+          return (
+            <div
+              className="fixed z-50"
+              style={{
+                top: showAbove ? hoverRect.top - 8 : hoverRect.bottom + 8,
+                left: hoverRect.left,
+                transform: showAbove ? "translateY(-100%)" : undefined,
+              }}
+              onMouseEnter={handlePopoverMouseEnter}
+              onMouseLeave={handlePopoverMouseLeave}
+            >
+              <EventHoverCard
+                data={hoverData}
+                onEdit={() => {
+                  setEditableEvent(full)
+                  setHoveredEventId(null)
+                }}
+                onDelete={() => {
+                  handleRemoveEvent(full.id)
+                  setHoveredEventId(null)
+                }}
+              />
+            </div>
+          )
+        })()}
       <ConfirmModal
         isOpen={!!confirmDelete}
         onClose={() => setConfirmDelete(null)}
         onConfirm={handleConfirmDelete}
         title="¿Seguro que quieres cancelar esta cita? 🫣"
-        description={<>Al cancelar, la cita será eliminada de la agenda. Enviaremos una notificación a <span className="font-satoBold">{confirmDelete?.customerName ?? "el cliente"}</span>.</>}
+        description={
+          <>
+            Al cancelar, la cita será eliminada de la agenda. Enviaremos una
+            notificación a{" "}
+            <span className="font-satoBold">
+              {confirmDelete?.customerName ?? "el cliente"}
+            </span>
+            .
+          </>
+        }
         confirmText="Sí, cancelar"
         cancelText="Volver"
         variant="danger"

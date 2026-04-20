@@ -48,7 +48,7 @@ const CalendarScreen = () => (
                         ? "bg-brand_blue/10 text-brand_blue"
                         : day <= 28
                           ? "bg-gray-50/80 text-gray-300"
-                          : "bg-transparent"
+                          : "bg-transparent",
                   )}
                 >
                   {day <= 28 ? day : ""}
@@ -112,11 +112,7 @@ export const LaptopShell = ({
   </div>
 )
 
-export const LaptopIllustration = ({
-  className,
-}: {
-  className?: string
-}) => (
+export const LaptopIllustration = ({ className }: { className?: string }) => (
   <LaptopShell className={className}>
     <CalendarScreen />
   </LaptopShell>

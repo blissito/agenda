@@ -38,7 +38,7 @@ export const LoyaltyCardsIllustration = ({
   <div
     className={twMerge(
       "relative flex items-center justify-center h-[220px] mt-2",
-      className
+      className,
     )}
   >
     <style>{`
@@ -59,7 +59,7 @@ export const LoyaltyCardsIllustration = ({
           "loyalty-card absolute w-[240px] h-[150px] rounded-2xl p-5 flex flex-col justify-between shadow-sm border border-white/20",
           `loyalty-card-${i}`,
           `bg-gradient-to-br ${tier.bg}`,
-          tier.z
+          tier.z,
         )}
       >
         <div className="flex items-center justify-between">

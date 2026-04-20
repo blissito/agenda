@@ -41,11 +41,10 @@ const Info = () => {
               En cumplimiento de lo dispuesto por la Ley Federal de Protección
               de Datos Personales en Posesión de los Particulares (en adelante
               "LFPDPPP"), su Reglamento y los Lineamientos del Aviso de
-              Privacidad, Deník, con domicilio en los Estados Unidos
-              Mexicanos (en adelante "el Responsable"), es responsable del
-              tratamiento de los datos personales que nos proporcione, los
-              cuales serán protegidos conforme a la legislación vigente en la
-              materia.
+              Privacidad, Deník, con domicilio en los Estados Unidos Mexicanos
+              (en adelante "el Responsable"), es responsable del tratamiento de
+              los datos personales que nos proporcione, los cuales serán
+              protegidos conforme a la legislación vigente en la materia.
             </p>
             <p>
               Para cualquier asunto relacionado con el presente Aviso de
@@ -59,9 +58,8 @@ const Info = () => {
         <Clause id="datos" name="2. Datos personales recabados">
           <div className="flex flex-col gap-4">
             <p>
-              Para las finalidades señaladas en el presente Aviso de
-              Privacidad, podemos recabar las siguientes categorías de datos
-              personales:
+              Para las finalidades señaladas en el presente Aviso de Privacidad,
+              podemos recabar las siguientes categorías de datos personales:
             </p>
             <p>
               <strong className="font-satoMiddle">
@@ -75,7 +73,10 @@ const Info = () => {
               <li>d. País y dirección del establecimiento.</li>
               <li>e. Tipo de negocio y giro comercial.</li>
               <li>f. Logotipo e imágenes del negocio.</li>
-              <li>g. Información de servicios ofrecidos (nombre, precio, duración).</li>
+              <li>
+                g. Información de servicios ofrecidos (nombre, precio,
+                duración).
+              </li>
               <li>h. Horarios de operación.</li>
               <li>i. Información fiscal para facturación (en su caso).</li>
             </ul>
@@ -89,18 +90,19 @@ const Info = () => {
               <li>b. Correo electrónico.</li>
               <li>c. Número telefónico.</li>
               <li>d. Historial de citas y servicios contratados.</li>
-              <li>e. Datos de pago procesados por terceros (Stripe y/o MercadoPago).</li>
+              <li>
+                e. Datos de pago procesados por terceros (Stripe y/o
+                MercadoPago).
+              </li>
             </ul>
             <p>
-              <strong className="font-satoMiddle">
-                2.3. Datos sensibles.
-              </strong>{" "}
+              <strong className="font-satoMiddle">2.3. Datos sensibles.</strong>{" "}
               Deník no recaba datos personales sensibles de manera directa. Sin
-              embargo, dependiendo del giro del Negocio (por ejemplo,
-              servicios de salud o estética), la información contenida en las
-              notas de citas podría contener datos sensibles. El Negocio es el
-              único responsable de informar a sus Usuarios Finales cuando
-              recabe datos sensibles a través de la Plataforma.
+              embargo, dependiendo del giro del Negocio (por ejemplo, servicios
+              de salud o estética), la información contenida en las notas de
+              citas podría contener datos sensibles. El Negocio es el único
+              responsable de informar a sus Usuarios Finales cuando recabe datos
+              sensibles a través de la Plataforma.
             </p>
           </div>
         </Clause>
@@ -132,9 +134,7 @@ const Info = () => {
                 e. Generar la página web pública (landing page) del Negocio
                 dentro de la Plataforma.
               </li>
-              <li>
-                f. Proveer soporte técnico y atención al cliente.
-              </li>
+              <li>f. Proveer soporte técnico y atención al cliente.</li>
               <li>
                 g. Cumplir con obligaciones legales y fiscales aplicables.
               </li>
@@ -150,26 +150,23 @@ const Info = () => {
                 de la Plataforma.
               </li>
               <li>
-                b. Realizar análisis estadísticos y de uso de la Plataforma
-                para mejorar nuestros servicios.
+                b. Realizar análisis estadísticos y de uso de la Plataforma para
+                mejorar nuestros servicios.
               </li>
               <li>
                 c. Mostrar el perfil del Negocio en la Comunidad Deník
                 (marketplace), cuando el Negocio haya optado por participar.
               </li>
-              <li>
-                d. Realizar encuestas de satisfacción.
-              </li>
+              <li>d. Realizar encuestas de satisfacción.</li>
             </ul>
             <p>
-              Si usted no desea que sus datos personales sean tratados para
-              las finalidades secundarias, podrá manifestarlo enviando un
-              correo electrónico a{" "}
+              Si usted no desea que sus datos personales sean tratados para las
+              finalidades secundarias, podrá manifestarlo enviando un correo
+              electrónico a{" "}
               <strong className="font-satoMiddle">privacidad@denik.me</strong>{" "}
-              con el asunto "Negativa finalidades secundarias". La negativa
-              para el uso de sus datos personales para estas finalidades no
-              será motivo para que le neguemos los servicios que solicita o
-              contrata.
+              con el asunto "Negativa finalidades secundarias". La negativa para
+              el uso de sus datos personales para estas finalidades no será
+              motivo para que le neguemos los servicios que solicita o contrata.
             </p>
           </div>
         </Clause>
@@ -194,8 +191,8 @@ const Info = () => {
                 4.2. Datos compartidos con Proveedores de IA.
               </strong>{" "}
               Para el funcionamiento de estas funcionalidades, la siguiente
-              información del Negocio podrá ser enviada a los servidores de
-              los Proveedores de IA:
+              información del Negocio podrá ser enviada a los servidores de los
+              Proveedores de IA:
             </p>
             <ul className="ml-4 flex flex-col gap-2">
               <li>a. Nombre y descripción del negocio.</li>
@@ -222,9 +219,9 @@ const Info = () => {
               Los Proveedores de IA tienen sus servidores ubicados en los
               Estados Unidos de América. Al utilizar las Funcionalidades de IA,
               el Negocio consiente la transferencia internacional de sus datos
-              conforme al artículo 36 de la LFPDPPP. Los Proveedores de IA
-              están obligados a mantener medidas de seguridad equivalentes a
-              las exigidas por la legislación mexicana conforme a sus propias
+              conforme al artículo 36 de la LFPDPPP. Los Proveedores de IA están
+              obligados a mantener medidas de seguridad equivalentes a las
+              exigidas por la legislación mexicana conforme a sus propias
               políticas de privacidad.
             </p>
             <p>
@@ -271,24 +268,20 @@ const Info = () => {
                 IA, conforme a lo descrito en la cláusula 4 del presente Aviso.
               </li>
               <li>
-                <strong className="font-satoMiddle">
-                  d. Pexels:
-                </strong>{" "}
-                para la obtención de imágenes de stock utilizadas en la
-                generación de páginas web. Pexels no recibe datos personales.
+                <strong className="font-satoMiddle">d. Pexels:</strong> para la
+                obtención de imágenes de stock utilizadas en la generación de
+                páginas web. Pexels no recibe datos personales.
               </li>
             </ul>
             <p>
               Las transferencias indicadas en los incisos anteriores no
               requieren del consentimiento del titular, de conformidad con el
-              artículo 37 de la LFPDPPP, al ser necesarias para el
-              cumplimiento de la relación jurídica entre el titular y el
-              Responsable.
+              artículo 37 de la LFPDPPP, al ser necesarias para el cumplimiento
+              de la relación jurídica entre el titular y el Responsable.
             </p>
             <p>
-              Deník no venderá, alquilará ni compartirá sus datos personales
-              con terceros para fines de marketing sin su consentimiento
-              expreso.
+              Deník no venderá, alquilará ni compartirá sus datos personales con
+              terceros para fines de marketing sin su consentimiento expreso.
             </p>
           </div>
         </Clause>
@@ -298,17 +291,17 @@ const Info = () => {
             <p>
               Usted tiene derecho a conocer qué datos personales tenemos de
               usted, para qué los utilizamos y las condiciones del uso que les
-              damos (Acceso). Asimismo, es su derecho solicitar la corrección
-              de su información personal en caso de que esté desactualizada,
-              sea inexacta o incompleta (Rectificación); que la eliminemos de
+              damos (Acceso). Asimismo, es su derecho solicitar la corrección de
+              su información personal en caso de que esté desactualizada, sea
+              inexacta o incompleta (Rectificación); que la eliminemos de
               nuestros registros o bases de datos cuando considere que la misma
               no está siendo utilizada adecuadamente (Cancelación); así como
               oponerse al uso de sus datos personales para fines específicos
               (Oposición). Estos derechos se conocen como derechos ARCO.
             </p>
             <p>
-              Para el ejercicio de cualquiera de los derechos ARCO, usted
-              deberá enviar una solicitud al correo electrónico{" "}
+              Para el ejercicio de cualquiera de los derechos ARCO, usted deberá
+              enviar una solicitud al correo electrónico{" "}
               <strong className="font-satoMiddle">privacidad@denik.me</strong>,
               que contenga al menos la siguiente información:
             </p>
@@ -331,8 +324,8 @@ const Info = () => {
               </li>
             </ul>
             <p>
-              Deník dará respuesta a su solicitud en un plazo máximo de 20
-              días hábiles contados a partir de la fecha en que se reciba la
+              Deník dará respuesta a su solicitud en un plazo máximo de 20 días
+              hábiles contados a partir de la fecha en que se reciba la
               solicitud completa. La respuesta indicará si la solicitud es
               procedente y, en su caso, se hará efectiva dentro de los 15 días
               hábiles siguientes a la comunicación de la respuesta. Los plazos
@@ -342,16 +335,13 @@ const Info = () => {
           </div>
         </Clause>
 
-        <Clause
-          id="revocacion"
-          name="7. Revocación del consentimiento"
-        >
+        <Clause id="revocacion" name="7. Revocación del consentimiento">
           <div className="flex flex-col gap-4">
             <p>
               Usted puede revocar el consentimiento que, en su caso, nos haya
-              otorgado para el tratamiento de sus datos personales. Sin
-              embargo, es importante que tenga en cuenta que no en todos los
-              casos podremos atender su solicitud o concluir el uso de forma
+              otorgado para el tratamiento de sus datos personales. Sin embargo,
+              es importante que tenga en cuenta que no en todos los casos
+              podremos atender su solicitud o concluir el uso de forma
               inmediata, ya que es posible que por alguna obligación legal
               requiramos seguir tratando sus datos personales.
             </p>
@@ -365,15 +355,12 @@ const Info = () => {
           </div>
         </Clause>
 
-        <Clause
-          id="cookies"
-          name="8. Uso de cookies y tecnologías de rastreo"
-        >
+        <Clause id="cookies" name="8. Uso de cookies y tecnologías de rastreo">
           <div className="flex flex-col gap-4">
             <p>
-              La Plataforma puede utilizar cookies y tecnologías similares
-              para mejorar la experiencia de navegación, recordar preferencias
-              y analizar el uso de la Plataforma. Las cookies son archivos de
+              La Plataforma puede utilizar cookies y tecnologías similares para
+              mejorar la experiencia de navegación, recordar preferencias y
+              analizar el uso de la Plataforma. Las cookies son archivos de
               datos que se almacenan en su dispositivo y que permiten
               reconocerlo en visitas posteriores.
             </p>
@@ -391,16 +378,16 @@ const Info = () => {
             <p>
               Deník ha implementado y mantiene medidas de seguridad
               administrativas, técnicas y físicas para proteger sus datos
-              personales contra daño, pérdida, alteración, destrucción o el
-              uso, acceso o tratamiento no autorizado, incluyendo:
+              personales contra daño, pérdida, alteración, destrucción o el uso,
+              acceso o tratamiento no autorizado, incluyendo:
             </p>
             <ul className="ml-4 flex flex-col gap-2">
               <li>
                 a. Cifrado de datos en tránsito mediante protocolo HTTPS/TLS.
               </li>
               <li>
-                b. Autenticación mediante enlaces de acceso únicos (magic
-                links) que evitan el almacenamiento de contraseñas.
+                b. Autenticación mediante enlaces de acceso únicos (magic links)
+                que evitan el almacenamiento de contraseñas.
               </li>
               <li>
                 c. Almacenamiento de datos en servidores con certificaciones de
@@ -418,7 +405,10 @@ const Info = () => {
           </div>
         </Clause>
 
-        <Clause id="modificaciones" name="10. Modificaciones al Aviso de Privacidad">
+        <Clause
+          id="modificaciones"
+          name="10. Modificaciones al Aviso de Privacidad"
+        >
           <div className="flex flex-col gap-4">
             <p>
               El presente Aviso de Privacidad puede sufrir modificaciones,
@@ -430,20 +420,23 @@ const Info = () => {
             <p>
               Nos comprometemos a mantenerlo informado sobre los cambios que
               pueda sufrir el presente Aviso de Privacidad a través de la
-              Plataforma y/o mediante correo electrónico enviado a la
-              dirección registrada en su cuenta. La fecha de la última
-              actualización será visible al final de este documento.
+              Plataforma y/o mediante correo electrónico enviado a la dirección
+              registrada en su cuenta. La fecha de la última actualización será
+              visible al final de este documento.
             </p>
           </div>
         </Clause>
 
-        <Clause id="legislacion" name="11. Legislación aplicable y jurisdicción">
+        <Clause
+          id="legislacion"
+          name="11. Legislación aplicable y jurisdicción"
+        >
           <div className="flex flex-col gap-4">
             <p>
-              El presente Aviso de Privacidad se rige por lo dispuesto en la
-              Ley Federal de Protección de Datos Personales en Posesión de los
-              Particulares, su Reglamento y demás normatividad aplicable en
-              los Estados Unidos Mexicanos.
+              El presente Aviso de Privacidad se rige por lo dispuesto en la Ley
+              Federal de Protección de Datos Personales en Posesión de los
+              Particulares, su Reglamento y demás normatividad aplicable en los
+              Estados Unidos Mexicanos.
             </p>
             <p>
               Para cualquier controversia derivada del presente Aviso de
@@ -458,8 +451,8 @@ const Info = () => {
         <Clause id="contacto" name="12. Contacto">
           <div className="flex flex-col gap-4">
             <p>
-              Si usted tiene dudas, comentarios o desea ejercer sus derechos
-              en relación con el tratamiento de sus datos personales, puede
+              Si usted tiene dudas, comentarios o desea ejercer sus derechos en
+              relación con el tratamiento de sus datos personales, puede
               contactarnos a través de:
             </p>
             <ul className="ml-4 flex flex-col gap-2">

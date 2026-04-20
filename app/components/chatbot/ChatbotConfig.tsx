@@ -2,7 +2,7 @@ import { useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { IoClose } from "react-icons/io5"
 import { BasicInput } from "~/components/forms/BasicInput"
-import { ChatWidgetInline, type ChatConfig } from "./ChatWidget"
+import { type ChatConfig, ChatWidgetInline } from "./ChatWidget"
 import { WhatsAppAd } from "./WhatsAppAd"
 
 interface ChatbotConfigProps {
@@ -34,10 +34,10 @@ export function ChatbotConfig({
     initialConfig?.farewell ||
       "Si necesitas ayuda con algo más, escríbeme, estoy aquí para ayudarte.",
   )
-  const [widgetStyle, setWidgetStyle] = useState<ChatConfig["widgetStyle"]>(
+  const [widgetStyle, _setWidgetStyle] = useState<ChatConfig["widgetStyle"]>(
     initialConfig?.widgetStyle || "bubble",
   )
-  const [showStylePicker, setShowStylePicker] = useState(false)
+  const [_showStylePicker, _setShowStylePicker] = useState(false)
   const [showFullPreview, setShowFullPreview] = useState(false)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState(avatarUrl)
@@ -48,8 +48,9 @@ export function ChatbotConfig({
     { value: "sidebar", label: "Sidebar" },
     { value: "bar", label: "Barra inferior" },
   ]
-  const currentStyleLabel =
-    WIDGET_STYLES.find((s) => s.value === widgetStyle)?.label || "Bubble clásico"
+  const _currentStyleLabel =
+    WIDGET_STYLES.find((s) => s.value === widgetStyle)?.label ||
+    "Bubble clásico"
 
   const handleAvatarDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -309,7 +310,8 @@ export function ChatbotConfig({
         </div>
       </div>
 
-      {showFullPreview && typeof document !== "undefined" &&
+      {showFullPreview &&
+        typeof document !== "undefined" &&
         createPortal(
           <div
             className="fixed inset-0 z-[999] flex items-center justify-center bg-[#F0F5FC] p-4 md:p-8"
@@ -330,7 +332,10 @@ export function ChatbotConfig({
               <IoClose className="text-2xl" />
             </button>
             <div className="w-full h-full flex items-center justify-center">
-              <ChatWidgetInline agentId={agentId ?? ""} config={previewConfig} />
+              <ChatWidgetInline
+                agentId={agentId ?? ""}
+                config={previewConfig}
+              />
             </div>
           </div>,
           document.body,

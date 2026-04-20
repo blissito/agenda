@@ -1,5 +1,5 @@
-import type { ActionFunctionArgs } from "react-router"
 import crypto from "node:crypto"
+import type { ActionFunctionArgs } from "react-router"
 import { db } from "~/utils/db.server"
 
 // Zoom Webhook
@@ -49,9 +49,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const signature = request.headers.get("x-zm-signature") || ""
   const timestamp = request.headers.get("x-zm-request-timestamp") || ""
   const message = `v0:${timestamp}:${rawBody}`
-  const expected =
-    "v0=" +
-    crypto.createHmac("sha256", secret).update(message).digest("hex")
+  const expected = `v0=${crypto.createHmac("sha256", secret).update(message).digest("hex")}`
 
   // timingSafeEqual requires same length
   const sigBuf = Buffer.from(signature)

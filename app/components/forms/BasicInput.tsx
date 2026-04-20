@@ -26,7 +26,15 @@ type Props = {
   required?: boolean
   min?: number | string
   max?: number | string
-  inputMode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url"
+  inputMode?:
+    | "none"
+    | "text"
+    | "decimal"
+    | "numeric"
+    | "tel"
+    | "search"
+    | "email"
+    | "url"
 }
 
 export const BasicInput = ({

@@ -56,7 +56,10 @@ export default function Index() {
 }
 
 export const Faq = () => (
-  <section id="preguntas-frecuentes" className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
+  <section
+    id="preguntas-frecuentes"
+    className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]"
+  >
     <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4">Preguntas </span>
       <Bubble className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
@@ -98,22 +101,18 @@ export const Faq = () => (
         answer={
           <p>
             Deník ofrece dos planes:{" "}
-            <strong className="font-satoBold">
-              {" "}
-              Profesional y Enterprise
-            </strong>
+            <strong className="font-satoBold"> Profesional y Enterprise</strong>
             . Te recomendamos el Plan Profesional si eres un emprendedor
             independiente que no requiere manejar sucursales o staff, y el Plan
             Enterprise si tu negocio cuenta con sucursales o staff con un
             calendario independiente cada uno. En cuanto al precio, el Plan
             Profesional tiene un costo de{" "}
             <strong className="font-satoBold">$249 mxn al mes</strong> (o{" "}
-            <strong className="font-satoBold">$199 mxn al mes</strong>{" "}
-            facturado anualmente), y el Plan Enterprise de{" "}
+            <strong className="font-satoBold">$199 mxn al mes</strong> facturado
+            anualmente), y el Plan Enterprise de{" "}
             <strong className="font-satoBold">$599 mxn al mes</strong> (o{" "}
-            <strong className="font-satoBold">$479 mxn al mes</strong>{" "}
-            facturado anualmente). Al contratar el plan anual ahorras hasta un
-            20%.
+            <strong className="font-satoBold">$479 mxn al mes</strong> facturado
+            anualmente). Al contratar el plan anual ahorras hasta un 20%.
           </p>
         }
       />
@@ -162,9 +161,9 @@ export const Faq = () => (
             para que se ajuste a la imagen de tu negocio. Además, con nuestra
             herramienta de{" "}
             <strong className="font-satoBold">inteligencia artificial</strong>{" "}
-            puedes generar y editar tu landing page de forma fácil y rápida,
-            sin necesidad de conocimientos técnicos ni de diseño. Solo describe
-            lo que quieres y la IA se encarga del resto.
+            puedes generar y editar tu landing page de forma fácil y rápida, sin
+            necesidad de conocimientos técnicos ni de diseño. Solo describe lo
+            que quieres y la IA se encarga del resto.
           </>
         }
       />
@@ -175,13 +174,12 @@ export const Faq = () => (
             <strong className="font-satoBold">Nik</strong> es el asistente
             personal de IA que conectas a tu WhatsApp. Desde un chat privado
             puedes pedirle que{" "}
-            <strong className="font-satoBold">
-              agende o cancele citas
-            </strong>
-            , consulte la disponibilidad de tu agenda, te dé información de tus
+            <strong className="font-satoBold">agende o cancele citas</strong>,
+            consulte la disponibilidad de tu agenda, te dé información de tus
             clientes, servicios o ingresos, y hasta que{" "}
             <strong className="font-satoBold">actualice tu sitio web</strong>.
-            Todo <strong className="font-satoBold">sin abrir el dashboard</strong>:
+            Todo{" "}
+            <strong className="font-satoBold">sin abrir el dashboard</strong>:
             solo le escribes como si fuera tu mano derecha y él se encarga de
             operar tu negocio por ti.
           </>
@@ -217,8 +215,8 @@ export const Faq = () => (
             Deník es ideal para diversos negocios como{" "}
             <strong className="font-satoBold">
               consultorios médicos, centros educativos, clases independientes,
-              gimnasios, clínicas, salones de belleza, estudios de yoga,
-              centros deportivos
+              gimnasios, clínicas, salones de belleza, estudios de yoga, centros
+              deportivos
             </strong>{" "}
             y muchos más.
           </>
@@ -234,9 +232,7 @@ export const Faq = () => (
               recordatorios automáticos por correo y WhatsApp
             </strong>{" "}
             ayudan a que tus clientes no olviden sus citas,{" "}
-            <strong className="font-satoBold">
-              reduciendo cancelaciones
-            </strong>{" "}
+            <strong className="font-satoBold">reduciendo cancelaciones</strong>{" "}
             y mejorando la eficiencia.
           </>
         }
@@ -246,9 +242,9 @@ export const Faq = () => (
         answer={
           <>
             Sí, Deník integra{" "}
-            <strong className="font-satoBold">Stripe y MercadoPago</strong>,
-            dos de las plataformas de pago más seguras y confiables del mundo.
-            Ambas cuentan con{" "}
+            <strong className="font-satoBold">Stripe y MercadoPago</strong>, dos
+            de las plataformas de pago más seguras y confiables del mundo. Ambas
+            cuentan con{" "}
             <strong className="font-satoBold">encriptación de datos</strong>,
             protección contra fraude y cumplimiento de estándares
             internacionales de seguridad. Tus datos y los de tus clientes están
@@ -324,7 +320,9 @@ export const Pricing = () => (
     </h2>
     <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-4 md:mt-6 w-full mx-auto md:w-[90%]">
       Olvídate de los problemas administrativos. Únete a cientos de negocios que
-      usan Deník.<br className="hidden md:flex" />¿Listo para empezar hoy mismo?
+      usan Deník.
+      <br className="hidden md:flex" />
+      ¿Listo para empezar hoy mismo?
     </p>
     <PricingTabs />
   </section>
@@ -405,7 +403,8 @@ const FEATURES_ENTERPRISE = [
 export const yearlyItems = [
   {
     plan: "Profesional",
-    description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
+    description:
+      "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
     price: "$199 mxn",
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
     cta: (
@@ -433,7 +432,8 @@ export const yearlyItems = [
 export const monthlyItems = [
   {
     plan: "Profesional",
-    description: "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
+    description:
+      "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
     price: "$249 mxn",
     priceNote: "Cancela cuando quieras.",
     cta: (

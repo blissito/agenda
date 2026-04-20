@@ -1,7 +1,11 @@
 import { useRef, useState } from "react"
 import { FaCheck, FaLink } from "react-icons/fa6"
 import { twMerge } from "tailwind-merge"
-import { ParticleLayer, playBurstSound, useParticleBurst } from "./ParticleBurst"
+import {
+  ParticleLayer,
+  playBurstSound,
+  useParticleBurst,
+} from "./ParticleBurst"
 
 export const CopyLinkButton = ({
   url,

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react"
-import type { Editor } from "grapesjs"
 import { LANDING_THEMES } from "@easybits.cloud/html-tailwind-generator"
 import { TailwindClassEditor } from "@easybits.cloud/html-tailwind-generator/components4"
+import type { Editor } from "grapesjs"
+import { useEffect, useMemo, useRef, useState } from "react"
 
 export interface EditorRightSidebarProps {
   editor: Editor | null
@@ -65,7 +65,9 @@ export function EditorRightSidebar({
                     height: "12px",
                     marginLeft: "4px",
                     background: "#ffffff",
-                    transform: chatbotEnabled ? "translateX(16px)" : "translateX(0)",
+                    transform: chatbotEnabled
+                      ? "translateX(16px)"
+                      : "translateX(0)",
                     transition: "transform 0.2s",
                   }}
                 />
@@ -135,14 +137,33 @@ function ThemeSelector({
       >
         {active && (
           <div className="flex -space-x-1">
-            <span className="w-4 h-4 rounded-full border border-black/20" style={{ backgroundColor: active.colors.primary }} />
-            <span className="w-4 h-4 rounded-full border border-black/20" style={{ backgroundColor: active.colors.surface }} />
-            <span className="w-4 h-4 rounded-full border border-black/20" style={{ backgroundColor: active.colors.accent }} />
+            <span
+              className="w-4 h-4 rounded-full border border-black/20"
+              style={{ backgroundColor: active.colors.primary }}
+            />
+            <span
+              className="w-4 h-4 rounded-full border border-black/20"
+              style={{ backgroundColor: active.colors.surface }}
+            />
+            <span
+              className="w-4 h-4 rounded-full border border-black/20"
+              style={{ backgroundColor: active.colors.accent }}
+            />
           </div>
         )}
-        <span className="text-sm text-white flex-1 text-left">{active?.label ?? "Tema"}</span>
-        <svg className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+        <span className="text-sm text-white flex-1 text-left">
+          {active?.label ?? "Tema"}
+        </span>
+        <svg
+          className={`w-4 h-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
         </svg>
       </button>
       {open && (
@@ -151,13 +172,25 @@ function ThemeSelector({
             <button
               key={t.id}
               type="button"
-              onClick={() => { onSelect(t.id); setOpen(false) }}
+              onClick={() => {
+                onSelect(t.id)
+                setOpen(false)
+              }}
               className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-white/10 transition-colors ${t.id === activeTheme ? "bg-white/5" : ""}`}
             >
               <div className="flex -space-x-1">
-                <span className="w-4 h-4 rounded-full border border-black/20" style={{ backgroundColor: t.colors.primary }} />
-                <span className="w-4 h-4 rounded-full border border-black/20" style={{ backgroundColor: t.colors.surface }} />
-                <span className="w-4 h-4 rounded-full border border-black/20" style={{ backgroundColor: t.colors.accent }} />
+                <span
+                  className="w-4 h-4 rounded-full border border-black/20"
+                  style={{ backgroundColor: t.colors.primary }}
+                />
+                <span
+                  className="w-4 h-4 rounded-full border border-black/20"
+                  style={{ backgroundColor: t.colors.surface }}
+                />
+                <span
+                  className="w-4 h-4 rounded-full border border-black/20"
+                  style={{ backgroundColor: t.colors.accent }}
+                />
               </div>
               <span className="text-sm text-gray-200">{t.label}</span>
             </button>

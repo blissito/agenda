@@ -73,8 +73,14 @@ export default [
         "routes/dash/dash.reviews_.$serviceId.tsx",
       ),
       route("ajustes", "routes/dash/dash.ajustes.tsx"),
-      route("google-calendar/connect", "routes/dash/dash.google-calendar-connect.tsx"),
-      route("google-calendar/callback", "routes/dash/dash.google-calendar-callback.tsx"),
+      route(
+        "google-calendar/connect",
+        "routes/dash/dash.google-calendar-connect.tsx",
+      ),
+      route(
+        "google-calendar/callback",
+        "routes/dash/dash.google-calendar-callback.tsx",
+      ),
       route("zoom/connect", "routes/dash/dash.zoom-connect.tsx"),
       route("zoom/callback", "routes/dash/dash.zoom-callback.tsx"),
 
@@ -139,7 +145,10 @@ export default [
   // Survey from email links
   route("survey", "routes/survey.tsx"),
   // Review page for a specific appointment
-  route("mi-cuenta/perfil/resena/:eventId", "routes/mi-cuenta.perfil.resena.$eventId.tsx"),
+  route(
+    "mi-cuenta/perfil/resena/:eventId",
+    "routes/mi-cuenta.perfil.resena.$eventId.tsx",
+  ),
   // Customer portal
   route("mi-cuenta", "routes/mi-cuenta._index.tsx"),
   route("mi-cuenta/perfil", "routes/mi-cuenta.perfil.tsx"),

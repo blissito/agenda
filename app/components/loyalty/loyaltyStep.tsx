@@ -1,5 +1,6 @@
 // loyaltyStep.tsx
 
+import { motion } from "motion/react"
 import type {
   ChangeEvent,
   FormEvent,
@@ -7,15 +8,13 @@ import type {
   ReactNode,
 } from "react"
 import { useState } from "react"
-import { motion } from "motion/react"
 import { useRevalidator } from "react-router"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { ArrowRight } from "~/components/icons/arrowRight"
-
+import { X } from "~/components/icons/X"
 import type { Level, ServiceOption } from "~/routes/dash/dash.lealtad"
-import{X} from "~/components/icons/X"
 
 // ==================== SHARED: LEVEL IMAGE UPLOAD ====================
 
@@ -198,7 +197,8 @@ export function NivelesTab({
 
     await apiCall("update-level", {
       levelId: editingLevel.id,
-      name: (form.elements.namedItem("editLevelName") as HTMLInputElement).value,
+      name: (form.elements.namedItem("editLevelName") as HTMLInputElement)
+        .value,
       minPoints: Number(
         (form.elements.namedItem("editMinPoints") as HTMLInputElement).value,
       ),
@@ -1022,8 +1022,6 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
     </div>
   )
 }
-
-
 
 // ==================== ICONS ====================
 

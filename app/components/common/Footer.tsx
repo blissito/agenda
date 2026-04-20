@@ -43,9 +43,7 @@ export const Footer = () => {
           </Link>
         </div>
         <div className="w-full md:w-[25%]">
-          <p className="text-brand_iron font-satoshi">
-            Síguenos en redes
-          </p>
+          <p className="text-brand_iron font-satoshi">Síguenos en redes</p>
           <div className="flex mt-4">
             <a
               href="https://www.facebook.com/profile.php?id=61563700900314"

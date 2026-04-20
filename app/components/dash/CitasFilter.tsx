@@ -1,9 +1,9 @@
 import type { Dispatch, SetStateAction } from "react"
 import { FilterChip } from "~/components/common/FilterChip"
-import { BasicInput } from "~/components/forms/BasicInput"
-import { SelectInput } from "~/components/forms/SelectInput"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { BasicInput } from "~/components/forms/BasicInput"
+import { SelectInput } from "~/components/forms/SelectInput"
 
 export type CitasFilters = {
   from: string
@@ -93,7 +93,9 @@ export const CitasFilterPopup = ({
 
       {/* Por estatus */}
       <div className="flex flex-col gap-2">
-        <span className="text-base font-satoMedium text-brand_dark">Por estatus</span>
+        <span className="text-base font-satoMedium text-brand_dark">
+          Por estatus
+        </span>
         <div className="flex flex-wrap gap-2">
           {STATUS_CHIPS.map((chip) => (
             <FilterChip
@@ -111,11 +113,17 @@ export const CitasFilterPopup = ({
       {/* Acciones */}
       <div className="flex items-center justify-end gap-3 mt-6">
         {hasActiveFilters && (
-          <SecondaryButton onClick={onReset} className="min-w-0 h-10 px-5 text-sm">
+          <SecondaryButton
+            onClick={onReset}
+            className="min-w-0 h-10 px-5 text-sm"
+          >
             Restablecer
           </SecondaryButton>
         )}
-        <PrimaryButton onClick={onApply} className="min-w-0 min-h-0 h-10 px-5 text-sm">
+        <PrimaryButton
+          onClick={onApply}
+          className="min-w-0 min-h-0 h-10 px-5 text-sm"
+        >
           Aplicar
         </PrimaryButton>
       </div>

@@ -12,7 +12,9 @@ const FacebookPage = () => (
         </svg>
       </div>
       <div className="pb-1">
-        <p className="text-[8px] font-satoBold text-brand_dark leading-none">Studio Bella</p>
+        <p className="text-[8px] font-satoBold text-brand_dark leading-none">
+          Studio Bella
+        </p>
         <p className="text-[7px] text-gray-400">12.4k seguidores</p>
       </div>
     </div>
@@ -43,7 +45,9 @@ const InstagramPage = () => (
         </div>
       </div>
       <div>
-        <p className="text-[8px] font-satoBold text-brand_dark leading-none">studio.bella</p>
+        <p className="text-[8px] font-satoBold text-brand_dark leading-none">
+          studio.bella
+        </p>
         <p className="text-[7px] text-gray-400">Estudio de belleza</p>
       </div>
     </div>
@@ -65,7 +69,9 @@ const InstagramPage = () => (
       </div>
       {/* CTA button */}
       <div className="h-5 rounded-md bg-brand_blue flex items-center justify-center group-hover:scale-110 transition-transform duration-300 origin-center">
-        <span className="text-[7px] text-white font-satoBold">Reservar cita</span>
+        <span className="text-[7px] text-white font-satoBold">
+          Reservar cita
+        </span>
       </div>
     </div>
     {/* Grid */}
@@ -75,7 +81,7 @@ const InstagramPage = () => (
           key={n}
           className={twMerge(
             "aspect-square",
-            n === 0 ? "bg-pink-50" : n === 1 ? "bg-purple-50" : "bg-rose-50"
+            n === 0 ? "bg-pink-50" : n === 1 ? "bg-purple-50" : "bg-rose-50",
           )}
         />
       ))}

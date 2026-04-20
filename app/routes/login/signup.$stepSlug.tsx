@@ -171,7 +171,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       <footer className="absolute bottom-6 left-0 right-0 px-4 md:px-10 text-xs text-neutral-400">
         <div className="flex items-center justify-between">
           <span>Todos los derechos reservados Denik® 2026</span>
-          <a className="hover:text-neutral-600 text-right" href="/avisodeprivacidad">
+          <a
+            className="hover:text-neutral-600 text-right"
+            href="/avisodeprivacidad"
+          >
             Aviso de Privacidad
           </a>
         </div>

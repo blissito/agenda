@@ -57,4 +57,3 @@ export function verifyEventActionToken(
     return null
   }
 }
-

@@ -13,6 +13,7 @@ import { getService } from "~/.server/userGetters"
 import { Footer, Header, InfoShower } from "~/components/agenda/components"
 import { Success } from "~/components/agenda/success"
 import { getMaxDate } from "~/components/agenda/utils"
+import { ChatWidget } from "~/components/chatbot/ChatWidget"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { MonthView } from "~/components/forms/agenda/MonthView"
 import TimeView from "~/components/forms/agenda/TimeView"
@@ -24,6 +25,7 @@ import {
   sendAppointmentToCustomer,
   sendAppointmentToOwner,
 } from "~/utils/emails/sendAppointment"
+import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveOrgFromRequest } from "~/utils/host.server"
 import {
   createDateInTimezone,
@@ -31,10 +33,8 @@ import {
   formatTimeOnly,
   type SupportedTimezone,
 } from "~/utils/timezone"
-import { normalizeWeekDays } from "~/utils/weekDays"
-import { ChatWidget } from "~/components/chatbot/ChatWidget"
-import { getMetaTags } from "~/utils/getMetaTags"
 import { getServicePublicUrl } from "~/utils/urls"
+import { normalizeWeekDays } from "~/utils/weekDays"
 import type { Route } from "./+types/service.$serviceSlug"
 
 export const meta = ({ data }: Route.MetaArgs) => {
@@ -163,7 +163,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     let discountPercent = 0
     let levelName: string | null = null
     try {
-      const discount = await getLevelDiscount({ customerId: customer.id, serviceId: service.id })
+      const discount = await getLevelDiscount({
+        customerId: customer.id,
+        serviceId: service.id,
+      })
       if (discount) {
         discountPercent = discount.discountPercent
         levelName = discount.levelName
@@ -172,9 +175,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       console.error("Loyalty discount lookup failed:", e)
     }
 
-    const effectivePrice = discountPercent > 0
-      ? Number(service.price) * (1 - discountPercent / 100)
-      : Number(service.price)
+    const effectivePrice =
+      discountPercent > 0
+        ? Number(service.price) * (1 - discountPercent / 100)
+        : Number(service.price)
 
     const startDate = new Date(data.start)
     const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000)
@@ -552,7 +556,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   orgTimezone={org.timezone as SupportedTimezone}
                   onTimezoneChange={handleTimezoneChange}
                   selectedTime={time}
-                  minBookingAdvance={org.config?.minBookingAdvance ? parseInt(org.config.minBookingAdvance) : undefined}
+                  minBookingAdvance={
+                    org.config?.minBookingAdvance
+                      ? parseInt(org.config.minBookingAdvance, 10)
+                      : undefined
+                  }
                 />
               )}
             </>

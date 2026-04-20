@@ -88,8 +88,7 @@ export const ServicePhotoForm = ({
   })
 
   const placeValue = watch("place")
-  const showAddressWarning =
-    placeValue === "INPLACE" && !orgAddress?.trim()
+  const showAddressWarning = placeValue === "INPLACE" && !orgAddress?.trim()
 
   useEffect(() => {
     onAddressWarningChange?.(showAddressWarning)
@@ -141,7 +140,9 @@ export const ServicePhotoForm = ({
 
       <div>
         <SelectInput
-          error={errors.place as import("react-hook-form").FieldError | undefined}
+          error={
+            errors.place as import("react-hook-form").FieldError | undefined
+          }
           register={register}
           options={OPTIONS}
           name="place"
@@ -188,7 +189,10 @@ export const ServicePhotoForm = ({
             className="overflow-hidden"
           >
             <div>
-              <label className="text-brand_dark font-satoMiddle" htmlFor="seats">
+              <label
+                className="text-brand_dark font-satoMiddle"
+                htmlFor="seats"
+              >
                 ¿Cuántas personas pueden agendar al mismo tiempo?
               </label>
               <input
@@ -220,7 +224,6 @@ export const SwitchOption = ({
 }: {
   isDisabled?: boolean
   defaultChecked?: boolean
-  // biome-ignore lint: matches loose typing of register prop
   setValue?: any
   name: string
   register: UseFormRegister<FieldValues> | any

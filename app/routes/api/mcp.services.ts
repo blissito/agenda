@@ -26,7 +26,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   if (intent === "public_url") {
     const serviceId = url.searchParams.get("serviceId")
-    if (!serviceId) return Response.json({ error: "serviceId required" }, { status: 400 })
+    if (!serviceId)
+      return Response.json({ error: "serviceId required" }, { status: 400 })
     const service = await db.service.findFirst({
       where: { id: serviceId, orgId: org.id },
     })
@@ -56,26 +57,37 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const serviceId = form.get("serviceId") as string
       const file = form.get("file") as File | null
       if (!serviceId || !file)
-        return Response.json({ error: "serviceId and file required" }, { status: 400 })
+        return Response.json(
+          { error: "serviceId and file required" },
+          { status: 400 },
+        )
       const service = await db.service.findFirst({
         where: { id: serviceId, orgId: org.id },
         select: { id: true, gallery: true },
       })
-      if (!service) return Response.json({ error: "Service not found" }, { status: 404 })
+      if (!service)
+        return Response.json({ error: "Service not found" }, { status: 404 })
       const key = `services/${service.id}/${Date.now()}-${file.name}`
       try {
         const buffer = Buffer.from(await file.arrayBuffer())
         await uploadFileToTigris(key, buffer, file.type)
       } catch (e: any) {
         console.error("[mcp gallery_upload] Tigris failed:", e.message || e)
-        return Response.json({ error: "Upload failed", details: e.message }, { status: 500 })
+        return Response.json(
+          { error: "Upload failed", details: e.message },
+          { status: 500 },
+        )
       }
       const gallery = [...(service.gallery || []), key]
       const updated = await db.service.update({
         where: { id: service.id },
         data: { gallery },
       })
-      return Response.json({ ok: true, key, service: serializeService(updated) })
+      return Response.json({
+        ok: true,
+        key,
+        service: serializeService(updated),
+      })
     }
     return Response.json({ error: "Unknown multipart intent" }, { status: 400 })
   }
@@ -121,9 +133,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (intent === "update") {
     const allowed = [
-      "name", "description", "price", "currency", "duration", "points",
-      "videoProvider", "place", "isActive", "address", "lat", "lng",
-      "employeeName", "allowMultiple", "seats",
+      "name",
+      "description",
+      "price",
+      "currency",
+      "duration",
+      "points",
+      "videoProvider",
+      "place",
+      "isActive",
+      "address",
+      "lat",
+      "lng",
+      "employeeName",
+      "allowMultiple",
+      "seats",
     ] as const
     const data: Record<string, any> = {}
     for (const k of allowed) if (k in body) data[k] = body[k]
@@ -140,7 +164,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     )
     if (invalidKeys.length)
       return Response.json(
-        { error: `Invalid weekDays keys: ${invalidKeys.join(",")}. Use English: ${WEEK_DAYS.join(",")}` },
+        {
+          error: `Invalid weekDays keys: ${invalidKeys.join(",")}. Use English: ${WEEK_DAYS.join(",")}`,
+        },
         { status: 400 },
       )
     const updated = await db.service.update({
@@ -194,7 +220,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   if (intent === "toggle_active") {
-    const next = typeof body.isActive === "boolean" ? body.isActive : !existing.isActive
+    const next =
+      typeof body.isActive === "boolean" ? body.isActive : !existing.isActive
     const updated = await db.service.update({
       where: { id: serviceId },
       data: { isActive: next },

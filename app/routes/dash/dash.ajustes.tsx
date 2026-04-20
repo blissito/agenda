@@ -1,38 +1,49 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
-import { FaCheck } from "react-icons/fa6"
-import { FaInstagram, FaFacebookF, FaTiktok, FaYoutube, FaLinkedinIn } from "react-icons/fa6"
-import { Trash } from "~/components/icons/trash"
+import {
+  FaCheck,
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaTiktok,
+  FaYoutube,
+} from "react-icons/fa6"
 import { Form, useFetcher, useLoaderData, useSearchParams } from "react-router"
 import { twMerge } from "tailwind-merge"
+import { ClientAvatar } from "~/components/common/ClientAvatar"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
-import { SuccessToast } from "~/components/common/SuccessToast"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { SuccessToast } from "~/components/common/SuccessToast"
 import { Switch } from "~/components/common/Switch"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { InputFile } from "~/components/forms/InputFile"
 import { TimesForm } from "~/components/forms/TimesForm"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
+import { Trash } from "~/components/icons/trash"
 import { TabButton } from "~/components/loyalty/loyaltyStep"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import SelectStylized, { type Choice } from "~/components/ui/select"
 import type { WeekSchema } from "~/utils/zod_schemas"
 import { weekDaysOrgSchema } from "~/utils/zod_schemas"
-import { ClientAvatar } from "~/components/common/ClientAvatar"
 import {
-  COUNTRIES,
-  TIMEZONES,
+  CANCELLATION_RANGES,
   PERIOD,
   RANGES,
   RESCHEDULE_RANGES,
-  CANCELLATION_RANGES,
-  TIMES,
   ROLE_LABELS,
+  TIMES,
 } from "./dash.ajustes.constants"
 
-export { loader, action } from "./dash.ajustes.server"
+export { action, loader } from "./dash.ajustes.server"
+
 import type { loader } from "./dash.ajustes.server"
 
-const TABS = ["general", "horarios", "configuracion", "integraciones", "colaboradores"] as const
+const TABS = [
+  "general",
+  "horarios",
+  "configuracion",
+  "integraciones",
+  "colaboradores",
+] as const
 type Tab = (typeof TABS)[number]
 
 const TAB_LABELS: Record<Tab, string> = {
@@ -93,7 +104,10 @@ export default function Ajustes() {
         />
       )}
       {activeTab === "horarios" && (
-        <HorariosTab org={org} onSaved={() => setToastMessage("Horario guardado")} />
+        <HorariosTab
+          org={org}
+          onSaved={() => setToastMessage("Horario guardado")}
+        />
       )}
       {activeTab === "configuracion" && (
         <ConfiguracionTab
@@ -122,7 +136,12 @@ function InfoGeneralTab({
   onSaved,
 }: {
   org: any
-  logoAction: { putUrl: string; removeUrl: string; readUrl: string; logoKey: string }
+  logoAction: {
+    putUrl: string
+    removeUrl: string
+    readUrl: string
+    logoKey: string
+  }
   onSaved?: () => void
 }) {
   const fetcher = useFetcher()
@@ -183,9 +202,7 @@ function InfoGeneralTab({
   return (
     <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
       <form onSubmit={handleSubmit} className="p-4 md:p-6 lg:p-8">
-        <h3 className="text-lg font-satoBold">
-          Información general{" "}
-        </h3>
+        <h3 className="text-lg font-satoBold">Información general </h3>
 
         {/* Logo + Name fields row */}
         <div className="flex flex-col md:flex-row md:items-stretch gap-4 md:gap-6 mt-4 md:mt-6">
@@ -198,7 +215,8 @@ function InfoGeneralTab({
               onDelete={() => setLogoKey(null)}
             >
               <p className="text-brand_gray text-sm hover:scale-105 transition-all">
-                Arrastra o<br />selecciona tu logo
+                Arrastra o<br />
+                selecciona tu logo
               </p>
             </InputFile>
           </div>
@@ -259,7 +277,8 @@ function InfoGeneralTab({
             placeholder="Cuéntale a tus clientes sobre tu negocio"
             value={description}
             onChange={(e) => {
-              if (e.target.value.length <= DESC_MAX) setDescription(e.target.value)
+              if (e.target.value.length <= DESC_MAX)
+                setDescription(e.target.value)
             }}
           />
           <span className="absolute bottom-2 right-3 text-xs text-brand_gray">
@@ -355,7 +374,9 @@ function HorariosTab({ org, onSaved }: { org: any; onSaved?: () => void }) {
   return (
     <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
       <div className="p-4 md:p-6 lg:p-8">
-        <h3 className="text-lg font-satoBold mb-2">Horario: Actualiza los días y horarios en los que ofreces servicio</h3>
+        <h3 className="text-lg font-satoBold mb-2">
+          Horario: Actualiza los días y horarios en los que ofreces servicio
+        </h3>
         <div className="mt-6 [&>form]:mx-0 [&>form]:px-0 [&>form]:pt-0 [&>form]:max-w-none">
           <TimesForm org={org} onSubmit={handleSubmit}>
             <div className="flex justify-end mt-12">
@@ -400,14 +421,30 @@ function ConfiguracionTab({
 
   const [country, setCountry] = useState<string>(existingConfig.country || "")
   const [timezone, setTimezone] = useState<string>(org.timezone || "")
-  const [calendarAvailability, setCalendarAvailability] = useState<string>(existingConfig.calendarAvailability || "")
-  const [simultaneousServices, setSimultaneousServices] = useState<boolean>(existingConfig.simultaneousServices || false)
-  const [minBookingAdvance, setMinBookingAdvance] = useState<string>(existingConfig.minBookingAdvance || "")
-  const [rescheduleWindow, setRescheduleWindow] = useState<string>(existingConfig.rescheduleWindow || "")
-  const [maxReschedules, setMaxReschedules] = useState<string>(existingConfig.maxReschedules || "")
-  const [cancellationWindow, setCancellationWindow] = useState<string>(existingConfig.cancellationWindow || "")
-  const [termsAndConditions, setTermsAndConditions] = useState<string>(existingConfig.termsAndConditions || "")
-  const [surveyEnabled, setSurveyEnabled] = useState<boolean>(existingConfig.surveyEnabled ?? true)
+  const [calendarAvailability, setCalendarAvailability] = useState<string>(
+    existingConfig.calendarAvailability || "",
+  )
+  const [simultaneousServices, setSimultaneousServices] = useState<boolean>(
+    existingConfig.simultaneousServices || false,
+  )
+  const [minBookingAdvance, setMinBookingAdvance] = useState<string>(
+    existingConfig.minBookingAdvance || "",
+  )
+  const [rescheduleWindow, setRescheduleWindow] = useState<string>(
+    existingConfig.rescheduleWindow || "",
+  )
+  const [maxReschedules, setMaxReschedules] = useState<string>(
+    existingConfig.maxReschedules || "",
+  )
+  const [cancellationWindow, setCancellationWindow] = useState<string>(
+    existingConfig.cancellationWindow || "",
+  )
+  const [termsAndConditions, setTermsAndConditions] = useState<string>(
+    existingConfig.termsAndConditions || "",
+  )
+  const [surveyEnabled, setSurveyEnabled] = useState<boolean>(
+    existingConfig.surveyEnabled ?? true,
+  )
 
   const isLoading = fetcher.state !== "idle"
 
@@ -664,7 +701,10 @@ function IntegracionesTab({ org }: { org: any }) {
               />
             </div>
           ) : (
-            <a href="/dash/google-calendar/connect" className="col-span-1 md:col-span-2">
+            <a
+              href="/dash/google-calendar/connect"
+              className="col-span-1 md:col-span-2"
+            >
               <IntegrationCardDisconnected
                 icon="/images/google-meet.svg"
                 tool="Google Meet"
@@ -784,11 +824,11 @@ function ColaboradoresTab({
           {/* Header */}
           <div className="grid grid-cols-12 px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 border-b border-brand_stroke">
             <span className="col-span-10 sm:col-span-5 pl-2">Colaborador</span>
-            <span className="col-span-3 hidden sm:block text-left">
-              Email
-            </span>
+            <span className="col-span-3 hidden sm:block text-left">Email</span>
             <span className="col-span-2 hidden sm:block text-left">Rol</span>
-            <span className="col-span-2 text-right sm:text-center pr-2">Acciones</span>
+            <span className="col-span-2 text-right sm:text-center pr-2">
+              Acciones
+            </span>
           </div>
           {/* Rows */}
           {filtered.map((c, i) => {
@@ -830,7 +870,11 @@ function ColaboradoresTab({
                       type="submit"
                       disabled={c.id === ownerId}
                       className="text-red-400 hover:text-red-600 p-2.5 rounded-full hover:bg-red-50 transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-                      title={c.id === ownerId ? "No puedes remover al owner" : "Remover del equipo"}
+                      title={
+                        c.id === ownerId
+                          ? "No puedes remover al owner"
+                          : "Remover del equipo"
+                      }
                     >
                       <Trash className="w-8 h-8" />
                     </button>
@@ -929,22 +973,56 @@ export const IntegrationCard = ({
 }
 
 const DisconnectedIcon = ({ className }: { className?: string }) => (
-  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path fillRule="evenodd" clipRule="evenodd" d="M18.7756 1.39839C19.0196 1.6327 19.0196 2.01261 18.7756 2.24692L17.1089 3.84692C16.8648 4.08123 16.4691 4.08123 16.2251 3.84692C15.981 3.61261 15.981 3.2327 16.2251 2.99839L17.8917 1.39839C18.1358 1.16408 18.5315 1.16408 18.7756 1.39839Z" fill="#141B34"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M15.8057 4.25034C14.3794 2.88113 12.067 2.88113 10.6407 4.25034L10.0358 4.83103C9.83307 5.02568 9.79049 5.18043 9.79199 5.28204C9.79357 5.38765 9.84457 5.54096 10.0358 5.72456L14.27 9.78935C14.4727 9.98399 14.6339 10.0249 14.7398 10.0234C14.8498 10.0219 15.0095 9.97296 15.2007 9.78935L15.8057 9.20872C17.2319 7.83947 17.2319 5.61955 15.8057 4.25034ZM9.75682 3.40181C11.6712 1.56398 14.7751 1.56398 16.6895 3.40181C18.6039 5.23965 18.6039 8.21935 16.6895 10.0572L16.0847 10.6379C15.7247 10.9834 15.2705 11.2162 14.7577 11.2233C14.2407 11.2304 13.7702 11.0066 13.3861 10.6379L9.15191 6.57309C8.79199 6.22752 8.54949 5.79149 8.54216 5.2992C8.53474 4.80292 8.76782 4.35124 9.15191 3.9825L9.75682 3.40181ZM3.7756 15.7992C4.01967 16.0335 4.01967 16.4134 3.7756 16.6477L2.10893 18.2477C1.86486 18.482 1.46912 18.482 1.22505 18.2477C0.980973 18.0134 0.980973 17.6335 1.22505 17.3992L2.89172 15.7992C3.13579 15.5649 3.53152 15.5649 3.7756 15.7992Z" fill="#141B34"/>
-    <path fillRule="evenodd" clipRule="evenodd" d="M5.28726 8.4236C5.80006 8.43064 6.25426 8.66344 6.61422 9.00896L10.8484 13.0738C11.2325 13.4426 11.4656 13.8942 11.4582 14.3905C11.4508 14.8828 11.2083 15.3188 10.8484 15.6644L10.2435 16.245C8.3291 18.0829 5.22522 18.0829 3.31081 16.245C1.3964 14.4072 1.3964 11.4275 3.31081 9.58968L3.91569 9.00896C4.29979 8.64024 4.7703 8.41648 5.28726 8.4236ZM5.26938 9.62344C5.16353 9.62199 5.00233 9.66288 4.79957 9.85752L4.19469 10.4382C2.76843 11.8074 2.76843 14.0274 4.19469 15.3966C5.62095 16.7658 7.93337 16.7658 9.35966 15.3966L9.9645 14.8158C10.1557 14.6322 10.2067 14.479 10.2083 14.3734C10.2098 14.2717 10.1672 14.117 9.9645 13.9223L5.73034 9.85752C5.53908 9.67392 5.37939 9.62495 5.26938 9.62344ZM10.4419 6.19917C10.686 6.43348 10.686 6.81339 10.4419 7.0477L9.19191 8.24768C8.94783 8.482 8.55216 8.482 8.30806 8.24768C8.06398 8.01336 8.06398 7.63348 8.30806 7.39917L9.55808 6.19917C9.80216 5.96486 10.1978 5.96486 10.4419 6.19917ZM13.7752 9.3992C14.0193 9.63352 14.0193 10.0134 13.7752 10.2477L12.5252 11.4477C12.2812 11.682 11.8855 11.682 11.6414 11.4477C11.3973 11.2134 11.3973 10.8335 11.6414 10.5992L12.8914 9.3992C13.1355 9.16488 13.5312 9.16488 13.7752 9.3992Z" fill="#141B34"/>
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M18.7756 1.39839C19.0196 1.6327 19.0196 2.01261 18.7756 2.24692L17.1089 3.84692C16.8648 4.08123 16.4691 4.08123 16.2251 3.84692C15.981 3.61261 15.981 3.2327 16.2251 2.99839L17.8917 1.39839C18.1358 1.16408 18.5315 1.16408 18.7756 1.39839Z"
+      fill="#141B34"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M15.8057 4.25034C14.3794 2.88113 12.067 2.88113 10.6407 4.25034L10.0358 4.83103C9.83307 5.02568 9.79049 5.18043 9.79199 5.28204C9.79357 5.38765 9.84457 5.54096 10.0358 5.72456L14.27 9.78935C14.4727 9.98399 14.6339 10.0249 14.7398 10.0234C14.8498 10.0219 15.0095 9.97296 15.2007 9.78935L15.8057 9.20872C17.2319 7.83947 17.2319 5.61955 15.8057 4.25034ZM9.75682 3.40181C11.6712 1.56398 14.7751 1.56398 16.6895 3.40181C18.6039 5.23965 18.6039 8.21935 16.6895 10.0572L16.0847 10.6379C15.7247 10.9834 15.2705 11.2162 14.7577 11.2233C14.2407 11.2304 13.7702 11.0066 13.3861 10.6379L9.15191 6.57309C8.79199 6.22752 8.54949 5.79149 8.54216 5.2992C8.53474 4.80292 8.76782 4.35124 9.15191 3.9825L9.75682 3.40181ZM3.7756 15.7992C4.01967 16.0335 4.01967 16.4134 3.7756 16.6477L2.10893 18.2477C1.86486 18.482 1.46912 18.482 1.22505 18.2477C0.980973 18.0134 0.980973 17.6335 1.22505 17.3992L2.89172 15.7992C3.13579 15.5649 3.53152 15.5649 3.7756 15.7992Z"
+      fill="#141B34"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M5.28726 8.4236C5.80006 8.43064 6.25426 8.66344 6.61422 9.00896L10.8484 13.0738C11.2325 13.4426 11.4656 13.8942 11.4582 14.3905C11.4508 14.8828 11.2083 15.3188 10.8484 15.6644L10.2435 16.245C8.3291 18.0829 5.22522 18.0829 3.31081 16.245C1.3964 14.4072 1.3964 11.4275 3.31081 9.58968L3.91569 9.00896C4.29979 8.64024 4.7703 8.41648 5.28726 8.4236ZM5.26938 9.62344C5.16353 9.62199 5.00233 9.66288 4.79957 9.85752L4.19469 10.4382C2.76843 11.8074 2.76843 14.0274 4.19469 15.3966C5.62095 16.7658 7.93337 16.7658 9.35966 15.3966L9.9645 14.8158C10.1557 14.6322 10.2067 14.479 10.2083 14.3734C10.2098 14.2717 10.1672 14.117 9.9645 13.9223L5.73034 9.85752C5.53908 9.67392 5.37939 9.62495 5.26938 9.62344ZM10.4419 6.19917C10.686 6.43348 10.686 6.81339 10.4419 7.0477L9.19191 8.24768C8.94783 8.482 8.55216 8.482 8.30806 8.24768C8.06398 8.01336 8.06398 7.63348 8.30806 7.39917L9.55808 6.19917C9.80216 5.96486 10.1978 5.96486 10.4419 6.19917ZM13.7752 9.3992C14.0193 9.63352 14.0193 10.0134 13.7752 10.2477L12.5252 11.4477C12.2812 11.682 11.8855 11.682 11.6414 11.4477C11.3973 11.2134 11.3973 10.8335 11.6414 10.5992L12.8914 9.3992C13.1355 9.16488 13.5312 9.16488 13.7752 9.3992Z"
+      fill="#141B34"
+    />
   </svg>
 )
 
 const WhatsAppIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <g clipPath="url(#clip0_whatsapp)">
-      <path d="M32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32C24.8366 32 32 24.8366 32 16Z" fill="#0DC143"/>
-      <path d="M23.1676 8.80636C21.4523 7.04056 19.0812 6.08203 16.6595 6.08203C11.5136 6.08203 7.37664 10.2694 7.42711 15.3649C7.42711 16.9793 7.88117 18.5433 8.63791 19.9559L7.32617 24.7487L12.2199 23.4874C13.582 24.2442 15.0956 24.5974 16.609 24.5974C21.7046 24.5974 25.8415 20.41 25.8415 15.3144C25.8415 12.8424 24.883 10.5217 23.1676 8.80636ZM16.6595 23.0334C15.2974 23.0334 13.9352 22.6802 12.7748 21.9739L12.4721 21.8226L9.54604 22.5793L10.3028 19.7036L10.101 19.401C7.88117 15.819 8.94057 11.0766 12.573 8.85683C16.2054 6.63698 20.8974 7.69643 23.1172 11.3289C25.337 14.9613 24.2776 19.6532 20.6451 21.873C19.4848 22.6298 18.0721 23.0334 16.6595 23.0334ZM21.0992 17.4334L20.5442 17.1811C20.5442 17.1811 19.737 16.828 19.2325 16.5757C19.182 16.5757 19.1316 16.5253 19.0812 16.5253C18.9298 16.5253 18.8289 16.5757 18.728 16.6262C18.728 16.6262 18.6776 16.6766 17.9712 17.4838C17.9208 17.5848 17.8199 17.6352 17.719 17.6352H17.6685C17.6181 17.6352 17.5172 17.5848 17.4667 17.5343L17.2145 17.4334C16.6595 17.1811 16.155 16.8784 15.7514 16.4748C15.6505 16.3739 15.4992 16.273 15.3982 16.1721C15.0451 15.819 14.692 15.4154 14.4397 14.9613L14.3892 14.8604C14.3388 14.81 14.3388 14.7595 14.2884 14.6586C14.2884 14.5577 14.2884 14.4568 14.3388 14.4064C14.3388 14.4064 14.5406 14.1541 14.692 14.0028C14.7928 13.9018 14.8433 13.7505 14.9442 13.6496C15.0451 13.4982 15.0956 13.2964 15.0451 13.1451C14.9946 12.8928 14.3892 11.5307 14.2379 11.228C14.137 11.0766 14.0361 11.0262 13.8848 10.9757H13.7334C13.6325 10.9757 13.4812 10.9757 13.3298 10.9757C13.2289 10.9757 13.128 11.0262 13.0271 11.0262L12.9766 11.0766C12.8757 11.1271 12.7748 11.228 12.6739 11.2784C12.573 11.3793 12.5226 11.4802 12.4217 11.5811C12.0685 12.0352 11.8667 12.5902 11.8667 13.1451C11.8667 13.5487 11.9676 13.9523 12.119 14.3054L12.1694 14.4568C12.6235 15.4154 13.2289 16.273 14.0361 17.0298L14.2379 17.2316C14.3892 17.383 14.5406 17.4838 14.6415 17.6352C15.701 18.5433 16.9118 19.1992 18.2739 19.5523C18.4253 19.6028 18.6271 19.6028 18.7784 19.6532C18.9298 19.6532 19.1316 19.6532 19.283 19.6532C19.5352 19.6532 19.8379 19.5523 20.0397 19.4514C20.191 19.3505 20.292 19.3505 20.3928 19.2496L20.4938 19.1487C20.5946 19.0478 20.6956 18.9974 20.7964 18.8964C20.8974 18.7956 20.9982 18.6946 21.0487 18.5938C21.1496 18.392 21.2 18.1397 21.2505 17.8874C21.2505 17.7866 21.2505 17.6352 21.2505 17.5343C21.2505 17.5343 21.2 17.4838 21.0992 17.4334Z" fill="white"/>
+      <path
+        d="M32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32C24.8366 32 32 24.8366 32 16Z"
+        fill="#0DC143"
+      />
+      <path
+        d="M23.1676 8.80636C21.4523 7.04056 19.0812 6.08203 16.6595 6.08203C11.5136 6.08203 7.37664 10.2694 7.42711 15.3649C7.42711 16.9793 7.88117 18.5433 8.63791 19.9559L7.32617 24.7487L12.2199 23.4874C13.582 24.2442 15.0956 24.5974 16.609 24.5974C21.7046 24.5974 25.8415 20.41 25.8415 15.3144C25.8415 12.8424 24.883 10.5217 23.1676 8.80636ZM16.6595 23.0334C15.2974 23.0334 13.9352 22.6802 12.7748 21.9739L12.4721 21.8226L9.54604 22.5793L10.3028 19.7036L10.101 19.401C7.88117 15.819 8.94057 11.0766 12.573 8.85683C16.2054 6.63698 20.8974 7.69643 23.1172 11.3289C25.337 14.9613 24.2776 19.6532 20.6451 21.873C19.4848 22.6298 18.0721 23.0334 16.6595 23.0334ZM21.0992 17.4334L20.5442 17.1811C20.5442 17.1811 19.737 16.828 19.2325 16.5757C19.182 16.5757 19.1316 16.5253 19.0812 16.5253C18.9298 16.5253 18.8289 16.5757 18.728 16.6262C18.728 16.6262 18.6776 16.6766 17.9712 17.4838C17.9208 17.5848 17.8199 17.6352 17.719 17.6352H17.6685C17.6181 17.6352 17.5172 17.5848 17.4667 17.5343L17.2145 17.4334C16.6595 17.1811 16.155 16.8784 15.7514 16.4748C15.6505 16.3739 15.4992 16.273 15.3982 16.1721C15.0451 15.819 14.692 15.4154 14.4397 14.9613L14.3892 14.8604C14.3388 14.81 14.3388 14.7595 14.2884 14.6586C14.2884 14.5577 14.2884 14.4568 14.3388 14.4064C14.3388 14.4064 14.5406 14.1541 14.692 14.0028C14.7928 13.9018 14.8433 13.7505 14.9442 13.6496C15.0451 13.4982 15.0956 13.2964 15.0451 13.1451C14.9946 12.8928 14.3892 11.5307 14.2379 11.228C14.137 11.0766 14.0361 11.0262 13.8848 10.9757H13.7334C13.6325 10.9757 13.4812 10.9757 13.3298 10.9757C13.2289 10.9757 13.128 11.0262 13.0271 11.0262L12.9766 11.0766C12.8757 11.1271 12.7748 11.228 12.6739 11.2784C12.573 11.3793 12.5226 11.4802 12.4217 11.5811C12.0685 12.0352 11.8667 12.5902 11.8667 13.1451C11.8667 13.5487 11.9676 13.9523 12.119 14.3054L12.1694 14.4568C12.6235 15.4154 13.2289 16.273 14.0361 17.0298L14.2379 17.2316C14.3892 17.383 14.5406 17.4838 14.6415 17.6352C15.701 18.5433 16.9118 19.1992 18.2739 19.5523C18.4253 19.6028 18.6271 19.6028 18.7784 19.6532C18.9298 19.6532 19.1316 19.6532 19.283 19.6532C19.5352 19.6532 19.8379 19.5523 20.0397 19.4514C20.191 19.3505 20.292 19.3505 20.3928 19.2496L20.4938 19.1487C20.5946 19.0478 20.6956 18.9974 20.7964 18.8964C20.8974 18.7956 20.9982 18.6946 21.0487 18.5938C21.1496 18.392 21.2 18.1397 21.2505 17.8874C21.2505 17.7866 21.2505 17.6352 21.2505 17.5343C21.2505 17.5343 21.2 17.4838 21.0992 17.4334Z"
+        fill="white"
+      />
     </g>
     <defs>
       <clipPath id="clip0_whatsapp">
-        <rect width="32" height="32" fill="white"/>
+        <rect width="32" height="32" fill="white" />
       </clipPath>
     </defs>
   </svg>
@@ -992,7 +1070,11 @@ export const IntegrationCardDisabled = ({
     <section className="col-span-1 md:col-span-2 border-[1px] border-brand_stroke flex gap-3 w-auto rounded-2xl p-4 relative opacity-60 cursor-not-allowed">
       <div className="w-6 h-6 shrink-0">
         {typeof icon === "string" ? (
-          <img className="w-6 h-6 rounded-full grayscale" src={icon} alt="integration" />
+          <img
+            className="w-6 h-6 rounded-full grayscale"
+            src={icon}
+            alt="integration"
+          />
         ) : (
           icon
         )}

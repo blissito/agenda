@@ -70,15 +70,16 @@ export const Carousel = ({
   }, [initialScroll])
 
   const getCardWidth = useCallback(() => {
-    return (typeof window !== "undefined" && window.innerWidth < 768)
-      ? 230
-      : 384
+    return typeof window !== "undefined" && window.innerWidth < 768 ? 230 : 384
   }, [])
 
   const scrollLeft = useCallback(() => {
     if (carouselRef.current) {
       const cardWidth = getCardWidth()
-      carouselRef.current.scrollBy({ left: -(cardWidth + 16), behavior: "smooth" })
+      carouselRef.current.scrollBy({
+        left: -(cardWidth + 16),
+        behavior: "smooth",
+      })
     }
   }, [getCardWidth])
 
@@ -135,10 +136,7 @@ export const Carousel = ({
           onScroll={checkScrollability}
         >
           <div
-            className={cn(
-              "flex flex-row justify-start gap-4 pl-4",
-              "mx-auto",
-            )}
+            className={cn("flex flex-row justify-start gap-4 pl-4", "mx-auto")}
           >
             {items.map((item, index) => (
               <motion.div
@@ -258,9 +256,15 @@ export const Card = ({
                 </motion.p>
                 {card.titleAside}
               </div>
-              <div className="py-10 text-lg text-brand_gray leading-relaxed">{card.content}</div>
+              <div className="py-10 text-lg text-brand_gray leading-relaxed">
+                {card.content}
+              </div>
               <div className="flex flex-col md:flex-row gap-4 pt-2">
-                <PrimaryButton as="Link" to="/signin" className="w-full md:w-auto">
+                <PrimaryButton
+                  as="Link"
+                  to="/signin"
+                  className="w-full md:w-auto"
+                >
                   Crear cuenta <ArrowRight />
                 </PrimaryButton>
                 <SecondaryButton

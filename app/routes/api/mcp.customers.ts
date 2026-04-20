@@ -54,7 +54,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   if (intent === "get") {
     const customerId = url.searchParams.get("customerId")
-    if (!customerId) return Response.json({ error: "customerId required" }, { status: 400 })
+    if (!customerId)
+      return Response.json({ error: "customerId required" }, { status: 400 })
     const customer = await db.customer.findFirst({
       where: { id: customerId, orgId: org.id },
     })
@@ -64,7 +65,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   if (intent === "appointments") {
     const customerId = url.searchParams.get("customerId")
-    if (!customerId) return Response.json({ error: "customerId required" }, { status: 400 })
+    if (!customerId)
+      return Response.json({ error: "customerId required" }, { status: 400 })
     const events = await db.event.findMany({
       where: { orgId: org.id, customerId, archived: false },
       include: { service: true },
@@ -79,14 +81,19 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         status: e.status,
         attended: e.attended,
         paid: e.paid,
-        service: e.service && { id: e.service.id, name: e.service.name, points: Number(e.service.points) },
+        service: e.service && {
+          id: e.service.id,
+          name: e.service.name,
+          points: Number(e.service.points),
+        },
       })),
     )
   }
 
   if (intent === "points") {
     const customerId = url.searchParams.get("customerId")
-    if (!customerId) return Response.json({ error: "customerId required" }, { status: 400 })
+    if (!customerId)
+      return Response.json({ error: "customerId required" }, { status: 400 })
     // Cálculo en vivo (ver TODO loyalty en CLAUDE.md: los campos en DB están en 0)
     const pastEvents = await db.event.findMany({
       where: {
@@ -122,7 +129,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return Response.json({ error: "displayName required" }, { status: 400 })
     // Evitar duplicados por email dentro de la misma org
     if (email) {
-      const exists = await db.customer.findFirst({ where: { orgId: org.id, email } })
+      const exists = await db.customer.findFirst({
+        where: { orgId: org.id, email },
+      })
       if (exists) return Response.json(serializeCustomer(exists))
     }
     const now = new Date()

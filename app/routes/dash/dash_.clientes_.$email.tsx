@@ -1,27 +1,29 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import * as React from "react"
 import { FiDownload } from "react-icons/fi"
-import { MapPin } from "~/components/icons/mapPin"
-import { TbEdit } from "react-icons/tb"
 import { Link, useNavigation } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Avatar } from "~/components/common/Avatar"
+import { Pagination } from "~/components/common/Pagination"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import {
+  CitasFilterPopup,
+  type CitasFilters,
+  EMPTY_FILTERS,
+} from "~/components/dash/CitasFilter"
+import { type CitaEvent, CitasTable } from "~/components/dash/CitasTable"
 import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 import { usePluralize } from "~/components/hooks/usePluralize"
 import { Calendar2 } from "~/components/icons/calendar2"
-import { Settings } from "~/components/icons/settings"
 import { Mail } from "~/components/icons/mail"
 import { MailButton } from "~/components/icons/mailButton"
+import { MapPin } from "~/components/icons/mapPin"
 import { Notes } from "~/components/icons/notes"
 import { Phone } from "~/components/icons/phone"
+import { Settings } from "~/components/icons/settings"
 import { WhatsApp } from "~/components/icons/WhatsApp"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash_.clientes_.$email"
-import { Pagination } from "~/components/common/Pagination"
-import { CitasFilterPopup, EMPTY_FILTERS, type CitasFilters } from "~/components/dash/CitasFilter"
-import { CitasTable, type CitaEvent } from "~/components/dash/CitasTable"
-
 
 export const handle = { hideSidebar: true }
 
@@ -104,11 +106,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     return () => document.removeEventListener("mousedown", handler)
   }, [showFilters])
 
-  const hasActiveFilters = filters.serviceId !== "" || filters.statuses.size > 0 || filters.from !== "" || filters.to !== ""
+  const hasActiveFilters =
+    filters.serviceId !== "" ||
+    filters.statuses.size > 0 ||
+    filters.from !== "" ||
+    filters.to !== ""
 
   const filteredEvents = React.useMemo(() => {
     return events.filter((e) => {
-      if (filters.from && new Date(e.start) < new Date(filters.from)) return false
+      if (filters.from && new Date(e.start) < new Date(filters.from))
+        return false
       if (filters.to) {
         const to = new Date(filters.to)
         to.setHours(23, 59, 59, 999)
@@ -116,9 +123,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       }
       if (filters.serviceId && e.service?.id !== filters.serviceId) return false
       if (filters.statuses.size > 0) {
-        const statusVariant = e.status === "CANCELLED" || e.status === "canceled" ? "canceled" : e.status === "ACTIVE" || e.status === "confirmed" ? "confirmed" : "pending"
+        const statusVariant =
+          e.status === "CANCELLED" || e.status === "canceled"
+            ? "canceled"
+            : e.status === "ACTIVE" || e.status === "confirmed"
+              ? "confirmed"
+              : "pending"
         const payVariant = e.paid ? "paid" : "unpaid"
-        if (!filters.statuses.has(statusVariant) && !filters.statuses.has(payVariant)) return false
+        if (
+          !filters.statuses.has(statusVariant) &&
+          !filters.statuses.has(payVariant)
+        )
+          return false
       }
       return true
     })
@@ -126,7 +142,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   const PER_PAGE = 20
   const [page, setPage] = React.useState(1)
-  React.useEffect(() => { setPage(1) }, [filters])
+  React.useEffect(() => {
+    setPage(1)
+  }, [filters])
   const paginated = filteredEvents.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
   const [showDelayedSkeleton, setShowDelayedSkeleton] = React.useState(false)
@@ -240,7 +258,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                       <Link to={`/dash/agenda?customerId=${customer.id}`}>
                         <PrimaryButton className="min-w-0 min-h-0 h-10 px-4 gap-1">
                           <Calendar2 size={20} />
-                          <span className="text-sm font-satoMedium">Agendar</span>
+                          <span className="text-sm font-satoMedium">
+                            Agendar
+                          </span>
                         </PrimaryButton>
                       </Link>
                     </div>
@@ -284,7 +304,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                       <Link to={`/dash/agenda?customerId=${customer.id}`}>
                         <PrimaryButton className="ml-2 min-w-0 min-h-0 h-10 px-4 gap-1">
                           <Calendar2 size={20} />
-                          <span className="text-sm font-satoMedium">Agendar</span>
+                          <span className="text-sm font-satoMedium">
+                            Agendar
+                          </span>
                         </PrimaryButton>
                       </Link>
                     </div>
@@ -310,9 +332,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
                   {/* Dirección */}
                   <div className="col-span-2 flex items-start gap-2 min-w-0 sm:col-span-1">
-                    <MapPin
-                      className="text-brand_gray mt-0.5 shrink-0"
-                    />
+                    <MapPin className="text-brand_gray mt-0.5 shrink-0" />
                     <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
                       {"address" in customer && (customer as any).address
                         ? (customer as any).address
@@ -379,7 +399,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
           {/* Filter Section */}
           <div className="flex items-center gap-3 mt-4 sm:mt-8 mb-0">
-            <h2 className="text-lg font-satoBold text-brand_dark">Historial de citas</h2>
+            <h2 className="text-lg font-satoBold text-brand_dark">
+              Historial de citas
+            </h2>
             <div className="flex-1" />
 
             <div className="relative" ref={filterRef}>
@@ -430,7 +452,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           <div className="mt-4 sm:mt-6">
             {paginated.length === 0 ? (
               <div className="bg-white rounded-2xl p-6 text-sm font-satoMedium text-brand_gray">
-                {hasActiveFilters ? "No hay citas que coincidan con los filtros." : "Este cliente aún no tiene citas."}
+                {hasActiveFilters
+                  ? "No hay citas que coincidan con los filtros."
+                  : "Este cliente aún no tiene citas."}
               </div>
             ) : (
               <CitasTable events={paginated} hideClient />

@@ -5,11 +5,11 @@
  * - Create service "Hablemos de tu producto" (free, 60min)
  * - Update weekDays: Mon-Fri 14:30-16:30
  */
-import { PrismaClient } from "@prisma/client";
-import slugify from "slugify";
+import { PrismaClient } from "@prisma/client"
+import slugify from "slugify"
 
-const db = new PrismaClient();
-const ORG_ID = "69af87ed0a3772a7b2d11ff4";
+const db = new PrismaClient()
+const ORG_ID = "69af87ed0a3772a7b2d11ff4"
 
 async function main() {
   // 1. Update org slug + name
@@ -21,8 +21,8 @@ async function main() {
       description:
         "Creamos productos digitales y ayudamos a otros a crear los suyos.",
     },
-  });
-  console.log(`✅ Org updated: slug=${org.slug}, name=${org.name}`);
+  })
+  console.log(`✅ Org updated: slug=${org.slug}, name=${org.name}`)
 
   // 2. Update weekDays
   const weekDays = {
@@ -33,20 +33,20 @@ async function main() {
     friday: [["14:30", "16:30"]],
     saturday: null,
     sunday: null,
-  };
+  }
   await db.org.update({
     where: { id: ORG_ID },
     data: { weekDays },
-  });
-  console.log("✅ WeekDays updated: Mon-Fri 14:30-16:30");
+  })
+  console.log("✅ WeekDays updated: Mon-Fri 14:30-16:30")
 
   // 3. Create service
-  const serviceName = "Hablemos de tu producto";
-  const baseSlug = slugify(serviceName, { lower: true, strict: true });
+  const serviceName = "Hablemos de tu producto"
+  const baseSlug = slugify(serviceName, { lower: true, strict: true })
 
   // Check if slug is available
-  const existing = await db.service.findFirst({ where: { slug: baseSlug } });
-  const slug = existing ? `${baseSlug}-${Date.now()}` : baseSlug;
+  const existing = await db.service.findFirst({ where: { slug: baseSlug } })
+  const slug = existing ? `${baseSlug}-${Date.now()}` : baseSlug
 
   const service = await db.service.create({
     data: {
@@ -67,14 +67,14 @@ async function main() {
       description:
         "Platicamos sobre tu idea de producto digital y cómo puedo ayudarte a construirlo.",
     },
-  });
-  console.log(`✅ Service created: ${service.name} (slug: ${service.slug})`);
+  })
+  console.log(`✅ Service created: ${service.name} (slug: ${service.slug})`)
 
-  console.log("\n🔗 URLs:");
-  console.log(`   Landing: bliss.denik.me`);
-  console.log(`   Booking: bliss.denik.me/${service.slug}`);
+  console.log("\n🔗 URLs:")
+  console.log(`   Landing: bliss.denik.me`)
+  console.log(`   Booking: bliss.denik.me/${service.slug}`)
 }
 
 main()
   .catch(console.error)
-  .finally(() => db.$disconnect());
+  .finally(() => db.$disconnect())

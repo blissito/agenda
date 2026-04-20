@@ -650,8 +650,14 @@ function FloatingEmojisStep2() {
         />
       </motion.div>
 
-      <FloatingEmojiText emoji="👋" className="right-[-10%] top-[8%] md:top-[22%]" />
-      <FloatingEmojiText emoji="🧑‍🏫" className="left-[38%] top-[20%] md:top-[36%]" />
+      <FloatingEmojiText
+        emoji="👋"
+        className="right-[-10%] top-[8%] md:top-[22%]"
+      />
+      <FloatingEmojiText
+        emoji="🧑‍🏫"
+        className="left-[38%] top-[20%] md:top-[36%]"
+      />
       <FloatingEmojiText emoji="🚀" className="left-[45%] top-[80%]" />
       <FloatingEmojiText emoji="🎨" className="left-[65%] top-[100%]" />
       <FloatingEmojiText emoji="💃🏻" className="right-[-5%] top-[79%]" />

@@ -72,8 +72,8 @@ export const Hero = () => (
         </span>
       </h1>
       <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
-        Agenda de manera sencilla con ayuda de tu agente IA, realiza cobros, manda recordatorios a tus
-        clientes y envía encuestas de satisfacción
+        Agenda de manera sencilla con ayuda de tu agente IA, realiza cobros,
+        manda recordatorios a tus clientes y envía encuestas de satisfacción
       </p>
       <div className="flex gap-8 mt-12 justify-center ">
         <PrimaryButton as="Link" to="/signin">
@@ -432,7 +432,6 @@ export const Features = () => (
           Ofrece más alternativas de pago a tus clientes o pacientes con pagos
           desde tu sitio web.
         </p>
-
       </div>
 
       <WobbleCard className="w-full  lg:w-[90%] mx-auto min-h-auto lg:min-h-[520px] flex justify-center items-center">
@@ -447,9 +446,8 @@ export const Features = () => (
           src="/images/payment.svg"
         />
       </WobbleCard>
-      
     </div>
-       <div className="flex justify-between items-center mt-[120px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0 ">
+    <div className="flex justify-between items-center mt-[120px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0 ">
       <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
         <img
           alt="notificación"
@@ -464,12 +462,13 @@ export const Features = () => (
       </WobbleCard>
       <div className="pl-0 lg:pl-12 w-[100%] ">
         <h2 className="font-satoBold text-2xl lg:text-4xl text-brand_dark !leading-tight">
-           Tu negocio funcionando, incluso cuando no estás
+          Tu negocio funcionando, incluso cuando no estás
         </h2>
         <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-0 md:mb-16">
-            Tu agente IA responde y agenda a tus clientes, y te ayuda a actualizar tu sitio web de reservas.
+          Tu agente IA responde y agenda a tus clientes, y te ayuda a actualizar
+          tu sitio web de reservas.
         </p>
-                 <PrimaryButton as="Link" to="/signin" className="w-fit">
+        <PrimaryButton as="Link" to="/signin" className="w-fit">
           Crear cuenta <ArrowRight />
         </PrimaryButton>
       </div>

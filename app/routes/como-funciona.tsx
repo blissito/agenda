@@ -1,15 +1,13 @@
-import { Suspense, useEffect, useState } from "react"
-import { useNavigate, type MetaFunction } from "react-router"
+import { useEffect, useState } from "react"
+import { type MetaFunction, useNavigate } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
-import { Banner } from "~/components/home/Banner"
-import { CompaniesScroll } from "~/components/home/CompaniesScroll"
 import { FinalCta } from "~/components/home/FinalCta"
 import { StatsBelt } from "~/components/home/StatsBelt"
 import { Calendar } from "~/components/icons/calendar"
+import { HandShake } from "~/components/icons/handshake"
 import { Lamp } from "~/components/icons/lamp"
 import { Rocket } from "~/components/icons/rocket"
-import { HandShake } from "~/components/icons/handshake"
 import { Card, Carousel } from "~/components/ui/cards-carrusel"
 import { getMetaTags } from "~/utils/getMetaTags"
 
@@ -77,7 +75,8 @@ export default function ComoFunciona() {
             <span className="ml-4">nuestros clientes</span>
           </h2>
           <p className="text-lg text-brand_gray font-satoshi mt-4 text-center">
-            Esto es lo que opinan quienes ya usan Deník para gestionar sus citas.
+            Esto es lo que opinan quienes ya usan Deník para gestionar sus
+            citas.
           </p>
           <div className="mt-10 md:mt-16 columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
             {testimonials.map((t) => (
@@ -123,14 +122,15 @@ function StepCard({
         alt={title}
         className="relative w-[140px] h-[140px] object-contain"
       />
-      <h3 className="relative text-2xl font-satoBold text-brand_dark mt-6">{title}</h3>
+      <h3 className="relative text-2xl font-satoBold text-brand_dark mt-6">
+        {title}
+      </h3>
       <p className="relative text-brand_gray font-satoshi mt-3 leading-relaxed">
         {description}
       </p>
     </div>
   )
 }
-
 
 const testimonials = [
   {
@@ -283,8 +283,8 @@ const businessData = [
               <span className="mr-2">📅</span>Reservas 24/7
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Tus alumnos eligen idioma, nivel y horario desde tu landing.
-              Sin chats, sin idas y vueltas.
+              Tus alumnos eligen idioma, nivel y horario desde tu landing. Sin
+              chats, sin idas y vueltas.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -292,8 +292,8 @@ const businessData = [
               <span className="mr-2">🔔</span>Recordatorios automáticos
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Cada alumno recibe confirmación y recordatorio por email.
-              Reduce ausencias y cancelaciones de último minuto.
+              Cada alumno recibe confirmación y recordatorio por email. Reduce
+              ausencias y cancelaciones de último minuto.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -387,8 +387,8 @@ const businessData = [
               <span className="mr-2">✂️</span>Reservas por servicio
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Tus clientas eligen el servicio (corte, color, manicure, facial)
-              y el horario que les acomoda. Tú solo llegas a atender.
+              Tus clientas eligen el servicio (corte, color, manicure, facial) y
+              el horario que les acomoda. Tú solo llegas a atender.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -519,9 +519,9 @@ const businessData = [
               <span className="mr-2">🌐</span>Tu landing profesional
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Una página web propia donde tus pacientes reservan directo,
-              con tu marca y sin descargar nada. Comparte el link en tus
-              tarjetas o redes.
+              Una página web propia donde tus pacientes reservan directo, con tu
+              marca y sin descargar nada. Comparte el link en tus tarjetas o
+              redes.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -529,8 +529,8 @@ const businessData = [
               <span className="mr-2">📋</span>Expediente del paciente
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Historial de visitas, notas privadas y datos de contacto de
-              cada paciente, siempre a la mano.
+              Historial de visitas, notas privadas y datos de contacto de cada
+              paciente, siempre a la mano.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -538,8 +538,8 @@ const businessData = [
               <span className="mr-2">⏰</span>Duración por servicio
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Configura tiempos distintos para primera consulta, seguimiento
-              o procedimientos. Tu agenda se ajusta sola.
+              Configura tiempos distintos para primera consulta, seguimiento o
+              procedimientos. Tu agenda se ajusta sola.
             </p>
           </div>
         </div>
@@ -599,8 +599,8 @@ const businessData = [
               <span className="mr-2">💪</span>Reservas de sesión 1-a-1
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Tus clientes eligen el tipo de entrenamiento y el horario que
-              les acomoda. Tú solo llegas a entrenar.
+              Tus clientes eligen el tipo de entrenamiento y el horario que les
+              acomoda. Tú solo llegas a entrenar.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -608,8 +608,8 @@ const businessData = [
               <span className="mr-2">🔔</span>Adiós a las ausencias
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Recordatorios automáticos por email antes de cada sesión.
-              Menos huecos en tu agenda y más disciplina en tus alumnos.
+              Recordatorios automáticos por email antes de cada sesión. Menos
+              huecos en tu agenda y más disciplina en tus alumnos.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -617,8 +617,8 @@ const businessData = [
               <span className="mr-2">💳</span>Cobro por adelantado
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Cobra la sesión o un anticipo con MercadoPago al reservar.
-              Asegura el compromiso antes de prender la luz del estudio.
+              Cobra la sesión o un anticipo con MercadoPago al reservar. Asegura
+              el compromiso antes de prender la luz del estudio.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -636,8 +636,8 @@ const businessData = [
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
               Un chatbot que responde dudas, recomienda servicios y agenda
-              sesiones por ti, incluso a media noche. Atiende más sin
-              dejar de entrenar.
+              sesiones por ti, incluso a media noche. Atiende más sin dejar de
+              entrenar.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -645,8 +645,8 @@ const businessData = [
               <span className="mr-2">⭐</span>Premia la constancia
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Programa de lealtad con puntos por cada sesión. Convierte
-              clientes ocasionales en miembros frecuentes.
+              Programa de lealtad con puntos por cada sesión. Convierte clientes
+              ocasionales en miembros frecuentes.
             </p>
           </div>
         </div>
@@ -691,8 +691,8 @@ const businessData = [
     content: (
       <div className="space-y-8">
         <p className="text-base md:text-lg text-brand_gray font-satoshi">
-          Olvídate de la libreta de reservas y los mensajes a deshoras.
-          Deník automatiza la gestión de{" "}
+          Olvídate de la libreta de reservas y los mensajes a deshoras. Deník
+          automatiza la gestión de{" "}
           <strong className="font-satoBold text-brand_dark">
             centros deportivos, clubes, escuelas de fútbol, tenis, pádel y
             academias
@@ -724,8 +724,8 @@ const businessData = [
               <span className="mr-2">💳</span>Apartado con anticipo
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Cobra el costo completo o un anticipo con MercadoPago al
-              reservar. Adiós a las canchas vacías.
+              Cobra el costo completo o un anticipo con MercadoPago al reservar.
+              Adiós a las canchas vacías.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -733,8 +733,8 @@ const businessData = [
               <span className="mr-2">🌐</span>Tu sitio del club
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Una landing propia con tu marca donde tus socios reservan
-              directo. Ideal para compartir en redes y bio.
+              Una landing propia con tu marca donde tus socios reservan directo.
+              Ideal para compartir en redes y bio.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -742,8 +742,8 @@ const businessData = [
               <span className="mr-2">📋</span>Ficha del jugador
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Nivel, contacto, historial de reservas y notas privadas en
-              cada socio. Conoce mejor a tu comunidad.
+              Nivel, contacto, historial de reservas y notas privadas en cada
+              socio. Conoce mejor a tu comunidad.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -751,8 +751,8 @@ const businessData = [
               <span className="mr-2">⭐</span>Premia a tus socios
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Programa de lealtad con puntos por reserva. Convierte
-              jugadores ocasionales en habituales del club.
+              Programa de lealtad con puntos por reserva. Convierte jugadores
+              ocasionales en habituales del club.
             </p>
           </div>
         </div>
@@ -797,8 +797,8 @@ const businessData = [
     content: (
       <div className="space-y-8">
         <p className="text-base md:text-lg text-brand_gray font-satoshi">
-          Tus huéspedes vienen a desconectarse, no a pelear con WhatsApp
-          para cuadrar una cita. Deník permite a{" "}
+          Tus huéspedes vienen a desconectarse, no a pelear con WhatsApp para
+          cuadrar una cita. Deník permite a{" "}
           <strong className="font-satoBold text-brand_dark">
             spas urbanos, day spas, centros de bienestar y resorts wellness
           </strong>{" "}
@@ -811,9 +811,9 @@ const businessData = [
               <span className="mr-2">✨</span>Reservas de experiencias
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Cada tratamiento como un servicio: masajes, faciales,
-              hidroterapia o paquetes de día completo. Tus huéspedes eligen
-              y reservan en segundos.
+              Cada tratamiento como un servicio: masajes, faciales, hidroterapia
+              o paquetes de día completo. Tus huéspedes eligen y reservan en
+              segundos.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -830,8 +830,8 @@ const businessData = [
               <span className="mr-2">💳</span>Reserva con anticipo
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Cobra el tratamiento o un anticipo con MercadoPago al
-              reservar. Asegura compromiso para tus servicios premium.
+              Cobra el tratamiento o un anticipo con MercadoPago al reservar.
+              Asegura compromiso para tus servicios premium.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -839,8 +839,8 @@ const businessData = [
               <span className="mr-2">🌐</span>Tu sitio del spa
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Una landing propia con tu marca y estética. Comparte el link
-              en Instagram y deja que la magia visual venda por ti.
+              Una landing propia con tu marca y estética. Comparte el link en
+              Instagram y deja que la magia visual venda por ti.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -848,8 +848,8 @@ const businessData = [
               <span className="mr-2">📋</span>Preferencias del huésped
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Aceites favoritos, alergias, presión deseada o tipo de piel.
-              Cada huésped recibe una experiencia personalizada.
+              Aceites favoritos, alergias, presión deseada o tipo de piel. Cada
+              huésped recibe una experiencia personalizada.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -903,12 +903,11 @@ const businessData = [
     content: (
       <div className="space-y-8">
         <p className="text-base md:text-lg text-brand_gray font-satoshi">
-          Los viajeros deciden en segundos. Si tu reserva no es instantánea,
-          tu próximo cliente ya está en el tour de la competencia. Deník
-          permite a{" "}
+          Los viajeros deciden en segundos. Si tu reserva no es instantánea, tu
+          próximo cliente ya está en el tour de la competencia. Deník permite a{" "}
           <strong className="font-satoBold text-brand_dark">
-            operadores turísticos, tours guiados, experiencias gastronómicas
-            y agencias de aventura
+            operadores turísticos, tours guiados, experiencias gastronómicas y
+            agencias de aventura
           </strong>{" "}
           convertir interesados en reservas confirmadas las 24 horas.
         </p>
@@ -929,8 +928,7 @@ const businessData = [
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
               Email automático con todos los detalles del tour. Tus clientes
-              reciben tranquilidad y tú no contestas el mismo mensaje 20
-              veces.
+              reciben tranquilidad y tú no contestas el mismo mensaje 20 veces.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -938,8 +936,8 @@ const businessData = [
               <span className="mr-2">💳</span>Cobro al reservar
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Cobra el tour completo o un anticipo con MercadoPago. Cero
-              riesgo de no-shows con turistas que cambian de planes.
+              Cobra el tour completo o un anticipo con MercadoPago. Cero riesgo
+              de no-shows con turistas que cambian de planes.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -948,8 +946,8 @@ const businessData = [
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
               Una landing propia visible 24/7 para viajeros buscando
-              experiencias en tu destino. Compártela en TripAdvisor, redes
-              o tu bio.
+              experiencias en tu destino. Compártela en TripAdvisor, redes o tu
+              bio.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -957,9 +955,9 @@ const businessData = [
               <span className="mr-2">🤖</span>Tu agente IA 24/7
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
-              Responde dudas de viajeros en cualquier zona horaria: qué
-              llevar, punto de encuentro, duración. Convierte preguntas en
-              reservas mientras duermes.
+              Responde dudas de viajeros en cualquier zona horaria: qué llevar,
+              punto de encuentro, duración. Convierte preguntas en reservas
+              mientras duermes.
             </p>
           </div>
           <div className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
@@ -968,8 +966,7 @@ const businessData = [
             </h3>
             <p className="text-sm text-brand_gray font-satoshi mt-2">
               Restricciones alimentarias, alergias, idioma o nivel de
-              experiencia. Personaliza cada tour antes de que el grupo
-              llegue.
+              experiencia. Personaliza cada tour antes de que el grupo llegue.
             </p>
           </div>
         </div>

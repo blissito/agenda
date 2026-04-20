@@ -2,19 +2,21 @@ import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Pagination } from "~/components/common/Pagination"
-import { BasicInput } from "~/components/forms/BasicInput"
 import { SecondaryButton } from "~/components/common/secondaryButton"
-import { CitasTable, getStatusVariant, type CitaEvent } from "~/components/dash/CitasTable"
-import { CitasFilterPopup, EMPTY_FILTERS, type CitasFilters } from "~/components/dash/CitasFilter"
+import {
+  CitasFilterPopup,
+  type CitasFilters,
+  EMPTY_FILTERS,
+} from "~/components/dash/CitasFilter"
+import { CitasTable, getStatusVariant } from "~/components/dash/CitasTable"
+import { BasicInput } from "~/components/forms/BasicInput"
 import { Download } from "~/components/icons/download"
-import { TabButton } from "~/components/loyalty/loyaltyStep"
-import { Settings } from "~/components/icons/settings"
 import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
+import { Settings } from "~/components/icons/settings"
+import { TabButton } from "~/components/loyalty/loyaltyStep"
 import { db } from "~/utils/db.server"
-import { ActionButton } from "./dash.clientes"
 import type { Route } from "./+types/dash.agenda.citas"
-
-type EventWithRelations = CitaEvent
+import { ActionButton } from "./dash.clientes"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request)
@@ -109,14 +111,23 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
   const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
   // Reset page when filters or search change
-  useEffect(() => { setPage(1) }, [search, filters, tab])
+  useEffect(() => {
+    setPage(1)
+  }, [search, filters, tab])
 
-  const hasActiveFilters = filters.from !== "" || filters.to !== "" || filters.serviceId !== "" || filters.statuses.size > 0
+  const hasActiveFilters =
+    filters.from !== "" ||
+    filters.to !== "" ||
+    filters.serviceId !== "" ||
+    filters.statuses.size > 0
 
   return (
     <div className="max-w-8xl mx-auto">
       <div className="flex items-center gap-2 text-sm text-brand_gray mb-6">
-        <Link to="/dash/agenda" className="hover:text-brand_dark transition-colors">
+        <Link
+          to="/dash/agenda"
+          className="hover:text-brand_dark transition-colors"
+        >
           Mi agenda
         </Link>
         <span>{">"}</span>
@@ -126,8 +137,16 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-4">
         {/* Tabs */}
         <div className="flex items-center gap-4">
-          <TabButton label="Próximas" active={tab === "upcoming"} onClick={() => setTab("upcoming")} />
-          <TabButton label="Anteriores" active={tab === "past"} onClick={() => setTab("past")} />
+          <TabButton
+            label="Próximas"
+            active={tab === "upcoming"}
+            onClick={() => setTab("upcoming")}
+          />
+          <TabButton
+            label="Anteriores"
+            active={tab === "past"}
+            onClick={() => setTab("past")}
+          />
         </div>
 
         {/* Search + actions */}
@@ -146,10 +165,12 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
             <MagnifyingGlass className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-brand_iron" />
           </div>
           <div className="relative" ref={filterRef}>
-            <ActionButton onClick={() => {
-              setDraft({ ...filters, statuses: new Set(filters.statuses) })
-              setShowFilters((v) => !v)
-            }}>
+            <ActionButton
+              onClick={() => {
+                setDraft({ ...filters, statuses: new Set(filters.statuses) })
+                setShowFilters((v) => !v)
+              }}
+            >
               <Settings className="w-5 h-5" />
               {hasActiveFilters && (
                 <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-brand_blue" />
@@ -199,14 +220,29 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
   )
 }
 
-const EmptyState = ({ search, onClear, tab }: { search: string; onClear: () => void; tab: "upcoming" | "past" }) => (
+const EmptyState = ({
+  search,
+  onClear,
+  tab,
+}: {
+  search: string
+  onClear: () => void
+  tab: "upcoming" | "past"
+}) => (
   <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center min-h-[60vh]">
     {search ? (
       <>
         <img src="/images/emptyState/search.svg" alt="" className="w-24 h-24" />
-        <p className="font-satoBold text-lg text-brand_dark">¡Vaya! No hay coincidencias con la búsqueda</p>
-        <p className="text-sm text-brand_gray">Intenta buscar por otro nombre, correo o teléfono.</p>
-        <SecondaryButton onClick={onClear} className="mt-2 min-w-0 h-10 px-5 text-sm">
+        <p className="font-satoBold text-lg text-brand_dark">
+          ¡Vaya! No hay coincidencias con la búsqueda
+        </p>
+        <p className="text-sm text-brand_gray">
+          Intenta buscar por otro nombre, correo o teléfono.
+        </p>
+        <SecondaryButton
+          onClick={onClear}
+          className="mt-2 min-w-0 h-10 px-5 text-sm"
+        >
           Limpiar búsqueda
         </SecondaryButton>
       </>
@@ -218,7 +254,9 @@ const EmptyState = ({ search, onClear, tab }: { search: string; onClear: () => v
           alt="Sin citas"
         />
         <p className="text-2xl font-satoBold">
-          {tab === "upcoming" ? "No tienes citas para los próximos días" : "Aún no tienes citas anteriores"}
+          {tab === "upcoming"
+            ? "No tienes citas para los próximos días"
+            : "Aún no tienes citas anteriores"}
         </p>
         <p className="text-[18px] text-brand_gray mt-2">
           {tab === "upcoming"

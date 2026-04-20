@@ -2,10 +2,34 @@ import { useEffect, useRef, useState } from "react"
 import { twMerge } from "tailwind-merge"
 
 const stats = [
-  { title: "Ventas del mes", value: 12450, prefix: "$", color: "bg-[#64D0C5]", icon: "/images/chart.svg" },
-  { title: "Nuevos clientes", value: 38, prefix: "", color: "bg-[#EEC446]", icon: "/images/profile.svg" },
-  { title: "Citas agendadas", value: 124, prefix: "", color: "bg-[#FFAB61]", icon: "/images/agenda-dash.svg" },
-  { title: "Citas canceladas", value: 5, prefix: "", color: "bg-[#91B870]", icon: "/images/cancel.svg" },
+  {
+    title: "Ventas del mes",
+    value: 12450,
+    prefix: "$",
+    color: "bg-[#64D0C5]",
+    icon: "/images/chart.svg",
+  },
+  {
+    title: "Nuevos clientes",
+    value: 38,
+    prefix: "",
+    color: "bg-[#EEC446]",
+    icon: "/images/profile.svg",
+  },
+  {
+    title: "Citas agendadas",
+    value: 124,
+    prefix: "",
+    color: "bg-[#FFAB61]",
+    icon: "/images/agenda-dash.svg",
+  },
+  {
+    title: "Citas canceladas",
+    value: 5,
+    prefix: "",
+    color: "bg-[#91B870]",
+    icon: "/images/cancel.svg",
+  },
 ]
 
 const AnimatedNumber = ({
@@ -30,7 +54,7 @@ const AnimatedNumber = ({
     const animate = (now: number) => {
       const elapsed = now - start
       const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
+      const eased = 1 - (1 - progress) ** 3
       setCurrent(Math.round(eased * target))
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate)
@@ -44,9 +68,7 @@ const AnimatedNumber = ({
   }, [isHovering, target])
 
   const formatted =
-    target >= 1000
-      ? current.toLocaleString("es-MX")
-      : String(current)
+    target >= 1000 ? current.toLocaleString("es-MX") : String(current)
 
   return (
     <span>
@@ -92,7 +114,7 @@ export const DashStatsIllustration = ({
           key={s.title}
           className={twMerge(
             "rounded-2xl p-4 relative overflow-hidden flex flex-col justify-end h-[120px]",
-            s.color
+            s.color,
           )}
         >
           <img

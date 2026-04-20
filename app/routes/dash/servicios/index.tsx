@@ -51,7 +51,9 @@ export default function Services({ loaderData }: Route.ComponentProps) {
 
   return (
     <main className="max-w-8xl mx-auto">
-      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">Servicios </RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">
+        Servicios{" "}
+      </RouteTitle>
 
       {!services.length ? (
         <EmptyStateServices />

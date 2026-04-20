@@ -1,21 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from "react"
-import { useFetcher, useLoaderData, Link } from "react-router"
-import { HiSparkles } from "react-icons/hi"
-import { getOrgPublicUrl } from "~/utils/urls"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { db } from "~/utils/db.server"
-import { getLandingUsage } from "~/lib/landing-generator.server"
 import {
-  LANDING_THEMES,
   buildPreviewHtml,
-  type Section3,
-  type CustomColors,
   grapesToSections,
+  type Section3,
 } from "@easybits.cloud/html-tailwind-generator"
-import { GrapesEditor, LANDING_BLOCKS, type GrapesEditorHandle, type AiAction } from "@easybits.cloud/html-tailwind-generator/components4"
+import {
+  type AiAction,
+  GrapesEditor,
+  type GrapesEditorHandle,
+  LANDING_BLOCKS,
+} from "@easybits.cloud/html-tailwind-generator/components4"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { HiSparkles } from "react-icons/hi"
+import { Link, useFetcher } from "react-router"
+import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { DeviceToggle } from "~/components/dash/website/DeviceToggle"
 import { EditorRightSidebar } from "~/components/dash/website/EditorRightSidebar"
 import { buildDefaultSections } from "~/lib/default-landing"
+import { getLandingUsage } from "~/lib/landing-generator.server"
+import { db } from "~/utils/db.server"
+import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website_.ai"
 
 // Remap block categories: "Básicos" for basic elements, section categories for compound sections
@@ -74,7 +77,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const services = await db.service.findMany({
     where: { orgId: org.id, isActive: true, archived: false },
-    select: { id: true, name: true, slug: true, duration: true, price: true, gallery: true },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      duration: true,
+      price: true,
+      gallery: true,
+    },
     take: 12,
   })
 
@@ -133,8 +143,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [streamingSections, setStreamingSections] = useState<Section3[]>([])
   const [streamCount, setStreamCount] = useState(0)
   const [themeVersion, setThemeVersion] = useState(0)
-  const [activeDevice, setActiveDevice] = useState<"Desktop" | "Tablet" | "Mobile">("Desktop")
-  const [editorInstance, setEditorInstance] = useState<ReturnType<GrapesEditorHandle["getEditor"]>>(null)
+  const [activeDevice, setActiveDevice] = useState<
+    "Desktop" | "Tablet" | "Mobile"
+  >("Desktop")
+  const [editorInstance, setEditorInstance] =
+    useState<ReturnType<GrapesEditorHandle["getEditor"]>>(null)
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
@@ -192,7 +205,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           const updates = new Map(pendingUpdates)
           pendingUpdates.clear()
           setStreamingSections((prev) =>
-            prev.map((s) => updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s),
+            prev.map((s) =>
+              updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s,
+            ),
           )
         }
         genRafId = null
@@ -216,7 +231,10 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 setStreamingSections((prev) => [...prev, data])
                 setStreamCount((c) => c + 1)
                 requestAnimationFrame(() => {
-                  streamEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+                  streamEndRef.current?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "end",
+                  })
                 })
               } else if (eventType === "section-update") {
                 pendingUpdates.set(data.id, data.html)
@@ -226,7 +244,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               } else if (eventType === "error") {
                 setErrorMessage(data.message)
               }
-            } catch { /* skip malformed */ }
+            } catch {
+              /* skip malformed */
+            }
           }
         }
       }
@@ -236,14 +256,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         const updates = new Map(pendingUpdates)
         pendingUpdates.clear()
         setStreamingSections((prev) =>
-          prev.map((s) => updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s),
+          prev.map((s) =>
+            updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s,
+          ),
         )
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return
       const message = err instanceof Error ? err.message : "Error al generar"
       setErrorMessage(message)
-      setSections((current) => current.length > 0 ? current : backup)
+      setSections((current) => (current.length > 0 ? current : backup))
     } finally {
       if (abortRef.current === controller) {
         // Move streaming sections to real sections, ending the generation
@@ -260,7 +282,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   // Handle fetcher responses (save)
   const lastFetcherDataRef = useRef<unknown>(null)
   useEffect(() => {
-    if (fetcher.state !== "idle" || !fetcher.data || fetcher.data === lastFetcherDataRef.current) return
+    if (
+      fetcher.state !== "idle" ||
+      !fetcher.data ||
+      fetcher.data === lastFetcherDataRef.current
+    )
+      return
     lastFetcherDataRef.current = fetcher.data
     const data = fetcher.data as { ok?: boolean; error?: string }
 
@@ -286,7 +313,10 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   }, [fetcher.state, fetcher.data])
 
   // AI refine modal state
-  const [refineModal, setRefineModal] = useState<{ open: boolean; action: AiAction | null }>({
+  const [refineModal, setRefineModal] = useState<{
+    open: boolean
+    action: AiAction | null
+  }>({
     open: false,
     action: null,
   })
@@ -304,82 +334,91 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     setRefineInstruction("")
   }, [])
 
-  const runRefine = useCallback(async (action: AiAction, instruction: string) => {
-    if (action.type !== "refine-element") return
-    setIsRefining(true)
-    setErrorMessage(null)
+  const runRefine = useCallback(
+    async (action: AiAction, instruction: string) => {
+      if (action.type !== "refine-element") return
+      setIsRefining(true)
+      setErrorMessage(null)
 
-    try {
-      const formData = new FormData()
-      formData.append("intent", "refine")
-      formData.append("currentHtml", action.isSection ? action.html : (action.sectionHtml || action.html))
-      formData.append("instruction", instruction)
+      try {
+        const formData = new FormData()
+        formData.append("intent", "refine")
+        formData.append(
+          "currentHtml",
+          action.isSection ? action.html : action.sectionHtml || action.html,
+        )
+        formData.append("instruction", instruction)
 
-      const res = await fetch("/api/landing-generator", {
-        method: "POST",
-        body: formData,
-      })
-      if (res.status === 429) {
-        const data = await res.json()
-        setErrorMessage(data.error || "Limite de refinamientos alcanzado")
-        setIsRefining(false)
-        return
-      }
-      if (!res.ok) throw new Error("Refine failed")
+        const res = await fetch("/api/landing-generator", {
+          method: "POST",
+          body: formData,
+        })
+        if (res.status === 429) {
+          const data = await res.json()
+          setErrorMessage(data.error || "Limite de refinamientos alcanzado")
+          setIsRefining(false)
+          return
+        }
+        if (!res.ok) throw new Error("Refine failed")
 
-      const reader = res.body?.getReader()
-      if (!reader) throw new Error("No stream")
+        const reader = res.body?.getReader()
+        if (!reader) throw new Error("No stream")
 
-      const decoder = new TextDecoder()
-      let buf = ""
-      let eventType = ""
-      let finalHtml = ""
+        const decoder = new TextDecoder()
+        let buf = ""
+        let eventType = ""
+        let finalHtml = ""
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buf += decoder.decode(value, { stream: true })
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buf += decoder.decode(value, { stream: true })
 
-        const lines = buf.split("\n")
-        buf = lines.pop() || ""
+          const lines = buf.split("\n")
+          buf = lines.pop() || ""
 
-        for (const line of lines) {
-          if (line.startsWith("event: ")) {
-            eventType = line.slice(7).trim()
-          } else if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6))
-              if (eventType === "done" && data.html) {
-                finalHtml = data.html
-                setUsage((u) => ({ ...u, refineUsed: u.refineUsed + 1 }))
-              } else if (eventType === "chunk" && data.html) {
-                finalHtml = data.html
-              } else if (eventType === "error") {
-                setErrorMessage(data.message)
-              }
-            } catch {}
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7).trim()
+            } else if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6))
+                if (eventType === "done" && data.html) {
+                  finalHtml = data.html
+                  setUsage((u) => ({ ...u, refineUsed: u.refineUsed + 1 }))
+                } else if (eventType === "chunk" && data.html) {
+                  finalHtml = data.html
+                } else if (eventType === "error") {
+                  setErrorMessage(data.message)
+                }
+              } catch {}
+            }
           }
         }
-      }
 
-      // Apply the refined HTML back to GrapesEditor
-      if (finalHtml && editorRef.current) {
-        if (action.isSection || !action.sectionComponentId) {
-          // Replaced the whole section
-          editorRef.current.replaceComponent(action.componentId, finalHtml)
-        } else {
-          // Replaced the parent section with the refined version
-          editorRef.current.replaceComponent(action.sectionComponentId, finalHtml)
+        // Apply the refined HTML back to GrapesEditor
+        if (finalHtml && editorRef.current) {
+          if (action.isSection || !action.sectionComponentId) {
+            // Replaced the whole section
+            editorRef.current.replaceComponent(action.componentId, finalHtml)
+          } else {
+            // Replaced the parent section with the refined version
+            editorRef.current.replaceComponent(
+              action.sectionComponentId,
+              finalHtml,
+            )
+          }
+          setHasUnpublishedChanges(true)
         }
-        setHasUnpublishedChanges(true)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Error al refinar"
+        setErrorMessage(message)
+      } finally {
+        setIsRefining(false)
       }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Error al refinar"
-      setErrorMessage(message)
-    } finally {
-      setIsRefining(false)
-    }
-  }, [])
+    },
+    [],
+  )
 
   const handleRefineConfirm = useCallback(() => {
     const action = refineModal.action
@@ -437,19 +476,25 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   }, [])
 
   // Theme change from sidebar
-  const handleThemeChange = useCallback((themeId: string, colors?: Record<string, string>) => {
-    setTheme(themeId)
-    if (colors) setCustomColors(colors)
-    setThemeVersion((v) => v + 1)
-    setHasUnpublishedChanges(true)
-  }, [])
+  const handleThemeChange = useCallback(
+    (themeId: string, colors?: Record<string, string>) => {
+      setTheme(themeId)
+      if (colors) setCustomColors(colors)
+      setThemeVersion((v) => v + 1)
+      setHasUnpublishedChanges(true)
+    },
+    [],
+  )
 
   // Device switching
-  const handleDeviceChange = useCallback((device: "Desktop" | "Tablet" | "Mobile") => {
-    setActiveDevice(device)
-    const editor = editorRef.current?.getEditor()
-    if (editor) editor.setDevice(device)
-  }, [])
+  const handleDeviceChange = useCallback(
+    (device: "Desktop" | "Tablet" | "Mobile") => {
+      setActiveDevice(device)
+      const editor = editorRef.current?.getEditor()
+      if (editor) editor.setDevice(device)
+    },
+    [],
+  )
 
   // Capture GrapesJS editor instance after mount
   useEffect(() => {
@@ -461,14 +506,28 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         // Collapse all block categories except the first (Básicos)
         if (ed) {
           const cats = ed.BlockManager.getCategories()
-          cats.each((cat: { get: (k: string) => unknown; set: (k: string, v: unknown) => void }, i: number) => {
-            if (i > 0) cat.set("open", false)
-          })
+          cats.each(
+            (
+              cat: {
+                get: (k: string) => unknown
+                set: (k: string, v: unknown) => void
+              },
+              i: number,
+            ) => {
+              if (i > 0) cat.set("open", false)
+            },
+          )
           // Inject the persisted __grapes_css__ rules into the editor's CSS manager
           // so they survive editor.getCss()/save round-trips.
-          const persistedCss = sectionsToCanvasStyles(sections).replace(BASE_CANVAS_STYLES, "").trim()
+          const persistedCss = sectionsToCanvasStyles(sections)
+            .replace(BASE_CANVAS_STYLES, "")
+            .trim()
           if (persistedCss && ed.Css?.addRules) {
-            try { ed.Css.addRules(persistedCss) } catch (e) { console.warn("addRules failed", e) }
+            try {
+              ed.Css.addRules(persistedCss)
+            } catch (e) {
+              console.warn("addRules failed", e)
+            }
           }
           // Ensure the "Powered by Denik" branding section exists and is locked
           const logoOrigin =
@@ -483,52 +542,75 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             if (ensuringBranding) return
             ensuringBranding = true
             try {
-            const wrapper = ed.DomComponents.getWrapper()
-            if (!wrapper) return
-            const allComps = wrapper.find("[data-denik-branding], section, footer, div")
-            const matches = allComps.filter((comp: any) => {
-              if (comp.getAttributes()?.["data-denik-branding"] === "true") return true
-              const html = comp.toHTML()
-              return html.includes("Powered by") && html.includes("Denik") && html.length < 600
-            })
-            // Dedupe: keep the first match, remove any extras.
-            const existing = matches[0]
-            if (matches.length > 1) {
-              for (let i = 1; i < matches.length; i++) {
-                try { matches[i].remove() } catch { /* noop */ }
-              }
-            }
-            // If existing branding doesn't contain the Denik logo image, replace it.
-            if (existing && !existing.toHTML().includes('alt="Denik"')) {
-              const parent = existing.parent()
-              const idx = existing.index()
-              existing.remove()
-              if (parent) parent.append(BRANDING_HTML, { at: idx })
-              else wrapper.append(BRANDING_HTML, { at: wrapper.components().length })
-              return ensureBranding()
-            }
-            // Fix logo src in case the saved/default HTML points to a stale URL
-            if (existing) {
-              existing.find("img").forEach((img: any) => {
-                if (img.getAttributes()?.alt === "Denik") {
-                  img.setAttributes({ ...img.getAttributes(), src: `${logoOrigin}/images/denik-logo.svg` })
-                }
+              const wrapper = ed.DomComponents.getWrapper()
+              if (!wrapper) return
+              const allComps = wrapper.find(
+                "[data-denik-branding], section, footer, div",
+              )
+              const matches = allComps.filter((comp: any) => {
+                if (comp.getAttributes()?.["data-denik-branding"] === "true")
+                  return true
+                const html = comp.toHTML()
+                return (
+                  html.includes("Powered by") &&
+                  html.includes("Denik") &&
+                  html.length < 600
+                )
               })
-            }
-            const target =
-              existing ||
-              wrapper.append(BRANDING_HTML, { at: wrapper.components().length })[0]
-            if (!target) return
-            target.set({
-              removable: false,
-              copyable: false,
-              draggable: false,
-              editable: false,
-              "custom-name": "Branding (Denik)",
-            })
-            target.components().forEach((child: any) => {
-              child.set({ removable: false, editable: false, draggable: false })
-            })
+              // Dedupe: keep the first match, remove any extras.
+              const existing = matches[0]
+              if (matches.length > 1) {
+                for (let i = 1; i < matches.length; i++) {
+                  try {
+                    matches[i].remove()
+                  } catch {
+                    /* noop */
+                  }
+                }
+              }
+              // If existing branding doesn't contain the Denik logo image, replace it.
+              if (existing && !existing.toHTML().includes('alt="Denik"')) {
+                const parent = existing.parent()
+                const idx = existing.index()
+                existing.remove()
+                if (parent) parent.append(BRANDING_HTML, { at: idx })
+                else
+                  wrapper.append(BRANDING_HTML, {
+                    at: wrapper.components().length,
+                  })
+                return ensureBranding()
+              }
+              // Fix logo src in case the saved/default HTML points to a stale URL
+              if (existing) {
+                existing.find("img").forEach((img: any) => {
+                  if (img.getAttributes()?.alt === "Denik") {
+                    img.setAttributes({
+                      ...img.getAttributes(),
+                      src: `${logoOrigin}/images/denik-logo.svg`,
+                    })
+                  }
+                })
+              }
+              const target =
+                existing ||
+                wrapper.append(BRANDING_HTML, {
+                  at: wrapper.components().length,
+                })[0]
+              if (!target) return
+              target.set({
+                removable: false,
+                copyable: false,
+                draggable: false,
+                editable: false,
+                "custom-name": "Branding (Denik)",
+              })
+              target.components().forEach((child: any) => {
+                child.set({
+                  removable: false,
+                  editable: false,
+                  draggable: false,
+                })
+              })
             } finally {
               ensuringBranding = false
             }
@@ -556,13 +638,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
 
   // Abort streaming on unmount
   useEffect(() => {
-    return () => { abortRef.current?.abort() }
+    return () => {
+      abortRef.current?.abort()
+    }
   }, [])
 
   // Build streaming preview HTML
-  const streamingHtml = isGenerating && streamingSections.length > 0
-    ? buildPreviewHtml(streamingSections, theme)
-    : null
+  const streamingHtml =
+    isGenerating && streamingSections.length > 0
+      ? buildPreviewHtml(streamingSections, theme)
+      : null
 
   return (
     <div className="flex flex-col h-screen bg-brand_dark">
@@ -656,33 +741,53 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       <div className="relative flex items-center justify-between px-4 py-2.5 border-b border-gray-700 bg-brand_dark min-h-[3.25rem]">
         {/* Left: Breadcrumb */}
         <div className="flex items-center gap-2 min-w-0 text-sm">
-          <Link to="/dash/website" className="text-gray-400 hover:text-white transition-colors">
+          <Link
+            to="/dash/website"
+            className="text-gray-400 hover:text-white transition-colors"
+          >
             Sitio web
           </Link>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#6b7280"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M9 18L15 12L9 6" />
           </svg>
           <span className="text-white font-medium">Editor IA</span>
-          {hasExistingSections && (
-            isSaving ? (
-              <span className="text-xs text-gray-500 shrink-0">Guardando...</span>
+          {hasExistingSections &&
+            (isSaving ? (
+              <span className="text-xs text-gray-500 shrink-0">
+                Guardando...
+              </span>
             ) : isRefining ? (
-              <span className="px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-full shrink-0 animate-pulse">Refinando...</span>
+              <span className="px-2 py-0.5 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-full shrink-0 animate-pulse">
+                Refinando...
+              </span>
             ) : hasUnpublishedChanges ? (
-              <span className="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-300 rounded-full shrink-0">Sin publicar</span>
+              <span className="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-300 rounded-full shrink-0">
+                Sin publicar
+              </span>
             ) : org.landingPublished ? (
               <span className="px-2 py-0.5 text-xs font-medium bg-green-500/20 text-green-300 rounded-full shrink-0 inline-flex items-center gap-1">
                 <span className="w-1.5 h-1.5 bg-green-400 rounded-full" />
                 Publicada
               </span>
-            ) : null
-          )}
+            ) : null)}
         </div>
 
         {/* Center: Device toggle */}
         {showEditor && (
           <div className="absolute left-1/2 -translate-x-1/2">
-            <DeviceToggle activeDevice={activeDevice} onDeviceChange={handleDeviceChange} />
+            <DeviceToggle
+              activeDevice={activeDevice}
+              onDeviceChange={handleDeviceChange}
+            />
           </div>
         )}
 
@@ -691,7 +796,10 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           {isGenerating && (
             <button
               type="button"
-              onClick={() => { abortRef.current?.abort(); setIsGenerating(false) }}
+              onClick={() => {
+                abortRef.current?.abort()
+                setIsGenerating(false)
+              }}
               className="px-2.5 py-1 text-sm border border-red-500/50 text-red-400 rounded-lg hover:bg-red-500/10"
             >
               Detener
@@ -702,17 +810,29 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               <button
                 type="button"
                 onClick={() => {
-                  if (window.confirm("Esto reemplazará tu landing actual con una nueva generada por IA. ¿Continuar?")) {
+                  if (
+                    window.confirm(
+                      "Esto reemplazará tu landing actual con una nueva generada por IA. ¿Continuar?",
+                    )
+                  ) {
                     handleGenerate()
                   }
                 }}
-                disabled={isGenerating || isLoading || usage.genUsed >= usage.genLimit}
+                disabled={
+                  isGenerating || isLoading || usage.genUsed >= usage.genLimit
+                }
                 className="px-2.5 py-1 text-sm border border-purple-500/50 text-purple-300 rounded-lg hover:bg-purple-500/10 disabled:opacity-50 inline-flex items-center gap-1.5"
-                title={usage.genUsed >= usage.genLimit ? "Limite de generaciones alcanzado" : `${usage.genLimit - usage.genUsed} restantes`}
+                title={
+                  usage.genUsed >= usage.genLimit
+                    ? "Limite de generaciones alcanzado"
+                    : `${usage.genLimit - usage.genUsed} restantes`
+                }
               >
                 <HiSparkles className="w-4 h-4 text-brand_yellow" />
                 {isGenerating ? "Regenerando..." : "Generar con IA"}
-                <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.genUsed >= usage.genLimit ? "bg-red-500/20 text-red-300" : "bg-purple-500/20 text-purple-300"}`}>
+                <span
+                  className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${usage.genUsed >= usage.genLimit ? "bg-red-500/20 text-red-300" : "bg-purple-500/20 text-purple-300"}`}
+                >
                   {usage.genLimit - usage.genUsed}/{usage.genLimit}
                 </span>
               </button>
@@ -722,9 +842,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 rel="noopener noreferrer"
                 className="px-2.5 py-1 text-sm border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700 inline-flex items-center gap-1"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-3.5 h-3.5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                  <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 Ver
               </a>
@@ -804,29 +933,51 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                       Generando tu landing page...
                     </p>
                     <p className="text-sm text-gray-400 mt-2 max-w-xs">
-                      La IA esta disenando secciones con tus servicios y datos de negocio.
+                      La IA esta disenando secciones con tus servicios y datos
+                      de negocio.
                     </p>
                   </div>
                   <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                 </div>
               </div>
             )}
             <div className="flex items-center gap-3 py-3 px-6 border-t border-gray-200 bg-white">
               <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-bounce" style={{ animationDelay: "300ms" }} />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
               </div>
               <p className="text-sm font-bold text-gray-500">
                 Seccion {streamCount + 1} de ~8...
               </p>
               <button
                 type="button"
-                onClick={() => { abortRef.current?.abort(); setIsGenerating(false) }}
+                onClick={() => {
+                  abortRef.current?.abort()
+                  setIsGenerating(false)
+                }}
                 className="ml-auto text-xs text-red-600 hover:text-red-800 font-medium"
               >
                 Detener
@@ -845,18 +996,24 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 Usaremos los datos de tu negocio:
               </p>
               <ul className="text-sm text-gray-600 mb-6 space-y-1">
-                <li>Nombre: <strong>{org.name}</strong></li>
+                <li>
+                  Nombre: <strong>{org.name}</strong>
+                </li>
                 {org.businessType && <li>Tipo: {org.businessType}</li>}
                 <li>{serviceCount} servicios activos</li>
               </ul>
               <button
                 type="button"
                 onClick={handleGenerate}
-                disabled={isGenerating || isLoading || usage.genUsed >= usage.genLimit}
+                disabled={
+                  isGenerating || isLoading || usage.genUsed >= usage.genLimit
+                }
                 className="w-full px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 transition-all"
               >
                 {isGenerating ? "Generando..." : "Generar landing"}
-                <span className="ml-2 text-xs opacity-80">({usage.genLimit - usage.genUsed}/{usage.genLimit})</span>
+                <span className="ml-2 text-xs opacity-80">
+                  ({usage.genLimit - usage.genUsed}/{usage.genLimit})
+                </span>
               </button>
             </div>
           </div>
@@ -867,10 +1024,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       {saveMessage && (
         <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
           <div className="px-5 py-3 bg-white text-brand_dark rounded-full shadow-lg text-sm font-medium flex items-center gap-2 whitespace-nowrap pointer-events-auto">
-          <svg className="w-5 h-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
-          </svg>
-          {saveMessage}
+            <svg
+              className="w-5 h-5 text-green-500"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {saveMessage}
           </div>
         </div>
       )}

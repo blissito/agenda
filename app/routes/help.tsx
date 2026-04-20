@@ -131,14 +131,19 @@ export default function Help() {
               <span className="ml-4 mr-4">recursos</span> y soporte
             </h2>
             <p className="mt-4 text-brand_gray text-lg">
-              Encuentra las respuestas que necesitas para aprovechar todo el potencial
-              de Deník.
+              Encuentra las respuestas que necesitas para aprovechar todo el
+              potencial de Deník.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-8 gap-12">
             {/* Sidebar */}
-            <Catalogue search={search} setSearch={setSearch} activeSlug={activeSlug} onItemClick={handleSidebarClick} />
+            <Catalogue
+              search={search}
+              setSearch={setSearch}
+              activeSlug={activeSlug}
+              onItemClick={handleSidebarClick}
+            />
 
             {/* Main content */}
             <Content filtered={filtered} search={search} />
@@ -166,9 +171,9 @@ const Content = ({
           <span className="ml-4 mr-4">recursos</span> y soporte
         </h2>
         <p className="mt-6 text-brand_gray text-lg">
-          Encuentra las respuestas que necesitas para aprovechar todo el potencial
-          de Deník e impulsa las ventas de tu negocio. Chatea con nuestro equipo
-          o envía un correo electrónico a{" "}
+          Encuentra las respuestas que necesitas para aprovechar todo el
+          potencial de Deník e impulsa las ventas de tu negocio. Chatea con
+          nuestro equipo o envía un correo electrónico a{" "}
           <a href="mailto:hola@denik.me" className="text-brand_blue underline">
             hola@denik.me
           </a>

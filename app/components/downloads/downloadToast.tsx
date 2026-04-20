@@ -327,19 +327,31 @@ function formatHumanTime(value?: Date | string | null) {
 }
 
 function buildEventsCsv(events: EventForXls[]) {
-  const headers = ["Fecha", "Hora", "Agendada el", "Servicio", "Encargado", "Puntos", "Precio", "Estatus cita", "Pago"]
+  const headers = [
+    "Fecha",
+    "Hora",
+    "Agendada el",
+    "Servicio",
+    "Encargado",
+    "Puntos",
+    "Precio",
+    "Estatus cita",
+    "Pago",
+  ]
 
-  const rows = events.map((event) => [
-    csvValue(formatHumanDate(event.start)),
-    csvValue(formatHumanTime(event.start)),
-    csvValue(formatHumanDate(event.createdAt)),
-    csvValue(event.service?.name ?? ""),
-    csvValue(event.service?.employeeName ?? "s/n"),
-    csvValue(String(event.service?.points ?? "")),
-    csvValue(`$${Number(event.service?.price ?? 0).toFixed(2)}`),
-    csvValue(event.status === "ACTIVE" ? "Confirmada" : "Cancelada"),
-    csvValue(event.paid ? "Pagada" : "Sin pagar"),
-  ].join(","))
+  const rows = events.map((event) =>
+    [
+      csvValue(formatHumanDate(event.start)),
+      csvValue(formatHumanTime(event.start)),
+      csvValue(formatHumanDate(event.createdAt)),
+      csvValue(event.service?.name ?? ""),
+      csvValue(event.service?.employeeName ?? "s/n"),
+      csvValue(String(event.service?.points ?? "")),
+      csvValue(`$${Number(event.service?.price ?? 0).toFixed(2)}`),
+      csvValue(event.status === "ACTIVE" ? "Confirmada" : "Cancelada"),
+      csvValue(event.paid ? "Pagada" : "Sin pagar"),
+    ].join(","),
+  )
 
   return [headers.join(","), ...rows].join("\n")
 }

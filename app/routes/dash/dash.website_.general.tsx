@@ -1,5 +1,5 @@
 import type { LoaderFunctionArgs } from "react-router"
-import { data as json, useLoaderData } from "react-router"
+import { data as json } from "react-router"
 import { z } from "zod"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import {
@@ -64,8 +64,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 // };
 
 export default function Index() {
-  const { org, action } = useLoaderData<typeof loader>()
-
   return (
     <section>
       <Breadcrumb className="text-brand_gray">

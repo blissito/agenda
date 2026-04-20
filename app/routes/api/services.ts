@@ -8,7 +8,11 @@ import {
 } from "~/components/forms/services_model/ServicePhotoForm"
 import { serviceTimesSchema } from "~/components/forms/services_model/ServiceTimesForm"
 import { db } from "~/utils/db.server"
-import { getPutFileUrl, removeFileUrl, uploadFileToTigris } from "~/utils/lib/tigris.server"
+import {
+  getPutFileUrl,
+  removeFileUrl,
+  uploadFileToTigris,
+} from "~/utils/lib/tigris.server"
 import { generateUniqueServiceSlug } from "~/utils/slugs.server"
 import type { Route } from "./+types/services"
 
@@ -24,7 +28,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const serviceId = formData.get("serviceId") as string
     const file = formData.get("file") as File
     if (!serviceId || !file) {
-      return Response.json({ error: "serviceId and file required" }, { status: 400 })
+      return Response.json(
+        { error: "serviceId and file required" },
+        { status: 400 },
+      )
     }
     const service = await db.service.findFirst({
       where: { id: serviceId, orgId: org.id },
@@ -39,7 +46,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
       await uploadFileToTigris(key, buffer, file.type)
     } catch (e: any) {
       console.error("[gallery_upload] Tigris upload failed:", e.message || e)
-      return Response.json({ error: "Upload failed", details: e.message }, { status: 500 })
+      return Response.json(
+        { error: "Upload failed", details: e.message },
+        { status: 500 },
+      )
     }
     // Also persist to gallery array
     const gallery = [...(service.gallery || []), key]
@@ -57,10 +67,8 @@ export const action = async ({ request }: Route.ActionArgs) => {
   //67c90587bd7089263a5cf40b
 
   if (intent === "config_form") {
-    const {
-      success,
-      data: parsedData,
-    } = ServerServiceConfigFormSchema.safeParse(data)
+    const { success, data: parsedData } =
+      ServerServiceConfigFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
     await db.service.update({
@@ -71,10 +79,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
 
   if (intent === "times_form") {
-    const {
-      success,
-      data: parsedData,
-    } = serviceTimesSchema.safeParse(data)
+    const { success, data: parsedData } = serviceTimesSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
     await db.service.update({
@@ -90,10 +95,8 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
 
   if (intent === "photo_form") {
-    const {
-      success,
-      data: parsedData,
-    } = serverServicePhotoFormSchema.safeParse(data)
+    const { success, data: parsedData } =
+      serverServicePhotoFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
     // Build update data, handling gallery as array
@@ -116,10 +119,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
 
   if (intent === "general_form") {
-    const {
-      success,
-      data: parsedData,
-    } = generalFormSchema.safeParse(data)
+    const { success, data: parsedData } = generalFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
     const { org } = await getUserAndOrgOrRedirect(request)
@@ -202,7 +202,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     const serviceId = url.searchParams.get("serviceId")
     const filename = url.searchParams.get("filename")
     if (!serviceId || !filename) {
-      return Response.json({ error: "serviceId and filename required" }, { status: 400 })
+      return Response.json(
+        { error: "serviceId and filename required" },
+        { status: 400 },
+      )
     }
     const service = await db.service.findFirst({
       where: { id: serviceId, orgId: org.id },

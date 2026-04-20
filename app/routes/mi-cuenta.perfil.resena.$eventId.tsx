@@ -100,9 +100,7 @@ export default function ResenaPage({ actionData }: Route.ComponentProps) {
             orgName={loaderData.orgName}
             isSubmitting={isSubmitting}
             error={
-              actionData && "error" in actionData
-                ? actionData.error
-                : undefined
+              actionData && "error" in actionData ? actionData.error : undefined
             }
           />
         )}
@@ -194,8 +192,8 @@ function SuccessCard() {
       </h1>
       <p className="text-sm text-white/70 font-satoMedium leading-relaxed mb-8">
         Agradecemos mucho que te hayas tomado el tiempo de compartir tu
-        experiencia. Tus comentarios nos ayudan a seguir mejorando y a que
-        más personas confíen en nosotros.
+        experiencia. Tus comentarios nos ayudan a seguir mejorando y a que más
+        personas confíen en nosotros.
       </p>
       <SecondaryButton
         onClick={() => window.history.back()}

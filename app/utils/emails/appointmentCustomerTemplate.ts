@@ -46,12 +46,16 @@ export default ({
        ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
 
   </div>
-  ${meetingLink ? `
+  ${
+    meetingLink
+      ? `
   <a style="text-decoration:none;" href="${meetingLink}" target="blank">
     <button style="background:#00897B; height:40px; border-radius:20px; border:none; color:white; width:100%; margin-top:24px; cursor:pointer; font-size:14px;">
       Unirse a videollamada (Google Meet)
     </button>
-  </a>` : ""}
+  </a>`
+      : ""
+  }
             <a style="text-decoration:none;" href="${confirmLink}" target="blank">
     <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
       Confirmar cita
