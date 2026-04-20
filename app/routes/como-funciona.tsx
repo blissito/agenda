@@ -5,6 +5,7 @@ import { TopBar } from "~/components/common/topBar"
 import { Banner } from "~/components/home/Banner"
 import { CompaniesScroll } from "~/components/home/CompaniesScroll"
 import { FinalCta } from "~/components/home/FinalCta"
+import { StatsBelt } from "~/components/home/StatsBelt"
 import { Calendar } from "~/components/icons/calendar"
 import { Lamp } from "~/components/icons/lamp"
 import { Rocket } from "~/components/icons/rocket"
@@ -66,7 +67,7 @@ export default function ComoFunciona() {
         </section>
 
         {/* Mid Banner */}
-        <MidBanner />
+        <StatsBelt />
 
         {/* Social Proof */}
         <section className="max-w-[90%] xl:max-w-7xl mx-auto mt-[80px] lg:mt-[160px]">
@@ -130,56 +131,6 @@ function StepCard({
   )
 }
 
-function MidBanner() {
-  return (
-    <section className="max-w-[90%] xl:max-w-7xl mx-auto mt-[80px] lg:mt-[160px]">
-      <div className="relative rounded-[40px] bg-gradient-to-br from-brand_blue to-blue-600 p-6 md:p-16 overflow-hidden">
-        {/* Decorative circles */}
-        <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
-
-        <div className="relative flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-          {/* Text */}
-          <div className="flex-1 text-center lg:text-left">
-            <h2 className="text-3xl lg:text-5xl font-satoBold text-white leading-tight">
-              Más de 100 negocios
-              <br />
-              ya confían en Deník
-            </h2>
-            <p className="text-lg text-white/80 font-satoshi mt-4 max-w-lg mx-auto lg:mx-0">
-              Únete a la comunidad de profesionales que automatizaron su agenda y
-              dejaron de perder clientes.
-            </p>
-          </div>
-
-          {/* Avatars stack */}
-          <div className="flex-shrink-0 flex items-center">
-            <div className="flex -space-x-4">
-              <img
-                src="https://i.imgur.com/RAiyJBc.jpg"
-                alt=""
-                className="w-14 h-14 md:w-20 md:h-20 rounded-full border-4 border-brand_blue object-cover"
-              />
-              <img
-                src="https://i.imgur.com/TFQxcIu.jpg"
-                alt=""
-                className="w-14 h-14 md:w-20 md:h-20 rounded-full border-4 border-brand_blue object-cover"
-              />
-              <img
-                src="https://www.formmy.app/home/abraham.webp"
-                alt=""
-                className="w-14 h-14 md:w-20 md:h-20 rounded-full border-4 border-brand_blue object-cover"
-              />
-              <div className="w-14 h-14 md:w-20 md:h-20 rounded-full border-4 border-brand_blue bg-white/20 backdrop-blur flex items-center justify-center text-white font-satoBold text-sm md:text-lg">
-                +100
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
 
 const testimonials = [
   {
