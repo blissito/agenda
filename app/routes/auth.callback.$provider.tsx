@@ -2,6 +2,9 @@ import { type LoaderFunctionArgs, redirect } from "react-router"
 import { getOAuthUser, isValidProvider } from "~/.server/oauth"
 import { commitSession, getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
+import { sendWelcome } from "~/utils/emails/sendWelcome"
+
+const TRIAL_DAYS = 30
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const { provider } = params
@@ -25,24 +28,42 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   try {
     const oauthUser = await getOAuthUser(provider, code, redirectUri)
 
-    const user = await db.user.upsert({
+    const existing = await db.user.findUnique({
       where: { email: oauthUser.email },
-      create: {
-        email: oauthUser.email,
-        emailVerified: true,
-        displayName: oauthUser.name,
-        photoURL: oauthUser.picture,
-        providerId: provider,
-        uid: oauthUser.id,
-        role: "user",
-      },
-      update: {
-        emailVerified: true,
-        displayName: oauthUser.name || undefined,
-        photoURL: oauthUser.picture || undefined,
-        providerId: provider,
-      },
     })
+    let user
+    if (!existing) {
+      const now = new Date()
+      user = await db.user.create({
+        data: {
+          email: oauthUser.email,
+          emailVerified: true,
+          displayName: oauthUser.name,
+          photoURL: oauthUser.picture,
+          providerId: provider,
+          uid: oauthUser.id,
+          role: "user",
+          plan: "TRIAL",
+          trialStartsAt: now,
+          trialEndsAt: new Date(
+            now.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000,
+          ),
+        },
+      })
+      sendWelcome(oauthUser.email, oauthUser.name).catch((err) =>
+        console.error("sendWelcome failed:", err),
+      )
+    } else {
+      user = await db.user.update({
+        where: { email: oauthUser.email },
+        data: {
+          emailVerified: true,
+          displayName: oauthUser.name || undefined,
+          photoURL: oauthUser.picture || undefined,
+          providerId: provider,
+        },
+      })
+    }
 
     const session = await getSession(request.headers.get("Cookie"))
     session.set("userId", user.id)

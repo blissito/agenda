@@ -76,6 +76,10 @@ export const startAgenda = async (): Promise<void> => {
   await import("./definitions.server")
 
   await ag.start()
+
+  // Mondays 15:00 UTC = 9 AM CDMX (Mexico has no DST since 2022, fixed UTC-6)
+  await ag.every("0 15 * * 1", "check-trials")
+
   console.log("[Agenda] Job processor started")
 }
 

@@ -9,6 +9,8 @@
 import { db } from "~/utils/db.server"
 import { sendReminder } from "~/utils/emails/sendReminder"
 import { sendSurvey } from "~/utils/emails/sendSurvey"
+import { sendTrialExpired } from "~/utils/emails/sendTrialExpired"
+import { sendTrialWarning } from "~/utils/emails/sendTrialWarning"
 import { getAgenda } from "./agenda.server"
 
 const DEFAULT_REMINDER_HOURS = 4
@@ -191,6 +193,72 @@ export const scheduleSurvey = async (
     `[scheduleSurvey] Scheduled survey for event ${eventId} at ${surveyTime.toISOString()}`,
   )
 }
+
+/**
+ * Check Trials Job
+ * Runs weekly (Mondays 9 AM CDMX). For each user with plan="TRIAL":
+ * - Day 20-29: send warning email (once, idempotent via trialWarningEmailSentAt)
+ * - Day >=30: send expired email, flip plan to "EXPIRED" (once, idempotent via trialExpiredEmailSentAt)
+ */
+agenda.define("check-trials", async () => {
+  const now = new Date()
+  const day20Cutoff = new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000)
+
+  const warning = await db.user.findMany({
+    where: {
+      plan: "TRIAL",
+      trialStartsAt: { lte: day20Cutoff },
+      trialEndsAt: { gt: now },
+      trialWarningEmailSentAt: null,
+    },
+  })
+
+  for (const u of warning) {
+    try {
+      const daysLeft = u.trialEndsAt
+        ? Math.max(
+            0,
+            Math.ceil(
+              (u.trialEndsAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000),
+            ),
+          )
+        : 0
+      await sendTrialWarning(u.email, u.displayName, daysLeft)
+      await db.user.update({
+        where: { id: u.id },
+        data: { trialWarningEmailSentAt: now },
+      })
+      console.log(`[check-trials] warning sent to ${u.email}`)
+    } catch (err) {
+      console.error(`[check-trials] warning failed for ${u.id}:`, err)
+    }
+  }
+
+  const expired = await db.user.findMany({
+    where: {
+      plan: "TRIAL",
+      trialEndsAt: { lte: now },
+      trialExpiredEmailSentAt: null,
+    },
+  })
+
+  for (const u of expired) {
+    try {
+      await sendTrialExpired(u.email, u.displayName)
+      await db.user.update({
+        where: { id: u.id },
+        data: { plan: "EXPIRED", trialExpiredEmailSentAt: now },
+      })
+      console.log(`[check-trials] expired processed for ${u.email}`)
+    } catch (err) {
+      console.error(`[check-trials] expired failed for ${u.id}:`, err)
+    }
+  }
+
+  console.log(
+    `[check-trials] done: ${warning.length} warnings, ${expired.length} expirations`,
+  )
+})
 
 /**
  * Schedule both reminder and survey for an event based on service config

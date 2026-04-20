@@ -534,6 +534,11 @@ model User {
   photoURL      String?
   providerId    String?
   role          String           @default("user")
+  plan                      String?   // "TRIAL" | "PRO" | "EXPIRED" — null for customers/collaborators
+  trialStartsAt             DateTime? @db.Date
+  trialEndsAt               DateTime? @db.Date
+  trialWarningEmailSentAt   DateTime? @db.Date
+  trialExpiredEmailSentAt   DateTime? @db.Date
   stripe        UserStripe?
   mercadopago   UserMercadoPago?
   uid           String?

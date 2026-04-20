@@ -5,8 +5,11 @@ import slugify from "slugify"
 import type { ZodSchema } from "zod"
 import { commitSession, getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
+import { sendWelcome } from "~/utils/emails/sendWelcome"
 import { validateUserToken } from "~/utils/tokens"
 import { normalizeWeekDays } from "~/utils/weekDays"
+
+const TRIAL_DAYS = 30
 import {
   type Signup1SchemaType,
   type Signup2SchemaType,
@@ -253,17 +256,29 @@ export const handleMagicLinkLogin = async (token: string, request: Request) => {
   }
   if (!isValid || !email) return genericError
 
-  const user = await db.user.upsert({
-    where: { email },
-    create: {
-      email,
-      emailVerified: true,
-      role: "user",
-    },
-    update: {
-      emailVerified: true, // we can verify it here
-    },
-  })
+  const existing = await db.user.findUnique({ where: { email } })
+  let user
+  if (!existing) {
+    const now = new Date()
+    user = await db.user.create({
+      data: {
+        email,
+        emailVerified: true,
+        role: "user",
+        plan: "TRIAL",
+        trialStartsAt: now,
+        trialEndsAt: new Date(now.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000),
+      },
+    })
+    sendWelcome(email).catch((err) =>
+      console.error("sendWelcome failed:", err),
+    )
+  } else {
+    user = await db.user.update({
+      where: { email },
+      data: { emailVerified: true },
+    })
+  }
 
   if (!user) return genericError
 

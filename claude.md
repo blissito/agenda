@@ -216,6 +216,26 @@ Los webhooks verifican si ya existe un evento antes de crear:
 - [ ] **LOYALTY POINTS**: Actualmente los puntos de lealtad se calculan en vivo sumando `service.points` de citas pasadas (tanto en `dash_.clientes_.$email.tsx` como en `customer-portal.server.ts`). Los campos `customer.loyaltyPoints` y `customer.loyaltyTotalEarned` en la DB están siempre en 0 y no se usan. Hay que implementar la escritura real de estos campos (al completar una cita o marcar asistencia) para que el sistema use `customer.loyaltyPoints` en vez del cálculo en vivo, lo cual permitiría redenciones que descuenten puntos correctamente.
 - [x] ~~La página pública de org no muestra bien los horarios~~ (campos corregidos: logo, email, weekDays)
 - [ ] **UX**: Selección de horarios en booking - actualmente bloquea todos los slots mientras carga. Implementar optimistic UI para respuesta inmediata
+- [ ] **LÍMITES POR PLAN (gating TRIAL vs PRO vs EXPIRED)**: Hoy todas las funciones Pro están abiertas para cualquier user. Cuando se implemente billing, hay que aplicar gating en estos 3 features. Proponer matriz de límites y puntos de enforcement:
+
+  | Feature | EXPIRED | TRIAL | PRO | Enforcement |
+  |---|---|---|---|---|
+  | **Asistente IA (Nik)** — WhatsApp + `/dash/asistente`, administra el negocio del owner | ❌ bloqueado | ✅ acceso completo (rate limit sugerido: 50 msgs/mes) | ✅ acceso completo (200 msgs/mes o ilimitado) | Loader `/dash/asistente` redirige si `plan === "EXPIRED"`; API `/api/mcp/*` regresa 402 si el `Org.apiKey` corresponde a owner expirado. Contador nuevo en `Org` (`aiAssistantMsgCount` + `aiAssistantUsageMonth`) reseteado mensualmente |
+  | **Chatbot IA en landing pública** — `Org.landingChatbotEnabled`, atiende a clientes del negocio | ❌ forzado a `false` | ✅ habilitado (50 conversaciones/mes) | ✅ habilitado (ilimitado o N>>) | Toggle en `/dash/sitio` deshabilitado si `plan === "EXPIRED"`; loader de la landing pública (`service.$serviceSlug.tsx` / `agenda.$orgSlug.$serviceSlug.tsx`) oculta el widget si owner expirado. Contador `Org.landingChatbotMsgCount` |
+  | **Regeneraciones de landing** (gen + refine) | ❌ bloqueado | 3 gen + 10 refine / mes | 10 gen + 50 refine / mes (o ilimitado) | Ya existen `Org.landingGenCount` y `Org.landingRefineCount` con reset mensual via `landingUsageMonth`. Falta: (a) leer plan del owner en `app/lib/landing-generator.server.ts:25`; (b) agregar constante `LIMITS_BY_PLAN` y validar antes de incrementar; (c) UI en editor de landing que muestre cuota restante |
+  | **Colaboradores** (`Employee` + users rol `colaborador`) | ❌ solo owner | 1 colaborador | ilimitado (o N definido) | Gating en `app/routes/dash/dash.colaboradores.tsx:74` (`db.user.create` al invitar). UI del dash que oculte el CTA de invitar cuando se alcance el límite |
+
+  **Plan de implementación:**
+  1. Crear `app/lib/plan-limits.server.ts` con `PLAN_LIMITS: Record<Plan, Limits>` y helper `assertLimit(orgId, feature)` que lee `Org.owner.plan` + contadores actuales y throwea 402 si se excede.
+  2. Aplicar en los 3 enforcement points de la tabla.
+  3. UI: badge de "Plan" en `/dash` + componente `<PlanLimitBadge feature="landing-gen" />` que muestra `usado/total` y linkea a `/planes` si está cerca del límite.
+  4. Bloqueo EXPIRED: layout del dash (`dash_layout.tsx`) muestra banner persistente "Tu trial expiró — actualiza tu plan" con CTA a `/planes`; features marcadas como ❌ redirigen ahí.
+
+- [ ] **TRIAL → PRO (suscripciones + promo 80% off primeros 3 meses)**: El email `trialWarningTemplate.ts` promete "80% de descuento durante los primeros 3 meses" (user paga 20% de la mensualidad los primeros 3 ciclos, luego precio regular) pero no hay mecanismo para canjearlo. Bloqueado: no hay checkout de suscripciones (MP es para pagos de citas, Stripe Connect es legacy para payouts). Plan cuando se decida el proveedor de billing (MP Suscripciones / Stripe Billing):
+  1. Ruta `/planes` con plan Pro mensual + checkout recurrente.
+  2. Token firmado en el link del email (`~/utils/tokens.ts`) con `{userId, promo:"TRIAL_3M_80", exp:+10d}`. La ruta `/planes` valida y aplica el descuento a los primeros 3 ciclos de facturación (Stripe Billing: `coupon` con `duration:"repeating", duration_in_months:3, percent_off:80`. MP Suscripciones: crear plan dedicado de 3 cobros al 20% + swap al plan regular al 4º mes).
+  3. Webhook → flip `User.plan` de `TRIAL`/`EXPIRED` a `PRO` al primer cobro exitoso; tracking de ciclos para no re-aplicar promo.
+  4. Mientras tanto: la línea de la promo en el warning template prometera algo que no se puede canjear — considerar cambiar el CTA a "Escríbenos por WhatsApp" hasta que exista el checkout.
 - [x] ~~**BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod~~ (corregido en sendAppointment.ts)
 - [x] ~~**META TAGS**: Revisar y mejorar meta tags en las landings publicadas~~ (OG tags en booking público y landing de org)
 - [ ] **AI Landing en S3**: Subir HTML generado a S3/CloudFront en vez de servirlo via iframe srcDoc (mejor SEO, carga directa, sin limitaciones de iframe). Actualmente se usa `<iframe srcDoc>` fullscreen en `home.tsx` como workaround porque React Router v7 no permite devolver raw HTML desde loaders.

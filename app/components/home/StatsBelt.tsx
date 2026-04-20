@@ -32,16 +32,11 @@ export function StatsBelt() {
                 <span className="absolute left-[-4px] right-[-4px] top-[56%] h-[3px] bg-brand_yellow rounded-sm -rotate-[1.5deg]" />
               </span>
               <span className="block text-brand_yellow text-[28px] md:text-[40px] mt-3.5 -rotate-[1.5deg] -translate-x-0.5 leading-[1.1] font-['Gloria_Hallelujah',cursive]">
-                Te devuelve tiempo
-                <br />
-                para darlo.
+                Te ahorra tiempo.
               </span>
             </h3>
             <p className="text-[15px] leading-relaxed text-white/70 mb-6 max-w-[460px]">
-              Automatizamos lo aburrido — agendar, responder lo repetido, pasar
-              reportes — para que tú hagas lo único que tu cliente no puede
-              conseguir en otro lado: <b className="text-white font-bold">tú</b>
-              .
+            Automatizamos lo aburrido —agendar, responder lo repetitivo y generar reportes— para que puedas enfocarte en lo que realmente marca la diferencia:  <b className="text-white font-bold">tu servicio y la atención que solo tú sabes dar.</b>
             </p>
             <div className="flex mb-2">
               <BeltAv src="https://i.imgur.com/RAiyJBc.jpg" />
