@@ -108,10 +108,14 @@ function buildOrgPrompt(org: Org, services: Service[]): string {
     const serviceList = services
       .map((s) => {
         const price = s.price ? `$${Number(s.price)}` : "Gratis"
-        return `- ${s.name} (${price})${s.description ? `: ${s.description}` : ""}`
+        const slugPart = s.slug ? ` [link: /${s.slug}]` : ""
+        return `- ${s.name} (${price})${slugPart}${s.description ? `: ${s.description}` : ""}`
       })
       .join("\n")
     parts.push(`Servicios:\n${serviceList}`)
+    parts.push(
+      `IMPORTANT — service links: every service CTA (anchor or button) MUST use the exact link shown in [link: /slug] for that service. The primary "Agendar"/"Reservar" hero CTA should point to the first service link. NEVER use href="#" or placeholder hrefs on service CTAs.`,
+    )
   }
 
   const schedule = formatWeekDays(org.weekDays)
@@ -194,6 +198,88 @@ function makePersistImage(orgId: string) {
   }
 }
 
+// ==================== SERVICE LINK INJECTION ====================
+
+type ServiceLike = { name: string; slug?: string | null }
+
+/**
+ * Rewrite AI-generated anchor hrefs to point at real service booking URLs.
+ * - Matches anchor text by service name (exact, contains, or contained-by).
+ * - Fallback: anchors whose text is a CTA verb ("Agendar", "Reservar", etc.)
+ *   without a matched service → first service slug.
+ * - Leaves external (http/mailto/tel) and in-page (#section) links untouched.
+ * Idempotent — safe to run on already-fixed HTML.
+ */
+export function injectServiceLinks(
+  html: string,
+  services: ServiceLike[],
+): string {
+  const withSlugs = services.filter(
+    (s): s is { name: string; slug: string } => !!s.slug,
+  )
+  if (withSlugs.length === 0) return html
+
+  const firstSlug = withSlugs[0].slug
+  const CTA_WORDS =
+    /\b(?:agendar|agenda|reservar|reserva|reservación|book(?:ing)?|schedule|contratar|empezar|comenzar|ver más|ver detalles|más información)\b/i
+
+  const normalize = (s: string) =>
+    s
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .trim()
+      .replace(/\s+/g, " ")
+
+  const byName = withSlugs.map((s) => ({
+    name: normalize(s.name),
+    slug: s.slug,
+  }))
+
+  return html.replace(
+    /<a\b([^>]*)>([\s\S]*?)<\/a>/gi,
+    (match, attrs, inner) => {
+      const hrefMatch = attrs.match(/\bhref="([^"]*)"/)
+      const currentHref = hrefMatch?.[1] ?? ""
+
+      // Respect external, mail, tel, and in-page anchor links.
+      if (/^(https?:|mailto:|tel:|#[a-zA-Z])/.test(currentHref)) return match
+
+      const text = inner
+        .replace(/<[^>]+>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+      const normText = normalize(text)
+
+      let matchedSlug: string | null = null
+      for (const { name, slug } of byName) {
+        if (
+          normText === name ||
+          (name.length >= 3 && normText.includes(name)) ||
+          (normText.length >= 3 && name.includes(normText))
+        ) {
+          matchedSlug = slug
+          break
+        }
+      }
+
+      if (!matchedSlug && CTA_WORDS.test(text)) {
+        matchedSlug = firstSlug
+      }
+
+      if (!matchedSlug) return match
+
+      const desiredHref = `/${matchedSlug}`
+      if (currentHref === desiredHref) return match
+
+      const newAttrs = hrefMatch
+        ? attrs.replace(/\bhref="[^"]*"/, `href="${desiredHref}"`)
+        : ` href="${desiredHref}"${attrs}`
+      return `<a${newAttrs}>${inner}</a>`
+    },
+  )
+}
+
 // ==================== GENERATION ====================
 
 export async function generateOrgLanding(
@@ -203,13 +289,31 @@ export async function generateOrgLanding(
 ): Promise<Section3[]> {
   const prompt = buildOrgPrompt(org, services)
   const keys = getAIKeys()
-  return generateLanding({
+  const transform = (html: string) => injectServiceLinks(html, services)
+  const userOpts = options ?? {}
+  const wrapped: Partial<GenerateOptions> = {
+    ...userOpts,
+    onSection: userOpts.onSection
+      ? (s) => userOpts.onSection!({ ...s, html: transform(s.html) })
+      : undefined,
+    onImageUpdate: userOpts.onImageUpdate
+      ? (id, html) => userOpts.onImageUpdate!(id, transform(html))
+      : undefined,
+    onDone: userOpts.onDone
+      ? (sections) =>
+          userOpts.onDone!(
+            sections.map((s) => ({ ...s, html: transform(s.html) })),
+          )
+      : undefined,
+  }
+  const result = await generateLanding({
     prompt,
     model: "claude-sonnet-4-6",
     ...keys,
     persistImage: keys.openaiApiKey ? makePersistImage(org.id) : undefined,
-    ...options,
+    ...wrapped,
   })
+  return result.map((s) => ({ ...s, html: transform(s.html) }))
 }
 
 export async function refineOrgLanding(
@@ -219,12 +323,28 @@ export async function refineOrgLanding(
   options?: Partial<RefineOptions>,
 ): Promise<string> {
   const keys = getAIKeys()
-  return refineLanding({
+  const services = await db.service.findMany({
+    where: { orgId, isActive: true, archived: false },
+    select: { name: true, slug: true },
+  })
+  const transform = (html: string) => injectServiceLinks(html, services)
+  const userOpts = options ?? {}
+  const wrapped: Partial<RefineOptions> = {
+    ...userOpts,
+    onChunk: userOpts.onChunk
+      ? (html) => userOpts.onChunk!(transform(html))
+      : undefined,
+    onDone: userOpts.onDone
+      ? (html) => userOpts.onDone!(transform(html))
+      : undefined,
+  }
+  const finalHtml = await refineLanding({
     currentHtml,
     instruction,
     systemPrompt: RESPONSIVE_REFINE_SYSTEM,
     ...keys,
     persistImage: keys.openaiApiKey ? makePersistImage(orgId) : undefined,
-    ...options,
+    ...wrapped,
   })
+  return transform(finalHtml)
 }
