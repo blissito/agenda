@@ -52,6 +52,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           await generateOrgLanding(org, services, {
             onSection: (section) => send("section", section),
             onImageUpdate: (id, html) => send("section-update", { id, html }),
+            onPartialSection: (index, html) =>
+              send("partial", { index, html }),
             onDone: async (sections) => {
               send("done", { total: sections.length })
               // Run async work but capture the promise so we await it before closing

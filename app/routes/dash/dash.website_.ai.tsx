@@ -1,8 +1,4 @@
-import {
-  buildPreviewHtml,
-  grapesToSections,
-  type Section3,
-} from "@easybits.cloud/html-tailwind-generator"
+import { grapesToSections, type Section3 } from "@easybits.cloud/html-tailwind-generator"
 import {
   type AiAction,
   GrapesEditor,
@@ -139,8 +135,8 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [chatbotEnabled, setChatbotEnabled] = useState(
     org.landingChatbotEnabled ?? true,
   )
-  // During generation, we stream sections into a lightweight preview
-  const [streamingSections, setStreamingSections] = useState<Section3[]>([])
+  // During generation we stream sections directly into the GrapesEditor canvas.
+  // streamCount drives the "Sección N de ~8" indicator; actual HTML lives in the editor.
   const [streamCount, setStreamCount] = useState(0)
   const [themeVersion, setThemeVersion] = useState(0)
   const [activeDevice, setActiveDevice] = useState<
@@ -153,12 +149,111 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const hasExistingSections = sections.length > 0
   const abortRef = useRef<AbortController | null>(null)
   const isSavingRef = useRef(false)
-  const streamEndRef = useRef<HTMLDivElement>(null)
+  /** True while an SSE generation is in-flight. Used to suppress onChange/branding side effects
+   *  so that every streamed section doesn't thrash state. */
+  const isStreamingRef = useRef(false)
+  /** Queue of SSE section events that arrived before the GrapesJS editor finished booting. */
+  const pendingStreamQueueRef = useRef<
+    Array<{ type: "add" | "update"; id: string; html: string }>
+  >([])
+  /** Captured inside the editor-init effect so we can trigger branding once after streaming ends. */
+  const ensureBrandingRef = useRef<(() => void) | null>(null)
 
   isSavingRef.current = isSaving
 
-  // Show GrapesEditor only when NOT generating and has sections
-  const showEditor = hasExistingSections && !isGenerating
+  // Editor is shown both when we have sections AND during generation, so sections stream into it live.
+  const showEditor = hasExistingSections || isGenerating
+
+  /** Find a GrapesJS component in the editor by its data-section-id. */
+  const findSectionComponent = useCallback((id: string) => {
+    const ed = editorRef.current?.getEditor()
+    if (!ed) return null
+    const wrapper = ed.DomComponents.getWrapper()
+    if (!wrapper) return null
+    const find = (parent: any): any => {
+      if (parent.getAttributes?.()["data-section-id"] === id) return parent
+      for (const child of parent.components?.().models ?? []) {
+        const found = find(child)
+        if (found) return found
+      }
+      return null
+    }
+    return find(wrapper)
+  }, [])
+
+  /** Append a streamed section to the editor canvas. If the editor isn't ready yet, queue it.
+   *  Clears any partial-stream preview first so the completed section replaces it cleanly. */
+  const appendSectionToEditor = useCallback((id: string, html: string) => {
+    const ed = editorRef.current?.getEditor()
+    if (!ed) {
+      pendingStreamQueueRef.current.push({ type: "add", id, html })
+      return
+    }
+    const doc = ed.Canvas.getDocument()
+    doc?.querySelector("[data-partial-stream]")?.remove()
+    const wrapper = ed.DomComponents.getWrapper()
+    if (!wrapper) return
+    // Wrap the streamed HTML in a container with data-section-id so we can find/update it later.
+    wrapper.append(`<div data-section-id="${id}">${html}</div>`)
+  }, [])
+
+  /** Replace an existing streamed section's HTML (usually fired after image enrichment). */
+  const updateSectionInEditor = useCallback(
+    (id: string, html: string) => {
+      const comp = findSectionComponent(id)
+      if (!comp) {
+        pendingStreamQueueRef.current.push({ type: "update", id, html })
+        return
+      }
+      comp.replaceWith(`<div data-section-id="${id}">${html}</div>`)
+    },
+    [findSectionComponent],
+  )
+
+  /** Drain queued events once the editor is available. */
+  const flushStreamQueue = useCallback(() => {
+    const ed = editorRef.current?.getEditor()
+    if (!ed) return
+    const pending = pendingStreamQueueRef.current
+    pendingStreamQueueRef.current = []
+    for (const ev of pending) {
+      if (ev.type === "add") appendSectionToEditor(ev.id, ev.html)
+      else updateSectionInEditor(ev.id, ev.html)
+    }
+  }, [appendSectionToEditor, updateSectionInEditor])
+
+  /**
+   * Render/update the in-progress section's HTML directly in the canvas iframe
+   * (outside of GrapesJS's component tracking) so the user sees tokens/elements
+   * materializing as Claude streams them. When the section completes, the real
+   * component is added via appendSectionToEditor which first clears this div.
+   */
+  const renderPartialInCanvas = useCallback((html: string) => {
+    const ed = editorRef.current?.getEditor()
+    if (!ed) return
+    const doc = ed.Canvas.getDocument()
+    if (!doc) return
+    const body = doc.body
+    let partial = body.querySelector<HTMLDivElement>("[data-partial-stream]")
+    if (!partial) {
+      partial = doc.createElement("div")
+      partial.setAttribute("data-partial-stream", "")
+      // Keep GrapesJS from promoting this to a tracked component
+      partial.setAttribute("data-gjs-selectable", "false")
+      partial.setAttribute("data-gjs-hoverable", "false")
+      partial.setAttribute("data-gjs-editable", "false")
+      partial.style.animation = "fadeInUp 0.3s ease-out"
+      body.appendChild(partial)
+    }
+    partial.innerHTML = html
+  }, [])
+
+  /** Remove the partial-section preview (called before appending the completed section). */
+  const clearPartialInCanvas = useCallback(() => {
+    const ed = editorRef.current?.getEditor()
+    const doc = ed?.Canvas.getDocument()
+    doc?.querySelector("[data-partial-stream]")?.remove()
+  }, [])
 
   // Generate landing (streaming SSE)
   const handleGenerate = useCallback(async () => {
@@ -167,12 +262,15 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     abortRef.current = controller
 
     setIsGenerating(true)
+    isStreamingRef.current = true
     setSaveMessage(null)
     setErrorMessage(null)
     const backup = sections
     setSections([])
-    setStreamingSections([])
     setStreamCount(0)
+    pendingStreamQueueRef.current = []
+    // Clear the canvas if the editor is already mounted so sections stream into an empty surface.
+    editorRef.current?.setHtml("")
 
     try {
       const formData = new FormData()
@@ -198,19 +296,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       const decoder = new TextDecoder()
       let buf = ""
       let eventType = ""
-      const pendingUpdates = new Map<string, string>()
-      let genRafId: number | null = null
-      const flushGenUpdates = () => {
-        if (pendingUpdates.size > 0) {
-          const updates = new Map(pendingUpdates)
-          pendingUpdates.clear()
-          setStreamingSections((prev) =>
-            prev.map((s) =>
-              updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s,
-            ),
-          )
+      // Coalesce rapid `partial` events onto a single RAF so the DOM update runs
+      // at most once per animation frame even if the SSE emits faster.
+      let pendingPartial: string | null = null
+      let partialRaf: number | null = null
+      const flushPartial = () => {
+        if (pendingPartial !== null) {
+          renderPartialInCanvas(pendingPartial)
+          pendingPartial = null
         }
-        genRafId = null
+        partialRaf = null
       }
 
       while (true) {
@@ -228,17 +323,14 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             try {
               const data = JSON.parse(line.slice(6))
               if (eventType === "section") {
-                setStreamingSections((prev) => [...prev, data])
+                appendSectionToEditor(data.id, data.html)
                 setStreamCount((c) => c + 1)
-                requestAnimationFrame(() => {
-                  streamEndRef.current?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "end",
-                  })
-                })
               } else if (eventType === "section-update") {
-                pendingUpdates.set(data.id, data.html)
-                if (!genRafId) genRafId = requestAnimationFrame(flushGenUpdates)
+                updateSectionInEditor(data.id, data.html)
+              } else if (eventType === "partial") {
+                pendingPartial = data.html
+                if (partialRaf === null)
+                  partialRaf = requestAnimationFrame(flushPartial)
               } else if (eventType === "done") {
                 setUsage((u) => ({ ...u, genUsed: u.genUsed + 1 }))
               } else if (eventType === "error") {
@@ -250,17 +342,8 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           }
         }
       }
-      // Flush remaining updates
-      if (genRafId) cancelAnimationFrame(genRafId)
-      if (pendingUpdates.size > 0) {
-        const updates = new Map(pendingUpdates)
-        pendingUpdates.clear()
-        setStreamingSections((prev) =>
-          prev.map((s) =>
-            updates.has(s.id) ? { ...s, html: updates.get(s.id)! } : s,
-          ),
-        )
-      }
+      if (partialRaf !== null) cancelAnimationFrame(partialRaf)
+      clearPartialInCanvas()
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") return
       const message = err instanceof Error ? err.message : "Error al generar"
@@ -268,16 +351,26 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       setSections((current) => (current.length > 0 ? current : backup))
     } finally {
       if (abortRef.current === controller) {
-        // Move streaming sections to real sections, ending the generation
-        setStreamingSections((final) => {
-          if (final.length > 0) setSections(final)
-          return []
-        })
+        isStreamingRef.current = false
+        // Branding was skipped during stream to avoid racing with appends — run it once now.
+        ensureBrandingRef.current?.()
+        // Sync final sections from the editor so save/publish has the right payload.
+        const html = editorRef.current?.getHtml()
+        if (html) {
+          const finalSections = grapesToSections(html)
+          if (finalSections.length > 0) setSections(finalSections)
+        }
         setIsGenerating(false)
         setHasUnpublishedChanges(true)
       }
     }
-  }, [])
+  }, [
+    appendSectionToEditor,
+    updateSectionInEditor,
+    renderPartialInCanvas,
+    clearPartialInCanvas,
+    sections,
+  ])
 
   // Handle fetcher responses (save)
   const lastFetcherDataRef = useRef<unknown>(null)
@@ -464,7 +557,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   )
 
   // GrapesEditor onChange — sync sections state, preserving __grapes_css__ if lost.
+  // Suppressed while streaming so every appended section doesn't thrash React state.
   const handleEditorChange = useCallback((html: string) => {
+    if (isStreamingRef.current) return
     const newSections = grapesToSections(html)
     setSections((prev) => {
       const newHasCss = newSections.some((s) => s.id === "__grapes_css__")
@@ -474,6 +569,12 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     })
     setHasUnpublishedChanges(true)
   }, [])
+
+  // When the editor finishes booting (editorInstance becomes non-null), flush any queued
+  // stream events that arrived while it was still initializing.
+  useEffect(() => {
+    if (editorInstance) flushStreamQueue()
+  }, [editorInstance, flushStreamQueue])
 
   // Theme change from sidebar
   const handleThemeChange = useCallback(
@@ -615,16 +716,20 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               ensuringBranding = false
             }
           }
-          // Debounce so rapid edits/streamed sections don't trigger storms
+          // Debounce so rapid edits/streamed sections don't trigger storms.
+          // Skip entirely during generation — many appends would cause visual jank and
+          // the branding div can race with streamed sections. We ensure it once after stream ends.
           let ensureBrandingTimer: ReturnType<typeof setTimeout> | null = null
           const scheduleEnsureBranding = () => {
+            if (isStreamingRef.current) return
             if (ensureBrandingTimer) clearTimeout(ensureBrandingTimer)
             ensureBrandingTimer = setTimeout(() => {
               ensureBrandingTimer = null
               ensureBranding()
             }, 200)
           }
-          ensureBranding()
+          if (!isStreamingRef.current) ensureBranding()
+          ensureBrandingRef.current = ensureBranding
           ed.on("component:remove", scheduleEnsureBranding)
           ed.on("component:add", scheduleEnsureBranding)
         }
@@ -642,12 +747,6 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       abortRef.current?.abort()
     }
   }, [])
-
-  // Build streaming preview HTML
-  const streamingHtml =
-    isGenerating && streamingSections.length > 0
-      ? buildPreviewHtml(streamingSections, theme)
-      : null
 
   return (
     <div className="flex flex-col h-screen bg-brand_dark">
@@ -877,8 +976,8 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       {/* Main content */}
       <div className="flex-1 overflow-hidden">
         {showEditor ? (
-          /* GrapesJS Editor with right sidebar */
-          <div className="flex h-full" data-device={activeDevice}>
+          /* GrapesJS Editor — sections stream directly into the canvas during generation */
+          <div className="relative flex h-full" data-device={activeDevice}>
             <div className="flex-1 overflow-hidden">
               <GrapesEditor
                 ref={editorRef}
@@ -907,82 +1006,40 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 setHasUnpublishedChanges(true)
               }}
             />
-          </div>
-        ) : isGenerating ? (
-          /* Streaming preview during generation */
-          <div className="h-full flex flex-col">
-            {streamingHtml ? (
-              <div className="flex-1 overflow-auto bg-white">
-                <iframe
-                  srcDoc={streamingHtml}
-                  className="w-full h-full border-none"
-                  title="Preview"
-                />
-                <div ref={streamEndRef} />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
-                <div className="flex flex-col items-center gap-6 animate-fade-in">
-                  <img
-                    src="/images/Rocket.gif"
-                    alt="Generando"
-                    className="w-32 h-32 object-contain"
-                  />
-                  <div className="text-center">
-                    <p className="text-lg font-medium text-gray-600">
-                      Generando tu landing page...
-                    </p>
-                    <p className="text-sm text-gray-400 mt-2 max-w-xs">
-                      La IA esta disenando secciones con tus servicios y datos
-                      de negocio.
-                    </p>
-                  </div>
-                  <div className="flex gap-1.5">
+            {isGenerating && (
+              <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
+                <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-gray-200 bg-white/95 px-5 py-3 shadow-xl backdrop-blur-sm">
+                  <div className="flex gap-1">
                     <span
-                      className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce"
+                      className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce"
                       style={{ animationDelay: "0ms" }}
                     />
                     <span
-                      className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce"
+                      className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce"
                       style={{ animationDelay: "150ms" }}
                     />
                     <span
-                      className="w-2.5 h-2.5 bg-purple-500 rounded-full animate-bounce"
+                      className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-bounce"
                       style={{ animationDelay: "300ms" }}
                     />
                   </div>
+                  <p className="text-sm font-semibold text-gray-700">
+                    Sección {Math.max(streamCount, 1)} de ~8
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      abortRef.current?.abort()
+                      isStreamingRef.current = false
+                      setIsGenerating(false)
+                    }}
+                    className="text-xs font-medium text-red-600 hover:text-red-800"
+                  >
+                    Detener
+                  </button>
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-3 py-3 px-6 border-t border-gray-200 bg-white">
-              <div className="flex gap-1">
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-bounce"
-                  style={{ animationDelay: "0ms" }}
-                />
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce"
-                  style={{ animationDelay: "150ms" }}
-                />
-                <span
-                  className="w-1.5 h-1.5 rounded-full bg-purple-300 animate-bounce"
-                  style={{ animationDelay: "300ms" }}
-                />
-              </div>
-              <p className="text-sm font-bold text-gray-500">
-                Seccion {streamCount + 1} de ~8...
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  abortRef.current?.abort()
-                  setIsGenerating(false)
-                }}
-                className="ml-auto text-xs text-red-600 hover:text-red-800 font-medium"
-              >
-                Detener
-              </button>
-            </div>
           </div>
         ) : (
           /* Empty state — no sections yet */
