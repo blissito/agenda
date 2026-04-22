@@ -6,6 +6,7 @@ import {
   getLandingUsage,
   incrementLandingUsage,
   refineOrgLanding,
+  sanitizeContrast,
 } from "~/lib/landing-generator.server"
 import { db } from "~/utils/db.server"
 
@@ -187,6 +188,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       sections = JSON.parse(sectionsRaw)
     } catch {
       return Response.json({ error: "Invalid sections JSON" }, { status: 400 })
+    }
+
+    if (Array.isArray(sections)) {
+      sections = sections.map((s) =>
+        s && typeof s.html === "string"
+          ? { ...s, html: sanitizeContrast(s.html) }
+          : s,
+      )
     }
 
     try {
