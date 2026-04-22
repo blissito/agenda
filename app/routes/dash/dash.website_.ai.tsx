@@ -991,6 +991,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 hiddenTabs={["styles", "themes"]}
                 panelSide="left"
                 blocks={customBlocks}
+                editorVariant="denik"
               />
             </div>
             <EditorRightSidebar
