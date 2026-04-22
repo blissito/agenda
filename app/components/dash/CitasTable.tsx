@@ -47,8 +47,8 @@ const STATUS_STYLES = {
     icon: "📣",
   },
   attended: {
-    bg: "bg-[#e0f2fe]",
-    text: "text-[#0369a1]",
+    bg: "bg-[#EFFBD0]",
+    text: "text-lime-700",
     label: "Asistió",
     icon: "✅",
   },
@@ -161,6 +161,67 @@ export function canDeleteEvent(start: Date | string) {
   return Date.now() - new Date(start).getTime() < DELETE_GRACE_MS
 }
 
+// Reglas de display de asistencia:
+// - attended === null (Por confirmar) → dropdown editable por defecto
+// - attended === true/false (Asistió/No asistió) → tag estático
+// Doble clic sobre el tag → lo convierte en dropdown; si se vuelve a
+// elegir Asistió/No asistió, colapsa a tag otra vez.
+export function isAttendanceLocked(event: Pick<CitaEvent, "attended">) {
+  return event.attended === true || event.attended === false
+}
+
+const AttendanceCell = ({ event }: { event: CitaEvent }) => {
+  const [unlocked, setUnlocked] = useState(false)
+  const [optimistic, setOptimistic] = useState<boolean | null | undefined>(
+    undefined,
+  )
+  const attended = optimistic !== undefined ? optimistic : event.attended
+  const displayEvent = { ...event, attended }
+  const locked = isAttendanceLocked(displayEvent)
+
+  if (locked && !unlocked) {
+    return (
+      <LockedAttendanceTag
+        event={displayEvent}
+        onUnlock={() => setUnlocked(true)}
+      />
+    )
+  }
+  return (
+    <AttendanceDropdown
+      event={event}
+      autoOpen={unlocked}
+      onClose={() => setUnlocked(false)}
+      onPicked={(next) => {
+        setOptimistic(next)
+        setUnlocked(false)
+      }}
+    />
+  )
+}
+
+const LockedAttendanceTag = ({
+  event,
+  onUnlock,
+}: {
+  event: CitaEvent
+  onUnlock: () => void
+}) => {
+  const variant: StatusVariant = event.attended ? "attended" : "noshow"
+  const style = STATUS_STYLES[variant]
+  return (
+    <button
+      type="button"
+      onDoubleClick={onUnlock}
+      title="Doble clic para editar"
+      className={`${style.bg} ${style.text} inline-flex items-center justify-center gap-1 px-2 py-[3px] rounded text-[12px] font-satoMedium whitespace-nowrap cursor-pointer select-none`}
+    >
+      <span>{style.icon}</span>
+      {style.label}
+    </button>
+  )
+}
+
 const RowMenu = ({
   eventId,
   canDelete,
@@ -195,7 +256,17 @@ const ATTENDANCE_OPTIONS: { value: AttendanceValue; label: string }[] = [
   { value: "false", label: "No asistió" },
 ]
 
-const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
+const AttendanceDropdown = ({
+  event,
+  onPicked,
+  autoOpen,
+  onClose,
+}: {
+  event: CitaEvent
+  onPicked?: (next: boolean | null) => void
+  autoOpen?: boolean
+  onClose?: () => void
+}) => {
   const fetcher = useFetcher()
   const current = fetcher.formData?.get("attended") ?? String(event.attended)
   const value: AttendanceValue =
@@ -203,7 +274,11 @@ const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
   const currentLabel =
     ATTENDANCE_OPTIONS.find((o) => o.value === value)?.label ?? "Por confirmar"
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(!!autoOpen)
+  const closeMenu = () => {
+    setOpen(false)
+    onClose?.()
+  }
   const [pos, setPos] = useState<{
     top: number
     left: number
@@ -212,7 +287,7 @@ const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
   const btnRef = useRef<HTMLButtonElement>(null)
   const menuRef = useOutsideClick<HTMLDivElement>({
     isActive: open,
-    onClickOutside: () => setOpen(false),
+    onClickOutside: closeMenu,
     keyboardListener: true,
   })
 
@@ -233,7 +308,7 @@ const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
   }, [open])
 
   const handlePick = (next: AttendanceValue) => {
-    setOpen(false)
+    closeMenu()
     if (next === value) return
     const fd = new FormData()
     fd.set("eventId", event.id)
@@ -242,6 +317,9 @@ const AttendanceDropdown = ({ event }: { event: CitaEvent }) => {
       method: "post",
       action: "/api/events?intent=mark_attendance",
     })
+    const parsed =
+      next === "true" ? true : next === "false" ? false : null
+    onPicked?.(parsed)
   }
 
   return (
@@ -454,7 +532,7 @@ const CitaRow = ({
       </div>
       <div className="flex items-center">
         {isPast ? (
-          <AttendanceDropdown event={event} />
+          <AttendanceCell event={event} />
         ) : (
           <span className="text-[12px] text-brand_iron">—</span>
         )}
@@ -548,7 +626,7 @@ const CitaCardMobile = ({
           <span className="text-[11px] font-satoMedium text-brand_gray uppercase tracking-wide">
             Asistencia
           </span>
-          <AttendanceDropdown event={event} />
+          <AttendanceCell event={event} />
         </div>
       )}
     </div>

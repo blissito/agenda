@@ -98,9 +98,9 @@ export const ServiceCard = ({
         }}
         type="button"
         className={twMerge(
-          "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full  bg-transparent z-10 text-transparent active:scale-95 focus:text-white focus:bg-gray-400/70",
-          "opacity-1 group-hover:bg-gray-400/70 group-hover:text-white",
-          show && "text-white bg-gray-400/70 ",
+          "transition-all absolute top-3 right-3 py-2 px-2 text-3xl rounded-full bg-transparent z-10 text-transparent active:scale-95 focus:text-white focus:bg-black/30 focus:backdrop-blur-md",
+          "opacity-1 group-hover:bg-black/30 group-hover:backdrop-blur-md group-hover:text-white",
+          show && "text-white bg-black/30 backdrop-blur-md",
         )}
       >
         <TbDots />
@@ -113,12 +113,12 @@ export const ServiceCard = ({
             initial={{ opacity: 0, y: -3 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -3 }}
-            className="z-10 bg-white absolute shadow-lg text-brand_gray rounded-3xl top-16 right-4 w-[60%] px-4 py-3 flex flex-col gap-5"
+            className="z-10 bg-white absolute shadow-lg text-brand_gray rounded-2xl top-16 right-4 w-max p-2 flex flex-col gap-1"
           >
             <button
               onClick={handleCopyLink}
               ref={copiadoRef}
-              className="transition-all gap-3 items-center flex text-brand_blue/80 hover:text-brand_blue active:scale-95"
+              className="transition-all gap-3 items-center flex w-full whitespace-nowrap rounded-lg px-3 py-2 active:scale-95 text-brand_gray hover:bg-brand_blue/5"
             >
               <span className="text-md">
                 <FaLink />
@@ -128,7 +128,7 @@ export const ServiceCard = ({
 
             <button
               onClick={handleDelete}
-              className="transition-all gap-3 items-center flex text-red-700 hover:text-red-600 active:scale-95"
+              className="transition-all gap-3 items-center flex w-full whitespace-nowrap rounded-lg px-3 py-2 active:scale-95 text-brand_red hover:bg-brand_red/5"
             >
               <span className="text-md">
                 <FaRegTrashCan />
@@ -138,7 +138,7 @@ export const ServiceCard = ({
 
             <button
               onClick={handleToggleDeactivation}
-              className="transition-all flex gap-3 items-center hover:text-brand_gray/80 active:scale-95"
+              className="transition-all gap-3 items-center flex w-full whitespace-nowrap rounded-lg px-3 py-2 active:scale-95 text-brand_gray hover:bg-brand_blue/5"
             >
               {fetcher.state === "idle" ? (
                 <>

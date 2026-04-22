@@ -113,7 +113,7 @@ export function WidgetSelectorModal({
       <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl mx-4 p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-satoBold text-brand_dark">
+          <h2 className="text-lg md:text-2xl font-satoBold text-brand_dark">
             Elige cómo se verá tu chat
           </h2>
           <button

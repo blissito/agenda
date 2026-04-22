@@ -1,20 +1,19 @@
 // loyaltyStep.tsx
 
 import { motion } from "motion/react"
-import type {
-  ChangeEvent,
-  FormEvent,
-  InputHTMLAttributes,
-  ReactNode,
-} from "react"
-import { useState } from "react"
+import type { ChangeEvent, InputHTMLAttributes } from "react"
+import { useEffect, useState } from "react"
 import { useRevalidator } from "react-router"
+import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { SuccessToast } from "~/components/common/SuccessToast"
+import { BasicInput } from "~/components/forms/BasicInput"
 import { ArrowRight } from "~/components/icons/arrowRight"
 import { X } from "~/components/icons/X"
 import type { Level, ServiceOption } from "~/routes/dash/dash.lealtad"
+import { Modal, ServiceToggleRow } from "./loyaltycupones"
 
 // ==================== SHARED: LEVEL IMAGE UPLOAD ====================
 
@@ -72,30 +71,6 @@ const WizardInput = ({
   </div>
 )
 
-const FormLabel = ({
-  children,
-  className = "",
-}: {
-  children: ReactNode
-  className?: string
-}) => (
-  <label
-    className={`mb-1 block font-satoMedium text-[14px] text-brand_gray ${className}`}
-  >
-    {children}
-  </label>
-)
-
-const FormInput = ({
-  className = "",
-  ...props
-}: InputHTMLAttributes<HTMLInputElement>) => (
-  <input
-    {...props}
-    className={`w-full rounded border px-3 py-2 text-sm ${className}`}
-  />
-)
-
 const CardActionButton = ({
   onClick,
   icon: Icon,
@@ -108,33 +83,12 @@ const CardActionButton = ({
   <button
     type="button"
     onClick={onClick}
-    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-brand_gray shadow-sm"
+    className="flex h-8 w-8 items-center justify-center rounded-full bg-white/30 text-white backdrop-blur-md"
     title={title}
   >
     <Icon />
   </button>
 )
-
-export function Modal({
-  onClose,
-  children,
-}: {
-  onClose: () => void
-  children: ReactNode
-}) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      <div className="mx-4 w-full max-w-lg rounded-xl bg-white p-6">
-        {children}
-      </div>
-    </div>
-  )
-}
 
 // ==================== TAB: NIVELES ====================
 
@@ -148,6 +102,13 @@ export function NivelesTab({
 }) {
   const revalidator = useRevalidator()
   const [editingLevel, setEditingLevel] = useState<Level | null>(null)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const t = setTimeout(() => setToastMessage(null), 2500)
+    return () => clearTimeout(t)
+  }, [toastMessage])
 
   const apiCall = async (intent: string, payload: Record<string, unknown>) => {
     await fetch(`/api/loyalty?intent=${intent}`, {
@@ -158,12 +119,16 @@ export function NivelesTab({
     revalidator.revalidate()
   }
 
-  const handleDelete = async (level: Level) => {
+  const [deleteTarget, setDeleteTarget] = useState<Level | null>(null)
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return
     const res = await fetch("/api/loyalty?intent=delete-level", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        data: JSON.stringify({ levelId: level.id }),
+        data: JSON.stringify({ levelId: deleteTarget.id }),
       }),
     })
     const result = await res.json()
@@ -171,46 +136,38 @@ export function NivelesTab({
     if (result.error) {
       alert(result.error)
     } else {
+      setDeleteTarget(null)
       revalidator.revalidate()
     }
   }
 
-  const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleUpdate = async (payload: {
+    name: string
+    minPoints: number
+    discountPercent: number
+    serviceIds: string[]
+    imageFile: File | null
+  }) => {
     if (!editingLevel) return
 
-    const form = e.currentTarget
-    const selectedServices = Array.from(
-      form.querySelectorAll<HTMLInputElement>(
-        'input[name="editServiceId"]:checked',
-      ),
-    ).map((el) => el.value)
-
-    const fileInput = form.elements.namedItem(
-      "editLevelImage",
-    ) as HTMLInputElement
+    setIsUpdating(true)
     let imageKey: string | null = editingLevel.image
-
-    if (fileInput?.files?.[0]) {
-      imageKey = await uploadLevelImage(fileInput.files[0])
+    if (payload.imageFile) {
+      imageKey = await uploadLevelImage(payload.imageFile)
     }
 
     await apiCall("update-level", {
       levelId: editingLevel.id,
-      name: (form.elements.namedItem("editLevelName") as HTMLInputElement)
-        .value,
-      minPoints: Number(
-        (form.elements.namedItem("editMinPoints") as HTMLInputElement).value,
-      ),
-      discountPercent: Number(
-        (form.elements.namedItem("editDiscountPercent") as HTMLInputElement)
-          .value,
-      ),
-      serviceIds: selectedServices,
+      name: payload.name,
+      minPoints: payload.minPoints,
+      discountPercent: payload.discountPercent,
+      serviceIds: payload.serviceIds,
       image: imageKey,
     })
 
+    setIsUpdating(false)
     setEditingLevel(null)
+    setToastMessage("Cambios guardados")
   }
 
   return (
@@ -226,26 +183,39 @@ export function NivelesTab({
             <LoyaltyLevelCard
               level={level}
               onEdit={() => setEditingLevel(level)}
-              onDelete={() => handleDelete(level)}
+              onDelete={() => setDeleteTarget(level)}
             />
           </motion.div>
         ))}
       </div>
 
       {editingLevel && (
-        <Modal onClose={() => setEditingLevel(null)}>
-          <LevelForm
-            title="Editar nivel"
-            services={services}
-            onSubmit={handleUpdate}
-            isLoading={false}
-            onCancel={() => setEditingLevel(null)}
-            namePrefix="edit"
-            serviceCheckboxName="editServiceId"
-            defaultValues={editingLevel}
-          />
-        </Modal>
+        <LevelEditModal
+          level={editingLevel}
+          services={services}
+          isUpdating={isUpdating}
+          onClose={() => setEditingLevel(null)}
+          onDelete={() => {
+            const toDelete = editingLevel
+            setEditingLevel(null)
+            setDeleteTarget(toDelete)
+          }}
+          onSubmit={handleUpdate}
+        />
       )}
+
+      <ConfirmModal
+        isOpen={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDeleteConfirm}
+        title="¿Seguro que quieres eliminar este nivel?"
+        description="Al eliminarlo, los clientes dejarán de recibir los beneficios asociados a este nivel."
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+      />
+
+      <SuccessToast message={toastMessage} />
     </>
   )
 }
@@ -279,7 +249,7 @@ function LoyaltyLevelCard({
               />
             </>
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#EEEAFE] to-[#F8F7FF] text-[28px] font-semibold text-[#615FFF]">
+            <div className="flex h-full w-full items-center justify-center bg-cyan-200 text-[28px] font-semibold text-cyan-900">
               {level.name.charAt(0).toUpperCase()}
             </div>
           )}
@@ -567,7 +537,7 @@ function WizardStepOne({
   }
 
   return (
-    <div className="mx-auto mt-6 w-full max-w-[440px] pb-6">
+    <div className="mx-auto mt-6 w-full max-w-xl pb-6">
       <WizardInput
         label="Nombre del nivel"
         required
@@ -667,7 +637,7 @@ function WizardStepTwo({
   error: string | null
 }) {
   return (
-    <div className="mx-auto mt-6 w-full max-w-[440px] pb-6">
+    <div className="mx-auto mt-6 w-full max-w-xl pb-6">
       <div className="space-y-4">
         <ServiceToggleRow
           label="Aplicable para todos los servicios"
@@ -751,7 +721,7 @@ function WizardFooter({
   nextText: string
 }) {
   return (
-    <div className="mx-auto mt-auto flex w-full max-w-[440px] items-center justify-between pt-6">
+    <div className="mx-auto mt-auto flex w-full max-w-xl items-center justify-between pt-6">
       <SecondaryButton
         type="button"
         onClick={onBack}
@@ -807,186 +777,207 @@ function WizardStepper({ currentStep }: { currentStep: 1 | 2 }) {
   )
 }
 
-function ServiceToggleRow({
-  label,
-  checked,
-  disabled,
-  onChange,
-}: {
-  label: string
-  checked: boolean
-  disabled?: boolean
-  onChange: (checked: boolean) => void
-}) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="font-satoMedium text-[14px] text-brand_dark">
-        {label}
-      </span>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => onChange(!checked)}
-        className={`relative h-6 w-12 rounded-full transition ${
-          checked ? "bg-[#615FFF]" : "bg-[#E5E7EB]"
-        } ${disabled ? "opacity-100" : ""}`}
-        aria-pressed={checked}
-      >
-        <span
-          className={`absolute top-1 h-4 w-4 rounded-full bg-white transition ${
-            checked ? "left-7" : "left-1"
-          }`}
-        />
-      </button>
-    </div>
-  )
-}
+// ==================== LEVEL EDIT MODAL ====================
 
-// ==================== LEVEL FORM ====================
-
-function LevelForm({
-  title,
+function LevelEditModal({
+  level,
   services,
+  isUpdating,
+  onClose,
+  onDelete,
   onSubmit,
-  isLoading,
-  onCancel,
-  namePrefix,
-  serviceCheckboxName,
-  defaultValues,
 }: {
-  title: string
+  level: Level
   services: ServiceOption[]
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void
-  isLoading: boolean
-  onCancel: () => void
-  namePrefix: string
-  serviceCheckboxName: string
-  defaultValues?: Level
+  isUpdating: boolean
+  onClose: () => void
+  onDelete: () => void
+  onSubmit: (payload: {
+    name: string
+    minPoints: number
+    discountPercent: number
+    serviceIds: string[]
+    imageFile: File | null
+  }) => Promise<void> | void
 }) {
-  const n = (name: string) =>
-    namePrefix
-      ? `${namePrefix}${name.charAt(0).toUpperCase() + name.slice(1)}`
-      : name
-
+  const [name, setName] = useState(level.name)
+  const [minPoints, setMinPoints] = useState(String(level.minPoints))
+  const [discountPercent, setDiscountPercent] = useState(
+    String(level.discountPercent),
+  )
+  const [applyAllServices, setApplyAllServices] = useState(
+    level.serviceIds.length === 0,
+  )
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(
+    level.serviceIds,
+  )
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(
-    defaultValues?.image ? `/api/images?key=${defaultValues.image}` : null,
+    level.image ? `/api/images?key=${level.image}` : null,
   )
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      setImagePreview(URL.createObjectURL(file))
-    }
+    if (!file) return
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
   }
 
+  const toggleService = (serviceId: string) => {
+    setSelectedServiceIds((prev) =>
+      prev.includes(serviceId)
+        ? prev.filter((id) => id !== serviceId)
+        : [...prev, serviceId],
+    )
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    await onSubmit({
+      name: name.trim(),
+      minPoints: Number(minPoints),
+      discountPercent: Number(discountPercent),
+      serviceIds: applyAllServices ? [] : selectedServiceIds,
+      imageFile,
+    })
+  }
+
+  const shouldScrollServices = services.length > 4
+
   return (
-    <form
-      onSubmit={onSubmit}
-      className="mt-4 max-w-lg space-y-4 rounded-xl bg-gray-50 p-5"
-    >
-      <h3 className="text-lg font-semibold">{title}</h3>
+    <Modal onClose={onClose}>
+      <div className="mx-4 w-full max-w-[584px]">
+        <form
+          onSubmit={handleSubmit}
+          className="flex max-h-[calc(100dvh-32px)] w-full flex-col overflow-y-auto rounded-[20px] bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <div className="flex items-center justify-between px-[32px] pb-[24px] pt-[32px]">
+            <h3 className="text-lg md:text-2xl font-satoBold leading-[32px] text-brand_dark">
+              Editar nivel
+            </h3>
+            <button
+              type="button"
+              onClick={onClose}
+              className="shrink-0"
+              aria-label="Cerrar"
+            >
+              <X />
+            </button>
+          </div>
 
-      <div>
-        <FormLabel>Imagen del nivel</FormLabel>
-        <div className="flex items-center gap-4">
-          {imagePreview ? (
-            <img
-              src={imagePreview}
-              alt="Preview"
-              className="h-16 w-16 rounded-full border object-cover"
-            />
-          ) : (
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-400">
-              Sin imagen
-            </div>
-          )}
-          <label className="cursor-pointer rounded-lg border border-brand_stroke bg-white px-3 py-2 text-sm text-brand_gray hover:bg-gray-50">
-            {imagePreview ? "Cambiar" : "Subir imagen"}
-            <input
-              type="file"
-              name={n("levelImage")}
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageChange}
-            />
-          </label>
-        </div>
-      </div>
-
-      <div>
-        <FormLabel>Nombre del nivel</FormLabel>
-        <FormInput
-          name={n("levelName")}
-          defaultValue={defaultValues?.name}
-          required
-          placeholder="Ej. VIP, Premium, Gold"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <FormLabel>Puntos requeridos</FormLabel>
-          <FormInput
-            name={n("minPoints")}
-            type="number"
-            min={0}
-            defaultValue={defaultValues?.minPoints}
-            required
-            placeholder="500"
-          />
-        </div>
-        <div>
-          <FormLabel>% de descuento</FormLabel>
-          <FormInput
-            name={n("discountPercent")}
-            type="number"
-            min={0}
-            max={100}
-            step={0.1}
-            defaultValue={defaultValues?.discountPercent}
-            required
-            placeholder="15"
-          />
-        </div>
-      </div>
-
-      <div>
-        <FormLabel>Servicios donde aplica el descuento</FormLabel>
-        <p className="mb-2 text-xs text-brand_gray">
-          Si no seleccionas ninguno, aplica a todos.
-        </p>
-        <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg border bg-white p-3">
-          {services.length === 0 ? (
-            <p className="text-xs text-brand_gray">No hay servicios creados.</p>
-          ) : (
-            services.map((s) => (
-              <label
-                key={s.id}
-                className="flex cursor-pointer items-center gap-2 py-0.5 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  name={serviceCheckboxName}
-                  value={s.id}
-                  defaultChecked={defaultValues?.serviceIds.includes(s.id)}
-                  className="rounded border-gray-300"
-                />
-                {s.name}
+          <div className="space-y-6 px-[32px]">
+            <div>
+              <label className="mb-2 block font-satoMedium text-[16px] leading-[24px] text-brand_dark">
+                Imagen del nivel
               </label>
-            ))
-          )}
-        </div>
-      </div>
+              <label className="flex cursor-pointer items-center gap-4">
+                {imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="h-16 w-16 rounded-full border border-brand_ash object-cover"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-cyan-200 text-[20px] font-semibold text-cyan-900">
+                    {level.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="rounded-[12px] border border-brand_ash bg-white px-4 py-2 text-[14px] font-satoMedium text-brand_gray transition hover:bg-[#F8F7FF]">
+                  {imagePreview ? "Cambiar imagen" : "Subir imagen"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
+              </label>
+            </div>
 
-      <div className="flex gap-3 pt-2">
-        <SecondaryButton type="button" onClick={onCancel} className="flex-1">
-          Cancelar
-        </SecondaryButton>
-        <PrimaryButton type="submit" isDisabled={isLoading} className="flex-1">
-          {isLoading ? "Guardando..." : "Guardar"}
-        </PrimaryButton>
+            <BasicInput
+              name="editLevelName"
+              label="Nombre del nivel"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ej. VIP, Premium, Gold"
+              required
+            />
+
+            <div className="grid grid-cols-2 gap-x-[24px]">
+              <BasicInput
+                name="editMinPoints"
+                type="number"
+                min={0}
+                label="Puntos requeridos"
+                value={minPoints}
+                onChange={(e) => setMinPoints(e.target.value)}
+                placeholder="500"
+                required
+              />
+              <BasicInput
+                name="editDiscountPercent"
+                type="number"
+                min={0}
+                max={100}
+                label="% de descuento"
+                value={discountPercent}
+                onChange={(e) => setDiscountPercent(e.target.value)}
+                placeholder="15"
+                required
+              />
+            </div>
+
+            <div className="pt-1">
+              <ServiceToggleRow
+                label="Aplicable para todos los servicios"
+                checked={applyAllServices}
+                onChange={(checked) => setApplyAllServices(checked)}
+              />
+              <div
+                className={
+                  shouldScrollServices
+                    ? "mt-[27px] flex max-h-[220px] flex-col gap-[26px] overflow-y-auto pr-1"
+                    : "mt-[27px] flex flex-col gap-[26px]"
+                }
+              >
+                {services.map((service) => (
+                  <ServiceToggleRow
+                    key={service.id}
+                    label={service.name}
+                    checked={
+                      applyAllServices
+                        ? true
+                        : selectedServiceIds.includes(service.id)
+                    }
+                    disabled={applyAllServices}
+                    onChange={() => toggleService(service.id)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end px-[32px] pb-[32px] pt-[48px]">
+            <div className="flex items-center gap-[24px]">
+              <button
+                type="button"
+                onClick={onDelete}
+                className="flex h-[32px] w-[140px] items-center justify-center whitespace-nowrap text-[16px] font-satoMedium text-brand_red"
+              >
+                Eliminar nivel
+              </button>
+              <PrimaryButton
+                type="submit"
+                isDisabled={isUpdating}
+                className="flex h-[40px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
+              >
+                {isUpdating ? "Guardando..." : "Guardar"}
+              </PrimaryButton>
+            </div>
+          </div>
+        </form>
       </div>
-    </form>
+    </Modal>
   )
 }
 

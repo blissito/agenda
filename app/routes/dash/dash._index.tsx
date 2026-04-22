@@ -640,12 +640,14 @@ const SummaryCard = ({
   data: string
 }) => {
   return (
-    <section className="border-[1px] min-w-[132px] border-brand_stroke rounded-2xl flex flex-col items-center text-center p-3 hover:scale-95 transition-all bg-white">
+    <section className="border-[1px] min-w-[132px] max-w-[132px] border-brand_stroke rounded-2xl flex flex-col items-center text-center p-3 hover:scale-95 transition-all bg-white">
       <img
         className="h-12 w-12 rounded-full object-cover"
         src={img ? img : "/images/serviceDefault.png"}
       />
-      <h3 className="text-sm">{title}</h3>
+      <h3 className="text-sm w-full truncate" title={title}>
+        {title}
+      </h3>
       <p className="text-brand_gray text-sm">{description}</p>
       <span className="mt-4 font-satoMiddle">{data}</span>
     </section>

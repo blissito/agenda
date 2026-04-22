@@ -216,7 +216,7 @@ export const ShareWebsiteModal = ({
         <CloseButton onClick={onClose} />
 
         <div className="w-full px-6 md:px-12 pt-12 pb-8 flex flex-col items-center">
-          <h3 className="text-center font-satoBold text-[20px] leading-[28px] text-brand_dark">
+          <h3 className="text-center font-satoBold text-[20px] md:text-2xl leading-[28px] md:leading-8 text-brand_dark">
             ¡Comparte con tus clientes!
           </h3>
 

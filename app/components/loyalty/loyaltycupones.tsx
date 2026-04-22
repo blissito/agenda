@@ -6,6 +6,7 @@ import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { SuccessToast } from "~/components/common/SuccessToast"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { ArrowRight } from "~/components/icons/arrowRight"
 import { X } from "~/components/icons/X"
@@ -118,7 +119,7 @@ function getServicesLabel(meta: CouponMeta | null, services: ServiceOption[]) {
   return `${names.length} servicios`
 }
 
-function Modal({
+export function Modal({
   onClose,
   children,
 }: {
@@ -315,7 +316,14 @@ export function CuponesTab({
   const [isUpdating, setIsUpdating] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Reward | null>(null)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
   const menuRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const t = setTimeout(() => setToastMessage(null), 2500)
+    return () => clearTimeout(t)
+  }, [toastMessage])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -426,6 +434,7 @@ export function CuponesTab({
     setEditingReward(null)
     setIsUpdating(false)
     revalidator.revalidate()
+    setToastMessage("Cambios guardados")
   }
 
   if (items.length === 0 && !isCreateOpen) {
@@ -493,6 +502,8 @@ export function CuponesTab({
       {transactions.length > 0 && (
         <TransactionsTable transactions={transactions} />
       )}
+
+      <SuccessToast message={toastMessage} />
     </>
   )
 }
@@ -860,7 +871,7 @@ function CuponWizard({
           />
         )}
 
-        <div className="mx-auto mt-auto flex w-full max-w-[440px] items-center justify-between pb-3 pt-6">
+        <div className="mx-auto mt-auto flex w-full max-w-xl items-center justify-between pb-3 pt-6">
           <SecondaryButton
             type="button"
             onClick={handleBack}
@@ -938,7 +949,7 @@ function CouponWizardStepOne({
   const monthsError = getMonthsError()
 
   return (
-    <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
+    <div className="mx-auto mt-8 w-full max-w-xl pb-6">
       <BasicInput
         label="Nombre del cupón"
         name="couponName"
@@ -1093,7 +1104,7 @@ function CouponWizardStepTwo({
   error: string | null
 }) {
   return (
-    <div className="mx-auto mt-8 w-full max-w-[440px] pb-6">
+    <div className="mx-auto mt-8 w-full max-w-xl pb-6">
       <div>
         <ServiceToggleRow
           label="Aplicable para todos los servicios"
@@ -1204,7 +1215,7 @@ function CouponStepper({ currentStep }: { currentStep: 1 | 2 }) {
   )
 }
 
-function ServiceToggleRow({
+export function ServiceToggleRow({
   label,
   checked,
   disabled,
@@ -1348,7 +1359,7 @@ function CouponEditModal({
             >
               <div className="px-[32px] pb-[24px] pt-[32px]">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[18px] font-satoBold leading-[32px] text-brand_dark">
+                  <h3 className="text-lg md:text-2xl font-satoBold leading-[32px] text-brand_dark">
                     Editar cupón
                   </h3>
 
