@@ -5,11 +5,21 @@ import {
   useSpring,
 } from "motion/react"
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react"
+import type { MetaFunction } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { FeaturesList } from "~/components/icons/cathegories/featuresList"
 import { Graduate } from "~/components/icons/cathegories/graduate"
 import { HelpIcon } from "~/components/icons/help"
+import { getMetaTags } from "~/utils/getMetaTags"
+
+export const meta: MetaFunction = () =>
+  getMetaTags({
+    title: "Ayuda y recursos | Deník",
+    description:
+      "Encuentra guías, novedades y respuestas para sacarle el máximo provecho a Deník y hacer crecer tu negocio.",
+    url: "https://denik.me/blog",
+  })
 
 const ARTICLES = [
   {

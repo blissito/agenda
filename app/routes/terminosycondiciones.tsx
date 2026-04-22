@@ -1,7 +1,17 @@
 import { type ReactNode, useEffect, useState } from "react"
+import type { MetaFunction } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { Rocket } from "~/components/icons/rocket"
+import { getMetaTags } from "~/utils/getMetaTags"
+
+export const meta: MetaFunction = () =>
+  getMetaTags({
+    title: "Términos y Condiciones | Deník",
+    description:
+      "Términos y condiciones de uso de la plataforma Deník: servicios, planes, responsabilidades y funcionalidades de IA.",
+    url: "https://denik.me/terminosycondiciones",
+  })
 
 export default function Index() {
   useEffect(() => {

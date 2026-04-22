@@ -14,13 +14,15 @@ import { ArrowRight } from "~/components/icons/arrowRight"
 import { Bubble } from "~/components/icons/Bubble"
 import { HandShake } from "~/components/icons/handshake"
 import { Lamp } from "~/components/icons/lamp"
+import { getMetaTags } from "~/utils/getMetaTags"
 
-export const meta: MetaFunction = () => {
-  return [
-    { title: "Planes" },
-    { name: "description", content: "Escoge tu plan" },
-  ]
-}
+export const meta: MetaFunction = () =>
+  getMetaTags({
+    title: "Planes | Deník",
+    description:
+      "Escoge el plan de Deník que se adapta a tu negocio. Prueba gratis y haz crecer tus reservas.",
+    url: "https://denik.me/planes",
+  })
 
 export default function Index() {
   useEffect(() => {

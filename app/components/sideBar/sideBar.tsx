@@ -405,6 +405,20 @@ const UserAvatar = ({ user }: { user: Partial<PrismaUser> }) => (
 )
 
 const OnboardingBanner = () => {
+  const [hidden, setHidden] = useState(false)
+
+  useEffect(() => {
+    if (localStorage.getItem("onboardingCelebrated") === "1") {
+      setHidden(true)
+      return
+    }
+    const handler = () => setHidden(true)
+    window.addEventListener("onboarding:celebrated", handler)
+    return () => window.removeEventListener("onboarding:celebrated", handler)
+  }, [])
+
+  if (hidden) return null
+
   return (
     <section className="bg-onboarding  pb-4 rounded-2xl bg-cover mx-6 mb-4 relative">
       <div className="mt-12 px-4 text-white">

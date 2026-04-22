@@ -23,12 +23,7 @@ export const headers = () => ({
   "Referrer-Policy": "strict-origin-when-cross-origin",
 })
 
-export const meta = () =>
-  getMetaTags({
-    title: "Tienes un mensaje sorpresa esperandote 🎁",
-    description: `Te han dejado un mensaje`,
-    image: "/xmas/message-alert.png",
-  })
+export const meta = () => getMetaTags({})
 
 export const links = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

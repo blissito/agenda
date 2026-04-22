@@ -1,7 +1,7 @@
 export const getMetaTags = ({
   title = "Deník | Tu agenda en un solo lugar",
   description = "Administra la agenda de tu negocio en un solo lugar",
-  image = "/cover.png",
+  image = "https://i.imgur.com/zlnq8Jd.png",
   url = "https://denik.me",
   video,
   audio,

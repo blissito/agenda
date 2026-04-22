@@ -121,6 +121,56 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
     filters.serviceId !== "" ||
     filters.statuses.size > 0
 
+  const handleDownloadCSV = () => {
+    if (filtered.length === 0) return
+    const headers = [
+      "Fecha",
+      "Hora",
+      "Servicio",
+      "Cliente",
+      "Email",
+      "Teléfono",
+      "Duración (min)",
+      "Estatus",
+      "Pagado",
+      "Precio",
+      "Moneda",
+    ]
+    const esc = (v: unknown) => {
+      if (v === null || v === undefined) return ""
+      const s = String(v)
+      return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s
+    }
+    const rows = filtered.map((e) => {
+      const d = new Date(e.start)
+      return [
+        d.toLocaleDateString("es-MX"),
+        d.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }),
+        e.service?.name ?? "",
+        e.customer?.displayName ?? "",
+        e.customer?.email ?? "",
+        e.customer?.tel ?? "",
+        e.service?.duration ?? "",
+        e.status ?? "",
+        e.paid ? "Sí" : "No",
+        e.service?.price ?? "",
+        e.service?.currency ?? "",
+      ]
+        .map(esc)
+        .join(",")
+    })
+    const csv = "﻿" + [headers.join(","), ...rows].join("\n")
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `citas-${tab}-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="max-w-8xl mx-auto">
       <div className="flex items-center gap-2 text-sm text-brand_gray mb-6">
@@ -154,15 +204,37 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
           <div className="relative">
             <BasicInput
               name="search"
-              defaultValue={search}
+              value={search}
               onChange={(e) => setSearch(e.target.value)}
-              type="search"
+              type="text"
               placeholder="Buscar"
               containerClassName="w-full"
-              inputClassName="!rounded-full pl-4 pr-10 border-white font-satoshi py-2 h-10"
+              inputClassName="!rounded-full pl-4 pr-10 border-white font-satoshi py-2 h-12"
               registerOptions={{ required: false }}
             />
-            <MagnifyingGlass className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-brand_iron" />
+            {search ? (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Limpiar búsqueda"
+                className="absolute right-2 top-[28px] -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-brand_iron hover:text-brand_dark hover:bg-gray-100 transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            ) : (
+              <MagnifyingGlass className="pointer-events-none absolute right-3 top-[28px] -translate-y-1/2 w-5 h-5 text-brand_iron" />
+            )}
           </div>
           <div className="relative" ref={filterRef}>
             <ActionButton
@@ -194,7 +266,12 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
               />
             )}
           </div>
-          <ActionButton>
+          <ActionButton
+            onClick={handleDownloadCSV}
+            isDisabled={filtered.length === 0}
+            title="Descargar CSV"
+            aria-label="Descargar citas como CSV"
+          >
             <Download className="w-5 h-5" />
           </ActionButton>
         </div>
@@ -229,19 +306,23 @@ const EmptyState = ({
   onClear: () => void
   tab: "upcoming" | "past"
 }) => (
-  <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center min-h-[60vh]">
+  <div className="flex flex-col items-center justify-center gap-3 text-center min-h-[calc(100vh-240px)]">
     {search ? (
       <>
-        <img src="/images/emptyState/search.svg" alt="" className="w-24 h-24" />
-        <p className="font-satoBold text-lg text-brand_dark">
+        <img
+          className="mx-auto mb-4"
+          src="/images/emptyState/search.svg"
+          alt=""
+        />
+        <p className="text-2xl font-satoBold text-brand_dark">
           ¡Vaya! No hay coincidencias con la búsqueda
         </p>
-        <p className="text-sm text-brand_gray">
+        <p className="text-[18px] text-brand_gray mt-2">
           Intenta buscar por otro nombre, correo o teléfono.
         </p>
         <SecondaryButton
           onClick={onClear}
-          className="mt-2 min-w-0 h-10 px-5 text-sm"
+          className="mt-4 min-w-0 h-10 px-5 text-sm"
         >
           Limpiar búsqueda
         </SecondaryButton>

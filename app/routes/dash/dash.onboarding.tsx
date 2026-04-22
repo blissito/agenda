@@ -4,7 +4,9 @@ import type { LoaderFunctionArgs } from "react-router"
 import { useLoaderData, useNavigate } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { SuccessToast } from "~/components/common/SuccessToast"
 import { Checklist } from "~/components/icons/menu/checklist"
 import { Landing } from "~/components/icons/menu/landing"
 import { Share } from "~/components/icons/menu/share"
@@ -12,9 +14,9 @@ import { StepDone } from "~/components/icons/menu/stepdone"
 import { Stripe } from "~/components/icons/menu/stripe"
 import { User } from "~/components/icons/menu/user"
 import { db } from "~/utils/db.server"
+import { getOrgPublicUrl } from "~/utils/urls"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url)
   const { user, org } = await getUserAndOrgOrRedirect(request)
   if (!org) throw new Error("Org not found")
   const servicesCount = await db.service.count({
@@ -22,26 +24,51 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       orgId: org.id,
     },
   })
-  url.pathname = `/${org.slug}/agenda`
 
+  const url = getOrgPublicUrl(org.slug, request.url)
   const hasPaymentsConfigured = Boolean(user.mercadopago?.access_token)
 
-  return { url: url.toString(), org, servicesCount, hasPaymentsConfigured }
+  return { url, org, servicesCount, hasPaymentsConfigured }
 }
 
 export default function DashOnboarding() {
   const { servicesCount, url, hasPaymentsConfigured } =
     useLoaderData<typeof loader>()
-  const [pop, setPop] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [shareLink, setShareLink] = useState("0")
   const [sitioWebDone, setSitioWeb] = useState("0")
+  const [showConfetti, setShowConfetti] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const t = setTimeout(() => setToastMessage(null), 2500)
+    return () => clearTimeout(t)
+  }, [toastMessage])
+
+  // Los 4 pasos no-opcionales completos
+  const coreDone =
+    sitioWebDone === "1" && servicesCount >= 1 && shareLink === "1"
+  // Pagos es opcional: done si está configurado o si los otros 4 ya están
+  const paymentsDone = hasPaymentsConfigured || coreDone
+
+  useEffect(() => {
+    if (!coreDone) return
+    if (localStorage.getItem("onboardingCelebrated") === "1") return
+    localStorage.setItem("onboardingCelebrated", "1")
+    setShowConfetti(true)
+    // Notifica al sidebar que ya puede ocultar el banner de onboarding
+    window.dispatchEvent(new CustomEvent("onboarding:celebrated"))
+    // Deja que el confetti respire y routea a agenda
+    const t = setTimeout(() => navigate("/dash/agenda"), 3500)
+    return () => clearTimeout(t)
+  }, [coreDone, navigate])
 
   // Calculate progress
   const getCompletedCount = () => {
     let count = 1 // Step 1 (account) is always done
     if (sitioWebDone === "1") count++
-    if (hasPaymentsConfigured) count++
+    if (paymentsDone) count++
     if (servicesCount >= 1) count++
     if (shareLink === "1") count++
     return count
@@ -49,13 +76,13 @@ export default function DashOnboarding() {
 
   const handleSitioWeb = () => {
     localStorage.setItem("sitioWebDone", "1")
-    navigate(new URL(url).pathname)
+    setSitioWeb("1")
+    window.open(url, "_blank", "noopener,noreferrer")
   }
 
   const handleCopyURL = () => {
     navigator.clipboard.writeText(url)
-    setPop(true)
-    setTimeout(() => setPop(false), 1000)
+    setToastMessage("Link copiado")
     localStorage.setItem("shareLink", "1")
     setShareLink("1")
   }
@@ -140,7 +167,7 @@ export default function DashOnboarding() {
             description="Conecta Mercado Pago para cobrar"
             cta={
               <AnimatePresence>
-                {!hasPaymentsConfigured ? (
+                {!paymentsDone ? (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -199,43 +226,32 @@ export default function DashOnboarding() {
             title="Comparte el link con tus clientes"
             description="Prueba el agendamiento desde tu dashboard"
             cta={
-              <>
-                <AnimatePresence>
-                  {shareLink !== "1" ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                    >
-                      <PrimaryButton onClick={handleCopyURL} className="h-10">
-                        Copiar
-                      </PrimaryButton>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                    >
-                      <StepCheck />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                <p
-                  id="pop"
-                  className={twMerge(
-                    "bg-brand_dark text-white text-xs min-w-fit p-2 rounded-lg absolute right-0",
-                    pop ? "block" : "hidden",
-                  )}
-                >
-                  Copiado ✅
-                </p>
-              </>
+              <AnimatePresence>
+                {shareLink !== "1" ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <PrimaryButton onClick={handleCopyURL} className="h-10">
+                      Copiar
+                    </PrimaryButton>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <StepCheck />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             }
           />
         </div>
       </div>
-      <div className="max-w-2xl mx-auto items-center bg-white px-5 md:px-8 py-4 md:py-6 mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden gap-4">
+      <div className="max-w-2xl mx-auto items-center bg-white px-5 py-10 md:px-8 mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden gap-4 relative">
         <p className="text-sm md:text-base">
           ¿Tienes alguna duda? Escríbenos a{" "}
           <a href="mailto:hola@denik.me" className="text-brand_blue underline">
@@ -243,11 +259,13 @@ export default function DashOnboarding() {
           </a>{" "}
         </p>
         <img
-          className="w-20 h-20 md:w-[140px] md:h-[140px] shrink-0"
+          className="w-20 h-20 md:w-[140px] md:h-[140px] shrink-0 absolute right-6"
           src="/images/chat.gif"
           alt="dancer"
         />
       </div>
+      <SuccessToast message={toastMessage} />
+      {showConfetti && <EmojiConfetti repeat={1} />}
     </main>
   )
 }
@@ -282,7 +300,7 @@ const Step = ({
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="font-satoMiddle text-sm md:text-base">{title}</p>
+          <p className="font-satoBold text-sm md:text-base">{title}</p>
           <p className="text-brand_gray text-xs md:text-base">{description}</p>
         </div>
       </div>

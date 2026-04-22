@@ -1,7 +1,17 @@
 import { type ReactNode, useEffect, useState } from "react"
+import type { MetaFunction } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { Rocket } from "~/components/icons/rocket"
+import { getMetaTags } from "~/utils/getMetaTags"
+
+export const meta: MetaFunction = () =>
+  getMetaTags({
+    title: "Aviso de Privacidad | Deník",
+    description:
+      "Aviso de privacidad y tratamiento de datos personales de Deník conforme a la LFPDPPP y su Reglamento.",
+    url: "https://denik.me/avisodeprivacidad",
+  })
 
 export default function AvisoDePrivacidad() {
   useEffect(() => {
