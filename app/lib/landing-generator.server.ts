@@ -235,6 +235,7 @@ export function injectServiceLinks(
     name: normalize(s.name),
     slug: s.slug,
   }))
+  const validHrefs = new Set(withSlugs.map((s) => `/${s.slug}`))
 
   return html.replace(
     /<a\b([^>]*)>([\s\S]*?)<\/a>/gi,
@@ -244,6 +245,9 @@ export function injectServiceLinks(
 
       // Respect external, mail, tel, and in-page anchor links.
       if (/^(https?:|mailto:|tel:|#[a-zA-Z])/.test(currentHref)) return match
+
+      // Already points at a real service slug — trust it, don't rewrite.
+      if (validHrefs.has(currentHref)) return match
 
       const text = inner
         .replace(/<[^>]+>/g, " ")
@@ -263,7 +267,10 @@ export function injectServiceLinks(
         }
       }
 
-      if (!matchedSlug && CTA_WORDS.test(text)) {
+      // CTA fallback only applies when the href is empty or a placeholder.
+      const isPlaceholderHref =
+        currentHref === "" || currentHref === "#" || currentHref === "/"
+      if (!matchedSlug && isPlaceholderHref && CTA_WORDS.test(text)) {
         matchedSlug = firstSlug
       }
 
