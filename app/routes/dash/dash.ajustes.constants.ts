@@ -54,3 +54,28 @@ export const ROLE_LABELS: Record<string, string> = {
   ADMIN: "Administrador",
   OWNER: "Propietario",
 }
+
+export function getDefaultTermsAndConditions(cancellationWindowMinutes: string): string {
+  const match = CANCELLATION_RANGES.find((r) => r.value === cancellationWindowMinutes)
+  const windowLabel = match?.label ?? "el plazo establecido"
+  return `Al reservar aceptas nuestra política de cancelación:
+
+• Puedes cancelar o reagendar tu cita hasta ${windowLabel} antes del horario reservado. Pasado ese plazo, la cita no podrá cancelarse ni reagendarse.
+• Las devoluciones y reembolsos se gestionan directamente con el negocio. Si realizaste un pago en línea y cancelaste con al menos ${windowLabel} de anticipación, contáctanos para coordinar la devolución.
+• No presentarse a la cita (no-show) no genera derecho a reembolso.
+
+Si tienes dudas, ponte en contacto con el negocio antes de reservar.`
+}
+
+export const DEFAULT_ORG_CONFIG = {
+  country: "MX",
+  calendarAvailability: "3m",
+  simultaneousServices: false,
+  minBookingAdvance: "60",
+  rescheduleWindow: "240",
+  maxReschedules: "2",
+  cancellationWindow: "240",
+  termsAndConditions: getDefaultTermsAndConditions("240"),
+}
+
+export const DEFAULT_ORG_TIMEZONE = "America/Mexico_City"

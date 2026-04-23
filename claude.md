@@ -41,6 +41,24 @@ El sistema usa **subdominios** para identificar organizaciones:
 - En localhost, el helper `getServicePublicUrl()` genera URLs con path `/agenda/:orgSlug/:serviceSlug`
 - Los `weekDays` se guardan en inglés en la DB (`monday`, `tuesday`, etc.). Español solo en la capa UI via `DAY_LABELS`
 
+## Política de iframes (CSP `frame-ancestors`)
+
+El dashboard `/dash/website` embebe la landing pública de la org (`{slug}.denik.me`) en un iframe. Subdominio ≠ apex, así que `X-Frame-Options: SAMEORIGIN` (que no soporta múltiples orígenes) provoca "rechazó la conexión" en Chrome.
+
+**Fuente única de verdad**: `app/root.tsx:22`
+```
+Content-Security-Policy: frame-ancestors 'self' https://denik.me https://www.denik.me
+```
+
+- Permite: `{slug}.denik.me` y dominios custom embebidos **solo** desde `denik.me` (apex), `www.denik.me` (dashboard de producción), o desde sí mismos.
+- Bloquea: third-parties, subdominios de orgs entre sí, cualquier cross-site framing.
+- `www` se lista explícitamente porque `frame-ancestors` trata `denik.me` y `www.denik.me` como orígenes distintos — sin esto el dashboard (servido desde `www`) no puede embeber la landing pública (`{slug}.denik.me`).
+- `X-Frame-Options` fue **removido** de `fly.toml` — es legacy, no soporta multi-origen y conflictúa con CSP.
+- Clickjacking seguro: solo Denik controla `denik.me`/`www.denik.me`, así que ningún atacante puede embeber páginas sensibles.
+- Si agregas un nuevo origen propio (ej. `admin.denik.me`), añádelo a la lista del CSP.
+
+**Sandbox en landings públicas (obligatorio):** los `<iframe srcDoc>` que renderizan AI landings en `home.tsx` y `agenda.$orgSlug._index.tsx` deben llevar `sandbox="allow-forms allow-scripts allow-popups allow-top-navigation-by-user-activation"` (sin `allow-same-origin`). Sin sandbox, el HTML generado por IA hereda el origin `denik.me` y podría aprovechar el CSP para enmarcar subdominios víctima. El preview interno del dashboard (`dash.website.tsx`) sí usa `allow-same-origin` porque solo lo ve el owner de la org.
+
 ## Estructura
 
 ```

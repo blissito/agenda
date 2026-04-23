@@ -97,8 +97,18 @@ function sectionsToHtml(sections: Section3[]): string {
     .join("\n")
 }
 
-/** Always-present canvas styles: Satoshi font for branding etc. */
-const BASE_CANVAS_STYLES = `@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}`
+/** Always-present canvas styles. Must mirror the reset applied by
+ *  `buildDeployHtml` (SDK, `chunk-7XHJJBGN.js`) so the editor canvas renders
+ *  identically to the published preview. Without the body color rule, inline
+ *  SVGs relying on `fill="currentColor"` render with the browser default
+ *  instead of the theme's `on-surface`, producing icon-color drift between
+ *  /dash/website/ai (editor) and /dash/website (preview). */
+const BASE_CANVAS_STYLES = `@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,sans-serif;background-color:var(--color-surface);color:var(--color-on-surface)}
+section{width:100%}
+section>*{max-width:80rem;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}`
 
 /** Extract the persisted GrapesJS CSS rules so they can be re-injected on load. */
 function sectionsToCanvasStyles(sections: Section3[]): string {
@@ -638,6 +648,20 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               ? window.location.origin
               : "https://denik.me"
           const BRANDING_HTML = `<div data-denik-branding="true" data-gjs-removable="false" data-gjs-copyable="false" data-gjs-draggable="false" data-gjs-editable="false" class="w-full flex items-center justify-center gap-1 py-1"><span data-gjs-removable="false" data-gjs-editable="false" style="font-family:'Satoshi ',system-ui,sans-serif;color:#5158F6;font-size:14px">Powered by</span><img alt="Denik" src="${logoOrigin}/images/denik-logo.svg" data-gjs-removable="false" data-gjs-editable="false" data-gjs-resizable="false" style="height:32px;width:auto;display:inline-block;margin-left:4px"/></div>`
+          /** Force-remove a component even if it was parsed with data-gjs-removable="false". */
+          const forceRemove = (comp: any) => {
+            try {
+              comp.set({
+                removable: true,
+                copyable: true,
+                draggable: true,
+                editable: true,
+              })
+              comp.remove()
+            } catch {
+              /* noop */
+            }
+          }
           let ensuringBranding = false
           const ensureBranding = () => {
             if (ensuringBranding) return
@@ -645,41 +669,43 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             try {
               const wrapper = ed.DomComponents.getWrapper()
               if (!wrapper) return
-              const allComps = wrapper.find(
-                "[data-denik-branding], section, footer, div",
-              )
-              const matches = allComps.filter((comp: any) => {
-                if (comp.getAttributes()?.["data-denik-branding"] === "true")
-                  return true
-                const html = comp.toHTML()
-                return (
-                  html.includes("Powered by") &&
-                  html.includes("Denik") &&
-                  html.length < 600
-                )
-              })
-              // Dedupe: keep the first match, remove any extras.
+              const matches = wrapper.find("[data-denik-branding]")
+              // Dedupe: keep the first match, remove any extras (unlock first
+              // because default HTML parses them as non-removable).
               const existing = matches[0]
               if (matches.length > 1) {
-                for (let i = 1; i < matches.length; i++) {
-                  try {
-                    matches[i].remove()
-                  } catch {
-                    /* noop */
-                  }
-                }
+                for (let i = 1; i < matches.length; i++) forceRemove(matches[i])
               }
-              // If existing branding doesn't contain the Denik logo image, replace it.
+              // If the existing branding lost its Denik logo (e.g. user deleted
+              // the img), replace the whole node with a fresh BRANDING_HTML.
               if (existing && !existing.toHTML().includes('alt="Denik"')) {
                 const parent = existing.parent()
                 const idx = existing.index()
-                existing.remove()
-                if (parent) parent.append(BRANDING_HTML, { at: idx })
-                else
-                  wrapper.append(BRANDING_HTML, {
-                    at: wrapper.components().length,
+                forceRemove(existing)
+                const reinserted = (
+                  parent
+                    ? parent.append(BRANDING_HTML, { at: idx })
+                    : wrapper.append(BRANDING_HTML, {
+                        at: wrapper.components().length,
+                      })
+                )?.[0]
+                if (reinserted) {
+                  reinserted.set({
+                    removable: false,
+                    copyable: false,
+                    draggable: false,
+                    editable: false,
+                    "custom-name": "Branding (Denik)",
                   })
-                return ensureBranding()
+                  reinserted.components().forEach((child: any) => {
+                    child.set({
+                      removable: false,
+                      editable: false,
+                      draggable: false,
+                    })
+                  })
+                }
+                return
               }
               // Fix logo src in case the saved/default HTML points to a stale URL
               if (existing) {
@@ -728,10 +754,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               ensureBranding()
             }, 200)
           }
-          if (!isStreamingRef.current) ensureBranding()
+          // Defer the initial call: rely on the debounced component:add handler
+          // that fires after GrapesJS finishes parsing initialHtml. If we called
+          // ensureBranding() synchronously here, the parse race could yield
+          // matches.length === 0, causing us to append a second branding node.
           ensureBrandingRef.current = ensureBranding
           ed.on("component:remove", scheduleEnsureBranding)
           ed.on("component:add", scheduleEnsureBranding)
+          // Safety fallback: if no component:add fires within 400ms (e.g. editor
+          // restored from cache without events), still ensure branding exists.
+          setTimeout(() => {
+            if (!isStreamingRef.current) scheduleEnsureBranding()
+          }, 400)
         }
       }, 500)
       return () => clearTimeout(timer)

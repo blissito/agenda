@@ -19,7 +19,8 @@ import { getMetaTags } from "./utils/getMetaTags"
 export const headers = () => ({
   "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload",
   "X-Content-Type-Options": "nosniff",
-  "Content-Security-Policy": "frame-ancestors 'self'",
+  "Content-Security-Policy":
+    "frame-ancestors 'self' https://denik.me https://www.denik.me",
   "Referrer-Policy": "strict-origin-when-cross-origin",
 })
 

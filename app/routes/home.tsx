@@ -15,8 +15,7 @@ import { FinalCta } from "~/components/home/FinalCta"
 import { Features, Hero, ScrollReviews } from "~/components/home/home"
 import { ParallaxHero } from "~/components/home/ParallaxHero"
 import { People } from "~/components/icons/people"
-import TemplateOne from "~/components/templates/TemplateOne"
-import TemplateTwo from "~/components/templates/TemplateTwo"
+import { buildDefaultSections } from "~/lib/default-landing"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
 import { getPublicImageUrl } from "~/utils/urls"
@@ -41,31 +40,36 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (resolution.type === "not_found") {
     throw new Response("Empresa no encontrada", { status: 404 })
   }
-  // Build AI landing HTML if published
-  if (
-    resolution.type === "org" &&
-    resolution.org.landingPublished &&
-    resolution.org.landingSections
-  ) {
-    try {
-      const raw = resolution.org.landingSections
-      if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
-      const sections = raw as unknown as Section3[]
-      const html = buildDeployHtml(
+
+  // Single source of truth for org landings: render either the published
+  // AI sections or the same `buildDefaultSections` output the editor shows.
+  if (resolution.type === "org") {
+    const { org } = resolution
+    const renderSections = (sections: Section3[]) =>
+      buildDeployHtml(
         sections,
-        resolution.org.landingTheme || undefined,
-        resolution.org.landingCustomColors as unknown as
-          | CustomColors
-          | undefined,
+        org.landingTheme || undefined,
+        org.landingCustomColors as unknown as CustomColors | undefined,
         false,
       ).replace(
         "</head>",
         `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
       )
-      return { ...resolution, aiLandingHtml: html }
-    } catch (err) {
-      console.error("Failed to build landing HTML:", err)
+
+    let landingHtml: string | null = null
+    if (org.landingPublished && Array.isArray(org.landingSections)) {
+      try {
+        landingHtml = renderSections(
+          org.landingSections as unknown as Section3[],
+        )
+      } catch (err) {
+        console.error("Failed to build landing HTML:", err)
+      }
     }
+    if (!landingHtml) {
+      landingHtml = renderSections(buildDefaultSections(org as any, org.services))
+    }
+    return { ...resolution, landingHtml }
   }
 
   return resolution
@@ -92,40 +96,34 @@ export const meta = ({ data }: Route.MetaArgs) => {
 
 export default function Index({ loaderData }: Route.ComponentProps) {
   if (loaderData.type === "org") {
-    // AI-generated landing takes priority
-    if ("aiLandingHtml" in loaderData && loaderData.aiLandingHtml) {
-      const { org } = loaderData
-      const showChatbot =
-        org.landingChatbotEnabled !== false &&
-        Boolean(org.chatbotAgentId) &&
-        Boolean(org.chatbotConfig)
-      return (
-        <>
-          <iframe
-            srcDoc={loaderData.aiLandingHtml as string}
-            style={{
-              position: "fixed",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              border: "none",
-            }}
-            title="Landing"
-          />
-          {showChatbot && (
-            <ChatWidget
-              agentId={org.chatbotAgentId as string}
-              config={org.chatbotConfig as any}
-            />
-          )}
-        </>
-      )
-    }
     const { org } = loaderData
-    return org.websiteConfig?.template === "defaultTemplate" ? (
-      <TemplateOne org={org} services={org.services} link="" />
-    ) : (
-      <TemplateTwo org={org} services={org.services} />
+    const landingHtml =
+      "landingHtml" in loaderData ? (loaderData.landingHtml as string) : ""
+    const showChatbot =
+      org.landingChatbotEnabled !== false &&
+      Boolean(org.chatbotAgentId) &&
+      Boolean(org.chatbotConfig)
+    return (
+      <>
+        <iframe
+          srcDoc={landingHtml}
+          sandbox="allow-forms allow-scripts allow-popups allow-top-navigation-by-user-activation"
+          style={{
+            position: "fixed",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            border: "none",
+          }}
+          title="Landing"
+        />
+        {showChatbot && (
+          <ChatWidget
+            agentId={org.chatbotAgentId as string}
+            config={org.chatbotConfig as any}
+          />
+        )}
+      </>
     )
   }
   return (

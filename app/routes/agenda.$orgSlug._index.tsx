@@ -10,8 +10,7 @@ import type {
 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import { ChatWidget } from "~/components/chatbot/ChatWidget"
-import TemplateOne from "~/components/templates/TemplateOne"
-import TemplateTwo from "~/components/templates/TemplateTwo"
+import { buildDefaultSections } from "~/lib/default-landing"
 import { db } from "~/utils/db.server"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { getPublicImageUrl } from "~/utils/urls"
@@ -28,32 +27,38 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     throw new Response("Organización no encontrada", { status: 404 })
   }
 
-  // If org has a published AI landing, build HTML for iframe rendering
-  let aiLandingHtml: string | null = null
-  if (org.landingPublished && org.landingSections) {
+  const services = await db.service.findMany({
+    where: { orgId: org.id, isActive: true, archived: false },
+  })
+
+  const renderSections = (sections: Section3[]) =>
+    buildDeployHtml(
+      sections,
+      org.landingTheme || undefined,
+      org.landingCustomColors as unknown as CustomColors | undefined,
+      false,
+    ).replace(
+      "</head>",
+      `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
+    )
+
+  // Single source of truth: published sections if any, otherwise the same
+  // default template the editor/preview show (`buildDefaultSections`).
+  let landingHtml: string | null = null
+  if (org.landingPublished && Array.isArray(org.landingSections)) {
     try {
-      const raw = org.landingSections
-      if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
-      const sections = raw as unknown as Section3[]
-      aiLandingHtml = buildDeployHtml(
-        sections,
-        org.landingTheme || undefined,
-        org.landingCustomColors as unknown as CustomColors | undefined,
-        false,
-      ).replace(
-        "</head>",
-        `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
+      landingHtml = renderSections(
+        org.landingSections as unknown as Section3[],
       )
     } catch (err) {
       console.error("Failed to build landing HTML:", err)
     }
   }
+  if (!landingHtml) {
+    landingHtml = renderSections(buildDefaultSections(org as any, services))
+  }
 
-  const services = await db.service.findMany({
-    where: { orgId: org.id, isActive: true, archived: false },
-  })
-
-  return { org, services, aiLandingHtml }
+  return { org, services, landingHtml }
 }
 
 export const meta = ({ data }: Route.MetaArgs) => {
@@ -71,41 +76,33 @@ export const meta = ({ data }: Route.MetaArgs) => {
 }
 
 export default function OrgLanding({ loaderData }: Route.ComponentProps) {
-  const { org, services, aiLandingHtml } = loaderData
+  const { org, landingHtml } = loaderData
 
-  // AI landing takes priority
-  if (aiLandingHtml) {
-    const showChatbot =
-      org.landingChatbotEnabled !== false &&
-      Boolean(org.chatbotAgentId) &&
-      Boolean(org.chatbotConfig)
-    return (
-      <>
-        <iframe
-          srcDoc={aiLandingHtml}
-          style={{
-            position: "fixed",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            border: "none",
-          }}
-          title="Landing"
+  const showChatbot =
+    org.landingChatbotEnabled !== false &&
+    Boolean(org.chatbotAgentId) &&
+    Boolean(org.chatbotConfig)
+
+  return (
+    <>
+      <iframe
+        srcDoc={landingHtml}
+        sandbox="allow-forms allow-scripts allow-popups allow-top-navigation-by-user-activation"
+        style={{
+          position: "fixed",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          border: "none",
+        }}
+        title="Landing"
+      />
+      {showChatbot && (
+        <ChatWidget
+          agentId={org.chatbotAgentId as string}
+          config={org.chatbotConfig as any}
         />
-        {showChatbot && (
-          <ChatWidget
-            agentId={org.chatbotAgentId as string}
-            config={org.chatbotConfig as any}
-          />
-        )}
-      </>
-    )
-  }
-
-  // Render template based on org config
-  if (org.websiteConfig?.template === "defaultTemplate") {
-    return <TemplateOne org={org} services={services} />
-  }
-
-  return <TemplateTwo org={org} services={services} />
+      )}
+    </>
+  )
 }

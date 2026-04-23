@@ -7,6 +7,7 @@ import { twMerge } from "tailwind-merge"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { useOutsideClick } from "~/components/hooks/useOutsideClick"
 import { ClientAvatar } from "~/routes/dash/dash.clientes"
+import { getInitials } from "~/utils/initials"
 
 export type CitaEvent = Event & {
   service: Service | null
@@ -142,14 +143,6 @@ function getAvatarColor(name: string) {
   let hash = 0
   for (const ch of name) hash = ch.charCodeAt(0) + ((hash << 5) - hash)
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
-}
-
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w.charAt(0).toUpperCase())
-    .join("")
 }
 
 // ── Row menu (delete) ──────────────────────────────────────────
@@ -490,7 +483,7 @@ const CitaRow = ({
         <div className="flex items-center gap-3 min-w-0">
           <ClientAvatar
             photoUrl={null}
-            initials={getInitials(name)}
+            initials={getInitials(name, event.customer?.email)}
             size="md"
             className={getAvatarColor(name)}
           />
@@ -569,7 +562,7 @@ const CitaCardMobile = ({
             <>
               <ClientAvatar
                 photoUrl={null}
-                initials={getInitials(name)}
+                initials={getInitials(name, event.customer?.email)}
                 size="md"
                 className={getAvatarColor(name)}
               />

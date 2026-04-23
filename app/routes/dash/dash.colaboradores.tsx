@@ -10,6 +10,7 @@ import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { db } from "~/utils/db.server"
 import { sendInviteCollaborator } from "~/utils/emails/sendInviteCollaborator"
+import { getInitials } from "~/utils/initials"
 import type { Route } from "./+types/dash.colaboradores"
 import { ClientAvatar } from "./dash.clientes"
 
@@ -292,12 +293,3 @@ function _RoleSelect({
   )
 }
 
-function getInitials(displayName: string | null, email: string | null) {
-  const name = (displayName || "").trim()
-  if (name) {
-    const parts = name.split(/\s+/).filter(Boolean)
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  }
-  return ((email || "").slice(0, 2) || "CO").toUpperCase()
-}

@@ -84,10 +84,13 @@ export const EventForm = ({
     return now
   })()
 
-  // Pre-populate start and end hours from the clicked date/time
+  // Pre-populate start and end hours from the clicked date/time.
+  // When editing an existing event, use its real `end`; for new events fall
+  // back to start + 1h.
   const startDate = new Date(startDateValue)
-  const endDate = new Date(startDate)
-  endDate.setHours(startDate.getHours() + 1) // Default to 1 hour duration
+  const endDate = defaultValues.end
+    ? new Date(defaultValues.end as Date)
+    : new Date(startDate.getTime() + 60 * 60 * 1000)
 
   const {
     register,
@@ -302,6 +305,7 @@ export const EventForm = ({
           defaultValue={defaultValues.customerId}
         />
         <ServiceSelect
+          services={services}
           defaultValue={defaultValues?.serviceId ?? ""}
           onChange={handleServiceSelect}
         />

@@ -243,7 +243,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
           allDay: false,
           archived: false,
           createdAt: new Date(),
-          paid: !service.payment, // true si es gratuito
+          paid: Number(service.price) === 0, // true solo si es realmente gratis
           type: "appointment",
           userId: org.ownerId,
           updatedAt: new Date(),
@@ -306,7 +306,6 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
               reminderHours?: number | null
             }
           | undefined,
-        org.config as { surveyEnabled?: boolean } | undefined,
       )
     } catch (e) {
       console.error("Failed to schedule notifications:", e)

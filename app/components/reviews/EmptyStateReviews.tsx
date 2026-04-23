@@ -5,11 +5,12 @@ import { Anchor } from "~/components/icons/link"
 export const EmptyStateReviews = ({ link }: { link: string }) => {
   const { setLink, ref } = useCopyLink(link)
   return (
-    <div className="w-full flex justify-center items-center py-4 box-border">
+    <div className="w-full flex justify-center items-center min-h-[calc(100vh-12rem)] py-4 box-border">
       <div className="text-center">
         <img
-          className="mx-auto mb-4 max-h-40"
+          className="mx-auto mb-4 w-[200px] md:w-auto"
           src="/images/emptyState/clients-empty.webp"
+          alt="illustration"
         />
         <p className="text-xl md:text-2xl font-satoBold">
           Las reseñas empiezan con una buena experiencia
@@ -20,7 +21,7 @@ export const EmptyStateReviews = ({ link }: { link: string }) => {
         <SecondaryButton
           ref={ref}
           onClick={setLink}
-          className="mx-auto mt-6 bg-transparent border-[1px] border-[#CFCFCF]"
+          className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]"
         >
           <span className="text-inherit">
             <Anchor />

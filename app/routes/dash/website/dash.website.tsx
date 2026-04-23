@@ -8,6 +8,8 @@ import * as React from "react"
 import { useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { buildDefaultSections } from "~/lib/default-landing"
+import { db } from "~/utils/db.server"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Tooltip } from "~/components/common/Tooltip"
@@ -46,37 +48,43 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 
   const url = getOrgPublicUrl(org.slug, request.url)
 
-  // Build preview HTML from AI landing sections (no network request needed)
+  const renderSections = (sections: Section3[]) =>
+    buildDeployHtml(
+      sections,
+      org.landingTheme || undefined,
+      org.landingCustomColors as unknown as CustomColors | undefined,
+      false,
+    ).replace(
+      "</head>",
+      `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
+    )
+
+  // Build preview HTML from saved AI landing sections OR fall back to the same
+  // default template the editor shows (`buildDefaultSections`). We cannot iframe
+  // the public subdomain here: that route renders React `TemplateTwo`/`TemplateOne`
+  // with a different icon set (`react-icons`) than the editor's Feather SVGs,
+  // causing visible drift for orgs that haven't saved/published yet.
   let previewHtml: string | null = null
   if (org.landingSections) {
     try {
       const raw = org.landingSections
       if (!Array.isArray(raw)) throw new Error("Invalid landing sections data")
-      const sections = raw as unknown as Section3[]
-      previewHtml = buildDeployHtml(
-        sections,
-        org.landingTheme || undefined,
-        org.landingCustomColors as unknown as CustomColors | undefined,
-        false,
-      ).replace(
-        "</head>",
-        `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
-      )
+      previewHtml = renderSections(raw as unknown as Section3[])
     } catch (err) {
       console.error("Failed to build preview HTML:", err)
     }
   }
 
-  // Fallback: subdomain URL for orgs without AI landing
-  let previewUrl: string | null = null
   if (!previewHtml) {
-    const previewUrlObj = new URL(url)
-    previewUrlObj.searchParams.set("embed", "1")
-    previewUrlObj.searchParams.set("t", String(Date.now()))
-    previewUrl = previewUrlObj.toString()
+    const services = await db.service.findMany({
+      where: { orgId: org.id, isActive: true, archived: false },
+      select: { name: true, slug: true, duration: true, price: true, gallery: true },
+      take: 12,
+    })
+    previewHtml = renderSections(buildDefaultSections(org as any, services))
   }
 
-  return { org, url, previewUrl, previewHtml }
+  return { org, url, previewUrl: null, previewHtml }
 }
 
 type RoundActionProps =

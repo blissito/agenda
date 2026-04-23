@@ -98,8 +98,8 @@ const EmptyStateServices = () => {
           src="/images/emptyState/access-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoBold text-xl ">¡Nada por aquí!</p>
-        <p className="mt-2 text-brand_gray">
+        <p className="font-satoBold text-xl md:text-[24px]">¡Nada por aquí!</p>
+        <p className="mt-2 text-base md:text-[18px] font-satoshi text-brand_gray">
           Crea tu primer servicio y empieza a recibir a tus clientes
         </p>
 

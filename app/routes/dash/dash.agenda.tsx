@@ -207,9 +207,12 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     sunday = week[6]
   }
 
-  // Set sunday to end of day to include all events on sunday
-  const sundayEnd = new Date(sunday)
-  sundayEnd.setHours(23, 59, 59, 999)
+  // `sunday` from client's completeWeek is local-Sunday-at-midnight, serialized
+  // as UTC (e.g. Sun 06:00 UTC for Mexico). To cover the full local Sunday
+  // (including late-evening events whose UTC date is already Monday), add 24h
+  // minus 1ms rather than setHours(23,59,59) — which would set UTC hours and
+  // cut off 6h of Sunday evening in UTC-6 locales.
+  const sundayEnd = new Date(sunday.getTime() + 24 * 60 * 60 * 1000 - 1)
 
   // Month range for mini calendar dots (extend to cover full visible grid ~6 weeks)
   const monthStart = new Date(monday.getFullYear(), monday.getMonth(), 1)
@@ -242,9 +245,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       },
       include: { service: true, customer: true },
     }),
-    db.customer.findMany({ take: 1, where: { orgId: org.id } }),
-    db.user.findMany({ take: 1, where: { orgId: org.id } }),
-    db.service.findMany({ take: 1, where: { orgId: org.id } }),
+    db.customer.findMany({ where: { orgId: org.id } }),
+    db.user.findMany({ where: { orgId: org.id } }),
+    db.service.findMany({ where: { orgId: org.id, archived: false } }),
     db.event.findMany({
       where: {
         orgId: org.id,
@@ -734,7 +737,9 @@ function MonthCalendar({
                       hour: "2-digit",
                       minute: "2-digit",
                     })}{" "}
-                    {e.service?.name || e.title}
+                    {e.type === "BLOCK"
+                      ? e.title
+                      : e.customer?.displayName || e.title}
                   </button>
                 ))}
                 {overflow > 0 && (
@@ -811,17 +816,34 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   // Derive week from controls
   const week = controls.week
 
-  // Sync navigation when controls date or viewMode changes
+  // Sync navigation when controls date or viewMode changes.
+  // Skip the first render: the loader already returned the correct week for the
+  // URL (params or today's default), and navigating here would trigger a second
+  // fetch whose range can drift by a day under UTC↔local timezone mismatches,
+  // dropping events the server already fetched.
+  const didInitNavSync = useRef(false)
   useEffect(() => {
+    if (!didInitNavSync.current) {
+      didInitNavSync.current = true
+      return
+    }
+    // Normalize to local midnight so week/month boundaries don't drift across
+    // the UTC day boundary just because the user happened to be browsing in
+    // the evening. Without this, `completeWeek` preserves controls.date's
+    // time-of-day, producing a Monday ISO like "Tue 03:52 UTC" for Mexico
+    // evenings — which makes the loader's `start >= monday` query miss real
+    // Monday events (stored as UTC timestamps).
+    const dateForRange = new Date(controls.date)
+    dateForRange.setHours(0, 0, 0, 0)
     if (viewMode === "month") {
       const monthStart = new Date(
-        controls.date.getFullYear(),
-        controls.date.getMonth(),
+        dateForRange.getFullYear(),
+        dateForRange.getMonth(),
         1,
       )
       const monthEnd = new Date(
-        controls.date.getFullYear(),
-        controls.date.getMonth() + 1,
+        dateForRange.getFullYear(),
+        dateForRange.getMonth() + 1,
         0,
       )
       navigate(
@@ -829,7 +851,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         { replace: true },
       )
     } else {
-      const w = completeWeek(controls.date)
+      const w = completeWeek(dateForRange)
       navigate(
         `/dash/agenda?monday=${w[0].toISOString()}&sunday=${w[6].toISOString()}`,
         { replace: true },
@@ -1113,27 +1135,37 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                       </p>
                     )
                   : undefined,
-                renderEvent: ({ event, isDragging }) => (
-                  <div
-                    className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm"
-                    style={{ backgroundColor: event.color || "#FFD75E" }}
-                    onMouseEnter={(e) => {
-                      if (!isDragging)
-                        handleEventMouseEnter(
-                          event.id,
-                          e.currentTarget.getBoundingClientRect(),
-                        )
-                    }}
-                    onMouseLeave={handleEventMouseLeave}
-                  >
-                    <span className="font-medium truncate text-brand_dark">
-                      {event.title}
-                    </span>
-                    <span className="text-brand_gray truncate text-[10px]">
-                      {event.service?.name}
-                    </span>
-                  </div>
-                ),
+                renderEvent: ({ event, isDragging }) => {
+                  const full = eventsMap.get(event.id)
+                  const isBlock = event.type === "BLOCK"
+                  const primary = isBlock
+                    ? event.title
+                    : full?.customer?.displayName || event.title
+                  const secondary = isBlock ? null : full?.service?.name
+                  return (
+                    <div
+                      className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm"
+                      style={{ backgroundColor: event.color || "#FFD75E" }}
+                      onMouseEnter={(e) => {
+                        if (!isDragging)
+                          handleEventMouseEnter(
+                            event.id,
+                            e.currentTarget.getBoundingClientRect(),
+                          )
+                      }}
+                      onMouseLeave={handleEventMouseLeave}
+                    >
+                      <span className="font-medium truncate text-brand_dark">
+                        {primary}
+                      </span>
+                      {secondary && (
+                        <span className="text-brand_gray truncate text-[10px]">
+                          {secondary}
+                        </span>
+                      )}
+                    </div>
+                  )
+                },
               }}
             />
           )}

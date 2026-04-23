@@ -3,11 +3,15 @@ import { nanoid } from "nanoid"
 import { redirect } from "react-router"
 import slugify from "slugify"
 import type { ZodSchema } from "zod"
+import {
+  DEFAULT_ORG_CONFIG,
+  DEFAULT_ORG_TIMEZONE,
+} from "~/routes/dash/dash.ajustes.constants"
 import { commitSession, getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
 import { sendWelcome } from "~/utils/emails/sendWelcome"
 import { validateUserToken } from "~/utils/tokens"
-import { normalizeWeekDays } from "~/utils/weekDays"
+import { DEFAULT_WEEK_DAYS, normalizeWeekDays } from "~/utils/weekDays"
 
 const TRIAL_DAYS = 30
 import {
@@ -126,6 +130,9 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
         email: user.email,
         isActive: false,
         apiKey: `dk_${nanoid(32)}`,
+        timezone: DEFAULT_ORG_TIMEZONE,
+        config: { ...DEFAULT_ORG_CONFIG },
+        weekDays: { ...DEFAULT_WEEK_DAYS },
       },
     })
   }

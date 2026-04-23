@@ -272,7 +272,6 @@ export const scheduleEventNotifications = async (
     survey?: boolean
     reminderHours?: number | null
   },
-  orgConfig?: { surveyEnabled?: boolean },
 ): Promise<void> => {
   const config = serviceConfig || {}
 
@@ -281,7 +280,7 @@ export const scheduleEventNotifications = async (
     await scheduleReminder(eventId, eventStart, reminderHours)
   }
 
-  if (config.survey !== false && orgConfig?.surveyEnabled !== false) {
+  if (config.survey !== false) {
     await scheduleSurvey(eventId, eventEnd)
   }
 }

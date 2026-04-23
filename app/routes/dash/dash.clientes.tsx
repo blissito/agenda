@@ -19,6 +19,7 @@ import { MagnifyingGlass } from "~/components/icons/MagnifyingGlass"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { db } from "~/utils/db.server"
 import { generateLink } from "~/utils/generateSlug"
+import { getInitials } from "~/utils/initials"
 import type { Route } from "./+types/dash.clientes"
 
 export type Client = {
@@ -237,7 +238,7 @@ export const ClientRow = ({
   client: Client
   isLast?: boolean
 }) => {
-  const initials = getInitials2(client.displayName, client.email)
+  const initials = getInitials(client.displayName, client.email)
   const fetcher = useFetcher()
   const isDeleting = fetcher.state !== "idle"
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -346,21 +347,6 @@ export const ClientRow = ({
   )
 }
 
-function getInitials2(displayName: string | null, email: string) {
-  const name = (displayName || "").trim()
-  if (name) {
-    const parts = name.split(/\s+/).filter(Boolean)
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase()
-    }
-    if (parts.length === 1) {
-      const w = parts[0]
-      return (w.slice(0, 2) || email.slice(0, 2)).toUpperCase()
-    }
-  }
-  return (email.slice(0, 2) || "DE").toUpperCase()
-}
-
 export const ClientAvatar = ({
   photoUrl,
   initials,
@@ -460,7 +446,7 @@ export const Summary = ({
           </>
         ) : (
           previewClients.map((c, i) => {
-            const initials = getInitials2(c.displayName, c.email)
+            const initials = getInitials(c.displayName, c.email)
             const colorClass = getAvatarColor(c.displayName || c.email)
             return (
               <div
@@ -521,8 +507,8 @@ const EmptyStateClients = ({ link }: { link: string }) => {
           src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoBold text-xl ">¡No hay clientes por aquí!</p>
-        <p className="mt-2 text-brand_gray">
+        <p className="font-satoBold text-xl md:text-[24px]">¡No hay clientes por aquí!</p>
+        <p className="mt-2 md:mt-3 text-base md:text-[18px] font-satoshi text-brand_gray">
           Comparte tu website y deja que lleguen las reservas{" "}
           <span className="text-2xl">🚀</span>
         </p>

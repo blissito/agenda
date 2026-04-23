@@ -904,7 +904,7 @@ const MercadoPagoEmptyState = ({
     <img
       src="/images/emptyState/payments.webp"
       alt=""
-      className="mb-6 md:mb-8 w-[200px] md:w-full md:max-w-[240px]"
+      className="mb-4 w-[200px] md:w-full md:max-w-[240px]"
     />
     <div className="max-w-[620px]">
       <h2 className="text-xl md:text-[24px] font-satoBold">

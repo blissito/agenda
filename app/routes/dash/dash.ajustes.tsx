@@ -22,10 +22,14 @@ import { Trash } from "~/components/icons/trash"
 import { TabButton } from "~/components/loyalty/loyaltyStep"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import SelectStylized, { type Choice } from "~/components/ui/select"
+import { getInitials } from "~/utils/initials"
 import type { WeekSchema } from "~/utils/zod_schemas"
 import { weekDaysOrgSchema } from "~/utils/zod_schemas"
 import {
   CANCELLATION_RANGES,
+  DEFAULT_ORG_CONFIG,
+  DEFAULT_ORG_TIMEZONE,
+  getDefaultTermsAndConditions,
   PERIOD,
   RANGES,
   RESCHEDULE_RANGES,
@@ -419,32 +423,50 @@ function ConfiguracionTab({
   }, [fetcher.state, fetcher.data, onSaved])
   const existingConfig = (org.config || {}) as Record<string, any>
 
-  const [country, setCountry] = useState<string>(existingConfig.country || "")
-  const [timezone, setTimezone] = useState<string>(org.timezone || "")
+  const [country, setCountry] = useState<string>(
+    existingConfig.country ?? DEFAULT_ORG_CONFIG.country,
+  )
+  const [timezone, setTimezone] = useState<string>(
+    org.timezone ?? DEFAULT_ORG_TIMEZONE,
+  )
   const [calendarAvailability, setCalendarAvailability] = useState<string>(
-    existingConfig.calendarAvailability || "",
+    existingConfig.calendarAvailability ?? DEFAULT_ORG_CONFIG.calendarAvailability,
   )
   const [simultaneousServices, setSimultaneousServices] = useState<boolean>(
-    existingConfig.simultaneousServices || false,
+    existingConfig.simultaneousServices ?? DEFAULT_ORG_CONFIG.simultaneousServices,
   )
   const [minBookingAdvance, setMinBookingAdvance] = useState<string>(
-    existingConfig.minBookingAdvance || "",
+    existingConfig.minBookingAdvance ?? DEFAULT_ORG_CONFIG.minBookingAdvance,
   )
   const [rescheduleWindow, setRescheduleWindow] = useState<string>(
-    existingConfig.rescheduleWindow || "",
+    existingConfig.rescheduleWindow ?? DEFAULT_ORG_CONFIG.rescheduleWindow,
   )
   const [maxReschedules, setMaxReschedules] = useState<string>(
-    existingConfig.maxReschedules || "",
+    existingConfig.maxReschedules ?? DEFAULT_ORG_CONFIG.maxReschedules,
   )
   const [cancellationWindow, setCancellationWindow] = useState<string>(
-    existingConfig.cancellationWindow || "",
+    existingConfig.cancellationWindow ?? DEFAULT_ORG_CONFIG.cancellationWindow,
   )
-  const [termsAndConditions, setTermsAndConditions] = useState<string>(
-    existingConfig.termsAndConditions || "",
+  const initialCancellationWindow =
+    existingConfig.cancellationWindow ?? DEFAULT_ORG_CONFIG.cancellationWindow
+  const initialTerms =
+    existingConfig.termsAndConditions ??
+    getDefaultTermsAndConditions(initialCancellationWindow)
+  const [termsAndConditions, setTermsAndConditions] = useState<string>(initialTerms)
+  // If the stored text matches the auto-generated default for ANY window value,
+  // keep it in sync with cancellationWindow changes. Flip to "manually edited"
+  // the moment the user types something different.
+  const [termsManuallyEdited, setTermsManuallyEdited] = useState<boolean>(
+    existingConfig.termsAndConditions != null &&
+      !CANCELLATION_RANGES.some(
+        (r) => getDefaultTermsAndConditions(r.value) === existingConfig.termsAndConditions,
+      ),
   )
-  const [surveyEnabled, setSurveyEnabled] = useState<boolean>(
-    existingConfig.surveyEnabled ?? true,
-  )
+  useEffect(() => {
+    if (!termsManuallyEdited) {
+      setTermsAndConditions(getDefaultTermsAndConditions(cancellationWindow))
+    }
+  }, [cancellationWindow, termsManuallyEdited])
 
   const isLoading = fetcher.state !== "idle"
 
@@ -465,7 +487,6 @@ function ConfiguracionTab({
             maxReschedules: maxReschedules || null,
             cancellationWindow: cancellationWindow || null,
             termsAndConditions: termsAndConditions || null,
-            surveyEnabled,
           },
         }),
       },
@@ -587,22 +608,12 @@ function ConfiguracionTab({
             className="mt-1"
             placeholder="Pega aquí los términos y condiciones de tus servicios"
             value={termsAndConditions}
-            onChange={(e: any) => setTermsAndConditions(e.target.value)}
+            onChange={(e: any) => {
+              setTermsAndConditions(e.target.value)
+              setTermsManuallyEdited(true)
+            }}
           />
         </div>
-        <hr className="bg-brand_stroke my-4 md:my-6" />
-        <h3 className="text-lg font-satoBold">Encuestas</h3>
-        <OptionBox
-          title="Encuesta de satisfacción"
-          description="Enviar encuesta de satisfacción después de cada cita"
-        >
-          <Switch
-            name="survey_enabled"
-            className="h-10"
-            defaultChecked={surveyEnabled}
-            onChange={setSurveyEnabled}
-          />
-        </OptionBox>
         <div className="flex justify-end mt-12">
           <PrimaryButton
             type="submit"
@@ -920,16 +931,6 @@ function ColaboradoresTab({
 }
 
 /* ==================== Shared Components ==================== */
-
-function getInitials(displayName: string | null, email: string | null) {
-  const name = (displayName || "").trim()
-  if (name) {
-    const parts = name.split(/\s+/).filter(Boolean)
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  }
-  return ((email || "").slice(0, 2) || "CO").toUpperCase()
-}
 
 export const IntegrationCard = ({
   icon,
