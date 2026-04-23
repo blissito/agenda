@@ -68,7 +68,7 @@ describe("Email Templates", () => {
   })
 
   describe("surveyTemplate", () => {
-    it("should generate valid HTML with rating links", async () => {
+    it("should generate valid HTML with org, service and survey link", async () => {
       const { default: surveyTemplate } = await import(
         "~/utils/emails/surveyTemplate"
       )
@@ -80,18 +80,12 @@ describe("Email Templates", () => {
         surveyLink: "https://example.com/survey?token=abc123",
       })
 
-      expect(html).toContain("Ana López")
       expect(html).toContain("Masaje relajante")
       expect(html).toContain("Spa Example")
-      // Check for rating links (1-5 stars)
-      expect(html).toContain("rating=1")
-      expect(html).toContain("rating=2")
-      expect(html).toContain("rating=3")
-      expect(html).toContain("rating=4")
-      expect(html).toContain("rating=5")
+      expect(html).toContain("https://example.com/survey?token=abc123")
     })
 
-    it("should include emoji indicators", async () => {
+    it("should include Deník branding", async () => {
       const { default: surveyTemplate } = await import(
         "~/utils/emails/surveyTemplate"
       )
@@ -103,12 +97,8 @@ describe("Email Templates", () => {
         surveyLink: "https://example.com/survey",
       })
 
-      // Check for emoji rating indicators
-      expect(html).toContain("😞")
-      expect(html).toContain("😕")
-      expect(html).toContain("😐")
-      expect(html).toContain("😊")
-      expect(html).toContain("😍")
+      expect(html).toContain("Deník")
+      expect(html).toContain("denik.me")
     })
 
     it("should include call to action button", async () => {
@@ -123,7 +113,7 @@ describe("Email Templates", () => {
         surveyLink: "https://example.com/survey",
       })
 
-      expect(html).toContain("Dejar comentario")
+      expect(html).toContain("Dejar reseña")
     })
   })
 
