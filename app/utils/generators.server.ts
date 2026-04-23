@@ -6,7 +6,6 @@ import { generateSlug } from "./generateSlug"
 // aux functions for signup process
 
 export const notifyConfigSchema = z.object({
-  confirmation: z.boolean().default(true),
   reminder: z.boolean().default(true),
   survey: z.boolean().default(true),
 })
@@ -21,7 +20,6 @@ export const serviceSchema = z.object({
 })
 
 const defaultConfig = {
-  confirmation: true,
   reminder: true,
   survey: true,
   whatsapp_confirmation: null,

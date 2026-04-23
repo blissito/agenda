@@ -9,6 +9,7 @@ export default ({
   orgName,
   customerName,
   hoursUntil,
+  termsAndConditions,
 }: {
   modifyLink: string
   cancelLink: string
@@ -20,6 +21,7 @@ export default ({
   customerName?: string
   orgName?: string
   hoursUntil?: number
+  termsAndConditions?: string
 }) => `
 <body style="font-family:Arial; background-color:#F8F8F8;padding:24px; ">
 <div style="min-width:360px; max-width:480px; margin:0 auto;padding:24px; background-color:#ffffff; border-radius:24px;">
@@ -54,7 +56,7 @@ export default ({
 
   </div>
   <div>
-    <p style="font-size:12px; color:#8391A1; margin-top:64px;">Recuerda que tu compra es válida para el servicio y horario en el que reservaste. Para cambios en tu reserva tienes hasta 3 horas antes del servicio contratado un máximo de 2 veces. Para cancelaciones tienes hasta 24 hrs antes de la reserva, si tienes problemas con la devolución ponte en contacto directo con ${orgName}. Deník solo actúa como intermediario en la gestión y procesamiento de reservas.</p>
+    <p style="font-size:12px; color:#8391A1; margin-top:64px;">Recuerda que tu compra es válida para el servicio y horario en el que reservaste. ${termsAndConditions ?? `Para cambios en tu reserva tienes hasta 3 horas antes del servicio contratado un máximo de 2 veces. Para cancelaciones tienes hasta 24 hrs antes de la reserva, si tienes problemas con la devolución ponte en contacto directo con ${orgName}. Deník solo actúa como intermediario en la gestión y procesamiento de reservas.`}</p>
   </div>
   <div style="text-align:center; margin-top:32px; margin-bottom:16px">
 

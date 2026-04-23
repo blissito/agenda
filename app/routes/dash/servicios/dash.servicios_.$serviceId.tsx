@@ -70,8 +70,8 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   // Provide default config if none exists
   const defaultConfig = {
-    confirmation: false,
     reminder: false,
+    confirmation: false,
     survey: false,
     whatsapp_confirmation: false,
     whatsapp_reminder: false,
@@ -578,9 +578,27 @@ export const ServiceDetail = ({
             />
 
             <DetailItem
+              label="Mail de confirmación"
+              value={
+                (service as any).config?.confirmation
+                  ? "Lo enviaremos 12 hrs antes de la sesión con un botón para confirmar la cita"
+                  : "Desactivado"
+              }
+            />
+
+            <DetailItem
               label="Mail de recordatorio"
               value={
                 (service as any).config?.reminder
+                  ? "Lo enviaremos 4 hrs antes de la sesión"
+                  : "Desactivado"
+              }
+            />
+
+            <DetailItem
+              label="Whatsapp de confirmación"
+              value={
+                (service as any).config?.whatsapp_confirmation
                   ? "Lo enviaremos 12 hrs antes de la sesión"
                   : "Desactivado"
               }

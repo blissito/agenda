@@ -6,15 +6,37 @@
 export const SUPPORTED_TIMEZONES = [
   {
     value: "America/Mexico_City",
-    label: "México/Ciudad_de_México",
+    label: "México/CDMX",
+    flag: "🇲🇽",
+    city: "CDMX",
     offset: -6,
   },
-  { value: "Europe/Madrid", label: "España/Madrid", offset: 1 },
-  { value: "America/Lima", label: "Perú/Lima", offset: -5 },
-  { value: "America/Bogota", label: "Colombia/Bogotá", offset: -5 },
+  {
+    value: "Europe/Madrid",
+    label: "España/Madrid",
+    flag: "🇪🇸",
+    city: "Madrid",
+    offset: 1,
+  },
+  {
+    value: "America/Lima",
+    label: "Perú/Lima",
+    flag: "🇵🇪",
+    city: "Lima",
+    offset: -5,
+  },
+  {
+    value: "America/Bogota",
+    label: "Colombia/Bogotá",
+    flag: "🇨🇴",
+    city: "Bogotá",
+    offset: -5,
+  },
   {
     value: "America/Argentina/Buenos_Aires",
-    label: "Argentina/Buenos_Aires",
+    label: "Argentina/Buenos Aires",
+    flag: "🇦🇷",
+    city: "Buenos Aires",
     offset: -3,
   },
 ] as const

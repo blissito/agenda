@@ -1,9 +1,22 @@
 import type { Customer, Event, Org, Service, User } from "@prisma/client"
+import { getDefaultTermsAndConditions } from "~/routes/dash/dash.ajustes.constants"
 import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
 import { generateEventActionToken, generateUserToken } from "~/utils/tokens"
 import appointmentCustomerTemplate from "./appointmentCustomerTemplate"
 import appointmentOwnerTemplate from "./appointmentOwnerTemplate"
 import { getRemitent, getSesTransport } from "./ses"
+
+function resolveTermsAndConditions(org: Org): string {
+  const config = (org as Org & { config?: Record<string, unknown> | null }).config
+  const stored = config?.termsAndConditions as string | null | undefined
+  if (stored) return stored
+  return getDefaultTermsAndConditions({
+    cancellationWindowMinutes: config?.cancellationWindow as string | undefined,
+    rescheduleWindowMinutes: config?.rescheduleWindow as string | undefined,
+    maxReschedulesValue: config?.maxReschedules as string | undefined,
+    orgName: org.name,
+  })
+}
 
 type ServiceWithOrg = Service & {
   org: Org & { owner?: User }
@@ -66,6 +79,7 @@ export const sendAppointmentToCustomer = async ({
         orgName: event.service.org.name,
         customerName: event.customer.displayName ?? undefined,
         meetingLink: (event as any).meetingLink ?? undefined,
+        termsAndConditions: resolveTermsAndConditions(event.service.org),
       }),
     })
     .catch((e: unknown) => {
@@ -120,6 +134,7 @@ export const sendAppointmentToOwner = async ({
         serviceName: event.service.name,
         orgName: event.service.org.name,
         customerName: event.customer.displayName ?? undefined,
+        termsAndConditions: resolveTermsAndConditions(event.service.org),
       }),
     })
     .catch((e: unknown) => {

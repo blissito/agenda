@@ -1,3 +1,4 @@
+import path from "node:path"
 import type { Customer, Event, Org, Service } from "@prisma/client"
 import jwt from "jsonwebtoken"
 import { getRemitent, getSesTransport } from "./ses"
@@ -33,7 +34,7 @@ export const sendSurvey = async ({
   event: FullEvent
   email: string
 }) => {
-  const baseUrl = process.env.APP_URL || "https://denik.me"
+  const baseUrl = process.env.APP_URL || "https://www.denik.me"
 
   // Generate survey token
   const surveyToken = generateSurveyToken(event.id, event.customer.id)
@@ -52,6 +53,13 @@ export const sendSurvey = async ({
         customerName: event.customer.displayName ?? undefined,
         surveyLink,
       }),
+      attachments: [
+        {
+          filename: "survey.png",
+          path: path.join(process.cwd(), "public", "images", "survey.png"),
+          cid: "survey-hero",
+        },
+      ],
     })
     .catch((e: unknown) => {
       console.error("Error sending survey email:", e)

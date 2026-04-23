@@ -31,7 +31,6 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (newConfig) {
       const currentService = await db.service.findUnique({ where: { id } })
       const currentConfig = currentService?.config || {
-        confirmation: false,
         reminder: false,
         survey: false,
         whatsapp_confirmation: null,
@@ -68,7 +67,13 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   const handledRef = useRef<unknown>(null)
 
   const [payment, setPayment] = useState<boolean>(!!service.payment)
+  const [confirmation, setConfirmation] = useState<boolean>(
+    !!service.config?.confirmation,
+  )
   const [reminder, setReminder] = useState<boolean>(!!service.config?.reminder)
+  const [whatsappConfirmation, setWhatsappConfirmation] = useState<boolean>(
+    !!service.config?.whatsapp_confirmation,
+  )
   const [whatsappReminder, setWhatsappReminder] = useState<boolean>(
     !!service.config?.whatsapp_reminder,
   )
@@ -97,7 +102,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           payment,
           config: {
             ...service.config,
+            confirmation,
             reminder,
+            whatsapp_confirmation: whatsappConfirmation,
             whatsapp_reminder: whatsappReminder,
             survey,
           },
@@ -141,11 +148,26 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             subtitle="Activar los pagos para este servicio"
           />
           <Switch
+            defaultChecked={confirmation}
+            onChange={setConfirmation}
+            name="confirmation"
+            label="Mail de confirmación"
+            subtitle="Lo enviaremos 12 hrs antes de la sesión con un botón para confirmar la cita"
+          />
+          <Switch
             defaultChecked={reminder}
             onChange={setReminder}
             name="reminder"
             label="Mail de recordatorio"
+            subtitle="Lo enviaremos 4 hrs antes de la sesión"
+          />
+          <Switch
+            defaultChecked={whatsappConfirmation}
+            onChange={setWhatsappConfirmation}
+            name="whatsapp_confirmation"
+            label="Whatsapp de confirmación"
             subtitle="Lo enviaremos 12 hrs antes de la sesión"
+            icon={<FaWhatsapp />}
           />
           <Switch
             defaultChecked={whatsappReminder}

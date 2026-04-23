@@ -16,7 +16,7 @@ type ServiceLike = Pick<Service, "name"> & { [key: string]: unknown }
 
 export const Header = ({ org }: { org: OrgLike }) => {
   return (
-    <div className="flex gap-3 items-center justify-center py-12">
+    <div className="flex gap-3 items-center justify-center py-4 md:py-12">
       <img
         className="h-12 max-w-[180px] object-contain"
         alt="org logo"
@@ -31,15 +31,17 @@ export const InfoShower = ({
   service,
   date,
   timezone,
+  onTimezoneChange,
 }: {
   org: OrgLike
   service: ServiceLike
   date?: Date
   timezone?: SupportedTimezone
+  onTimezoneChange?: (tz: SupportedTimezone) => void
 }) => {
   return (
     <>
-      <div className="w-full min-w-[260px] max-w-[260px]">
+      <div className="w-full md:min-w-[260px] md:max-w-[260px]">
         <span className="text-brand_gray text-sm font-medium">{org?.name}</span>
         <h2 className="text-2xl font-satoMiddle mb-5 text-brand_dark">
           {service?.name}
@@ -49,9 +51,10 @@ export const InfoShower = ({
           service={service}
           date={date}
           timezone={timezone}
+          onTimezoneChange={onTimezoneChange}
         />
       </div>
-      <hr className="border-l-brand_gray/10 md:my-0 md:h-96 md:w-1 w-full my-4 mx-10 border-l md:mr-8 " />
+      <hr className="border-brand_gray/10 md:my-0 md:h-96 md:w-1 w-full my-4 md:mx-10 border-t md:border-t-0 md:border-l md:mr-8" />
     </>
   )
 }

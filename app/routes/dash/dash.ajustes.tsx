@@ -449,24 +449,46 @@ function ConfiguracionTab({
   )
   const initialCancellationWindow =
     existingConfig.cancellationWindow ?? DEFAULT_ORG_CONFIG.cancellationWindow
+  const initialRescheduleWindow =
+    existingConfig.rescheduleWindow ?? DEFAULT_ORG_CONFIG.rescheduleWindow
+  const initialMaxReschedules =
+    existingConfig.maxReschedules ?? DEFAULT_ORG_CONFIG.maxReschedules
   const initialTerms =
     existingConfig.termsAndConditions ??
-    getDefaultTermsAndConditions(initialCancellationWindow)
+    getDefaultTermsAndConditions({
+      cancellationWindowMinutes: initialCancellationWindow,
+      rescheduleWindowMinutes: initialRescheduleWindow,
+      maxReschedulesValue: initialMaxReschedules,
+      orgName: org.name,
+    })
   const [termsAndConditions, setTermsAndConditions] = useState<string>(initialTerms)
-  // If the stored text matches the auto-generated default for ANY window value,
-  // keep it in sync with cancellationWindow changes. Flip to "manually edited"
-  // the moment the user types something different.
+  // If the stored text matches the auto-generated default for any cancellation
+  // window (given the current reschedule/max/orgName), keep syncing on changes.
+  // Flip to "manually edited" the moment the user types something different.
   const [termsManuallyEdited, setTermsManuallyEdited] = useState<boolean>(
     existingConfig.termsAndConditions != null &&
       !CANCELLATION_RANGES.some(
-        (r) => getDefaultTermsAndConditions(r.value) === existingConfig.termsAndConditions,
+        (r) =>
+          getDefaultTermsAndConditions({
+            cancellationWindowMinutes: r.value,
+            rescheduleWindowMinutes: initialRescheduleWindow,
+            maxReschedulesValue: initialMaxReschedules,
+            orgName: org.name,
+          }) === existingConfig.termsAndConditions,
       ),
   )
   useEffect(() => {
     if (!termsManuallyEdited) {
-      setTermsAndConditions(getDefaultTermsAndConditions(cancellationWindow))
+      setTermsAndConditions(
+        getDefaultTermsAndConditions({
+          cancellationWindowMinutes: cancellationWindow,
+          rescheduleWindowMinutes: rescheduleWindow,
+          maxReschedulesValue: maxReschedules,
+          orgName: org.name,
+        }),
+      )
     }
-  }, [cancellationWindow, termsManuallyEdited])
+  }, [cancellationWindow, rescheduleWindow, maxReschedules, termsManuallyEdited, org.name])
 
   const isLoading = fetcher.state !== "idle"
 

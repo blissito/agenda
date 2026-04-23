@@ -10,7 +10,6 @@ import {
   formatTime12h,
   formatTimeOnly,
   isTimePassed,
-  SUPPORTED_TIMEZONES,
   type SupportedTimezone,
 } from "~/utils/timezone"
 import { generateTimesFromRange } from "../TimePicker"
@@ -25,7 +24,6 @@ export default function TimeView({
   intent,
   timezone = DEFAULT_TIMEZONE,
   orgTimezone = DEFAULT_TIMEZONE,
-  onTimezoneChange,
   selectedTime,
   minBookingAdvance,
 }: {
@@ -37,7 +35,6 @@ export default function TimeView({
   intent: string
   timezone?: SupportedTimezone
   orgTimezone?: SupportedTimezone
-  onTimezoneChange?: (timezone: SupportedTimezone) => void
   selectedTime?: string
   minBookingAdvance?: number
 }) {
@@ -87,11 +84,6 @@ export default function TimeView({
     onSelect?.(timeString)
   }
 
-  const handleTimezoneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTimezone = e.target.value as SupportedTimezone
-    onTimezoneChange?.(newTimezone)
-  }
-
   // Convert scheduled events to time strings in the correct timezone
   const scheduledEvents =
     fetcher.data &&
@@ -129,7 +121,7 @@ export default function TimeView({
   const isLoading = fetcher.state !== "idle"
 
   return (
-    <section className="flex items-center flex-col flex-grow">
+    <section className="flex items-center flex-col flex-grow w-full md:w-auto md:ml-8 mt-6 md:mt-0">
       <h3>
         {selected &&
           formatDateInTimezone(selected, timezone, {
@@ -139,7 +131,7 @@ export default function TimeView({
           })}
       </h3>
       <div
-        className={cn("grid grid-cols-2 gap-x-4 gap-y-2 mt-6 relative", {
+        className={cn("grid grid-cols-2 gap-x-4 gap-y-2 mt-6 relative w-full", {
           "opacity-50 pointer-events-none": isLoading,
         })}
       >
@@ -159,21 +151,6 @@ export default function TimeView({
         {isLoading && <Spinner className="absolute inset-0 m-auto" />}
       </div>
 
-      {/* Timezone selector */}
-      <p className="text-xs mt-auto">
-        Estas opciones corresponden a esta zona horaria:{" "}
-        <select
-          value={timezone}
-          onChange={handleTimezoneChange}
-          className="rounded pr-8 border-none shadow ml-1"
-        >
-          {SUPPORTED_TIMEZONES.map((tz) => (
-            <option key={tz.value} value={tz.value}>
-              {tz.label}
-            </option>
-          ))}
-        </select>
-      </p>
     </section>
   )
 }
@@ -191,7 +168,7 @@ const TimeButton = ({
     <button
       onClick={onClick}
       className={cn(
-        "hover:bg-brand_blue hover:text-white transition-all px-12 py-1 rounded border border-brand_blue text-brand_blue",
+        "hover:bg-brand_blue hover:text-white transition-all w-full px-4 md:px-12 py-1 rounded border border-brand_blue text-brand_blue",
         {
           "bg-brand_blue text-white": isActive,
         },

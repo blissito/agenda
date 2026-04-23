@@ -95,7 +95,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     if (intent === "config_form") {
       const config = {
         confirmation: form.confirmation,
-        remiinder: form.remiinder,
+        reminder: form.reminder,
         survey: form.survey,
       }
       form.config = config // important!

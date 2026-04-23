@@ -55,16 +55,22 @@ export const ROLE_LABELS: Record<string, string> = {
   OWNER: "Propietario",
 }
 
-export function getDefaultTermsAndConditions(cancellationWindowMinutes: string): string {
-  const match = CANCELLATION_RANGES.find((r) => r.value === cancellationWindowMinutes)
-  const windowLabel = match?.label ?? "el plazo establecido"
-  return `Al reservar aceptas nuestra política de cancelación:
-
-• Puedes cancelar o reagendar tu cita hasta ${windowLabel} antes del horario reservado. Pasado ese plazo, la cita no podrá cancelarse ni reagendarse.
-• Las devoluciones y reembolsos se gestionan directamente con el negocio. Si realizaste un pago en línea y cancelaste con al menos ${windowLabel} de anticipación, contáctanos para coordinar la devolución.
-• No presentarse a la cita (no-show) no genera derecho a reembolso.
-
-Si tienes dudas, ponte en contacto con el negocio antes de reservar.`
+export function getDefaultTermsAndConditions(params: {
+  cancellationWindowMinutes?: string
+  rescheduleWindowMinutes?: string
+  maxReschedulesValue?: string
+  orgName?: string
+}): string {
+  const rescheduleLabel =
+    RESCHEDULE_RANGES.find((r) => r.value === params.rescheduleWindowMinutes)?.label ??
+    "3 horas"
+  const maxReschedulesLabel =
+    TIMES.find((r) => r.value === params.maxReschedulesValue)?.label ?? "2 veces"
+  const cancellationLabel =
+    CANCELLATION_RANGES.find((r) => r.value === params.cancellationWindowMinutes)?.label ??
+    "24 horas"
+  const orgNameText = params.orgName ?? "el negocio"
+  return `Para cambios en tu reserva tienes hasta ${rescheduleLabel} antes del servicio contratado un máximo de ${maxReschedulesLabel}. Para cancelaciones tienes hasta ${cancellationLabel} antes de la reserva, si tienes problemas con la devolución ponte en contacto directo con ${orgNameText}. Deník solo actúa como intermediario en la gestión y procesamiento de reservas.`
 }
 
 export const DEFAULT_ORG_CONFIG = {
@@ -74,8 +80,12 @@ export const DEFAULT_ORG_CONFIG = {
   minBookingAdvance: "60",
   rescheduleWindow: "240",
   maxReschedules: "2",
-  cancellationWindow: "240",
-  termsAndConditions: getDefaultTermsAndConditions("240"),
+  cancellationWindow: "1440",
+  termsAndConditions: getDefaultTermsAndConditions({
+    cancellationWindowMinutes: "1440",
+    rescheduleWindowMinutes: "240",
+    maxReschedulesValue: "2",
+  }),
 }
 
 export const DEFAULT_ORG_TIMEZONE = "America/Mexico_City"

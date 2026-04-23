@@ -22,7 +22,6 @@ import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
 import { register } from "./index.server"
 
 type ServiceConfig = {
-  confirmation?: boolean
   reminder?: boolean
   survey?: boolean
   whatsapp_confirmation?: boolean

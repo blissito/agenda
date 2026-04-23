@@ -16,9 +16,55 @@ export const weekDictionary: Record<number, string> = {
   0: "sunday",
 }
 
-export const getMaxDate = (initialDate: Date) => {
-  initialDate.setMonth(initialDate.getMonth() + 2)
-  return new Date(initialDate)
+const MONTHS_BY_AVAILABILITY: Record<string, number> = {
+  "3m": 3,
+  "6m": 6,
+  "1y": 12,
+}
+
+export const getMaxDate = (calendarAvailability?: string | null) => {
+  const months = MONTHS_BY_AVAILABILITY[calendarAvailability ?? ""] ?? 3
+  const date = new Date()
+  date.setMonth(date.getMonth() + months)
+  return date
+}
+
+const formatMinutes = (min: number): string => {
+  if (min >= 60 && min % 60 === 0) {
+    const hours = min / 60
+    return `${hours} hora${hours === 1 ? "" : "s"}`
+  }
+  return `${min} minutos`
+}
+
+export type BookingWindowConfig = {
+  minBookingAdvance?: string | null
+  calendarAvailability?: string | null
+} | null | undefined
+
+export const validateBookingWindow = (
+  orgConfig: BookingWindowConfig,
+  requestedStart: Date,
+): { ok: true } | { ok: false; error: string } => {
+  if (Number.isNaN(requestedStart.getTime())) {
+    return { ok: false, error: "Fecha inválida" }
+  }
+  const parsed = parseInt(orgConfig?.minBookingAdvance ?? "60", 10)
+  const minAdvance = Number.isFinite(parsed) ? parsed : 60
+  if (requestedStart.getTime() < Date.now() + minAdvance * 60 * 1000) {
+    return {
+      ok: false,
+      error: `Debes agendar con al menos ${formatMinutes(minAdvance)} de anticipación.`,
+    }
+  }
+  const maxDate = getMaxDate(orgConfig?.calendarAvailability)
+  if (requestedStart.getTime() > maxDate.getTime()) {
+    return {
+      ok: false,
+      error: "La fecha seleccionada está fuera de la ventana de agendamiento.",
+    }
+  }
+  return { ok: true }
 }
 
 export const getAvailableDays = (weekDays: WeekDaysType): string[] => {

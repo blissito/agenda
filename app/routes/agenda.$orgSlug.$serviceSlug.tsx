@@ -12,7 +12,7 @@ import { z } from "zod"
 import { createPreference, getValidAccessToken } from "~/.server/mercadopago"
 import { Footer, Header, InfoShower } from "~/components/agenda/components"
 import { Success } from "~/components/agenda/success"
-import { getMaxDate } from "~/components/agenda/utils"
+import { getMaxDate, validateBookingWindow } from "~/components/agenda/utils"
 import { ChatWidget } from "~/components/chatbot/ChatWidget"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { MonthView } from "~/components/forms/agenda/MonthView"
@@ -20,6 +20,7 @@ import TimeView from "~/components/forms/agenda/TimeView"
 import { BasicInput } from "~/components/forms/BasicInput"
 import type { WeekTuples } from "~/components/forms/TimesForm"
 import { getLevelDiscount } from "~/lib/loyalty.server"
+import { DEFAULT_ORG_CONFIG } from "~/routes/dash/dash.ajustes.constants"
 import { db } from "~/utils/db.server"
 import {
   sendAppointmentToCustomer,
@@ -128,6 +129,15 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     })
     if (!service || service.orgId !== org.id) {
       throw new Response("Service not found", { status: 404 })
+    }
+
+    // Enforce booking window (min advance / max calendar availability)
+    const windowCheck = validateBookingWindow(
+      org.config as any,
+      new Date(data.start),
+    )
+    if (!windowCheck.ok) {
+      return { success: false, error: windowCheck.error }
     }
 
     // Check if User with this email already exists
@@ -426,7 +436,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }, [fetcher.state, fetcher.data])
 
   const maxDate = getMaxDate(
-    new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+    org.config?.calendarAvailability ?? DEFAULT_ORG_CONFIG.calendarAvailability,
   )
 
   const handleTimeSelection = (timeString: string) => {
@@ -499,15 +509,16 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <article className="bg-[#f8f8f8] min-h-screen relative">
+    <article className="bg-[#f8f8f8] min-h-svh relative pb-24 md:pb-0">
       <Header org={org} />
-      <main className="shadow mx-auto rounded-xl p-8 min-h-[506px] md:w-max w-1/2">
+      <main className="shadow mx-auto rounded-xl p-4 md:p-8 min-h-[506px] md:w-max w-full max-w-[calc(100vw-2rem)] md:max-w-none bg-white">
         <section className={twMerge("flex flex-wrap")}>
           <InfoShower
             service={service}
             org={org}
             date={date}
             timezone={timezone}
+            onTimezoneChange={handleTimezoneChange}
           />
           {show !== "user_info" && (
             <>
@@ -529,19 +540,18 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   action={`/agenda/${org.slug}/${service.slug}`}
                   timezone={timezone}
                   orgTimezone={org.timezone as SupportedTimezone}
-                  onTimezoneChange={handleTimezoneChange}
                   selectedTime={time}
-                  minBookingAdvance={
-                    org.config?.minBookingAdvance
-                      ? parseInt(org.config.minBookingAdvance, 10)
-                      : undefined
-                  }
+                  minBookingAdvance={parseInt(
+                    org.config?.minBookingAdvance ??
+                      DEFAULT_ORG_CONFIG.minBookingAdvance,
+                    10,
+                  )}
                 />
               )}
             </>
           )}
           {show === "user_info" && (
-            <Form onSubmit={handleSubmit(onSubmit)} className="flex-1">
+            <Form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col gap-4">
               <h3 className="text-lg font-bold mb-6 text-brand_dark">
                 Cuéntame sobre ti
               </h3>
@@ -552,7 +562,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 placeholder="Nombre completo"
                 error={errors.displayName}
               />
-              <div className="flex gap-4">
+              <div className="flex flex-col md:flex-row gap-4">
                 <BasicInput
                   error={errors.email}
                   register={register}

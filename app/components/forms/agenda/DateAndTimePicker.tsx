@@ -16,7 +16,7 @@ import { Money } from "~/components/icons/appointment/money"
 import { Schedule } from "~/components/icons/appointment/schedule"
 import {
   formatDateInTimezone,
-  getTimezoneLabel,
+  SUPPORTED_TIMEZONES,
   type SupportedTimezone,
 } from "~/utils/timezone"
 import { MonthView } from "./MonthView"
@@ -223,11 +223,13 @@ export const ServiceList = ({
   date,
   org,
   timezone,
+  onTimezoneChange,
 }: {
   service: ServiceLike
   org: OrgLike
   date?: Date
   timezone?: SupportedTimezone
+  onTimezoneChange?: (tz: SupportedTimezone) => void
 }) => {
   const formattedDate = date
     ? timezone
@@ -257,11 +259,30 @@ export const ServiceList = ({
             icon={<Schedule />}
           />
           {timezone && (
-            <ServiceListItem
-              key={"timezone"}
-              text={getTimezoneLabel(timezone)}
-              icon={<FaGlobeAmericas />}
-            />
+            <motion.div
+              className="flex items-center gap-4 font-satoshi"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ x: 0, opacity: 1 }}
+            >
+              <span className="text-lg">
+                <FaGlobeAmericas />
+              </span>
+              <select
+                aria-label="Zona horaria"
+                value={timezone}
+                onChange={(e) =>
+                  onTimezoneChange?.(e.target.value as SupportedTimezone)
+                }
+                disabled={!onTimezoneChange}
+                className="h-8 rounded-lg border border-gray-200 bg-transparent pl-2 pr-6 text-xs text-brand_gray hover:border-gray-300 focus:border-brand_blue focus:outline-none focus:ring-0 disabled:opacity-70"
+              >
+                {SUPPORTED_TIMEZONES.map((tz) => (
+                  <option key={tz.value} value={tz.value}>
+                    {tz.flag} {tz.city}
+                  </option>
+                ))}
+              </select>
+            </motion.div>
           )}
         </>
       )}

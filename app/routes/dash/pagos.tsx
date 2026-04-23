@@ -581,30 +581,26 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
   }, [events, now])
 
   const days = useMemo<DailyTotals[]>(() => {
-    // 1. Inicializa todos los días del mes con ceros
+    // Agrupa los eventos pagados por día dentro del mes seleccionado
     const map = new Map<string, DailyTotals>()
-    const daysInMonth = new Date(year, month + 1, 0).getDate()
-    for (let day = 1; day <= daysInMonth; day++) {
-      const d = new Date(year, month, day)
-      const key = d.toISOString().slice(0, 10)
-      map.set(key, {
-        date: key,
-        count: 0,
-        mp: 0,
-        cash: 0,
-        transfer: 0,
-        card: 0,
-        total: 0,
-      })
-    }
-    // 2. Suma los eventos pagados que caen en el mes
     for (const e of events) {
       if (!e.paid || !e.service) continue
       const d = new Date(e.start)
       if (d.getFullYear() !== year || d.getMonth() !== month) continue
       const key = d.toISOString().slice(0, 10)
-      const row = map.get(key)
-      if (!row) continue
+      const row =
+        map.get(key) ??
+        map
+          .set(key, {
+            date: key,
+            count: 0,
+            mp: 0,
+            cash: 0,
+            transfer: 0,
+            card: 0,
+            total: 0,
+          })
+          .get(key)!
       const price = Number(e.service.price)
       row.count += 1
       row.total += price
@@ -685,9 +681,9 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
             <div className="text-right">Tarjeta</div>
             <div className="text-right">Total</div>
           </div>
-          <div className="bg-white divide-y divide-brand_stroke">
+          <div className="rounded-b-2xl bg-white divide-y divide-brand_stroke">
             {totals.count > 0 ? (
-              <div className="grid gap-x-4 grid-cols-[160px_80px_1fr_1fr_1fr_1fr_140px] items-center px-6 py-3 bg-brand_blue/5 border-b-2 border-brand_blue/20">
+              <div className="grid gap-x-4 grid-cols-[160px_80px_1fr_1fr_1fr_1fr_140px] items-center px-6 py-3 bg-brand_lime/20">
                 <div className="text-[13px] text-brand_dark font-satoBold uppercase tracking-wide">
                   Total del mes
                 </div>
@@ -740,9 +736,14 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
       </div>
 
       {/* Mobile */}
-      <div className="lg:hidden rounded-2xl bg-white divide-y divide-brand_stroke overflow-hidden">
+      <div className="lg:hidden rounded-2xl bg-white overflow-hidden">
+        <div className="px-4 py-3 flex items-center justify-between text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide border-b border-brand_stroke">
+          <span>Día</span>
+          <span>Total</span>
+        </div>
+        <div className="divide-y divide-brand_stroke">
         {totals.count > 0 ? (
-          <div className="p-4 bg-brand_blue/5 flex items-center justify-between">
+          <div className="p-4 bg-brand_lime/20 flex items-center justify-between">
             <span className="text-sm font-satoBold text-brand_dark uppercase tracking-wide">
               Total del mes
             </span>
@@ -754,9 +755,7 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
         {totals.count === 0 ? (
           <DailyEmptyState month={month} year={year} />
         ) : (
-          days
-            .filter((d) => d.count > 0)
-            .map((d) => (
+          days.map((d) => (
               <div key={d.date} className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
@@ -784,6 +783,7 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
               </div>
             ))
         )}
+        </div>
       </div>
     </div>
   )

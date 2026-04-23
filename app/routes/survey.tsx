@@ -181,27 +181,29 @@ export default function SurveyPage({
   // Error states
   if ("error" in loaderData && loaderData.error) {
     return (
-      <main className="min-h-screen bg-[#f8f8f8] flex items-center justify-center p-4">
-        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg
-              className="w-8 h-8 text-red-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Error</h1>
-          <p className="text-gray-600">{loaderData.error}</p>
+      <div className="min-h-screen bg-[#F7F7F9] flex flex-col items-center justify-center px-6">
+        <div className="relative flex items-center justify-center">
+          <span className="text-[200px] md:text-[280px] font-satoBold text-gray-200 select-none leading-none">
+            OOPS
+          </span>
+          <img
+            src="/images/nik.svg"
+            alt=""
+            className="absolute w-[180px] md:w-[260px] bottom-4"
+          />
         </div>
-      </main>
+
+        <h1 className="text-2xl md:text-4xl font-satoBold text-brand_dark text-center mt-6">
+          {loaderData.error}
+        </h1>
+
+        <a
+          href="/"
+          className="mt-8 bg-brand_blue text-white px-8 py-3 rounded-full text-base font-satoMedium hover:opacity-90 transition-opacity"
+        >
+          Volver a la pagina principal
+        </a>
+      </div>
     )
   }
 

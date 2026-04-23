@@ -45,8 +45,8 @@ type OrgConfig {
 }
 
 type ServiceConfig {
-  confirmation          Boolean
   reminder              Boolean
+  confirmation          Boolean?
   survey                Boolean
   whatsapp_confirmation Boolean?
   whatsapp_reminder     Boolean?

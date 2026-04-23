@@ -84,16 +84,16 @@ export const ServiceConfigForm = ({
             defaultChecked={defaultValues?.config.confirmation}
             register={register}
             name="confirmation"
-            title="Mail de recordatorio"
-            description="Lo enviaremos 12 hrs antes de la sesión"
+            title="Mail de confirmación"
+            description="Lo enviaremos 12 hrs antes de la sesión con un botón para confirmar la cita"
             registerOptions={{ required: false }}
           />
           <SwitchOption
             defaultChecked={defaultValues?.config.reminder}
             register={register}
             name="reminder"
-            title="Whats app de recordatorio"
-            description="Lo enviaremos 4hrs antes de la sesión"
+            title="Mail de recordatorio"
+            description="Lo enviaremos 4 hrs antes de la sesión"
             registerOptions={{ required: false }}
           />
           <SwitchOption

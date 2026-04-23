@@ -121,7 +121,7 @@ export const MonthView = ({
     currentDate.getMonth() === new Date().getMonth()
 
   return (
-    <div className="min-w-60">
+    <div className="min-w-60 w-full md:w-auto mx-auto md:mx-0">
       <nav className="flex justify-between items-center mb-6">
         <button
           disabled={isCurrentMonth()}
