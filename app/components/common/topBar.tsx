@@ -34,13 +34,22 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8 text-brand_dark">
-          {NAV_LINKS.map((link) => (
-            <Link key={link.to} to={link.to}>
-              <p className="font-satoshi font-medium hover:text-brand_blue transition-colors">
-                {link.label}
-              </p>
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active =
+              location.pathname === link.to ||
+              location.pathname.startsWith(link.to + "/")
+            return (
+              <Link key={link.to} to={link.to}>
+                <p
+                  className={`font-satoshi font-medium hover:text-brand_blue transition-colors ${
+                    active ? "text-brand_blue" : ""
+                  }`}
+                >
+                  {link.label}
+                </p>
+              </Link>
+            )
+          })}
           <PrimaryButton as="Link" to="/signin">
             Probar gratis <ArrowRight />
           </PrimaryButton>
@@ -71,13 +80,22 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
             withBanner ? "top-36" : "top-28"
           } left-4 right-4 bg-white/95 backdrop-blur-lg border border-brand_pale rounded-2xl shadow-lg p-6 flex flex-col gap-4`}
         >
-          {NAV_LINKS.map((link) => (
-            <Link key={link.to} to={link.to}>
-              <p className="font-satoshi font-medium text-brand_dark text-lg py-2 hover:text-brand_blue transition-colors">
-                {link.label}
-              </p>
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active =
+              location.pathname === link.to ||
+              location.pathname.startsWith(link.to + "/")
+            return (
+              <Link key={link.to} to={link.to}>
+                <p
+                  className={`font-satoshi font-medium text-lg py-2 hover:text-brand_blue transition-colors ${
+                    active ? "text-brand_blue" : "text-brand_dark"
+                  }`}
+                >
+                  {link.label}
+                </p>
+              </Link>
+            )
+          })}
           <PrimaryButton as="Link" to="/signin" className="mt-2">
             Probar gratis <ArrowRight />
           </PrimaryButton>
