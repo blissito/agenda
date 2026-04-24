@@ -530,21 +530,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           />
           {show !== "user_info" && (
             <>
-              {!isLoggedIn && !date && (
-                <div className="basis-full flex items-center justify-center gap-2 rounded-full border border-brand_blue/20 bg-brand_blue/5 px-4 py-2 text-sm text-brand_dark mb-4">
-                  <span aria-hidden>🎁</span>
-                  <span>
-                    ¿Tienes cuenta?{" "}
-                    <a
-                      href="/signin"
-                      className="font-semibold text-brand_blue underline underline-offset-2 hover:opacity-80"
-                    >
-                      Inicia sesión
-                    </a>{" "}
-                    y obtén un descuento.
-                  </span>
-                </div>
-              )}
               <MonthView
                 selected={date}
                 onSelect={setDate}
@@ -620,6 +605,21 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             </Form>
           )}
         </section>
+        {show !== "user_info" && !isLoggedIn && !date && (
+          <div className="mt-6 flex items-center justify-center gap-2 rounded-full border border-brand_blue/20 bg-brand_blue/5 px-4 py-2 text-sm text-brand_dark">
+            <span aria-hidden>🎁</span>
+            <span>
+              ¿Tienes cuenta?{" "}
+              <a
+                href="/signin"
+                className="font-semibold text-brand_blue underline underline-offset-2 hover:opacity-80"
+              >
+                Inicia sesión
+              </a>{" "}
+              y obtén un descuento.
+            </span>
+          </div>
+        )}
         {show !== "user_info" ? (
           <Footer
             onSubmit={handleNextForm}
