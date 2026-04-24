@@ -220,13 +220,12 @@ Los webhooks verifican si ya existe un evento antes de crear:
 
 ### 🌅 Para mañana (2026-04-24)
 
-De la libreta del 2026-04-23 — quedaron vivos 5 items completos + 1 a medias. Trabajar uno por uno.
+De la libreta del 2026-04-23 — 4 items pendientes + 1 a medias. Trabajar uno por uno.
 
 - [ ] **(a medias) Login al agendar para descuento** — banner ya en prod (sólo copy). Falta **cablear descuento real**: decidir modelo (fijo `X%` para cualquier logueado, o por tier de loyalty via `getLevelDiscount` en `app/lib/loyalty.server.ts`), aplicar en `action` de `service.$serviceSlug.tsx` y `agenda.$orgSlug.$serviceSlug.tsx` antes de crear la preferencia MP.
 - [ ] **Cupones en MercadoPago — crear** — investigar API de MP para descuentos/cupones, integrar en `createPreference` (`app/.server/mercadopago.ts`), UI en dashboard para que el owner los cree y los comparta.
 - [ ] **Descuento por nivel de lealtad o login** — extender loyalty (`app/lib/loyalty.server.ts` + `dash.lealtad.tsx`). Se combina con el item de arriba — definir si los dos caminos son excluyentes o acumulables. Depende también del TODO existente de escritura real de `customer.loyaltyPoints`.
 - [ ] **Blog** — greenfield. Proponer estructura: modelo Prisma `Post`, dashboard CRUD (`/dash/blog`), render público en `{orgSlug}.denik.me/blog` y `{orgSlug}.denik.me/blog/{postSlug}`, meta tags SEO con `getMetaTags`. Decidir si el contenido es markdown o rich text.
-- [ ] **Link a Tigris en prod — Keys por Servicio/Org** — página admin en dashboard que liste archivos del bucket filtrados por `orgId` / `serviceId`, con su key, URL pública y preview. Usa `app/utils/lib/tigris.server.ts` + `ListObjectsV2Command`. Sirve para debug y gestión manual de galerías.
 - [ ] **Input al regenerar sitio — modal con textarea** — cuando el user pulse "Regenerar" en el editor de landing IA, abrir primero un modal con `<textarea>` para instrucciones adicionales. Esas instrucciones se pasan al prompt del modelo en `app/lib/landing-generator.server.ts`. UI en el dashboard (editor de landing).
 
 ---
