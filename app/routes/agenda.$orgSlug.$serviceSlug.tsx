@@ -313,6 +313,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
               reminderHours?: number | null
             }
           | undefined,
+        org.timezone,
       )
     } catch (e) {
       console.error("Failed to schedule notifications:", e)

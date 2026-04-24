@@ -11,10 +11,11 @@ import { sendReminder } from "~/utils/emails/sendReminder"
 import { sendSurvey } from "~/utils/emails/sendSurvey"
 import { sendTrialExpired } from "~/utils/emails/sendTrialExpired"
 import { sendTrialWarning } from "~/utils/emails/sendTrialWarning"
+import { createDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone"
 import { getAgenda } from "./agenda.server"
 
 const DEFAULT_REMINDER_HOURS = 4
-const SURVEY_DELAY_MINUTES = 60 * 24 // 24 hours
+const SURVEY_SEND_HOUR = "09:00" // Fire at 9am local the day after eventEnd
 
 type ReminderJobData = {
   eventId: string
@@ -168,19 +169,24 @@ export const scheduleReminder = async (
 }
 
 /**
- * Schedule a survey for an event
- * @param eventId - The event ID
- * @param eventEnd - When the event ends
+ * Schedule a survey for an event at 9am the day after eventEnd (in org timezone).
  */
 export const scheduleSurvey = async (
   eventId: string,
   eventEnd: Date,
+  timezone?: string | null,
 ): Promise<void> => {
-  const surveyTime = new Date(
-    eventEnd.getTime() + SURVEY_DELAY_MINUTES * 60 * 1000,
-  )
+  const tz = timezone || DEFAULT_TIMEZONE
 
-  // Don't schedule if survey time is in the past
+  // Y-M-D of eventEnd in org timezone
+  const endDateStr = eventEnd.toLocaleDateString("en-CA", { timeZone: tz })
+  const [y, m, d] = endDateStr.split("-").map(Number)
+
+  // Noon UTC on (end day + 1) — safe baseDate across timezones ±12h
+  const nextDayBase = new Date(Date.UTC(y, m - 1, d + 1, 12, 0, 0))
+
+  const surveyTime = createDateInTimezone(SURVEY_SEND_HOUR, nextDayBase, tz)
+
   if (surveyTime <= new Date()) {
     console.log(
       `[scheduleSurvey] Skipping event ${eventId}: survey time already passed`,
@@ -190,7 +196,7 @@ export const scheduleSurvey = async (
 
   await agenda.schedule(surveyTime, "send-survey", { eventId })
   console.log(
-    `[scheduleSurvey] Scheduled survey for event ${eventId} at ${surveyTime.toISOString()}`,
+    `[scheduleSurvey] Scheduled survey for event ${eventId} at ${surveyTime.toISOString()} (9am ${tz})`,
   )
 }
 
@@ -272,6 +278,7 @@ export const scheduleEventNotifications = async (
     survey?: boolean
     reminderHours?: number | null
   },
+  orgTimezone?: string | null,
 ): Promise<void> => {
   const config = serviceConfig || {}
 
@@ -281,6 +288,6 @@ export const scheduleEventNotifications = async (
   }
 
   if (config.survey !== false) {
-    await scheduleSurvey(eventId, eventEnd)
+    await scheduleSurvey(eventId, eventEnd, orgTimezone)
   }
 }
