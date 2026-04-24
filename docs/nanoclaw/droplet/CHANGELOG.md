@@ -15,14 +15,14 @@ Log cronológico de cambios aplicados al droplet `nanoclaw-denik` (143.198.149.2
 
 ## Políticas
 
-### MCP `@denik.me/mcp` — pinned a `^0.7.0`
+### MCP `@denik.me/mcp` — pinned a `~0.7.0`
 
-Solo aceptamos **patches/minors dentro de la línea 7.x** (0.7.1, 0.8.0, ...). Cualquier bump a 1.0+ requiere:
+A partir de `0.7.0` **solo crece el tercer dígito** (0.7.1, 0.7.2, ...). Cualquier bump a `0.8.0+` o `1.0+` requiere:
 1. Revisar CHANGELOG del MCP
 2. Validar breaking changes contra Nik persona y agent-runner
 3. Decisión explícita antes de cambiar el Dockerfile del fork
 
-Enforcement: `container/Dockerfile` pinea `'@denik.me/mcp@^0.7.0'` en el `npm install -g`.
+Enforcement: `container/Dockerfile` pinea `'@denik.me/mcp@~0.7.0'` en el `npm install -g` (acepta solo patches de la línea 0.7.x).
 
 Proceso de publish: ver `packages/denik-mcp/PUBLISH.md`.
 
