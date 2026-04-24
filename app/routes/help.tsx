@@ -5,7 +5,7 @@ import {
   useSpring,
 } from "motion/react"
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react"
-import { useLoaderData, type MetaFunction } from "react-router"
+import { Link, useLoaderData, type MetaFunction } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { FeaturesList } from "~/components/icons/cathegories/featuresList"
@@ -302,12 +302,13 @@ const TiltCard = ({
       }}
       className="relative"
     >
-      <div
+      <Link
+        to={link}
         style={{
           transform: "translateZ(75px)",
           transformStyle: "preserve-3d",
         }}
-        className="inset-4 grid place-content-center"
+        className="inset-4 grid place-content-center block group"
       >
         <section className="w-full">
           <img
@@ -315,13 +316,13 @@ const TiltCard = ({
             src={image ? image : "/images/serviceDefault.png"}
             alt={title}
           />
-          <h3 className="mt-4 text-2xl font-semibold">{title}</h3>
+          <h3 className="mt-4 text-2xl font-semibold group-hover:text-brand_blue transition-colors">{title}</h3>
           <p className="mb-4 mt-1 text-brand_gray">{description}</p>
           <span className="text-brand_blue font-satoMiddle underline">
             Leer artículo
           </span>
         </section>
-      </div>
+      </Link>
     </motion.div>
   )
 }
