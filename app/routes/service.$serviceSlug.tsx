@@ -9,7 +9,7 @@ import { data, Form, redirect, useFetcher } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { createPreference, getValidAccessToken } from "~/.server/mercadopago"
-import { getService } from "~/.server/userGetters"
+import { getService, getUserOrNull } from "~/.server/userGetters"
 import { Footer, Header, InfoShower } from "~/components/agenda/components"
 import { Success } from "~/components/agenda/success"
 import { getMaxDate, validateBookingWindow } from "~/components/agenda/utils"
@@ -395,14 +395,21 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const headers = new Headers()
   setCsrfCookie(headers, csrfToken)
 
+  const user = await getUserOrNull(request)
+
   return data(
-    { org: orgWithNormalizedDays, service: serviceWithEnglishDays, csrfToken },
+    {
+      org: orgWithNormalizedDays,
+      service: serviceWithEnglishDays,
+      csrfToken,
+      isLoggedIn: !!user,
+    },
     { headers },
   )
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { org, service } = loaderData
+  const { org, service, isLoggedIn } = loaderData
   const [time, setTime] = useState<string>()
   const [date, setDate] = useState<Date>()
   const [show, setShow] = useState("")
@@ -547,6 +554,21 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           />
           {show !== "user_info" && (
             <>
+              {!isLoggedIn && !date && (
+                <div className="basis-full flex items-center justify-center gap-2 rounded-full border border-brand_blue/20 bg-brand_blue/5 px-4 py-2 text-sm text-brand_dark mb-4">
+                  <span aria-hidden>🎁</span>
+                  <span>
+                    ¿Tienes cuenta?{" "}
+                    <a
+                      href="/signin"
+                      className="font-semibold text-brand_blue underline underline-offset-2 hover:opacity-80"
+                    >
+                      Inicia sesión
+                    </a>{" "}
+                    y obtén un descuento.
+                  </span>
+                </div>
+              )}
               <MonthView
                 selected={date}
                 onSelect={setDate}
