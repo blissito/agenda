@@ -15,6 +15,7 @@ import { FinalCta } from "~/components/home/FinalCta"
 import { Features, Hero, ScrollReviews } from "~/components/home/home"
 import { ParallaxHero } from "~/components/home/ParallaxHero"
 import { People } from "~/components/icons/people"
+import { getAllPosts } from "~/lib/blog.server"
 import { buildDefaultSections } from "~/lib/default-landing"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
@@ -72,7 +73,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     return { ...resolution, landingHtml }
   }
 
-  return resolution
+  return { ...resolution, posts: getAllPosts().slice(0, 5) }
 }
 
 export const meta = ({ data }: Route.MetaArgs) => {
@@ -144,7 +145,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         <Features />
         <Benefits />
         <CompaniesScroll />
-        <BlogPreview />
+        <BlogPreview posts={loaderData.posts ?? []} />
         <FinalCta>
           <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
             <span className="mr-4">Tu agenda. </span>
