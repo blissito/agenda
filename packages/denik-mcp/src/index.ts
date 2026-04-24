@@ -9,7 +9,7 @@ import { z } from "zod"
 import { denikGet, denikPost } from "./client.js"
 
 const server = new Server(
-  { name: "denik-mcp", version: "0.6.0" },
+  { name: "denik-mcp", version: "0.7.0" },
   { capabilities: { tools: {} } },
 )
 
@@ -86,6 +86,36 @@ const tools = [
       properties: { q: { type: "string" } },
     },
     handler: async (args: any) => denikGet("customers", { intent: "find", q: args.q }),
+  },
+  {
+    name: "get_customer",
+    description:
+      "Devuelve el detalle completo de un cliente por ID (displayName, email, tel, notes).",
+    inputSchema: {
+      type: "object",
+      required: ["customerId"],
+      properties: { customerId: { type: "string" } },
+    },
+    handler: async (args: any) =>
+      denikGet("customers", { intent: "get", customerId: args.customerId }),
+  },
+  {
+    name: "update_customer",
+    description:
+      "Actualiza datos de un cliente existente. Pasa solo los campos a cambiar. Si se cambia el email y colisiona con otro cliente de la org devuelve 409.",
+    inputSchema: {
+      type: "object",
+      required: ["customerId"],
+      properties: {
+        customerId: { type: "string" },
+        displayName: { type: "string" },
+        email: { type: "string" },
+        tel: { type: "string" },
+        notes: { type: "string" },
+      },
+    },
+    handler: async (args: any) =>
+      denikPost("customers", { intent: "update", ...args }),
   },
   {
     name: "get_customer_appointments",
@@ -189,6 +219,25 @@ const tools = [
     },
     handler: async (args: any) =>
       denikPost("customers", { intent: "create", ...args }),
+  },
+  {
+    name: "update_event",
+    description:
+      "Actualiza campos seguros de una cita (notas, pagado, método de pago, título, status). Para cambiar horario usa reschedule_event; para cancelar usa cancel_event.",
+    inputSchema: {
+      type: "object",
+      required: ["eventId"],
+      properties: {
+        eventId: { type: "string" },
+        notes: { type: "string" },
+        paid: { type: "boolean" },
+        payment_method: { type: "string" },
+        title: { type: "string" },
+        status: { type: "string", enum: ["CONFIRMED", "pending", "CANCELLED"] },
+      },
+    },
+    handler: async (args: any) =>
+      denikPost("events", { intent: "update", ...args }),
   },
   {
     name: "send_appointment_reminder",
@@ -369,6 +418,35 @@ const tools = [
       },
     },
     handler: async (args: any) => denikPost("services", { intent: "gallery_reorder", ...args }),
+  },
+  {
+    name: "get_org",
+    description:
+      "Devuelve datos básicos de la org del agente (name, slug, description, email, tel, address, timezone, logo, weekDays, landingPublished).",
+    inputSchema: { type: "object", properties: {} },
+    handler: async () => denikGet("org", { intent: "get" }),
+  },
+  {
+    name: "update_org",
+    description:
+      "Actualiza información del negocio. Whitelist: name, description, email, tel, address, timezone, logo, weekDays. weekDays usa keys en INGLÉS (monday..sunday).",
+    inputSchema: {
+      type: "object",
+      properties: {
+        name: { type: "string" },
+        description: { type: "string" },
+        email: { type: "string" },
+        tel: { type: "string" },
+        address: { type: "string" },
+        timezone: { type: "string", description: "Ej: America/Mexico_City" },
+        logo: { type: "string" },
+        weekDays: {
+          type: "object",
+          description: "Ej: {monday:[{start:'09:00',end:'18:00'}], ...}",
+        },
+      },
+    },
+    handler: async (args: any) => denikPost("org", { intent: "update", ...args }),
   },
   {
     name: "get_org_stats",

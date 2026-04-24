@@ -74,7 +74,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 /**
  * POST /api/mcp/events
- * body JSON con `intent`: cancel | reschedule | mark_attendance | create | send_reminder
+ * body JSON con `intent`: cancel | reschedule | mark_attendance | create | send_reminder | update
  */
 export const action = async ({ request }: ActionFunctionArgs) => {
   const org = await getOrgFromApiKey(request)
@@ -229,6 +229,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       ...serialize(fresh),
       agendaUrl: `https://www.denik.me/dash/agenda/citas?eventId=${event.id}`,
     })
+  }
+
+  if (intent === "update") {
+    if (!body.eventId)
+      return Response.json({ error: "eventId required" }, { status: 400 })
+    const existing = await db.event.findFirst({
+      where: { id: body.eventId, orgId: org.id },
+    })
+    if (!existing) return Response.json({ error: "Not found" }, { status: 404 })
+    // Whitelist de campos seguros. Reschedule (start/end) y cancel viven en sus
+    // propios intents para conservar la lógica de Meet/Zoom/jobs.
+    const data: Record<string, any> = { updatedAt: new Date() }
+    if (body.notes !== undefined) data.notes = body.notes
+    if (body.paid !== undefined) data.paid = !!body.paid
+    if (body.payment_method !== undefined)
+      data.payment_method = body.payment_method
+    if (body.title !== undefined) data.title = body.title
+    if (body.status !== undefined) data.status = body.status
+    const updated = await db.event.update({
+      where: { id: body.eventId },
+      data,
+      include: { customer: true, service: true },
+    })
+    return Response.json(serialize(updated))
   }
 
   if (intent === "send_reminder") {

@@ -116,7 +116,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 }
 
 /**
- * POST /api/mcp/customers — body JSON con `intent: create`
+ * POST /api/mcp/customers — body JSON con `intent`: create | update
  */
 export const action = async ({ request }: ActionFunctionArgs) => {
   const org = await getOrgFromApiKey(request)
@@ -147,6 +147,37 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       },
     })
     return Response.json(serializeCustomer(customer))
+  }
+
+  if (intent === "update") {
+    const { customerId, displayName, email, tel, notes } = body
+    if (!customerId)
+      return Response.json({ error: "customerId required" }, { status: 400 })
+    const existing = await db.customer.findFirst({
+      where: { id: customerId, orgId: org.id },
+    })
+    if (!existing) return Response.json({ error: "Not found" }, { status: 404 })
+    // Si cambia el email, verificar que no colisione con otro customer de la misma org
+    if (email && email !== existing.email) {
+      const dup = await db.customer.findFirst({
+        where: { orgId: org.id, email, id: { not: customerId } },
+      })
+      if (dup)
+        return Response.json(
+          { error: "Email ya usado por otro cliente" },
+          { status: 409 },
+        )
+    }
+    const data: Record<string, any> = { updatedAt: new Date() }
+    if (displayName !== undefined) data.displayName = displayName
+    if (email !== undefined) data.email = email
+    if (tel !== undefined) data.tel = tel
+    if (notes !== undefined) data.comments = notes
+    const updated = await db.customer.update({
+      where: { id: customerId },
+      data,
+    })
+    return Response.json(serializeCustomer(updated))
   }
 
   return Response.json({ error: "Unknown intent" }, { status: 400 })

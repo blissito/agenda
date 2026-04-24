@@ -15,18 +15,29 @@ Log cronológico de cambios aplicados al droplet `nanoclaw-denik` (143.198.149.2
 
 ## Políticas
 
-### MCP `@denik.me/mcp` — pinned a `^0.6.0`
+### MCP `@denik.me/mcp` — pinned a `^0.7.0`
 
-Solo aceptamos **patches/minors dentro de la línea 6.x** (0.6.1, 0.7.0, ...). Cualquier bump a 1.0+ requiere:
+Solo aceptamos **patches/minors dentro de la línea 7.x** (0.7.1, 0.8.0, ...). Cualquier bump a 1.0+ requiere:
 1. Revisar CHANGELOG del MCP
 2. Validar breaking changes contra Nik persona y agent-runner
 3. Decisión explícita antes de cambiar el Dockerfile del fork
 
-Enforcement: `container/Dockerfile` pinea `'@denik.me/mcp@^0.6.0'` en el `npm install -g`.
+Enforcement: `container/Dockerfile` pinea `'@denik.me/mcp@^0.7.0'` en el `npm install -g`.
 
 Proceso de publish: ver `packages/denik-mcp/PUBLISH.md`.
 
 ---
+
+## 2026-04-23
+
+### `@denik.me/mcp@0.7.0` publicado — CRUD gaps (customer/event/org)
+
+- **Motivo**: cerrar gaps CRUD del MCP — Nik puede ahora consultar/editar cliente, evento y org desde WhatsApp.
+- **Tools nuevas (5)**: `get_customer`, `update_customer`, `update_event`, `get_org`, `update_org`.
+- **Backend**: `app/routes/api/mcp.customers.ts` agregó `intent: update` en action; `mcp.events.ts` agregó `intent: update` (whitelist: notes, paid, payment_method, title, status); `mcp.org.ts` agregó `intent: get` en loader y action con `intent: update` (whitelist: name, description, email, tel, address, timezone, weekDays, logo).
+- **npm**: publicado `@denik.me/mcp@0.7.0` (verificar con `npm view @denik.me/mcp version`).
+- **Pendiente en droplet**: actualizar `container/Dockerfile` del fork `blissito/nanoclaw-denik` al pin `^0.7.0`, rebuild + restart. Propagar tools nuevas a `nik.CLAUDE.md` de orgs activas.
+- **Reversión**: pin a `^0.6.0` en Dockerfile → rebuild nanoclaw. Backend es aditivo (safe rollback si algo falla).
 
 ## 2026-04-12
 

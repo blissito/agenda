@@ -1,19 +1,27 @@
 {
   "name": "@denik.me/mcp",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Denik Agenda MCP stdio server — tools para operar una org desde un agente (p.ej. bot de WhatsApp).",
   "type": "module",
   "bin": {
     "denik-mcp": "./dist/index.js"
   },
   "main": "./dist/index.js",
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx src/index.ts",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["mcp", "denik", "agenda", "whatsapp"],
+  "keywords": [
+    "mcp",
+    "denik",
+    "agenda",
+    "whatsapp"
+  ],
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
