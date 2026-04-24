@@ -47,6 +47,10 @@ const setCors = async () => {
   // Only configure CORS once per server lifecycle
   if (corsConfigured) return
 
+  // Bucket es compartido con easybits — no remover esos origins.
+  // Tigris no matchea wildcards en CORS, por eso `*.denik.me` no aplica.
+  // En la práctica todas las subidas vienen de `www.denik.me` (dashboard),
+  // los subdominios `{org}.denik.me` solo leen vía <img src> (sin preflight).
   const input = {
     Bucket: BUCKET,
     CORSConfiguration: {
@@ -55,10 +59,14 @@ const setCors = async () => {
           AllowedHeaders: ["*"],
           AllowedMethods: ["PUT", "DELETE", "GET"],
           AllowedOrigins: [
+            "https://www.easybits.cloud",
+            "https://easybits.cloud",
+            "https://*.easybits.cloud",
             "http://localhost:3000",
             "http://localhost:5173",
-            "https://*.denik.me",
             "https://denik.me",
+            "https://www.denik.me",
+            "https://*.denik.me",
           ],
           ExposeHeaders: ["ETag"],
           MaxAgeSeconds: 3600,
