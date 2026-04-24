@@ -5,12 +5,13 @@ import {
   useSpring,
 } from "motion/react"
 import { type MouseEvent, useEffect, useMemo, useRef, useState } from "react"
-import type { MetaFunction } from "react-router"
+import { useLoaderData, type MetaFunction } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
 import { FeaturesList } from "~/components/icons/cathegories/featuresList"
 import { Graduate } from "~/components/icons/cathegories/graduate"
 import { HelpIcon } from "~/components/icons/help"
+import { getAllPosts, type BlogPostMeta } from "~/lib/blog.server"
 import { getMetaTags } from "~/utils/getMetaTags"
 
 export const meta: MetaFunction = () =>
@@ -21,74 +22,12 @@ export const meta: MetaFunction = () =>
     url: "https://denik.me/blog",
   })
 
-const ARTICLES = [
-  {
-    slug: "configurar-agenda",
-    title: "Como configurar tu agenda",
-    description:
-      "Aprende a configurar tu agenda de citas desde cero: horarios, servicios, colaboradores y mas.",
-    image: "https://i.imgur.com/DXNLhab.png",
-    category: "aprendizaje",
-  },
-  {
-    slug: "novedades",
-    title: "Lo nuevo en Denik",
-    description:
-      "Descubre las ultimas funcionalidades y mejoras que hemos lanzado en la plataforma.",
-    image: "https://i.imgur.com/G2GZLMm.png",
-    category: "novedades",
-  },
-  {
-    slug: "crear-cuenta",
-    title: "Como crear una cuenta",
-    description:
-      "Guia paso a paso para registrarte y crear tu cuenta de negocio en Denik.",
-    image: "https://i.imgur.com/PSDVeEC.png",
-    category: "aprendizaje",
-  },
-  {
-    slug: "cambiar-plan",
-    title: "Como cambiar tu plan",
-    description:
-      "Conoce como actualizar, cambiar o cancelar tu plan de suscripcion en cualquier momento.",
-    image: "/images/illustrations/blog/cel.svg",
-    category: "aprendizaje",
-  },
-  {
-    slug: "template-agenda",
-    title: "Como cambiar el template de tu agenda",
-    description:
-      "Personaliza la apariencia de tu pagina de reservaciones con los templates disponibles.",
-    image: "https://i.imgur.com/DXNLhab.png",
-    category: "aprendizaje",
-  },
-  {
-    slug: "programa-lealtad",
-    title: "Programa de lealtad",
-    description:
-      "Configura puntos, niveles y recompensas para fidelizar a tus clientes.",
-    image: "https://i.imgur.com/G2GZLMm.png",
-    category: "novedades",
-  },
-  {
-    slug: "denik-link",
-    title: "Denik link",
-    description:
-      "Comparte tu link de reservaciones en redes sociales y permite que tus clientes agenden facilmente.",
-    image: "https://i.imgur.com/PSDVeEC.png",
-    category: "novedades",
-  },
-  {
-    slug: "landing-ia",
-    title: "Genera tu landing page con IA",
-    description:
-      "Usa inteligencia artificial para crear una pagina web profesional para tu negocio en minutos.",
-    image: "/images/illustrations/blog/cel.svg",
-    category: "novedades",
-  },
-]
+export const loader = async () => {
+  return { posts: getAllPosts() }
+}
 
 export default function Help() {
+  const { posts } = useLoaderData<typeof loader>()
   const [search, setSearch] = useState("")
   const [activeSlug, setActiveSlug] = useState<string | null>(null)
 
@@ -108,7 +47,7 @@ export default function Help() {
   }, [])
 
   const filtered = useMemo(() => {
-    let results = ARTICLES
+    let results = posts
     if (search.trim()) {
       const q = search.toLowerCase()
       results = results.filter(
@@ -121,7 +60,7 @@ export default function Help() {
       results = results.filter((a) => a.slug === activeSlug)
     }
     return results
-  }, [search, activeSlug])
+  }, [posts, search, activeSlug])
 
   const handleSidebarClick = (slug: string) => {
     setActiveSlug((prev) => (prev === slug ? null : slug))
@@ -149,6 +88,7 @@ export default function Help() {
           <div className="grid grid-cols-1 lg:grid-cols-8 gap-12">
             {/* Sidebar */}
             <Catalogue
+              posts={posts}
               search={search}
               setSearch={setSearch}
               activeSlug={activeSlug}
@@ -169,7 +109,7 @@ const Content = ({
   filtered,
   search,
 }: {
-  filtered: typeof ARTICLES
+  filtered: BlogPostMeta[]
   search: string
 }) => {
   return (
@@ -200,7 +140,7 @@ const Content = ({
             <TiltCard
               key={article.slug}
               title={article.title}
-              link={`/help/${article.slug}`}
+              link={`/blog/${article.slug}`}
               description={article.description}
               image={article.image}
             />
@@ -217,18 +157,20 @@ const Content = ({
 }
 
 const Catalogue = ({
+  posts,
   search,
   setSearch,
   activeSlug,
   onItemClick,
 }: {
+  posts: BlogPostMeta[]
   search: string
   setSearch: (v: string) => void
   activeSlug: string | null
   onItemClick: (slug: string) => void
 }) => {
-  const aprendizaje = ARTICLES.filter((a) => a.category === "aprendizaje")
-  const novedades = ARTICLES.filter((a) => a.category === "novedades")
+  const aprendizaje = posts.filter((a) => a.category === "aprendizaje")
+  const novedades = posts.filter((a) => a.category === "novedades")
 
   return (
     <section className="lg:col-span-2">
