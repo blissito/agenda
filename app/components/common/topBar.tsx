@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: "/ia", label: "IA✨" },
   { to: "/negocios", label: "Negocios" },
   { to: "/planes", label: "Planes" },
+  { to: "/blog", label: "Blog" },
 ]
 
 export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
