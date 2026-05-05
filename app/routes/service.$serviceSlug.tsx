@@ -541,9 +541,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <article className="bg-[#f8f8f8] relative pb-24 md:pb-0">
+    <article className="bg-[#f8f8f8] min-h-svh relative pb-24 md:pb-0">
       <Header org={org} />
-      <main className="shadow mx-auto rounded-xl p-4 md:p-8 min-h-[506px] md:w-max w-full max-w-[calc(100vw-2rem)] md:max-w-none">
+      <main className="bg-white shadow mx-auto rounded-xl p-4 md:p-8 min-h-[506px] md:w-max w-full max-w-[calc(100vw-2rem)] md:max-w-none">
         <section className={twMerge("flex flex-wrap")}>
           <InfoShower
             service={service}
