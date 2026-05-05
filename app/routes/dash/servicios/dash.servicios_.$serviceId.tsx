@@ -1,3 +1,19 @@
+import {
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import type { Service } from "@prisma/client"
 import * as React from "react"
 import * as ReactRouter from "react-router"
@@ -51,6 +67,27 @@ export const action = async ({ params, request }: Route.ActionArgs) => {
       data: { gallery },
     })
     return Response.json({ ok: true, gallery })
+  }
+
+  if (intent === "gallery_reorder") {
+    const raw = formData.get("keys") as string
+    let keys: string[]
+    try {
+      keys = JSON.parse(raw)
+    } catch {
+      return Response.json({ error: "invalid keys" }, { status: 400 })
+    }
+    if (!Array.isArray(keys))
+      return Response.json({ error: "keys must be array" }, { status: 400 })
+    const current = new Set(service.gallery || [])
+    const next = keys.filter((k) => current.has(k))
+    if (next.length !== current.size)
+      return Response.json({ error: "keys mismatch" }, { status: 400 })
+    await db.service.update({
+      where: { id: service.id },
+      data: { gallery: next },
+    })
+    return Response.json({ ok: true, gallery: next })
   }
 
   return Response.json({ error: "Unknown intent" }, { status: 400 })
@@ -167,6 +204,95 @@ export const convertToMeridian = (hourString: string) => {
  * - Saves keys to service.gallery[] in DB
  * - Loads existing images on mount
  */
+type GalleryItem = {
+  id: string
+  url: string
+  key: string
+  uploading?: boolean
+}
+
+function SortableThumb({
+  img,
+  isActive,
+  isNew,
+  onMakePrimary,
+  onRemove,
+}: {
+  img: GalleryItem
+  isActive: boolean
+  isNew: boolean
+  onMakePrimary: () => void
+  onRemove: () => void
+}) {
+  const disabled = !img.key || !!img.uploading
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: img.id, disabled })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.6 : 1,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative group overflow-hidden rounded-xl"
+      {...attributes}
+      {...listeners}
+    >
+      <button
+        data-thumb-id={img.id}
+        type="button"
+        onClick={onMakePrimary}
+        disabled={disabled}
+        className={[
+          "h-20 w-full rounded-xl overflow-hidden border shrink-0",
+          isActive ? "border-neutral-900/40" : "border-brand_stroke/50",
+          isNew ? "lg-thumb-pop" : "",
+          img.uploading ? "opacity-50" : "",
+          !disabled ? "cursor-grab active:cursor-grabbing" : "",
+        ].join(" ")}
+        aria-label="Hacer principal o arrastrar para reordenar"
+      >
+        <img
+          src={img.url}
+          alt="Miniatura"
+          className="h-full w-full object-cover pointer-events-none"
+          draggable={false}
+        />
+      </button>
+      {img.key && !img.uploading && (
+        <button
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+          className="absolute top-0.5 right-0.5 hidden group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs leading-none shadow"
+          aria-label="Eliminar imagen"
+        >
+          &times;
+        </button>
+      )}
+      {isActive && img.key && (
+        <span className="absolute bottom-0.5 left-0.5 px-1.5 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-satoMedium pointer-events-none">
+          Principal
+        </span>
+      )}
+    </div>
+  )
+}
+
 function PersistentGallery({
   initialImages,
   serviceId,
@@ -177,19 +303,33 @@ function PersistentGallery({
   const inputRef = React.useRef<HTMLInputElement | null>(null)
   const fetcher = ReactRouter.useFetcher()
 
-  const [images, setImages] = React.useState<
-    { id: string; url: string; key: string; uploading?: boolean }[]
-  >(
+  const [images, setImages] = React.useState<GalleryItem[]>(
     initialImages.map((img) => ({
       id: img.key,
       url: img.url,
       key: img.key,
     })),
   )
-  const [activeId, setActiveId] = React.useState<string | null>(
-    initialImages.length > 0 ? initialImages[0].key : null,
-  )
   const [newIds, setNewIds] = React.useState<string[]>([])
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 5 },
+    }),
+  )
+
+  const persistOrder = React.useCallback(
+    (next: GalleryItem[]) => {
+      const keys = next.filter((x) => x.key && !x.uploading).map((x) => x.key)
+      if (keys.length === 0) return
+      const formData = new FormData()
+      formData.set("intent", "gallery_reorder")
+      formData.set("keys", JSON.stringify(keys))
+      fetcher.submit(formData, { method: "POST" })
+    },
+    [fetcher],
+  )
 
   const openPicker = () => inputRef.current?.click()
 
@@ -220,15 +360,10 @@ function PersistentGallery({
       const tempId = `temp-${Date.now()}-${Math.random().toString(16).slice(2)}`
       const localUrl = URL.createObjectURL(file)
 
-      // Add with uploading state
-      setImages((prev) => {
-        const next = [
-          ...prev,
-          { id: tempId, url: localUrl, key: "", uploading: true },
-        ]
-        if (prev.length === 0) setActiveId(tempId)
-        return next
-      })
+      setImages((prev) => [
+        ...prev,
+        { id: tempId, url: localUrl, key: "", uploading: true },
+      ])
 
       setNewIds((prev) => [...prev, tempId])
       window.setTimeout(
@@ -238,7 +373,6 @@ function PersistentGallery({
 
       try {
         const key = await uploadFile(file)
-        // Replace temp entry with real one
         setImages((prev) =>
           prev.map((img) =>
             img.id === tempId
@@ -246,10 +380,8 @@ function PersistentGallery({
               : img,
           ),
         )
-        setActiveId((prev) => (prev === tempId ? key : prev))
       } catch (err) {
         console.error("Upload failed:", err)
-        // Remove failed upload
         setImages((prev) => prev.filter((img) => img.id !== tempId))
         URL.revokeObjectURL(localUrl)
       }
@@ -259,23 +391,38 @@ function PersistentGallery({
   }
 
   const removeImage = (key: string) => {
-    setImages((prev) => {
-      const next = prev.filter((img) => img.key !== key)
-      if (activeId === key) {
-        setActiveId(next.length > 0 ? next[0].id : null)
-      }
-      return next
-    })
+    setImages((prev) => prev.filter((img) => img.key !== key))
     const formData = new FormData()
     formData.set("intent", "gallery_remove")
     formData.set("key", key)
     fetcher.submit(formData, { method: "POST" })
   }
 
+  const makePrimary = (id: string) => {
+    setImages((prev) => {
+      const idx = prev.findIndex((x) => x.id === id)
+      if (idx <= 0) return prev
+      const next = arrayMove(prev, idx, 0)
+      persistOrder(next)
+      return next
+    })
+  }
+
+  const onDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e
+    if (!over || active.id === over.id) return
+    setImages((prev) => {
+      const from = prev.findIndex((x) => x.id === active.id)
+      const to = prev.findIndex((x) => x.id === over.id)
+      if (from === -1 || to === -1) return prev
+      const next = arrayMove(prev, from, to)
+      persistOrder(next)
+      return next
+    })
+  }
+
   const hasImages = images.length > 0
-  const mainImage = hasImages
-    ? (images.find((x) => x.id === activeId) ?? images[0])
-    : null
+  const mainImage = hasImages ? images[0] : null
 
   const addButton = (
     <button
@@ -361,48 +508,27 @@ function PersistentGallery({
           <div className="w-24 shrink-0 min-h-0 overflow-y-auto lg-scrollbar-hide">
             <div className="flex flex-col gap-3">
               {addButton}
-              {images.map((img) => {
-                const isActive = img.id === (mainImage?.id ?? "")
-                const isNew = newIds.includes(img.id)
-
-                return (
-                  <div
-                    key={img.id}
-                    className="relative group overflow-hidden rounded-xl"
-                  >
-                    <button
-                      data-thumb-id={img.id}
-                      type="button"
-                      onClick={() => setActiveId(img.id)}
-                      className={[
-                        "h-20 w-full rounded-xl overflow-hidden border shrink-0",
-                        isActive
-                          ? "border-neutral-900/40"
-                          : "border-brand_stroke/50",
-                        isNew ? "lg-thumb-pop" : "",
-                        img.uploading ? "opacity-50" : "",
-                      ].join(" ")}
-                      aria-label="Seleccionar imagen"
-                    >
-                      <img
-                        src={img.url}
-                        alt="Miniatura"
-                        className="h-full w-full object-cover"
-                      />
-                    </button>
-                    {img.key && !img.uploading && (
-                      <button
-                        type="button"
-                        onClick={() => removeImage(img.key)}
-                        className="absolute top-0.5 right-0.5 hidden group-hover:flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white text-xs leading-none shadow"
-                        aria-label="Eliminar imagen"
-                      >
-                        &times;
-                      </button>
-                    )}
-                  </div>
-                )
-              })}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={onDragEnd}
+              >
+                <SortableContext
+                  items={images.map((x) => x.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {images.map((img) => (
+                    <SortableThumb
+                      key={img.id}
+                      img={img}
+                      isActive={img.id === (mainImage?.id ?? "")}
+                      isNew={newIds.includes(img.id)}
+                      onMakePrimary={() => makePrimary(img.id)}
+                      onRemove={() => removeImage(img.key)}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
             </div>
           </div>
         </div>
