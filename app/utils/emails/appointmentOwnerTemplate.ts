@@ -46,12 +46,7 @@ export default ({
   </div>
             <a style="text-decoration:none;" href="${link}" target="blank">
     <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
-      Ver cita
-    </button>
-    </a>
-    <a style="text-decoration:none;" href="${link}" target="blank">
-    <button style="background:#F5F5F5; height:40px; border-radius:20px; border:none; color:#11151A; width:160px; margin-top:40px;margin-left:16px; cursor:pointer;">
-     Modificar cita
+      Ver mi agenda
     </button>
     </a>
 

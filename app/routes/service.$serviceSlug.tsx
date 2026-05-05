@@ -618,7 +618,20 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 name="comments"
                 placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
                 registerOptions={{ required: false }}
+                inputClassName="min-h-20"
               />
+              {!isLoggedIn && (
+                <p className="text-sm text-brand_gray">
+                  Eres cliente frecuente{" "}
+                  <a
+                    href="/mi-cuenta"
+                    className="text-brand_dark underline underline-offset-2 hover:opacity-80"
+                  >
+                    Inicia sesión
+                  </a>{" "}
+                  para obtener beneficios.
+                </p>
+              )}
               <input
                 type="text"
                 {...register("website" as any)}
@@ -629,21 +642,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             </Form>
           )}
         </section>
-        {show !== "user_info" && !isLoggedIn && !date && (
-          <div className="mt-6 flex items-center justify-center gap-2 rounded-full border border-brand_blue/20 bg-brand_blue/5 px-4 py-2 text-sm text-brand_dark">
-            <span aria-hidden>🎁</span>
-            <span>
-              ¿Tienes cuenta?{" "}
-              <a
-                href="/signin"
-                className="font-semibold text-brand_blue underline underline-offset-2 hover:opacity-80"
-              >
-                Inicia sesión
-              </a>{" "}
-              y obtén un descuento.
-            </span>
-          </div>
-        )}
         {show !== "user_info" ? (
           <Footer
             onSubmit={handleNextForm}

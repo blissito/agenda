@@ -105,10 +105,9 @@ export const sendAppointmentToOwner = async ({
 
   const baseUrl = process.env.APP_URL || "https://denik.me"
 
-  // Generate magic link for auto-login
-  // Token includes owner email, redirects to event modify page after login
+  // Generate magic link for auto-login → dashboard
   const ownerToken = generateUserToken(email)
-  const destination = `/event/${event.id}/modify`
+  const destination = `/dash`
   const link = `${baseUrl}/signin?token=${ownerToken}&next=${encodeURIComponent(destination)}`
 
   // Get timezone from org or use default
