@@ -620,18 +620,6 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 registerOptions={{ required: false }}
                 inputClassName="min-h-20"
               />
-              {!isLoggedIn && (
-                <p className="text-sm text-brand_gray">
-                  Eres cliente frecuente{" "}
-                  <a
-                    href="/mi-cuenta"
-                    className="text-brand_dark underline underline-offset-2 hover:opacity-80"
-                  >
-                    Inicia sesión
-                  </a>{" "}
-                  para obtener beneficios.
-                </p>
-              )}
               <input
                 type="text"
                 {...register("website" as any)}
