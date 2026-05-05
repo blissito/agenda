@@ -409,7 +409,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { org, service, isLoggedIn } = loaderData
+  const { org, service } = loaderData
   const [time, setTime] = useState<string>()
   const [date, setDate] = useState<Date>()
   const [show, setShow] = useState("")

@@ -37,7 +37,7 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
           {NAV_LINKS.map((link) => {
             const active =
               location.pathname === link.to ||
-              location.pathname.startsWith(link.to + "/")
+              location.pathname.startsWith(`${link.to}/`)
             return (
               <Link key={link.to} to={link.to}>
                 <p
@@ -83,7 +83,7 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
           {NAV_LINKS.map((link) => {
             const active =
               location.pathname === link.to ||
-              location.pathname.startsWith(link.to + "/")
+              location.pathname.startsWith(`${link.to}/`)
             return (
               <Link key={link.to} to={link.to}>
                 <p

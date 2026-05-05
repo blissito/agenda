@@ -29,7 +29,7 @@ export const meta = ({ data: loaderData }: { data?: { post: BlogPost } }) => {
   })
 }
 
-export default function BlogPost() {
+export default function BlogPostPage() {
   const { post } = useLoaderData<typeof loader>()
 
   useEffect(() => {
@@ -77,6 +77,7 @@ export default function BlogPost() {
               [&_blockquote]:border-l-4 [&_blockquote]:border-brand_pale [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-brand_iron [&_blockquote]:my-6
               [&_code]:bg-brand_pale [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm
               [&_pre]:bg-brand_dark [&_pre]:text-white [&_pre]:p-4 [&_pre]:rounded-xl [&_pre]:overflow-x-auto [&_pre]:my-6"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: HTML compilado de markdown propio
             dangerouslySetInnerHTML={{ __html: post.html }}
           />
         </article>
