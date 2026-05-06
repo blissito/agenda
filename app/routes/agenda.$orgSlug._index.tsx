@@ -16,7 +16,7 @@ import { getMetaTags } from "~/utils/getMetaTags"
 import { getPublicImageUrl } from "~/utils/urls"
 import type { Route } from "./+types/agenda.$orgSlug._index"
 
-export const loader = async ({ params }: Route.LoaderArgs) => {
+export const loader = async ({ params, request }: Route.LoaderArgs) => {
   const { orgSlug } = params
 
   const org = await db.org.findUnique({
@@ -31,15 +31,33 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
     where: { orgId: org.id, isActive: true, archived: false },
   })
 
+  const url = new URL(request.url)
+  const isLocalhost =
+    url.hostname === "localhost" || url.hostname === "127.0.0.1"
+  const serviceSlugs = new Set(
+    services.map((s) => s.slug).filter(Boolean) as string[],
+  )
+
+  const rewriteServiceHrefs = (html: string) => {
+    if (!isLocalhost) return html
+    return html.replace(/\bhref="\/([^"\/]+)"/g, (match, slug) =>
+      serviceSlugs.has(slug)
+        ? `href="/agenda/${org.slug}/${slug}"`
+        : match,
+    )
+  }
+
   const renderSections = (sections: Section3[]) =>
-    buildDeployHtml(
-      sections,
-      org.landingTheme || undefined,
-      org.landingCustomColors as unknown as CustomColors | undefined,
-      false,
-    ).replace(
-      "</head>",
-      `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
+    rewriteServiceHrefs(
+      buildDeployHtml(
+        sections,
+        org.landingTheme || undefined,
+        org.landingCustomColors as unknown as CustomColors | undefined,
+        false,
+      ).replace(
+        "</head>",
+        `<base target="_top"><style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
+      ),
     )
 
   // Single source of truth: published sections if any, otherwise the same

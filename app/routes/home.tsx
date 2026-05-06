@@ -54,7 +54,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         false,
       ).replace(
         "</head>",
-        `<style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
+        `<base target="_top"><style>@font-face{font-family:'Satoshi ';src:url('https://denik.me/fonts/Satoshi-Regular.ttf') format('truetype');font-display:swap}</style></head>`,
       )
 
     let landingHtml: string | null = null

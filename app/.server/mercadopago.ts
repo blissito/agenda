@@ -23,7 +23,7 @@ export const createPreference = async (
   data: {
     serviceId: string
     serviceName: string
-    price: number // en centavos
+    price: number // en pesos (MXN)
     customerId: string
     start: string
     end: string
@@ -34,7 +34,7 @@ export const createPreference = async (
   const client = getSellerClient(sellerAccessToken)
   const preference = new Preference(client)
 
-  const unitPrice = data.price / 100 // centavos a pesos
+  const unitPrice = data.price
   const marketplaceFee = Math.round(unitPrice * 0.05 * 100) / 100 // 5% comisión
 
   return preference.create({

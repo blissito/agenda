@@ -4,8 +4,7 @@ import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker"
 import type { SupportedTimezone } from "~/utils/timezone"
 import { getPublicImageUrl } from "~/utils/urls"
 
-const example =
-  "https://img.freepik.com/vector-gratis/vector-degradado-logotipo-colorido-pajaro_343694-1365.jpg?size=338&ext=jpg"
+const FALLBACK_LOGO = "/images/avatar.svg"
 
 // Partial org type for components that don't need full Prisma type
 type OrgLike = Pick<Org, "name"> & {
@@ -20,7 +19,7 @@ export const Header = ({ org }: { org: OrgLike }) => {
       <img
         className="h-12 max-w-[180px] object-contain"
         alt="org logo"
-        src={getPublicImageUrl(org?.logo) || example}
+        src={getPublicImageUrl(org?.logo) || FALLBACK_LOGO}
       />
     </div>
   )
