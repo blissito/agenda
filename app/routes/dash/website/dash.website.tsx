@@ -209,7 +209,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             title="Preview del sitio"
             srcDoc={withExternalLinksFix(previewHtml)}
             className="w-full h-full border-0 block"
-            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
           />
         ) : (
           <iframe
@@ -218,7 +218,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             src={iframeSrc}
             className="w-full h-full border-0 block"
             loading="lazy"
-            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
+            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
             referrerPolicy="strict-origin-when-cross-origin"
           />
         )}

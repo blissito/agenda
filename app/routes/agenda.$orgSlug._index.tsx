@@ -106,7 +106,7 @@ export default function OrgLanding({ loaderData }: Route.ComponentProps) {
     <>
       <iframe
         srcDoc={withExternalLinksFix(landingHtml)}
-        sandbox="allow-forms allow-scripts allow-popups allow-top-navigation-by-user-activation"
+        sandbox="allow-forms allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
         style={{
           position: "fixed",
           inset: 0,
