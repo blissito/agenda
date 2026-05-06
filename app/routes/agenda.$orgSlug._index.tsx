@@ -14,7 +14,7 @@ import { buildDefaultSections } from "~/lib/default-landing"
 import { db } from "~/utils/db.server"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { withExternalLinksFix } from "~/utils/landingHtml"
-import { getPublicImageUrl } from "~/utils/urls"
+import { DEFAULT_OG_IMAGE, getPublicImageUrl } from "~/utils/urls"
 import type { Route } from "./+types/agenda.$orgSlug._index"
 
 export const loader = async ({ params, request }: Route.LoaderArgs) => {
@@ -85,7 +85,7 @@ export const meta = ({ data }: Route.MetaArgs) => {
     return getMetaTags({
       title: `${data.org.name} | Agenda tu cita`,
       description: data.org.description || `Reserva con ${data.org.name}`,
-      image: getPublicImageUrl(data.org.logo) || "/cover.png",
+      image: getPublicImageUrl(data.org.logo) || DEFAULT_OG_IMAGE,
     })
   }
   return getMetaTags({

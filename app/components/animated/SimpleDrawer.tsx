@@ -62,15 +62,18 @@ export const Drawer = ({
       <motion.button
         onClick={onClose}
         id="overlay"
-        className="fixed inset-0 bg-slate-200/20 z-40"
-        animate={{ backdropFilter: "blur(4px)" }}
-        exit={{ backdropFilter: "blur(0)", opacity: 0 }}
+        className="fixed inset-0 bg-slate-900/40 z-40"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
       />
       <motion.section
         initial={{ x: "100%" }}
         animate={{ x: 0 }}
-        exit={{ x: "120%" }}
-        transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+        exit={{ x: "100%" }}
+        transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+        style={{ willChange: "transform" }}
         className={cn(
           "bg-white md:max-w-[540px] lg:w-[40%] md:w-[60%] w-full z-50 h-screen fixed top-0 right-0 shadow-xl md:rounded-tl-3xl md:rounded-bl-3xl p-6 md:p-8 flex flex-col",
           {
@@ -133,5 +136,5 @@ export const Drawer = ({
   )
 
   /* <>{body.current && createPortal(jsx, body.current)}</> */
-  return <AnimatePresence mode="popLayout">{isOpen && jsx}</AnimatePresence>
+  return <AnimatePresence>{isOpen && jsx}</AnimatePresence>
 }

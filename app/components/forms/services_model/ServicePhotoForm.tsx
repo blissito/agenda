@@ -161,6 +161,29 @@ export const ServicePhotoForm = ({
             para poder ofrecer este servicio en el negocio.
           </p>
         )}
+        {placeValue === "ONLINE" && (
+          <p className="mt-2 text-xs text-brand_gray font-satoshi">
+            Conecta{" "}
+            <Link
+              to="/dash/ajustes?tab=integraciones"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-brand_blue hover:text-brand_blue/80"
+            >
+              Google
+            </Link>{" "}
+            o{" "}
+            <Link
+              to="/dash/ajustes?tab=integraciones"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-brand_blue hover:text-brand_blue/80"
+            >
+              Zoom
+            </Link>{" "}
+            para generar el link de la videollamada automáticamente.
+          </p>
+        )}
       </div>
       <div className="flex flex-col gap-3 md:gap-6">
         <SwitchOption

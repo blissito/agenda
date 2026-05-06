@@ -5,6 +5,8 @@
 const PLATFORM_DOMAIN = "denik.me"
 const TIGRIS_BUCKET = "easybits-public"
 
+export const DEFAULT_OG_IMAGE = "https://denik.me/cover.png"
+
 /**
  * Generates the public URL for an image stored in Tigris/S3
  * The bucket is public, so no signed URLs are needed.

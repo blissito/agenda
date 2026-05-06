@@ -34,14 +34,14 @@ import {
   formatTimeOnly,
   type SupportedTimezone,
 } from "~/utils/timezone"
-import { getServicePublicUrl } from "~/utils/urls"
+import { DEFAULT_OG_IMAGE, getPublicImageUrl, getServicePublicUrl } from "~/utils/urls"
 import { normalizeWeekDays } from "~/utils/weekDays"
 import type { Route } from "./+types/service.$serviceSlug"
 
 export const meta = ({ data }: Route.MetaArgs) => {
   if (!data) return getMetaTags({})
   const { org, service } = data
-  const image = service.gallery?.[0] || "/cover.png"
+  const image = getPublicImageUrl(service.gallery?.[0]) || DEFAULT_OG_IMAGE
   return getMetaTags({
     title: `${service.name} — ${org.name || "Deník"}`,
     description: `Reserva ${service.name}${service.price ? ` · $${service.price}` : ""} · ${service.duration} min`,
