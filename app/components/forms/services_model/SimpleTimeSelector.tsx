@@ -73,11 +73,14 @@ export const SimpleTimeSelector = ({
   cancelHref?: string
   onSubmit: (payload: SchedulePayload) => void
 }) => {
+  const hasAnyDay =
+    !!defaultValue &&
+    Object.values(defaultValue).some((v) => Array.isArray(v) && v.length > 0)
   const [week, setWeek] = useState<Week>(defaultValue || {})
   const [duration, setDuration] = useState<number>(defaultDuration)
   const [breakTime, setBreakTime] = useState<number>(defaultBreakTime)
   const [mode, setMode] = useState<ScheduleMode>(
-    defaultValue ? "specific" : "inherit",
+    hasAnyDay ? "specific" : "inherit",
   )
 
   const handleDayChange = (dayName: DayName) => (gaps: Gaps) => {

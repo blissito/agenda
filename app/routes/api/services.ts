@@ -82,13 +82,19 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const { success, data: parsedData } = serviceTimesSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
+    const hasAnyDay =
+      !!parsedData.weekDays &&
+      Object.values(parsedData.weekDays).some(
+        (v) => Array.isArray(v) && v.length > 0,
+      )
+
     await db.service.update({
       where: { id: data.id },
       data: {
         duration: parsedData.duration,
-        weekDays: parsedData.weekDays
+        weekDays: hasAnyDay
           ? { set: parsedData.weekDays }
-          : undefined,
+          : { unset: true },
       },
     })
     return { id: data.id, nextIndex: 3 }

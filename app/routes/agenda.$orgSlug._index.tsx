@@ -84,7 +84,9 @@ export const meta = ({ data }: Route.MetaArgs) => {
   if (data?.org) {
     return getMetaTags({
       title: `${data.org.name} | Agenda tu cita`,
-      description: data.org.description || `Reserva con ${data.org.name}`,
+      description:
+        data.org.description ||
+        `Reserva tu cita en ${data.org.name} en línea. Consulta servicios, horarios y disponibilidad.`,
       image: getPublicImageUrl(data.org.logo) || DEFAULT_OG_IMAGE,
     })
   }

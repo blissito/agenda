@@ -1,7 +1,9 @@
+import { DEFAULT_OG_IMAGE } from "./urls"
+
 export const getMetaTags = ({
   title = "Deník | Tu agenda en un solo lugar",
   description = "Administra la agenda de tu negocio en un solo lugar",
-  image = "https://i.imgur.com/zlnq8Jd.png",
+  image = DEFAULT_OG_IMAGE,
   url = "https://denik.me",
   video,
   audio,

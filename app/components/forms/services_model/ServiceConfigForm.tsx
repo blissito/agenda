@@ -37,44 +37,56 @@ export const ServiceConfigForm = ({
     config: { confirmation: false, reminder: false, survey: false },
   },
   onPaymentSelected,
+  hidePayment = false,
 }: {
   errors?: Record<string, { message?: string }>
   formRef?: RefObject<HTMLFormElement>
   defaultValues?: ServiceConfigFormFields
   onPaymentSelected?: (selected: boolean) => void
+  hidePayment?: boolean
 }) => {
   const { register, watch } = useForm({
     defaultValues: {
       ...defaultValues,
-      payment: undefined as unknown as string,
+      payment: hidePayment ? "false" : (undefined as unknown as string),
     },
   })
 
   const paymentValue = watch("payment")
 
   useEffect(() => {
+    if (hidePayment) {
+      onPaymentSelected?.(true)
+      return
+    }
     onPaymentSelected?.(paymentValue !== undefined && paymentValue !== null)
-  }, [paymentValue])
+  }, [paymentValue, hidePayment])
 
   return (
     <Form ref={formRef}>
       <div className="text-brand_gray">
-        <p className="text-brand_dark font-satoMiddle">
-          ¿En que horario ofrecerás este servicio?
-        </p>
-        <RadioButton
-          register={register}
-          name="payment"
-          value="true"
-          label="Al agendar (tu cliente paga para poder reservar la sesión)"
-        />
-        <RadioButton
-          register={register}
-          name="payment"
-          value="false"
-          label="  Después de agendar (tu cliente no necesita pagar para reservar, podrás cobrarle en el establecimiento)"
-        />
-        <p className="text-red-500 text-xs">{errors?.payment?.message}</p>
+        {hidePayment ? (
+          <input type="hidden" name="payment" value="false" />
+        ) : (
+          <>
+            <p className="text-brand_dark font-satoMiddle">
+              ¿En que horario ofrecerás este servicio?
+            </p>
+            <RadioButton
+              register={register}
+              name="payment"
+              value="true"
+              label="Al agendar (tu cliente paga para poder reservar la sesión)"
+            />
+            <RadioButton
+              register={register}
+              name="payment"
+              value="false"
+              label="  Después de agendar (tu cliente no necesita pagar para reservar, podrás cobrarle en el establecimiento)"
+            />
+            <p className="text-red-500 text-xs">{errors?.payment?.message}</p>
+          </>
+        )}
         <p className="mt-6 md:mt-8 mb-2 text-brand_dark font-satoMiddle">
           ¿Qué notificaciones quieres que enviemos a tus clientes?
         </p>

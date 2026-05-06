@@ -66,7 +66,10 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate()
   const handledRef = useRef<unknown>(null)
 
-  const [payment, setPayment] = useState<boolean>(!!service.payment)
+  const isFree = Number(service.price) === 0
+  const [payment, setPayment] = useState<boolean>(
+    isFree ? false : !!service.payment,
+  )
   const [confirmation, setConfirmation] = useState<boolean>(
     !!service.config?.confirmation,
   )
@@ -140,13 +143,15 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           Actualiza tus cobros y recordatorios
         </h2>
         <div className="flex flex-col gap-4 md:gap-6">
-          <Switch
-            defaultChecked={payment}
-            onChange={setPayment}
-            name="payment"
-            label="Pago al agendar"
-            subtitle="Activar los pagos para este servicio"
-          />
+          {!isFree && (
+            <Switch
+              defaultChecked={payment}
+              onChange={setPayment}
+              name="payment"
+              label="Pago al agendar"
+              subtitle="Activar los pagos para este servicio"
+            />
+          )}
           <Switch
             defaultChecked={confirmation}
             onChange={setConfirmation}

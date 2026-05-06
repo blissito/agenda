@@ -698,10 +698,12 @@ export const ServiceDetail = ({
           </div>
 
           <div className="mt-4 space-y-4 md:space-y-6">
-            <DetailItem
-              label="Pago"
-              value={service.payment ? "Al agendar" : "Despues de la cita"}
-            />
+            {Number(service.price) > 0 && (
+              <DetailItem
+                label="Pago"
+                value={service.payment ? "Al agendar" : "Despues de la cita"}
+              />
+            )}
 
             <DetailItem
               label="Mail de confirmación"

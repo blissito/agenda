@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react"
 import { Link, useFetcher, useNavigate } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
-import { AddressAutocomplete } from "~/components/forms/AddressAutocomplete"
 import { BasicInput } from "~/components/forms/BasicInput"
 import {
   Breadcrumb,
@@ -159,31 +158,28 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             label="Descripción"
             defaultValue={service.description ?? undefined}
           />
-          <AddressAutocomplete
-            name="address"
-            label="Dirección del servicio (opcional)"
-            placeholder="Buscar dirección..."
-            defaultValue={service.address ?? ""}
-            defaultLat={service.lat}
-            defaultLng={service.lng}
-          />
-
           {(hasMeet || hasZoom) && (
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-satoMedium text-brand_dark">
+            <div className="w-full relative">
+              <label
+                htmlFor="videoProvider"
+                className="text-brand_dark font-satoMedium"
+              >
                 Link de llamada
               </label>
-              <select
-                name="videoProvider"
-                defaultValue={service.videoProvider ?? "auto"}
-                className="w-full rounded-full border border-brand_stroke bg-white px-4 py-3 text-brand_gray focus:outline-none focus:border-brand_blue"
-              >
-                <option value="auto">Automático</option>
-                {hasMeet && <option value="meet">Google Meet</option>}
-                {hasZoom && <option value="zoom">Zoom</option>}
-                <option value="none">Sin link de llamada</option>
-              </select>
-              <p className="text-xs text-brand_gray">
+              <div className="relative mt-1">
+                <select
+                  id="videoProvider"
+                  name="videoProvider"
+                  defaultValue={service.videoProvider ?? "auto"}
+                  className="text-brand_gray font-satoshi rounded-2xl border-gray-200 w-full h-12 bg-white px-4 focus:border-brand_blue focus:outline-none focus:ring-0"
+                >
+                  <option value="auto">Automático</option>
+                  {hasMeet && <option value="meet">Google Meet</option>}
+                  {hasZoom && <option value="zoom">Zoom</option>}
+                  <option value="none">Sin link de llamada</option>
+                </select>
+              </div>
+              <p className="text-xs text-brand_gray mt-1">
                 Al reservar una cita se generará automáticamente el link
                 elegido.
               </p>

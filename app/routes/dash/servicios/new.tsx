@@ -73,6 +73,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [times, setTimes] = useState<WeekSchema>({})
   const [serviceId, setServiceId] = useState<string | null>(id)
   const [serviceName, setServiceName] = useState<string>(service?.name || "")
+  const [servicePrice, setServicePrice] = useState<number>(
+    Number(service?.price ?? 0),
+  )
   const [photoAction, setPhotoAction] = useState<PhotoAction | undefined>()
   const [addressWarning, setAddressWarning] = useState(false)
   const [paymentSelected, setPaymentSelected] = useState(false)
@@ -120,6 +123,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     if (success) {
       if (intent === "general_form" && typeof (data as any).name === "string") {
         setServiceName((data as any).name)
+        if (typeof (data as any).price === "number") {
+          setServicePrice((data as any).price)
+        }
       }
       fetcher.submit(
         { data: JSON.stringify({ ...data, id: serviceId }), intent },
@@ -204,11 +210,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             <ServiceConfigForm
               formRef={formRef as React.RefObject<HTMLFormElement>}
               onPaymentSelected={setPaymentSelected}
+              hidePayment={servicePrice === 0}
             />
           )}
           <ServiceFormFooter
             onClick={detonateSubmit}
-            isDisabled={addressWarning || (index === 3 && !paymentSelected)}
+            isDisabled={
+              addressWarning ||
+              (index === 3 && servicePrice !== 0 && !paymentSelected)
+            }
             onBack={index > 0 ? () => setIndex(index - 1) : undefined}
           />
         </section>

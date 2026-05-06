@@ -5,7 +5,7 @@
 const PLATFORM_DOMAIN = "denik.me"
 const TIGRIS_BUCKET = "easybits-public"
 
-export const DEFAULT_OG_IMAGE = "https://denik.me/cover.png"
+export const DEFAULT_OG_IMAGE = "https://i.imgur.com/zlnq8Jd.png"
 
 /**
  * Generates the public URL for an image stored in Tigris/S3
