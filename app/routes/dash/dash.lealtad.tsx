@@ -1,6 +1,11 @@
 // dash.lealtad.tsx
 import { useState } from "react"
-import { useLoaderData, useRevalidator, useSearchParams } from "react-router"
+import {
+  useFetcher,
+  useLoaderData,
+  useRevalidator,
+  useSearchParams,
+} from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { CuponesTab } from "~/components/loyalty/loyaltycupones"
@@ -117,33 +122,28 @@ export const action = async ({ request }: Route.ActionArgs) => {
 export default function Lealtad() {
   const data = useLoaderData<typeof loader>()
   const revalidator = useRevalidator()
+  const enableFetcher = useFetcher()
   const [searchParams, setSearchParams] = useSearchParams()
   const [isCreateWizardOpen, setIsCreateWizardOpen] = useState(false)
   const [isCreateCouponOpen, setIsCreateCouponOpen] = useState(false)
 
-  const shouldShowEmptyState =
-    !data.enabled || (data.enabled && data.levels.length === 0)
-
-  if (shouldShowEmptyState) {
+  if (!data.enabled) {
+    const isEnabling = enableFetcher.state !== "idle"
     return (
       <main className="max-w-8xl mx-auto">
         <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">
           Lealtad
         </RouteTitle>
 
-        <EmptyStateLoyalty onStart={() => setIsCreateWizardOpen(true)} />
-
-        {isCreateWizardOpen && (
-          <CreateLevelWizard
-            services={data.services}
-            isOrgEnabled={data.enabled}
-            onClose={() => {
-              setIsCreateWizardOpen(false)
-              revalidator.revalidate()
-            }}
-            onCreated={() => {}}
-          />
-        )}
+        <EmptyStateLoyalty
+          isLoading={isEnabling}
+          onStart={() =>
+            enableFetcher.submit(
+              { intent: "enable-loyalty" },
+              { method: "post" },
+            )
+          }
+        />
       </main>
     )
   }
@@ -212,6 +212,7 @@ export default function Lealtad() {
             levels={levels}
             services={services}
             onCreateClick={() => setIsCreateWizardOpen(true)}
+            isCreateOpen={isCreateWizardOpen}
           />
         ) : (
           <CuponesTab

@@ -95,10 +95,13 @@ const CardActionButton = ({
 export function NivelesTab({
   levels,
   services,
+  onCreateClick,
+  isCreateOpen,
 }: {
   levels: Level[]
   services: ServiceOption[]
   onCreateClick: () => void
+  isCreateOpen: boolean
 }) {
   const revalidator = useRevalidator()
   const [editingLevel, setEditingLevel] = useState<Level | null>(null)
@@ -168,6 +171,10 @@ export function NivelesTab({
     setIsUpdating(false)
     setEditingLevel(null)
     setToastMessage("Cambios guardados")
+  }
+
+  if (levels.length === 0 && !isCreateOpen) {
+    return <EmptyStateNiveles onStart={onCreateClick} />
   }
 
   return (
@@ -986,7 +993,41 @@ function LevelEditModal({
 // Re-export from canonical location
 export { TabButton } from "~/components/common/TabButton"
 
-export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
+function EmptyStateNiveles({ onStart }: { onStart: () => void }) {
+  return (
+    <div className="flex min-h-[calc(100dvh-220px)] w-full items-center justify-center bg-cover">
+      <div className="text-center">
+        <img
+          className="mx-auto mb-4"
+          src="/images/emptyState/loyalty.webp"
+          alt="Empty state niveles"
+        />
+        <p className="text-2xl font-satoBold text-brand_dark">
+          Sin niveles, todos son del montón
+        </p>
+        <p className="mx-auto mt-2 max-w-[780px] text-center text-[18px] text-brand_gray">
+          Crea el primero y dales un trono a tus clientes más fieles 👑
+        </p>
+
+        <PrimaryButton
+          type="button"
+          onClick={onStart}
+          className="mx-auto mt-12"
+        >
+          Crear nivel <ArrowRight />
+        </PrimaryButton>
+      </div>
+    </div>
+  )
+}
+
+export function EmptyStateLoyalty({
+  onStart,
+  isLoading = false,
+}: {
+  onStart: () => void
+  isLoading?: boolean
+}) {
   return (
     <div className="mt-10 flex h-[80vh] w-full items-center justify-center bg-cover px-4">
       <div className="text-center">
@@ -1005,6 +1046,8 @@ export function EmptyStateLoyalty({ onStart }: { onStart: () => void }) {
         <PrimaryButton
           type="button"
           onClick={onStart}
+          isDisabled={isLoading}
+          isLoading={isLoading}
           className="mx-auto mt-12"
         >
           Activar programa <ArrowRight />

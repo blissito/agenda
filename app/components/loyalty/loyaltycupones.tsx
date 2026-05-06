@@ -699,13 +699,11 @@ function CuponWizard({
   const [applyAllServices, setApplyAllServices] = useState(true)
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([])
   const [showValidation, setShowValidation] = useState(false)
-  const [pointsCost, setPointsCost] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [stepTwoError, setStepTwoError] = useState<string | null>(null)
 
   const parsedDiscountValue = Number(discountValue)
   const parsedMonths = Number(months)
-  const parsedPointsCost = Number(pointsCost)
 
   const isStepOneValid =
     couponName.trim().length > 0 &&
@@ -714,9 +712,6 @@ function CuponWizard({
     Number.isFinite(parsedDiscountValue) &&
     parsedDiscountValue >= 1 &&
     (discountType === "discount_percent" ? parsedDiscountValue <= 100 : true) &&
-    pointsCost !== "" &&
-    Number.isFinite(parsedPointsCost) &&
-    parsedPointsCost >= 1 &&
     (durationType !== "several_months" ||
       (months !== "" && Number.isFinite(parsedMonths) && parsedMonths >= 2))
 
@@ -793,7 +788,7 @@ function CuponWizard({
               discountType === "discount_fixed"
                 ? Math.round(parsedDiscountValue * 100)
                 : parsedDiscountValue,
-            pointsCost: parsedPointsCost,
+            pointsCost: 1,
           }),
         }),
       })
@@ -854,8 +849,6 @@ function CuponWizard({
             setDurationType={setDurationType}
             months={months}
             setMonths={setMonths}
-            pointsCost={pointsCost}
-            setPointsCost={setPointsCost}
             showValidation={showValidation}
           />
         )}
@@ -908,8 +901,6 @@ function CouponWizardStepOne({
   setDurationType,
   months,
   setMonths,
-  pointsCost,
-  setPointsCost,
   showValidation,
 }: {
   couponName: string
@@ -924,8 +915,6 @@ function CouponWizardStepOne({
   setDurationType: (value: DurationType) => void
   months: string
   setMonths: (value: string) => void
-  pointsCost: string
-  setPointsCost: (value: string) => void
   showValidation: boolean
 }) {
   const getDiscountValueError = () => {
@@ -1067,23 +1056,6 @@ function CouponWizardStepOne({
         )}
       </div>
 
-      <div className="mt-5">
-        <BasicInput
-          label="Costo en puntos"
-          name="pointsCost"
-          type="text"
-          inputMode="numeric"
-          value={pointsCost}
-          onChange={(e) => setPointsCost(e.target.value.replace(/\D/g, ""))}
-          placeholder="100"
-          required
-        />
-        {showValidation && (!pointsCost || Number(pointsCost) < 1) && (
-          <p className="mt-1 text-[12px] text-brand_red">
-            Debe ser mayor o igual a 1
-          </p>
-        )}
-      </div>
     </div>
   )
 }

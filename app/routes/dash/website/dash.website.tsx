@@ -18,6 +18,7 @@ import { Share } from "~/components/icons/Share"
 import { Website as WebsiteIcon } from "~/components/icons/Website"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
 import { ShareWebsiteModal } from "~/routes/dash/website/ShareWebsiteModal"
+import { withExternalLinksFix } from "~/utils/landingHtml"
 import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website"
 
@@ -206,7 +207,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
           <iframe
             ref={iframeRef}
             title="Preview del sitio"
-            srcDoc={previewHtml}
+            srcDoc={withExternalLinksFix(previewHtml)}
             className="w-full h-full border-0 block"
             sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"
           />

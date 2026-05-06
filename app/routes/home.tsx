@@ -19,6 +19,7 @@ import { getAllPosts } from "~/lib/blog.server"
 import { buildDefaultSections } from "~/lib/default-landing"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
+import { withExternalLinksFix } from "~/utils/landingHtml"
 import { getPublicImageUrl } from "~/utils/urls"
 import type { Route } from "./+types/home"
 
@@ -107,7 +108,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
     return (
       <>
         <iframe
-          srcDoc={landingHtml}
+          srcDoc={withExternalLinksFix(landingHtml)}
           sandbox="allow-forms allow-scripts allow-popups allow-top-navigation-by-user-activation"
           style={{
             position: "fixed",

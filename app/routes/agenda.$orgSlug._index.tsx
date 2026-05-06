@@ -13,6 +13,7 @@ import { ChatWidget } from "~/components/chatbot/ChatWidget"
 import { buildDefaultSections } from "~/lib/default-landing"
 import { db } from "~/utils/db.server"
 import { getMetaTags } from "~/utils/getMetaTags"
+import { withExternalLinksFix } from "~/utils/landingHtml"
 import { getPublicImageUrl } from "~/utils/urls"
 import type { Route } from "./+types/agenda.$orgSlug._index"
 
@@ -104,7 +105,7 @@ export default function OrgLanding({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <iframe
-        srcDoc={landingHtml}
+        srcDoc={withExternalLinksFix(landingHtml)}
         sandbox="allow-forms allow-scripts allow-popups allow-top-navigation-by-user-activation"
         style={{
           position: "fixed",
