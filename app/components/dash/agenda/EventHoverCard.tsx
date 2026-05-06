@@ -13,13 +13,20 @@ export type EventHoverData = {
   notes?: string
   status?: string
   paid?: boolean
+  meetingLink?: string | null
+  videoProvider?: string | null
 }
 
 function getStatusVariant(
   status: string,
 ): "confirmed" | "canceled" | "pending" {
   if (status === "CANCELLED" || status === "canceled") return "canceled"
-  if (status === "confirmed" || status === "ACTIVE") return "confirmed"
+  if (
+    status === "confirmed" ||
+    status === "CONFIRMED" ||
+    status === "ACTIVE"
+  )
+    return "confirmed"
   return "pending"
 }
 
@@ -160,6 +167,30 @@ export function EventHoverCard({
           <div className="flex items-center gap-2.5">
             <FiFileText className="w-4 h-4 text-gray-400 shrink-0" />
             <span className="truncate">{data.notes}</span>
+          </div>
+        )}
+        {data.meetingLink && (
+          <div className="flex items-center gap-2.5">
+            <img
+              src={
+                data.videoProvider === "zoom"
+                  ? "/images/zoom.svg"
+                  : "/images/google-meet.svg"
+              }
+              alt={data.videoProvider === "zoom" ? "Zoom" : "Google Meet"}
+              className="w-4 h-4 shrink-0"
+            />
+            <a
+              href={data.meetingLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="truncate text-brand_blue underline decoration-brand_blue hover:opacity-80"
+            >
+              {data.videoProvider === "zoom"
+                ? "Link de Zoom"
+                : "Link de Google"}
+            </a>
           </div>
         )}
       </div>

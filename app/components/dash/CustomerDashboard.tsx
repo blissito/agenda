@@ -60,12 +60,12 @@ export function CustomerDashboard({ events, user }: CustomerDashboardProps) {
                 </div>
                 <span
                   className={`px-2 py-1 rounded-full text-xs ${
-                    event.status === "CONFIRMED"
+                    event.status === "confirmed" || event.status === "CONFIRMED" || event.status === "ACTIVE"
                       ? "bg-green-100 text-green-700"
                       : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
-                  {event.status === "CONFIRMED" ? "Confirmada" : "Pendiente"}
+                  {event.status === "confirmed" || event.status === "CONFIRMED" || event.status === "ACTIVE" ? "Confirmada" : "Pendiente"}
                 </span>
               </div>
             </div>

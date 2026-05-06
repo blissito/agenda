@@ -45,14 +45,8 @@ export const sendAppointmentToCustomer = async ({
     customerId: event.customer.id,
     action: "confirm",
   })
-  const modifyToken = generateEventActionToken({
-    eventId: event.id,
-    customerId: event.customer.id,
-    action: "modify",
-  })
 
   const confirmLink = `${baseUrl}/event/action?token=${confirmToken}`
-  const modifyLink = `${baseUrl}/event/action?token=${modifyToken}`
 
   // Get timezone from org or use default
   const timezone =
@@ -69,7 +63,6 @@ export const sendAppointmentToCustomer = async ({
       html: appointmentCustomerTemplate({
         displayName: event.service.org.shopKeeper ?? undefined,
         confirmLink,
-        modifyLink,
         amount: Number(event.service.price),
         address: event.service.org.address ?? undefined,
         dateString: formatFullDateInTimezone(event.start, timezone),

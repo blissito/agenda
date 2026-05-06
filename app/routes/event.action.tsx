@@ -61,7 +61,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       await db.event.update({
         where: { id: payload.eventId },
         data: {
-          status: "CONFIRMED",
+          status: "confirmed",
           updatedAt: new Date(),
         },
       })

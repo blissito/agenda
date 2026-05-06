@@ -79,7 +79,12 @@ export function getStatusVariant(
   status: string,
 ): "confirmed" | "canceled" | "pending" {
   if (status === "CANCELLED" || status === "canceled") return "canceled"
-  if (status === "confirmed" || status === "ACTIVE") return "confirmed"
+  if (
+    status === "confirmed" ||
+    status === "CONFIRMED" ||
+    status === "ACTIVE"
+  )
+    return "confirmed"
   return "pending"
 }
 

@@ -98,9 +98,16 @@ async function summarize(orgId: string, from: Date, to: Date) {
   return {
     range: { from, to },
     total: events.length,
-    confirmed: events.filter((e) => e.status === "CONFIRMED").length,
+    confirmed: events.filter(
+      (e) =>
+        e.status === "confirmed" ||
+        e.status === "CONFIRMED" ||
+        e.status === "ACTIVE",
+    ).length,
     pending: events.filter((e) => e.status === "pending").length,
-    cancelled: events.filter((e) => e.status === "CANCELLED").length,
+    cancelled: events.filter(
+      (e) => e.status === "CANCELLED" || e.status === "canceled",
+    ).length,
     attended: events.filter((e) => e.attended === true).length,
     noShows,
     revenue,

@@ -309,21 +309,52 @@ export const EventForm = ({
           defaultValue={defaultValues?.serviceId ?? ""}
           onChange={handleServiceSelect}
         />
-        <EmployeeSelect
-          defaultValue={employees[0]?.id}
-          onChange={hanldeEmployeeSelect}
-        />
-
-        {showVideoSelector && (
-          <VideoProviderSelect
-            value={(videoProviderValue as VideoProviderValue) ?? "auto"}
-            onChange={(v) =>
-              setValue("videoProvider", v, { shouldDirty: true })
-            }
-            hasMeet={hasMeet}
-            hasZoom={hasZoom}
-          />
-        )}
+        <div className="flex items-end gap-3">
+          <div className="flex-1">
+            <EmployeeSelect
+              defaultValue={employees[0]?.id}
+              onChange={hanldeEmployeeSelect}
+            />
+          </div>
+          {defaultValues.meetingLink ? (
+            <a
+              href={defaultValues.meetingLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 h-12 rounded-2xl border border-gray-200 hover:bg-brand_sky transition-colors"
+            >
+              <img
+                src={
+                  defaultValues.videoProvider === "zoom"
+                    ? "/images/zoom.svg"
+                    : "/images/google-meet.svg"
+                }
+                alt={
+                  defaultValues.videoProvider === "zoom" ? "Zoom" : "Google Meet"
+                }
+                className="w-5 h-5 shrink-0"
+              />
+              <span className="text-sm text-brand_blue underline decoration-brand_blue whitespace-nowrap">
+                {defaultValues.videoProvider === "zoom"
+                  ? "Link de Zoom"
+                  : "Link de Google"}
+              </span>
+            </a>
+          ) : (
+            showVideoSelector && (
+              <div className="flex-1">
+                <VideoProviderSelect
+                  value={(videoProviderValue as VideoProviderValue) ?? "auto"}
+                  onChange={(v) =>
+                    setValue("videoProvider", v, { shouldDirty: true })
+                  }
+                  hasMeet={hasMeet}
+                  hasZoom={hasZoom}
+                />
+              </div>
+            )
+          )}
+        </div>
 
         <div className="flex flex-col gap-4">
           <p className="font-bold">

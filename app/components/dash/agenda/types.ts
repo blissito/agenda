@@ -10,6 +10,7 @@ export interface CalendarEvent {
   title?: string | null
   type?: "BLOCK" | "EVENT"
   service?: { name: string } | null
+  color?: string
 }
 
 export interface CalendarConfig {

@@ -353,7 +353,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     include: {
       events: {
         where: {
-          status: "ACTIVE",
+          status: { notIn: ["CANCELLED", "canceled"] },
         },
       },
     },
@@ -439,7 +439,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           duration: service.duration,
           serviceId: service.id,
           title: service.name,
-          status: "ACTIVE",
+          status: "pending",
         }),
       },
       { method: "post" },

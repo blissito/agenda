@@ -106,7 +106,7 @@ export const VideoProviderSelect = ({
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex w-full items-center justify-between gap-3 rounded-full border border-brand_stroke bg-white px-4 py-2.5 text-left transition-all hover:border-brand_blue focus:border-brand_blue focus:outline-none"
+          className="flex w-full items-center justify-between gap-3 h-12 rounded-2xl border border-gray-200 bg-white px-4 text-left transition-all hover:border-brand_blue focus:border-brand_blue focus:outline-none"
         >
           <span className="flex items-center gap-3 min-w-0">
             {selected.icon}

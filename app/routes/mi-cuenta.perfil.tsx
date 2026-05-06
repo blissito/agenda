@@ -128,7 +128,9 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
         type: "EVENT" as const,
         service: e.service ? { name: e.service.name } : null,
         color:
-          e.status === "CONFIRMED" || e.status === "confirmed"
+          e.status === "confirmed" ||
+          e.status === "CONFIRMED" ||
+          e.status === "ACTIVE"
             ? "#BFDD78"
             : "#FFD75E",
       })),
@@ -554,7 +556,7 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                               }
                               onMouseLeave={handleEventMouseLeave}
                             >
-                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/20 rounded-l-lg pointer-events-none" />
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-black/10 rounded-l-lg pointer-events-none" />
                               <span className="font-medium truncate text-brand_dark">
                                 {event.title}
                               </span>
@@ -862,6 +864,8 @@ function buildEventHoverData(
     phone: org?.tel ?? undefined,
     status: event.status,
     paid: event.paid,
+    meetingLink: event.meetingLink,
+    videoProvider: event.videoProvider,
   }
 }
 

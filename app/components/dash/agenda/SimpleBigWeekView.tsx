@@ -491,29 +491,37 @@ const DraggableEvent = ({
     <>
       <button
         ref={setNodeRef}
-        style={style}
+        style={
+          event.type === "BLOCK"
+            ? style
+            : { ...style, backgroundColor: event.color || "#FFD75E" }
+        }
         onClick={
           event.type === "BLOCK" ? handleBlockClick : () => onClick?.(event)
         }
         {...listeners}
         {...attributes}
         className={cn(
-          "border",
           "grid gap-y-1 overflow-hidden place-content-start",
-          "text-xs text-left pl-1 absolute top-0 left-0 bg-brand_blue text-white rounded-md z-10 w-[90%]",
+          "text-xs text-left pl-3 pr-1 py-1 absolute top-0 left-0 rounded-lg shadow-sm z-10 w-[90%]",
           {
-            "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0":
+            "bg-gray-300 h-full w-full text-center cursor-not-allowed relative p-0 text-brand_gray":
               event.type === "BLOCK",
-            "cursor-grab": event.type !== "BLOCK",
+            "text-brand_dark cursor-grab": event.type !== "BLOCK",
             "cursor-grabbing opacity-50": isDragging && event.type !== "BLOCK",
           },
         )}
       >
-        {event.type === "BLOCK" && (
-          <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
-        )}
-        <span>{event.title}</span>
-        <span className="text-gray-300">{event.service?.name}</span>
+        <div
+          className={cn(
+            "absolute top-0 bottom-0 left-0 w-1 rounded-l-lg pointer-events-none",
+            event.type === "BLOCK" ? "bg-gray-500" : "bg-black/10",
+          )}
+        />
+        <span className="font-medium truncate">{event.title}</span>
+        <span className="text-brand_gray truncate text-[10px]">
+          {event.service?.name}
+        </span>
       </button>
       <Options
         event={event}
@@ -530,22 +538,29 @@ const EventOverlay = ({ event }: { event: CalendarEvent }) => {
   return (
     <div
       className={cn(
-        "border",
-        "grid gap-y-1 overflow-hidden place-content-start",
-        "text-xs text-left pl-1 bg-brand_blue text-white rounded-md w-[200px] opacity-90 shadow-lg",
-        {
-          "bg-gray-300": event.type === "BLOCK",
-        },
+        "relative grid gap-y-1 overflow-hidden place-content-start",
+        "text-xs text-left pl-3 pr-1 py-1 rounded-lg w-[200px] opacity-90 shadow-lg",
+        event.type === "BLOCK" ? "bg-gray-300 text-brand_gray" : "text-brand_dark",
       )}
-      style={{
-        height: (event.duration / 60) * 60,
-      }}
+      style={
+        event.type === "BLOCK"
+          ? { height: (event.duration / 60) * 60 }
+          : {
+              height: (event.duration / 60) * 60,
+              backgroundColor: event.color || "#FFD75E",
+            }
+      }
     >
-      {event.type === "BLOCK" && (
-        <div className="absolute top-0 bottom-0 w-1 bg-gray-500 rounded-l-full pointer-events-none" />
-      )}
-      <span>{event.title}</span>
-      <span className="text-gray-300">{event.service?.name}</span>
+      <div
+        className={cn(
+          "absolute top-0 bottom-0 left-0 w-1 rounded-l-lg pointer-events-none",
+          event.type === "BLOCK" ? "bg-gray-500" : "bg-black/10",
+        )}
+      />
+      <span className="font-medium truncate">{event.title}</span>
+      <span className="text-brand_gray truncate text-[10px]">
+        {event.service?.name}
+      </span>
     </div>
   )
 }

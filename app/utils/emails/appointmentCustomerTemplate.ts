@@ -1,6 +1,5 @@
 export default ({
   confirmLink,
-  modifyLink,
   reservationNumber,
   serviceName,
   dateString,
@@ -14,7 +13,6 @@ export default ({
   termsAndConditions,
 }: {
   confirmLink: string
-  modifyLink: string
   reservationNumber?: string
   serviceName?: string
   dateString?: string
@@ -48,26 +46,21 @@ export default ({
        ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
 
   </div>
-  ${
-    meetingLink
-      ? `
-  <a style="text-decoration:none;" href="${meetingLink}" target="blank">
-    <button style="background:#00897B; height:40px; border-radius:20px; border:none; color:white; width:100%; margin-top:24px; cursor:pointer; font-size:14px;">
-      Unirse a videollamada (Google Meet)
-    </button>
-  </a>`
-      : ""
-  }
             <a style="text-decoration:none;" href="${confirmLink}" target="blank">
     <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
       Confirmar cita
     </button>
     </a>
-    <a style="text-decoration:none;" href="${modifyLink}" target="blank">
+    ${
+      meetingLink
+        ? `<a style="text-decoration:none;" href="${meetingLink}" target="blank">
     <button style="background:#F5F5F5; height:40px; border-radius:20px; border:none; color:#11151A; width:160px; margin-top:40px;margin-left:16px; cursor:pointer;">
-      Modificar cita
+      Unirme a la reunión
     </button>
-    </a>
+    </a>`
+        : ""
+    }
+    <p style="font-size:14px; color:#4B5563; margin-top:24px;">Ve a <a href="https://www.denik.me/mi-cuenta" target="blank" style="color:#4B5563; text-decoration:underline;">tu cuenta Deník</a> para administrar tus citas.</p>
 
   </div>
   <div>

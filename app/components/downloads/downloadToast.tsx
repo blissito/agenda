@@ -348,7 +348,15 @@ function buildEventsCsv(events: EventForXls[]) {
       csvValue(event.service?.employeeName ?? "s/n"),
       csvValue(String(event.service?.points ?? "")),
       csvValue(`$${Number(event.service?.price ?? 0).toFixed(2)}`),
-      csvValue(event.status === "ACTIVE" ? "Confirmada" : "Cancelada"),
+      csvValue(
+        event.status === "CANCELLED" || event.status === "canceled"
+          ? "Cancelada"
+          : event.status === "confirmed" ||
+              event.status === "CONFIRMED" ||
+              event.status === "ACTIVE"
+            ? "Confirmada"
+            : "Reservada",
+      ),
       csvValue(event.paid ? "Pagada" : "Sin pagar"),
     ].join(","),
   )
