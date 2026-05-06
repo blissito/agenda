@@ -44,7 +44,11 @@ async function main() {
   )
 
   for (const org of orgsWithUnderscore) {
-    const newSlug = org.slug.replace(/_/g, "-")
+    const newSlug = org.slug
+      .toLowerCase()
+      .replace(/_/g, "-")
+      .replace(/--+/g, "-")
+      .replace(/^-+|-+$/g, "")
 
     console.log(`  📦 ${org.name}`)
     console.log(`     ${org.slug} → ${newSlug}`)

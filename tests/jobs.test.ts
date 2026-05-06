@@ -125,7 +125,6 @@ describe("Email Templates", () => {
 
       const html = appointmentTemplate({
         confirmLink: "https://example.com/confirm",
-        modifyLink: "https://example.com/modify",
         reservationNumber: "12345",
         serviceName: "Consulta médica",
         dateString: "Martes 20 de Febrero, 2024",
@@ -143,7 +142,6 @@ describe("Email Templates", () => {
       expect(html).toContain("12345")
       expect(html).toContain("$500 mxn")
       expect(html).toContain("Confirmar cita")
-      expect(html).toContain("Modificar cita")
     })
 
     it("should show 'Gratuito' for free services", async () => {
@@ -153,7 +151,6 @@ describe("Email Templates", () => {
 
       const html = appointmentTemplate({
         confirmLink: "https://example.com/confirm",
-        modifyLink: "https://example.com/modify",
         amount: 0,
         serviceName: "Evento gratuito",
         orgName: "Test Org",

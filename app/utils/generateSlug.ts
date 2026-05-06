@@ -1,16 +1,22 @@
-import { nanoid } from "nanoid"
+import { customAlphabet } from "nanoid"
+
+// DNS-safe alphabet: lowercase letters and digits only.
+// Underscores are NOT valid in HTTP hostnames (RFC 952/1123),
+// so we must avoid them in slugs that become subdomains.
+const slugNanoid = customAlphabet("abcdefghijklmnopqrstuvwxyz0123456789", 6)
 
 export const generateSlug = (string: string, addDate: boolean = true) => {
   if (typeof string !== "string") return ""
   return (
     string
-      .toString() // Cast to string
-      .toLowerCase() // Convert the string to lowercase letters
-      .normalize("NFD") // The normalize() method returns the Unicode Normalization Form of a given string.
-      .trim() // Remove whitespace from both sides of a string
-      .replace(/\s+/g, "-") // Replace spaces with -
-      .replace(/[^\w-]+/g, "") // Remove all non-word chars
-      .replace(/--+/g, "-") + (addDate ? `-${nanoid(6).toLowerCase()}` : "")
+      .toString()
+      .toLowerCase()
+      .normalize("NFD")
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]+/g, "") // strip underscores and any other non DNS-safe char
+      .replace(/--+/g, "-")
+      .replace(/^-+|-+$/g, "") + (addDate ? `-${slugNanoid()}` : "")
   )
 }
 
