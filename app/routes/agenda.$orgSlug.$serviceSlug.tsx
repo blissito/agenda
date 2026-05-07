@@ -20,6 +20,7 @@ import { MonthView } from "~/components/forms/agenda/MonthView"
 import TimeView from "~/components/forms/agenda/TimeView"
 import { BasicInput } from "~/components/forms/BasicInput"
 import type { WeekTuples } from "~/components/forms/TimesForm"
+import { validateCouponByCode, type ValidCoupon } from "~/lib/coupons.server"
 import { getLevelDiscount } from "~/lib/loyalty.server"
 import { DEFAULT_ORG_CONFIG } from "~/routes/dash/dash.ajustes.constants"
 import { db } from "~/utils/db.server"
@@ -183,10 +184,38 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       console.error("Loyalty discount lookup failed:", e)
     }
 
-    const effectivePrice =
-      discountPercent > 0
-        ? Number(service.price) * (1 - discountPercent / 100)
-        : Number(service.price)
+    const basePrice = Number(service.price)
+    const loyaltyDiscountAmount =
+      discountPercent > 0 ? basePrice * (discountPercent / 100) : 0
+
+    let coupon: ValidCoupon | null = null
+    const couponCode =
+      typeof data.couponCode === "string" ? data.couponCode.trim() : ""
+    if (couponCode) {
+      const result = await validateCouponByCode({
+        code: couponCode,
+        orgId: org.id,
+        serviceId: service.id,
+        servicePrice: basePrice,
+      })
+      if (!result.ok) {
+        return { success: false, error: result.error }
+      }
+      coupon = result.coupon
+    }
+
+    if (coupon && coupon.discountAmount <= loyaltyDiscountAmount) {
+      coupon = null
+    } else if (coupon) {
+      discountPercent = 0
+      levelName = null
+    }
+
+    const effectivePrice = coupon
+      ? Math.max(0, basePrice - coupon.discountAmount)
+      : discountPercent > 0
+        ? basePrice * (1 - discountPercent / 100)
+        : basePrice
 
     const startDate = new Date(data.start)
     const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000)
@@ -213,12 +242,19 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         const preference = await createPreference(accessToken, {
           serviceId: service.id,
           serviceName: service.name,
-          price: effectivePrice,
+          price: coupon ? basePrice : effectivePrice,
           customerId: customer.id,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
           backUrl: appUrl,
           webhookUrl: `${appUrl}/mercadopago/webhook`,
+          coupon: coupon
+            ? {
+                rewardId: coupon.rewardId,
+                label: coupon.label,
+                discountAmount: coupon.discountAmount,
+              }
+            : undefined,
         })
 
         if (preference.init_point) {
@@ -391,6 +427,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [time, setTime] = useState<string>()
   const [date, setDate] = useState<Date>()
   const [show, setShow] = useState("")
+  const [couponCode, setCouponCode] = useState("")
   const [timezone, setTimezone] = useState<SupportedTimezone>(
     org.timezone as SupportedTimezone,
   )
@@ -417,6 +454,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           serviceId: service.id,
           title: service.name,
           status: "pending",
+          couponCode: couponCode.trim() || undefined,
         }),
       },
       { method: "post" },
@@ -595,6 +633,27 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
                 registerOptions={{ required: false }}
               />
+              {service.payment && Number(service.price) > 0 && (
+                <div>
+                  <label
+                    htmlFor="couponCode"
+                    className="mb-2 block font-satoMedium text-[14px] text-brand_dark"
+                  >
+                    Código de cupón (opcional)
+                  </label>
+                  <input
+                    id="couponCode"
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) =>
+                      setCouponCode(e.target.value.toUpperCase())
+                    }
+                    placeholder="Ej. BUENFIN2026"
+                    autoComplete="off"
+                    className="h-[44px] w-full rounded-[16px] border border-brand_ash bg-white px-4 text-[14px] text-brand_gray outline-none placeholder:text-brand_silver focus:border-[#615FFF]"
+                  />
+                </div>
+              )}
               <input
                 type="text"
                 {...register("website" as any)}
