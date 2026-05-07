@@ -138,6 +138,11 @@ export default [
   ),
   // Error page
   route("error", "routes/error.tsx"),
+  // robots.txt (served on platform domain AND every org subdomain so crawlers
+  // like facebookexternalhit can verify scrape permissions)
+  route("robots.txt", "routes/robots[.]txt.ts"),
+  // sitemap.xml (host-aware: platform pages on denik.me, org's services on subdomains)
+  route("sitemap.xml", "routes/sitemap[.]xml.ts"),
   // Event actions from email links
   route("event/action", "routes/event.action.tsx"),
   route("event/:eventId/confirm", "routes/event.$eventId.confirm.tsx"),

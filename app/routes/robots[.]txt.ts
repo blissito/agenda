@@ -1,4 +1,5 @@
-export const loader = () => {
+export const loader = ({ request }: { request: Request }) => {
+  const origin = new URL(request.url).origin
   const text = `User-agent: *
 Allow: /
 Disallow: /dash
@@ -10,7 +11,7 @@ Disallow: /signup
 Disallow: /login
 Disallow: /mercadopago
 
-Sitemap: https://denik.me/sitemap.xml
+Sitemap: ${origin}/sitemap.xml
 `
   return new Response(text, {
     headers: {

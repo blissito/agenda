@@ -23,19 +23,31 @@ import { withExternalLinksFix } from "~/utils/landingHtml"
 import { DEFAULT_OG_IMAGE, getPublicImageUrl } from "~/utils/urls"
 import type { Route } from "./+types/home"
 
+// Social/SEO crawlers that scrape og tags. Bypass rate limit so previews
+// in Facebook/Twitter/LinkedIn/WhatsApp/Slack etc. never see a 429.
+const CRAWLER_UA_REGEX =
+  /(facebookexternalhit|facebookcatalog|meta-externalagent|twitterbot|linkedinbot|whatsapp|slackbot|telegrambot|discordbot|skypeuripreview|googlebot|bingbot|applebot|pinterest|redditbot|embedly|vkshare|w3c_validator)/i
+
+const isCrawler = (request: Request): boolean => {
+  const ua = request.headers.get("user-agent") || ""
+  return CRAWLER_UA_REGEX.test(ua)
+}
+
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { checkRateLimit, getClientIP, rateLimitPresets } = await import(
-    "~/.server/rateLimit"
-  )
-  const ip = getClientIP(request)
-  const rl = checkRateLimit(`page:${ip}`, rateLimitPresets.pageLoad)
-  if (!rl.success) {
-    throw new Response("Too many requests", {
-      status: 429,
-      headers: {
-        "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
-      },
-    })
+  if (!isCrawler(request)) {
+    const { checkRateLimit, getClientIP, rateLimitPresets } = await import(
+      "~/.server/rateLimit"
+    )
+    const ip = getClientIP(request)
+    const rl = checkRateLimit(`page:${ip}`, rateLimitPresets.pageLoad)
+    if (!rl.success) {
+      throw new Response("Too many requests", {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      })
+    }
   }
 
   const resolution = await resolveHostForIndex(request)

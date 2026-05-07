@@ -327,19 +327,26 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   return null
 }
 
+const CRAWLER_UA_REGEX_PAGE =
+  /(facebookexternalhit|facebookcatalog|meta-externalagent|twitterbot|linkedinbot|whatsapp|slackbot|telegrambot|discordbot|skypeuripreview|googlebot|bingbot|applebot|pinterest|redditbot|embedly|vkshare|w3c_validator)/i
+
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
-  const { checkRateLimit, getClientIP, rateLimitPresets } = await import(
-    "~/.server/rateLimit"
-  )
-  const ip = getClientIP(request)
-  const rl = checkRateLimit(`page:${ip}`, rateLimitPresets.pageLoad)
-  if (!rl.success) {
-    throw new Response("Too many requests", {
-      status: 429,
-      headers: {
-        "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
-      },
-    })
+  const ua = request.headers.get("user-agent") || ""
+  const isCrawler = CRAWLER_UA_REGEX_PAGE.test(ua)
+  if (!isCrawler) {
+    const { checkRateLimit, getClientIP, rateLimitPresets } = await import(
+      "~/.server/rateLimit"
+    )
+    const ip = getClientIP(request)
+    const rl = checkRateLimit(`page:${ip}`, rateLimitPresets.pageLoad)
+    if (!rl.success) {
+      throw new Response("Too many requests", {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      })
+    }
   }
 
   // Org is resolved from hostname (subdomain or custom domain)
