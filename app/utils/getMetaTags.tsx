@@ -8,6 +8,17 @@ const inferImageMime = (url: string): string => {
   return "image/png"
 }
 
+// HTML attribute values can't contain raw line breaks or unescaped quotes.
+// Some parsers (Facebook's scraper) treat \n inside content="..." as the end
+// of the attribute, which breaks all subsequent meta tag parsing.
+const sanitizeMeta = (value: string, max = 300): string => {
+  return value
+    .replace(/\s+/g, " ")
+    .replace(/"/g, "'")
+    .trim()
+    .slice(0, max)
+}
+
 export const getMetaTags = ({
   title = "Deník | Tu agenda en un solo lugar",
   description = "Administra la agenda de tu negocio en un solo lugar",
@@ -30,19 +41,21 @@ export const getMetaTags = ({
   const isDefaultImage = image === DEFAULT_OG_IMAGE
   const w = imageWidth ?? (isDefaultImage ? 1200 : undefined)
   const h = imageHeight ?? (isDefaultImage ? 630 : undefined)
+  const safeTitle = sanitizeMeta(title, 200)
+  const safeDescription = sanitizeMeta(description, 300)
   return [
-  { title },
+  { title: safeTitle },
   {
     property: "og:title",
-    content: title,
+    content: safeTitle,
   },
   {
     name: "description",
-    content: description,
+    content: safeDescription,
   },
   {
     property: "og:description",
-    content: description,
+    content: safeDescription,
   },
   {
     property: "og:site_name",
@@ -76,7 +89,7 @@ export const getMetaTags = ({
     : []),
   {
     property: "og:image:alt",
-    content: title,
+    content: safeTitle,
   },
   {
     property: "og:locale",
@@ -94,11 +107,11 @@ export const getMetaTags = ({
   },
   {
     property: "twitter:title",
-    content: title,
+    content: safeTitle,
   },
   {
     property: "twitter:description",
-    content: description,
+    content: safeDescription,
   },
   {
     property: "twitter:image",
