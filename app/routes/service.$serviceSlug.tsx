@@ -11,6 +11,7 @@ import { z } from "zod"
 import { createPreference, getValidAccessToken } from "~/.server/mercadopago"
 import { getService, getUserOrNull } from "~/.server/userGetters"
 import { Footer, Header, InfoShower } from "~/components/agenda/components"
+import { CouponField } from "~/components/agenda/CouponField"
 import { Success } from "~/components/agenda/success"
 import { getMaxDate, validateBookingWindow } from "~/components/agenda/utils"
 import { ChatWidget } from "~/components/chatbot/ChatWidget"
@@ -85,6 +86,31 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     })
     return { events }
   }
+  if (intent === "validate_coupon") {
+    const code = formData.get("code")
+    const serviceId = formData.get("serviceId")
+    if (typeof code !== "string" || typeof serviceId !== "string") {
+      return { ok: false as const, error: "Datos inválidos" }
+    }
+    const orgForCoupon = await resolveOrgFromRequest(request, undefined)
+    if (!orgForCoupon) {
+      return { ok: false as const, error: "Organización no encontrada" }
+    }
+    const serviceForCoupon = await db.service.findUnique({
+      where: { id: serviceId },
+      select: { id: true, price: true, orgId: true },
+    })
+    if (!serviceForCoupon || serviceForCoupon.orgId !== orgForCoupon.id) {
+      return { ok: false as const, error: "Servicio no encontrado" }
+    }
+    return validateCouponByCode({
+      code,
+      orgId: orgForCoupon.id,
+      serviceId: serviceForCoupon.id,
+      servicePrice: Number(serviceForCoupon.price),
+    })
+  }
+
   if (intent === "create_event") {
     // CSRF validation
     const { validateCsrf } = await import("~/.server/csrf")
@@ -458,10 +484,12 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [date, setDate] = useState<Date>()
   const [show, setShow] = useState("")
   const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<ValidCoupon | null>(null)
   const [timezone, setTimezone] = useState<SupportedTimezone>(
     org.timezone as SupportedTimezone,
   )
   const fetcher = useFetcher<typeof action>()
+  const couponDirty = couponCode.trim() !== "" && !appliedCoupon
 
   const onSubmit = (vals: UserInfoForm) => {
     const result = userInfoSchema.safeParse(vals)
@@ -472,6 +500,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       return
     }
     if (!date) return
+    if (couponDirty) return
     const customer = { ...result.data, website: (vals as any).website }
     fetcher.submit(
       {
@@ -485,7 +514,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           serviceId: service.id,
           title: service.name,
           status: "pending",
-          couponCode: couponCode.trim() || undefined,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         }),
       },
       { method: "post" },
@@ -667,25 +696,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 inputClassName="min-h-20"
               />
               {service.payment && Number(service.price) > 0 && (
-                <div>
-                  <label
-                    htmlFor="couponCode"
-                    className="mb-2 block font-satoMedium text-[14px] text-brand_dark"
-                  >
-                    Código de cupón (opcional)
-                  </label>
-                  <input
-                    id="couponCode"
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) =>
-                      setCouponCode(e.target.value.toUpperCase())
-                    }
-                    placeholder="Ej. BUENFIN2026"
-                    autoComplete="off"
-                    className="h-[44px] w-full rounded-[16px] border border-brand_ash bg-white px-4 text-[14px] text-brand_gray outline-none placeholder:text-brand_silver focus:border-[#615FFF]"
-                  />
-                </div>
+                <CouponField
+                  serviceId={service.id}
+                  actionPath={`/${service.slug}`}
+                  basePrice={Number(service.price)}
+                  onChange={(code, applied) => {
+                    setCouponCode(code)
+                    setAppliedCoupon(applied)
+                  }}
+                />
               )}
               <input
                 type="text"
@@ -714,7 +733,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               <span className="font-medium">Volver</span>
             </button>
             <PrimaryButton
-              isDisabled={!isValid || fetcher.state !== "idle"}
+              isDisabled={!isValid || fetcher.state !== "idle" || couponDirty}
               onClick={handleSubmit(onSubmit)}
               type="button"
             >
