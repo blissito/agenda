@@ -10,6 +10,8 @@ describe("Email Templates", () => {
       const html = reminderTemplate({
         modifyLink: "https://example.com/modify",
         cancelLink: "https://example.com/cancel",
+        confirmLink: "https://example.com/confirm",
+        isConfirmed: true,
         serviceName: "Corte de cabello",
         dateString: "Lunes 15 de Enero, 2024 a las 10:00",
         minutes: 60,
@@ -36,6 +38,8 @@ describe("Email Templates", () => {
       const html = reminderTemplate({
         modifyLink: "https://example.com/modify",
         cancelLink: "https://example.com/cancel",
+        confirmLink: "https://example.com/confirm",
+        isConfirmed: true,
         serviceName: "Test Service",
         dateString: "Test Date",
         minutes: 30,
@@ -57,6 +61,8 @@ describe("Email Templates", () => {
       const html = reminderTemplate({
         modifyLink: "https://example.com/modify",
         cancelLink: "https://example.com/cancel",
+        confirmLink: "https://example.com/confirm",
+        isConfirmed: true,
         serviceName: "Test",
         orgName: "Test Org",
         customerName: "Test",
@@ -124,7 +130,6 @@ describe("Email Templates", () => {
       )
 
       const html = appointmentTemplate({
-        confirmLink: "https://example.com/confirm",
         reservationNumber: "12345",
         serviceName: "Consulta médica",
         dateString: "Martes 20 de Febrero, 2024",
@@ -141,7 +146,7 @@ describe("Email Templates", () => {
       expect(html).toContain("Consulta médica")
       expect(html).toContain("12345")
       expect(html).toContain("$500 mxn")
-      expect(html).toContain("Confirmar cita")
+      expect(html).toContain("tu cuenta Den")
     })
 
     it("should show 'Gratuito' for free services", async () => {
@@ -150,7 +155,6 @@ describe("Email Templates", () => {
       )
 
       const html = appointmentTemplate({
-        confirmLink: "https://example.com/confirm",
         amount: 0,
         serviceName: "Evento gratuito",
         orgName: "Test Org",

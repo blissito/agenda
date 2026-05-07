@@ -5,7 +5,6 @@ const recipient = process.argv[2] || "brenda@fixter.org"
 
 const html = appointmentCustomerTemplate({
   displayName: "Brenda",
-  confirmLink: "https://www.denik.me/event/action?token=test",
   amount: 500,
   address: "Av. Reforma 123, CDMX",
   dateString: "Lunes 12 de mayo, 2026 a las 11:00 hrs",

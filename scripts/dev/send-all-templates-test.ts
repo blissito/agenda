@@ -36,7 +36,6 @@ const samples: { subject: string; html: string }[] = [
     subject: "[prueba] 🗓️ Cita agendada (cliente)",
     html: appointmentCustomerTemplate({
       ...baseAppointment,
-      confirmLink: "https://www.denik.me/event/action?token=test",
       meetingLink: "https://meet.google.com/abc-defg-hij",
     }),
   },
@@ -53,6 +52,8 @@ const samples: { subject: string; html: string }[] = [
       ...baseAppointment,
       modifyLink: "https://www.denik.me/event/action?token=modify",
       cancelLink: "https://www.denik.me/event/action?token=cancel",
+      confirmLink: "https://www.denik.me/event/action?token=confirm",
+      isConfirmed: true,
       hoursUntil: 2,
     }),
   },

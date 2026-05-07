@@ -90,13 +90,11 @@ export const action = async ({ request }: Route.ActionArgs) => {
     })
     invariant(customer)
 
-    // Only update allowed fields - ensure event belongs to org
-    const updatedEvent = await db.event.update({
-      where: {
-        id: eventId,
-        orgId: org.id,
-      },
-      data: {
+    const { updateEventFully } = await import("~/lib/event-update.server")
+    const updatedEvent = await updateEventFully({
+      eventId,
+      orgId: org.id,
+      changes: {
         start: validData.start,
         end: validData.end,
         duration: validData.duration,
@@ -109,6 +107,12 @@ export const action = async ({ request }: Route.ActionArgs) => {
         title: customer.displayName as string,
       },
     })
+    if (!updatedEvent) {
+      return Response.json(
+        { error: "Evento no encontrado o no pertenece a esta organización" },
+        { status: 404 },
+      )
+    }
     return updatedEvent
   }
 

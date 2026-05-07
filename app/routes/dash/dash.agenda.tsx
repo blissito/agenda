@@ -171,10 +171,21 @@ export const action = async ({ request }: Route.ActionArgs) => {
   if (intent === "move_event") {
     const eventId = formData.get("eventId") as string
     const newStart = formData.get("newStart") as string
+    const start = new Date(newStart)
 
-    await db.event.update({
+    // Preserve duration: shift end relative to original event
+    const existing = await db.event.findUnique({
       where: { id: eventId },
-      data: { start: new Date(newStart) },
+      select: { start: true, end: true },
+    })
+    const end = existing?.end
+      ? new Date(start.getTime() + (existing.end.getTime() - existing.start.getTime()))
+      : start
+
+    const { updateEventFully } = await import("~/lib/event-update.server")
+    await updateEventFully({
+      eventId,
+      changes: { start, end },
     })
 
     return { success: true }
