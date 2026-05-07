@@ -8,19 +8,17 @@ export default ({ orgName, link }: { orgName: string; link: string }) => `
         <h2 style="color:#15191E; font-size:20px; margin-top:24px">
         Te han invitado a colaborar en ${orgName}
         </h2>
-        <p style="color:#4B5563; font-size:14px; margin-top:16px;">
+        <p style="color:#4B5563; font-size:16px; margin-top:16px;">
           Haz clic en el siguiente enlace para acceder a la plataforma y comenzar a colaborar.
         </p>
 
-        <a style="text-decoration:none;" href="${link}" target="blank">
-            <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:200px; margin-top:40px; cursor:pointer;">
+        <a href="${link}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:32px;">
           Acceder a ${orgName}
-            </button>
         </a>
 
       </div>
        <div style="text-align:center; margin-top:64px; margin-bottom:16px">
-           <p style="color:#4B5563;">
+           <p style="color:#4B5563; font-size:14px;">
           Denik. Tu agenda. Tus clientes. Tu negocio.
         </p>
         <a href="https://www.facebook.com/profile.php?id=61554028371141" target="blank" style="text-decoration:none; ">

@@ -17,7 +17,7 @@ export default ({
         <h2 style="color:#15191E; font-size:20px; margin-top:24px">
           ¡Hoy es tu primer día en Deník${displayName ? `, ${displayName}` : ""}! 🤩
         </h2>
-        <p style="margin-top:14px; color:#4B5563; font-weight: lighter;">
+        <p style="margin-top:14px; color:#4B5563; font-weight: lighter; font-size:16px;">
           Tu prueba gratuita de <strong>30 días</strong> ya empezó. Tienes acceso completo al
           <strong>Plan Profesional</strong>: agenda, recordatorios, pagos, landing y más.
           Conoce todos los beneficios que Deník tiene para ti y tu negocio.
@@ -26,7 +26,7 @@ export default ({
           <img style="width:100px; float:left;" src="https://i.imgur.com/XQBSM6C.png"/>
           <div>
             <h3 style="margin:0px; font-size:16px; padding-top:16px;">Toma el control de tu agenda</h3>
-            <p style="margin-top:4px; color:#4B5563;">Permite a tus clientes agendar citas en línea, y adminístralas desde tu dashboard.</p>
+            <p style="margin-top:4px; color:#4B5563; font-size:16px;">Permite a tus clientes agendar citas en línea, y adminístralas desde tu dashboard.</p>
           </div>
         </div>
 
@@ -34,14 +34,14 @@ export default ({
           <img style="width:100px; float:left;" src="https://i.imgur.com/BTsSrCo.png"/>
           <div>
             <h3 style="margin:0px; font-size:16px;">¡No más citas olvidadas!</h3>
-            <p style="margin-top:4px; color:#4B5563;">Ya no te dejarán plantado@, confirmamos tus citas y enviamos recordatorios a tus clientes para que no las olviden.</p>
+            <p style="margin-top:4px; color:#4B5563; font-size:16px;">Ya no te dejarán plantado@, confirmamos tus citas y enviamos recordatorios a tus clientes para que no las olviden.</p>
           </div>
         </div>
         <div style="margin-top:32px;display:block; min-height:80px;">
           <img style="width:100px; float:left;" src="https://i.imgur.com/Vachd5c.png"/>
           <div>
             <h3 style="margin:0px; font-size:16px;padding-top:16px;">Recibe pagos en línea</h3>
-            <p style="margin-top:4px; color:#4B5563;">No pierdas más clientes, ahora tienes más alternativas de pago desde tu sitio web.</p>
+            <p style="margin-top:4px; color:#4B5563; font-size:16px;">No pierdas más clientes, ahora tienes más alternativas de pago desde tu sitio web.</p>
           </div>
         </div>
         <div style="margin-top:32px;display:block; min-height:80px;">
@@ -50,18 +50,16 @@ export default ({
           </div>
           <div>
             <h3 style="margin:0px; font-size:16px;padding-top:16px;">Nik, tu asistente personal</h3>
-            <p style="margin-top:4px; color:#4B5563;">Administra tu negocio desde WhatsApp: consulta tu agenda, clientes y servicios hablando con Nik.</p>
+            <p style="margin-top:4px; color:#4B5563; font-size:16px;">Administra tu negocio desde WhatsApp: consulta tu agenda, clientes y servicios hablando con Nik.</p>
           </div>
         </div>
-        <p style="color:#4B5563;float:left;">¡No esperes más! Configura tu agenda y empieza a compartirla con tus clientes.</p>
-        <a style="text-decoration:none; cursor:pointer;" href="${dashUrl}" target="blank">
-          <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
+        <p style="color:#4B5563; float:left; font-size:16px;">¡No esperes más! Configura tu agenda y empieza a compartirla con tus clientes.</p>
+        <a href="${dashUrl}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:32px;">
             Probar mi agenda
-          </button>
         </a>
       </div>
       <div style="text-align:center; margin-top:64px; margin-bottom:16px">
-        <p style="color:#4B5563;">
+        <p style="color:#4B5563; font-size:14px;">
           Deník. Tu agenda. Tus clientes. Tu negocio.
         </p>
         <a href="https://www.facebook.com/profile.php?id=61563700900314" target="blank" style="text-decoration:none;">

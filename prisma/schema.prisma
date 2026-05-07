@@ -366,6 +366,7 @@ model Event {
   videoProvider            String?              // "meet" | "zoom" | "none" (snapshot al crear)
   attended                 Boolean?             // null = not marked, true = attended, false = no-show
   reminderSentAt           DateTime? @db.Date  // null = reminder not sent yet
+  confirmationSentAt       DateTime? @db.Date  // null = confirmation request not sent yet
   surveySentAt             DateTime? @db.Date  // null = survey not sent yet
   customer                 Customer?       @relation(fields: [customerId], references: [id])
   org              Org       @relation(fields: [orgId], references: [id])

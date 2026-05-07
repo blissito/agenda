@@ -2,7 +2,7 @@ import type { Customer, Event, Org, Service } from "@prisma/client"
 import { getDefaultTermsAndConditions } from "~/routes/dash/dash.ajustes.constants"
 import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
 import { generateEventActionToken } from "~/utils/tokens"
-import reminderTemplate from "./reminderTemplate"
+import confirmAppointmentTemplate from "./confirmAppointmentTemplate"
 import { getRemitent, getSesTransport } from "./ses"
 
 function resolveTermsAndConditions(org: Org): string {
@@ -27,9 +27,9 @@ type FullEvent = Event & {
 }
 
 /**
- * Send appointment reminder email to customer
+ * Send confirmation request email to customer (typically 12 hours before the appointment)
  */
-export const sendReminder = async ({
+export const sendConfirmAppointment = async ({
   email,
   event,
 }: {
@@ -38,38 +38,18 @@ export const sendReminder = async ({
 }) => {
   const baseUrl = process.env.APP_URL || "https://denik.me"
 
-  // Generate tokens for event actions
-  const modifyToken = generateEventActionToken({
-    eventId: event.id,
-    customerId: event.customer.id,
-    action: "modify",
-  })
-  const cancelToken = generateEventActionToken({
-    eventId: event.id,
-    customerId: event.customer.id,
-    action: "cancel",
-  })
   const confirmToken = generateEventActionToken({
     eventId: event.id,
     customerId: event.customer.id,
     action: "confirm",
   })
 
-  const modifyLink = `${baseUrl}/event/action?token=${modifyToken}`
-  const cancelLink = `${baseUrl}/event/action?token=${cancelToken}`
   const confirmLink = `${baseUrl}/event/action?token=${confirmToken}`
 
-  const isConfirmed =
-    event.status === "confirmed" ||
-    event.status === "CONFIRMED" ||
-    event.status === "ACTIVE"
-
-  // Get timezone from org or use default
   const timezone =
     (event.service.org as Org & { timezone?: string }).timezone ||
     DEFAULT_TIMEZONE
 
-  // Calculate hours until appointment
   const now = new Date()
   const hoursUntil = Math.round(
     (event.start.getTime() - now.getTime()) / (1000 * 60 * 60),
@@ -80,14 +60,12 @@ export const sendReminder = async ({
   return sesTransport
     .sendMail({
       from: getRemitent(),
-      subject: `Recordatorio: Tu cita en ${event.service.org.name} es ${hoursUntil === 1 ? "en 1 hora" : `en ${hoursUntil} horas`}`,
+      subject: `Confirma tu cita en ${event.service.org.name}`,
       to: email,
-      html: reminderTemplate({
+      html: confirmAppointmentTemplate({
         displayName: event.service.org.shopKeeper ?? undefined,
-        modifyLink,
-        cancelLink,
         confirmLink,
-        isConfirmed,
+        meetingLink: (event as any).meetingLink ?? undefined,
         address: event.service.org.address ?? undefined,
         dateString: formatFullDateInTimezone(event.start, timezone),
         minutes: event.duration ? Number(event.duration) : undefined,
@@ -99,7 +77,7 @@ export const sendReminder = async ({
       }),
     })
     .catch((e: unknown) => {
-      console.error("Error sending reminder email:", e)
+      console.error("Error sending confirmation email:", e)
       throw e
     })
 }

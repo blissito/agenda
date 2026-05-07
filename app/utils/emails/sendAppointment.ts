@@ -1,7 +1,7 @@
 import type { Customer, Event, Org, Service, User } from "@prisma/client"
 import { getDefaultTermsAndConditions } from "~/routes/dash/dash.ajustes.constants"
 import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
-import { generateEventActionToken, generateUserToken } from "~/utils/tokens"
+import { generateUserToken } from "~/utils/tokens"
 import appointmentCustomerTemplate from "./appointmentCustomerTemplate"
 import appointmentOwnerTemplate from "./appointmentOwnerTemplate"
 import { getRemitent, getSesTransport } from "./ses"
@@ -37,17 +37,6 @@ export const sendAppointmentToCustomer = async ({
   request?: Request
   subject?: string
 }) => {
-  const baseUrl = process.env.APP_URL || "https://denik.me"
-
-  // Generate tokens for event actions
-  const confirmToken = generateEventActionToken({
-    eventId: event.id,
-    customerId: event.customer.id,
-    action: "confirm",
-  })
-
-  const confirmLink = `${baseUrl}/event/action?token=${confirmToken}`
-
   // Get timezone from org or use default
   const timezone =
     (event.service.org as Org & { timezone?: string }).timezone ||
@@ -62,7 +51,6 @@ export const sendAppointmentToCustomer = async ({
       to: email,
       html: appointmentCustomerTemplate({
         displayName: event.service.org.shopKeeper ?? undefined,
-        confirmLink,
         amount: Number(event.service.price),
         address: event.service.org.address ?? undefined,
         dateString: formatFullDateInTimezone(event.start, timezone),

@@ -1,6 +1,8 @@
 export default ({
   modifyLink,
   cancelLink,
+  confirmLink,
+  isConfirmed,
   serviceName,
   dateString,
   minutes,
@@ -13,6 +15,8 @@ export default ({
 }: {
   modifyLink: string
   cancelLink: string
+  confirmLink: string
+  isConfirmed?: boolean
   serviceName?: string
   dateString?: string
   minutes?: string | number
@@ -30,29 +34,35 @@ export default ({
   </div>
   <div style="text-align:left; background:white; border-radius:16px; margin-top:16px; ">
     <h2 style="color:#15191E; font-size:20px; margin-top:24px">${customerName}, tu cita es ${hoursUntil === 1 ? "en 1 hora" : `en ${hoursUntil} horas`}</h2>
-    <p style="margin-top:14px; color:#4B5563">Este es un recordatorio de tu cita en <strong>${orgName}</strong></p>
+    <p style="margin-top:14px; color:#4B5563; font-size:16px;">Este es un recordatorio de tu cita en <strong>${orgName}</strong></p>
      <div style="margin-top:40px; border:1px #EFEFEF solid; border-radius:16px; padding:24px;">
        <h3 style="font-size:16px;">
        ${serviceName}
        </h3>
-       <div style="color:#4B5563; heigth:20px; margin-bottom:8px; font-size:14px;"><img style="width:24px; height:24px; float:left; margin-right:8px;" src="https://i.imgur.com/ElME1kr.png"/><p style="padding-top:4px; ">
+       <div style="color:#4B5563; heigth:20px; margin-bottom:8px; font-size:16px;"><img style="width:24px; height:24px; float:left; margin-right:8px;" src="https://i.imgur.com/ElME1kr.png"/><p style="padding-top:4px; ">
          ${dateString}
        </p></div>
-              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/sM63nU1.png"/><p style="padding-top:4px; ">Sesión de ${minutes} minutos</p></div>
-              ${displayName ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>` : ""}
-       ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
+              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:16px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/sM63nU1.png"/><p style="padding-top:4px; ">Sesión de ${minutes} minutos</p></div>
+              ${displayName ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:16px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>` : ""}
+       ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:16px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
 
   </div>
-            <a style="text-decoration:none;" href="${modifyLink}" target="blank">
-    <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
+    ${
+      isConfirmed
+        ? `<a href="${modifyLink}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:32px; margin-right:8px;">
       Modificar cita
-    </button>
     </a>
-    <a style="text-decoration:none;" href="${cancelLink}" target="blank">
-    <button style="background:#F5F5F5; height:40px; border-radius:20px; border:none; color:#11151A; width:160px; margin-top:40px;margin-left:16px; cursor:pointer;">
+    <a href="${cancelLink}" target="blank" style="display:inline-block; box-sizing:border-box; background:#F5F5F5; color:#11151A; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:16px;">
       Cancelar cita
-    </button>
+    </a>`
+        : `<a href="${confirmLink}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:32px; margin-right:8px;">
+      Confirmar cita
     </a>
+    <a href="${modifyLink}" target="blank" style="display:inline-block; box-sizing:border-box; background:#F5F5F5; color:#11151A; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:16px;">
+      Modificar cita
+    </a>`
+    }
+    <p style="font-size:16px; color:#4B5563; margin-top:24px;">Ve a <a href="https://www.denik.me/mi-cuenta" target="blank" style="color:#5158F6; text-decoration:underline;">tu cuenta Deník</a> para administrar tus citas.</p>
 
   </div>
   <div>

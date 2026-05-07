@@ -2,11 +2,13 @@
  * Job Definitions for the Agenda scheduler
  *
  * Defines:
+ * - send-confirmation: Sends confirmation request 12h before appointment
  * - send-reminder: Sends appointment reminder X hours before
  * - send-survey: Sends satisfaction survey after appointment ends
  */
 
 import { db } from "~/utils/db.server"
+import { sendConfirmAppointment } from "~/utils/emails/sendConfirmAppointment"
 import { sendReminder } from "~/utils/emails/sendReminder"
 import { sendSurvey } from "~/utils/emails/sendSurvey"
 import { sendTrialExpired } from "~/utils/emails/sendTrialExpired"
@@ -15,9 +17,14 @@ import { createDateInTimezone, DEFAULT_TIMEZONE } from "~/utils/timezone"
 import { getAgenda } from "./agenda.server"
 
 const DEFAULT_REMINDER_HOURS = 4
+const DEFAULT_CONFIRMATION_HOURS = 12
 const SURVEY_SEND_HOUR = "09:00" // Fire at 9am local the day after eventEnd
 
 type ReminderJobData = {
+  eventId: string
+}
+
+type ConfirmationJobData = {
   eventId: string
 }
 
@@ -84,6 +91,64 @@ agenda.define("send-reminder", async (job) => {
 })
 
 /**
+ * Send Confirmation Job
+ * Sends a confirmation request to the customer (typically 12h before appointment)
+ */
+agenda.define("send-confirmation", async (job) => {
+  const { eventId } = job.attrs.data as ConfirmationJobData
+
+  const event = await db.event.findUnique({
+    where: { id: eventId },
+    include: {
+      customer: true,
+      service: {
+        include: {
+          org: true,
+        },
+      },
+    },
+  })
+
+  if (
+    !event ||
+    event.status === "CANCELLED" ||
+    (event as any).confirmationSentAt
+  ) {
+    console.log(
+      `[send-confirmation] Skipping event ${eventId}: not found, cancelled, or already sent`,
+    )
+    return
+  }
+
+  if (!event.customer || !event.service) {
+    console.log(
+      `[send-confirmation] Skipping event ${eventId}: missing customer or service`,
+    )
+    return
+  }
+
+  try {
+    await sendConfirmAppointment({
+      email: event.customer.email,
+      event: event as any,
+    })
+
+    await db.event.update({
+      where: { id: eventId },
+      data: { confirmationSentAt: new Date() } as any,
+    })
+
+    console.log(`[send-confirmation] Sent confirmation for event ${eventId}`)
+  } catch (error) {
+    console.error(
+      `[send-confirmation] Failed for event ${eventId}:`,
+      error,
+    )
+    throw error
+  }
+})
+
+/**
  * Send Survey Job
  * Sends a satisfaction survey email after the appointment ends
  */
@@ -138,6 +203,34 @@ agenda.define("send-survey", async (job) => {
     throw error
   }
 })
+
+/**
+ * Schedule a confirmation request for an event
+ * @param eventId - The event ID
+ * @param eventStart - When the event starts
+ * @param hoursBefore - Hours before event to send confirmation (default: 12)
+ */
+export const scheduleConfirmation = async (
+  eventId: string,
+  eventStart: Date,
+  hoursBefore: number = DEFAULT_CONFIRMATION_HOURS,
+): Promise<void> => {
+  const sendTime = new Date(
+    eventStart.getTime() - hoursBefore * 60 * 60 * 1000,
+  )
+
+  if (sendTime <= new Date()) {
+    console.log(
+      `[scheduleConfirmation] Skipping event ${eventId}: confirmation time already passed`,
+    )
+    return
+  }
+
+  await agenda.schedule(sendTime, "send-confirmation", { eventId })
+  console.log(
+    `[scheduleConfirmation] Scheduled confirmation for event ${eventId} at ${sendTime.toISOString()}`,
+  )
+}
 
 /**
  * Schedule a reminder for an event
@@ -267,7 +360,7 @@ agenda.define("check-trials", async () => {
 })
 
 /**
- * Schedule both reminder and survey for an event based on service config
+ * Schedule confirmation, reminder and survey for an event based on service config
  */
 export const scheduleEventNotifications = async (
   eventId: string,
@@ -275,12 +368,18 @@ export const scheduleEventNotifications = async (
   eventEnd: Date,
   serviceConfig?: {
     reminder?: boolean
+    confirmation?: boolean | null
     survey?: boolean
     reminderHours?: number | null
   },
   orgTimezone?: string | null,
 ): Promise<void> => {
   const config = serviceConfig || {}
+
+  // Confirmation is opt-in per service: only schedule if explicitly enabled
+  if (config.confirmation === true) {
+    await scheduleConfirmation(eventId, eventStart)
+  }
 
   if (config.reminder !== false) {
     const reminderHours = config.reminderHours ?? DEFAULT_REMINDER_HOURS

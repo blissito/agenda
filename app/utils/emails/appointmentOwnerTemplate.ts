@@ -30,24 +30,22 @@ export default ({
   </div>
   <div style="text-align:left; background:white; border-radius:16px; margin-top:16px; ">
     <h2 style="color:#15191E; font-size:20px; margin-top:24px">${customerName} ha agendado una nueva cita en ${orgName}</h2>
-    <p style="margin-top:14px; color:#4B5563"> Id de la reserva: ${reservationNumber}</p>
+    <p style="margin-top:14px; color:#4B5563; font-size:16px;"> Id de la reserva: ${reservationNumber}</p>
      <div style="margin-top:40px; border:1px #EFEFEF solid; border-radius:16px; padding:24px;">
        <h3 style="font-size:16px;">
        ${serviceName}
        </h3>
-       <div style="color:#4B5563; heigth:20px; margin-bottom:8px; font-size:14px;"><img style="width:24px; height:24px; float:left; margin-right:8px;" src="https://i.imgur.com/ElME1kr.png"/><p style="padding-top:4px; ">
+       <div style="color:#4B5563; heigth:20px; margin-bottom:8px; font-size:16px;"><img style="width:24px; height:24px; float:left; margin-right:8px;" src="https://i.imgur.com/ElME1kr.png"/><p style="padding-top:4px; ">
          ${dateString}
        </p></div>
-              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/sM63nU1.png"/><p style="padding-top:4px; ">Sesión de ${minutes} minutos</p></div>
-              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/jua9FtD.png"/><p style="padding-top:4px;" >${Number(amount) > 0 ? `$${amount} mxn` : "Gratuito"}</p></div>
-              ${displayName ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>` : ""}
-       ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:14px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
+              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:16px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/sM63nU1.png"/><p style="padding-top:4px; ">Sesión de ${minutes} minutos</p></div>
+              <div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:16px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/jua9FtD.png"/><p style="padding-top:4px;" >${Number(amount) > 0 ? `$${amount} mxn` : "Gratuito"}</p></div>
+              ${displayName ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:16px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/e1aqMlR.png"/><p style="padding-top:4px; " >Con ${displayName}</p></div>` : ""}
+       ${address ? `<div style="color:#4B5563; heigth:20px; margin-bottom:8px;font-size:16px;"><img style="width:24px; height:24px;  float:left; margin-right:8px;" src="https://i.imgur.com/yJvhZFx.png"/><p style="padding-top:4px; " >${address}</p></div>` : ""}
       
   </div>
-            <a style="text-decoration:none;" href="${link}" target="blank">
-    <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
+    <a href="${link}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:32px;">
       Ver mi agenda
-    </button>
     </a>
 
   </div>

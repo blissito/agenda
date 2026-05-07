@@ -16,12 +16,10 @@ export default ({
   </div>
   <div style="text-align:left; background:white; border-radius:16px; margin-top:16px;">
     <h2 style="color:#15191E; font-size:20px; margin-top:24px">${customerName}, tu pago no pudo procesarse</h2>
-    <p style="margin-top:14px; color:#4B5563">El pago para <strong>${serviceName}</strong> en <strong>${orgName}</strong> fue rechazado.</p>
-    <p style="color:#4B5563">Puedes intentarlo de nuevo con otro método de pago.</p>
-    <a style="text-decoration:none;" href="${retryLink}" target="blank">
-      <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:180px; margin-top:24px; cursor:pointer;">
+    <p style="margin-top:14px; color:#4B5563; font-size:16px;">El pago para <strong>${serviceName}</strong> en <strong>${orgName}</strong> fue rechazado.</p>
+    <p style="color:#4B5563; font-size:16px;">Puedes intentarlo de nuevo con otro método de pago.</p>
+    <a href="${retryLink}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:24px;">
         Intentar de nuevo
-      </button>
     </a>
   </div>
   <div style="text-align:center; margin-top:32px; margin-bottom:16px">

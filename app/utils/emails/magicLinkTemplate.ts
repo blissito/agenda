@@ -4,23 +4,21 @@ export default ({ link }: { link: string }) => `
       <div>
         <img alt="logo" style="width:120px; margin-bottom:32px;" src="https://i.imgur.com/sunNMiV.png"/>
       </div>
-      <div >
-        <img style="width:100%" src="https://i.imgur.com/u30rscF.png "/>
-      </div>
-      <div style="text-align:left; margin-top:40px; ">
+      <div style="text-align:left; margin-top:24px; ">
         <h2 style="color:#15191E; font-size:20px; margin-top:24px">
-        ¡Hey! Aquí está tu enlace mágico 🪄 
+        ¡Hey! Aquí está tu enlace mágico 🪄
         </h2>
+        <p style="color:#4B5563; font-size:16px; margin-top:16px;">
+          Haz clic en el siguiente enlace para iniciar sesión en tu cuenta de Deník.
+        </p>
 
-        <a style="text-decoration:none;" href="${link}" target="blank">
-            <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:160px; margin-top:40px; cursor:pointer;">
+        <a href="${link}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:32px;">
           Iniciar sesión
-            </button>
         </a>
-     
+
       </div>
        <div style="text-align:center; margin-top:64px; margin-bottom:16px">
-           <p style="color:#4B5563;">
+           <p style="color:#4B5563; font-size:14px;">
           Deník. Tu agenda. Tus clientes. Tu negocio.
         </p>
         <a href="https://www.facebook.com/profile.php?id=61554028371141" target="blank" style="text-decoration:none; "> 

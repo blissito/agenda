@@ -17,30 +17,28 @@ export default ({
         <h2 style="color:#15191E; font-size:20px; margin-top:24px">
         Vaya, tu periodo de prueba ha terminado 🚀
         </h2>
-        <p style="color:#4B5563; font-size:14px; line-height:22px; margin-top:16px;">
+        <p style="color:#4B5563; font-size:16px; line-height:22px; margin-top:16px;">
           ${displayName ? `Hola ${displayName}, t` : "T"}u prueba gratuita de 30 días del Plan Profesional acaba de finalizar.
           Tu cuenta sigue activa, pero el acceso a las funciones Pro está pausado hasta que elijas un plan.
         </p>
-        <p style="color:#4B5563; font-size:14px; line-height:22px; margin-top:16px;">
+        <p style="color:#4B5563; font-size:16px; line-height:22px; margin-top:16px;">
           No queremos que dejes de disfrutar de todos los beneficios que Deník tiene para ti y tu negocio,
           por eso preparamos una oferta especial para que sigas con nosotros.
         </p>
-        <p style="color:#15191E; font-size:14px; line-height:22px; margin-top:16px;">
+        <p style="color:#15191E; font-size:16px; line-height:22px; margin-top:16px;">
           🎁 <strong>Oferta por tiempo limitado:</strong> suscríbete ahora y paga solo el
           <strong>20% de tu mensualidad</strong> durante los primeros <strong>3 meses</strong>
           (80% de descuento). Después, continúas con el precio regular.
         </p>
-        <p style="color:#4B5563; font-size:14px; line-height:22px; margin-top:16px;">
+        <p style="color:#4B5563; font-size:16px; line-height:22px; margin-top:16px;">
           ¡No esperes más! Nos vemos en Deník.me
         </p>
-        <a style="text-decoration:none;" href="${plansUrl}" target="blank">
-            <button style="background:#5158F6; height:40px; border-radius:20px; border:none; color:white; width:200px; margin-top:32px; cursor:pointer;">
+        <a href="${plansUrl}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:500; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px; margin-top:32px;">
           Suscribirme
-            </button>
         </a>
       </div>
        <div style="text-align:center; margin-top:64px; margin-bottom:16px">
-           <p style="color:#4B5563;">
+           <p style="color:#4B5563; font-size:14px;">
           Deník. Tu agenda. Tus clientes. Tu negocio.
         </p>
       </div>

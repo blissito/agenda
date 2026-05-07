@@ -22,25 +22,23 @@ export default ({
       <h2 style="color:#15191E; font-size:20px; font-weight:bold; margin:0;">
         Gracias por visitar ${orgName} 🤓
       </h2>
-      <p style="margin-top:16px; color:#4B5563; font-size:14px; line-height:1.6;">
+      <p style="margin-top:16px; color:#4B5563; font-size:16px; line-height:1.6;">
         Esperamos que hayas tenido una muy buena experiencia en tu cita${serviceName ? ` de <strong>${serviceName}</strong>` : ""}.
       </p>
-      <p style="margin-top:16px; color:#4B5563; font-size:14px; line-height:1.6;">
+      <p style="margin-top:16px; color:#4B5563; font-size:16px; line-height:1.6;">
         Si tienes un minuto, nos ayudaría muchísimo que nos cuentes cómo te fue dejando una reseña. Tu opinión nos ayuda a saber qué hicimos bien y en qué podemos mejorar.
       </p>
-      <p style="margin-top:16px; color:#4B5563; font-size:14px; line-height:1.6;">
+      <p style="margin-top:16px; color:#4B5563; font-size:16px; line-height:1.6;">
         ¡Muchas gracias por tu tiempo y por confiar en nosotros!
       </p>
 
       <div style="margin-top:32px;">
-        <a style="text-decoration:none;" href="${surveyLink}" target="blank">
-          <button style="background:#5158F6; height:44px; border-radius:22px; border:none; color:white; padding:0 32px; cursor:pointer; font-size:14px; font-weight:bold;">
+        <a href="${surveyLink}" target="blank" style="display:inline-block; box-sizing:border-box; background:#5158F6; color:white; font-size:16px; font-family:Arial,sans-serif; font-weight:bold; text-decoration:none; text-align:center; padding:14px 32px; border-radius:24px; min-width:200px;">
             Dejar reseña
-          </button>
         </a>
       </div>
 
-      <p style="margin-top:40px; color:#4B5563; font-size:14px; line-height:1.6;">
+      <p style="margin-top:40px; color:#4B5563; font-size:16px; line-height:1.6;">
         Saludos,<br/>
         ${orgName} Team
       </p>
