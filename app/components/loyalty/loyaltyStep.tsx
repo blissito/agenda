@@ -325,6 +325,13 @@ export function CreateLevelWizard({
     applyAllServices || selectedServiceIds.length > 0 || services.length === 0
 
   const toggleService = (serviceId: string) => {
+    if (applyAllServices) {
+      setApplyAllServices(false)
+      setSelectedServiceIds(
+        services.filter((s) => s.id !== serviceId).map((s) => s.id),
+      )
+      return
+    }
     setSelectedServiceIds((prev) =>
       prev.includes(serviceId)
         ? prev.filter((id) => id !== serviceId)
@@ -661,7 +668,6 @@ function WizardStepTwo({
             checked={
               applyAllServices ? true : selectedServiceIds.includes(service.id)
             }
-            disabled={applyAllServices}
             onChange={() => toggleService(service.id)}
           />
         ))}
@@ -831,6 +837,13 @@ function LevelEditModal({
   }
 
   const toggleService = (serviceId: string) => {
+    if (applyAllServices) {
+      setApplyAllServices(false)
+      setSelectedServiceIds(
+        services.filter((s) => s.id !== serviceId).map((s) => s.id),
+      )
+      return
+    }
     setSelectedServiceIds((prev) =>
       prev.includes(serviceId)
         ? prev.filter((id) => id !== serviceId)
@@ -956,7 +969,6 @@ function LevelEditModal({
                         ? true
                         : selectedServiceIds.includes(service.id)
                     }
-                    disabled={applyAllServices}
                     onChange={() => toggleService(service.id)}
                   />
                 ))}
