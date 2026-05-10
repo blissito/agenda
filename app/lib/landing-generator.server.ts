@@ -1,4 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import type { GenerateOptions } from "@easybits.cloud/html-tailwind-generator/generate"
 import { generateLanding } from "@easybits.cloud/html-tailwind-generator/generate"
@@ -13,6 +14,33 @@ import { getPublicImageUrl } from "~/utils/urls"
 import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import { buildDesignDirectives } from "~/lib/landing-patterns.server"
 import { resolveLandingColors } from "~/lib/landing-colors.server"
+
+// ==================== AI MODEL ====================
+
+/** Gemini 2.5 Pro is the single LLM behind generate + refine. We pre-build
+ *  the LanguageModel object and pass it directly to the SDK — the SDK
+ *  recognizes pre-built models and skips its internal Anthropic/OpenAI key
+ *  resolution. See @easybits.cloud/html-tailwind-generator >= 0.2.146. */
+function buildLandingModel() {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  if (!apiKey) {
+    throw new Error(
+      "GOOGLE_GENERATIVE_AI_API_KEY no configurada — la generación de landings requiere Gemini.",
+    )
+  }
+  return createGoogleGenerativeAI({ apiKey })("gemini-2.5-pro")
+}
+
+/** Approximate USD cost per operation. Update when Gemini pricing changes.
+ *  Gemini 2.5 Pro pricing (≤200K context): $1.25/M input · $10/M output.
+ *  Generate uses ~3K in + 12K out → ~$0.124. Refine uses ~2K in + 5K out → ~$0.053.
+ *  Until the SDK exposes a per-call usage callback we use these constants
+ *  to populate Org.landingTotalCostUsd; admin display reads that field.
+ */
+const COST_USD = {
+  generate: 0.13,
+  refine: 0.06,
+} as const
 
 // ==================== TYPES ====================
 export type { Section3 }
@@ -49,6 +77,8 @@ export async function incrementLandingUsage(
     select: { landingUsageMonth: true },
   })
   const reset = org.landingUsageMonth !== currentMonth
+  const costUsd = type === "gen" ? COST_USD.generate : COST_USD.refine
+  // Monthly counters reset; lifetime totals accumulate forever (admin display).
   if (type === "gen") {
     await db.org.update({
       where: { id: orgId },
@@ -56,6 +86,8 @@ export async function incrementLandingUsage(
         landingUsageMonth: currentMonth,
         landingGenCount: reset ? 1 : { increment: 1 },
         ...(reset ? { landingRefineCount: 0 } : {}),
+        landingTotalGens: { increment: 1 },
+        landingTotalCostUsd: { increment: costUsd },
       },
     })
   } else {
@@ -65,6 +97,8 @@ export async function incrementLandingUsage(
         landingUsageMonth: currentMonth,
         landingRefineCount: reset ? 1 : { increment: 1 },
         ...(reset ? { landingGenCount: 0 } : {}),
+        landingTotalRefines: { increment: 1 },
+        landingTotalCostUsd: { increment: costUsd },
       },
     })
   }
@@ -359,7 +393,7 @@ export async function generateOrgLanding(
   }
   const result = await generateLanding({
     prompt,
-    model: "claude-sonnet-4-6",
+    model: buildLandingModel(),
     themeColors: resolveLandingColors(org) as
       | Record<string, string>
       | undefined,
@@ -402,6 +436,7 @@ export async function refineOrgLanding(
     currentHtml,
     instruction,
     systemPrompt: RESPONSIVE_REFINE_SYSTEM,
+    model: buildLandingModel(),
     themeColors: (orgColors ? resolveLandingColors(orgColors) : undefined) as
       | Record<string, string>
       | undefined,

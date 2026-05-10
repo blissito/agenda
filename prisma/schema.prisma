@@ -437,6 +437,10 @@ model Org {
   landingGenCount       Int               @default(0)
   landingRefineCount    Int               @default(0)
   landingUsageMonth     String?
+  // AI cost tracking (USD). Lifetime totals — never reset.
+  landingTotalCostUsd   Float             @default(0)
+  landingTotalGens      Int               @default(0)
+  landingTotalRefines   Int               @default(0)
   brandkit              OrgBrandkit?
   chatbotAgentId        String?
   chatbotConfig         Json?
