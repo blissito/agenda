@@ -975,6 +975,15 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
 /* Device responsive: override patch's width:auto so GrapesJS can resize frame-wrapper */
 [data-device="Tablet"] .gjs-frame-wrapper { width: 768px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; }
 [data-device="Mobile"] .gjs-frame-wrapper { width: 375px !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; }
+/* Device preview: Figma-style dark "stage" around the iframe — same family as sidebars but slightly lighter so the chrome (panels) reads darker than the air. */
+[data-device="Tablet"] .gjs-cv-canvas, [data-device="Mobile"] .gjs-cv-canvas { top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; background: #1E2026 !important; }
+[data-device="Tablet"] .gjs-editor, [data-device="Tablet"] .gjs-editor-cont, [data-device="Mobile"] .gjs-editor, [data-device="Mobile"] .gjs-editor-cont { background: #1E2026 !important; }
+[data-device="Tablet"] .gjs-frames, [data-device="Mobile"] .gjs-frames { background: #1E2026 !important; }
+/* The phone/tablet preview floats over the stage with subtle elevation */
+[data-device="Tablet"] .gjs-frame-wrapper, [data-device="Mobile"] .gjs-frame-wrapper { background: white !important; border: none !important; outline: none !important; box-shadow: 0 12px 40px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.25) !important; border-radius: 12px !important; overflow: hidden !important; }
+[data-device="Tablet"] .gjs-frame, [data-device="Mobile"] .gjs-frame { background: white !important; border: none !important; }
+/* Match left SDK panel width to the external EditorRightSidebar (w-72 = 288px) for symmetric framing */
+.gjs-editor .w-60.shrink-0.bg-black { width: 288px !important; }
 .w-72 span.inline-flex, .w-72 button.inline-flex { border: none !important; background: #2A2B31 !important; color: white !important; outline: none !important; }
 .w-72 span.inline-flex:hover, .w-72 button.inline-flex:hover { background: #363740 !important; }
 .w-72 p.uppercase { color: #9ca3af !important; }
