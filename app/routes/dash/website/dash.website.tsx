@@ -1,13 +1,11 @@
 // app/routes/dash.website.tsx
-import type {
-  CustomColors,
-  Section3,
-} from "@easybits.cloud/html-tailwind-generator"
+import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import * as React from "react"
 import { useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { resolveLandingColors } from "~/lib/landing-colors.server"
 import { buildDefaultSections } from "~/lib/default-landing"
 import { db } from "~/utils/db.server"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
@@ -42,6 +40,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       landingSections: true,
       landingTheme: true,
       landingCustomColors: true,
+      brandkit: true,
     },
   })
 
@@ -53,7 +52,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     buildDeployHtml(
       sections,
       org.landingTheme || undefined,
-      org.landingCustomColors as unknown as CustomColors | undefined,
+      resolveLandingColors(org),
       false,
     ).replace(
       "</head>",

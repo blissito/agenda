@@ -1,7 +1,4 @@
-import type {
-  CustomColors,
-  Section3,
-} from "@easybits.cloud/html-tailwind-generator"
+import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import { Link } from "react-router"
 import { ChatWidget } from "~/components/chatbot/ChatWidget"
@@ -16,6 +13,7 @@ import { Features, Hero, ScrollReviews } from "~/components/home/home"
 import { ParallaxHero } from "~/components/home/ParallaxHero"
 import { People } from "~/components/icons/people"
 import { getAllPosts } from "~/lib/blog.server"
+import { resolveLandingColors } from "~/lib/landing-colors.server"
 import { buildDefaultSections } from "~/lib/default-landing"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
@@ -63,7 +61,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       buildDeployHtml(
         sections,
         org.landingTheme || undefined,
-        org.landingCustomColors as unknown as CustomColors | undefined,
+        resolveLandingColors(org),
         false,
       ).replace(
         "</head>",

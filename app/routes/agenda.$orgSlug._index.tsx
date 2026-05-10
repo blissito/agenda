@@ -4,12 +4,10 @@
  * Shows the org's public landing page with services list.
  */
 
-import type {
-  CustomColors,
-  Section3,
-} from "@easybits.cloud/html-tailwind-generator"
+import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import { ChatWidget } from "~/components/chatbot/ChatWidget"
+import { resolveLandingColors } from "~/lib/landing-colors.server"
 import { buildDefaultSections } from "~/lib/default-landing"
 import { db } from "~/utils/db.server"
 import { getMetaTags } from "~/utils/getMetaTags"
@@ -53,7 +51,7 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
       buildDeployHtml(
         sections,
         org.landingTheme || undefined,
-        org.landingCustomColors as unknown as CustomColors | undefined,
+        resolveLandingColors(org),
         false,
       ).replace(
         "</head>",
