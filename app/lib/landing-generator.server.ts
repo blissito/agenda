@@ -12,6 +12,7 @@ import { db } from "~/utils/db.server"
 import { getPublicImageUrl } from "~/utils/urls"
 import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import { buildDesignDirectives } from "~/lib/landing-patterns.server"
+import { resolveLandingColors } from "~/lib/landing-colors.server"
 
 // ==================== TYPES ====================
 export type { Section3 }
@@ -359,6 +360,9 @@ export async function generateOrgLanding(
   const result = await generateLanding({
     prompt,
     model: "claude-sonnet-4-6",
+    themeColors: resolveLandingColors(org) as
+      | Record<string, string>
+      | undefined,
     ...keys,
     persistImage: keys.openaiApiKey ? makePersistImage(org.id) : undefined,
     ...wrapped,
@@ -373,10 +377,16 @@ export async function refineOrgLanding(
   options?: Partial<RefineOptions>,
 ): Promise<string> {
   const keys = getAIKeys()
-  const services = await db.service.findMany({
-    where: { orgId, isActive: true, archived: false },
-    select: { name: true, slug: true },
-  })
+  const [services, orgColors] = await Promise.all([
+    db.service.findMany({
+      where: { orgId, isActive: true, archived: false },
+      select: { name: true, slug: true },
+    }),
+    db.org.findUnique({
+      where: { id: orgId },
+      select: { landingCustomColors: true, brandkit: true },
+    }),
+  ])
   const transform = (html: string) => injectServiceLinks(html, services)
   const userOpts = options ?? {}
   const wrapped: Partial<RefineOptions> = {
@@ -392,6 +402,9 @@ export async function refineOrgLanding(
     currentHtml,
     instruction,
     systemPrompt: RESPONSIVE_REFINE_SYSTEM,
+    themeColors: (orgColors ? resolveLandingColors(orgColors) : undefined) as
+      | Record<string, string>
+      | undefined,
     ...keys,
     persistImage: keys.openaiApiKey ? makePersistImage(orgId) : undefined,
     ...wrapped,
