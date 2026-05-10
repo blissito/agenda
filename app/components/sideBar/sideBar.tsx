@@ -388,7 +388,7 @@ const UserAvatar = ({ user }: { user: Partial<PrismaUser> }) => (
   <div className="flex  text-brand_dark">
     <img
       className={twMerge(
-        "w-12 h-12 object-cover border-2 border-brand_blue rounded-full mr-2",
+        "w-12 h-12 object-cover rounded-full mr-2",
       )}
       alt="avatar"
       src={user.photoURL ?? "https://loremflickr.com/640/480?lock=1234"}

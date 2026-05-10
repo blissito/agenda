@@ -84,7 +84,7 @@ export default function SelectStylized({
           anchor="bottom"
           transition
           className={twMerge(
-            "w-[var(--input-width)] mt-1 rounded-xl text-brand_gray bg-white border border-brand_stroke p-1 [--anchor-gap:var(--spacing-1)] empty:invisible",
+            "z-[100] w-[var(--input-width)] mt-1 rounded-xl text-brand_gray bg-white border border-brand_stroke p-1 [--anchor-gap:var(--spacing-1)] empty:invisible shadow-lg",
             "transition duration-100 ease-in data-[leave]:data-[closed]:opacity-0",
           )}
         >

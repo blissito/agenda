@@ -134,6 +134,15 @@ export async function awardPoints(params: {
     throw new Error("basePoints must be a positive finite number")
   }
 
+  // Skip silently if the org doesn't have loyalty enabled
+  const org = await db.org.findUnique({
+    where: { id: orgId },
+    select: { loyaltyEnabled: true },
+  })
+  if (!org?.loyaltyEnabled) {
+    return { customer: null, transaction: null, levelUpgrade: false }
+  }
+
   // Idempotency: skip if points already awarded for this event
   const existingTx = await db.loyaltyTransaction.findFirst({
     where: { eventId, type: "earn" },

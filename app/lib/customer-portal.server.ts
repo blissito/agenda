@@ -133,7 +133,7 @@ export async function getCustomerPortalData(
         id: org.id,
         name: org.name,
         slug: org.slug,
-        logo: org.logo,
+        logo: getPublicImageUrl(org.logo) ?? null,
         tel: org.tel ?? null,
       })
     }
@@ -207,7 +207,7 @@ export async function getCustomerPortalData(
           id: org.id,
           name: org.name,
           slug: org.slug,
-          logo: org.logo,
+          logo: getPublicImageUrl(org.logo) ?? null,
           tel: org.tel ?? null,
         },
         points: customer.loyaltyPoints || 0,
@@ -242,7 +242,7 @@ export async function getCustomerPortalData(
       createdAt: r.createdAt,
       orgId: r.orgId,
       orgName: org?.name ?? "—",
-      orgLogo: org?.logo ?? null,
+      orgLogo: getPublicImageUrl(org?.logo) ?? null,
     }
   })
 

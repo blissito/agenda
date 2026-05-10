@@ -49,7 +49,7 @@ function Sparkles() {
 }
 
 export const Hero = () => (
-  <section className="min-h-[74vh] flex flex-col pt-40 justify-center text-center  ">
+  <section className="min-h-[74vh] flex flex-col pt-40 lg:pt-[320px] justify-center text-center  ">
     <div className="w-full h-full px-[5%] xl:px-[18%]">
       <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-[68px]	font-satoBold text-brand_dark  flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>

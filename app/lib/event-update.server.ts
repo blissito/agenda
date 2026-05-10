@@ -1,5 +1,8 @@
 import { cancelEventJobs } from "~/jobs/agenda.server"
 import { scheduleReminder, scheduleSurvey } from "~/jobs/definitions.server"
+import { patchMeetEvent } from "~/lib/google-meet.server"
+import { awardPoints } from "~/lib/loyalty.server"
+import { patchZoomMeeting } from "~/lib/zoom.server"
 import { db } from "~/utils/db.server"
 import {
   sendEventRescheduledToCustomer,
@@ -87,7 +90,62 @@ export async function updateEventFully({
     },
   })) as typeof before
 
+  // Award loyalty points when the event transitions to paid (manual mark from dash).
+  // awardPoints itself no-ops if the org doesn't have loyalty enabled and is idempotent per event.
+  const becamePaid =
+    changes.paid === true && !before.paid && updated.customerId && updated.service
+  if (becamePaid) {
+    try {
+      const basePoints = Math.floor(Number(updated.service!.price)) || 10
+      await awardPoints({
+        customerId: updated.customerId as string,
+        orgId: updated.orgId,
+        eventId: updated.id,
+        basePoints,
+      })
+    } catch (e) {
+      console.error(
+        "[updateEventFully] awardPoints failed:",
+        e instanceof Error ? e.message : e,
+      )
+    }
+  }
+
   if (!startChanged) return updated
+
+  // Update external calendar (Google Meet) if linked
+  if (updated.calendarEventId && updated.start && updated.end && updated.service?.org) {
+    try {
+      await patchMeetEvent({
+        org: updated.service.org as any,
+        calendarEventId: updated.calendarEventId,
+        start: updated.start,
+        end: updated.end,
+      })
+    } catch (e) {
+      console.error(
+        "[updateEventFully] patchMeetEvent failed:",
+        e instanceof Error ? e.message : e,
+      )
+    }
+  }
+
+  // Update external Zoom meeting if linked
+  if (updated.zoomMeetingId && updated.start && updated.duration && updated.service?.org) {
+    try {
+      await patchZoomMeeting({
+        org: updated.service.org as any,
+        meetingId: updated.zoomMeetingId,
+        start: updated.start,
+        duration: Number(updated.duration),
+      })
+    } catch (e) {
+      console.error(
+        "[updateEventFully] patchZoomMeeting failed:",
+        e instanceof Error ? e.message : e,
+      )
+    }
+  }
 
   // Reschedule jobs against the new start
   try {

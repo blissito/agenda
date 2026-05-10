@@ -31,13 +31,16 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const timezone =
     (event.service?.org as { timezone?: string })?.timezone || DEFAULT_TIMEZONE
 
-  // Check access: customer with temporary token OR logged-in owner
+  // Check access: customer with temporary token, logged-in owner,
+  // or logged-in customer whose email matches the event customer
   const isCustomerWithAccess =
     customerAccess?.eventId === params.eventId &&
     customerAccess.expiresAt > Date.now()
   const isOwner = user && event.service?.org.ownerId === user.id
+  const isCustomerLoggedIn =
+    !!user && !!event.customer?.email && user.email === event.customer.email
 
-  if (!isCustomerWithAccess && !isOwner) {
+  if (!isCustomerWithAccess && !isOwner && !isCustomerLoggedIn) {
     throw redirect("/error?reason=unauthorized")
   }
 
@@ -74,20 +77,23 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   // Get event to check ownership
   const event = await db.event.findUnique({
     where: { id: params.eventId },
-    include: { service: { include: { org: true } } },
+    include: { customer: true, service: { include: { org: true } } },
   })
 
   if (!event) {
     throw redirect("/error?reason=event_not_found")
   }
 
-  // Check access: customer with temporary token OR logged-in owner
+  // Check access: customer with temporary token, logged-in owner,
+  // or logged-in customer whose email matches the event customer
   const isCustomerWithAccess =
     customerAccess?.eventId === params.eventId &&
     customerAccess.expiresAt > Date.now()
   const isOwner = user && event.service?.org.ownerId === user.id
+  const isCustomerLoggedIn =
+    !!user && !!event.customer?.email && user.email === event.customer.email
 
-  if (!isCustomerWithAccess && !isOwner) {
+  if (!isCustomerWithAccess && !isOwner && !isCustomerLoggedIn) {
     throw redirect("/error?reason=unauthorized")
   }
 

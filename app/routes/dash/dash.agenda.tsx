@@ -1073,16 +1073,27 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     return () => window.removeEventListener("resize", measure)
   }, [viewMode])
 
+  // Pin the timezone label inside Calendar — observer re-applies the short
+  // form whenever the lib re-renders the long name internally.
   useEffect(() => {
-    const el = calendarRef.current?.querySelector(".text-sm.text-gray-500")
-    if (el) {
-      const short = new Intl.DateTimeFormat("es-MX", { timeZoneName: "short" })
+    const root = calendarRef.current
+    if (!root) return
+
+    const tzShort =
+      new Intl.DateTimeFormat("es-MX", { timeZoneName: "short" })
         .formatToParts(new Date())
-        .find((p) => p.type === "timeZoneName")?.value
-      el.textContent = short ?? ""
+        .find((p) => p.type === "timeZoneName")?.value ?? ""
+
+    const apply = () => {
+      const el = root.querySelector(".text-sm.text-gray-500")
+      if (el && el.textContent !== tzShort) el.textContent = tzShort
     }
-    return undefined
-  }, [controls.date, viewMode])
+    apply()
+
+    const obs = new MutationObserver(apply)
+    obs.observe(root, { childList: true, characterData: true, subtree: true })
+    return () => obs.disconnect()
+  }, [viewMode])
 
   const eventDateKeys = useMemo(() => {
     const keys = new Set<string>()

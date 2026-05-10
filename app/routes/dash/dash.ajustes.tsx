@@ -165,6 +165,7 @@ function InfoGeneralTab({
   const [description, setDescription] = useState(org.description || "")
   const [address, setAddress] = useState(org.address || "")
   const [logoKey, setLogoKey] = useState<string | null>(org.logo || null)
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false)
 
   const social = (org.social || {}) as Record<string, string>
   const [instagram, setInstagram] = useState(social.instagram || "")
@@ -217,6 +218,7 @@ function InfoGeneralTab({
               className="w-full h-[140px] md:w-[160px] md:h-full mt-0"
               action={logoAction}
               onUploadComplete={(key) => setLogoKey(key)}
+              onUploadStateChange={setIsUploadingLogo}
               onDelete={() => setLogoKey(null)}
             >
               <p className="text-brand_gray text-sm hover:scale-105 transition-all">
@@ -341,10 +343,11 @@ function InfoGeneralTab({
         <div className="flex justify-end mt-12">
           <PrimaryButton
             type="submit"
-            isLoading={isLoading}
+            isLoading={isLoading || isUploadingLogo}
+            isDisabled={isUploadingLogo}
             className="hover:-translate-y-1 hover:shadow-md transition-all active:translate-y-0"
           >
-            Guardar
+            {isUploadingLogo ? "Subiendo logo..." : "Guardar"}
           </PrimaryButton>
         </div>
       </form>

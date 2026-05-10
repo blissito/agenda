@@ -29,6 +29,7 @@ type Props = {
   registerOptions?: { required: string | boolean }
   multiple?: boolean
   onUploadComplete?: (key: string) => void
+  onUploadStateChange?: (uploading: boolean) => void
   onDelete?: () => void
 }
 
@@ -45,6 +46,7 @@ export const InputFile = ({
   className,
   containerClassName,
   onUploadComplete,
+  onUploadStateChange,
   onDelete,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -52,7 +54,7 @@ export const InputFile = ({
   const [preview, setPreview] = useState<string | undefined>(action?.readUrl)
 
   useEffect(() => {
-    if (action?.readUrl && !preview) {
+    if (action?.readUrl) {
       setPreview(action.readUrl)
     }
   }, [action?.readUrl])
@@ -67,12 +69,14 @@ export const InputFile = ({
     setIsOver(false)
     const file = event.dataTransfer.files[0]
     if (file) {
+      setPreview(URL.createObjectURL(file))
+      onUploadStateChange?.(true)
       const ok = await putFile(file)
-      if (ok) {
-        setPreview(
-          action?.readUrl ? `${action.readUrl}&t=${Date.now()}` : undefined,
-        )
-        if (action?.logoKey) onUploadComplete?.(action.logoKey)
+      onUploadStateChange?.(false)
+      if (ok && action?.logoKey) {
+        onUploadComplete?.(action.logoKey)
+      } else if (!ok) {
+        console.error("[InputFile] Upload failed - check Tigris CORS/credentials")
       }
     }
   }
@@ -86,8 +90,14 @@ export const InputFile = ({
     const file = event.target.files?.[0]
     if (file) {
       setPreview(URL.createObjectURL(file))
+      onUploadStateChange?.(true)
       const ok = await putFile(file)
-      if (ok && action?.logoKey) onUploadComplete?.(action.logoKey)
+      onUploadStateChange?.(false)
+      if (ok && action?.logoKey) {
+        onUploadComplete?.(action.logoKey)
+      } else if (!ok) {
+        console.error("[InputFile] Upload failed - check Tigris CORS/credentials")
+      }
     }
   }
 

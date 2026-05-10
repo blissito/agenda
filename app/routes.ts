@@ -148,6 +148,7 @@ export default [
   route("event/:eventId/confirm", "routes/event.$eventId.confirm.tsx"),
   route("event/:eventId/modify", "routes/event.$eventId.modify.tsx"),
   route("event/:eventId/cancel", "routes/event.$eventId.cancel.tsx"),
+  route("event/:eventId/reschedule", "routes/event.$eventId.reschedule.tsx"),
   // Survey from email links
   route("survey", "routes/survey.tsx"),
   // Review page for a specific appointment

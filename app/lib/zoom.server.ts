@@ -181,6 +181,58 @@ export async function createZoomMeeting({
   }
 }
 
+export async function patchZoomMeeting({
+  org,
+  meetingId,
+  start,
+  duration,
+}: {
+  org: Org
+  meetingId: string
+  start: Date
+  duration: number
+}): Promise<void> {
+  const accessToken = await getValidZoomAccessToken(org)
+  const timezone = (org as any).timezone || "America/Mexico_City"
+
+  // Mismo formateo a hora local que createZoomMeeting (Zoom ignora timezone si start_time termina en Z)
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: timezone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
+    .formatToParts(start)
+    .reduce<Record<string, string>>((acc, p) => {
+      if (p.type !== "literal") acc[p.type] = p.value
+      return acc
+    }, {})
+  const localStart = `${parts.year}-${parts.month}-${parts.day}T${parts.hour === "24" ? "00" : parts.hour}:${parts.minute}:${parts.second}`
+
+  const res = await fetch(`https://api.zoom.us/v2/meetings/${meetingId}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      start_time: localStart,
+      duration: Math.round(duration),
+      timezone,
+    }),
+  })
+
+  // 404 = ya fue borrada en Zoom; trata como no-op
+  if (!res.ok && res.status !== 404 && res.status !== 204) {
+    const text = await res.text()
+    throw new Error(`Zoom patch meeting failed: ${text}`)
+  }
+}
+
 export async function cancelZoomMeeting(
   org: Org,
   meetingId: string,

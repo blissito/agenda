@@ -314,7 +314,7 @@ export const Question = ({
 }
 
 export const Pricing = () => (
-  <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[24%] xl:pt-[16%]">
+  <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px]">
     <h2 className="group text-3xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Digitaliza </span>
       <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />{" "}
@@ -387,15 +387,17 @@ const FEATURES_PRO = [
   "Recordatorios automáticos",
   "Sitio web para citas",
   "Pagos en línea",
-  "Programa de lealtad, descuentos y tarjetas de regalo",
+  "Programa de lealtad y descuentos",
+  "Agente personal IA en WhatsApp (limitado)",
   "Encuesta de satisfacción",
   "Expediente de clientes",
   "Landing page con IA (5 generaciones / 20 refinamientos al mes)",
 ]
 
 const FEATURES_ENTERPRISE = [
-  ...FEATURES_PRO.filter((f) => !f.startsWith("Landing page")),
+  ...FEATURES_PRO.filter((f) => !f.startsWith("Landing page") && !f.startsWith("Agente personal")),
   // "Administración de sucursales",
+  "Agente personal IA en WhatsApp",
   "Gestión de equipo y permisos",
   "Landing page con IA (15 generaciones / 60 refinamientos al mes)",
   "Chatbot de agendamiento con IA (250 conversaciones al mes)",

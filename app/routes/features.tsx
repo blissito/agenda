@@ -69,7 +69,7 @@ export default function Index() {
 
 const Features = () => {
   return (
-    <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:py-[24%] xl:pt-[16%] pb-0 lg:pb-[160px]">
+    <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px] pb-0 lg:pb-[160px]">
       <h2 className="group text-3xl lg:text-6xl	font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
         <span className="mr-4"> Funcionalidades </span>
         <UserFeatures className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] md:w-16 md:h-16 mr-3" />

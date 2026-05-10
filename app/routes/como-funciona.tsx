@@ -33,7 +33,7 @@ export default function ComoFunciona() {
         <Business />
 
         {/* Hero */}
-        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto my-20 md:my-[160px] pt-10">
+        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto mb-20 md:mb-[160px] pt-40">
           <h1 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
             <span className="mr-4">Cómo funciona</span>
             <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
@@ -981,7 +981,7 @@ const Business = () => {
   ))
   return (
     <section className="relative">
-      <div className="h-[1200px] mx-auto rounded-[40px] max-w-7xl  max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[24%] xl:pt-[16%] ">
+      <div className="h-[1200px] mx-auto rounded-[40px] max-w-7xl  max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px] ">
         <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
           <span className="mr-4">Para todos los negocios</span>
           <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />

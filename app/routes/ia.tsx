@@ -177,7 +177,7 @@ export default function IA() {
       <TopBar />
       <main className="bg-white min-h-screen rounded-b-[40px] flex flex-col font-satoshi text-brand_dark antialiased">
         {/* HERO */}
-        <section className="relative min-h-svh flex items-center overflow-hidden pt-[140px] pb-10">
+        <section className="relative min-h-svh flex items-center overflow-hidden pt-40 lg:pt-[320px] pb-10">
           <div className="w-full max-w-7xl mx-auto px-5 md:px-10">
             <div className="grid grid-cols-1 md:grid-cols-[1.05fr_.95fr] items-center gap-10 md:gap-14">
               <div>
@@ -207,7 +207,7 @@ export default function IA() {
                   <PrimaryButton as="Link" to="/signin">
                     Empezar gratis <ArrowRight />
                   </PrimaryButton>
-                  <SecondaryButton>
+                  <SecondaryButton className="bg-transparent">
                     <svg
                       width="14"
                       height="14"
@@ -436,7 +436,9 @@ export default function IA() {
                   <PrimaryButton as="Link" to="/signin">
                     Probar el constructor
                   </PrimaryButton>
-                  <SecondaryButton>Ver ejemplos →</SecondaryButton>
+                  <SecondaryButton className="bg-transparent">
+                    Ver ejemplos
+                  </SecondaryButton>
                 </div>
               </div>
 
@@ -735,7 +737,7 @@ export default function IA() {
                   <PrimaryButton as="Link" to="/signin">
                     Activar chatbot
                   </PrimaryButton>
-                  <SecondaryButton>Cómo se entrena →</SecondaryButton>
+              
                 </div>
               </div>
             </div>
@@ -780,7 +782,7 @@ export default function IA() {
                     </svg>
                     Conectar WhatsApp
                   </PrimaryButton>
-                  <SecondaryButton>Ver todo lo que hace →</SecondaryButton>
+                 
                 </div>
               </div>
 

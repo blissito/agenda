@@ -235,6 +235,7 @@ De la libreta del 2026-04-23 — 4 items pendientes + 1 a medias. Trabajar uno p
 - [x] ~~**CI/CD**: Los checks de GitHub Actions nunca pasan~~ (ya pasan correctamente)
 - [x] ~~**BUG PROD - IMÁGENES**: Las imágenes no se muestran en sitio público~~ (helper `getPublicImageUrl()` en urls.ts)
 - [ ] **URGENTE**: Agregar `STRIPE_WEBHOOK_SECRET` en Fly secrets — sin esta variable el webhook Stripe rechaza todo con 400. Obtener de [Stripe Dashboard → Webhooks](https://dashboard.stripe.com/webhooks) y correr: `fly secrets set STRIPE_WEBHOOK_SECRET="whsec_..."`
+- [ ] **SEC — fuga de PII en booking público (`get_times_for_selected_date`)**: en `app/routes/service.$serviceSlug.tsx:79-87` y `app/routes/agenda.$orgSlug.$serviceSlug.tsx` el `db.event.findMany` no filtra por `serviceId`/`orgId` y retorna el objeto Prisma completo (incluye `notes`, `mp_payment_id`, `customerId`, etc.) de **todos los eventos de la plataforma** en esa fecha. Cualquiera puede hacer POST al endpoint y enumerar PII. Fix: añadir `where: { serviceId: service.id }` y `select: { start: true }` (mismo patrón que ya aplicamos en `event.$eventId.reschedule.tsx`).
 - [x] ~~**URGENTE**: Arreglar link de evaluaciones (la ruta falla)~~ (índices agregados)
 - [x] ~~**URGENTE**: Reevaluar sistema de integraciones y activar Messenger~~ (Descartado - email suficiente)
 - [x] ~~**SIGUIENTE**: el boton de cerrar del menu queda por encima del container de la descipción del servicio~~ (z-50 agregado al modal)

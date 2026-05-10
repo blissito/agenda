@@ -193,6 +193,42 @@ export async function createMeetLink({
   }
 }
 
+export async function patchMeetEvent({
+  org,
+  calendarEventId,
+  start,
+  end,
+}: {
+  org: Org
+  calendarEventId: string
+  start: Date
+  end: Date
+}): Promise<void> {
+  const accessToken = await getValidAccessToken(org)
+  const timezone = (org as any).timezone || "America/Mexico_City"
+
+  const res = await fetch(
+    `https://www.googleapis.com/calendar/v3/calendars/primary/events/${calendarEventId}?sendUpdates=all`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        start: { dateTime: start.toISOString(), timeZone: timezone },
+        end: { dateTime: end.toISOString(), timeZone: timezone },
+      }),
+    },
+  )
+
+  // 404/410 means the event was deleted on Google's side — treat as no-op
+  if (!res.ok && res.status !== 404 && res.status !== 410) {
+    const text = await res.text()
+    throw new Error(`Google Calendar patch event failed: ${text}`)
+  }
+}
+
 export async function cancelMeetEvent(
   org: Org,
   calendarEventId: string,

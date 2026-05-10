@@ -68,13 +68,7 @@ type TabId = (typeof TABS)[number]["id"]
 export default function MiCuenta({ loaderData }: Route.ComponentProps) {
   const { user, data } = loaderData
   const [activeTab, setActiveTab] = useState<TabId>("upcoming")
-  const [tabDirection, setTabDirection] = useState(0)
-  const handleTabChange = (tab: TabId) => {
-    const prevIndex = TABS.findIndex((t) => t.id === activeTab)
-    const nextIndex = TABS.findIndex((t) => t.id === tab)
-    setTabDirection(nextIndex > prevIndex ? 1 : -1)
-    setActiveTab(tab)
-  }
+  const handleTabChange = (tab: TabId) => setActiveTab(tab)
   const [orgFilter, setOrgFilter] = useState<string>("all")
   const [upcomingView, setUpcomingView] = useState<"calendar" | "table">(
     "calendar",
@@ -137,25 +131,30 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
     [filteredUpcoming],
   )
 
-  // Inject timezone abbreviation into the calendar (same as dash/agenda)
+  // Pin the timezone label inside the Calendar (the lib renders the long name;
+  // we overwrite it with the short form and use a MutationObserver to keep it
+  // re-applied whenever the Calendar re-renders internally — otherwise the
+  // long name reappears until the user refreshes the page).
   const calendarRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    const inject = () => {
-      const el = calendarRef.current?.querySelector(".text-sm.text-gray-500")
-      if (el) {
-        const short = new Intl.DateTimeFormat("es-MX", {
-          timeZoneName: "short",
-        })
-          .formatToParts(new Date())
-          .find((p) => p.type === "timeZoneName")?.value
-        el.textContent = short ?? ""
-      }
+    const root = calendarRef.current
+    if (!root) return
+
+    const tzShort =
+      new Intl.DateTimeFormat("es-MX", { timeZoneName: "short" })
+        .formatToParts(new Date())
+        .find((p) => p.type === "timeZoneName")?.value ?? ""
+
+    const apply = () => {
+      const el = root.querySelector(".text-sm.text-gray-500")
+      if (el && el.textContent !== tzShort) el.textContent = tzShort
     }
-    inject()
-    // Retry after render in case Calendar DOM isn't ready yet
-    const raf = requestAnimationFrame(inject)
-    return () => cancelAnimationFrame(raf)
-  }, [controls.date, upcomingView, activeTab])
+    apply()
+
+    const obs = new MutationObserver(apply)
+    obs.observe(root, { childList: true, characterData: true, subtree: true })
+    return () => obs.disconnect()
+  }, [upcomingView, activeTab])
 
   // Hover card state for calendar events
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null)
@@ -447,56 +446,67 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                 </div>
               )}
 
-            {/* Select org filter */}
-            {data.orgs.length > 1 &&
-              (activeTab === "upcoming"
-                ? data.upcoming.length > 0
-                : data.past.length > 0) && (
-                <SelectStylized
-                  choices={[
-                    { value: "all", label: "Todos los negocios" },
-                    ...data.orgs.map((org) => ({
-                      value: org.id,
-                      label: org.name,
-                    })),
-                  ]}
-                  value={orgFilter}
-                  onChange={(value) => setOrgFilter(value)}
-                  placeholder="Todos los negocios"
-                  className="w-[240px]"
-                  inputClassName="rounded-full border-0"
-                />
-              )}
-
-            {/* View toggle — extrema derecha */}
-            {activeTab === "upcoming" && filteredUpcoming.length > 0 && (
-              <div className="flex items-center bg-white rounded-full h-12 p-1 ml-auto">
-                <button
-                  type="button"
-                  onClick={() => setUpcomingView("calendar")}
-                  className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
-                    upcomingView === "calendar"
-                      ? "bg-brand_blue text-white"
-                      : "text-brand_gray hover:text-brand_dark"
-                  }`}
-                  title="Vista calendario"
-                >
-                  <Calendar2 className="w-[22px] h-[22px]" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUpcomingView("table")}
-                  className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
-                    upcomingView === "table"
-                      ? "bg-brand_blue text-white"
-                      : "text-brand_gray hover:text-brand_dark"
-                  }`}
-                  title="Vista tabla"
-                >
-                  <TbList size={22} />
-                </button>
-              </div>
+            {/* Conteo a la izquierda — solo en tabla próximas o historial */}
+            {((activeTab === "upcoming" && upcomingView === "table") ||
+              activeTab === "history") && (
+              <span className="text-lg font-satoMedium text-brand_gray">
+                {activeTab === "upcoming"
+                  ? `${filteredUpcoming.length} ${filteredUpcoming.length === 1 ? "cita pendiente" : "citas pendientes"}`
+                  : `${filteredPast.length} ${filteredPast.length === 1 ? "cita agendada" : "citas agendadas"}`}
+              </span>
             )}
+
+            {/* Select + toggle agrupados a la derecha */}
+            <div className="ml-auto flex items-center gap-3">
+              {data.orgs.length > 1 &&
+                (activeTab === "upcoming"
+                  ? data.upcoming.length > 0
+                  : data.past.length > 0) && (
+                  <SelectStylized
+                    choices={[
+                      { value: "all", label: "Todos los negocios" },
+                      ...data.orgs.map((org) => ({
+                        value: org.id,
+                        label: org.name,
+                      })),
+                    ]}
+                    value={orgFilter}
+                    onChange={(value) => setOrgFilter(value)}
+                    placeholder="Todos los negocios"
+                    className="w-[240px]"
+                    inputClassName="rounded-full border-0"
+                  />
+                )}
+
+              {activeTab === "upcoming" && filteredUpcoming.length > 0 && (
+                <div className="flex items-center bg-white rounded-full h-12 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setUpcomingView("calendar")}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                      upcomingView === "calendar"
+                        ? "bg-brand_blue text-white"
+                        : "text-brand_gray hover:text-brand_dark"
+                    }`}
+                    title="Vista calendario"
+                  >
+                    <Calendar2 className="w-[22px] h-[22px]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUpcomingView("table")}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+                      upcomingView === "table"
+                        ? "bg-brand_blue text-white"
+                        : "text-brand_gray hover:text-brand_dark"
+                    }`}
+                    title="Vista tabla"
+                  >
+                    <TbList size={22} />
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -511,14 +521,13 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
                 className="w-16 h-16 absolute -top-14 left-1/2 hidden md:block"
               />
             )}
-          <AnimatePresence mode="wait" initial={false} custom={tabDirection}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={activeTab}
-              custom={tabDirection}
-              initial={{ opacity: 0, x: tabDirection * 60 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: tabDirection * -60 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             >
               {!data ? (
                 <EmptyState />
@@ -730,7 +739,9 @@ export default function MiCuenta({ loaderData }: Route.ComponentProps) {
 // ==================== LOYALTY TAB ====================
 
 function LoyaltyTab({ loyalty }: { loyalty: PortalLoyalty[] }) {
-  if (loyalty.length === 0) {
+  const withPoints = loyalty.filter((l) => l.points > 0 || l.totalEarned > 0)
+
+  if (withPoints.length === 0) {
     return (
       <EmptyState
         title="Acumula puntos con cada visita"
@@ -741,7 +752,7 @@ function LoyaltyTab({ loyalty }: { loyalty: PortalLoyalty[] }) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {loyalty.map((l) => (
+      {withPoints.map((l) => (
         <LoyaltyCard key={l.org.id} loyalty={l} />
       ))}
     </div>
@@ -749,37 +760,59 @@ function LoyaltyTab({ loyalty }: { loyalty: PortalLoyalty[] }) {
 }
 
 function LoyaltyCard({ loyalty }: { loyalty: PortalLoyalty }) {
-  const levelImage = loyalty.nextLevel?.image ?? loyalty.level?.image
-  const levelName = loyalty.nextLevel?.name ?? loyalty.level?.name
-  const discount =
-    loyalty.level?.discountPercent ?? loyalty.nextLevel?.discountPercent
+  const hasLevel = !!loyalty.level
+  const levelImage = loyalty.level?.image ?? loyalty.nextLevel?.image
+  const levelName = loyalty.level?.name ?? "Sin nivel aún"
+  const discount = loyalty.level?.discountPercent ?? 0
 
   return (
-    <div>
-      {/* Membership card image */}
-      {levelImage && (
-        <div className="rounded-2xl overflow-hidden bg-gray-100 aspect-[16/10]">
-          <img
-            src={levelImage}
-            alt={levelName ?? ""}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
-
-      {/* Info row */}
-      <div className="flex items-center gap-2 mt-3 flex-wrap">
-        <span className="text-sm font-satoBold text-brand_dark">
-          {loyalty.org.name}
-        </span>
-        {levelName && (
-          <span className="text-xs font-satoMedium bg-brand_blue/10 text-brand_blue px-2.5 py-0.5 rounded-full">
-            {levelName}
+    <div className="rounded-2xl border border-brand_stroke bg-white overflow-hidden flex flex-col">
+      {/* Level image */}
+      <div className="relative bg-gray-100 aspect-[16/10] overflow-hidden">
+        <img
+          src={levelImage || "/images/avatar.svg"}
+          alt={levelName}
+          onError={(e) => {
+            e.currentTarget.src = "/images/avatar.svg"
+          }}
+          className={`w-full h-full object-cover ${hasLevel ? "" : "opacity-40 grayscale"}`}
+        />
+        {hasLevel && discount > 0 && (
+          <span className="absolute top-3 right-3 text-xs font-satoBold bg-brand_blue text-white px-2.5 py-1 rounded-full shadow-sm">
+            {discount}% de descuento
           </span>
         )}
-        <span className="text-sm text-brand_gray font-satoMedium ml-auto">
-          {discount ? `${discount}% desc` : `${loyalty.points} puntos`}
-        </span>
+      </div>
+
+      {/* Info */}
+      <div className="p-4 flex flex-col gap-1.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <img
+            src={(loyalty.org.logo as string) || "/images/avatar.svg"}
+            alt=""
+            onError={(e) => {
+              e.currentTarget.src = "/images/avatar.svg"
+            }}
+            className="w-6 h-6 rounded-full object-cover bg-gray-100 flex-shrink-0"
+          />
+          <span className="text-sm font-satoBold text-brand_dark truncate">
+            {loyalty.org.name}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-satoMedium text-brand_gray">
+            {levelName}
+          </span>
+          <span className="text-xs font-satoMedium text-brand_gray">
+            {loyalty.points} pts
+          </span>
+        </div>
+        {!hasLevel && loyalty.nextLevel && (
+          <p className="text-[11px] text-brand_gray mt-1">
+            Te faltan {loyalty.nextLevel.pointsNeeded} pts para{" "}
+            <span className="font-satoBold">{loyalty.nextLevel.name}</span>
+          </p>
+        )}
       </div>
     </div>
   )
@@ -939,7 +972,7 @@ function PortalEventList({
       {/* Desktop */}
       <div className="hidden lg:block w-full overflow-x-auto rounded-2xl">
         <div className="min-w-[920px]">
-          <div className="grid grid-cols-[140px_1.2fr_1fr_90px_90px_1fr_44px] rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray uppercase tracking-wide">
+          <div className="grid grid-cols-[140px_1.2fr_1fr_90px_90px_1fr_44px] rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray tracking-wide">
             <div>Fecha</div>
             <div>Negocio</div>
             <div>Servicio</div>
@@ -1032,17 +1065,14 @@ function PortalEventRow({
 
       {/* Org */}
       <div className="flex items-center gap-2.5 min-w-0">
-        {org?.logo ? (
-          <img
-            src={org.logo as string}
-            alt=""
-            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-          />
-        ) : (
-          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-satoMedium text-brand_gray flex-shrink-0">
-            {org?.name.charAt(0) ?? "?"}
-          </div>
-        )}
+        <img
+          src={(org?.logo as string) || "/images/avatar.svg"}
+          alt=""
+          onError={(e) => {
+            e.currentTarget.src = "/images/avatar.svg"
+          }}
+          className="w-8 h-8 rounded-full object-cover flex-shrink-0 bg-gray-100"
+        />
         <span className="text-sm font-satoBold text-brand_dark truncate">
           {org?.name ?? "—"}
         </span>
@@ -1168,10 +1198,15 @@ function EventActions({
   }
   return (
     <DropdownMenu hideDefaultButton>
-      <MenuButton icon={<FaRegCalendarCheck />} variant="default">
+      <MenuButton
+        to={eventId ? `/event/${eventId}/reschedule` : undefined}
+        icon={<FaRegCalendarCheck />}
+        variant="default"
+      >
         Reagendar
       </MenuButton>
       <MenuButton
+        to={eventId ? `/event/${eventId}/cancel` : undefined}
         icon={<TbCalendarCancel className="text-lg" />}
         variant="danger"
       >
@@ -1198,18 +1233,15 @@ function FavoritesTab({ orgs }: { orgs: PortalOrgInfo[] }) {
           rel="noopener noreferrer"
           className="flex flex-col items-center gap-2 group"
         >
-          <div className="w-24 h-24 rounded-full bg-brand_dark border-[3px] border-brand_dark overflow-hidden flex items-center justify-center group-hover:border-brand_blue transition-colors">
-            {org.logo ? (
-              <img
-                src={org.logo as string}
-                alt={org.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-white text-xl font-satoBold">
-                {org.name.charAt(0)}
-              </span>
-            )}
+          <div className="w-24 h-24 rounded-full bg-white border border-brand_stroke overflow-hidden flex items-center justify-center group-hover:border-brand_blue transition-colors">
+            <img
+              src={(org.logo as string) || "/images/avatar.svg"}
+              alt={org.name}
+              onError={(e) => {
+                e.currentTarget.src = "/images/avatar.svg"
+              }}
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="text-xs font-satoMedium text-brand_dark text-center max-w-[80px] truncate">
             {org.name}

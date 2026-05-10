@@ -5,6 +5,7 @@
 
 import { useState } from "react"
 import { redirect } from "react-router"
+import { getUserOrNull } from "~/.server/userGetters"
 import { cancelEventFully } from "~/lib/event-cancel.server"
 import { getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
@@ -15,15 +16,7 @@ import type { Route } from "./+types/event.$eventId.cancel"
 export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const session = await getSession(request.headers.get("Cookie"))
   const access = session.get("customerEventAccess")
-
-  // Verify session access
-  if (
-    !access ||
-    access.eventId !== params.eventId ||
-    access.expiresAt < Date.now()
-  ) {
-    throw redirect("/error?reason=session_expired")
-  }
+  const user = await getUserOrNull(request)
 
   const event = await db.event.findUnique({
     where: { id: params.eventId },
@@ -35,6 +28,19 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 
   if (!event) {
     throw redirect("/error?reason=event_not_found")
+  }
+
+  // Verify access: token session, logged-in owner, or logged-in customer (email match)
+  const hasTokenAccess =
+    !!access &&
+    access.eventId === params.eventId &&
+    access.expiresAt > Date.now()
+  const isOwner = !!user && event.service?.org.ownerId === user.id
+  const isCustomerLoggedIn =
+    !!user && !!event.customer?.email && user.email === event.customer.email
+
+  if (!hasTokenAccess && !isOwner && !isCustomerLoggedIn) {
+    throw redirect("/error?reason=session_expired")
   }
 
   const org = event.service?.org as
@@ -91,13 +97,23 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 export const action = async ({ request, params }: Route.ActionArgs) => {
   const session = await getSession(request.headers.get("Cookie"))
   const access = session.get("customerEventAccess")
+  const user = await getUserOrNull(request)
 
-  // Verify session access
-  if (
-    !access ||
-    access.eventId !== params.eventId ||
-    access.expiresAt < Date.now()
-  ) {
+  const event = await db.event.findUnique({
+    where: { id: params.eventId },
+    include: { customer: true, service: { include: { org: true } } },
+  })
+  if (!event) return { success: false, message: "Evento no encontrado" }
+
+  const hasTokenAccess =
+    !!access &&
+    access.eventId === params.eventId &&
+    access.expiresAt > Date.now()
+  const isOwner = !!user && event.service?.org.ownerId === user.id
+  const isCustomerLoggedIn =
+    !!user && !!event.customer?.email && user.email === event.customer.email
+
+  if (!hasTokenAccess && !isOwner && !isCustomerLoggedIn) {
     throw redirect("/error?reason=session_expired")
   }
 
@@ -105,12 +121,6 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
   const intent = formData.get("intent")
 
   if (intent === "cancel") {
-    // Verify cancellation window server-side
-    const event = await db.event.findUnique({
-      where: { id: params.eventId },
-      include: { service: { include: { org: true } } },
-    })
-    if (!event) return { success: false, message: "Evento no encontrado" }
 
     const orgConfig = (
       event.service?.org as { config?: { cancellationWindow?: string } }
