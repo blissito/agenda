@@ -1,4 +1,7 @@
-import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
+import {
+  type Section3,
+  sanitizeSemanticColors,
+} from "@easybits.cloud/html-tailwind-generator"
 import type { ActionFunctionArgs } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import {
@@ -6,7 +9,6 @@ import {
   getLandingUsage,
   incrementLandingUsage,
   refineOrgLanding,
-  sanitizeContrast,
 } from "~/lib/landing-generator.server"
 import { db } from "~/utils/db.server"
 
@@ -286,7 +288,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (Array.isArray(sections)) {
       sections = sections.map((s) =>
         s && typeof s.html === "string"
-          ? { ...s, html: sanitizeContrast(s.html) }
+          ? { ...s, html: sanitizeSemanticColors(s.html) }
           : s,
       )
     }
