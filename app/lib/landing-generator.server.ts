@@ -11,6 +11,7 @@ import type { Org, Service } from "@prisma/client"
 import { db } from "~/utils/db.server"
 import { getPublicImageUrl } from "~/utils/urls"
 import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
+import { buildDesignDirectives } from "~/lib/landing-patterns.server"
 
 // ==================== TYPES ====================
 export type { Section3 }
@@ -168,6 +169,8 @@ function buildOrgPrompt(
     )
   }
 
+  parts.push(buildDesignDirectives(org.businessType))
+
   return parts.join(".\n")
 }
 
@@ -183,7 +186,9 @@ RESPONSIVE DESIGN — CRITICAL:
 - NEVER use fixed widths on interactive elements — buttons must use px/py padding, not w-*/h-* circles
 - Grid: grid-cols-1 base, md:grid-cols-2, lg:grid-cols-3
 - Images: w-full h-auto object-cover, never fixed dimensions
-- Text: text-2xl md:text-4xl for headings, text-base for body`
+- Text: text-2xl md:text-4xl for headings, text-base for body
+
+` + buildDesignDirectives()
 
 // ==================== AI CONFIG ====================
 
