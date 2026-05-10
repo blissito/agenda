@@ -17,6 +17,16 @@ import { db } from "~/utils/db.server"
 import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website_.ai"
 
+type Brandkit = {
+  primaryColor?: string | null
+  secondaryColor?: string | null
+  accentColor?: string | null
+  surfaceColor?: string | null
+  fontHeading?: string | null
+  fontBody?: string | null
+  logoUrl?: string | null
+}
+
 // Remap block categories: "Básicos" for basic elements, section categories for compound sections
 const CATEGORY_MAP: Record<string, string> = {
   Basic: "Básicos",
@@ -67,6 +77,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       landingPublished: true,
       landingChatbotEnabled: true,
       chatbotAgentId: true,
+      brandkit: true,
     },
   })
   if (!org) throw new Response("Org not found", { status: 404 })
@@ -134,6 +145,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const [theme, setTheme] = useState(org.landingTheme || "default")
   const [customColors, setCustomColors] = useState<Record<string, string>>(
     () => (org.landingCustomColors as Record<string, string> | null) || {},
+  )
+  const [brandkit, setBrandkit] = useState<Brandkit>(
+    () => (org.brandkit as Brandkit | null) || {},
   )
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRefining, setIsRefining] = useState(false)
@@ -266,7 +280,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   }, [])
 
   // Generate landing (streaming SSE)
-  const handleGenerate = useCallback(async () => {
+  const handleGenerate = useCallback(async (instruction?: string) => {
     abortRef.current?.abort()
     const controller = new AbortController()
     abortRef.current = controller
@@ -285,6 +299,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     try {
       const formData = new FormData()
       formData.append("intent", "generate")
+      if (instruction?.trim()) {
+        formData.append("instruction", instruction.trim())
+      }
 
       const res = await fetch("/api/landing-generator", {
         method: "POST",
@@ -531,6 +548,126 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
     runRefine(action, instruction)
   }, [refineModal.action, refineInstruction, closeRefineModal, runRefine])
 
+  // Regenerate-with-instructions modal — replaces window.confirm on "Generar con IA"
+  const [regenModal, setRegenModal] = useState<{
+    open: boolean
+    instruction: string
+    selectedIds: Set<string>
+  }>({ open: false, instruction: "", selectedIds: new Set() })
+
+  const openRegenModal = useCallback(() => {
+    const allIds = new Set(
+      sections.filter((s) => s.id !== "__grapes_css__").map((s) => s.id),
+    )
+    setRegenModal({ open: true, instruction: "", selectedIds: allIds })
+  }, [sections])
+
+  const closeRegenModal = useCallback(() => {
+    setRegenModal((r) => ({ ...r, open: false }))
+  }, [])
+
+  // Regenerate a subset of sections via the refine-per-section endpoint.
+  const handleRegenerateSections = useCallback(
+    async (sectionIds: string[], instruction: string) => {
+      setIsRefining(true)
+      setErrorMessage(null)
+      try {
+        const formData = new FormData()
+        formData.append("intent", "regenerate_sections")
+        formData.append("sectionIds", JSON.stringify(sectionIds))
+        if (instruction.trim()) formData.append("instruction", instruction.trim())
+
+        const res = await fetch("/api/landing-generator", {
+          method: "POST",
+          body: formData,
+        })
+        if (res.status === 429) {
+          const data = await res.json()
+          setErrorMessage(data.error || "Limite alcanzado")
+          return
+        }
+        if (!res.ok) throw new Error("Regenerate failed")
+
+        const reader = res.body?.getReader()
+        if (!reader) throw new Error("No stream")
+        const decoder = new TextDecoder()
+        let buf = ""
+        let eventType = ""
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buf += decoder.decode(value, { stream: true })
+          const lines = buf.split("\n")
+          buf = lines.pop() || ""
+          for (const line of lines) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7).trim()
+            } else if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6))
+                if (eventType === "section-done" && data.id && data.html) {
+                  // Replace the existing section in the editor canvas.
+                  const ed = editorRef.current?.getEditor()
+                  const wrapper = ed?.DomComponents.getWrapper()
+                  if (wrapper) {
+                    const find = (parent: any): any => {
+                      if (parent.getAttributes?.()["data-section-id"] === data.id)
+                        return parent
+                      for (const child of parent.components?.().models ?? []) {
+                        const found = find(child)
+                        if (found) return found
+                      }
+                      return null
+                    }
+                    const comp = find(wrapper)
+                    if (comp) {
+                      comp.replaceWith(
+                        `<div data-section-id="${data.id}">${data.html}</div>`,
+                      )
+                    }
+                  }
+                  setUsage((u) => ({ ...u, refineUsed: u.refineUsed + 1 }))
+                } else if (eventType === "error") {
+                  setErrorMessage(data.message)
+                }
+              } catch {}
+            }
+          }
+        }
+        setHasUnpublishedChanges(true)
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Error al regenerar secciones"
+        setErrorMessage(message)
+      } finally {
+        setIsRefining(false)
+      }
+    },
+    [],
+  )
+
+  const handleRegenConfirm = useCallback(() => {
+    const { instruction, selectedIds } = regenModal
+    const allIds = sections
+      .filter((s) => s.id !== "__grapes_css__")
+      .map((s) => s.id)
+    const ids = Array.from(selectedIds)
+    closeRegenModal()
+    if (ids.length === 0) return
+    if (ids.length === allIds.length) {
+      // Full regen → use generate flow (cheaper if only structure stays similar)
+      handleGenerate(instruction)
+    } else {
+      handleRegenerateSections(ids, instruction)
+    }
+  }, [
+    regenModal,
+    sections,
+    closeRegenModal,
+    handleGenerate,
+    handleRegenerateSections,
+  ])
+
   // Save/Publish
   const pendingSaveRef = useRef<{ publish: boolean } | null>(null)
   const handleSave = useCallback(
@@ -557,13 +694,14 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
           sections: JSON.stringify(currentSections),
           theme,
           customColors: JSON.stringify(customColors),
+          brandkit: JSON.stringify(brandkit),
           publish: publish ? "true" : "false",
           chatbotEnabled: chatbotEnabled ? "true" : "false",
         },
         { method: "post", action: "/api/landing-generator" },
       )
     },
-    [sections, theme, customColors, chatbotEnabled, fetcher],
+    [sections, theme, customColors, brandkit, chatbotEnabled, fetcher],
   )
 
   // GrapesEditor onChange — sync sections state, preserving __grapes_css__ if lost.
@@ -942,15 +1080,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
             <>
               <button
                 type="button"
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      "Esto reemplazará tu landing actual con una nueva generada por IA. ¿Continuar?",
-                    )
-                  ) {
-                    handleGenerate()
-                  }
-                }}
+                onClick={openRegenModal}
                 disabled={
                   isGenerating || isLoading || usage.genUsed >= usage.genLimit
                 }
@@ -1040,6 +1170,11 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                 setChatbotEnabled(enabled)
                 setHasUnpublishedChanges(true)
               }}
+              brandkit={brandkit}
+              onBrandkitChange={(next) => {
+                setBrandkit(next)
+                setHasUnpublishedChanges(true)
+              }}
             />
             {isGenerating && (
               <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 z-40">
@@ -1096,7 +1231,7 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
               </ul>
               <button
                 type="button"
-                onClick={handleGenerate}
+                onClick={() => handleGenerate()}
                 disabled={
                   isGenerating || isLoading || usage.genUsed >= usage.genLimit
                 }
@@ -1134,6 +1269,153 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       {errorMessage && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 bg-red-600 text-white rounded-xl shadow-lg text-sm font-medium animate-fade-in">
           {errorMessage}
+        </div>
+      )}
+
+      {regenModal.open && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+          role="dialog"
+          aria-modal="true"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") closeRegenModal()
+          }}
+        >
+          <button
+            type="button"
+            onClick={closeRegenModal}
+            className="absolute inset-0 bg-black/35 backdrop-blur-[16px]"
+            aria-label="Cerrar"
+          />
+          <div className="relative w-[640px] max-w-full rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="absolute left-1/2 -top-16 -translate-x-1/2 z-20">
+              <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
+                <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
+                  <span className="text-6xl leading-none">✨</span>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={closeRegenModal}
+              className="absolute right-6 top-6 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95 z-30"
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+            <div className="w-full px-12 pt-16 pb-8 flex flex-col items-center overflow-y-auto">
+              <h3 className="text-center font-satoBold text-2xl leading-[32px] text-brand_dark">
+                Regenerar con IA
+              </h3>
+              <p className="mt-4 text-center font-normal font-satoshi text-base leading-[22px] text-brand_gray">
+                Elige qué secciones regenerar y cuéntanos qué quieres cambiar.
+              </p>
+              <textarea
+                autoFocus
+                value={regenModal.instruction}
+                onChange={(e) =>
+                  setRegenModal((r) => ({ ...r, instruction: e.target.value }))
+                }
+                placeholder="Ej. más minimalista, paleta cálida, hero con video, copy más directo…"
+                rows={3}
+                className="mt-6 w-full rounded-xl border border-brand_stroke bg-white px-4 py-3 text-sm font-satoshi text-brand_dark placeholder:text-brand_gray focus:outline-none focus:border-brand_blue focus:ring-0"
+              />
+              <div className="mt-6 w-full">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm font-satoMiddle text-brand_dark">
+                    Secciones a regenerar
+                  </span>
+                  <div className="flex gap-2 text-xs font-satoshi">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const allIds = new Set(
+                          sections
+                            .filter((s) => s.id !== "__grapes_css__")
+                            .map((s) => s.id),
+                        )
+                        setRegenModal((r) => ({ ...r, selectedIds: allIds }))
+                      }}
+                      className="text-brand_blue hover:underline"
+                    >
+                      Todas
+                    </button>
+                    <span className="text-brand_gray">·</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setRegenModal((r) => ({
+                          ...r,
+                          selectedIds: new Set(),
+                        }))
+                      }
+                      className="text-brand_gray hover:underline"
+                    >
+                      Ninguna
+                    </button>
+                  </div>
+                </div>
+                <div className="max-h-48 overflow-y-auto border border-brand_stroke rounded-xl divide-y divide-brand_stroke">
+                  {sections
+                    .filter((s) => s.id !== "__grapes_css__")
+                    .map((section) => {
+                      const checked = regenModal.selectedIds.has(section.id)
+                      return (
+                        <label
+                          key={section.id}
+                          className="flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-gray-50"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {
+                              setRegenModal((r) => {
+                                const next = new Set(r.selectedIds)
+                                if (next.has(section.id)) next.delete(section.id)
+                                else next.add(section.id)
+                                return { ...r, selectedIds: next }
+                              })
+                            }}
+                            className="h-4 w-4 accent-brand_blue"
+                          />
+                          <span className="text-sm font-satoshi text-brand_dark capitalize">
+                            {section.id.replace(/[-_]/g, " ")}
+                          </span>
+                        </label>
+                      )
+                    })}
+                  {sections.filter((s) => s.id !== "__grapes_css__").length ===
+                    0 && (
+                    <p className="px-4 py-3 text-xs text-brand_gray font-satoshi">
+                      Aún no hay secciones — la generación creará una landing
+                      completa.
+                    </p>
+                  )}
+                </div>
+                <p className="mt-2 text-xs text-brand_gray font-satoshi">
+                  Si seleccionas todas, se regenera la landing entera (cuenta
+                  como 1 generación). Subconjunto: cuenta como N refinamientos.
+                </p>
+              </div>
+              <div className="mt-6 flex items-center justify-center gap-6">
+                <button
+                  type="button"
+                  onClick={closeRegenModal}
+                  className="px-6 py-2 rounded-full border border-brand_stroke text-brand_dark hover:bg-gray-50 transition-colors min-w-[140px]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRegenConfirm}
+                  disabled={regenModal.selectedIds.size === 0}
+                  className="px-6 py-2 rounded-full bg-brand_blue text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[140px]"
+                >
+                  Regenerar
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 

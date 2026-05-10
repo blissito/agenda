@@ -1,6 +1,11 @@
 import type { ActionFunctionArgs } from "react-router"
 import { Stripe } from "stripe"
 import { awardPoints } from "~/lib/loyalty.server"
+import {
+  handleSubscriptionCreated,
+  handleSubscriptionDeleted,
+  handleSubscriptionUpdated,
+} from "~/lib/stripe/subscription-webhook.server"
 import { db } from "~/utils/db.server"
 import {
   sendAppointmentToCustomer,
@@ -172,6 +177,18 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       // This is just for logging/monitoring
       break
     }
+
+    case "customer.subscription.created":
+      await handleSubscriptionCreated(event.data.object as Stripe.Subscription)
+      break
+
+    case "customer.subscription.updated":
+      await handleSubscriptionUpdated(event.data.object as Stripe.Subscription)
+      break
+
+    case "customer.subscription.deleted":
+      await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
+      break
 
     case "payment_intent.payment_failed": {
       const paymentIntent = event.data.object as Stripe.PaymentIntent

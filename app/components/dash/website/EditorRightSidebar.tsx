@@ -3,6 +3,16 @@ import { TailwindClassEditor } from "@easybits.cloud/html-tailwind-generator/com
 import type { Editor } from "grapesjs"
 import { useEffect, useMemo, useRef, useState } from "react"
 
+export type Brandkit = {
+  primaryColor?: string | null
+  secondaryColor?: string | null
+  accentColor?: string | null
+  surfaceColor?: string | null
+  fontHeading?: string | null
+  fontBody?: string | null
+  logoUrl?: string | null
+}
+
 export interface EditorRightSidebarProps {
   editor: Editor | null
   theme: string
@@ -12,6 +22,8 @@ export interface EditorRightSidebarProps {
   hasChatbot?: boolean
   chatbotEnabled?: boolean
   onChatbotEnabledChange?: (enabled: boolean) => void
+  brandkit?: Brandkit
+  onBrandkitChange?: (next: Brandkit) => void
 }
 
 export function EditorRightSidebar({
@@ -23,6 +35,8 @@ export function EditorRightSidebar({
   hasChatbot = false,
   chatbotEnabled = false,
   onChatbotEnabledChange,
+  brandkit,
+  onBrandkitChange,
 }: EditorRightSidebarProps) {
   const resolvedColors = useMemo(() => {
     const base = LANDING_THEMES.find((t) => t.id === theme)?.colors ?? {}
@@ -89,6 +103,16 @@ export function EditorRightSidebar({
 
       <div className="w-full h-px bg-gray-700" />
 
+      {onBrandkitChange && (
+        <>
+          <BrandkitPanel
+            brandkit={brandkit ?? {}}
+            onChange={onBrandkitChange}
+          />
+          <div className="w-full h-px bg-gray-700" />
+        </>
+      )}
+
       {/* Estilos */}
       <div className="flex-1 overflow-auto pt-4">
         <h3 className="text-sm font-bold text-white mb-3 px-4">Estilos</h3>
@@ -104,6 +128,102 @@ export function EditorRightSidebar({
           </p>
         )}
       </div>
+    </div>
+  )
+}
+
+function BrandkitPanel({
+  brandkit,
+  onChange,
+}: {
+  brandkit: Brandkit
+  onChange: (next: Brandkit) => void
+}) {
+  const [open, setOpen] = useState(true)
+  const update = (key: keyof Brandkit, value: string) => {
+    onChange({ ...brandkit, [key]: value || null })
+  }
+
+  const colorRows: Array<{ key: keyof Brandkit; label: string }> = [
+    { key: "primaryColor", label: "Primario" },
+    { key: "secondaryColor", label: "Secundario" },
+    { key: "accentColor", label: "Acento" },
+    { key: "surfaceColor", label: "Fondo" },
+  ]
+
+  return (
+    <div className="px-4 pt-5 pb-3">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between mb-3 text-sm font-bold text-white"
+      >
+        <span>Brandkit</span>
+        <span className="text-xs text-gray-400">{open ? "−" : "+"}</span>
+      </button>
+      {open && (
+        <div className="space-y-3">
+          <div className="space-y-2">
+            {colorRows.map(({ key, label }) => (
+              <div key={key} className="flex items-center gap-3">
+                <label className="text-xs text-gray-400 w-20">{label}</label>
+                <input
+                  type="color"
+                  value={(brandkit[key] as string) || "#ffffff"}
+                  onChange={(e) => update(key, e.target.value)}
+                  className="h-7 w-10 rounded cursor-pointer bg-transparent border border-gray-600"
+                />
+                <input
+                  type="text"
+                  value={(brandkit[key] as string) || ""}
+                  onChange={(e) => update(key, e.target.value)}
+                  placeholder="#5158F6"
+                  className="flex-1 text-xs px-2 py-1 rounded bg-[#2A2B31] text-white border-none outline-none placeholder:text-gray-500"
+                />
+              </div>
+            ))}
+          </div>
+          <div>
+            <label className="block text-xs text-gray-400 mb-1">Logo URL</label>
+            <input
+              type="url"
+              value={brandkit.logoUrl || ""}
+              onChange={(e) => update("logoUrl", e.target.value)}
+              placeholder="https://…/logo.svg"
+              className="w-full text-xs px-2 py-1.5 rounded bg-[#2A2B31] text-white border-none outline-none placeholder:text-gray-500"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                Fuente títulos
+              </label>
+              <input
+                type="text"
+                value={brandkit.fontHeading || ""}
+                onChange={(e) => update("fontHeading", e.target.value)}
+                placeholder="Inter"
+                className="w-full text-xs px-2 py-1.5 rounded bg-[#2A2B31] text-white border-none outline-none placeholder:text-gray-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1">
+                Fuente cuerpo
+              </label>
+              <input
+                type="text"
+                value={brandkit.fontBody || ""}
+                onChange={(e) => update("fontBody", e.target.value)}
+                placeholder="Satoshi"
+                className="w-full text-xs px-2 py-1.5 rounded bg-[#2A2B31] text-white border-none outline-none placeholder:text-gray-500"
+              />
+            </div>
+          </div>
+          <p className="text-[10px] text-gray-500 leading-tight">
+            La IA usará estos valores como referencia al generar y refinar.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

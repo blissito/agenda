@@ -1,7 +1,14 @@
 import { AnimatePresence, motion } from "motion/react"
 import { type ReactNode, Suspense, useEffect, useState } from "react"
 
-import type { MetaFunction } from "react-router"
+import {
+  Form,
+  type MetaFunction,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "react-router"
+import { getUserOrNull } from "~/.server/userGetters"
 import { HoverEffect } from "~/components/common/CardHoverEffect"
 import { Footer } from "~/components/common/Footer"
 import { PrimaryButton } from "~/components/common/primaryButton"
@@ -15,6 +22,7 @@ import { Bubble } from "~/components/icons/Bubble"
 import { HandShake } from "~/components/icons/handshake"
 import { Lamp } from "~/components/icons/lamp"
 import { getMetaTags } from "~/utils/getMetaTags"
+import type { Route } from "./+types/planes"
 
 export const meta: MetaFunction = () =>
   getMetaTags({
@@ -23,6 +31,14 @@ export const meta: MetaFunction = () =>
       "Escoge el plan de Deník que se adapta a tu negocio. Prueba gratis y haz crecer tus reservas.",
     url: "https://denik.me/planes",
   })
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const user = await getUserOrNull(request)
+  return {
+    isLoggedIn: !!user,
+    currentPlan: user?.plan ?? null,
+  }
+}
 
 export default function Index() {
   useEffect(() => {
@@ -330,6 +346,65 @@ export const Pricing = () => (
   </section>
 )
 
+type PlanIntent =
+  | "pro_monthly"
+  | "pro_annual"
+  | "enterprise_monthly"
+  | "enterprise_annual"
+
+function PlanCTA({
+  intent,
+  label,
+  popular,
+}: {
+  intent: PlanIntent
+  label: ReactNode
+  popular?: boolean
+}) {
+  const { isLoggedIn, currentPlan } = useLoaderData<typeof loader>()
+  const [searchParams] = useSearchParams()
+  const navigation = useNavigation()
+  const promo = searchParams.get("promo") || ""
+
+  const planFromIntent = intent.startsWith("pro_") ? "PRO" : "ENTERPRISE"
+  const isCurrent = currentPlan === planFromIntent
+
+  if (!isLoggedIn) {
+    return (
+      <PrimaryButton
+        as="Link"
+        to={`/signin?next=${encodeURIComponent(`/planes${promo ? `?promo=${promo}` : ""}`)}`}
+        className="w-full"
+      >
+        {label} <ArrowRight />
+      </PrimaryButton>
+    )
+  }
+
+  const isSubmitting =
+    navigation.state === "submitting" &&
+    navigation.formData?.get("intent") === intent
+
+  return (
+    <Form method="post" action="/api/stripe-checkout" className="w-full">
+      <input type="hidden" name="intent" value={intent} />
+      {promo === "welcome" ? (
+        <input type="hidden" name="promo" value="welcome3m80" />
+      ) : null}
+      <PrimaryButton
+        as="button"
+        type="submit"
+        isLoading={isSubmitting}
+        isDisabled={isCurrent}
+        className="w-full"
+      >
+        {isCurrent ? "Tu plan actual" : label}{" "}
+        {!isCurrent && <ArrowRight />}
+      </PrimaryButton>
+    </Form>
+  )
+}
+
 function PricingTabs() {
   const [selected, setSelected] = useState(0)
 
@@ -375,7 +450,9 @@ function PricingTabs() {
           transition={{ duration: 0.25 }}
           className="flex gap-12 justify-center mt-10 flex-wrap"
         >
-          <HoverEffect items={selected === 0 ? monthlyItems : yearlyItems} />
+          <HoverEffect
+            items={selected === 0 ? monthlyItems : yearlyItems}
+          />
         </motion.div>
       </AnimatePresence>
     </div>
@@ -395,8 +472,9 @@ const FEATURES_PRO = [
 ]
 
 const FEATURES_ENTERPRISE = [
-  ...FEATURES_PRO.filter((f) => !f.startsWith("Landing page") && !f.startsWith("Agente personal")),
-  // "Administración de sucursales",
+  ...FEATURES_PRO.filter(
+    (f) => !f.startsWith("Landing page") && !f.startsWith("Agente personal"),
+  ),
   "Agente personal IA en WhatsApp",
   "Gestión de equipo y permisos",
   "Landing page con IA (15 generaciones / 60 refinamientos al mes)",
@@ -411,11 +489,7 @@ export const yearlyItems = [
       "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
     price: "$199 mxn",
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
-    cta: (
-      <PrimaryButton as="Link" to="/signin" className="w-full">
-        Empieza ahora <ArrowRight />
-      </PrimaryButton>
-    ),
+    cta: <PlanCTA intent="pro_annual" label="Empieza ahora" />,
     features: FEATURES_PRO,
   },
   {
@@ -425,9 +499,11 @@ export const yearlyItems = [
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
     popular: true,
     cta: (
-      <PrimaryButton as="Link" to="/signin" className="w-full">
-        Escala sin límites <ArrowRight />
-      </PrimaryButton>
+      <PlanCTA
+        intent="enterprise_annual"
+        label="Escala sin límites"
+        popular
+      />
     ),
     features: FEATURES_ENTERPRISE,
   },
@@ -440,11 +516,7 @@ export const monthlyItems = [
       "Todo lo que necesitas para gestionar tu agenda profesionalmente.",
     price: "$249 mxn",
     priceNote: "Cancela cuando quieras.",
-    cta: (
-      <PrimaryButton as="Link" to="/signin" className="w-full">
-        Empieza ahora <ArrowRight />
-      </PrimaryButton>
-    ),
+    cta: <PlanCTA intent="pro_monthly" label="Empieza ahora" />,
     features: FEATURES_PRO,
   },
   {
@@ -454,9 +526,11 @@ export const monthlyItems = [
     priceNote: "Cancela cuando quieras.",
     popular: true,
     cta: (
-      <PrimaryButton as="Link" to="/signin" className="w-full">
-        Escala sin límites <ArrowRight />
-      </PrimaryButton>
+      <PlanCTA
+        intent="enterprise_monthly"
+        label="Escala sin límites"
+        popular
+      />
     ),
     features: FEATURES_ENTERPRISE,
   },

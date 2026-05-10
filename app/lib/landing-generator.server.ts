@@ -98,7 +98,35 @@ function formatSocialLinks(social: Org["social"]): string {
   return links.length > 0 ? links.join(", ") : ""
 }
 
-function buildOrgPrompt(org: Org, services: Service[]): string {
+function formatBrandkit(brandkit: Org["brandkit"]): string | null {
+  if (!brandkit) return null
+  const lines: string[] = []
+  const colors: string[] = []
+  if (brandkit.primaryColor) colors.push(`primary: ${brandkit.primaryColor}`)
+  if (brandkit.secondaryColor)
+    colors.push(`secondary: ${brandkit.secondaryColor}`)
+  if (brandkit.accentColor) colors.push(`accent: ${brandkit.accentColor}`)
+  if (brandkit.surfaceColor) colors.push(`surface: ${brandkit.surfaceColor}`)
+  if (colors.length > 0) {
+    lines.push(`Colores oficiales (úsalos exactamente): ${colors.join(", ")}`)
+  }
+  const fonts: string[] = []
+  if (brandkit.fontHeading) fonts.push(`títulos: ${brandkit.fontHeading}`)
+  if (brandkit.fontBody) fonts.push(`cuerpo: ${brandkit.fontBody}`)
+  if (fonts.length > 0) lines.push(`Tipografías: ${fonts.join(", ")}`)
+  if (brandkit.logoUrl) {
+    lines.push(
+      `Logo del negocio (ÚSALO en el header/hero, NO uses el placeholder): ${brandkit.logoUrl}`,
+    )
+  }
+  return lines.length > 0 ? lines.join("\n") : null
+}
+
+function buildOrgPrompt(
+  org: Org,
+  services: Service[],
+  userInstructions?: string,
+): string {
   const parts: string[] = [`Landing page para "${org.name}"`]
 
   if (org.businessType) parts.push(`un negocio de ${org.businessType}`)
@@ -129,6 +157,16 @@ function buildOrgPrompt(org: Org, services: Service[]): string {
   if (social) parts.push(`Redes sociales: ${social}`)
 
   if (org.shopKeeper) parts.push(`Propietario: ${org.shopKeeper}`)
+
+  const brandkit = formatBrandkit(org.brandkit)
+  if (brandkit) parts.push(`Brandkit:\n${brandkit}`)
+
+  const trimmed = userInstructions?.trim()
+  if (trimmed) {
+    parts.push(
+      `Instrucciones adicionales del propietario (PRIORÍZALAS sobre los defaults):\n${trimmed}`,
+    )
+  }
 
   return parts.join(".\n")
 }
@@ -438,24 +476,24 @@ export function sanitizeContrast(html: string): string {
 export async function generateOrgLanding(
   org: Org,
   services: Service[],
-  options?: Partial<GenerateOptions>,
+  options?: Partial<GenerateOptions> & { userInstructions?: string },
 ): Promise<Section3[]> {
-  const prompt = buildOrgPrompt(org, services)
+  const { userInstructions, ...sdkOptions } = options ?? {}
+  const prompt = buildOrgPrompt(org, services, userInstructions)
   const keys = getAIKeys()
   const transform = (html: string) =>
     sanitizeContrast(injectServiceLinks(html, services))
-  const userOpts = options ?? {}
   const wrapped: Partial<GenerateOptions> = {
-    ...userOpts,
-    onSection: userOpts.onSection
-      ? (s) => userOpts.onSection!({ ...s, html: transform(s.html) })
+    ...sdkOptions,
+    onSection: sdkOptions.onSection
+      ? (s) => sdkOptions.onSection!({ ...s, html: transform(s.html) })
       : undefined,
-    onImageUpdate: userOpts.onImageUpdate
-      ? (id, html) => userOpts.onImageUpdate!(id, transform(html))
+    onImageUpdate: sdkOptions.onImageUpdate
+      ? (id, html) => sdkOptions.onImageUpdate!(id, transform(html))
       : undefined,
-    onDone: userOpts.onDone
+    onDone: sdkOptions.onDone
       ? (sections) =>
-          userOpts.onDone!(
+          sdkOptions.onDone!(
             sections.map((s) => ({ ...s, html: transform(s.html) })),
           )
       : undefined,

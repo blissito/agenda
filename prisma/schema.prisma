@@ -308,6 +308,16 @@ type OrgIntegrations {
   messenger   OrgMessengerConfig?
 }
 
+type OrgBrandkit {
+  primaryColor   String?
+  secondaryColor String?
+  accentColor    String?
+  surfaceColor   String?
+  fontHeading    String?
+  fontBody       String?
+  logoUrl        String?
+}
+
 model Customer {
   id                  String               @id @default(auto()) @map("_id") @db.ObjectId
   comments            String
@@ -427,6 +437,7 @@ model Org {
   landingGenCount       Int               @default(0)
   landingRefineCount    Int               @default(0)
   landingUsageMonth     String?
+  brandkit              OrgBrandkit?
   chatbotAgentId        String?
   chatbotConfig         Json?
   googleCalendarToken   Json?
@@ -536,11 +547,16 @@ model User {
   photoURL      String?
   providerId    String?
   role          String           @default("user")
-  plan                      String?   // "TRIAL" | "PRO" | "EXPIRED" — null for customers/collaborators
+  plan                      String?   // "TRIAL" | "PRO" | "ENTERPRISE" | "EXPIRED" — null for customers/collaborators
   trialStartsAt             DateTime? @db.Date
   trialEndsAt               DateTime? @db.Date
   trialWarningEmailSentAt   DateTime? @db.Date
   trialExpiredEmailSentAt   DateTime? @db.Date
+  // Platform subscription billing (Stripe Billing — distinct from `stripe` field which is Connect legacy)
+  customerId           String?
+  subscriptionIds      String[]
+  subscriptionStatus   String?   // "active" | "past_due" | "canceled" | "incomplete" | etc.
+  currentPeriodEnd     DateTime? @db.Date
   stripe        UserStripe?
   mercadopago   UserMercadoPago?
   uid           String?

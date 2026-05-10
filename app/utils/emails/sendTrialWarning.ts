@@ -9,6 +9,7 @@ export const sendTrialWarning = async (
   const baseUrl = process.env.APP_URL || "https://denik.me"
   const plansUrl = new URL(baseUrl)
   plansUrl.pathname = "/planes"
+  plansUrl.searchParams.set("promo", "welcome")
 
   const sesTransport = getSesTransport()
 

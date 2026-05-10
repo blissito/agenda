@@ -99,6 +99,7 @@ export default [
     route("loyalty", "routes/api/loyalty.ts"),
     route("images", "routes/api/api.images.ts"),
     route("landing-generator", "routes/api/landing-generator.ts"),
+    route("stripe-checkout", "routes/api/stripe-checkout.ts"),
     route("asistente", "routes/api/asistente.ts"),
     // MCP (stdio server @denik/mcp) — auth via X-Denik-Api-Key
     route("mcp/events", "routes/api/mcp.events.ts"),
