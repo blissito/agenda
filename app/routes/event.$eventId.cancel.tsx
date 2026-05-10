@@ -7,6 +7,7 @@ import { useState } from "react"
 import { redirect } from "react-router"
 import { getUserOrNull } from "~/.server/userGetters"
 import { cancelEventFully } from "~/lib/event-cancel.server"
+import { DEFAULT_ORG_CONFIG } from "~/routes/dash/dash.ajustes.constants"
 import { getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
 import { DEFAULT_TIMEZONE, formatFullDateInTimezone } from "~/utils/timezone"
@@ -49,7 +50,10 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   const timezone = org?.timezone || DEFAULT_TIMEZONE
 
   // Check cancellation window
-  const cancellationMinutes = Number(org?.config?.cancellationWindow) || 0
+  const cancellationMinutes =
+    Number(
+      org?.config?.cancellationWindow ?? DEFAULT_ORG_CONFIG.cancellationWindow,
+    ) || 0
   let canCancel = true
   let cancellationMessage = ""
   if (cancellationMinutes > 0 && event.status !== "CANCELLED") {
@@ -125,7 +129,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const orgConfig = (
       event.service?.org as { config?: { cancellationWindow?: string } }
     )?.config
-    const cancellationMinutes = Number(orgConfig?.cancellationWindow) || 0
+    const cancellationMinutes =
+      Number(
+        orgConfig?.cancellationWindow ?? DEFAULT_ORG_CONFIG.cancellationWindow,
+      ) || 0
     if (cancellationMinutes > 0) {
       const deadline = new Date(
         event.start.getTime() - cancellationMinutes * 60 * 1000,

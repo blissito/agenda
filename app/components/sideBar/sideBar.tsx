@@ -10,8 +10,25 @@ import {
   useRef,
   useState,
 } from "react"
-import { Form, Link, useLocation } from "react-router"
+import { Form, Link, useFetcher, useLocation } from "react-router"
 import { twMerge } from "tailwind-merge"
+
+// Tracks the "onboardingCelebrated" flag (set by /dash/onboarding when the
+// user finishes the 4 core steps). Both the desktop banner and the mobile
+// bottom-sheet item rely on this to hide themselves once setup is done.
+const useOnboardingCelebrated = () => {
+  const [celebrated, setCelebrated] = useState(false)
+  useEffect(() => {
+    if (localStorage.getItem("onboardingCelebrated") === "1") {
+      setCelebrated(true)
+      return
+    }
+    const handler = () => setCelebrated(true)
+    window.addEventListener("onboarding:celebrated", handler)
+    return () => window.removeEventListener("onboarding:celebrated", handler)
+  }, [])
+  return celebrated
+}
 
 // Chevron animado con dos líneas que rotan desde el vértice
 const ChevronIcon = ({ isOpen }: { isOpen: boolean }) => {
@@ -103,7 +120,7 @@ export function SideBar({
       >
         <Header user={user} className="pl-6" />
         <MainMenu className="mb-auto" />
-        <OnboardingBanner />
+        <SidebarBottomCards />
         <Footer />
       </motion.aside>
       {/* Botón toggle fuera del aside para evitar overflow-hidden */}
@@ -404,20 +421,129 @@ const UserAvatar = ({ user }: { user: Partial<PrismaUser> }) => (
   </div>
 )
 
-const OnboardingBanner = () => {
-  const [hidden, setHidden] = useState(false)
+type PendingAttendanceEvent = {
+  id: string
+  start: string
+  customerName: string
+  serviceName: string
+}
+
+// Wrapper que decide qué card mostrar en la parte baja del sidebar.
+// Prioridad: si hay citas pendientes de marcar asistencia → solo esa card.
+// Si no hay y el onboarding aún no se completó → banner de onboarding.
+// Si no hay nada que hacer → null. Solo una de las dos a la vez (no apiladas).
+const SidebarBottomCards = () => {
+  const listFetcher = useFetcher<{ events: PendingAttendanceEvent[] }>()
+  const markFetcher = useFetcher()
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set())
+  const celebrated = useOnboardingCelebrated()
 
   useEffect(() => {
-    if (localStorage.getItem("onboardingCelebrated") === "1") {
-      setHidden(true)
-      return
+    if (listFetcher.state === "idle" && listFetcher.data === undefined) {
+      listFetcher.load("/api/events?intent=pending_attendance")
     }
-    const handler = () => setHidden(true)
-    window.addEventListener("onboarding:celebrated", handler)
-    return () => window.removeEventListener("onboarding:celebrated", handler)
-  }, [])
+  }, [listFetcher])
 
-  if (hidden) return null
+  // Recarga la lista cuando termina un submit de marca de asistencia.
+  const lastSubmitState = useRef(markFetcher.state)
+  useEffect(() => {
+    if (lastSubmitState.current !== "idle" && markFetcher.state === "idle") {
+      listFetcher.load("/api/events?intent=pending_attendance")
+    }
+    lastSubmitState.current = markFetcher.state
+  }, [markFetcher.state, listFetcher])
+
+  const events = (listFetcher.data?.events ?? []).filter(
+    (e) => !hiddenIds.has(e.id),
+  )
+
+  const mark = (eventId: string, attended: boolean) => {
+    setHiddenIds((s) => new Set(s).add(eventId))
+    const fd = new FormData()
+    fd.set("eventId", eventId)
+    fd.set("attended", String(attended))
+    markFetcher.submit(fd, {
+      method: "post",
+      action: "/api/events?intent=mark_attendance",
+    })
+  }
+
+  if (events.length > 0) {
+    return <PendingAttendanceCard events={events} onMark={mark} />
+  }
+  if (!celebrated) return <OnboardingBanner />
+  return null
+}
+
+const PendingAttendanceCard = ({
+  events,
+  onMark,
+}: {
+  events: PendingAttendanceEvent[]
+  onMark: (eventId: string, attended: boolean) => void
+}) => {
+  const visible = events.slice(0, 3)
+  const overflow = events.length - visible.length
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleDateString("es-MX", {
+      day: "numeric",
+      month: "short",
+    })
+  }
+
+  return (
+    <section className="bg-white border border-brand_stroke rounded-2xl mx-6 mb-4 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-satoBold text-brand_dark">
+          Confirma asistencias
+        </h3>
+        <span className="text-[11px] text-brand_gray bg-brand_stroke rounded-full px-2 py-0.5">
+          {events.length}
+        </span>
+      </div>
+      <ul className="flex flex-col gap-2">
+        {visible.map((e) => (
+          <li key={e.id} className="text-xs">
+            <div className="text-brand_dark font-satoMedium truncate">
+              {e.customerName}
+            </div>
+            <div className="text-brand_gray truncate">
+              {e.serviceName} · {formatDate(e.start)}
+            </div>
+            <div className="flex gap-2 mt-1.5">
+              <button
+                type="button"
+                onClick={() => onMark(e.id, false)}
+                className="flex-1 text-[11px] py-1 rounded-full border border-brand_stroke text-brand_gray hover:bg-brand_stroke transition-colors"
+              >
+                No asistió
+              </button>
+              <button
+                type="button"
+                onClick={() => onMark(e.id, true)}
+                className="flex-1 text-[11px] py-1 rounded-full bg-brand_lime text-brand_dark hover:opacity-90 transition-opacity"
+              >
+                Asistió
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {overflow > 0 && (
+        <Link
+          to="/dash/agenda/citas"
+          className="block mt-3 text-[11px] text-brand_blue text-center"
+        >
+          +{overflow} más
+        </Link>
+      )}
+    </section>
+  )
+}
+
+const OnboardingBanner = () => {
 
   return (
     <section className="bg-onboarding  pb-4 rounded-2xl bg-cover mx-6 mb-4 relative">
@@ -443,6 +569,7 @@ const OnboardingBanner = () => {
 const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
   const location = useLocation()
   const [showMore, setShowMore] = useState(false)
+  const onboardingCelebrated = useOnboardingCelebrated()
   const match = (s: string) => location.pathname.includes(s)
   const matchIndex = () => /^\/dash$/.test(location.pathname)
 
@@ -623,12 +750,14 @@ const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
                   label="Perfil"
                   active={match("perfil")}
                 />
-                <MobileMenuItem
-                  to="/dash/onboarding"
-                  icon={null}
-                  label="Configurar agenda"
-                  active={match("onboarding")}
-                />
+                {!onboardingCelebrated && (
+                  <MobileMenuItem
+                    to="/dash/onboarding"
+                    icon={null}
+                    label="Configurar agenda"
+                    active={match("onboarding")}
+                  />
+                )}
               </div>
 
               <div className="border-t border-gray-100 py-2 safe-bottom">

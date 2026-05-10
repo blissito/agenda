@@ -204,17 +204,20 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
         console.log("MP Payment approved, event created:", event.id)
 
-        // Award loyalty points
-        try {
-          const basePoints = Math.floor(Number(service.price)) || 10
-          await awardPoints({
-            customerId: customer.id,
-            orgId: service.org.id,
-            eventId: event.id,
-            basePoints,
-          })
-        } catch (e) {
-          console.error("Loyalty awardPoints failed:", e)
+        // Award loyalty points. Los puntos vienen explícitamente de
+        // `service.points` (definido por el owner). Si es 0 → skip.
+        const basePoints = Number(service.points)
+        if (Number.isFinite(basePoints) && basePoints > 0) {
+          try {
+            await awardPoints({
+              customerId: customer.id,
+              orgId: service.org.id,
+              eventId: event.id,
+              basePoints,
+            })
+          } catch (e) {
+            console.error("Loyalty awardPoints failed:", e)
+          }
         }
 
         // Increment coupon redemption count if a coupon was used

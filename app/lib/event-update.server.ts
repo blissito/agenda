@@ -91,23 +91,27 @@ export async function updateEventFully({
   })) as typeof before
 
   // Award loyalty points when the event transitions to paid (manual mark from dash).
-  // awardPoints itself no-ops if the org doesn't have loyalty enabled and is idempotent per event.
+  // awardPoints itself no-ops if the org doesn't have loyalty enabled and is
+  // idempotente per event. Los puntos vienen explícitamente de `service.points`
+  // (definido por el owner). Si es 0 → no se acreditan puntos.
   const becamePaid =
     changes.paid === true && !before.paid && updated.customerId && updated.service
   if (becamePaid) {
-    try {
-      const basePoints = Math.floor(Number(updated.service!.price)) || 10
-      await awardPoints({
-        customerId: updated.customerId as string,
-        orgId: updated.orgId,
-        eventId: updated.id,
-        basePoints,
-      })
-    } catch (e) {
-      console.error(
-        "[updateEventFully] awardPoints failed:",
-        e instanceof Error ? e.message : e,
-      )
+    const basePoints = Number(updated.service!.points)
+    if (Number.isFinite(basePoints) && basePoints > 0) {
+      try {
+        await awardPoints({
+          customerId: updated.customerId as string,
+          orgId: updated.orgId,
+          eventId: updated.id,
+          basePoints,
+        })
+      } catch (e) {
+        console.error(
+          "[updateEventFully] awardPoints failed:",
+          e instanceof Error ? e.message : e,
+        )
+      }
     }
   }
 

@@ -22,6 +22,7 @@ import { EventFormDrawer } from "~/components/forms/EventFormDrawer"
 import { cancelEventFully } from "~/lib/event-cancel.server"
 import { createMeetLink } from "~/lib/google-meet.server"
 import { db } from "~/utils/db.server"
+import { computeCalendarHoursRange, isHourOpen } from "~/utils/weekDays"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/dash.agenda"
 
@@ -287,6 +288,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }),
   ])
 
+  const orgWeekDays = org.weekDays as Record<string, any> | null
+  const [hoursStart, hoursEnd] = computeCalendarHoursRange(orgWeekDays)
+
   return {
     events,
     customers,
@@ -295,6 +299,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     monday: monday.toISOString(),
     sunday: sunday.toISOString(),
     orgSlug: org.slug,
+    weekDays: orgWeekDays,
+    hoursStart,
+    hoursEnd,
     isGoogleCalendarConnected: Boolean(org.googleCalendarToken),
     isZoomConnected: Boolean(org.zoomToken),
     employeeMap: Object.fromEntries(
@@ -783,6 +790,9 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     orgSlug,
     monthEventDates,
     employeeMap,
+    weekDays,
+    hoursStart,
+    hoursEnd,
     isGoogleCalendarConnected,
     isZoomConnected,
   } = loaderData
@@ -1064,14 +1074,71 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       ) as HTMLElement | null
       const headerH = headerSection?.offsetHeight || 0
       const availableH = containerRect.bottom - articleRect.top - headerH
-      const totalHours = 21 - 8 // hoursEnd - hoursStart
+      const totalHours = Math.max(1, hoursEnd - hoursStart)
       const target = Math.max(64, Math.floor(availableH / totalHours))
       setCellHeight(target)
     }
     measure()
     window.addEventListener("resize", measure)
     return () => window.removeEventListener("resize", measure)
-  }, [viewMode])
+  }, [viewMode, hoursStart, hoursEnd])
+
+  // Paint cells outside business hours with a light gray background. The
+  // Calendar lib doesn't expose a hook for this, so we walk the rendered grid
+  // and apply inline styles. We target Column divs by their unique class
+  // signature `.grid.relative` (TimeColumn uses `sticky left-0 z-10` and
+  // headers use `grid place-items-center`, so neither match). Cells inside
+  // each column have `role="button"` AND `border-dashed` — the inner
+  // EmptyButton also has role=button but lacks `border-dashed`, so the
+  // combined selector pinpoints the outer cells only. The optional now-line
+  // is absolutely positioned without those classes — also excluded.
+  // Inline style wins over Tailwind classes, surviving lib re-renders.
+  useEffect(() => {
+    const root = calendarRef.current
+    if (!root) return
+    if (viewMode === "month") return
+
+    const isDay = viewMode === "day"
+    const columnsDates = isDay ? [controls.date] : week
+    const closedColor = "rgba(227, 226, 226, 0.2)" // brand_ash/20
+
+    const apply = () => {
+      const columns = root.querySelectorAll<HTMLElement>(
+        "section > div.grid.relative",
+      )
+      if (columns.length === 0) return
+      const totalCells = hoursEnd - hoursStart
+      columns.forEach((col, colIdx) => {
+        const dayDate = columnsDates[colIdx]
+        if (!dayDate) return
+        const cells = col.querySelectorAll<HTMLElement>(
+          ':scope > [role="button"].border-dashed',
+        )
+        for (let i = 0; i < totalCells; i++) {
+          const cell = cells[i]
+          if (!cell) continue
+          const hour = hoursStart + i
+          const open = isHourOpen(weekDays, dayDate, hour)
+          // Must use `important` because app.css forces .bg-slate-50 to white
+          // with !important, which would otherwise win over a normal inline.
+          if (open) {
+            cell.style.removeProperty("background-color")
+          } else {
+            cell.style.setProperty("background-color", closedColor, "important")
+          }
+        }
+      })
+    }
+
+    apply()
+    const raf = requestAnimationFrame(apply)
+    const obs = new MutationObserver(apply)
+    obs.observe(root, { childList: true, subtree: true })
+    return () => {
+      cancelAnimationFrame(raf)
+      obs.disconnect()
+    }
+  }, [viewMode, controls.date, week, weekDays, hoursStart, hoursEnd])
 
   // Pin the timezone label inside Calendar — observer re-applies the short
   // form whenever the lib re-renders the long name internally.
@@ -1142,8 +1209,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               onAddBlock={handleAddBlock}
               onRemoveBlock={handleRemoveBlock}
               config={{
-                hoursStart: 8,
-                hoursEnd: 21,
+                hoursStart,
+                hoursEnd,
                 cellHeight,
                 locale: "es-MX",
                 renderColumnHeader: isDayView

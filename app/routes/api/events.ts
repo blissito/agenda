@@ -3,12 +3,56 @@ import invariant from "tiny-invariant"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { cancelEventFully } from "~/lib/event-cancel.server"
 import { createMeetLink } from "~/lib/google-meet.server"
+import { awardPoints } from "~/lib/loyalty.server"
 import { createZoomMeeting } from "~/lib/zoom.server"
 import { db } from "~/utils/db.server"
 import { sendAppointmentToCustomer } from "~/utils/emails/sendAppointment"
 import { resolveVideoProvider } from "~/utils/videoProvider.server"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/customers"
+
+export const loader = async ({ request }: Route.LoaderArgs) => {
+  const url = new URL(request.url)
+  const intent = url.searchParams.get("intent")
+
+  if (intent === "pending_attendance") {
+    const { org } = await getUserAndOrgOrRedirect(request)
+    if (!org) {
+      return Response.json({ error: "Organization not found" }, { status: 404 })
+    }
+    // Citas pasadas que aún no tienen asistencia confirmada/negada.
+    // Excluimos canceladas, archivadas y bloqueos.
+    // OJO: en Prisma+MongoDB, `attended: null` NO matchea documentos donde
+    // el campo no existe (eventos viejos creados antes del campo). Usamos
+    // OR con `isSet: false` para cubrir ambos casos.
+    const events = await db.event.findMany({
+      where: {
+        orgId: org.id,
+        archived: false,
+        type: { not: "BLOCK" },
+        status: { not: "CANCELLED" },
+        start: { lt: new Date() },
+        OR: [{ attended: null }, { attended: { isSet: false } }],
+      },
+      include: {
+        service: { select: { name: true } },
+        customer: { select: { displayName: true } },
+      },
+      orderBy: { start: "desc" },
+      take: 20,
+    })
+    return Response.json({
+      events: events.map((e) => ({
+        id: e.id,
+        start: e.start.toISOString(),
+        customerName: e.customer?.displayName ?? "Sin cliente",
+        serviceName: e.service?.name ?? "",
+      })),
+    })
+  }
+
+  return Response.json({ error: "Unknown intent" }, { status: 400 })
+}
 
 export const action = async ({ request }: Route.ActionArgs) => {
   const url = new URL(request.url)
@@ -26,10 +70,35 @@ export const action = async ({ request }: Route.ActionArgs) => {
     if (!eventId) {
       return Response.json({ error: "eventId requerido" }, { status: 400 })
     }
-    await db.event.update({
+    const updated = await db.event.update({
       where: { id: eventId, orgId: org.id },
       data: { attended },
+      include: { service: { select: { points: true } } },
     })
+
+    // Premia puntos cuando confirmamos asistencia. Es la única ruta de
+    // award para citas gratuitas (sin webhook de pago). awardPoints es
+    // idempotente por eventId, así que volver a marcar asistencia no duplica.
+    // Los puntos vienen explícitamente de `service.points` (lo define el
+    // owner por servicio). Si es 0/no definido → no se acreditan puntos.
+    if (attended === true && updated.customerId && updated.service) {
+      const basePoints = Number(updated.service.points)
+      if (Number.isFinite(basePoints) && basePoints > 0) {
+        try {
+          await awardPoints({
+            customerId: updated.customerId,
+            orgId: org.id,
+            eventId: updated.id,
+            basePoints,
+          })
+        } catch (e) {
+          console.error(
+            "[mark_attendance] awardPoints failed:",
+            e instanceof Error ? e.message : e,
+          )
+        }
+      }
+    }
     return Response.json({ ok: true })
   }
 

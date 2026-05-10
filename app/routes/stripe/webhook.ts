@@ -152,17 +152,20 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
         console.log("Stripe payment approved, event created:", dbEvent.id)
 
-        // Award loyalty points
-        try {
-          const basePoints = Math.floor(Number(service.price)) || 10
-          await awardPoints({
-            customerId: customer.id,
-            orgId: service.org.id,
-            eventId: dbEvent.id,
-            basePoints,
-          })
-        } catch (e2) {
-          console.error("Loyalty awardPoints failed:", e2)
+        // Award loyalty points. Los puntos vienen explícitamente de
+        // `service.points` (definido por el owner). Si es 0 → skip.
+        const basePoints = Number(service.points)
+        if (Number.isFinite(basePoints) && basePoints > 0) {
+          try {
+            await awardPoints({
+              customerId: customer.id,
+              orgId: service.org.id,
+              eventId: dbEvent.id,
+              basePoints,
+            })
+          } catch (e2) {
+            console.error("Loyalty awardPoints failed:", e2)
+          }
         }
       } catch (e) {
         console.error("Stripe checkout.session.completed error:", e)
