@@ -1,4 +1,5 @@
 import { getPayment, validateWebhookSignature } from "~/.server/mercadopago"
+import { incrementCouponRedemption } from "~/lib/coupons.server"
 import { createMeetLink } from "~/lib/google-meet.server"
 import { awardPoints } from "~/lib/loyalty.server"
 import { createZoomMeeting } from "~/lib/zoom.server"
@@ -43,9 +44,19 @@ export const action = async ({ request }: Route.ActionArgs) => {
         return new Response("OK", { status: 200 })
       }
 
-      const { serviceId, customerId, start, end } = JSON.parse(
-        payment.external_reference,
-      )
+      const {
+        serviceId,
+        customerId,
+        start,
+        end,
+        couponRewardId,
+      }: {
+        serviceId: string
+        customerId: string
+        start: string
+        end: string
+        couponRewardId?: string | null
+      } = JSON.parse(payment.external_reference)
 
       // Buscar servicio y customer
       const [service, customer] = await Promise.all([
@@ -204,6 +215,15 @@ export const action = async ({ request }: Route.ActionArgs) => {
           })
         } catch (e) {
           console.error("Loyalty awardPoints failed:", e)
+        }
+
+        // Increment coupon redemption count if a coupon was used
+        if (couponRewardId) {
+          try {
+            await incrementCouponRedemption(couponRewardId)
+          } catch (e) {
+            console.error("Coupon redemption increment failed:", e)
+          }
         }
       }
 

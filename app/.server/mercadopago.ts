@@ -23,31 +23,60 @@ export const createPreference = async (
   data: {
     serviceId: string
     serviceName: string
-    price: number // en pesos (MXN)
+    price: number // precio base del servicio en pesos (MXN), sin descuento
     customerId: string
     start: string
     end: string
     backUrl: string
     webhookUrl: string
+    coupon?: {
+      rewardId: string
+      label: string
+      discountAmount: number // en pesos (MXN)
+    }
   },
 ) => {
   const client = getSellerClient(sellerAccessToken)
   const preference = new Preference(client)
 
-  const unitPrice = data.price
-  const marketplaceFee = Math.round(unitPrice * 0.05 * 100) / 100 // 5% comisión
+  const items: Array<{
+    id: string
+    title: string
+    unit_price: number
+    quantity: number
+    currency_id: "MXN"
+  }> = [
+    {
+      id: data.serviceId,
+      title: data.serviceName,
+      unit_price: data.price,
+      quantity: 1,
+      currency_id: "MXN",
+    },
+  ]
+
+  if (data.coupon && data.coupon.discountAmount > 0) {
+    items.push({
+      id: `coupon-${data.coupon.rewardId}`,
+      title: data.coupon.label,
+      unit_price: -data.coupon.discountAmount,
+      quantity: 1,
+      currency_id: "MXN",
+    })
+  }
+
+  const netTotal = items.reduce(
+    (sum, item) => sum + item.unit_price * item.quantity,
+    0,
+  )
+  const marketplaceFee = Math.max(
+    0,
+    Math.round(netTotal * 0.05 * 100) / 100,
+  ) // 5% comisión sobre neto
 
   return preference.create({
     body: {
-      items: [
-        {
-          id: data.serviceId,
-          title: data.serviceName,
-          unit_price: unitPrice,
-          quantity: 1,
-          currency_id: "MXN",
-        },
-      ],
+      items,
       marketplace_fee: marketplaceFee,
       back_urls: {
         success: `${data.backUrl}/mercadopago/success`,
@@ -60,6 +89,7 @@ export const createPreference = async (
         customerId: data.customerId,
         start: data.start,
         end: data.end,
+        couponRewardId: data.coupon?.rewardId ?? null,
       }),
       notification_url: data.webhookUrl,
     },

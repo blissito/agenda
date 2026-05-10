@@ -12,6 +12,7 @@ import { twMerge } from "tailwind-merge"
 import { ClientAvatar } from "~/components/common/ClientAvatar"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { SecondaryButton } from "~/components/common/secondaryButton"
 import { SuccessToast } from "~/components/common/SuccessToast"
 import { Switch } from "~/components/common/Switch"
 import { BasicInput } from "~/components/forms/BasicInput"
@@ -796,7 +797,7 @@ function ColaboradoresTab({
   }, [collaborators, search])
 
   return (
-    <>
+    <div className="flex flex-col min-h-[calc(100vh-220px)]">
       <ConfirmModal
         isOpen={showInvite}
         onClose={() => setShowInvite(false)}
@@ -839,12 +840,35 @@ function ColaboradoresTab({
             name="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            type="search"
-            placeholder="Busca por nombre o email"
+            type="text"
+            placeholder="Buscar"
             containerClassName="w-full"
-            inputClassName="!rounded-full pr-12 border-white"
+            inputClassName="!rounded-full pl-4 pr-10 border-white font-satoshi py-2 h-12"
+            registerOptions={{ required: false }}
           />
-          <MagnifyingGlass className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-brand_iron" />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => setSearch("")}
+              aria-label="Limpiar búsqueda"
+              className="absolute right-2 top-[28px] -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-brand_iron hover:text-brand_dark hover:bg-gray-100 transition-colors"
+            >
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          ) : (
+            <MagnifyingGlass className="pointer-events-none absolute right-3 top-[28px] -translate-y-1/2 w-5 h-5 text-brand_iron" />
+          )}
         </div>
         <PrimaryButton onClick={() => setShowInvite(!showInvite)}>
           + Invitar
@@ -855,7 +879,7 @@ function ColaboradoresTab({
       {filtered.length > 0 && (
         <div className="bg-white rounded-2xl overflow-hidden">
           {/* Header */}
-          <div className="grid grid-cols-12 px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 border-b border-brand_stroke">
+          <div className="grid grid-cols-12 px-4 py-3 text-[12px] font-satoMedium tracking-wide text-slate-600 border-b border-brand_stroke">
             <span className="col-span-10 sm:col-span-5 pl-2">Colaborador</span>
             <span className="col-span-3 hidden sm:block text-left">Email</span>
             <span className="col-span-2 hidden sm:block text-left">Rol</span>
@@ -935,20 +959,27 @@ function ColaboradoresTab({
       )}
 
       {filtered.length === 0 && search && (
-        <div className="bg-white py-16 flex flex-col items-center gap-3 text-center">
-          <MagnifyingGlass className="w-12 h-12 text-brand_gray" />
-          <p className="font-satoMedium text-lg">
-            Sin resultados para &quot;{search}&quot;
+        <div className="flex flex-col items-center justify-center gap-3 text-center flex-1">
+          <img
+            className="mx-auto mb-4"
+            src="/images/emptyState/search.svg"
+            alt=""
+          />
+          <p className="text-2xl font-satoBold text-brand_dark">
+            ¡Vaya! No hay coincidencias con la búsqueda
           </p>
-          <button
+          <p className="text-[18px] text-brand_gray mt-2">
+            Intenta buscar por otro nombre o correo.
+          </p>
+          <SecondaryButton
             onClick={() => setSearch("")}
-            className="mt-2 text-brand_blue text-sm underline underline-offset-2"
+            className="mt-4 min-w-0 h-10 px-5 text-sm"
           >
             Limpiar búsqueda
-          </button>
+          </SecondaryButton>
         </div>
       )}
-    </>
+    </div>
   )
 }
 
@@ -1133,7 +1164,7 @@ export const OptionBox = ({
           {" "}
           <strong>{title}</strong>
         </p>
-        <p className="col-span-5 md:col-span-3 text-brand_gray font-satoshi text-sm">
+        <p className="col-span-5 md:col-span-3 text-brand_iron font-satoshi text-sm">
           {description}
         </p>
       </div>

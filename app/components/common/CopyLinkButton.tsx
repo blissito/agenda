@@ -36,12 +36,12 @@ export const CopyLinkButton = ({
       onClick={handleClick}
       className={twMerge(
         "relative mt-4 flex items-center gap-2 border border-brand_stroke rounded-full px-4 py-2 text-sm text-brand_dark hover:bg-gray-50 transition-all active:scale-95",
-        copied && "border-brand_blue bg-brand_blue/5",
+        copied && "border-brand_lime bg-brand_lime/5 text-brand_lime",
         className,
       )}
     >
       {copied ? (
-        <FaCheck className="text-brand_blue w-3.5 h-3.5" />
+        <FaCheck className="text-brand_lime w-3.5 h-3.5" />
       ) : (
         <FaLink className="w-3.5 h-3.5" />
       )}

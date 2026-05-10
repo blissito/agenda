@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { useRevalidator } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
+import { CopyLinkButton } from "~/components/common/CopyLinkButton"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
@@ -553,10 +554,17 @@ function CouponRow({
         isLast && "rounded-b-2xl",
       )}
     >
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={onOpenEdit}
-        className="col-span-10 grid min-w-0 grid-cols-10 items-center py-3 text-left sm:col-span-11 sm:grid-cols-11"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault()
+            onOpenEdit()
+          }
+        }}
+        className="col-span-10 grid min-w-0 cursor-pointer grid-cols-10 items-center py-3 text-left sm:col-span-11 sm:grid-cols-11"
       >
         <div className="col-span-10 flex min-w-0 items-center gap-3 sm:col-span-3">
           <div className="flex h-[32px] min-w-[40px] items-center justify-center rounded-[8px] bg-[#121212] px-2 text-[12px] font-satoBold text-white">
@@ -567,9 +575,21 @@ function CouponRow({
             <p className="truncate text-sm font-satoBold leading-tight text-brand_dark">
               {reward.name}
             </p>
-            <p className="truncate text-xs font-satoMedium text-brand_gray">
-              {meta?.code || getCouponDiscountLabel(reward)}
-            </p>
+            <div className="flex min-w-0 items-center gap-2">
+              <p className="truncate text-xs font-satoMedium text-brand_gray">
+                {meta?.code || getCouponDiscountLabel(reward)}
+              </p>
+              {meta?.code && (
+                <span onClick={(e) => e.stopPropagation()}>
+                  <CopyLinkButton
+                    url={meta.code}
+                    label="Copiar"
+                    copiedLabel="¡Copiado!"
+                    className="!mt-0 h-6 px-2 py-0 text-[11px]"
+                  />
+                </span>
+              )}
+            </div>
             <div className="mt-1 truncate text-[12px] text-brand_gray sm:hidden">
               {getCouponDiscountLabel(reward)} · {getDurationLabel(meta)} ·{" "}
               {getServicesLabel(meta, services)} · {reward.currentRedemptions}{" "}
@@ -593,7 +613,7 @@ function CouponRow({
         <p className="hidden whitespace-nowrap text-left text-sm text-brand_gray sm:col-span-2 sm:block">
           {reward.currentRedemptions}
         </p>
-      </button>
+      </div>
 
       <div
         className="relative col-span-2 flex items-center justify-center py-3 sm:col-span-1"
@@ -715,6 +735,13 @@ function CuponWizard({
     applyAllServices || selectedServiceIds.length > 0 || services.length === 0
 
   const toggleService = (serviceId: string) => {
+    if (applyAllServices) {
+      setApplyAllServices(false)
+      setSelectedServiceIds(
+        services.filter((s) => s.id !== serviceId).map((s) => s.id),
+      )
+      return
+    }
     setSelectedServiceIds((prev) =>
       prev.includes(serviceId)
         ? prev.filter((id) => id !== serviceId)
@@ -1092,7 +1119,6 @@ function CouponWizardStepTwo({
                   ? true
                   : selectedServiceIds.includes(service.id)
               }
-              disabled={applyAllServices}
               onChange={() => toggleService(service.id)}
               labelClassName="text-brand_gray"
             />
@@ -1273,6 +1299,13 @@ function CouponEditModal({
   )
 
   const toggleService = (serviceId: string) => {
+    if (applyAllServices) {
+      setApplyAllServices(false)
+      setSelectedServiceIds(
+        services.filter((s) => s.id !== serviceId).map((s) => s.id),
+      )
+      return
+    }
     setSelectedServiceIds((prev) =>
       prev.includes(serviceId)
         ? prev.filter((id) => id !== serviceId)
@@ -1470,7 +1503,6 @@ function CouponEditModal({
                               ? true
                               : selectedServiceIds.includes(service.id)
                           }
-                          disabled={applyAllServices}
                           onChange={() => toggleService(service.id)}
                           labelClassName="text-brand_gray"
                         />

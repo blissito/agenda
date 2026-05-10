@@ -12,6 +12,7 @@ import { z } from "zod"
 import { createPreference, getValidAccessToken } from "~/.server/mercadopago"
 import { getUserOrNull } from "~/.server/userGetters"
 import { Footer, Header, InfoShower } from "~/components/agenda/components"
+import { CouponField } from "~/components/agenda/CouponField"
 import { Success } from "~/components/agenda/success"
 import { getMaxDate, validateBookingWindow } from "~/components/agenda/utils"
 import { ChatWidget } from "~/components/chatbot/ChatWidget"
@@ -20,6 +21,7 @@ import { MonthView } from "~/components/forms/agenda/MonthView"
 import TimeView from "~/components/forms/agenda/TimeView"
 import { BasicInput } from "~/components/forms/BasicInput"
 import type { WeekTuples } from "~/components/forms/TimesForm"
+import { validateCouponByCode, type ValidCoupon } from "~/lib/coupons.server"
 import { getLevelDiscount } from "~/lib/loyalty.server"
 import { DEFAULT_ORG_CONFIG } from "~/routes/dash/dash.ajustes.constants"
 import { db } from "~/utils/db.server"
@@ -93,6 +95,27 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       },
     })
     return { events }
+  }
+
+  if (intent === "validate_coupon") {
+    const code = formData.get("code")
+    const serviceId = formData.get("serviceId")
+    if (typeof code !== "string" || typeof serviceId !== "string") {
+      return { ok: false as const, error: "Datos inválidos" }
+    }
+    const serviceForCoupon = await db.service.findUnique({
+      where: { id: serviceId },
+      select: { id: true, price: true, orgId: true },
+    })
+    if (!serviceForCoupon || serviceForCoupon.orgId !== org.id) {
+      return { ok: false as const, error: "Servicio no encontrado" }
+    }
+    return validateCouponByCode({
+      code,
+      orgId: org.id,
+      serviceId: serviceForCoupon.id,
+      servicePrice: Number(serviceForCoupon.price),
+    })
   }
 
   if (intent === "create_event") {
@@ -183,10 +206,38 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       console.error("Loyalty discount lookup failed:", e)
     }
 
-    const effectivePrice =
-      discountPercent > 0
-        ? Number(service.price) * (1 - discountPercent / 100)
-        : Number(service.price)
+    const basePrice = Number(service.price)
+    const loyaltyDiscountAmount =
+      discountPercent > 0 ? basePrice * (discountPercent / 100) : 0
+
+    let coupon: ValidCoupon | null = null
+    const couponCode =
+      typeof data.couponCode === "string" ? data.couponCode.trim() : ""
+    if (couponCode) {
+      const result = await validateCouponByCode({
+        code: couponCode,
+        orgId: org.id,
+        serviceId: service.id,
+        servicePrice: basePrice,
+      })
+      if (!result.ok) {
+        return { success: false, error: result.error }
+      }
+      coupon = result.coupon
+    }
+
+    if (coupon && coupon.discountAmount <= loyaltyDiscountAmount) {
+      coupon = null
+    } else if (coupon) {
+      discountPercent = 0
+      levelName = null
+    }
+
+    const effectivePrice = coupon
+      ? Math.max(0, basePrice - coupon.discountAmount)
+      : discountPercent > 0
+        ? basePrice * (1 - discountPercent / 100)
+        : basePrice
 
     const startDate = new Date(data.start)
     const endDate = new Date(startDate.getTime() + data.duration * 60 * 1000)
@@ -213,12 +264,19 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         const preference = await createPreference(accessToken, {
           serviceId: service.id,
           serviceName: service.name,
-          price: effectivePrice,
+          price: coupon ? basePrice : effectivePrice,
           customerId: customer.id,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
           backUrl: appUrl,
           webhookUrl: `${appUrl}/mercadopago/webhook`,
+          coupon: coupon
+            ? {
+                rewardId: coupon.rewardId,
+                label: coupon.label,
+                discountAmount: coupon.discountAmount,
+              }
+            : undefined,
         })
 
         if (preference.init_point) {
@@ -391,10 +449,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [time, setTime] = useState<string>()
   const [date, setDate] = useState<Date>()
   const [show, setShow] = useState("")
+  const [couponCode, setCouponCode] = useState("")
+  const [appliedCoupon, setAppliedCoupon] = useState<ValidCoupon | null>(null)
   const [timezone, setTimezone] = useState<SupportedTimezone>(
     org.timezone as SupportedTimezone,
   )
   const fetcher = useFetcher<typeof action>()
+  const couponDirty = couponCode.trim() !== "" && !appliedCoupon
 
   const onSubmit = (vals: UserInfoForm) => {
     const result = userInfoSchema.safeParse(vals)
@@ -405,6 +466,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       return
     }
     if (!date) return
+    if (couponDirty) return
     const customer = { ...result.data, website: (vals as any).website }
     fetcher.submit(
       {
@@ -417,6 +479,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           serviceId: service.id,
           title: service.name,
           status: "pending",
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         }),
       },
       { method: "post" },
@@ -595,6 +658,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 placeholder="Cualquier cosa que ayude a prepararnos para nuestra cita."
                 registerOptions={{ required: false }}
               />
+              {service.payment && Number(service.price) > 0 && (
+                <CouponField
+                  serviceId={service.id}
+                  actionPath={`/agenda/${org.slug}/${service.slug}`}
+                  basePrice={Number(service.price)}
+                  onChange={(code, applied) => {
+                    setCouponCode(code)
+                    setAppliedCoupon(applied)
+                  }}
+                />
+              )}
               <input
                 type="text"
                 {...register("website" as any)}
@@ -637,7 +711,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               <span className="font-medium">Volver</span>
             </button>
             <PrimaryButton
-              isDisabled={!isValid}
+              isDisabled={!isValid || couponDirty}
               isLoading={fetcher.state !== "idle"}
               onClick={handleSubmit(onSubmit)}
               type="button"
