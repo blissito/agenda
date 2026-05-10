@@ -398,7 +398,7 @@ export const CitasTable = ({
       <div className="hidden lg:block w-full overflow-x-auto rounded-2xl">
         <div className="min-w-[920px]">
           <div
-            className={`${GRID} rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray uppercase tracking-wide`}
+            className={`${GRID} rounded-t-2xl border-b border-brand_stroke bg-white px-6 py-3 text-[12px] font-satoMedium text-brand_gray tracking-wide`}
           >
             <div className="text-left">Fecha</div>
             {!hideClient && <div className="text-left">Cliente</div>}
@@ -432,7 +432,7 @@ export const CitasTable = ({
       {/* Mobile */}
       <div className="lg:hidden">
         <div className="rounded-2xl bg-white overflow-hidden">
-          <div className="px-4 py-3 flex items-center justify-between text-[10px] font-satoMedium text-brand_gray uppercase tracking-wide border-b border-brand_stroke">
+          <div className="px-4 py-3 flex items-center justify-between text-[10px] font-satoMedium text-brand_gray tracking-wide border-b border-brand_stroke">
             <span>{hideClient ? "Servicio" : "Cliente"}</span>
             <span>Precio</span>
           </div>
@@ -496,7 +496,7 @@ const CitaRow = ({
             <p className="text-sm font-satoBold text-brand_dark truncate">
               {name}
             </p>
-            <p className="text-[12px] text-brand_gray truncate">
+            <p className="text-[12px] text-brand_iron truncate">
               {event.customer?.email || ""}
             </p>
           </div>

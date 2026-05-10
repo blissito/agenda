@@ -94,7 +94,7 @@ export const WhatsAppAd = () => {
           className="shrink-0 w-full md:w-auto flex items-center justify-center gap-2 rounded-full bg-white text-[#128C7E] font-satoBold px-5 py-3 text-sm shadow-md hover:shadow-lg transition-all active:scale-[0.98] disabled:opacity-70"
         >
           <FaWhatsapp className="text-lg" />
-          {loading ? "Cargando…" : "Conectar WhatsApp"}
+          {loading ? "Cargando…" : "Conectar"}
         </button>
       </div>
 

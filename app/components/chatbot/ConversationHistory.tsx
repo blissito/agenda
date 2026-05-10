@@ -328,9 +328,25 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               />
             ))
           ) : (
-            <div className="text-center p-8 text-brand_gray text-sm">
-              {searchQuery ? "Sin resultados." : "No hay conversaciones aún."}
-            </div>
+            searchQuery ? (
+              <div className="text-center p-8 text-brand_gray text-sm">
+                Sin resultados.
+              </div>
+            ) : (
+              <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center px-4">
+                <img
+                  src="/images/emptyState/empty_chat.svg"
+                  className="w-[80px] mb-4"
+                  alt=""
+                />
+                <p className="font-satoBold text-brand_dark text-base">
+                  Aún no tienes conversaciones
+                </p>
+                <p className="text-sm text-brand_gray mt-2 max-w-[220px]">
+                  Cuando tus clientes chateen con tu asistente, las verás aquí
+                </p>
+              </div>
+            )
           )}
 
           {hasMore && (

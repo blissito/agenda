@@ -16,15 +16,6 @@ type FullEvent = Event & {
 }
 
 /**
- * Generate a survey token for the customer to rate their experience
- */
-function generateSurveyToken(eventId: string, customerId: string): string {
-  return jwt.sign({ eventId, customerId, type: "survey" }, JWT_SECRET, {
-    expiresIn: "30d",
-  })
-}
-
-/**
  * Send satisfaction survey email to customer after their appointment
  */
 export const sendSurvey = async ({
@@ -36,9 +27,7 @@ export const sendSurvey = async ({
 }) => {
   const baseUrl = process.env.APP_URL || "https://www.denik.me"
 
-  // Generate survey token
-  const surveyToken = generateSurveyToken(event.id, event.customer.id)
-  const surveyLink = `${baseUrl}/survey?token=${surveyToken}`
+  const surveyLink = `${baseUrl}/mi-cuenta/perfil/resena/${event.id}`
 
   const sesTransport = getSesTransport()
 

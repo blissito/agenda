@@ -95,7 +95,7 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100svh-120px)] lg:h-[calc(100svh-80px)]">
+    <div className="flex flex-col h-[calc(100svh-120px)] lg:h-[calc(100svh-80px)] max-w-8xl mx-auto w-full">
       <div className="mb-4">
         {activeTab === "config" ? (
           <Breadcrumb className="text-brand_gray">

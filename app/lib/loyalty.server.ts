@@ -351,6 +351,8 @@ export async function redeemReward(params: {
   if (!reward.isActive) throw new Error("Reward not active")
   if (reward.orgId !== orgId)
     throw new Error("Reward not available for this org")
+  if (reward.pointsCost <= 0)
+    throw new Error("Reward not redeemable for points")
   if ((customer.loyaltyPoints ?? 0) < reward.pointsCost)
     throw new Error("Insufficient points")
 
@@ -520,7 +522,7 @@ export async function createReward(data: {
   pointsCost: number
   maxRedemptions?: number
 }) {
-  if (data.pointsCost <= 0) throw new Error("pointsCost must be > 0")
+  if (data.pointsCost < 0) throw new Error("pointsCost must be >= 0")
   if (data.value <= 0) throw new Error("value must be > 0")
 
   return db.loyaltyReward.create({ data })

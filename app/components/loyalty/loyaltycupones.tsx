@@ -10,11 +10,7 @@ import { SuccessToast } from "~/components/common/SuccessToast"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { ArrowRight } from "~/components/icons/arrowRight"
 import { X } from "~/components/icons/X"
-import type {
-  Reward,
-  ServiceOption,
-  Transaction,
-} from "~/routes/dash/dash.lealtad"
+import type { Reward, ServiceOption } from "~/routes/dash/dash.lealtad"
 
 const COUPON_META_PREFIX = "__COUPON_META__:"
 
@@ -206,7 +202,7 @@ function CustomSelect({
         type="button"
         onClick={() => !disabled && setOpen((prev) => !prev)}
         disabled={disabled}
-        className="flex h-[44px] w-full items-center rounded-[16px] border border-brand_ash bg-white px-4 pr-10 text-left text-[16px] leading-[24px] text-brand_dark outline-none transition focus:border-[#615FFF] disabled:opacity-50"
+        className="flex h-[44px] w-full items-center rounded-[16px] border border-brand_ash bg-white px-4 pr-10 text-left text-[16px] leading-[24px] text-brand_gray outline-none transition focus:border-[#615FFF] disabled:opacity-50"
       >
         <span className="truncate">{selectedLabel}</span>
       </button>
@@ -298,14 +294,12 @@ const WizardSelect = ({
 
 export function CuponesTab({
   rewards,
-  transactions,
   services,
   isCreateOpen,
   onOpenCreate,
   onCloseCreate,
 }: {
   rewards: Reward[]
-  transactions: Transaction[]
   services: ServiceOption[]
   isCreateOpen: boolean
   onOpenCreate: () => void
@@ -499,10 +493,6 @@ export function CuponesTab({
         </div>
       )}
 
-      {transactions.length > 0 && (
-        <TransactionsTable transactions={transactions} />
-      )}
-
       <SuccessToast message={toastMessage} />
     </>
   )
@@ -510,15 +500,16 @@ export function CuponesTab({
 
 function CouponTableHeader() {
   const titles: [string, string][] = [
-    ["Cupón", "col-span-10 sm:col-span-4 pl-2"],
-    ["Descuento", "hidden sm:block sm:col-span-2 text-center"],
-    ["Duración", "hidden sm:block sm:col-span-2 text-center"],
-    ["Servicios", "hidden sm:block sm:col-span-3 text-center"],
+    ["Cupón", "col-span-10 sm:col-span-3 pl-2"],
+    ["Descuento", "hidden sm:block sm:col-span-2 text-left"],
+    ["Duración", "hidden sm:block sm:col-span-2 text-left"],
+    ["Servicios", "hidden sm:block sm:col-span-2 text-left"],
+    ["Canjes", "hidden sm:block sm:col-span-2 text-left"],
     ["Acciones", "col-span-2 sm:col-span-1 text-center"],
   ]
 
   return (
-    <div className="mt-4 grid grid-cols-12 items-center rounded-t-2xl border-b  border-slate-200 bg-white px-2 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 sm:px-4">
+    <div className="mt-4 grid grid-cols-12 items-center rounded-t-2xl border-b  border-brand_stroke bg-white px-2 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 sm:px-4">
       {titles.map(([title, classes]) => (
         <h3
           key={`${title}-${classes}`}
@@ -558,7 +549,7 @@ function CouponRow({
     <div
       className={twMerge(
         "grid grid-cols-12 items-center bg-white px-2 transition-colors hover:bg-slate-50 sm:px-4",
-        !isLast && "border-b border-slate-200",
+        !isLast && "border-b border-brand_stroke",
         isLast && "rounded-b-2xl",
       )}
     >
@@ -567,13 +558,13 @@ function CouponRow({
         onClick={onOpenEdit}
         className="col-span-10 grid min-w-0 grid-cols-10 items-center py-3 text-left sm:col-span-11 sm:grid-cols-11"
       >
-        <div className="col-span-10 flex min-w-0 items-center gap-3 sm:col-span-4">
+        <div className="col-span-10 flex min-w-0 items-center gap-3 sm:col-span-3">
           <div className="flex h-[32px] min-w-[40px] items-center justify-center rounded-[8px] bg-[#121212] px-2 text-[12px] font-satoBold text-white">
             {getCouponBadgeLabel(reward)}
           </div>
 
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold leading-tight text-brand_dark">
+            <p className="truncate text-sm font-satoBold leading-tight text-brand_dark">
               {reward.name}
             </p>
             <p className="truncate text-xs font-satoMedium text-brand_gray">
@@ -581,21 +572,26 @@ function CouponRow({
             </p>
             <div className="mt-1 truncate text-[12px] text-brand_gray sm:hidden">
               {getCouponDiscountLabel(reward)} · {getDurationLabel(meta)} ·{" "}
-              {getServicesLabel(meta, services)}
+              {getServicesLabel(meta, services)} · {reward.currentRedemptions}{" "}
+              canjes
             </div>
           </div>
         </div>
 
-        <p className="hidden whitespace-nowrap text-center text-sm text-brand_gray sm:col-span-2 sm:block">
+        <p className="hidden whitespace-nowrap text-left text-sm text-brand_gray sm:col-span-2 sm:block">
           {getCouponDiscountLabel(reward)}
         </p>
 
-        <p className="hidden whitespace-nowrap text-center text-sm text-brand_gray sm:col-span-2 sm:block">
+        <p className="hidden whitespace-nowrap text-left text-sm text-brand_gray sm:col-span-2 sm:block">
           {getDurationLabel(meta)}
         </p>
 
-        <p className="hidden truncate whitespace-nowrap text-center text-sm text-brand_gray sm:col-span-3 sm:block">
+        <p className="hidden truncate whitespace-nowrap text-left text-sm text-brand_gray sm:col-span-2 sm:block">
           {getServicesLabel(meta, services)}
+        </p>
+
+        <p className="hidden whitespace-nowrap text-left text-sm text-brand_gray sm:col-span-2 sm:block">
+          {reward.currentRedemptions}
         </p>
       </button>
 
@@ -788,7 +784,7 @@ function CuponWizard({
               discountType === "discount_fixed"
                 ? Math.round(parsedDiscountValue * 100)
                 : parsedDiscountValue,
-            pointsCost: 1,
+            pointsCost: 0,
           }),
         }),
       })
@@ -1098,6 +1094,7 @@ function CouponWizardStepTwo({
               }
               disabled={applyAllServices}
               onChange={() => toggleService(service.id)}
+              labelClassName="text-brand_gray"
             />
           ))}
         </div>
@@ -1192,15 +1189,22 @@ export function ServiceToggleRow({
   checked,
   disabled,
   onChange,
+  labelClassName,
 }: {
   label: string
   checked: boolean
   disabled?: boolean
   onChange: (checked: boolean) => void
+  labelClassName?: string
 }) {
   return (
     <div className="flex items-center justify-between gap-[52px]">
-      <span className="min-w-0 flex-1 font-satoMedium text-[16px] leading-[22px] text-brand_dark">
+      <span
+        className={twMerge(
+          "min-w-0 flex-1 font-satoMedium text-[16px] leading-[22px] text-brand_dark",
+          labelClassName,
+        )}
+      >
         {label}
       </span>
 
@@ -1277,14 +1281,10 @@ function CouponEditModal({
   }
 
   const [hasScrolledTop, setHasScrolledTop] = useState(false)
-  const [hasReachedBottom, setHasReachedBottom] = useState(false)
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const updateScrollState = (element: HTMLDivElement) => {
-    const { scrollTop, scrollHeight, clientHeight } = element
-
-    setHasScrolledTop(scrollTop > 0)
-    setHasReachedBottom(scrollTop + clientHeight >= scrollHeight - 2)
+    setHasScrolledTop(element.scrollTop > 0)
   }
 
   const handleBodyScroll = (e: UIEvent<HTMLDivElement>) => {
@@ -1345,15 +1345,6 @@ function CouponEditModal({
                   </button>
                 </div>
               </div>
-
-              <div
-                className={twMerge(
-                  "pointer-events-none h-4 transition-opacity duration-200",
-                  hasScrolledTop
-                    ? "bg-gradient-to-b from-white/90 to-transparent opacity-100"
-                    : "opacity-0",
-                )}
-              />
             </div>
 
             <div className="px-[32px] pb-[24px]">
@@ -1481,6 +1472,7 @@ function CouponEditModal({
                           }
                           disabled={applyAllServices}
                           onChange={() => toggleService(service.id)}
+                          labelClassName="text-brand_gray"
                         />
                       ))}
                     </div>
@@ -1488,42 +1480,26 @@ function CouponEditModal({
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="sticky bottom-0 z-20">
-              <div
-                className={twMerge(
-                  "pointer-events-none h-4 transition-opacity duration-200",
-                  !hasReachedBottom
-                    ? "bg-gradient-to-t from-white/90 to-transparent opacity-100"
-                    : "opacity-0",
-                )}
-              />
+          <div className="shrink-0 bg-white px-[32px] pb-[32px] pt-[20px]">
+            <div className="flex justify-end">
+              <div className="flex items-center gap-[24px]">
+                <button
+                  type="button"
+                  onClick={onDelete}
+                  className="flex h-[32px] w-[140px] items-center justify-center whitespace-nowrap text-[16px] font-satoMedium text-brand_red"
+                >
+                  Eliminar cupón
+                </button>
 
-              <div
-                className={twMerge(
-                  "px-[32px] pb-[32px] pt-[20px] transition-all duration-200",
-                  !hasReachedBottom ? " backdrop-blur-sm" : "bg-white",
-                )}
-              >
-                <div className="flex justify-end">
-                  <div className="flex items-center gap-[24px]">
-                    <button
-                      type="button"
-                      onClick={onDelete}
-                      className="flex h-[32px] w-[140px] items-center justify-center whitespace-nowrap text-[16px] font-satoMedium text-brand_red"
-                    >
-                      Eliminar cupón
-                    </button>
-
-                    <PrimaryButton
-                      type="submit"
-                      isDisabled={isUpdating}
-                      className="flex h-[40px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
-                    >
-                      {isUpdating ? "Guardando..." : "Guardar"}
-                    </PrimaryButton>
-                  </div>
-                </div>
+                <PrimaryButton
+                  type="submit"
+                  isDisabled={isUpdating}
+                  className="flex h-[40px] w-[120px] items-center justify-center rounded-full px-0 text-[16px] font-satoMedium"
+                >
+                  {isUpdating ? "Guardando..." : "Guardar"}
+                </PrimaryButton>
               </div>
             </div>
           </div>
@@ -1533,46 +1509,6 @@ function CouponEditModal({
   )
 }
 
-function TransactionsTable({ transactions }: { transactions: Transaction[] }) {
-  return (
-    <section className="mt-8">
-      <h2 className="mb-3 text-lg font-semibold">Transacciones recientes</h2>
-
-      <div className="overflow-hidden rounded-lg border bg-white">
-        <table className="w-full text-sm">
-          <thead className="bg-brand_gray">
-            <tr>
-              <th className="px-4 py-2 text-left">Cliente</th>
-              <th className="px-4 py-2 text-left">Tipo</th>
-              <th className="px-4 py-2 text-right">Puntos</th>
-              <th className="px-4 py-2 text-right">Balance</th>
-              <th className="px-4 py-2 text-left">Razón</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id} className="border-t">
-                <td className="px-4 py-2">{tx.customer.displayName}</td>
-                <td className="px-4 py-2">{tx.type}</td>
-                <td
-                  className={`px-4 py-2 text-right ${
-                    tx.points >= 0 ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {tx.points >= 0 ? "+" : ""}
-                  {tx.points}
-                </td>
-                <td className="px-4 py-2 text-right">{tx.balance}</td>
-                <td className="px-4 py-2 text-gray-500">{tx.reason}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  )
-}
 
 function DotsIcon() {
   return (

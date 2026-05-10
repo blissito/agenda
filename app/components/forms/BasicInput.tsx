@@ -85,7 +85,7 @@ export const BasicInput = ({
             placeholder={placeholder}
             className={twMerge(
               "min-h-40 text-brand_gray",
-              "placeholder:text-brand_iron font-satoshi",
+              "placeholder:text-brand_ash font-satoshi",
               "focus:border-brand_blue focus:outline-none focus:ring-0",
               "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
@@ -107,7 +107,7 @@ export const BasicInput = ({
             type={type}
             placeholder={placeholder}
             className={twMerge(
-              "text-brand_gray font-satoshi placeholder:text-brand_iron placeholder:font-satoshi",
+              "text-brand_gray font-satoshi placeholder:text-brand_ash placeholder:font-satoshi",
               "focus:border-brand_blue focus:outline-none focus:ring-0",
               "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",

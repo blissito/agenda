@@ -88,11 +88,16 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
+  // Para ingresos incluimos canceladas/archivadas: la venta sigue contando
+  // mientras no haya sido reembolsada (ver flujo en cancelEventFully).
+  // Nota Prisma+MongoDB: `refundedAt: null` y `NOT: { not: null }` NO
+  // matchean docs donde el campo no existe. Hay que usar `isSet: false`,
+  // que es el operador específico de MongoDB para "campo ausente".
   const events = await db.event.findMany({
     where: {
       orgId: org.id,
-      archived: false,
       type: { not: "BLOCK" },
+      refundedAt: { isSet: false },
     },
     include: { service: true, customer: true },
     orderBy: { start: "desc" },
@@ -339,7 +344,7 @@ export default function Pagos({ loaderData }: Route.ComponentProps) {
             activeTab === "deposits" ? "text-[#20242D]" : "text-[#8A90A2]"
           }`}
         >
-          Depósitos
+          Movimientos MP
           {activeTab === "deposits" && (
             <span className="absolute bottom-0 left-0 h-[2px] w-full rounded-full bg-[#615FFF]" />
           )}
@@ -450,8 +455,8 @@ type SalesStats = {
   sucursalBreakdown: { cash: number; transfer: number; card: number }
 }
 
-const formatCurrency = (cents: number) =>
-  `$${(cents / 100).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+const formatCurrency = (amount: number) =>
+  `$${amount.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
 
 const SalesView = ({
   stats,
@@ -485,7 +490,7 @@ const SalesView = ({
           value={formatCurrency(safeStats.onlineRevenue)}
           subtitle="Cobrado online al agendar"
           className="bg-[#615FFF]"
-          icon="/images/agenda-dash.svg"
+          icon="/images/mp.svg"
         />
         <SalesCard
           title="Ingresos en sucursal"
@@ -499,7 +504,7 @@ const SalesView = ({
           value={String(safeStats.paidCount)}
           subtitle="Total histórico"
           className="bg-[#EEC446]"
-          icon="/images/cancel.svg"
+          icon="/images/thunder.svg"
         />
       </div>
 
@@ -571,22 +576,30 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
   const [year, setYear] = useState(now.getFullYear())
   const [month, setMonth] = useState(now.getMonth()) // 0-11
 
-  // Años disponibles = años con eventos pagados (mínimo el actual)
+  // Años disponibles = años con eventos pagados (mínimo el actual).
+  // Usa `createdAt` para alinear con la lógica de agrupación de la tabla.
   const yearsAvailable = useMemo(() => {
     const set = new Set<number>([now.getFullYear()])
     for (const e of events) {
-      if (e.paid && e.start) set.add(new Date(e.start).getFullYear())
+      if (e.paid && e.createdAt)
+        set.add(new Date(e.createdAt).getFullYear())
     }
     return Array.from(set).sort((a, b) => b - a)
   }, [events, now])
 
   const days = useMemo<DailyTotals[]>(() => {
-    // Agrupa los eventos pagados por día dentro del mes seleccionado
+    // Agrupa los eventos pagados por la fecha en que entró el dinero
+    // (cierre de caja contable, no fecha de la cita). Usamos `createdAt`
+    // como proxy de "fecha de pago" — es cuándo se registró la venta.
+    // Solo incluye fechas hasta hoy: no tiene sentido reportar caja futura.
+    const todayEnd = new Date()
+    todayEnd.setHours(23, 59, 59, 999)
     const map = new Map<string, DailyTotals>()
     for (const e of events) {
       if (!e.paid || !e.service) continue
-      const d = new Date(e.start)
+      const d = new Date(e.createdAt)
       if (d.getFullYear() !== year || d.getMonth() !== month) continue
+      if (d > todayEnd) continue
       const key = d.toISOString().slice(0, 10)
       const row =
         map.get(key) ??
@@ -683,7 +696,7 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
           </div>
           <div className="rounded-b-2xl bg-white divide-y divide-brand_stroke">
             {totals.count > 0 ? (
-              <div className="grid gap-x-4 grid-cols-[160px_80px_1fr_1fr_1fr_1fr_140px] items-center px-6 py-3 bg-brand_lime/20">
+              <div className="grid gap-x-4 grid-cols-[160px_80px_1fr_1fr_1fr_1fr_140px] items-center px-6 py-3 bg-[#64D0C5]/20">
                 <div className="text-[13px] text-brand_dark font-satoBold uppercase tracking-wide">
                   Total del mes
                 </div>
@@ -743,7 +756,7 @@ const DailyClosingTable = ({ events }: { events: CitaEvent[] }) => {
         </div>
         <div className="divide-y divide-brand_stroke">
         {totals.count > 0 ? (
-          <div className="p-4 bg-brand_lime/20 flex items-center justify-between">
+          <div className="p-4 bg-[#64D0C5]/20 flex items-center justify-between">
             <span className="text-sm font-satoBold text-brand_dark uppercase tracking-wide">
               Total del mes
             </span>
@@ -1042,6 +1055,52 @@ const _DepositsList = ({
   </div>
 )
 
+// Traducciones de los códigos que devuelve MercadoPago en payment_method_id
+// (más específico) y payment_type_id (categoría). Si no hay match, devuelve
+// el código capitalizado. Los más comunes en MX están explícitos; el resto
+// cae al genérico de payment_type_id.
+const MP_METHOD_LABELS: Record<string, string> = {
+  // payment_method_id
+  visa: "Visa",
+  master: "Mastercard",
+  amex: "American Express",
+  debvisa: "Visa Débito",
+  debmaster: "Mastercard Débito",
+  debcabal: "Cabal Débito",
+  account_money: "Dinero en cuenta",
+  pix: "Pix",
+  oxxo: "OXXO",
+  bbvabancomer: "BBVA",
+  santander: "Santander",
+  banamex: "Banamex",
+  banorte: "Banorte",
+  hsbc: "HSBC",
+  scotiabank: "Scotiabank",
+  paycash: "PayCash",
+  sevenelevenmx: "7-Eleven",
+  // payment_type_id (fallback)
+  credit_card: "Tarjeta de crédito",
+  debit_card: "Tarjeta de débito",
+  prepaid_card: "Tarjeta prepago",
+  ticket: "Pago en efectivo",
+  atm: "Cajero automático",
+  bank_transfer: "Transferencia bancaria",
+  digital_currency: "Moneda digital",
+  digital_wallet: "Cartera digital",
+  crypto_transfer: "Transferencia cripto",
+}
+
+const formatMpMethod = (p: MpPayment): string => {
+  const id = p.payment_method_id?.toLowerCase()
+  if (id && MP_METHOD_LABELS[id]) return MP_METHOD_LABELS[id]
+  const type = p.payment_type_id?.toLowerCase()
+  if (type && MP_METHOD_LABELS[type]) return MP_METHOD_LABELS[type]
+  // Fallback: capitalizar el código que venga
+  const raw = p.payment_method_id || p.payment_type_id
+  if (!raw) return "—"
+  return raw.charAt(0).toUpperCase() + raw.slice(1).replace(/_/g, " ")
+}
+
 const DepositsTable = ({
   payments,
   currency,
@@ -1050,7 +1109,7 @@ const DepositsTable = ({
   currency: string
 }) => {
   const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  const [perPage, setPerPage] = useState(25)
   const total = payments.length
   const paginated = payments.slice((page - 1) * perPage, page * perPage)
 
@@ -1096,8 +1155,8 @@ const DepositsTable = ({
                       ? formatDateLong(p.date_approved)
                       : formatDateLong(p.date_created)}
                   </div>
-                  <div className="text-[13px] text-brand_dark capitalize truncate">
-                    {p.payment_method_id ?? p.payment_type_id ?? "—"}
+                  <div className="text-[13px] text-brand_dark truncate">
+                    {formatMpMethod(p)}
                   </div>
                   <div className="text-[13px] text-brand_gray text-right tabular-nums">
                     {formatMoney(p.transaction_amount, currency)}
@@ -1150,8 +1209,8 @@ const DepositsTable = ({
                       ? formatDateLong(p.date_approved)
                       : formatDateLong(p.date_created)}
                   </p>
-                  <p className="text-[14px] font-satoBold text-brand_dark capitalize">
-                    {p.payment_method_id ?? p.payment_type_id ?? "—"}
+                  <p className="text-[14px] font-satoBold text-brand_dark">
+                    {formatMpMethod(p)}
                   </p>
                 </div>
                 <span className="text-[14px] font-satoBold text-brand_dark tabular-nums">

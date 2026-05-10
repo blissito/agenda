@@ -211,9 +211,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         { status: 400 },
       )
     }
-    if (Number.isNaN(numPointsCost) || numPointsCost <= 0) {
+    if (Number.isNaN(numPointsCost) || numPointsCost < 0) {
       return Response.json(
-        { error: "pointsCost must be a positive number" },
+        { error: "pointsCost must be a non-negative number" },
         { status: 400 },
       )
     }

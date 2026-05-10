@@ -101,8 +101,8 @@ export const meta = ({ data }: Route.MetaArgs) => {
     })
   }
   return getMetaTags({
-    title: "Deník | Tu agenda en un solo lugar",
-    description: "Administra la agenda de tu negocio en un solo lugar",
+    title: "Deník | Tu agenda en línea en un solo lugar",
+    description: "Administra la agenda de tu negocio en un solo lugar con IA",
     image: "https://i.imgur.com/zlnq8Jd.png",
     url: "https://denik.me",
   })

@@ -21,13 +21,15 @@ export const DateInput = ({
 }) => {
   return (
     <label>
-      {label && <span>{label}</span>}
+      {label && (
+        <span className="text-brand_dark font-satoMedium">{label}</span>
+      )}
       <input
         name={name}
         type={type}
         {...props}
         className={cn(
-          "placeholder:text-brand_iron text-brand_gray font-satoshi",
+          "placeholder:text-brand_ash text-brand_gray font-satoshi",
           "focus:border-brand_blue focus:outline-none focus:ring-0",
           "rounded-2xl border-gray-200 h-12 w-full mt-1 ",
           "disabled:bg-brand_stroke disabled:cursor-not-allowed",

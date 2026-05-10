@@ -166,7 +166,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
       style={{ minHeight: "calc(100vh - 80px)" }}
     >
       <div className="flex items-center justify-between gap-4 pb-4">
-        <RouteTitle className="mb-0 text-2xl md:text-3xl">Sitio web</RouteTitle>
+        <RouteTitle className="mb-0 md:mb-0 text-2xl md:text-3xl">Sitio web</RouteTitle>
 
         <div className="flex gap-3">
           <Tooltip label="Ver sitio web">

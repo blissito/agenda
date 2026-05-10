@@ -1,4 +1,5 @@
 import type { Org, Service } from "@prisma/client"
+import "~/jobs/init.server"
 import { db } from "~/utils/db.server"
 
 const PLATFORM_DOMAINS = ["denik.me", "localhost", "127.0.0.1"]

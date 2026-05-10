@@ -153,7 +153,7 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
             className="w-full h-full object-cover"
           />
         </div>
-        <span className="font-satoBold text-sm text-brand_dark truncate">
+        <span className="font-satoBold text-base text-brand_dark truncate">
           {service.name}
         </span>
       </div>

@@ -1,16 +1,16 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link, useFetcher, useLoaderData } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { SecondaryButton } from "~/components/common/secondaryButton"
+import { SuccessToast } from "~/components/common/SuccessToast"
 import { getAvatarColor } from "~/components/dash/AppointmentItem"
 import { useDownloadToast } from "~/components/downloads/downloadToast"
 import { BasicInput } from "~/components/forms/BasicInput"
-import { useCopyLink } from "~/components/hooks/useCopyLink"
 import { usePluralize } from "~/components/hooks/usePluralize"
 import { Download } from "~/components/icons/download"
 import { Graph } from "~/components/icons/Graph"
@@ -112,7 +112,7 @@ export default function Clients() {
   })
 
   return (
-    <div className="max-w-8xl mx-auto">
+    <div className="max-w-8xl mx-auto flex flex-col min-h-[calc(100vh-80px)]">
       <RouteTitle className="text-2xl md:text-3xl">Clientes</RouteTitle>
 
       {clients.length > 0 ? (
@@ -123,30 +123,33 @@ export default function Clients() {
             canDownload={canDownload}
             search={search}
             onSearch={setSearch}
+            count={clients.length}
           />
 
-          <TableHeader
-            titles={[
-              ["Cliente", "col-span-4 pl-2"],
-              ["Registro", "col-span-2 text-center"],
-              ["Puntos", "col-span-2 text-center"],
-              ["Citas", "col-span-1 text-center"],
-              ["Próxima cita", "col-span-2 text-center"],
-              ["Acciones", "col-start-12 col-span-1 text-center"],
-            ]}
-          />
+          {filteredClients.length > 0 ? (
+            <>
+              <TableHeader
+                titles={[
+                  ["Cliente", "col-span-4 pl-2"],
+                  ["Registro", "col-span-2 text-left"],
+                  ["Puntos", "col-span-2 text-left"],
+                  ["Citas", "col-span-1 text-left"],
+                  ["Próxima cita", "col-span-2 text-left"],
+                  ["Acciones", "col-start-12 col-span-1 text-center"],
+                ]}
+              />
 
-          {filteredClients.map((c, index) => (
-            <ClientRow
-              client={c}
-              key={c.id}
-              isLast={index === filteredClients.length - 1}
-            />
-          ))}
-
-          {!filteredClients.length && search && (
-            <EmptySearch query={search} onClear={() => setSearch("")} />
-          )}
+              {filteredClients.map((c, index) => (
+                <ClientRow
+                  client={c}
+                  key={c.id}
+                  isLast={index === filteredClients.length - 1}
+                />
+              ))}
+            </>
+          ) : search ? (
+            <EmptySearch onClear={() => setSearch("")} />
+          ) : null}
         </>
       ) : (
         <EmptyStateClients link={link} />
@@ -162,26 +165,57 @@ const SearchNav = ({
   canDownload,
   search,
   onSearch,
+  count,
 }: {
   onDownload: () => void
   canDownload: boolean
   search: string
   onSearch: (v: string) => void
+  count: number
 }) => {
+  const pluralize = usePluralize()
   return (
-    <div className="flex items-center gap-3 my-4">
-      <div className="relative flex-1 sm:min-w-[420px] sm:flex-none">
+    <div className="flex items-center gap-2 mt-4">
+      <p className="hidden sm:block text-lg font-satoshi text-brand_dark whitespace-nowrap">
+        {count} {pluralize("cliente", count)}{" "}
+        {pluralize("registrado", count)}
+      </p>
+      <div className="flex-1" />
+      <div className="relative">
         <BasicInput
+          name="search"
           value={search}
           onChange={(e) => onSearch(e.target.value)}
-          type="search"
-          placeholder="Busca por nombre, email, teléfono"
+          type="text"
+          placeholder="Buscar"
           containerClassName="w-full"
-          inputClassName="!rounded-full pr-12 border-white font-satoshi placeholder:text-brand_iron"
+          inputClassName="!rounded-full pl-4 pr-10 border-white font-satoshi py-2 h-12"
+          registerOptions={{ required: false }}
         />
-        <MagnifyingGlass className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-brand_iron" />
+        {search ? (
+          <button
+            type="button"
+            onClick={() => onSearch("")}
+            aria-label="Limpiar búsqueda"
+            className="absolute right-2 top-[28px] -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-brand_iron hover:text-brand_dark hover:bg-gray-100 transition-colors"
+          >
+            <svg
+              className="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        ) : (
+          <MagnifyingGlass className="pointer-events-none absolute right-3 top-[28px] -translate-y-1/2 w-5 h-5 text-brand_iron" />
+        )}
       </div>
-      <div className="hidden sm:block flex-1" />
       <ActionButton onClick={onDownload} isDisabled={!canDownload}>
         <Download />
       </ActionButton>
@@ -210,7 +244,7 @@ export const ActionButton = ({
 
 export const TableHeader = ({ titles }: { titles: HeaderTitle[] }) => {
   return (
-    <div className="grid grid-cols-12 rounded-t-2xl border-b border-brand_stroke bg-white mt-4 px-2 sm:px-4 py-3 text-[12px] font-satoMedium uppercase tracking-wide text-slate-600 items-center">
+    <div className="grid grid-cols-12 rounded-t-2xl border-b border-brand_stroke bg-white mt-4 px-2 sm:px-4 py-3 text-[12px] font-satoMedium tracking-wide text-slate-600 items-center">
       {titles.map((t) => {
         const title = Array.isArray(t) ? t[0] : t
         const classes = Array.isArray(t) ? t[1] : "col-span-2 text-center"
@@ -275,32 +309,32 @@ export const ClientRow = ({
             className={getAvatarColor(client.displayName || client.email)}
           />
           <div className="min-w-0">
-            <p className="font-semibold text-brand_dark text-sm truncate leading-tight">
+            <p className="font-satoBold text-brand_dark text-sm truncate leading-tight">
               {client.displayName || "—"}
             </p>
-            <p className="text-xs font-satoMedium text-brand_gray truncate">
+            <p className="text-xs text-brand_iron truncate">
               {client.email}
             </p>
           </div>
         </div>
 
-        <p className="hidden font-satoMedium sm:block text-sm col-span-2 text-center text-brand_gray whitespace-nowrap">
+        <p className="hidden font-satoMedium sm:block text-sm col-span-2 text-left text-brand_gray whitespace-nowrap">
           {new Date(client.createdAt || client.updatedAt).toLocaleDateString(
             "es-MX",
             { day: "numeric", month: "short", year: "numeric" },
           )}
         </p>
 
-        <p className="hidden sm:block text-sm col-span-2 text-center font-semibold text-brand_gray whitespace-nowrap">
+        <p className="hidden sm:block text-sm col-span-2 text-left font-semibold text-brand_gray whitespace-nowrap">
           {client.loyaltyPoints ?? 0}
           <span className="font-semibold text-brand_gray ml-1">pts</span>
         </p>
 
-        <p className="hidden sm:block text-sm col-span-1 text-center text-brand_gray whitespace-nowrap">
+        <p className="hidden sm:block text-sm col-span-1 text-left text-brand_gray whitespace-nowrap">
           {client.eventCount}
         </p>
 
-        <p className="hidden sm:block col-span-2 text-sm text-center text-brand_green whitespace-nowrap">
+        <p className="hidden sm:block col-span-2 text-sm text-left text-brand_green whitespace-nowrap">
           {client.nextEventDate
             ? new Date(client.nextEventDate).toLocaleDateString("es-MX", {
                 day: "numeric",
@@ -473,32 +507,42 @@ export const Summary = ({
   )
 }
 
-const EmptySearch = ({
-  query,
-  onClear,
-}: {
-  query: string
-  onClear: () => void
-}) => (
-  <div className="bg-white py-16 flex flex-col items-center gap-3 text-center border-b border-slate-100">
-    <MagnifyingGlass className="w-12 h-12 text-brand_gray" />
-    <p className="font-satoMedium text-lg">
-      Sin resultados para &quot;{query}&quot;
+const EmptySearch = ({ onClear }: { onClear: () => void }) => (
+  <div className="flex flex-col items-center justify-center gap-3 text-center flex-1">
+    <img
+      className="mx-auto mb-4"
+      src="/images/emptyState/search.svg"
+      alt=""
+    />
+    <p className="text-2xl font-satoBold text-brand_dark">
+      ¡Vaya! No hay coincidencias con la búsqueda
     </p>
-    <p className="text-brand_gray text-sm">
-      Intenta buscar por otro nombre, correo o teléfono
+    <p className="text-[18px] text-brand_gray mt-2">
+      Intenta buscar por otro nombre, correo o teléfono.
     </p>
-    <button
+    <SecondaryButton
       onClick={onClear}
-      className="mt-2 text-brand_blue text-sm underline underline-offset-2"
+      className="mt-4 min-w-0 h-10 px-5 text-sm"
     >
       Limpiar búsqueda
-    </button>
+    </SecondaryButton>
   </div>
 )
 
 const EmptyStateClients = ({ link }: { link: string }) => {
-  const { setLink, ref } = useCopyLink(link)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const t = setTimeout(() => setToastMessage(null), 2500)
+    return () => clearTimeout(t)
+  }, [toastMessage])
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(link)
+    setToastMessage("Link copiado")
+  }
+
   return (
     <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center px-4">
       <div className="text-center">
@@ -513,13 +557,13 @@ const EmptyStateClients = ({ link }: { link: string }) => {
           <span className="text-2xl">🚀</span>
         </p>
         <SecondaryButton
-          ref={ref}
-          onClick={setLink}
+          onClick={handleCopy}
           className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]"
         >
           <Anchor /> Copiar link
         </SecondaryButton>
       </div>
+      <SuccessToast message={toastMessage} />
     </div>
   )
 }

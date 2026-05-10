@@ -66,10 +66,16 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     services,
     salesEvents,
   ] = await Promise.all([
-    // All events this month (to compute sales + scheduled count)
+    // All events this month (to compute sales + scheduled count).
+    // Para ventas: incluye canceladas/archivadas mientras NO hayan sido
+    // reembolsadas (la plata ya entró). Solo se excluyen reembolsos reales.
+    // `refundedAt: { isSet: false }` matchea docs donde el campo no existe
+    // (necesario en MongoDB; las variantes con `null` no funcionan).
     db.event.findMany({
       where: {
         orgId: org!.id,
+        type: { not: "BLOCK" },
+        refundedAt: { isSet: false },
         createdAt: { gte: startOfMonth },
       },
       include: { service: true },
@@ -89,20 +95,32 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         createdAt: { gte: startOfMonth },
       },
     }),
-    // Recent events for the sidebar
-    db.event.findMany({
-      where: {
-        orgId: org!.id,
-        type: { not: "BLOCK" },
-        status: { not: "CANCELLED" },
-      },
-      include: {
-        service: true,
-        customer: true,
-      },
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    }),
+    // Recent events for the sidebar (created yesterday or today)
+    (() => {
+      const now = new Date()
+      const todayStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      )
+      const yesterdayStart = new Date(todayStart)
+      yesterdayStart.setDate(yesterdayStart.getDate() - 1)
+      const tomorrowStart = new Date(todayStart)
+      tomorrowStart.setDate(tomorrowStart.getDate() + 1)
+      return db.event.findMany({
+        where: {
+          orgId: org!.id,
+          type: { not: "BLOCK" },
+          status: { not: "CANCELLED" },
+          createdAt: { gte: yesterdayStart, lt: tomorrowStart },
+        },
+        include: {
+          service: true,
+          customer: true,
+        },
+        orderBy: { createdAt: "desc" },
+      })
+    })(),
     // Services with event counts for top services
     db.service.findMany({
       where: { orgId: org!.id, archived: false },
@@ -110,11 +128,12 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       orderBy: { events: { _count: "desc" } },
       take: 5,
     }),
-    // Paid events from last year for sales chart
+    // Paid events from last year for sales chart (excluye reembolsos).
     db.event.findMany({
       where: {
         orgId: org!.id,
         paid: true,
+        refundedAt: { isSet: false },
         createdAt: { gte: oneYearAgo },
       },
       include: { service: true },
@@ -582,8 +601,8 @@ type Stats = {
 }
 
 const Summary = ({ user, stats }: { user: User; stats: Stats | null }) => {
-  const formatCurrency = (cents: number) => {
-    return `$${(cents / 100).toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+  const formatCurrency = (amount: number) => {
+    return `$${amount.toLocaleString("es-MX", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
   }
 
   return (

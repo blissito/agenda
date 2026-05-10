@@ -5,6 +5,7 @@ import { cancelEventFully } from "~/lib/event-cancel.server"
 import { createMeetLink } from "~/lib/google-meet.server"
 import { createZoomMeeting } from "~/lib/zoom.server"
 import { db } from "~/utils/db.server"
+import { sendAppointmentToCustomer } from "~/utils/emails/sendAppointment"
 import { resolveVideoProvider } from "~/utils/videoProvider.server"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/customers"
@@ -229,6 +230,54 @@ export const action = async ({ request }: Route.ActionArgs) => {
           where: { id: event.id },
           data: { videoProvider: "none" },
         })
+      }
+    }
+
+    // Send confirmation email to customer
+    try {
+      const fullEvent = await db.event.findUnique({
+        where: { id: event.id },
+        include: {
+          customer: true,
+          service: { include: { org: true } },
+        },
+      })
+      if (fullEvent?.customer?.email) {
+        await sendAppointmentToCustomer({
+          email: fullEvent.customer.email,
+          event: fullEvent as any,
+        })
+      }
+    } catch (e) {
+      console.error("[api/events] Email send failed:", e)
+    }
+
+    // Schedule confirmation, reminder and survey notifications
+    if (validData.serviceId && event.start && event.end) {
+      try {
+        const service = await db.service.findUnique({
+          where: { id: validData.serviceId },
+          select: { config: true },
+        })
+        const { scheduleEventNotifications } = await import(
+          "~/jobs/definitions.server"
+        )
+        await scheduleEventNotifications(
+          event.id,
+          event.start,
+          event.end,
+          service?.config as
+            | {
+                reminder?: boolean
+                confirmation?: boolean | null
+                survey?: boolean
+                reminderHours?: number | null
+              }
+            | undefined,
+          org.timezone,
+        )
+      } catch (e) {
+        console.error("[api/events] Failed to schedule notifications:", e)
       }
     }
 

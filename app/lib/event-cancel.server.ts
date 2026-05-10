@@ -9,19 +9,24 @@ import { db } from "~/utils/db.server"
  *   - cancela meeting en Zoom (si `zoomMeetingId`)
  *   - cancela jobs pendientes (recordatorio, encuesta)
  *   - marca `status: "CANCELLED"` + `archived: true`
+ *   - si `refunded: true`, set `refundedAt` (descuenta la venta de los reportes)
  *
  * Los fallos de integraciones se loggean pero no abortan la cancelación
  * — el evento debe quedar marcado aunque alguna API externa falle.
  *
  * @param orgId opcional: si se pasa, valida que el evento pertenezca a esa org.
+ * @param refunded opcional: si true y la cita estaba pagada, marca `refundedAt`
+ *   para que la venta se excluya de los reportes de ingresos.
  * @returns el evento actualizado, o null si no existe / no pertenece a la org.
  */
 export async function cancelEventFully({
   eventId,
   orgId,
+  refunded,
 }: {
   eventId: string
   orgId?: string
+  refunded?: boolean
 }) {
   const event = await db.event.findUnique({
     where: { id: eventId },
@@ -70,6 +75,7 @@ export async function cancelEventFully({
       status: "CANCELLED",
       archived: true,
       updatedAt: new Date(),
+      ...(refunded && event.paid ? { refundedAt: new Date() } : {}),
     },
   })
 }

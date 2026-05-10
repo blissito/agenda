@@ -40,8 +40,8 @@ export const links = () => [
   { rel: "stylesheet", href: stylesheet },
   {
     rel: "icon",
-    href: "/images/agenda-dash.svg",
-    type: "image/svg+xml",
+    href: "/favicon.ico",
+    type: "image/x-icon",
   },
 ]
 

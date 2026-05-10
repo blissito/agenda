@@ -1,11 +1,36 @@
+import { useEffect, useState } from "react"
 import { SecondaryButton } from "~/components/common/secondaryButton"
-import { useCopyLink } from "~/components/hooks/useCopyLink"
+import { SuccessToast } from "~/components/common/SuccessToast"
 import { Anchor } from "~/components/icons/link"
 
-export const EmptyStateReviews = ({ link }: { link: string }) => {
-  const { setLink, ref } = useCopyLink(link)
+export const EmptyStateReviews = ({
+  link,
+  fill = false,
+}: {
+  link: string
+  fill?: boolean
+}) => {
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!toastMessage) return
+    const t = setTimeout(() => setToastMessage(null), 2500)
+    return () => clearTimeout(t)
+  }, [toastMessage])
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(link)
+    setToastMessage("Link copiado")
+  }
+
   return (
-    <div className="w-full flex justify-center items-center min-h-[calc(100vh-12rem)] py-4 box-border">
+    <div
+      className={
+        fill
+          ? "w-full flex-1 flex justify-center items-center py-4 box-border"
+          : "w-full flex justify-center items-center min-h-[calc(100vh-12rem)] py-4 box-border"
+      }
+    >
       <div className="text-center">
         <img
           className="mx-auto mb-4 w-[200px] md:w-auto"
@@ -19,8 +44,7 @@ export const EmptyStateReviews = ({ link }: { link: string }) => {
           Brinda un gran servicio y deja que tus clientes cuenten cómo les fue
         </p>
         <SecondaryButton
-          ref={ref}
-          onClick={setLink}
+          onClick={handleCopy}
           className="mx-auto mt-12 bg-transparent border-[1px] border-[#CFCFCF]"
         >
           <span className="text-inherit">
@@ -29,6 +53,7 @@ export const EmptyStateReviews = ({ link }: { link: string }) => {
           <span>Copiar link</span>
         </SecondaryButton>
       </div>
+      <SuccessToast message={toastMessage} />
     </div>
   )
 }

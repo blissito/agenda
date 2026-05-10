@@ -20,7 +20,6 @@ import {
   getAllRewards,
   getLevels,
   getOrgLoyaltyStats,
-  getTransactions,
 } from "~/lib/loyalty.server"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.lealtad"
@@ -50,15 +49,6 @@ export type Reward = {
 
 export type ServiceOption = { id: string; name: string }
 
-export type Transaction = {
-  id: string
-  type: string
-  points: number
-  balance: number
-  reason: string
-  customer: { displayName: string; email: string }
-}
-
 // ==================== LOADER / ACTION ====================
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -82,11 +72,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }
   }
 
-  const [stats, levels, rewards, transactions] = await Promise.all([
+  const [stats, levels, rewards] = await Promise.all([
     getOrgLoyaltyStats(org.id),
     getLevels(org.id),
     getAllRewards(org.id),
-    getTransactions({ orgId: org.id, limit: 20 }),
   ])
 
   return {
@@ -94,7 +83,6 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     stats,
     levels,
     rewards,
-    transactions,
     services,
   }
 }
@@ -148,7 +136,7 @@ export default function Lealtad() {
     )
   }
 
-  const { levels, rewards, transactions, services } = data
+  const { levels, rewards, services } = data
 
   const currentTabParam = searchParams.get("tab")
   const activeTab =
@@ -182,7 +170,7 @@ export default function Lealtad() {
           />
         </div>
 
-        {activeTab === "niveles" && (
+        {activeTab === "niveles" && levels.length > 0 && (
           <div className="flex items-center gap-3">
             <PrimaryButton
               type="button"
@@ -217,7 +205,6 @@ export default function Lealtad() {
         ) : (
           <CuponesTab
             rewards={rewards}
-            transactions={transactions}
             services={services}
             isCreateOpen={isCreateCouponOpen}
             onOpenCreate={() => setIsCreateCouponOpen(true)}

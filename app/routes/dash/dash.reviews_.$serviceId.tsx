@@ -99,23 +99,23 @@ export default function ServiceReviewDetail() {
       <ServiceHeaderCard service={service} stats={stats} />
 
       {/* Reviews List */}
-      <section
-        className={`bg-white rounded-2xl mt-4 md:mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-4 md:p-[24px] max-w-[845px] flex flex-col ${reviews.length <= 1 ? "" : "flex-1"}`}
-      >
-        {reviews.length > 0 ? (
-          reviews.map((review, index) => (
+      {reviews.length > 0 ? (
+        <section
+          className={`bg-white rounded-2xl mt-4 md:mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] p-4 md:p-[24px] max-w-[845px] flex flex-col ${reviews.length <= 1 ? "" : "flex-1"}`}
+        >
+          {reviews.map((review, index) => (
             <ReviewCard
               key={review.id}
               review={review}
               showDivider={index < reviews.length - 1}
             />
-          ))
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <EmptyStateReviews link={link} />
-          </div>
-        )}
-      </section>
+          ))}
+        </section>
+      ) : (
+        <div className="flex-1 flex max-w-[845px] w-full">
+          <EmptyStateReviews link={link} fill />
+        </div>
+      )}
     </main>
   )
 }
@@ -156,7 +156,7 @@ const ServiceHeaderCard = ({
             {service.name}
           </h2>
           {service.description && (
-            <p className="text-sm md:text-base text-[#606264] font-satoMedium mt-1">
+            <p className="text-sm md:text-base text-[#606264] font-satoshi mt-1">
               {service.description}
             </p>
           )}
@@ -166,7 +166,7 @@ const ServiceHeaderCard = ({
       {/* Stats Section */}
       <div className="flex flex-col md:flex-row mt-6 gap-4 md:gap-6">
         {/* Rating Number and Stars */}
-        <div className="flex-shrink-0 flex md:block items-center gap-4">
+        <div className="flex-shrink-0 md:w-[193px] flex md:block items-center gap-4">
           <p className="text-5xl md:text-6xl font-satoBold text-black">
             {stats.averageRating.toFixed(1)}
           </p>

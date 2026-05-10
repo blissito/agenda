@@ -111,7 +111,7 @@ export const VideoProviderSelect = ({
           <span className="flex items-center gap-3 min-w-0">
             {selected.icon}
             <span className="flex flex-col min-w-0">
-              <span className="text-[14px] font-satoMedium text-brand_dark truncate">
+              <span className="text-[14px] font-satoMedium text-brand_gray truncate">
                 {selected.label}
               </span>
               {selected.sublabel && (

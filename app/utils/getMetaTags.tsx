@@ -20,8 +20,8 @@ const sanitizeMeta = (value: string, max = 300): string => {
 }
 
 export const getMetaTags = ({
-  title = "Deník | Tu agenda en un solo lugar",
-  description = "Administra la agenda de tu negocio en un solo lugar",
+  title = "Deník | Tu agenda en líneaen un solo lugar",
+  description = "Administra la agenda de tu negocio en un solo lugar con IA",
   image = DEFAULT_OG_IMAGE,
   imageWidth,
   imageHeight,

@@ -162,9 +162,10 @@ export const action = async ({ request }: Route.ActionArgs) => {
 
   if (intent === "delete_event") {
     const id = formData.get("eventId") as string
+    const refunded = formData.get("refunded") === "true"
     const { org } = await getUserAndOrgOrRedirect(request)
     if (!org) return Response.json({ error: "Org not found" }, { status: 404 })
-    await cancelEventFully({ eventId: id, orgId: org.id })
+    await cancelEventFully({ eventId: id, orgId: org.id, refunded })
     return { success: true }
   }
 
@@ -618,7 +619,7 @@ function AgendaControls({
           </svg>
         </button>
         {open && (
-          <div className="absolute right-0 top-full mt-1 bg-white border border-brand_stroke rounded-2xl shadow-lg z-20 min-w-[140px] p-1">
+          <div className="absolute right-0 top-full mt-1 bg-white border border-brand_stroke rounded-2xl shadow-lg z-50 min-w-[140px] p-1">
             {VIEW_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -990,13 +991,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [confirmDelete, setConfirmDelete] = useState<{
     id: string
     customerName: string
+    paid: boolean
   } | null>(null)
+  const [refundOnCancel, setRefundOnCancel] = useState(false)
   const handleRemoveEvent = (eventId: string) => {
     setHoveredEventId(null)
     const full = eventsMap.get(eventId)
+    setRefundOnCancel(false)
     setConfirmDelete({
       id: eventId,
       customerName: full?.customer?.displayName ?? "el cliente",
+      paid: !!full?.paid,
     })
   }
   const handleConfirmDelete = () => {
@@ -1006,7 +1011,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       { type: "remove", eventId: confirmDelete.id },
     ])
     mutationFetcher.submit(
-      { intent: "delete_event", eventId: confirmDelete.id },
+      {
+        intent: "delete_event",
+        eventId: confirmDelete.id,
+        refunded: confirmDelete.paid && refundOnCancel ? "true" : "false",
+      },
       { method: "POST" },
     )
     setConfirmDelete(null)
@@ -1155,8 +1164,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   const secondary = isBlock ? null : full?.service?.name
                   return (
                     <div
-                      className="w-full h-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm"
-                      style={{ backgroundColor: event.color || "#FFD75E" }}
+                      className="w-full relative grid place-content-start gap-y-0 overflow-hidden text-xs text-left pl-3 pr-1 py-1 rounded-lg shadow-sm"
+                      style={{
+                        height: "98%",
+                        backgroundColor: event.color || "#FFD75E",
+                      }}
                       onMouseEnter={(e) => {
                         if (!isDragging)
                           handleEventMouseEnter(
@@ -1270,7 +1282,24 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         confirmText="Sí, cancelar"
         cancelText="Volver"
         variant="danger"
-      />
+      >
+        {confirmDelete?.paid && (
+          <label className="mt-6 flex items-start gap-3 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={refundOnCancel}
+              onChange={(e) => setRefundOnCancel(e.target.checked)}
+              className="mt-0.5 w-4 h-4 accent-brand_blue cursor-pointer"
+            />
+            <span className="text-sm text-brand_dark text-left">
+              Realizaré un reembolso al cliente
+              <span className="block text-xs text-brand_gray mt-0.5">
+                Si lo marcas, esta venta no contará en tus ingresos.
+              </span>
+            </span>
+          </label>
+        )}
+      </ConfirmModal>
     </div>
   )
 }

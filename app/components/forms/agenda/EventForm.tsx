@@ -17,8 +17,13 @@ import {
   type VideoProviderValue,
 } from "../VideoProviderSelect"
 
-const formatDate = (d: Date | string): string =>
-  new Date(d).toISOString().substring(0, 10)
+const formatDate = (d: Date | string): string => {
+  const date = new Date(d)
+  const yyyy = date.getFullYear()
+  const mm = String(date.getMonth() + 1).padStart(2, "0")
+  const dd = String(date.getDate()).padStart(2, "0")
+  return `${yyyy}-${mm}-${dd}`
+}
 
 const formatHour = (d: Date | string, reset?: boolean): string => {
   const time = new Date(d)

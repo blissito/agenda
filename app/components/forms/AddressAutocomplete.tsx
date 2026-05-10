@@ -151,7 +151,7 @@ export function AddressAutocomplete({
     >
       {label && (
         <label
-          className={twMerge("text-brand_gray font-satoMedium", className)}
+          className={twMerge("text-brand_dark font-satoMedium", className)}
           htmlFor={name}
         >
           {label}
@@ -168,7 +168,7 @@ export function AddressAutocomplete({
           placeholder={placeholder}
           autoComplete="off"
           className={twMerge(
-            "placeholder:text-brand_iron text-brand_dark font-satoMedium",
+            "placeholder:text-brand_ash text-brand_gray font-satoMedium",
             "focus:border-brand_blue focus:outline-none focus:ring-0",
             "rounded-xl border-gray-200 h-12 w-full mt-1",
             "disabled:bg-brand_stroke disabled:cursor-not-allowed",

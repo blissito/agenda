@@ -122,7 +122,7 @@ const SelectedCustomer = ({
 }) => {
   return (
     <section>
-      <label className="text-brand_gray font-satoMedium">Cliente</label>
+      <label className="text-brand_dark font-satoMedium">Cliente</label>
       <div
         className={cn(
           "border rounded-2xl min-h-12 mt-1 flex items-center gap-3 md:gap-4 px-3 py-2",
