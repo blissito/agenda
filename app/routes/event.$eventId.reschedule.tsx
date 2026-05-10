@@ -231,11 +231,17 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     }
 
     // Rate limit
-    const { checkRateLimit, getClientIP, rateLimitPresets, rateLimitResponse } =
+    const { checkRateLimit, getClientIP, rateLimitPresets } =
       await import("~/.server/rateLimit")
     const ip = getClientIP(request)
     const rl = checkRateLimit(`reschedule:${ip}`, rateLimitPresets.booking)
-    if (!rl.success) return rateLimitResponse(rl.resetAt)
+    if (!rl.success) {
+      const retryAfterMin = Math.ceil((rl.resetAt - Date.now()) / 60000)
+      return {
+        ok: false,
+        error: `Demasiados intentos. Por favor espera ${Math.max(1, retryAfterMin)} minutos.`,
+      }
+    }
 
     if (event.service?.archived) {
       return {

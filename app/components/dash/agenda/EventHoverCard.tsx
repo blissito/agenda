@@ -81,10 +81,12 @@ export function EventHoverCard({
   data,
   onEdit,
   onDelete,
+  hidePayment = false,
 }: {
   data: EventHoverData
   onEdit?: () => void
   onDelete?: () => void
+  hidePayment?: boolean
 }) {
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-[280px] text-left">
@@ -185,7 +187,9 @@ export function EventHoverCard({
       {/* Badges */}
       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
         <StatusTag variant={getStatusVariant(data.status ?? "pending")} />
-        <StatusTag variant={data.paid ? "paid" : "unpaid"} />
+        {!hidePayment && (
+          <StatusTag variant={data.paid ? "paid" : "unpaid"} />
+        )}
       </div>
     </div>
   )
