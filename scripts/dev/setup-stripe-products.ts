@@ -81,6 +81,16 @@ const PLAN_DEFS = [
 
 const COUPON_ID = "denik-welcome-3m-80"
 
+const WEBHOOK_URL = "https://denik.me/stripe/webhook"
+// Events Denik's app/routes/stripe/webhook.ts actually handles:
+const WEBHOOK_EVENTS: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
+  "checkout.session.completed",
+  "customer.subscription.created",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "payment_intent.payment_failed",
+]
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 async function findOrCreateProduct(
@@ -130,6 +140,31 @@ async function findOrCreatePrice(
   return created
 }
 
+async function findOrCreateWebhook(): Promise<{
+  endpoint: Stripe.WebhookEndpoint
+  secret: string | null
+}> {
+  // Stripe doesn't have lookup_keys for webhook endpoints. Match by URL.
+  const list = await stripe.webhookEndpoints.list({ limit: 100 })
+  const existing = list.data.find((w) => w.url === WEBHOOK_URL)
+  if (existing) {
+    console.log(`  webhook · existe (${existing.id}) — secret NO disponible`)
+    console.log(`    └─ secrets sólo se exponen al crear el endpoint.`)
+    console.log(`       Si no tienes el whsec_ guardado, borra el endpoint`)
+    console.log(`       en stripe.com/webhooks y vuelve a correr el script.`)
+    return { endpoint: existing, secret: null }
+  }
+  const created = await stripe.webhookEndpoints.create({
+    url: WEBHOOK_URL,
+    enabled_events: WEBHOOK_EVENTS,
+    description: "Denik production — denik.me",
+    api_version: "2025-05-28.basil",
+  })
+  console.log(`  webhook · creado (${created.id})`)
+  // `secret` only present on the create response, never on retrieval.
+  return { endpoint: created, secret: created.secret ?? null }
+}
+
 async function findOrCreateCoupon(): Promise<Stripe.Coupon> {
   try {
     const existing = await stripe.coupons.retrieve(COUPON_ID)
@@ -177,6 +212,10 @@ async function main() {
   const coupon = await findOrCreateCoupon()
   console.log("")
 
+  console.log(`▸ Webhook endpoint (${WEBHOOK_URL})`)
+  const { secret: webhookSecret } = await findOrCreateWebhook()
+  console.log("")
+
   // ── Output: env-var-ready lines + Fly commands ────────────────────────────
   const envLines = [
     `STRIPE_PRO_MONTHLY_PRICE_ID=${priceIds.denik_pro_monthly}`,
@@ -185,6 +224,9 @@ async function main() {
     `STRIPE_ENTERPRISE_ANNUAL_PRICE_ID=${priceIds.denik_enterprise_annual}`,
     `STRIPE_WELCOME_PROMO_COUPON_ID=${coupon.id}`,
   ]
+  if (webhookSecret) {
+    envLines.push(`STRIPE_WEBHOOK_SECRET=${webhookSecret}`)
+  }
 
   console.log("─".repeat(60))
   console.log("PARA .env LOCAL — agrega/reemplaza estas líneas:")
