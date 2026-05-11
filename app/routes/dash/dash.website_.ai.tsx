@@ -672,6 +672,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const pendingSaveRef = useRef<{ publish: boolean } | null>(null)
   const handleSave = useCallback(
     (publish: boolean) => {
+      // Force GrapesJS to flush pending mutations into its model before reading.
+      // Without this, getHtml() can return stale HTML if a class was just added
+      // via the sidebar (the SDK triggers "sidebar:change" but GrapesJS's own
+      // serialization may lag behind by a microtask).
+      const grapes = editorRef.current?.getEditor?.()
+      if (grapes) {
+        try {
+          grapes.trigger("change:changesCount")
+          grapes.UndoManager?.add?.()
+        } catch {}
+      }
+
       // Get latest HTML from editor
       let currentSections = sections
       if (editorRef.current) {
@@ -682,13 +694,24 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       // TEMP debug — inspect what's being sent
       if (typeof window !== "undefined") {
         const allHtml = currentSections.map((s) => s.html).join("\n")
-        const bgClasses = Array.from(
+        const colorClasses = Array.from(
           allHtml.matchAll(/\b(bg|text|border)-[a-zA-Z0-9_\-\[\]#]+/g),
         ).map((m) => m[0])
-        const unique = [...new Set(bgClasses)].sort()
+        const unique = [...new Set(colorClasses)].sort()
+        const grapesHtml = editorRef.current?.getHtml?.() ?? ""
+        const grapesColorMatches = Array.from(
+          grapesHtml.matchAll(/\b(bg|text|border)-[a-zA-Z0-9_\-\[\]#]+/g),
+        ).map((m) => m[0])
+        const grapesUnique = [...new Set(grapesColorMatches)].sort()
         console.log("[handleSave] publish:", publish)
         console.log("[handleSave] sections count:", currentSections.length)
-        console.log("[handleSave] unique color classes being sent:", unique)
+        console.log("[handleSave] color classes from EDITOR.getHtml:", grapesUnique)
+        console.log("[handleSave] color classes BEING SENT to server:", unique)
+        const lost = grapesUnique.filter((c) => !unique.includes(c))
+        const gained = unique.filter((c) => !grapesUnique.includes(c))
+        if (lost.length || gained.length) {
+          console.warn("[handleSave] DRIFT editor→payload — lost:", lost, "gained:", gained)
+        }
       }
 
       if (currentSections.length === 0 && sections.length > 0) {

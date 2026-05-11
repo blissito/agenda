@@ -267,6 +267,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const chatbotEnabled =
       chatbotEnabledRaw === null ? undefined : chatbotEnabledRaw === "true"
 
+    // TEMP debug — server-side color-class snapshot of incoming payload.
+    const incomingColors = sectionsRaw
+      ? [...new Set(
+          Array.from(
+            sectionsRaw.matchAll(/\b(?:bg|text|border)-[a-zA-Z0-9_\-\[\]#]+/g),
+          ).map((m) => m[0]),
+        )].sort()
+      : []
     console.log(
       "[landing-generator] save intent — publish:",
       publish,
@@ -274,6 +282,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       org.id,
       "sectionsLength:",
       sectionsRaw?.length,
+      "incomingColors:",
+      incomingColors,
     )
 
     if (!sectionsRaw) {
