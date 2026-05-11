@@ -143,8 +143,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     },
   })
 
-  // Send alert to business owner if rating is low (< 3)
-  if (rating < 3) {
+  if (rating <= 3) {
     const eventWithDetails = await db.event.findUnique({
       where: { id: payload.eventId },
       include: {

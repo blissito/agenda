@@ -3,6 +3,7 @@ import { data, useLoaderData, useNavigation } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { db } from "~/utils/db.server"
+import { sendNegativeReviewAlert } from "~/utils/emails/sendNegativeReviewAlert"
 import type { Route } from "./+types/mi-cuenta.perfil.resena.$eventId"
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
@@ -38,9 +39,13 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
   const event = await db.event.findUnique({
     where: { id: params.eventId },
+    include: {
+      customer: true,
+      service: { include: { org: true } },
+    },
   })
 
-  if (!event || !event.serviceId || !event.customerId) {
+  if (!event || !event.serviceId || !event.customerId || !event.service) {
     return data({ error: "Cita no encontrada" }, { status: 404 })
   }
 
@@ -63,6 +68,23 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       createdAt: new Date(),
     },
   })
+
+  if (rating <= 3) {
+    const owner = await db.user.findUnique({
+      where: { id: event.service.org.ownerId },
+    })
+
+    if (owner) {
+      await sendNegativeReviewAlert({
+        email: owner.email,
+        customerName: event.customer?.displayName ?? "Cliente",
+        serviceName: event.service.name,
+        rating,
+        comment,
+        orgName: event.service.org.name,
+      })
+    }
+  }
 
   return { success: true }
 }
