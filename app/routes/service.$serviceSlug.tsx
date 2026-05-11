@@ -21,7 +21,9 @@ import TimeView from "~/components/forms/agenda/TimeView"
 import { BasicInput } from "~/components/forms/BasicInput"
 import type { WeekTuples } from "~/components/forms/TimesForm"
 import { validateCouponByCode, type ValidCoupon } from "~/lib/coupons.server"
+import { createMeetLink } from "~/lib/google-meet.server"
 import { getLevelDiscount } from "~/lib/loyalty.server"
+import { createZoomMeeting } from "~/lib/zoom.server"
 import { DEFAULT_ORG_CONFIG } from "~/routes/dash/dash.ajustes.constants"
 import { db } from "~/utils/db.server"
 import {
@@ -37,6 +39,7 @@ import {
   type SupportedTimezone,
 } from "~/utils/timezone"
 import { DEFAULT_OG_IMAGE, getPublicImageUrl, getServicePublicUrl } from "~/utils/urls"
+import { resolveVideoProvider } from "~/utils/videoProvider.server"
 import { normalizeWeekDays } from "~/utils/weekDays"
 import type { Route } from "./+types/service.$serviceSlug"
 
@@ -341,6 +344,74 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
         }
       }
       throw e
+    }
+
+    // Crear link de llamada (Meet/Zoom) según videoProvider del servicio
+    const provider = resolveVideoProvider({ org, service })
+    if (provider === "meet") {
+      try {
+        const { meetingLink, calendarEventId, calendarHtmlLink } =
+          await createMeetLink({ org, event, service, customer })
+        const updated = await db.event.update({
+          where: { id: event.id },
+          data: {
+            meetingLink,
+            calendarEventId,
+            calendarHtmlLink,
+            videoProvider: "meet",
+          },
+          include: {
+            customer: true,
+            service: { include: { org: true } },
+          },
+        })
+        event = updated
+      } catch (e) {
+        console.error(
+          "[booking público] Meet creation failed:",
+          e instanceof Error ? e.message : e,
+        )
+        await db.event.update({
+          where: { id: event.id },
+          data: { videoProvider: "none" },
+        })
+      }
+    } else if (provider === "zoom") {
+      try {
+        const { meetingLink, meetingId } = await createZoomMeeting({
+          org,
+          event,
+          service,
+          customer,
+        })
+        const updated = await db.event.update({
+          where: { id: event.id },
+          data: {
+            meetingLink,
+            zoomMeetingId: meetingId,
+            videoProvider: "zoom",
+          },
+          include: {
+            customer: true,
+            service: { include: { org: true } },
+          },
+        })
+        event = updated
+      } catch (e) {
+        console.error(
+          "[booking público] Zoom creation failed:",
+          e instanceof Error ? e.message : e,
+        )
+        await db.event.update({
+          where: { id: event.id },
+          data: { videoProvider: "none" },
+        })
+      }
+    } else {
+      await db.event.update({
+        where: { id: event.id },
+        data: { videoProvider: "none" },
+      })
     }
 
     // Emit booking.created event for plugins
