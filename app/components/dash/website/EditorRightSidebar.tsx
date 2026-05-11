@@ -154,7 +154,7 @@ function BrandkitPanel({
   onChange: (next: Brandkit) => void
   onApply: (next: Brandkit) => void
 }) {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<Brandkit>(brandkit)
 
   // Re-sync the draft if the parent brandkit changes (e.g. after save/reload).
@@ -557,18 +557,15 @@ function ImagePanel({ editor }: { editor: Editor }) {
   const urlValid = isValidUrl(src)
   const hasImg = imgComponent !== null
 
+  // Solo renderizar el panel cuando el usuario seleccionó (o está dentro de)
+  // un elemento imagen. Sin imagen seleccionada, no mostramos nada.
+  if (!hasImg) return null
+
   return (
     <div className="px-4 pb-3 mb-3 border-b border-gray-700">
       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-2">
         Imagen
       </p>
-
-      {!hasImg && (
-        <p className="text-[11px] text-gray-500 mb-2">
-          Selecciona una imagen o un fondo del canvas; la imagen que subas
-          reemplazará el `src` o el `background-image` del elemento.
-        </p>
-      )}
 
       {hasImg && src && !previewError && (
         <div
