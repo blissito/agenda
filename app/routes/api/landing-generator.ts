@@ -9,6 +9,8 @@ import {
   sanitizeContrast,
 } from "~/lib/landing-generator.server"
 import { db } from "~/utils/db.server"
+import { uploadFileToTigris } from "~/utils/lib/tigris.server"
+import { getPublicImageUrl } from "~/utils/urls"
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request)
@@ -329,6 +331,38 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     }
 
     return Response.json({ ok: true })
+  }
+
+  if (intent === "image_upload") {
+    const file = formData.get("file") as File | null
+    if (!file || typeof file === "string") {
+      return Response.json({ error: "Missing file" }, { status: 400 })
+    }
+    const MAX_BYTES = 8 * 1024 * 1024
+    if (file.size > MAX_BYTES) {
+      return Response.json(
+        { error: "Imagen demasiado grande (máx 8 MB)" },
+        { status: 413 },
+      )
+    }
+    if (!/^image\//.test(file.type)) {
+      return Response.json(
+        { error: "El archivo debe ser una imagen" },
+        { status: 400 },
+      )
+    }
+    const ext = (file.name.split(".").pop() || "png").toLowerCase()
+    const key = `landings/${org.id}/${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2, 8)}.${ext}`
+    try {
+      const buffer = Buffer.from(await file.arrayBuffer())
+      await uploadFileToTigris(key, buffer, file.type)
+    } catch (e: any) {
+      console.error("[landing image_upload] tigris failed:", e?.message || e)
+      return Response.json({ error: "Upload failed" }, { status: 500 })
+    }
+    return Response.json({ url: getPublicImageUrl(key), key })
   }
 
   return Response.json({ error: "Unknown intent" }, { status: 400 })
