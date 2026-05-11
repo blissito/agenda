@@ -157,6 +157,8 @@ export default [
     "mi-cuenta/perfil/resena/:eventId",
     "routes/mi-cuenta.perfil.resena.$eventId.tsx",
   ),
+  // Admin (gated by ADMIN_EMAILS env var)
+  route("admin", "routes/admin._index.tsx"),
   // Customer portal
   route("mi-cuenta", "routes/mi-cuenta._index.tsx"),
   route("mi-cuenta/perfil", "routes/mi-cuenta.perfil.tsx"),

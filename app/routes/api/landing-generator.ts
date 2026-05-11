@@ -1,12 +1,16 @@
-import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
+import {
+  type CustomColors,
+  type Section3,
+  sanitizeSemanticColors,
+} from "@easybits.cloud/html-tailwind-generator"
 import type { ActionFunctionArgs } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { resolveLandingColors } from "~/lib/landing-colors.server"
 import {
   generateOrgLanding,
   getLandingUsage,
   incrementLandingUsage,
   refineOrgLanding,
-  sanitizeContrast,
 } from "~/lib/landing-generator.server"
 import { db } from "~/utils/db.server"
 import { uploadFileToTigris } from "~/utils/lib/tigris.server"
@@ -285,10 +289,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       return Response.json({ error: "Invalid sections JSON" }, { status: 400 })
     }
 
+    let parsedCustomColors: CustomColors | null = null
+    if (customColorsRaw) {
+      try {
+        parsedCustomColors = JSON.parse(customColorsRaw) as CustomColors
+      } catch {
+        return Response.json(
+          { error: "Invalid customColors JSON" },
+          { status: 400 },
+        )
+      }
+    }
+
+    // Pass the user's active palette so the SDK sanitizer can map any
+    // arbitrary `bg-[#hex]` / `text-[#hex]` classes from manual edits to
+    // the right semantic role. Falls back to whatever's stored on the org.
+    const sanitizerThemeColors = (parsedCustomColors ??
+      resolveLandingColors(org)) as Record<string, string> | undefined
+
     if (Array.isArray(sections)) {
       sections = sections.map((s) =>
         s && typeof s.html === "string"
-          ? { ...s, html: sanitizeContrast(s.html) }
+          ? { ...s, html: sanitizeSemanticColors(s.html, sanitizerThemeColors) }
           : s,
       )
     }
@@ -312,8 +334,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         data: {
           landingSections: Array.isArray(sections) ? (sections as any) : [],
           landingTheme: theme || undefined,
-          ...(customColorsRaw
-            ? { landingCustomColors: JSON.parse(customColorsRaw) }
+          ...(parsedCustomColors !== null
+            ? { landingCustomColors: parsedCustomColors as any }
             : {}),
           landingPublished: publish,
           ...(chatbotEnabled !== undefined

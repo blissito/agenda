@@ -1,4 +1,5 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import type { GenerateOptions } from "@easybits.cloud/html-tailwind-generator/generate"
 import { generateLanding } from "@easybits.cloud/html-tailwind-generator/generate"
@@ -12,6 +13,34 @@ import { db } from "~/utils/db.server"
 import { getPublicImageUrl } from "~/utils/urls"
 import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import { buildDesignDirectives } from "~/lib/landing-patterns.server"
+import { resolveLandingColors } from "~/lib/landing-colors.server"
+
+// ==================== AI MODEL ====================
+
+/** Gemini 2.5 Pro is the single LLM behind generate + refine. We pre-build
+ *  the LanguageModel object and pass it directly to the SDK — the SDK
+ *  recognizes pre-built models and skips its internal Anthropic/OpenAI key
+ *  resolution. See @easybits.cloud/html-tailwind-generator >= 0.2.146. */
+function buildLandingModel() {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  if (!apiKey) {
+    throw new Error(
+      "GOOGLE_GENERATIVE_AI_API_KEY no configurada — la generación de landings requiere Gemini.",
+    )
+  }
+  return createGoogleGenerativeAI({ apiKey })("gemini-2.5-pro")
+}
+
+/** Approximate USD cost per operation. Update when Gemini pricing changes.
+ *  Gemini 2.5 Pro pricing (≤200K context): $1.25/M input · $10/M output.
+ *  Generate uses ~3K in + 12K out → ~$0.124. Refine uses ~2K in + 5K out → ~$0.053.
+ *  Until the SDK exposes a per-call usage callback we use these constants
+ *  to populate Org.landingTotalCostUsd; admin display reads that field.
+ */
+const COST_USD = {
+  generate: 0.13,
+  refine: 0.06,
+} as const
 
 // ==================== TYPES ====================
 export type { Section3 }
@@ -48,6 +77,8 @@ export async function incrementLandingUsage(
     select: { landingUsageMonth: true },
   })
   const reset = org.landingUsageMonth !== currentMonth
+  const costUsd = type === "gen" ? COST_USD.generate : COST_USD.refine
+  // Monthly counters reset; lifetime totals accumulate forever (admin display).
   if (type === "gen") {
     await db.org.update({
       where: { id: orgId },
@@ -55,6 +86,8 @@ export async function incrementLandingUsage(
         landingUsageMonth: currentMonth,
         landingGenCount: reset ? 1 : { increment: 1 },
         ...(reset ? { landingRefineCount: 0 } : {}),
+        landingTotalGens: { increment: 1 },
+        landingTotalCostUsd: { increment: costUsd },
       },
     })
   } else {
@@ -64,6 +97,8 @@ export async function incrementLandingUsage(
         landingUsageMonth: currentMonth,
         landingRefineCount: reset ? 1 : { increment: 1 },
         ...(reset ? { landingGenCount: 0 } : {}),
+        landingTotalRefines: { increment: 1 },
+        landingTotalCostUsd: { increment: costUsd },
       },
     })
   }
@@ -330,152 +365,6 @@ export function injectServiceLinks(
   )
 }
 
-// ==================== CONTRAST SAFETY NET ====================
-
-/**
- * Ancestor-aware pass that rewrites text colors to match the nearest opaque
- * semantic bg ancestor. Handles cases the upstream SDK walker misses:
- *   - suffixed semantic colors (text-primary-dark on bg-primary-dark)
- *   - text-on-X mismatched with effective ancestor (e.g. text-on-primary
- *     appearing inside a bg-surface card nested in a bg-secondary section)
- * Idempotent: safe to run on already-sanitized HTML. Runs on every output
- * path of generate/refine/save so the DB never holds broken contrast.
- */
-const SEMANTIC_BG_TOKEN =
-  /^bg-(primary|secondary|accent|surface)(?:-(?:light|dark|alt))?(?:\/(\d{1,3}))?$/
-const VOID_TAGS = new Set([
-  "br",
-  "hr",
-  "img",
-  "input",
-  "meta",
-  "link",
-  "area",
-  "base",
-  "col",
-  "embed",
-  "source",
-  "track",
-  "wbr",
-])
-
-type BgFamily = "primary" | "secondary" | "accent" | "surface"
-
-function detectBgFamily(classStr: string): BgFamily | null {
-  const tokens = classStr.split(/\s+/).filter((c) => c && !c.includes(":"))
-  let found: BgFamily | null = null
-  for (const t of tokens) {
-    const m = t.match(SEMANTIC_BG_TOKEN)
-    if (!m) {
-      if (/^bg-gradient-/.test(t)) {
-        for (const u of tokens) {
-          const g = u.match(
-            /^from-(primary|secondary|accent|surface)(?:-(?:light|dark|alt))?(?:\/\d+)?$/,
-          )
-          if (g) found = g[1] as BgFamily
-        }
-      }
-      continue
-    }
-    const opacity = m[2] ? Number.parseInt(m[2], 10) : 100
-    if (opacity < 50) continue
-    found = m[1] as BgFamily
-  }
-  return found
-}
-
-function effectiveBg(stack: (BgFamily | null)[]): BgFamily {
-  for (let i = stack.length - 1; i >= 0; i--) {
-    const v = stack[i]
-    if (v !== null) return v
-  }
-  return "surface"
-}
-
-function fixTextForBg(cls: string, bg: BgFamily): string {
-  let s = cls
-  const on = `text-on-${bg}`
-  const mutedOn = bg === "surface" ? "text-on-surface-muted" : on
-
-  // Seed markers from the SDK (in case it ran first).
-  s = s
-    .replace(/\btext-on-surface-LIGHT\b/g, on)
-    .replace(/\btext-on-surface-DARK\b/g, on)
-    .replace(/\btext-on-surface-MUTED\b/g, mutedOn)
-
-  // Neutralize raw color classes that collapse against the same-family bg.
-  if (bg === "primary") {
-    s = s
-      .replace(/\btext-on-surface(?:-muted)?\b/g, on)
-      .replace(/\btext-on-secondary\b/g, on)
-      .replace(/\btext-on-accent\b/g, on)
-      .replace(/\btext-primary(?:-light|-dark)?\b/g, on)
-  } else if (bg === "secondary") {
-    s = s
-      .replace(/\btext-on-surface(?:-muted)?\b/g, on)
-      .replace(/\btext-on-primary\b/g, on)
-      .replace(/\btext-on-accent\b/g, on)
-      .replace(/\btext-secondary(?:-light|-dark)?\b/g, on)
-  } else if (bg === "accent") {
-    s = s
-      .replace(/\btext-on-surface(?:-muted)?\b/g, on)
-      .replace(/\btext-on-primary\b/g, on)
-      .replace(/\btext-on-secondary\b/g, on)
-      .replace(/\btext-accent(?:-light|-dark)?\b/g, on)
-  } else {
-    // bg is surface — keep colored accent text (it reads fine on neutral),
-    // but swap mismatched on-* tokens back to the surface default.
-    s = s
-      .replace(/\btext-on-primary\b/g, "text-on-surface")
-      .replace(/\btext-on-secondary\b/g, "text-on-surface")
-      .replace(/\btext-on-accent\b/g, "text-on-surface")
-  }
-  return s
-}
-
-const TAG_RE = /<(\/?)([a-zA-Z][a-zA-Z0-9]*)\b([^>]*?)(\/?)>/g
-
-export function sanitizeContrast(html: string): string {
-  try {
-    const stack: (BgFamily | null)[] = []
-    let out = ""
-    let lastIdx = 0
-    let m: RegExpExecArray | null
-    TAG_RE.lastIndex = 0
-    while ((m = TAG_RE.exec(html)) !== null) {
-      const [full, slash, tagName, attrs, selfCloseSlash] = m
-      out += html.slice(lastIdx, m.index)
-      lastIdx = m.index + full.length
-      if (slash === "/") {
-        stack.pop()
-        out += full
-        continue
-      }
-      const classMatch = attrs.match(/\bclass="([^"]*)"/)
-      const ownBg = classMatch ? detectBgFamily(classMatch[1]) : null
-      const effective = ownBg ?? effectiveBg(stack)
-      let newAttrs = attrs
-      if (classMatch) {
-        const fixed = fixTextForBg(classMatch[1], effective)
-        if (fixed !== classMatch[1]) {
-          newAttrs = attrs.replace(/\bclass="[^"]*"/, `class="${fixed}"`)
-        }
-      }
-      out += `<${tagName}${newAttrs}${selfCloseSlash}>`
-      const isVoid =
-        VOID_TAGS.has(tagName.toLowerCase()) || selfCloseSlash === "/"
-      if (!isVoid) stack.push(ownBg)
-    }
-    out += html.slice(lastIdx)
-    return out
-      .replace(/\btext-on-surface-LIGHT\b/g, "text-on-surface")
-      .replace(/\btext-on-surface-DARK\b/g, "text-on-surface")
-      .replace(/\btext-on-surface-MUTED\b/g, "text-on-surface-muted")
-  } catch {
-    return html
-  }
-}
-
 // ==================== GENERATION ====================
 
 export async function generateOrgLanding(
@@ -486,8 +375,7 @@ export async function generateOrgLanding(
   const { userInstructions, ...sdkOptions } = options ?? {}
   const prompt = buildOrgPrompt(org, services, userInstructions)
   const keys = getAIKeys()
-  const transform = (html: string) =>
-    sanitizeContrast(injectServiceLinks(html, services))
+  const transform = (html: string) => injectServiceLinks(html, services)
   const wrapped: Partial<GenerateOptions> = {
     ...sdkOptions,
     onSection: sdkOptions.onSection
@@ -505,7 +393,10 @@ export async function generateOrgLanding(
   }
   const result = await generateLanding({
     prompt,
-    model: "claude-sonnet-4-6",
+    model: buildLandingModel(),
+    themeColors: resolveLandingColors(org) as
+      | Record<string, string>
+      | undefined,
     ...keys,
     persistImage: keys.openaiApiKey ? makePersistImage(org.id) : undefined,
     ...wrapped,
@@ -520,12 +411,17 @@ export async function refineOrgLanding(
   options?: Partial<RefineOptions>,
 ): Promise<string> {
   const keys = getAIKeys()
-  const services = await db.service.findMany({
-    where: { orgId, isActive: true, archived: false },
-    select: { name: true, slug: true },
-  })
-  const transform = (html: string) =>
-    sanitizeContrast(injectServiceLinks(html, services))
+  const [services, orgColors] = await Promise.all([
+    db.service.findMany({
+      where: { orgId, isActive: true, archived: false },
+      select: { name: true, slug: true },
+    }),
+    db.org.findUnique({
+      where: { id: orgId },
+      select: { landingCustomColors: true, brandkit: true },
+    }),
+  ])
+  const transform = (html: string) => injectServiceLinks(html, services)
   const userOpts = options ?? {}
   const wrapped: Partial<RefineOptions> = {
     ...userOpts,
@@ -540,6 +436,10 @@ export async function refineOrgLanding(
     currentHtml,
     instruction,
     systemPrompt: RESPONSIVE_REFINE_SYSTEM,
+    model: buildLandingModel(),
+    themeColors: (orgColors ? resolveLandingColors(orgColors) : undefined) as
+      | Record<string, string>
+      | undefined,
     ...keys,
     persistImage: keys.openaiApiKey ? makePersistImage(orgId) : undefined,
     ...wrapped,
