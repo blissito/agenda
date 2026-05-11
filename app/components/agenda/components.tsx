@@ -17,7 +17,7 @@ export const Header = ({ org }: { org: OrgLike }) => {
   return (
     <div className="flex gap-3 items-center justify-center py-4 md:py-12">
       <img
-        className="h-12 max-w-[180px] object-contain"
+        className="h-16 w-16 rounded-full object-cover"
         alt="org logo"
         src={getPublicImageUrl(org?.logo) || FALLBACK_LOGO}
       />
