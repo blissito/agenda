@@ -1,11 +1,9 @@
 import {
   type CustomColors,
   type Section3,
-  sanitizeSemanticColors,
 } from "@easybits.cloud/html-tailwind-generator"
 import type { ActionFunctionArgs } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { resolveLandingColors } from "~/lib/landing-colors.server"
 import {
   generateOrgLanding,
   getLandingUsage,
@@ -301,19 +299,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
     }
 
-    // Pass the user's active palette so the SDK sanitizer can map any
-    // arbitrary `bg-[#hex]` / `text-[#hex]` classes from manual edits to
-    // the right semantic role. Falls back to whatever's stored on the org.
-    const sanitizerThemeColors = (parsedCustomColors ??
-      resolveLandingColors(org)) as Record<string, string> | undefined
-
-    if (Array.isArray(sections)) {
-      sections = sections.map((s) =>
-        s && typeof s.html === "string"
-          ? { ...s, html: sanitizeSemanticColors(s.html, sanitizerThemeColors) }
-          : s,
-      )
-    }
+    // No sanitizar en save: las ediciones manuales deben respetarse tal cual.
+    // El HTML de generate/refine ya pasa por el sanitizer dentro del SDK,
+    // así que el editor recibe HTML limpio. Re-sanitizar aquí pisa cambios
+    // manuales (ej. bg-black se mapea de regreso a bg-primary del tema).
 
     let brandkitParsed: Record<string, unknown> | null | undefined
     if (brandkitRaw !== null) {

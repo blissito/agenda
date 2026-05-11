@@ -679,6 +679,18 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
         if (html) currentSections = grapesToSections(html)
       }
 
+      // TEMP debug — inspect what's being sent
+      if (typeof window !== "undefined") {
+        const allHtml = currentSections.map((s) => s.html).join("\n")
+        const bgClasses = Array.from(
+          allHtml.matchAll(/\b(bg|text|border)-[a-zA-Z0-9_\-\[\]#]+/g),
+        ).map((m) => m[0])
+        const unique = [...new Set(bgClasses)].sort()
+        console.log("[handleSave] publish:", publish)
+        console.log("[handleSave] sections count:", currentSections.length)
+        console.log("[handleSave] unique color classes being sent:", unique)
+      }
+
       if (currentSections.length === 0 && sections.length > 0) {
         setErrorMessage("Error al procesar secciones. Intenta de nuevo.")
         return
