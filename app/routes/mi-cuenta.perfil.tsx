@@ -1103,7 +1103,11 @@ function PortalEventRow({
 
       {/* Actions */}
       <div className="flex items-center justify-end">
-        <EventActions isPast={isPast} eventId={event.id} />
+        <EventActions
+          isPast={isPast}
+          eventId={event.id}
+          status={event.status}
+        />
       </div>
     </div>
   )
@@ -1166,7 +1170,11 @@ function PortalEventCardMobile({
 
         {/* Price + Actions */}
         <div className="flex flex-col items-end gap-2 shrink-0">
-          <EventActions isPast={isPast} eventId={event.id} />
+          <EventActions
+            isPast={isPast}
+            eventId={event.id}
+            status={event.status}
+          />
           <p className="text-[12px] font-satoMedium text-brand_gray tabular-nums">
             {event.service ? `$${Number(event.service.price).toFixed(2)}` : "—"}
           </p>
@@ -1181,11 +1189,14 @@ function PortalEventCardMobile({
 function EventActions({
   isPast,
   eventId,
+  status,
 }: {
   isPast?: boolean
   eventId?: string
+  status?: string
 }) {
-  if (isPast && eventId) {
+  const isCancelled = status === "CANCELLED" || status === "canceled"
+  if (isPast && eventId && !isCancelled) {
     return (
       <Link
         to={`/mi-cuenta/perfil/resena/${eventId}`}
@@ -1196,6 +1207,8 @@ function EventActions({
       </Link>
     )
   }
+  // Cita pasada cancelada → no mostrar reseña ni menú de acciones.
+  if (isPast && isCancelled) return null
   return (
     <DropdownMenu hideDefaultButton>
       <MenuButton
