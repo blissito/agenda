@@ -133,7 +133,7 @@ export default function MiCuentaLogin({ loaderData }: Route.ComponentProps) {
       <TopBar />
 
       <section className="relative z-10 flex min-h-screen w-full items-center justify-center px-6">
-        <section className="w-full max-w-md flex flex-col items-center text-center gap-4">
+        <section className="w-full max-w-md flex flex-col items-center text-center gap-4 pt-16">
           <h1 className="text-2xl md:text-3xl font-semibold text-brand_dark">
             Accede a tu cuenta
           </h1>

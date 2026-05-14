@@ -246,7 +246,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               className="w-10 h-10 flex items-center justify-center rounded-full text-brand_gray hover:bg-gray-200 hover:text-brand_dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Descargar"
             >
-              <Download className="w-8 h-8" fill="currentColor" />
+              <Download className="w-5 h-5" fill="currentColor" />
             </button>
           </Tooltip>
           <button
@@ -258,7 +258,7 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
             aria-label="Eliminar conversación"
             title="Eliminar conversación"
           >
-            <Trash className="w-8 h-8" fill="currentColor" />
+            <Trash className="w-5 h-5" fill="currentColor" />
           </button>
         </div>
       </div>
@@ -336,13 +336,13 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center px-4">
                 <img
                   src="/images/emptyState/empty_chat.svg"
-                  className="w-[80px] mb-4"
+                  className="w-24 md:w-40 mb-4"
                   alt=""
                 />
-                <p className="font-satoBold text-brand_dark text-base">
+                <p className="font-satoBold text-brand_dark text-xl md:text-2xl">
                   Aún no tienes conversaciones
                 </p>
-                <p className="text-sm text-brand_gray mt-2 max-w-[220px]">
+                <p className="text-base md:text-lg text-brand_gray mt-2 max-w-[220px]">
                   Cuando tus clientes chateen con tu asistente, las verás aquí
                 </p>
               </div>

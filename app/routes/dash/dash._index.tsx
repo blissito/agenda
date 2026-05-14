@@ -236,13 +236,13 @@ const EmptyStateDash = () => {
     <div className="bg-dashEmpty w-full flex-1 bg-cover mt-4 lg:mt-8 flex justify-center items-center">
       <div className="text-center">
         <img
-          className="mx-auto w-[160px] md:w-auto"
+          className="mx-auto w-40 md:w-60"
           src="/images/no-files.svg"
         />
-        <p className="font-satoBold text-xl font-bold">
+        <p className="font-satoBold text-xl md:text-2xl font-bold">
           Un poco de paciencia 🧘🏻
         </p>
-        <p className="mt-2 text-brand_gray">
+        <p className="mt-2 text-base md:text-lg text-brand_gray">
           Aún no tenemos suficientes datos que mostrar
         </p>
       </div>

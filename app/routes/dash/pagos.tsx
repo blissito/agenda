@@ -807,12 +807,12 @@ const DailyEmptyState = ({ month, year }: { month: number; year: number }) => (
     <img
       src="/images/emptyState/payments.webp"
       alt=""
-      className="w-40 mb-6 opacity-90"
+      className="w-40 md:w-60 mb-6 opacity-90"
     />
     <p className="text-xl md:text-2xl font-satoBold text-brand_dark">
       Sin cobros en {MONTH_NAMES_LONG[month]} {year}
     </p>
-    <p className="mt-2 text-base text-brand_gray max-w-[360px]">
+    <p className="mt-2 text-base md:text-lg text-brand_gray max-w-[360px]">
       Cuando registres pagos en este mes, verás aquí el desglose por día y
       método de cobro.
     </p>
@@ -917,13 +917,13 @@ const MercadoPagoEmptyState = ({
     <img
       src="/images/emptyState/payments.webp"
       alt=""
-      className="mb-4 w-[200px] md:w-full md:max-w-[240px]"
+      className="mb-4 w-40 md:w-60"
     />
     <div className="max-w-[620px]">
-      <h2 className="text-xl md:text-[24px] font-satoBold">
+      <h2 className="text-xl md:text-2xl font-satoBold">
         Conecta tu cuenta MELI para empezar a recibir pagos
       </h2>
-      <p className="mt-2 md:mt-3 text-base md:text-[18px] font-satoshi text-brand_gray">
+      <p className="mt-2 md:mt-3 text-base md:text-lg font-satoshi text-brand_gray">
         Denik colabora con Mercado Libre para ofrecerte pagos seguros
       </p>
     </div>

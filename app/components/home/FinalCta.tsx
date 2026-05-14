@@ -6,14 +6,14 @@ import { CardLarge, CardSmall } from "./home"
 
 export const FinalCta = ({ children }: { children?: ReactNode }) => (
   <section className="w-full h-[640px] md:h-[800px] overflow-hidden">
-    <section className="max-w-7xl w-full mx-auto h-[640px] md:h-[800px]  text-center  relative ">
+    <section className="max-w-7xl w-full mx-auto h-[440px] md:h-[800px]  text-center  relative ">
       <div className="flex flex-col justify-center h-full items-center -mt-20 md:-mt-16 leading-normal ">
         {children}
         <PrimaryButton as="Link" to="/signin">
           Probar gratis <ArrowRight />
         </PrimaryButton>
       </div>
-      <div className="w-full flex justify-between text-left  absolute -bottom-40 md:-bottom-60 gap-4 ">
+      <div className="w-full flex justify-between text-left  absolute -bottom-80 md:-bottom-60 gap-4 ">
         <LineSteak />
         <CardSmall
           className="rotate-[4deg] justify-start gap-10 w-[360px]"

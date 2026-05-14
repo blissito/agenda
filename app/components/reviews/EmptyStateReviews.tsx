@@ -33,14 +33,14 @@ export const EmptyStateReviews = ({
     >
       <div className="text-center">
         <img
-          className="mx-auto mb-4 w-[200px] md:w-auto"
+          className="mx-auto mb-4 w-40 md:w-60"
           src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />
         <p className="text-xl md:text-2xl font-satoBold">
           Las reseñas empiezan con una buena experiencia
         </p>
-        <p className="mt-2 text-brand_gray text-base md:text-[18px] font-satoshi">
+        <p className="mt-2 text-brand_gray text-base md:text-lg font-satoshi">
           Brinda un gran servicio y deja que tus clientes cuenten cómo les fue
         </p>
         <SecondaryButton

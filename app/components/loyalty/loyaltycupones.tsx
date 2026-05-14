@@ -125,7 +125,7 @@ export function Modal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#D3D3D3]/40 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-[#D3D3D3]/40 backdrop-blur-[2px]"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -672,14 +672,14 @@ function EmptyStateCupones({ onStart }: { onStart: () => void }) {
     <div className="flex min-h-[calc(100dvh-220px)] w-full items-center justify-center bg-cover">
       <div className="text-center">
         <img
-          className="mx-auto mb-4"
+          className="mx-auto mb-4 w-40 md:w-60"
           src="/images/emptyState/loyalty.webp"
           alt="Empty state cupones"
         />
-        <p className="text-2xl font-satoBold text-brand_dark">
+        <p className="text-xl md:text-2xl font-satoBold text-brand_dark">
           Aquí huele a descuento... pero falta el cupón
         </p>
-        <p className="mx-auto mt-2 max-w-[780px] text-center text-[18px] text-brand_gray">
+        <p className="mx-auto mt-2 max-w-[780px] text-center text-base md:text-lg text-brand_gray">
           Créalo y deja que empiece la magia ✨
         </p>
 
@@ -837,7 +837,7 @@ function CuponWizard({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-white">
+    <div className="fixed inset-0 z-[70] bg-white">
       <div className="relative flex min-h-[100dvh] w-full flex-col overflow-y-auto bg-white px-4 py-5 sm:px-8 sm:py-6">
         <button
           type="button"
@@ -1137,7 +1137,7 @@ function CouponWizardStepTwo({
 
 function CouponSuccessScreen({ onClose }: { onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-50 bg-white">
+    <div className="fixed inset-0 z-[70] bg-white">
       <div className="relative flex min-h-[100dvh] flex-1 items-center justify-center overflow-hidden px-4">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[220px] overflow-hidden">
           <EmojiConfetti />

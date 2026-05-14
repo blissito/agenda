@@ -58,7 +58,7 @@ export default function Index() {
         </Suspense>
         <Faq />
         <FinalCta>
-          <h2 className="group text-4xl xl:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
+          <h2 className="group text-3xl xl:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
             <span className="mr-4">No lo pienses </span>
             <Lamp className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
             <span className="ml-4"> más.</span>
@@ -78,7 +78,7 @@ export const Faq = () => (
     id="preguntas-frecuentes"
     className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]"
   >
-    <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group text-3xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4">Preguntas </span>
       <Bubble className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
       <span className="ml-4"> frecuentes</span>
@@ -331,7 +331,7 @@ export const Question = ({
 
 export const Pricing = () => (
   <section className=" flex flex-col  justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px]">
-    <h2 className="group text-3xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
+    <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark  flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Digitaliza </span>
       <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />{" "}
       tu negocio

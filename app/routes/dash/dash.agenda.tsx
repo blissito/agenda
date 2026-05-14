@@ -495,13 +495,13 @@ function UpcomingAppointments({
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <img
             src="/images/emptyState/clients-empty.webp"
-            className="w-full mb-4 "
+            className="w-40 md:w-60 mb-4"
             alt=""
           />
-          <p className="font-satoBold text-brand_dark text-base">
+          <p className="font-satoBold text-brand_dark text-xl md:text-2xl">
             Aún no tienes citas agendadas
           </p>
-          <p className="text-sm text-brand_gray mt-2 max-w-[200px]">
+          <p className="text-base md:text-lg text-brand_gray mt-2 max-w-[200px]">
             Comparte tu sitio web y empieza a recibir a tus clientes
           </p>
           <CopyLinkButton url={`https://${orgSlug}.denik.me`} />

@@ -44,7 +44,7 @@ export default function BlogPostPage() {
         <article className="max-w-3xl mx-auto px-6 pt-40 lg:pt-[240px]">
           <Link
             to="/blog"
-            className="text-brand_blue hover:underline text-sm inline-flex items-center gap-1 mb-8"
+            className="text-brand_blue hover:underline text-sm inline-flex items-center gap-1 mb-4"
           >
             ← Volver al blog
           </Link>

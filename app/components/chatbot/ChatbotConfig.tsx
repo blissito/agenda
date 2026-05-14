@@ -109,7 +109,7 @@ export function ChatbotConfig({
 
   return (
     <div
-      className="bg-white rounded-2xl p-4 md:p-6 flex-1 min-h-0 overflow-y-auto grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8"
+      className="bg-white rounded-2xl p-4 md:p-6 flex-1 min-h-auto grid grid-cols-1 lg:grid-cols-[40%,1fr] gap-8"
       style={{ gridTemplateRows: "1fr" }}
     >
       {/* Left column — Form */}
@@ -264,6 +264,7 @@ export function ChatbotConfig({
             placeholder="Mensaje de bienvenida..."
             value={greeting}
             onChange={(e) => setGreeting(e.target.value as any)}
+            inputClassName="min-h-24 md:min-h-40"
           />
         </div>
 
@@ -276,6 +277,7 @@ export function ChatbotConfig({
             placeholder="Mensaje de despedida..."
             value={farewell}
             onChange={(e) => setFarewell(e.target.value as any)}
+            inputClassName="min-h-24 md:min-h-40"
           />
         </div>
 

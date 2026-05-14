@@ -71,12 +71,12 @@ export default function ChatbotPage({ loaderData }: Route.ComponentProps) {
         <img
           src="/images/illustrations/ghosty-puzzle.svg"
           alt="Ghosty - asistente inteligente"
-          className="mb-8 w-[200px] h-auto md:w-[304px] md:h-[206px]"
+          className="mb-8 w-40 md:w-60 h-auto"
         />
         <h1 className="text-xl md:text-2xl font-satoBold text-brand_dark mb-2">
           Conoce a Ghosty: tu asistente inteligente de agendamiento
         </h1>
-        <p className="text-base text-brand_gray max-w-2xl">
+        <p className="text-base md:text-lg text-brand_gray max-w-2xl">
           Deník trabaja con FormmyApp para potenciar tu agenda digital con
           Inteligencia Artificial.
         </p>

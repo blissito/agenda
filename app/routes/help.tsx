@@ -74,7 +74,7 @@ export default function Help() {
         <div className="max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[240px]">
           {/* Title — always on top on mobile, inside grid on lg */}
           <div className="lg:hidden mb-8">
-            <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center justify-start">
+            <h2 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center justify-start">
               <span className="mr-4">Ayuda,</span>
               <HelpIcon className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10" />
               <span className="ml-4 mr-4">recursos</span> y soporte

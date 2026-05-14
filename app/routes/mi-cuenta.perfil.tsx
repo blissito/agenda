@@ -1396,12 +1396,12 @@ function EmptyState({
       <img
         src="/images/emptyState/empty_customer.svg"
         alt=""
-        className="mx-auto mb-6 w-[180px] sm:w-[220px]"
+        className="mx-auto mb-6 w-40 md:w-60"
       />
-      <h2 className="text-xl sm:text-2xl font-satoBold text-brand_dark">
+      <h2 className="text-base md:text-lg font-satoBold text-brand_dark">
         {title}
       </h2>
-      <p className="mt-2 text-base text-brand_gray max-w-md mx-auto">
+      <p className="mt-2 text-base md:text-lg text-brand_gray max-w-md mx-auto">
         {subtitle}
       </p>
     </div>

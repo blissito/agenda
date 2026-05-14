@@ -112,7 +112,7 @@ export default function Clients() {
   })
 
   return (
-    <div className="max-w-8xl mx-auto flex flex-col min-h-[calc(100vh-80px)]">
+    <div className="max-w-8xl mx-auto flex flex-col min-h-[calc(100vh-112px)]">
       <RouteTitle className="text-2xl md:text-3xl">Clientes</RouteTitle>
 
       {clients.length > 0 ? (
@@ -175,13 +175,13 @@ const SearchNav = ({
 }) => {
   const pluralize = usePluralize()
   return (
-    <div className="flex items-center gap-2 mt-4">
+    <div className="flex items-center mt-4">
       <p className="hidden sm:block text-lg font-satoshi text-brand_dark whitespace-nowrap">
         {count} {pluralize("cliente", count)}{" "}
         {pluralize("registrado", count)}
       </p>
-      <div className="flex-1" />
-      <div className="relative">
+    <div className="flex gap-4 w-full">
+      <div className="relative w-full">
         <BasicInput
           name="search"
           value={search}
@@ -219,7 +219,7 @@ const SearchNav = ({
       <ActionButton onClick={onDownload} isDisabled={!canDownload}>
         <Download />
       </ActionButton>
-    </div>
+    </div></div>
   )
 }
 
@@ -234,7 +234,7 @@ export const ActionButton = ({
 }) => (
   <button
     className={twMerge(
-      "text-brand_gray shadow-sm rounded-full h-12 w-12 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white transition-colors enabled:hover:shadow",
+      "text-brand_gray shadow-sm rounded-full min-w-12 h-12 w-12 p-1 flex justify-center items-center enabled:active:scale-95 enabled:active:shadow-inner disabled:bg-gray-100 disabled:text-gray-400 bg-white transition-colors enabled:hover:shadow",
       className,
     )}
     disabled={isDisabled}
@@ -508,16 +508,16 @@ export const Summary = ({
 }
 
 const EmptySearch = ({ onClear }: { onClear: () => void }) => (
-  <div className="flex flex-col items-center justify-center gap-3 text-center flex-1">
+  <div className="flex flex-col items-center justify-center gap-2 md:gap-3 text-center flex-1">
     <img
-      className="mx-auto mb-4"
+      className="mx-auto mb-4 w-40 md:w-60"
       src="/images/emptyState/search.svg"
       alt=""
     />
-    <p className="text-2xl font-satoBold text-brand_dark">
+    <p className="text-xl md:text-2xl font-satoBold text-brand_dark">
       ¡Vaya! No hay coincidencias con la búsqueda
     </p>
-    <p className="text-[18px] text-brand_gray mt-2">
+    <p className="text-base md:text-lg text-brand_gray mt-0 md:mt-2">
       Intenta buscar por otro nombre, correo o teléfono.
     </p>
     <SecondaryButton
@@ -547,12 +547,12 @@ const EmptyStateClients = ({ link }: { link: string }) => {
     <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center px-4">
       <div className="text-center">
         <img
-          className="mx-auto mb-4 w-[200px] md:w-auto max-w-full"
+          className="mx-auto mb-4 w-40 md:w-60 max-w-full"
           src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoBold text-xl md:text-[24px]">¡No hay clientes por aquí!</p>
-        <p className="mt-2 md:mt-3 text-base md:text-[18px] font-satoshi text-brand_gray">
+        <p className="font-satoBold text-xl md:text-2xl">¡No hay clientes por aquí!</p>
+        <p className="mt-2 md:mt-3 text-base md:text-lg font-satoshi text-brand_gray">
           Comparte tu website y deja que lleguen las reservas{" "}
           <span className="text-2xl">🚀</span>
         </p>

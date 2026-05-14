@@ -24,12 +24,12 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
   return (
     <section className="fixed flex justify-center w-full z-40 px-4 md:px-8">
       <article
-        className={`border bg-white/40 backdrop-blur-xl backdrop-saturate-150 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex items-center h-20 max-w-6xl w-full rounded-full mx-auto ${
+        className={`border bg-white/40 backdrop-blur-xl backdrop-saturate-150 border-white/30 shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex items-center h-16 md:h-20 max-w-6xl w-full rounded-full mx-auto ${
           withBanner ? "mt-12 md:mt-14" : "mt-4 md:mt-8"
         } pl-4 md:pl-8 pr-4 justify-between relative`}
       >
         <Link to="/">
-          <Denik className="w-[96px]" />
+          <Denik className="w-[88px] md:w-[96px]" />
         </Link>
 
         {/* Desktop nav */}

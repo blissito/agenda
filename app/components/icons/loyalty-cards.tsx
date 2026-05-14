@@ -37,7 +37,7 @@ export const LoyaltyCardsIllustration = ({
 }) => (
   <div
     className={twMerge(
-      "relative flex items-center justify-center h-[220px] mt-2",
+      "relative flex items-center justify-center h-[220px] mt-2 scale-75 md:scale-100",
       className,
     )}
   >

@@ -874,12 +874,12 @@ export default function IA() {
 
         <StatsBelt />
         {/* TESTIMONIALS */}
-        <section className="py-10 md:py-20">
+        <section className="py-10 md:py-20 mb-20 md:mb-0">
           <div className="max-w-7xl mx-auto px-5 md:px-10">
             <div className="text-center max-w-[720px] mx-auto mb-10">
-              <h2 className="font-satoBold font-extrabold text-[40px] md:text-[56px] leading-[1.02] tracking-tight mt-4 mb-3 text-brand_dark">
+              <h2 className="font-satoBold font-extrabold text-3xl md:text-[56px] leading-[1.02] tracking-tight mt-4 mb-3 text-brand_dark">
                 Negocios que ya
-                <br />
+
                 duermen más tranquilos
               </h2>
             </div>
@@ -935,12 +935,12 @@ export default function IA() {
           </div>
         </section>
         <FinalCta>
-          <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
+          <h2 className="group text-3xl lg:text-6xl	font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center ">
             <span className="mr-4">Tu agenda. </span>
             <People className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />{" "}
             <span className="ml-4"> Tus clientes.</span>
           </h2>
-          <h2 className="text-4xl lg:text-6xl font-satoBold  text-brand_dark mb-16 leading-normal ">
+          <h2 className="text-3xl lg:text-6xl font-satoBold  text-brand_dark mb-16 leading-normal ">
             Tu negocio.
           </h2>
         </FinalCta>
@@ -995,7 +995,7 @@ function SectionHead({
           {tag}
         </span>
       )}
-      <h2 className="group font-satoBold text-4xl lg:text-6xl leading-[1.02] tracking-tight mt-4 mb-3 text-brand_dark">
+      <h2 className="group font-satoBold text-3xl lg:text-6xl leading-[1.02] tracking-tight mt-4 mb-3 text-brand_dark">
         {children}
       </h2>
     </div>

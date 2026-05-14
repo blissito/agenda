@@ -94,12 +94,12 @@ const EmptyStateServices = () => {
     <div className=" w-full h-[80vh] bg-cover  mt-10 flex justify-center items-center">
       <div className="text-center">
         <img
-          className="mx-auto mb-4 w-[200px] md:w-auto"
+          className="mx-auto mb-4 w-40 md:w-60"
           src="/images/emptyState/access-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoBold text-xl md:text-[24px]">¡Nada por aquí!</p>
-        <p className="mt-2 text-base md:text-[18px] font-satoshi text-brand_gray">
+        <p className="font-satoBold text-xl md:text-2xl">¡Nada por aquí!</p>
+        <p className="mt-2 text-base md:text-lg font-satoshi text-brand_gray">
           Crea tu primer servicio y empieza a recibir a tus clientes
         </p>
 

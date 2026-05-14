@@ -310,14 +310,14 @@ const EmptyState = ({
     {search ? (
       <>
         <img
-          className="mx-auto mb-4"
+          className="mx-auto mb-4 w-40 md:w-60"
           src="/images/emptyState/search.svg"
           alt=""
         />
-        <p className="text-2xl font-satoBold text-brand_dark">
+        <p className="text-xl md:text-2xl font-satoBold text-brand_dark">
           ¡Vaya! No hay coincidencias con la búsqueda
         </p>
-        <p className="text-[18px] text-brand_gray mt-2">
+        <p className="text-base md:text-lg text-brand_gray mt-2">
           Intenta buscar por otro nombre, correo o teléfono.
         </p>
         <SecondaryButton
@@ -330,16 +330,16 @@ const EmptyState = ({
     ) : (
       <>
         <img
-          className="mx-auto mb-4"
+          className="mx-auto mb-4 w-40 md:w-60"
           src="/images/emptyState/empty_customer.svg"
           alt="Sin citas"
         />
-        <p className="text-2xl font-satoBold">
+        <p className="text-xl md:text-2xl font-satoBold">
           {tab === "upcoming"
             ? "No tienes citas para los próximos días"
             : "Aún no tienes citas anteriores"}
         </p>
-        <p className="text-[18px] text-brand_gray mt-2">
+        <p className="text-base md:text-lg text-brand_gray mt-2">
           {tab === "upcoming"
             ? "Las citas de tus clientes aparecerán aquí."
             : "Aquí aparecerán las citas que ya hayan pasado."}

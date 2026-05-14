@@ -77,7 +77,7 @@ export const Hero = () => (
       </p>
       <div className="flex gap-8 mt-12 justify-center ">
         <PrimaryButton as="Link" to="/signin">
-          Probar gratis por 30 días <ArrowRight />
+          Probar gratis <span className="hidden md:block">por 30 días</span> <ArrowRight />
         </PrimaryButton>
         <a
           href="https://wa.me/525539111285?text=¡Hola!%20Quiero%20agendar%20un%20demo."
@@ -468,7 +468,7 @@ export const Features = () => (
           Tu agente IA responde y agenda a tus clientes, y te ayuda a actualizar
           tu sitio web de reservas.
         </p>
-        <PrimaryButton as="Link" to="/signin" className="w-fit">
+        <PrimaryButton as="Link" to="/signin" className="w-fit mt-6 lg:mt-12">
           Crear cuenta <ArrowRight />
         </PrimaryButton>
       </div>

@@ -107,7 +107,7 @@ export const DashStatsIllustration = ({
   return (
     <div
       ref={ref}
-      className={twMerge("flex flex-row md:flex-col gap-3", className)}
+      className={twMerge("flex flex-wrap flex-row md:flex-col gap-3", className)}
     >
       {stats.map((s) => (
         <div

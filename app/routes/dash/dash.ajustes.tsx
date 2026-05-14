@@ -948,7 +948,7 @@ function ColaboradoresTab({
 
       {collaborators.length === 0 && !showInvite && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="font-satoBold text-xl">Aún no tienes colaboradores</p>
+          <p className="font-satoBold text-xl md:text-2xl">Aún no tienes colaboradores</p>
           <p className="mt-2 text-brand_gray">
             Invita a tu equipo para gestionar la agenda juntos
           </p>
@@ -964,14 +964,14 @@ function ColaboradoresTab({
       {filtered.length === 0 && search && (
         <div className="flex flex-col items-center justify-center gap-3 text-center flex-1">
           <img
-            className="mx-auto mb-4"
+            className="mx-auto mb-4 w-40 md:w-60"
             src="/images/emptyState/search.svg"
             alt=""
           />
-          <p className="text-2xl font-satoBold text-brand_dark">
+          <p className="text-xl md:text-2xl font-satoBold text-brand_dark">
             ¡Vaya! No hay coincidencias con la búsqueda
           </p>
-          <p className="text-[18px] text-brand_gray mt-2">
+          <p className="text-base md:text-lg text-brand_gray mt-2">
             Intenta buscar por otro nombre o correo.
           </p>
           <SecondaryButton

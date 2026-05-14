@@ -237,7 +237,7 @@ export default function Colaboradores() {
 
       {collaborators.length === 0 && !showInvite && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <p className="font-satoBold text-xl">Aún no tienes colaboradores</p>
+          <p className="font-satoBold text-xl md:text-2xl">Aún no tienes colaboradores</p>
           <p className="mt-2 text-brand_gray">
             Invita a tu equipo para gestionar la agenda juntos
           </p>

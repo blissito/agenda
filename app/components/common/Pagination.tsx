@@ -20,18 +20,19 @@ export const Pagination = ({
 }) => {
   const totalPages = Math.max(1, Math.ceil(total / perPage))
 
-  const pages = getVisiblePages(page, totalPages)
+  const pages = getVisiblePages(page, totalPages, 7)
+  const mobilePages = getVisiblePages(page, totalPages, 3)
 
   return (
     <div
       className={twMerge(
-        "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between py-4",
+        "flex flex-row items-center justify-between gap-3 pt-4",
         className,
       )}
     >
       {/* Items por página */}
-      <div className="flex items-center gap-2 text-sm text-brand_gray">
-        <span>Mostrar</span>
+      <div className="flex items-center gap-2 text-sm text-brand_gray min-w-0">
+        <span className="hidden sm:inline">Mostrar</span>
         <select
           value={perPage}
           onChange={(e) => {
@@ -46,35 +47,58 @@ export const Pagination = ({
             </option>
           ))}
         </select>
-        <span>
-          de {total} {total === 1 ? "resultado" : "resultados"}
+        <span className="truncate">
+          <span className="hidden sm:inline">de </span>
+          {total} {total === 1 ? "resultado" : "resultados"}
         </span>
       </div>
 
       {/* Controles */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1 shrink-0">
         <PageButton onClick={() => onPageChange(page - 1)} disabled={page <= 1}>
           <IoChevronBackOutline className="w-4 h-4" />
         </PageButton>
 
-        {pages.map((p, i) =>
-          p === "..." ? (
-            <span
-              key={`dots-${i}`}
-              className="w-9 h-9 flex items-center justify-center text-sm text-brand_gray"
-            >
-              ...
-            </span>
-          ) : (
-            <PageButton
-              key={p}
-              active={p === page}
-              onClick={() => onPageChange(p as number)}
-            >
-              {p}
-            </PageButton>
-          ),
-        )}
+        <div className="hidden sm:flex items-center gap-1">
+          {pages.map((p, i) =>
+            p === "..." ? (
+              <span
+                key={`dots-${i}`}
+                className="w-9 h-9 flex items-center justify-center text-sm text-brand_gray"
+              >
+                ...
+              </span>
+            ) : (
+              <PageButton
+                key={p}
+                active={p === page}
+                onClick={() => onPageChange(p as number)}
+              >
+                {p}
+              </PageButton>
+            ),
+          )}
+        </div>
+        <div className="flex sm:hidden items-center gap-1">
+          {mobilePages.map((p, i) =>
+            p === "..." ? (
+              <span
+                key={`m-dots-${i}`}
+                className="w-9 h-9 flex items-center justify-center text-sm text-brand_gray"
+              >
+                ...
+              </span>
+            ) : (
+              <PageButton
+                key={`m-${p}`}
+                active={p === page}
+                onClick={() => onPageChange(p as number)}
+              >
+                {p}
+              </PageButton>
+            ),
+          )}
+        </div>
 
         <PageButton
           onClick={() => onPageChange(page + 1)}
@@ -114,8 +138,18 @@ const PageButton = ({
   </button>
 )
 
-function getVisiblePages(current: number, total: number): (number | "...")[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+function getVisiblePages(
+  current: number,
+  total: number,
+  maxVisible: number,
+): (number | "...")[] {
+  if (total <= maxVisible)
+    return Array.from({ length: total }, (_, i) => i + 1)
+
+  // Compact mode (mobile): siempre primera, "...", última
+  if (maxVisible <= 3) {
+    return [1, "...", total]
+  }
 
   const pages: (number | "...")[] = [1]
 

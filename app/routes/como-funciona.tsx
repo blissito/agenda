@@ -86,12 +86,12 @@ export default function ComoFunciona() {
         </section>
         {/* Final CTA */}
         <FinalCta>
-          <h2 className="group text-4xl xl:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center px-1">
+          <h2 className="group text-3xl xl:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center px-1">
             <span className="mr-4">¿Listo para</span>
             <Rocket className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
             <span className="ml-4">empezar?</span>
           </h2>
-          <h2 className="text-4xl lg:text-6xl font-satoBold text-brand_dark mb-16 mt-2">
+          <h2 className="text-3xl lg:text-6xl font-satoBold text-brand_dark mb-16 mt-2">
             ¡Crea tu cuenta gratis!
           </h2>
         </FinalCta>
@@ -982,7 +982,7 @@ const Business = () => {
   return (
     <section className="relative">
       <div className="h-[1200px] mx-auto rounded-[40px] max-w-7xl  max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px] ">
-        <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
+        <h2 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
           <span className="mr-4">Para todos los negocios</span>
           <HandShake className="group-hover:animate-vibration-effect cursor-pointer w-16 h-16 md:w-20 md:h-20 mr-3" />
         </h2>
