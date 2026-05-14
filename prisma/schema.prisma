@@ -523,6 +523,7 @@ model SurveyResponse {
   // Response data (v1: simple satisfaction survey)
   rating     Int      // 1-5 scale
   comment    String?  // Optional feedback text
+  hidden     Boolean  @default(false)
 
   createdAt  DateTime @db.Date
 
@@ -556,6 +557,7 @@ model User {
   trialEndsAt               DateTime? @db.Date
   trialWarningEmailSentAt   DateTime? @db.Date
   trialExpiredEmailSentAt   DateTime? @db.Date
+  onboardingCelebratedAt    DateTime? @db.Date
   // Platform subscription billing (Stripe Billing — distinct from `stripe` field which is Connect legacy)
   customerId           String?
   subscriptionIds      String[]

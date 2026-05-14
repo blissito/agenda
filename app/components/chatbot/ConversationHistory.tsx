@@ -336,13 +336,13 @@ const ConversationHistory: React.FC<ConversationHistoryProps> = ({
               <div className="h-full min-h-[300px] flex flex-col items-center justify-center text-center px-4">
                 <img
                   src="/images/emptyState/empty_chat.svg"
-                  className="w-24 md:w-40 mb-4"
+                  className="w-24 md:w-28 mb-4"
                   alt=""
                 />
-                <p className="font-satoBold text-brand_dark text-xl md:text-2xl">
+                <p className="font-satoBold text-brand_dark text-xl md:text-xl mt-2">
                   Aún no tienes conversaciones
                 </p>
-                <p className="text-base md:text-lg text-brand_gray mt-2 max-w-[220px]">
+                <p className="text-base  text-brand_gray mt-2 max-w-[220px]">
                   Cuando tus clientes chateen con tu asistente, las verás aquí
                 </p>
               </div>

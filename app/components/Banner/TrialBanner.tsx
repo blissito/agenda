@@ -21,13 +21,13 @@ const COPY: Record<
   { title: string; description: string; primaryLabel: string }
 > = {
   ending_soon: {
-    title: "Tu periodo de prueba está por terminar ⏳",
+    title: "Tu período de prueba está por terminar ⏳",
     description:
       "Actualiza tu plan para no perder acceso a las funcionalidades.",
     primaryLabel: "Actualizar plan",
   },
   expired: {
-    title: "Vaya, tu periodo de prueba ha terminado 🚀",
+    title: "Vaya, tu período de prueba ha terminado 🚀",
     description:
       "Mejora tu plan ahora y obtén 20% de descuento en tu primer año.",
     primaryLabel: "Suscribirme",

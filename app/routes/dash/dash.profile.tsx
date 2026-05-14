@@ -8,7 +8,7 @@ import { RouteTitle } from "~/components/sideBar/routeTitle"
 import type { Route } from "./+types/dash.profile"
 
 const PLAN_LABELS: Record<string, string> = {
-  TRIAL: "Periodo de prueba",
+  TRIAL: "Período de prueba",
   PRO: "Plan Profesional",
   ENTERPRISE: "Plan Enterprise",
   EXPIRED: "Prueba expirada",

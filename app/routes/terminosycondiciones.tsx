@@ -866,7 +866,7 @@ const Info = () => {
             El Plan contratado estará vigente durante los días que resten del
             período de facturación actual después de la notificación del
             Negocio, en la medida que no exista deuda a favor de Deník. La
-            cancelación se debe realizar antes del nuevo periodo de facturación
+            cancelación se debe realizar antes del nuevo período de facturación
             para evitar que se cobre un nuevo mes de suscripción.
           </p>
           <p className="mt-4">
@@ -1068,7 +1068,7 @@ const Info = () => {
               Negocio acepta que los datos entregados sean utilizados para
               recibir facturas de parte de Deník por el servicio entregado,
               aceptando recibir la facturación mensual a su nombre, durante el
-              periodo que duren los Servicios. El valor facturado corresponderá
+              período que duren los Servicios. El valor facturado corresponderá
               al valor del Plan contratado y las Comisiones que deba el Negocio
               por el servicio de recaudación determinadas mensualmente.
             </p>

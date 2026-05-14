@@ -13,20 +13,21 @@ import {
 import { Form, Link, useFetcher, useLocation } from "react-router"
 import { twMerge } from "tailwind-merge"
 
-// Tracks the "onboardingCelebrated" flag (set by /dash/onboarding when the
-// user finishes the 4 core steps). Both the desktop banner and the mobile
-// bottom-sheet item rely on this to hide themselves once setup is done.
-const useOnboardingCelebrated = () => {
-  const [celebrated, setCelebrated] = useState(false)
+// Tracks whether the user has finished onboarding. Source of truth is
+// `User.onboardingCelebratedAt` (DB) — pasada como prop desde dash_layout.
+// Escuchamos también el evento `onboarding:celebrated` para reaccionar de
+// inmediato en la misma pestaña que terminó el flujo (antes de revalidate).
+const useOnboardingCelebrated = (initial: boolean) => {
+  const [celebrated, setCelebrated] = useState(initial)
   useEffect(() => {
-    if (localStorage.getItem("onboardingCelebrated") === "1") {
+    if (initial) {
       setCelebrated(true)
       return
     }
     const handler = () => setCelebrated(true)
     window.addEventListener("onboarding:celebrated", handler)
     return () => window.removeEventListener("onboarding:celebrated", handler)
-  }, [])
+  }, [initial])
   return celebrated
 }
 
@@ -90,11 +91,13 @@ import { Website } from "../icons/menu/webiste"
 
 export function SideBar({
   user,
+  onboardingCelebrated = false,
   children,
   ...props
 }: {
   children?: ReactNode
   user: PrismaUser
+  onboardingCelebrated?: boolean
   props?: unknown
 }) {
   const sidebar = useSidebarState()
@@ -120,7 +123,7 @@ export function SideBar({
       >
         <Header user={user} className="pl-6" />
         <MainMenu className="mb-auto" />
-        <SidebarBottomCards />
+        <SidebarBottomCards onboardingCelebrated={onboardingCelebrated} />
         <Footer />
       </motion.aside>
       {/* Botón toggle fuera del aside para evitar overflow-hidden */}
@@ -152,7 +155,7 @@ export function SideBar({
       >
         {children}
       </motion.section>
-      <MobileBottomNav user={user} />
+      <MobileBottomNav user={user} onboardingCelebrated={onboardingCelebrated} />
     </article>
   )
 }
@@ -432,11 +435,15 @@ type PendingAttendanceEvent = {
 // Prioridad: si hay citas pendientes de marcar asistencia → solo esa card.
 // Si no hay y el onboarding aún no se completó → banner de onboarding.
 // Si no hay nada que hacer → null. Solo una de las dos a la vez (no apiladas).
-const SidebarBottomCards = () => {
+const SidebarBottomCards = ({
+  onboardingCelebrated,
+}: {
+  onboardingCelebrated: boolean
+}) => {
   const listFetcher = useFetcher<{ events: PendingAttendanceEvent[] }>()
   const markFetcher = useFetcher()
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set())
-  const celebrated = useOnboardingCelebrated()
+  const celebrated = useOnboardingCelebrated(onboardingCelebrated)
 
   useEffect(() => {
     if (listFetcher.state === "idle" && listFetcher.data === undefined) {
@@ -566,10 +573,16 @@ const OnboardingBanner = () => {
 
 // ==================== MOBILE NAVIGATION ====================
 
-const MobileBottomNav = ({ user }: { user: Partial<PrismaUser> }) => {
+const MobileBottomNav = ({
+  user,
+  onboardingCelebrated: initialCelebrated,
+}: {
+  user: Partial<PrismaUser>
+  onboardingCelebrated: boolean
+}) => {
   const location = useLocation()
   const [showMore, setShowMore] = useState(false)
-  const onboardingCelebrated = useOnboardingCelebrated()
+  const onboardingCelebrated = useOnboardingCelebrated(initialCelebrated)
   const match = (s: string) => location.pathname.includes(s)
   const matchIndex = () => /^\/dash$/.test(location.pathname)
 

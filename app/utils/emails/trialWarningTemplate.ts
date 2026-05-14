@@ -17,7 +17,7 @@ export default ({
       </div>
       <div style="text-align:left; margin-top:40px; ">
         <h2 style="color:#15191E; font-size:20px; margin-top:24px">
-        Tu periodo de prueba está por terminar ⏳
+        Tu período de prueba está por terminar ⏳
         </h2>
         <p style="color:#4B5563; font-size:16px; line-height:22px; margin-top:16px;">
           ${displayName ? `Hola ${displayName}, t` : "T"}e quedan aproximadamente <strong>${daysLeft} día${daysLeft === 1 ? "" : "s"}</strong>

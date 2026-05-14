@@ -15,7 +15,7 @@ export default ({
       </div>
       <div style="text-align:left; margin-top:40px; ">
         <h2 style="color:#15191E; font-size:20px; margin-top:24px">
-        Vaya, tu periodo de prueba ha terminado 🚀
+        Vaya, tu período de prueba ha terminado 🚀
         </h2>
         <p style="color:#4B5563; font-size:16px; line-height:22px; margin-top:16px;">
           ${displayName ? `Hola ${displayName}, t` : "T"}u prueba gratuita de 30 días del Plan Profesional acaba de finalizar.

@@ -33,5 +33,12 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
   )
   if (hideSidebar) return content
 
-  return <SideBar user={user}>{content}</SideBar>
+  return (
+    <SideBar
+      user={user}
+      onboardingCelebrated={Boolean(user.onboardingCelebratedAt)}
+    >
+      {content}
+    </SideBar>
+  )
 }

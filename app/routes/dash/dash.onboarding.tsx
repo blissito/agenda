@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "motion/react"
 import { type ReactNode, useEffect, useState } from "react"
-import type { LoaderFunctionArgs } from "react-router"
-import { useLoaderData, useNavigate } from "react-router"
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router"
+import { useFetcher, useLoaderData, useNavigate } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { EmojiConfetti } from "~/components/common/EmojiConfetti"
@@ -28,17 +28,34 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = getOrgPublicUrl(org.slug, request.url)
   const hasPaymentsConfigured = Boolean(user.mercadopago?.access_token)
 
-  return { url, org, servicesCount, hasPaymentsConfigured }
+  return {
+    url,
+    org,
+    servicesCount,
+    hasPaymentsConfigured,
+    onboardingCelebratedAt: user.onboardingCelebratedAt,
+  }
+}
+
+export const action = async ({ request }: ActionFunctionArgs) => {
+  const { user } = await getUserAndOrgOrRedirect(request)
+  if (user.onboardingCelebratedAt) return { ok: true, already: true }
+  await db.user.update({
+    where: { id: user.id },
+    data: { onboardingCelebratedAt: new Date() },
+  })
+  return { ok: true }
 }
 
 export default function DashOnboarding() {
-  const { servicesCount, url, hasPaymentsConfigured } =
+  const { servicesCount, url, hasPaymentsConfigured, onboardingCelebratedAt } =
     useLoaderData<typeof loader>()
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [shareLink, setShareLink] = useState("0")
   const [sitioWebDone, setSitioWeb] = useState("0")
   const [showConfetti, setShowConfetti] = useState(false)
   const navigate = useNavigate()
+  const celebrateFetcher = useFetcher()
 
   useEffect(() => {
     if (!toastMessage) return
@@ -54,15 +71,18 @@ export default function DashOnboarding() {
 
   useEffect(() => {
     if (!coreDone) return
+    if (onboardingCelebratedAt) return
     if (localStorage.getItem("onboardingCelebrated") === "1") return
     localStorage.setItem("onboardingCelebrated", "1")
     setShowConfetti(true)
+    // Persistir en DB para que sobreviva a otros dispositivos / clear de localStorage
+    celebrateFetcher.submit(null, { method: "post" })
     // Notifica al sidebar que ya puede ocultar el banner de onboarding
     window.dispatchEvent(new CustomEvent("onboarding:celebrated"))
     // Deja que el confetti respire y routea a agenda
     const t = setTimeout(() => navigate("/dash/agenda"), 3500)
     return () => clearTimeout(t)
-  }, [coreDone, navigate])
+  }, [coreDone, navigate, onboardingCelebratedAt, celebrateFetcher])
 
   // Calculate progress
   const getCompletedCount = () => {

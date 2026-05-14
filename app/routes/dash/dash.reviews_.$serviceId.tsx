@@ -1,5 +1,5 @@
-import { BsEnvelope, BsTrash } from "react-icons/bs"
-import { Link, useLoaderData } from "react-router"
+import { BsEnvelope, BsEye, BsEyeSlash } from "react-icons/bs"
+import { Link, useFetcher, useLoaderData } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { Image } from "~/components/common/Image"
@@ -15,6 +15,7 @@ type Review = {
   rating: number
   comment: string | null
   createdAt: Date | string
+  hidden: boolean
   avatarUrl?: string
 }
 
@@ -46,6 +47,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     rating: response.rating,
     comment: response.comment,
     createdAt: response.createdAt,
+    hidden: response.hidden ?? false,
   }))
 
   // Calculate rating distribution
@@ -76,6 +78,32 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
       ratingDistribution,
     },
   }
+}
+
+export const action = async ({ request }: Route.ActionArgs) => {
+  const { org } = await getUserAndOrgOrRedirect(request)
+  if (!org) throw new Response("Org not found", { status: 404 })
+
+  const formData = await request.formData()
+  const intent = formData.get("intent")
+  const reviewId = formData.get("reviewId")
+
+  if (intent === "toggle_hidden" && typeof reviewId === "string") {
+    const review = await db.surveyResponse.findUnique({
+      where: { id: reviewId },
+      select: { id: true, orgId: true, hidden: true },
+    })
+    if (!review || review.orgId !== org.id) {
+      throw new Response("Forbidden", { status: 403 })
+    }
+    await db.surveyResponse.update({
+      where: { id: reviewId },
+      data: { hidden: !review.hidden },
+    })
+    return { ok: true }
+  }
+
+  return Response.json({ error: "Unknown intent" }, { status: 400 })
 }
 
 export default function ServiceReviewDetail() {
@@ -244,6 +272,7 @@ const ReviewCard = ({
   review: Review
   showDivider: boolean
 }) => {
+  const fetcher = useFetcher()
   const initials = review.customerName
     .split(" ")
     .map((n) => n[0])
@@ -251,9 +280,26 @@ const ReviewCard = ({
     .toUpperCase()
     .slice(0, 2)
 
+  const isHidden = fetcher.formData
+    ? fetcher.formData.get("intent") === "toggle_hidden"
+      ? !review.hidden
+      : review.hidden
+    : review.hidden
+
+  const toggleHidden = () => {
+    fetcher.submit(
+      { intent: "toggle_hidden", reviewId: review.id },
+      { method: "post" },
+    )
+  }
+
   return (
     <>
-      <div className="flex flex-col md:flex-row gap-3 md:gap-6 py-5 md:py-6">
+      <div
+        className={`flex flex-col md:flex-row gap-3 md:gap-6 py-5 md:py-6 transition-opacity ${
+          isHidden ? "opacity-40" : ""
+        }`}
+      >
         {/* Customer row (avatar + name) */}
         <div className="flex items-center gap-3 md:gap-6 md:items-start">
           <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -290,11 +336,12 @@ const ReviewCard = ({
             </div>
             <DropdownMenu hideDefaultButton>
               <MenuButton
-                onClick={() => {}}
-                variant="danger"
-                icon={<BsTrash />}
+                onClick={toggleHidden}
+                variant="default"
+                className="text-brand_red"
+                icon={isHidden ? <BsEye /> : <BsEyeSlash />}
               >
-                Eliminar comentario
+                {isHidden ? "Mostrar comentario" : "Ocultar comentario"}
               </MenuButton>
               <MenuButton
                 to={`/dash/clientes/${review.customerEmail}`}
