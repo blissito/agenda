@@ -6,6 +6,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react"
 import { BsFillSendFill } from "react-icons/bs"
 import { Streamdown } from "streamdown"
+import "streamdown/styles.css"
 
 /**
  * Renders an assistant message body. Plain markdown via streamdown so URLs,
