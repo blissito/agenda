@@ -377,6 +377,9 @@ model Event {
   attended                 Boolean?             // null = not marked, true = attended, false = no-show
   reminderSentAt           DateTime? @db.Date  // null = reminder not sent yet
   confirmationSentAt       DateTime? @db.Date  // null = confirmation request not sent yet
+  // Set when the customer clicks the confirmation link from createPublicBooking.
+  // null = pending confirmation (no Meet/Zoom + no owner notification yet).
+  confirmedAt              DateTime? @db.Date
   surveySentAt             DateTime? @db.Date  // null = survey not sent yet
   refundedAt               DateTime? @db.Date  // null = no refund. Set al cancelar una cita pagada cuando el dueño marca reembolso
   rescheduleCount          Int       @default(0)   // veces que el cliente ha reagendado este evento
@@ -422,6 +425,9 @@ model Org {
   shopKeeper         String?
   slug               String            @unique
   apiKey             String?           @unique
+  // Public-scope API key for the landing chatbot / Formmy public agents.
+  // Prefix `dnk_pub_` — exposes only read tools + create_booking (free).
+  publicApiKey       String?           @unique
   social             OrgSocial?
   tel                String?
   timezone           String?           // e.g. "America/Mexico_City"

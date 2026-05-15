@@ -1,7 +1,7 @@
 {
   "name": "@denik.me/mcp",
-  "version": "0.7.0",
-  "description": "Denik Agenda MCP stdio server — tools para operar una org desde un agente (p.ej. bot de WhatsApp).",
+  "version": "0.8.0",
+  "description": "Denik Agenda MCP stdio server — tools para operar una org (admin scope) o exponer reservas a un chatbot público (public scope). Detecta el scope por el prefijo de DENIK_API_KEY.",
   "type": "module",
   "bin": {
     "denik-mcp": "./dist/index.js"

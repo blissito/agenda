@@ -46,11 +46,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     orderBy: { createdAt: "desc" },
     select: { status: true, inviteUrl: true, groupJid: true },
   })
-  return { initialMessages: messages, isLocalhost, link }
+  return {
+    initialMessages: messages,
+    isLocalhost,
+    link,
+    publicApiKey: org.publicApiKey ?? null,
+  }
 }
 
 export default function AsistenteIA() {
-  const { initialMessages, isLocalhost, link } = useLoaderData<typeof loader>()
+  const { initialMessages, isLocalhost, link, publicApiKey } =
+    useLoaderData<typeof loader>()
   const [messages, setMessages] = useState<Msg[]>(
     initialMessages.map((m: any) => ({ ...m, createdAt: String(m.createdAt) })),
   )
@@ -192,6 +198,8 @@ export default function AsistenteIA() {
         </div>
       )}
 
+      {publicApiKey && <PublicApiKeyCard apiKey={publicApiKey} />}
+
       <section className="flex-1 overflow-auto flex flex-col gap-3 -mx-2 px-2">
         {isEmpty ? (
           <div className="m-auto flex flex-col items-center gap-5 text-center">
@@ -299,6 +307,66 @@ type LinkData = {
   status: string | null
   inviteUrl: string | null
   groupJid: string | null
+}
+
+function PublicApiKeyCard({ apiKey }: { apiKey: string }) {
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const masked = `${apiKey.slice(0, 12)}${"•".repeat(12)}${apiKey.slice(-4)}`
+
+  const copy = () => {
+    navigator.clipboard.writeText(apiKey)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <div className="rounded-2xl bg-white border border-brand_stroke px-4 py-3 text-sm">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center justify-between w-full text-left"
+      >
+        <div>
+          <p className="font-satoBold text-brand_dark">
+            Conecta tu chatbot público
+          </p>
+          <p className="text-xs text-brand_iron mt-0.5">
+            API key para Formmy u otros clientes MCP — scope solo lectura +
+            agendar.
+          </p>
+        </div>
+        <span
+          className={`text-brand_iron transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden
+        >
+          ▾
+        </span>
+      </button>
+      {open && (
+        <div className="mt-3 flex flex-col gap-2">
+          <code className="block font-mono text-xs bg-[#f5f5f5] rounded-lg px-3 py-2 break-all text-brand_dark">
+            {masked}
+          </code>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={copy}
+              className={`text-xs font-satoMedium rounded-full px-3 py-1.5 transition border ${
+                copied
+                  ? "bg-brand_lime/10 text-brand_lime border-brand_lime"
+                  : "bg-white text-brand_dark border-brand_stroke hover:border-brand_blue hover:text-brand_blue"
+              }`}
+            >
+              {copied ? "¡Copiado!" : "Copiar key"}
+            </button>
+            <span className="text-xs text-brand_iron">
+              Comparte solo con clientes confiables. La key se rota desde
+              soporte si se compromete.
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 function NikGroupButton({ initialLink }: { initialLink: LinkData | null }) {
