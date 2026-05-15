@@ -1,6 +1,7 @@
 import { Formmy } from "@formmy.app/chat"
 import { data as json } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { provisionFormmyAgent } from "~/lib/formmy.server"
 import { db } from "~/utils/db.server"
 import { getPutFileUrl } from "~/utils/lib/tigris.server"
 
@@ -67,27 +68,10 @@ export const action = async ({ request }: { request: Request }) => {
 
   switch (intent) {
     case "activate": {
-      const { agent } = await formmy.agents.create({
-        name: `Ghosty - ${org.name}`,
-        welcomeMessage: `¡Hola! Soy el asistente de ${org.name}. ¿En qué puedo ayudarte?`,
-        instructions: `Eres Ghosty, el asistente inteligente de agendamiento de ${org.name}. Ayudas a los clientes a agendar citas, resolver dudas sobre servicios y horarios.`,
-      })
-
-      await db.org.update({
-        where: { id: org.id },
-        data: {
-          chatbotAgentId: agent.id,
-          chatbotConfig: {
-            name: `Ghosty`,
-            avatarUrl: "",
-            primaryColor: "#5158F6",
-            greeting: agent.welcomeMessage || "¡Hola! ¿En qué puedo ayudarte?",
-            farewell: "¡Gracias por tu visita! Hasta pronto.",
-            widgetStyle: "bubble",
-          },
-        },
-      })
-
+      // Delegates to the shared lib so the same provisioning path is used by
+      // the manual "Activar Ghosty" button and the lazy auto-trigger in
+      // landing-generator.ts when landingChatbotEnabled flips on.
+      await provisionFormmyAgent(org)
       return json({ success: true })
     }
 

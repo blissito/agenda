@@ -327,6 +327,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       }
     }
 
+    // Capture state BEFORE the update so we can detect a chatbot toggle
+    // transition (false/null → true) and auto-provision the Formmy agent.
+    const prevState = await db.org.findUnique({
+      where: { id: org.id },
+      select: { landingChatbotEnabled: true, chatbotAgentId: true },
+    })
+
     try {
       await db.org.update({
         where: { id: org.id },
@@ -349,6 +356,33 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     } catch (e) {
       console.error("[landing-generator] save FAILED:", e)
       return Response.json({ error: "DB update failed" }, { status: 500 })
+    }
+
+    // Lazy auto-provision: when the owner flips the chatbot toggle ON for the
+    // first time and no Formmy agent exists yet, create the chatbot with the
+    // Denik MCP tools wired in. Best-effort — failures here must not break
+    // the landing save.
+    if (
+      chatbotEnabled === true &&
+      !prevState?.landingChatbotEnabled &&
+      !prevState?.chatbotAgentId
+    ) {
+      try {
+        const orgFull = await db.org.findUnique({ where: { id: org.id } })
+        if (orgFull) {
+          const { provisionFormmyAgent } = await import("~/lib/formmy.server")
+          await provisionFormmyAgent(orgFull)
+          console.log(
+            "[landing-generator] formmy agent provisioned for org",
+            org.id,
+          )
+        }
+      } catch (e) {
+        console.error(
+          "[landing-generator] formmy provisioning failed (non-blocking):",
+          e instanceof Error ? e.message : e,
+        )
+      }
     }
 
     return Response.json({ ok: true })
