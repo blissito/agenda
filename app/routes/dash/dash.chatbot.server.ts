@@ -1,15 +1,8 @@
-import { Formmy } from "@formmy.app/chat"
 import { data as json } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
-import { provisionFormmyAgent } from "~/lib/formmy.server"
+import { getFormmyClient, provisionFormmyAgent } from "~/lib/formmy.server"
 import { db } from "~/utils/db.server"
 import { getPutFileUrl } from "~/utils/lib/tigris.server"
-
-function getFormmyClient() {
-  const key = process.env.FORMMY_SECRET_KEY
-  if (!key) throw new Error("FORMMY_SECRET_KEY not set")
-  return new Formmy({ secretKey: key })
-}
 
 export const loader = async ({ request }: { request: Request }) => {
   const { user, org } = await getUserAndOrgOrRedirect(request)

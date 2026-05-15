@@ -15,10 +15,17 @@ import { Formmy } from "@formmy.app/chat"
 import type { Org } from "@prisma/client"
 import { db } from "~/utils/db.server"
 
-function getFormmyClient() {
+/**
+ * SDK default base URL is `formmy.app`, but from Fly's runtime that apex host
+ * fails the TLS handshake (ECONNRESET) — only `www.formmy.app` /
+ * `formmy-v2.fly.dev` resolve cleanly. Default to the www host and let env
+ * override.
+ */
+export function getFormmyClient() {
   const key = process.env.FORMMY_SECRET_KEY
   if (!key) throw new Error("FORMMY_SECRET_KEY not set")
-  return new Formmy({ secretKey: key })
+  const baseUrl = process.env.FORMMY_BASE_URL || "https://www.formmy.app"
+  return new Formmy({ secretKey: key, baseUrl })
 }
 
 export type ProvisionResult = {
