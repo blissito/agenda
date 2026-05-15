@@ -74,6 +74,7 @@
     "react-scroll-parallax": "^3.5.0",
     "recharts": "^3.8.0",
     "slugify": "^1.6.6",
+    "streamdown": "^2.5.0",
     "stripe": "^19.3.0",
     "tailwind-merge": "^3.4.0",
     "tiny-invariant": "^1.3.3",
