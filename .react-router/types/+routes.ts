@@ -215,6 +215,9 @@ type Pages = {
   "/api/mcp/landing": {
     params: {};
   };
+  "/api/mcp/public": {
+    params: {};
+  };
   "/api/whatsapp/link": {
     params: {};
   };
@@ -271,6 +274,11 @@ type Pages = {
   "/sitemap.xml": {
     params: {};
   };
+  "/booking/confirm/:token": {
+    params: {
+      "token": string;
+    };
+  };
   "/event/action": {
     params: {};
   };
@@ -321,7 +329,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/funcionalidades" | "/ia" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/blog/:slug" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/stripe-checkout" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/api/whatsapp/link" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/whatsapp/link/callback" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/robots.txt" | "/sitemap.xml" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/event/:eventId/reschedule" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/admin" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/funcionalidades" | "/ia" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/blog" | "/blog/:slug" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/stripe-checkout" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/api/mcp/public" | "/api/whatsapp/link" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/whatsapp/link/callback" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/robots.txt" | "/sitemap.xml" | "/booking/confirm/:token" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/event/:eventId/reschedule" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/admin" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -567,6 +575,10 @@ type RouteFiles = {
     id: "routes/api/mcp.landing";
     page: "/api/mcp/landing";
   };
+  "routes/api/mcp.public.ts": {
+    id: "routes/api/mcp.public";
+    page: "/api/mcp/public";
+  };
   "routes/api/whatsapp.link.ts": {
     id: "routes/api/whatsapp.link";
     page: "/api/whatsapp/link";
@@ -634,6 +646,10 @@ type RouteFiles = {
   "routes/sitemap[.]xml.ts": {
     id: "routes/sitemap[.]xml";
     page: "/sitemap.xml";
+  };
+  "routes/booking.confirm.$token.tsx": {
+    id: "routes/booking.confirm.$token";
+    page: "/booking/confirm/:token";
   };
   "routes/event.action.tsx": {
     id: "routes/event.action";
@@ -744,6 +760,7 @@ type RouteModules = {
   "routes/api/mcp.customers": typeof import("./app/routes/api/mcp.customers.ts");
   "routes/api/mcp.org": typeof import("./app/routes/api/mcp.org.ts");
   "routes/api/mcp.landing": typeof import("./app/routes/api/mcp.landing.ts");
+  "routes/api/mcp.public": typeof import("./app/routes/api/mcp.public.ts");
   "routes/api/whatsapp.link": typeof import("./app/routes/api/whatsapp.link.ts");
   "routes/stripe/api": typeof import("./app/routes/stripe/api.ts");
   "routes/stripe/webhook": typeof import("./app/routes/stripe/webhook.ts");
@@ -761,6 +778,7 @@ type RouteModules = {
   "routes/error": typeof import("./app/routes/error.tsx");
   "routes/robots[.]txt": typeof import("./app/routes/robots[.]txt.ts");
   "routes/sitemap[.]xml": typeof import("./app/routes/sitemap[.]xml.ts");
+  "routes/booking.confirm.$token": typeof import("./app/routes/booking.confirm.$token.tsx");
   "routes/event.action": typeof import("./app/routes/event.action.tsx");
   "routes/event.$eventId.confirm": typeof import("./app/routes/event.$eventId.confirm.tsx");
   "routes/event.$eventId.modify": typeof import("./app/routes/event.$eventId.modify.tsx");

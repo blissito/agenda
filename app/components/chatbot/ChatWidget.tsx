@@ -5,6 +5,26 @@ import {
 } from "@formmy.app/chat/react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { BsFillSendFill } from "react-icons/bs"
+import { Streamdown } from "streamdown"
+
+/**
+ * Renders an assistant message body. Plain markdown via streamdown so URLs,
+ * `[label](href)` and lists from the LLM render properly while still being
+ * streaming-friendly (it tolerates partial markdown during token-by-token
+ * append).
+ *
+ * `linkSafety.enabled=false` skips streamdown's "Open external link?" modal —
+ * for a business chatbot, links from the bot are intentional (booking URLs,
+ * checkout) and the modal lacks a backdrop scrim out-of-the-box. Links open
+ * in a new tab via the default anchor target.
+ */
+function AssistantText({ text }: { text: string }) {
+  return (
+    <div className="prose prose-sm max-w-none break-words [&_a]:underline [&_a]:text-brand_blue [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1">
+      <Streamdown linkSafety={{ enabled: false }}>{text}</Streamdown>
+    </div>
+  )
+}
 
 export interface ChatConfig {
   name: string
@@ -241,7 +261,11 @@ function ChatWidgetInner({ agentId, config }: ChatWidgetProps) {
                         : "bg-white border border-gray-100 text-brand_dark rounded-2xl rounded-bl-sm"
                     }`}
                   >
-                    <p className="whitespace-pre-wrap break-words">{text}</p>
+                    {isUser ? (
+                      <p className="whitespace-pre-wrap break-words">{text}</p>
+                    ) : (
+                      <AssistantText text={text} />
+                    )}
                   </div>
                 </div>
               )
@@ -503,7 +527,11 @@ function ChatWidgetInlineLive({ agentId, config }: ChatWidgetInlineProps) {
                     : "bg-white border border-gray-100 text-brand_dark rounded-2xl rounded-bl-sm"
                 }`}
               >
-                <p className="whitespace-pre-wrap break-words">{text}</p>
+                {isUser ? (
+                  <p className="whitespace-pre-wrap break-words">{text}</p>
+                ) : (
+                  <AssistantText text={text} />
+                )}
               </div>
             </div>
           )

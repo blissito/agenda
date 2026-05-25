@@ -20,10 +20,12 @@ FROM base as build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
-# Install node modules (including dev for build)
+# Install node modules (including dev for build).
+# BuildKit cache mount persists ~/.npm between builds so re-installs hit the
+# local npm cache instead of re-downloading every package (~60-90s saved).
 COPY --link package-lock.json package.json ./
 COPY --link packages ./packages
-RUN npm ci --include=dev
+RUN --mount=type=cache,target=/root/.npm npm ci --include=dev
 # Copy application code
 COPY --link . .
 

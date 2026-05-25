@@ -107,6 +107,8 @@ export default [
     route("mcp/customers", "routes/api/mcp.customers.ts"),
     route("mcp/org", "routes/api/mcp.org.ts"),
     route("mcp/landing", "routes/api/mcp.landing.ts"),
+    // Public-scope MCP for chatbots — auth via X-Denik-Api-Key (dnk_pub_ prefix)
+    route("mcp/public", "routes/api/mcp.public.ts"),
     // WhatsApp group provisioning (Nik)
     route("whatsapp/link", "routes/api/whatsapp.link.ts"),
   ]),
@@ -144,6 +146,8 @@ export default [
   route("robots.txt", "routes/robots[.]txt.ts"),
   // sitemap.xml (host-aware: platform pages on denik.me, org's services on subdomains)
   route("sitemap.xml", "routes/sitemap[.]xml.ts"),
+  // Bot-initiated booking confirmation (from createPublicBooking)
+  route("booking/confirm/:token", "routes/booking.confirm.$token.tsx"),
   // Event actions from email links
   route("event/action", "routes/event.action.tsx"),
   route("event/:eventId/confirm", "routes/event.$eventId.confirm.tsx"),

@@ -9,13 +9,79 @@ import { z } from "zod"
 import { denikGet, denikPost } from "./client.js"
 
 const server = new Server(
-  { name: "denik-mcp", version: "0.7.0" },
+  { name: "denik-mcp", version: "0.8.0" },
   { capabilities: { tools: {} } },
 )
 
-// ==================== Tool definitions ====================
+// Scope is decided at startup from the API key prefix:
+//   dnk_pub_…  →  public scope (3 read+book tools, for chatbots/landings)
+//   dk_…       →  admin scope (full org management, default)
+const IS_PUBLIC_SCOPE = (process.env.DENIK_API_KEY ?? "").startsWith("dnk_pub_")
 
-const tools = [
+// ==================== Public-scope tools (3) ====================
+
+const publicTools = [
+  {
+    name: "list_services",
+    description:
+      "Lista los servicios activos del negocio: nombre, slug, descripción, precio, duración en minutos, modalidad y `bookingUrl` (link público para reservar). Úsalo para entender qué ofrece el negocio y para compartir links cuando el visitante prefiera completar la reserva en la página.",
+    inputSchema: { type: "object", properties: {} },
+    handler: async () => denikGet("public", { intent: "list_services" }),
+  },
+  {
+    name: "get_availability",
+    description:
+      "Devuelve los slots libres (formato 'HH:MM' en la zona horaria del negocio) para un servicio en una fecha dada. Filtra slots ocupados y pasados. Úsalo para proponer horarios concretos al visitante.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceSlug", "date"],
+      properties: {
+        serviceSlug: {
+          type: "string",
+          description: "Slug del servicio (lo regresa list_services).",
+        },
+        date: {
+          type: "string",
+          description: "Fecha YYYY-MM-DD en la zona horaria del negocio.",
+        },
+      },
+    },
+    handler: async (args: any) =>
+      denikGet("public", { intent: "get_availability", ...args }),
+  },
+  {
+    name: "create_booking",
+    description:
+      "Agenda una cita para el visitante. Servicio gratuito → crea reserva tentativa y envía email de confirmación al cliente (status: 'pending_confirmation'). Servicio de pago → NO agenda, devuelve `checkoutUrl` para que el visitante pague en la landing (status: 'paid_service'). Si el slot ya está ocupado devuelve error 'slot already taken'.",
+    inputSchema: {
+      type: "object",
+      required: ["serviceSlug", "start", "customer"],
+      properties: {
+        serviceSlug: { type: "string" },
+        start: {
+          type: "string",
+          description: "Inicio en ISO 8601 con timezone (ej: 2026-05-20T14:30:00-06:00).",
+        },
+        customer: {
+          type: "object",
+          required: ["name", "email"],
+          properties: {
+            name: { type: "string" },
+            email: { type: "string" },
+            phone: { type: "string" },
+            notes: { type: "string" },
+          },
+        },
+      },
+    },
+    handler: async (args: any) =>
+      denikPost("public", { intent: "create_booking", ...args }),
+  },
+] as const
+
+// ==================== Admin-scope tools ====================
+
+const adminTools = [
   {
     name: "list_events",
     description:
@@ -463,6 +529,23 @@ const tools = [
       denikGet("org", { intent: "stats", from: args.from, to: args.to }),
   },
 ] as const
+
+// ==================== Active tool set (selected by scope) ====================
+
+type Tool = {
+  name: string
+  description: string
+  inputSchema: unknown
+  handler: (args: any) => Promise<unknown>
+}
+
+const tools: readonly Tool[] = IS_PUBLIC_SCOPE
+  ? (publicTools as unknown as readonly Tool[])
+  : (adminTools as unknown as readonly Tool[])
+
+console.error(
+  `[denik-mcp] scope=${IS_PUBLIC_SCOPE ? "public" : "admin"} tools=${tools.length}`,
+)
 
 // ==================== MCP handlers ====================
 

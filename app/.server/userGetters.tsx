@@ -130,6 +130,7 @@ export const getOrCreateOrgOrRedirect = async (request: Request) => {
         email: user.email,
         isActive: false,
         apiKey: `dk_${nanoid(32)}`,
+        publicApiKey: `dnk_pub_${nanoid(32)}`,
         timezone: DEFAULT_ORG_TIMEZONE,
         config: { ...DEFAULT_ORG_CONFIG },
         weekDays: { ...DEFAULT_WEEK_DAYS },
