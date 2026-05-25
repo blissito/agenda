@@ -6,7 +6,7 @@ import {
   LANDING_BLOCKS,
 } from "@easybits.cloud/html-tailwind-generator/components4"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { HiSparkles } from "react-icons/hi"
+import { HiRefresh, HiSparkles } from "react-icons/hi"
 import { Link, useFetcher } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { DeviceToggle } from "~/components/dash/website/DeviceToggle"
@@ -71,6 +71,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       email: true,
       address: true,
       social: true,
+      weekDays: true,
       landingSections: true,
       landingTheme: true,
       landingCustomColors: true,
@@ -168,6 +169,9 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   >("Desktop")
   const [editorInstance, setEditorInstance] =
     useState<ReturnType<GrapesEditorHandle["getEditor"]>>(null)
+  // "Actualizar": rebuild the base template from current org info. Confirms first
+  // because it replaces whatever is currently in the canvas (manual/AI edits).
+  const [updateModalOpen, setUpdateModalOpen] = useState(false)
 
   const isLoading = fetcher.state !== "idle"
   const hasExistingSections = sections.length > 0
@@ -565,6 +569,23 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
   const closeRegenModal = useCallback(() => {
     setRegenModal((r) => ({ ...r, open: false }))
   }, [])
+
+  // Rebuild the base template (no AI) from the org's current data: name, logo,
+  // description, contact, services + images, and the social links the owner has
+  // configured. Loads it into the canvas and flags unpublished changes so the
+  // owner can review and hit "Publicar". Useful after adding services, swapping
+  // images, or adding social networks — refreshes the site without spending an
+  // AI generation.
+  const handleUpdateFromOrgInfo = useCallback(() => {
+    const fresh = buildDefaultSections(org as any, services)
+    editorRef.current?.setHtml(sectionsToHtml(fresh))
+    setSections(fresh)
+    setHasUnpublishedChanges(true)
+    setUpdateModalOpen(false)
+    setSaveMessage(
+      "Sitio actualizado con tu información actual. Pulsa “Publicar” para aplicarlo.",
+    )
+  }, [org, services])
 
   // Regenerate a subset of sections via the refine-per-section endpoint.
   const handleRegenerateSections = useCallback(
@@ -1143,6 +1164,16 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                   {usage.genLimit - usage.genUsed}/{usage.genLimit}
                 </span>
               </button>
+              <button
+                type="button"
+                onClick={() => setUpdateModalOpen(true)}
+                disabled={isGenerating || isLoading || isRefining}
+                className="px-2.5 py-1 text-sm border border-blue-500/50 text-blue-300 rounded-lg hover:bg-blue-500/10 disabled:opacity-50 inline-flex items-center gap-1.5"
+                title="Reconstruye tu sitio con tu información actual: servicios, imágenes y redes sociales"
+              >
+                <HiRefresh className="w-4 h-4" />
+                Actualizar
+              </button>
               <a
                 href={getOrgPublicUrl(org.slug!)}
                 target="_blank"
@@ -1456,6 +1487,70 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
                   className="px-6 py-2 rounded-full bg-brand_blue text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-[140px]"
                 >
                   Regenerar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {updateModalOpen && (
+        <div
+          className="fixed inset-0 z-[999] flex items-center justify-center px-4"
+          role="dialog"
+          aria-modal="true"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setUpdateModalOpen(false)
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setUpdateModalOpen(false)}
+            className="absolute inset-0 bg-black/35 backdrop-blur-[16px]"
+            aria-label="Cerrar"
+          />
+          <div className="relative w-[480px] max-w-full rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi flex flex-col">
+            <div className="absolute left-1/2 -top-16 -translate-x-1/2 z-20">
+              <div className="h-32 w-32 rounded-full bg-white flex items-center justify-center">
+                <div className="h-28 w-28 rounded-full bg-brand_sky flex items-center justify-center">
+                  <span className="text-6xl leading-none">🔄</span>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setUpdateModalOpen(false)}
+              className="absolute right-6 top-6 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95 z-30"
+              aria-label="Cerrar"
+            >
+              ×
+            </button>
+            <div className="w-full px-6 md:px-12 pt-16 pb-8 flex flex-col items-center">
+              <h3 className="text-center font-satoBold text-[20px] md:text-2xl leading-[28px] md:leading-8 text-brand_dark">
+                Actualizar con tu información
+              </h3>
+              <p className="mt-[16px] text-center font-normal font-satoshi text-[16px] leading-[22px] text-brand_gray">
+                Reconstruimos tu sitio con tus datos actuales: servicios,
+                imágenes y redes configuradas.
+              </p>
+              <p className="mt-3 text-center font-normal font-satoshi text-[16px] leading-[22px] text-brand_gray">
+                Reemplaza el contenido del editor; los cambios manuales o de IA
+                se perderán. Luego podrás revisar y publicar.
+              </p>
+              <div className="mt-8 flex items-center justify-center gap-6">
+                <button
+                  type="button"
+                  onClick={() => setUpdateModalOpen(false)}
+                  className="px-6 py-2 rounded-full border border-brand_stroke text-brand_dark hover:bg-gray-50 transition-colors min-w-[140px]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUpdateFromOrgInfo}
+                  className="px-6 py-2 rounded-full bg-brand_blue text-white hover:bg-blue-700 transition-colors min-w-[140px]"
+                >
+                  Actualizar
                 </button>
               </div>
             </div>

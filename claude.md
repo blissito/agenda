@@ -262,11 +262,137 @@ De la libreta del 2026-04-23 — 4 items pendientes + 1 a medias. Trabajar uno p
   3. UI: badge de "Plan" en `/dash` + componente `<PlanLimitBadge feature="landing-gen" />` que muestra `usado/total` y linkea a `/planes` si está cerca del límite.
   4. Bloqueo EXPIRED: layout del dash (`dash_layout.tsx`) muestra banner persistente "Tu trial expiró — actualiza tu plan" con CTA a `/planes`; features marcadas como ❌ redirigen ahí.
 
-- [ ] **TRIAL → PRO (suscripciones + promo 80% off primeros 3 meses)**: El email `trialWarningTemplate.ts` promete "80% de descuento durante los primeros 3 meses" (user paga 20% de la mensualidad los primeros 3 ciclos, luego precio regular) pero no hay mecanismo para canjearlo. Bloqueado: no hay checkout de suscripciones (MP es para pagos de citas, Stripe Connect es legacy para payouts). Plan cuando se decida el proveedor de billing (MP Suscripciones / Stripe Billing):
-  1. Ruta `/planes` con plan Pro mensual + checkout recurrente.
-  2. Token firmado en el link del email (`~/utils/tokens.ts`) con `{userId, promo:"TRIAL_3M_80", exp:+10d}`. La ruta `/planes` valida y aplica el descuento a los primeros 3 ciclos de facturación (Stripe Billing: `coupon` con `duration:"repeating", duration_in_months:3, percent_off:80`. MP Suscripciones: crear plan dedicado de 3 cobros al 20% + swap al plan regular al 4º mes).
-  3. Webhook → flip `User.plan` de `TRIAL`/`EXPIRED` a `PRO` al primer cobro exitoso; tracking de ciclos para no re-aplicar promo.
-  4. Mientras tanto: la línea de la promo en el warning template prometera algo que no se puede canjear — considerar cambiar el CTA a "Escríbenos por WhatsApp" hasta que exista el checkout.
+- [ ] **TRIAL → PRO (suscripciones + promo 80% off primeros 3 meses)**: La ruta `/planes` y el checkout de suscripción ya están cableados en código (`app/.server/stripe-subscriptions.ts`, `app/routes/api/stripe-checkout.ts`, webhook en `app/lib/stripe/subscription-webhook.server.ts`). El email `trialWarningTemplate.ts` apunta a `/planes?promo=welcome` y el form en `planes.tsx:391` inyecta `promo=welcome3m80`, que `stripe-subscriptions.ts:146` lee como `applyWelcomePromo` y aplica `discounts: [{ coupon: WELCOME_PROMO_COUPON_ID }]`. **Falta solo configuración Stripe + 1 cambio de código para anti-abuso**:
+
+  **Pendiente con Brenda — credenciales Stripe (test primero, luego prod):**
+  ```bash
+  STRIPE_SECRET_TEST=sk_test_...
+  STRIPE_WEBHOOK_SECRET=whsec_...
+  STRIPE_PRO_MONTHLY_PRICE_ID=price_...
+  STRIPE_PRO_ANNUAL_PRICE_ID=price_...
+  STRIPE_ENTERPRISE_MONTHLY_PRICE_ID=price_...
+  STRIPE_ENTERPRISE_ANNUAL_PRICE_ID=price_...
+  STRIPE_WELCOME_PROMO_CODE_ID=promo_...   # ver paso 2
+  ```
+
+  **Paso 1 — Crear Products + Prices en Stripe** (Dashboard → Products):
+  - Producto "Denik Pro" con dos precios: mensual + anual (precios de `app/routes/planes.tsx`).
+  - Producto "Denik Enterprise" con mensual + anual.
+  - Copiar los 4 `price_...` IDs y setearlos en Fly secrets + `.env` local.
+
+  **Paso 2 — Crear Coupon + Promotion Code (no solo Coupon)**: para que el descuento sea **once-per-customer** y bloquee el abuso de cancelar/resuscribirse, necesitamos `PromotionCode.restrictions.first_time_transaction: true`. Eso vive en `PromotionCode`, no en `Coupon`. Pasos:
+  ```bash
+  # 1. Crear el cupón base
+  stripe coupons create \
+    --id=welcome3m80 \
+    --name="Welcome 80% off 3m" \
+    --percent-off=80 \
+    --duration=repeating \
+    --duration-in-months=3 \
+    --max-redemptions=1000 \
+    --redeem-by=$(date -v+6m +%s) \
+    --applies-to[products][]=$STRIPE_PRO_PRODUCT_ID
+
+  # 2. Envolverlo en un promotion code con first-time restriction
+  stripe promotion_codes create \
+    --coupon=welcome3m80 \
+    --code=WELCOME3M80 \
+    --restrictions[first_time_transaction]=true \
+    --max-redemptions=1000
+  ```
+  El `id` del promotion code (formato `promo_...`) es el valor para `STRIPE_WELCOME_PROMO_CODE_ID`.
+
+  **Paso 3 — Cambio de código (5 líneas)** en `app/.server/stripe-subscriptions.ts`:
+  - Renombrar `WELCOME_PROMO_COUPON_ID` → `WELCOME_PROMO_CODE_ID` (env var nueva).
+  - Cambiar línea 147 de:
+    ```ts
+    sessionConfig.discounts = [{ coupon: WELCOME_PROMO_COUPON_ID }]
+    ```
+    a:
+    ```ts
+    sessionConfig.discounts = [{ promotion_code: WELCOME_PROMO_CODE_ID }]
+    ```
+  - Actualizar el comentario del bloque (líneas 35-40) que documenta cómo crearlo.
+
+  **Paso 4 — Webhook (ya existe)**: `app/lib/stripe/subscription-webhook.server.ts` ya flippea `User.plan` de `TRIAL`/`EXPIRED` a `PRO` al primer cobro exitoso. Solo verificar que `STRIPE_WEBHOOK_SECRET` esté en Fly y el endpoint registrado en Stripe Dashboard → Webhooks (URL: `https://denik.me/stripe/webhook`, eventos: `customer.subscription.created/updated/deleted`, `invoice.paid`).
+
+  **Paso 5 — (opcional, futuro) Firmar el link del email**: hoy `${APP_URL}/planes?promo=welcome` es público. El `first_time_transaction` del paso 2 ya bloquea abuso por customer, pero si querés que solo users con trial expirando vean el descuento, generar JWT en `sendTrialWarning.ts` via `~/utils/tokens.ts` con `{userId, promo:"welcome3m80", exp:+10d}` y validar en el loader de `planes.tsx`.
+
+  **Comportamiento esperado**:
+  - 3 ciclos al 20% del precio (ej. Pro $499 → $99.80 los primeros 3 meses), luego precio normal automático (Stripe lo maneja por `duration: repeating, duration_in_months: 3`).
+  - Si user cancela y vuelve a suscribirse: el `first_time_transaction` lo bloquea, paga precio normal.
+- [ ] **PWA (Progressive Web App)**: Denik hoy no tiene nada de PWA (no `manifest.webmanifest`, no service worker, no íconos PWA). Plan en 4 fases. **Solo aplicar al dashboard (`www.denik.me/dash/*`)**, no al booking público ni a las landings de orgs (cliente final agenda 1 vez, no vuelve — instalar PWA ahí es fricción sin payoff). Multi-subdomain caveat: `{slug}.denik.me` y `www.denik.me` son orígenes distintos para SW; el SW vive solo en `www`.
+
+  **Estimación total: ~5-7 días de trabajo enfocado para fases 1-3. Fase 4 probablemente skip.**
+
+  ### Fase 1 — Instalable (3-4 horas)
+  Lo mínimo para que Chrome/Safari muestren "Instalar app".
+  1. `public/manifest.webmanifest` con `name: "Denik"`, `short_name: "Denik"`, `start_url: "/dash"`, `scope: "/dash"`, `display: "standalone"`, `theme_color: "#5158F6"` (morado Nik), `background_color: "#ffffff"`.
+  2. Set de íconos en `public/icons/`: `192x192.png`, `512x512.png`, `512x512-maskable.png`, `apple-touch-icon-180.png`. Generar desde el logo de Denik (o desde `nik.svg`). Herramienta: [realfavicongenerator.net](https://realfavicongenerator.net) o `pwa-asset-generator`.
+  3. Meta tags en `app/root.tsx`: `<link rel="manifest" href="/manifest.webmanifest">`, `<meta name="theme-color" content="#5158F6">`, `<link rel="apple-touch-icon" href="/icons/apple-touch-icon-180.png">`, `<meta name="apple-mobile-web-app-capable" content="yes">`, `<meta name="apple-mobile-web-app-status-bar-style" content="default">`.
+  4. Verificar en Lighthouse → PWA tab: debe pasar todos los checks de "Installable".
+
+  ### Fase 2 — Cache del shell del dashboard (1-1.5 días)
+  Service Worker que cachea assets estáticos + shell del dash para carga rápida en mala red.
+  1. Instalar `vite-plugin-pwa` (auto-genera SW + manifest, registra cliente, soporta auto-update).
+  2. Configurar en `vite.config.ts`:
+     - `registerType: "autoUpdate"` (actualiza SW al recargar).
+     - `workbox.globPatterns`: `['**/*.{js,css,html,ico,png,svg,woff2}']`.
+     - `workbox.runtimeCaching`:
+       - Assets de Tigris/S3 (`landings/*`, `services/*`): `CacheFirst`, expiration 30d.
+       - Fuentes: `CacheFirst`, expiration 1yr.
+       - Loaders del dash (`/dash/*`): `NetworkFirst`, timeout 3s, fallback al cache.
+       - **NO cachear**: `/api/*`, `/magic-link/*`, `/auth/*`, `/stripe/*`, `/mercadopago/*`, cualquier respuesta con `Set-Cookie`.
+     - `workbox.navigateFallbackDenylist`: `[/^\/api\//, /^\/magic-link\//, /^\/auth\//]`.
+  3. Registrar SW solo en cliente del dash (scope `/dash`) para evitar interferir con booking público y landings.
+  4. UI: banner "Nueva versión disponible — recargar" cuando `vite-plugin-pwa` detecte update (hook `useRegisterSW`).
+  5. Testing: Chrome DevTools → Application → Service Workers; modo offline → verificar que el shell carga; verificar que loaders devuelvan datos frescos cuando hay red.
+
+  ### Fase 3 — Push notifications (2-3 días)
+  El verdadero ROI de PWA para Denik. Owners reciben notif inmediata de nuevas reservas/pagos sin tener el dash abierto. Hoy esto va por email/WhatsApp; push es complementario y más rápido.
+  1. **DB**: modelo `PushSubscription { id, userId, endpoint, p256dh, auth, userAgent, createdAt }` en `prisma/schema.prisma`. Index por `userId`.
+  2. **VAPID keys**: generar con `npx web-push generate-vapid-keys`. Setear `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` + `VAPID_SUBJECT="mailto:hola@denik.me"` en Fly secrets y `.env`.
+  3. **Endpoints nuevos**:
+     - `POST /api/push/subscribe` — recibe `PushSubscriptionJSON`, guarda en DB para el `userId` autenticado.
+     - `POST /api/push/unsubscribe` — elimina por `endpoint`.
+     - `POST /api/push/test` (solo admin/dev) — manda push de prueba.
+  4. **Cliente**: hook `usePushSubscription()` en `app/hooks/` que:
+     - Verifica `'serviceWorker' in navigator && 'PushManager' in window`.
+     - Pide permiso `Notification.requestPermission()`.
+     - Llama `registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: VAPID_PUBLIC_KEY })`.
+     - POST al endpoint con el sub.
+  5. **UI**: prompt opt-in en `/dash` (modal o banner persistente "Activa notificaciones para no perderte reservas"). Esconder si ya está suscrito o si denegó.
+  6. **SW handler** (`public/sw-push.js` o inline en vite-plugin-pwa): listener `push` que muestra `self.registration.showNotification(title, { body, icon, badge, data: { url } })`. Listener `notificationclick` que abre `event.notification.data.url`.
+  7. **Disparar push desde webhooks/eventos** — helper `sendPushToOwner(orgId, payload)` en `app/lib/push.server.ts` usando `web-push`. Llamar desde:
+     - `app/routes/mercadopago.webhook.tsx` cuando se crea Event → "Nueva reserva confirmada: {customer} para {service}".
+     - `app/routes/service.$serviceSlug.tsx` action cuando se crea Event gratis → mismo mensaje.
+     - `app/lib/event-cancel.server.ts` cuando cliente cancela → "Cancelación: {customer}".
+     - Webhook Stripe `invoice.paid` → "Pago de suscripción recibido".
+  8. **iOS caveat**: web push solo funciona si la PWA está instalada desde Safari (iOS 16.4+). Documentar en `/dash/asistente` un mini-tutorial "Add to Home Screen" para owners en iPhone.
+  9. **Limpieza**: cuando `web-push` devuelva 410/404 en un endpoint (sub expirada), borrar de DB automáticamente.
+
+  ### Fase 4 — Offline parcial (1-2 días, probable SKIP)
+  Baja prioridad: el dash es 90% datos en vivo. Sin red, casi no hay valor.
+  - Si se hace: cachear última versión de loaders de `/dash/citas`, `/dash/clientes`, `/dash/servicios` con `StaleWhileRevalidate`. Mostrar badge "datos posiblemente desactualizados" cuando sirvió cache.
+  - **No** implementar queue de mutaciones offline (crear cita offline → sync cuando vuelva red). Es overhead enorme para casi ningún caso real.
+  - Decidir tras Fase 3: medir cuántos owners reportan "el dash no carga en mala red" antes de invertir aquí.
+
+  ### Riesgos a vigilar
+  - **CSP `frame-ancestors`** (root.tsx:22): SW no afecta, pero ojo si después agregás `Service-Worker-Allowed` header.
+  - **Sesiones**: el SW NUNCA debe cachear respuestas con `Set-Cookie` ni rutas autenticadas mal scopadas. Configurar `workbox` con denylist explícita.
+  - **Multi-subdomain**: si después se decide PWA por org (`{slug}.denik.me`), es un proyecto separado mucho mayor — cada subdominio necesita su propio SW y manifest. Por ahora: solo `www.denik.me/dash`.
+
+  ### Recomendación de ejecución
+  **Arrancar solo con Fase 1 (3-4h)**, mergear, medir adopción real (cuántos owners instalan la app) durante 2-4 semanas, y solo entonces decidir Fase 2/3. Fase 1 es bajo riesgo, alto impacto de percepción ("ya tenemos app"). Fase 3 (push) es donde está el ROI real pero requiere device iOS para QA — no arrancarla sin acceso a un iPhone físico. Fase 4 mantenerla descartada hasta que owners reporten problemas de carga en mala red.
+
+  | Fase | Entrega | Tiempo enfocado |
+  |---|---|---|
+  | 1 — Instalable | Botón "Instalar app", ícono en home, splash | **3-4 horas** |
+  | 2 — Cache shell | Carga rápida en mala red, banner de actualización | **1-1.5 días** |
+  | 3 — Push notifs | Notif inmediata al owner de reservas/pagos | **2-3 días** |
+  | 4 — Offline parcial | Cache de loaders del dash (skip recomendado) | **1-2 días** |
+
+  Total fases 1-3: ~5-7 días de trabajo enfocado. Sin device iOS físico súmale 0.5-1 día a Fase 3.
 - [x] ~~**BUG PROD**: Magic links usan `/login/signin` pero la ruta es `/signin` - 404 en prod~~ (corregido en sendAppointment.ts)
 - [x] ~~**META TAGS**: Revisar y mejorar meta tags en las landings publicadas~~ (OG tags en booking público y landing de org)
 - [ ] **AI Landing en S3**: Subir HTML generado a S3/CloudFront en vez de servirlo via iframe srcDoc (mejor SEO, carga directa, sin limitaciones de iframe). Actualmente se usa `<iframe srcDoc>` fullscreen en `home.tsx` como workaround porque React Router v7 no permite devolver raw HTML desde loaders.
