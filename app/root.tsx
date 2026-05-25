@@ -12,6 +12,9 @@ import {
 } from "react-router"
 import { ParallaxProvider } from "react-scroll-parallax"
 import { isOrgDomain, isRouteAllowedOnOrgDomain } from "~/utils/host.server"
+// PWA: engancha `beforeinstallprompt` en module-scope, lo antes posible en el
+// bundle del cliente, para no perder el evento (lo lee InstallAppBanner).
+import "~/utils/pwa-install"
 import type { Route } from "./+types/root"
 import stylesheet from "./app.css?url"
 import { getMetaTags } from "./utils/getMetaTags"
@@ -43,6 +46,9 @@ export const links = () => [
     href: "/favicon.ico",
     type: "image/x-icon",
   },
+  // PWA: instalable (scope /dash). El SW se registra client-side en dash_layout.
+  { rel: "manifest", href: "/manifest.webmanifest" },
+  { rel: "apple-touch-icon", href: "/icons/apple-touch-icon-180.png" },
 ]
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -71,6 +77,11 @@ export function Layout({ children }: { children: ReactNode }) {
           name="zoom-domain-verification"
           content="ZOOM_verify_57e48124bb5a490c8caea186034dd160"
         />
+        <meta name="theme-color" content="#5158F6" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Denik" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <Meta />
         <Links />
       </head>

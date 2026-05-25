@@ -1,6 +1,8 @@
+import { useEffect } from "react"
 import { Outlet, useMatches, useNavigation } from "react-router"
 import { getUserOrRedirect } from "~/.server/userGetters"
 import { Spinner } from "~/components/common/Spinner"
+import { InstallAppBanner } from "~/components/pwa/InstallAppBanner"
 import { SideBar } from "~/components/sideBar/sideBar"
 import type { Route } from "./+types/dash_layout"
 
@@ -13,6 +15,17 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 export default function DashLayout({ loaderData }: Route.ComponentProps) {
   const { user } = loaderData
   const navigation = useNavigation()
+
+  // PWA: registra el SW stub acotado a /dash (no toca booking público ni
+  // landings de orgs, que viven en otros orígenes/subdominios). El scope va
+  // SIN slash final porque el dash index resuelve en /dash. updateViaCache:
+  // "none" fuerza revalidación para que Fase 2 (vite-plugin-pwa) lo reemplace.
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return
+    navigator.serviceWorker
+      .register("/sw.js", { scope: "/dash", updateViaCache: "none" })
+      .catch(() => {})
+  }, [])
   const isPostSaveNav = navigation.location?.search?.includes("saved=")
   const isNavigating = Boolean(navigation.location) && !isPostSaveNav
 
@@ -29,6 +42,7 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
         </div>
       )}
       <Outlet />
+      <InstallAppBanner />
     </div>
   )
   if (hideSidebar) return content
