@@ -701,7 +701,6 @@ export default function WebsiteAI({ loaderData }: Route.ComponentProps) {
       if (grapes) {
         try {
           grapes.trigger("change:changesCount")
-          grapes.UndoManager?.add?.()
         } catch {}
       }
 
