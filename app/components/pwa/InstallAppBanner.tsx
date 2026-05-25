@@ -92,7 +92,7 @@ export function InstallAppBanner() {
   if (!showIOS && !deferred) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-gray-200 bg-white p-4 shadow-xl">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-gray-200 bg-white p-4 shadow-xl md:left-auto md:top-auto md:right-4 md:bottom-4 md:translate-x-0">
       <button
         type="button"
         onClick={close}
