@@ -2,7 +2,7 @@
 import type { Section3 } from "@easybits.cloud/html-tailwind-generator"
 import { buildDeployHtml } from "@easybits.cloud/html-tailwind-generator"
 import * as React from "react"
-import { useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { resolveLandingColors } from "~/lib/landing-colors.server"
@@ -131,6 +131,58 @@ const RoundAction = (props: RoundActionProps) => {
   )
 }
 
+// Ancho de diseño desktop del landing (coincide con el `max-width:1280px` que
+// usan los contenedores del HTML generado). Renderizamos el iframe a este ancho
+// fijo y lo escalamos para que el sitio entre COMPLETO en el panel —sin corte ni
+// scroll horizontal— a cualquier ancho de contenedor. El scroll vertical queda
+// dentro del iframe (un solo scrollbar). Sin esto, anchos chicos disparan bugs
+// de grid del landing (col-span que no colapsa) que desbordan y se cortan.
+const PREVIEW_DESIGN_WIDTH = 1280
+
+const ScaledPreview = ({ html }: { html: string }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [box, setBox] = useState<{ w: number; h: number } | null>(null)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const measure = () => setBox({ w: el.clientWidth, h: el.clientHeight })
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  // Nunca escalamos hacia arriba: si el panel supera el ancho de diseño, 1:1 y
+  // centrado.
+  const scale = box ? Math.min(box.w / PREVIEW_DESIGN_WIDTH, 1) : 1
+  const marginLeft =
+    box && scale === 1 ? Math.max(0, (box.w - PREVIEW_DESIGN_WIDTH) / 2) : 0
+
+  return (
+    <div ref={containerRef} className="w-full h-full overflow-hidden">
+      <iframe
+        title="Preview del sitio"
+        srcDoc={html}
+        className="border-0 block"
+        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+        style={{
+          width: `${PREVIEW_DESIGN_WIDTH}px`,
+          // Alto sin escalar = alto del panel / escala: al aplicar scale() su alto
+          // visible iguala al del panel; el resto del landing se ve con el scroll
+          // interno del iframe.
+          height: box ? `${box.h / scale}px` : "100%",
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          marginLeft: `${marginLeft}px`,
+          // Evita el flash de layout sin escalar en el primer frame (antes de medir).
+          visibility: box ? "visible" : "hidden",
+        }}
+      />
+    </div>
+  )
+}
+
 export default function Website({ loaderData }: Route.ComponentProps) {
   const { org, url, previewUrl, previewHtml } = loaderData
 
@@ -161,8 +213,14 @@ export default function Website({ loaderData }: Route.ComponentProps) {
 
   return (
     <main
-      className="w-full h-full flex flex-col max-w-8xl mx-auto overflow-hidden"
-      style={{ minHeight: "calc(100vh - 80px)" }}
+      // Alto exacto = viewport menos el padding vertical del `.dash-content`
+      // (sideBar.tsx) en cada breakpoint, para que SOLO el iframe scrollee y el
+      // documento no genere un segundo scrollbar:
+      //   móvil: pt-6 (24) + pb-[88px] (88) = 112px
+      //   md:    pt-6 (24) + pb-6 (24)      = 48px
+      //   lg:    pt-10 (40) + pb-10 (40)    = 80px
+      // Si cambia ese padding, actualizar estos valores.
+      className="w-full flex flex-col max-w-8xl mx-auto overflow-hidden h-[calc(100dvh_-_112px)] md:h-[calc(100dvh_-_48px)] lg:h-[calc(100dvh_-_80px)]"
     >
       <div className="flex items-center justify-between gap-4 pb-4">
         <RouteTitle className="mb-0 md:mb-0 text-2xl md:text-3xl">Sitio web</RouteTitle>
@@ -199,17 +257,12 @@ export default function Website({ loaderData }: Route.ComponentProps) {
       </div>
 
       <section
-        className="flex-1 rounded-2xl border border-brand_stroke bg-white overflow-hidden"
-        style={{ minHeight: "70vh" }}
+        // `min-h-0` permite que este hijo flex se encoja dentro del `main` de
+        // alto fijo (sin él, el contenido del iframe forzaría overflow del main).
+        className="flex-1 min-h-0 rounded-2xl border border-brand_stroke bg-white overflow-hidden"
       >
         {previewHtml ? (
-          <iframe
-            ref={iframeRef}
-            title="Preview del sitio"
-            srcDoc={withExternalLinksFix(previewHtml)}
-            className="w-full h-full border-0 block"
-            sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-          />
+          <ScaledPreview html={withExternalLinksFix(previewHtml)} />
         ) : (
           <iframe
             ref={iframeRef}

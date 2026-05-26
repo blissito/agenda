@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react"
-import { type ReactNode, useEffect, useState } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router"
 import { useFetcher, useLoaderData, useNavigate } from "react-router"
 import { twMerge } from "tailwind-merge"
@@ -56,6 +56,11 @@ export default function DashOnboarding() {
   const [showConfetti, setShowConfetti] = useState(false)
   const navigate = useNavigate()
   const celebrateFetcher = useFetcher()
+  // Dedupe la celebración dentro de la sesión. Usamos un ref (no localStorage)
+  // a propósito: si la escritura a DB falla, NO queremos bloquear el reintento
+  // la próxima vez que se monte la página. La verdad cross-device es la columna
+  // `onboardingCelebratedAt`.
+  const hasCelebrated = useRef(false)
 
   useEffect(() => {
     if (!toastMessage) return
@@ -72,12 +77,12 @@ export default function DashOnboarding() {
   useEffect(() => {
     if (!coreDone) return
     if (onboardingCelebratedAt) return
-    if (localStorage.getItem("onboardingCelebrated") === "1") return
-    localStorage.setItem("onboardingCelebrated", "1")
+    if (hasCelebrated.current) return
+    hasCelebrated.current = true
     setShowConfetti(true)
-    // Persistir en DB para que sobreviva a otros dispositivos / clear de localStorage
+    // Persistir en DB para que sobreviva a otros dispositivos
     celebrateFetcher.submit(null, { method: "post" })
-    // Notifica al sidebar que ya puede ocultar el banner de onboarding
+    // Notifica al sidebar que ya puede ocultar el banner / la opción de onboarding
     window.dispatchEvent(new CustomEvent("onboarding:celebrated"))
     // Deja que el confetti respire y routea a agenda
     const t = setTimeout(() => navigate("/dash/agenda"), 3500)
@@ -272,7 +277,7 @@ export default function DashOnboarding() {
         </div>
       </div>
       <div className="max-w-2xl mx-auto items-center bg-white px-5 py-10 md:px-8 mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden gap-4 relative">
-        <p className="text-sm md:text-base">
+        <p className="text-sm md:text-base max-w-[80%]">
           ¿Tienes alguna duda? Escríbenos a{" "}
           <a href="mailto:hola@denik.me" className="text-brand_blue underline">
             hola@denik.me

@@ -80,7 +80,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="theme-color" content="#5158F6" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="Denik" />
+        <meta name="apple-mobile-web-app-title" content="Deník" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <Meta />
         <Links />

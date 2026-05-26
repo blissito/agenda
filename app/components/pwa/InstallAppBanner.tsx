@@ -75,6 +75,16 @@ export function InstallAppBanner() {
   // Arranca oculto: solo decidimos mostrarlo tras evaluar en el cliente,
   // así no hay flash en SSR ni mismatch de hidratación.
   const [dismissed, setDismissed] = useState(true)
+  // Móvil (< md): bottom sheet con scrim. Desktop: pop-up de esquina normal.
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)")
+    const update = () => setIsMobile(mq.matches)
+    update()
+    mq.addEventListener("change", update)
+    return () => mq.removeEventListener("change", update)
+  }, [])
 
   useEffect(() => {
     if (getIsStandalone()) return
@@ -132,114 +142,136 @@ export function InstallAppBanner() {
   // Visible solo tras evaluar en cliente y si hay algo accionable.
   const visible = !dismissed && (showIOS || Boolean(deferred))
 
+  // Texto compartido entre el sheet móvil y el pop-up de desktop.
+  const textBlock = showIOS ? (
+    <>
+      <p className="font-satoMiddle text-gray-800">
+        Instala Denik en tu iPhone
+      </p>
+      <p className="mt-1 text-sm text-gray-500">
+        1. Toca el botón <ShareIcon />{" "}
+        <span className="font-semibold">Compartir</span>{" "}
+        {iosBrowser === "safari" ? "en la barra de abajo" : "del navegador"}.
+        <br />
+        2. Elige{" "}
+        <span className="font-semibold">"Agregar a pantalla de inicio"</span>.
+      </p>
+    </>
+  ) : (
+    <>
+      <p className="font-satoMiddle text-gray-800">Instala Denik como app</p>
+      <p className="mt-1 text-sm text-gray-500">
+        Acceso rápido desde tu pantalla de inicio, sin barra del navegador.
+      </p>
+    </>
+  )
+
+  const nikImg = (
+    <img
+      src="/images/nik_pwa.svg"
+      alt="Nik, la mascota de Denik"
+      className="h-14 w-auto shrink-0"
+    />
+  )
+
   return (
     <AnimatePresence>
-      {visible && (
-        <>
-          {/* Scrim: oscurece el dash y permite cerrar tocando fuera. */}
-          <motion.div
-            key="pwa-scrim"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            onClick={close}
-            className="fixed inset-0 z-[80] bg-black/40 backdrop-blur-[2px]"
-          />
-
-          {/* Hoja: ancho completo abajo en móvil; tarjeta centrada en desktop. */}
-          <motion.div
-            key="pwa-sheet"
-            role="dialog"
-            aria-modal="true"
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 32, stiffness: 320 }}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.4 }}
-            onDragEnd={onDragEnd}
-            className="fixed inset-x-0 bottom-0 z-[90] mx-auto w-full max-w-md rounded-t-3xl bg-white shadow-2xl md:bottom-4 md:rounded-3xl"
-            style={{
-              paddingBottom: "calc(1.25rem + env(safe-area-inset-bottom, 0px))",
-            }}
-          >
-            {/* Grab handle (solo móvil). */}
-            <div className="flex justify-center pt-3 md:hidden">
-              <div className="h-1.5 w-10 rounded-full bg-gray-300" />
-            </div>
-
-            <div className="px-5 pt-4">
-              <div className="flex items-start gap-3">
-                <img
-                  src="/images/nik_pwa.svg"
-                  alt="Nik, la mascota de Denik"
-                  className="h-14 w-auto shrink-0"
-                />
-                <div className="flex-1">
-                  {showIOS ? (
-                    <>
-                      <p className="font-satoMiddle text-gray-800">
-                        Instala Denik en tu iPhone
-                      </p>
-                      <p className="mt-1 text-sm text-gray-500">
-                        1. Toca el botón <ShareIcon />{" "}
-                        <span className="font-semibold">Compartir</span>{" "}
-                        {iosBrowser === "safari"
-                          ? "en la barra de abajo"
-                          : "del navegador"}
-                        .
-                        <br />
-                        2. Elige{" "}
-                        <span className="font-semibold">
-                          "Agregar a pantalla de inicio"
-                        </span>
-                        .
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="font-satoMiddle text-gray-800">
-                        Instala Denik como app
-                      </p>
-                      <p className="mt-1 text-sm text-gray-500">
-                        Acceso rápido desde tu pantalla de inicio, sin barra del
-                        navegador.
-                      </p>
-                    </>
-                  )}
-                </div>
+      {visible &&
+        (isMobile ? (
+          // ===== Móvil: bottom sheet nativo con scrim =====
+          <>
+            {/* Scrim: oscurece el dash y permite cerrar tocando fuera. */}
+            <motion.div
+              key="pwa-scrim"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={close}
+              className="fixed inset-0 z-[80] bg-black/40 backdrop-blur-[2px]"
+            />
+            <motion.div
+              key="pwa-sheet"
+              role="dialog"
+              aria-modal="true"
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 32, stiffness: 320 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.4 }}
+              onDragEnd={onDragEnd}
+              className="fixed inset-x-0 bottom-0 z-[90] mx-auto w-full max-w-md rounded-t-3xl bg-white shadow-2xl"
+              style={{
+                paddingBottom:
+                  "calc(1.25rem + env(safe-area-inset-bottom, 0px))",
+              }}
+            >
+              {/* Grab handle. */}
+              <div className="flex justify-center pt-3">
+                <div className="h-1.5 w-10 rounded-full bg-gray-300" />
               </div>
 
-              <div className="mt-5 flex flex-col gap-2">
-                {showIOS ? (
+              <div className="px-5 pt-4">
+                <div className="flex items-start gap-3">
+                  {nikImg}
+                  <div className="flex-1">{textBlock}</div>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-2">
                   <PrimaryButton
-                    onClick={close}
+                    onClick={showIOS ? close : install}
                     className="min-h-[44px] w-full min-w-0"
                   >
-                    Entendido
+                    {showIOS ? "Entendido" : "Instalar app"}
                   </PrimaryButton>
-                ) : (
+                  <button
+                    type="button"
+                    onClick={close}
+                    className="min-h-[40px] text-sm text-gray-400 hover:text-gray-600"
+                  >
+                    Ahora no
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        ) : (
+          // ===== Desktop: pop-up de esquina normal, sin scrim =====
+          <motion.div
+            key="pwa-card"
+            role="dialog"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 16 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-4 right-4 z-50 w-[calc(100%-2rem)] max-w-sm rounded-2xl border border-gray-200 bg-white p-4 shadow-xl"
+          >
+            <button
+              type="button"
+              onClick={close}
+              aria-label="Cerrar"
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+            <div className="flex items-start gap-3 pr-4">
+              {nikImg}
+              <div className="flex-1">
+                {textBlock}
+                {!showIOS && (
                   <PrimaryButton
                     onClick={install}
-                    className="min-h-[44px] w-full min-w-0"
+                    className="mt-3 min-h-[40px] min-w-0 px-5"
                   >
                     Instalar app
                   </PrimaryButton>
                 )}
-                <button
-                  type="button"
-                  onClick={close}
-                  className="min-h-[40px] text-sm text-gray-400 hover:text-gray-600"
-                >
-                  Ahora no
-                </button>
               </div>
             </div>
           </motion.div>
-        </>
-      )}
+        ))}
     </AnimatePresence>
   )
 }

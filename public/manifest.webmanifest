@@ -1,7 +1,7 @@
 {
   "id": "/dash",
-  "name": "Denik",
-  "short_name": "Denik",
+  "name": "Deník",
+  "short_name": "Deník",
   "start_url": "/dash",
   "scope": "/dash",
   "display": "standalone",

@@ -233,10 +233,10 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
 const EmptyStateDash = () => {
   return (
-    <div className="bg-dashEmpty w-full flex-1 bg-cover mt-4 lg:mt-8 flex justify-center items-center">
+    <div className="bg-dashEmpty w-full flex-1 bg-cover mt-4 lg:mt-8 flex justify-center items-center p-4">
       <div className="text-center">
         <img
-          className="mx-auto w-40 md:w-60"
+          className="mx-auto w-32 md:w-60"
           src="/images/no-files.svg"
         />
         <p className="font-satoBold text-xl md:text-2xl font-bold">

@@ -177,7 +177,9 @@ export default function IA() {
       <TopBar />
       <main className="bg-white min-h-screen rounded-b-[40px] flex flex-col font-satoshi text-brand_dark antialiased">
         {/* HERO */}
-        <section className="relative min-h-svh flex items-center overflow-hidden pt-40 lg:pt-[320px] pb-10">
+        {/* pt-28 = altura del TopBar fijo (112px); con pb-0 en desktop,
+            items-center centra el contenido en el área visible bajo el navbar */}
+        <section className="relative min-h-svh flex items-center overflow-hidden pt-28 pb-10 lg:pb-0">
           <div className="w-full max-w-7xl mx-auto px-5 md:px-10">
             <div className="grid grid-cols-1 md:grid-cols-[1.05fr_.95fr] items-center gap-10 md:gap-14">
               <div>

@@ -418,7 +418,7 @@ export function Calendar({
           {/* Header */}
           <section
             style={resourceGridStyle}
-            className="place-items-center py-4 border-b sticky top-0 bg-white z-20"
+            className="place-items-center py-4 border-b sticky top-0 z-20"
           >
             <div
               className="sticky left-0 z-30 w-full h-full grid place-items-center place-self-stretch -my-4 py-4"

@@ -544,7 +544,7 @@ const EmptyStateClients = ({ link }: { link: string }) => {
   }
 
   return (
-    <div className="w-full h-[80vh] bg-cover mt-10 flex justify-center items-center px-4">
+    <div className="w-full flex-1 bg-cover flex justify-center items-center px-4">
       <div className="text-center">
         <img
           className="mx-auto mb-4 w-40 md:w-60 max-w-full"

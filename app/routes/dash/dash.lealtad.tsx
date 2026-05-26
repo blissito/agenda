@@ -118,7 +118,7 @@ export default function Lealtad() {
   if (!data.enabled) {
     const isEnabling = enableFetcher.state !== "idle"
     return (
-      <main className="max-w-8xl mx-auto">
+      <main className="max-w-8xl mx-auto flex flex-col min-h-[calc(100vh-112px)]">
         <RouteTitle className="text-2xl md:text-3xl mb-4 md:mb-8">
           Lealtad
         </RouteTitle>

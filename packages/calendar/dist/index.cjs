@@ -465,13 +465,12 @@ function Calendar({
                 "section",
                 {
                   style: resourceGridStyle,
-                  className: "place-items-center py-4 border-b sticky top-0 bg-white z-20",
+                  className: "place-items-center py-4 border-b sticky top-0 z-20",
                   children: [
                     /* @__PURE__ */ jsxRuntime.jsx(
                       "div",
                       {
                         className: "sticky left-0 z-30 w-full h-full grid place-items-center place-self-stretch -my-4 py-4",
-                        style: { backgroundColor: "white" },
                         children: !isMobile && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-sm text-gray-500", children: isResourceMode ? "" : Intl.DateTimeFormat().resolvedOptions().timeZone })
                       }
                     ),

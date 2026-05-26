@@ -1041,7 +1041,7 @@ export function EmptyStateLoyalty({
   isLoading?: boolean
 }) {
   return (
-    <div className="mt-10 flex h-[80vh] w-full items-center justify-center bg-cover px-4">
+    <div className="flex flex-1 w-full items-center justify-center bg-cover px-4">
       <div className="text-center">
         <img
           className="mx-auto mb-4 w-40 md:w-60"

@@ -33,7 +33,7 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
 
   return (
     <main className=" ">
-      <RouteTitle className="text-xl md:text-3xl">Mi perfil </RouteTitle>
+      <RouteTitle className="text-2xl md:text-3xl">Mi perfil </RouteTitle>
       <section className="flex gap-3 md:gap-8 items-center bg-white p-4 md:p-6 rounded-2xl max-w-3xl">
         <div className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full border-[1px] border-brand_stroke relative">
           {user.providerId ? null : (
