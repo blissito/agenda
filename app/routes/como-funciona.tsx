@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { type MetaFunction, useNavigate } from "react-router"
 import { Footer } from "~/components/common/Footer"
 import { TopBar } from "~/components/common/topBar"
@@ -69,7 +69,7 @@ export default function ComoFunciona() {
 
         {/* Social Proof */}
         <section className="max-w-[90%] xl:max-w-7xl mx-auto mt-[80px] lg:mt-[160px]">
-          <h2 className="group text-3xl lg:text-5xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
+          <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
             <span className="mr-4">Lo que dicen</span>
             <Lamp className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10 lg:w-14 lg:h-14" />
             <span className="ml-4">nuestros clientes</span>
@@ -78,15 +78,13 @@ export default function ComoFunciona() {
             Esto es lo que opinan quienes ya usan Deník para gestionar sus
             citas.
           </p>
-          <div className="mt-10 md:mt-16 columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-            {testimonials.map((t) => (
-              <TestimonialCard key={t.name} {...t} />
-            ))}
+          <div className="mt-10 md:mt-16">
+            <TestiCarousel />
           </div>
         </section>
         {/* Final CTA */}
         <FinalCta>
-          <h2 className="group text-3xl xl:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center px-1">
+          <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center px-1">
             <span className="mr-4">¿Listo para</span>
             <Rocket className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
             <span className="ml-4">empezar?</span>
@@ -191,37 +189,130 @@ const testimonials = [
   },
 ]
 
-function TestimonialCard({
+function TestiCarousel() {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [playing, setPlaying] = useState<number | null>(null)
+
+  const scrollByCard = (dir: number) => {
+    const el = scrollerRef.current
+    if (!el) return
+    const card = el.querySelector<HTMLElement>("[data-card]")
+    const amount = card ? card.offsetWidth + 20 : 320
+    el.scrollBy({ left: dir * amount, behavior: "smooth" })
+  }
+
+  return (
+    <div>
+      <div
+        ref={scrollerRef}
+        className="flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-5 px-5 md:-mx-10 md:px-10 py-6"
+      >
+        {testimonials.map((t, i) => (
+          <VideoTesti
+            key={t.name}
+            {...t}
+            playing={playing === i}
+            onPlay={() => setPlaying(i)}
+          />
+        ))}
+      </div>
+      <div className="flex justify-center gap-3 mt-4">
+        <button
+          type="button"
+          aria-label="Anterior"
+          onClick={() => scrollByCard(-1)}
+          className="w-11 h-11 rounded-full border border-black/10 bg-white grid place-items-center text-brand_dark hover:bg-black/5 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current">
+            <path
+              d="M15 6l-6 6 6 6"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          aria-label="Siguiente"
+          onClick={() => scrollByCard(1)}
+          className="w-11 h-11 rounded-full border border-black/10 bg-white grid place-items-center text-brand_dark hover:bg-black/5 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current">
+            <path
+              d="M9 6l6 6-6 6"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function VideoTesti({
   name,
   role,
   img,
   comment,
+  video,
+  playing,
+  onPlay,
 }: {
   name: string
   role: string
   img: string
   comment: string
+  video?: string
+  playing: boolean
+  onPlay: () => void
 }) {
   return (
-    <div className="break-inside-avoid rounded-2xl border border-gray-100 p-6 bg-white">
-      <span className="text-3xl text-gray-200 leading-none font-serif">
-        &ldquo;
-      </span>
-      <p className="text-brand_dark font-satoshi mt-2 leading-relaxed">
-        {comment}
-      </p>
-      <div className="flex items-center gap-3 mt-5">
-        <img
-          src={img}
-          alt={name}
-          className="w-10 h-10 rounded-full object-cover"
+    <article
+      data-card
+      className="snap-start shrink-0 w-[260px] md:w-[300px] aspect-[3/4] rounded-[24px] overflow-hidden relative bg-brand_dark"
+    >
+      {video && playing ? (
+        <video
+          src={video}
+          poster={img}
+          controls
+          autoPlay
+          className="absolute inset-0 w-full h-full object-cover"
         />
-        <div>
-          <p className="text-sm font-satoBold text-brand_dark">{name}</p>
-          <p className="text-xs text-brand_gray">{role}</p>
-        </div>
-      </div>
-    </div>
+      ) : (
+        <>
+          <img
+            src={img}
+            alt={name}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
+          <button
+            type="button"
+            aria-label={`Reproducir testimonio de ${name}`}
+            onClick={onPlay}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/90 grid place-items-center shadow-lg hover:scale-105 transition-transform"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5 translate-x-[1px] fill-brand_dark"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
+          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+            <p className="text-[13px] leading-snug text-white/90 mb-3">
+              "{comment}"
+            </p>
+            <div className="font-bold text-sm font-satoBold">{name}</div>
+            <div className="text-xs text-white/60">{role}</div>
+          </div>
+        </>
+      )}
+    </article>
   )
 }
 
@@ -1023,9 +1114,6 @@ function NegociosSlugBar() {
     <div className="flex flex-col items-center">
       <div className="w-full max-w-xl bg-white rounded-full pl-5 pr-1.5 py-1.5 flex items-center justify-between gap-3 border border-outline">
         <div className="flex items-center flex-1 min-w-0">
-          <span className="font-semibold text-brand_dark shrink-0">
-            denik.me/
-          </span>
           <input
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
@@ -1033,8 +1121,11 @@ function NegociosSlugBar() {
               if (e.key === "Enter") goSignin()
             }}
             placeholder="tunegocio"
-            className="ml-2 w-full !bg-transparent !border-0 !outline-none !ring-0 focus:!ring-0 focus:!outline-none text-brand_gray placeholder:text-brand_gray/70"
+            className="w-full min-w-0 text-right !bg-transparent !border-0 !outline-none !ring-0 focus:!ring-0 focus:!outline-none text-brand_gray placeholder:text-brand_gray/70"
           />
+          <span className="font-semibold text-brand_dark shrink-0">
+            .denik.me
+          </span>
         </div>
         <button
           type="button"

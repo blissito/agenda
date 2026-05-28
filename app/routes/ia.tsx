@@ -9,6 +9,7 @@ import { TopBar } from "~/components/common/topBar"
 import { FinalCta } from "~/components/home/FinalCta"
 import { StatsBelt } from "~/components/home/StatsBelt"
 import { ArrowRight } from "~/components/icons/arrowRight"
+import { Lamp } from "~/components/icons/lamp"
 import { People } from "~/components/icons/people"
 import { StarLights } from "~/components/icons/starLights"
 
@@ -879,61 +880,18 @@ export default function IA() {
         <section className="py-10 md:py-20 mb-20 md:mb-0">
           <div className="max-w-7xl mx-auto px-5 md:px-10">
             <div className="text-center max-w-[720px] mx-auto mb-10">
-              <h2 className="font-satoBold font-extrabold text-3xl md:text-[56px] leading-[1.02] tracking-tight mt-4 mb-3 text-brand_dark">
-                Negocios que ya
-
-                duermen más tranquilos
+              <h2 className="group text-3xl lg:text-6xl font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center">
+                <span className="mr-4">Negocios que ya</span>
+                <Lamp className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10 lg:w-14 lg:h-14" />
+                <span className="ml-4">duermen tranquilos</span>
               </h2>
+              <p className="text-lg text-brand_gray font-satoshi mt-4 text-center">
+                Esto es lo que opinan quienes ya usan Deník para gestionar sus
+                citas.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-[1.2fr_1fr_1fr] gap-5">
-              <div className="md:row-span-2 p-6 rounded-[24px] bg-white border border-black/5 shadow-[0_1px_2px_rgba(0,0,0,.04),0_8px_24px_rgba(17,21,26,.04)] text-brand_dark flex flex-col gap-4 justify-between">
-                <div className="font-satoBold font-semibold text-2xl leading-[1.25] tracking-tight">
-                  "El chatbot reservó 23 citas mientras yo cerraba el salón el
-                  viernes.{" "}
-                  <em className="not-italic text-brand_blue font-bold font-['Caveat',cursive]">
-                    Parece mentira
-                  </em>{" "}
-                  — pero es real."
-                </div>
-                <div className="flex gap-2.5 items-center">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#9DA3FF] to-brand_blue flex-none" />
-                  <div>
-                    <div className="font-bold text-sm font-satoBold">
-                      Luisa Flores
-                    </div>
-                    <div className="text-xs text-brand_gray">
-                      Salón Westeros · Monterrey
-                    </div>
-                  </div>
-                  <div className="ml-auto text-[#FFC166]">★★★★★</div>
-                </div>
-              </div>
-              <Testi
-                q="Mi sitio se armó solo. Le cambié dos fotos, publiqué, y al día siguiente ya tenía reservas."
-                name="Brenda Ortega"
-                role="Estudio Milán · CDMX"
-                avatar="from-[#FFC166] to-[#F19B3D]"
-              />
-              <Testi
-                q="Le pregunto al agente cómo voy mientras manejo al trabajo. Es como tener socio que sí lleva las cuentas."
-                name="Rodrigo Peña"
-                role="Taller Moto · Guadalajara"
-                avatar="from-[#78DA89] to-[#3ABE56]"
-              />
-              <Testi
-                q="Pasé de contestar WhatsApp a las 11 PM a dedicar esas horas a mis hijos. Lo recomiendo mil."
-                name="Sofía Márquez"
-                role="Yoga Raíz · Puebla"
-                avatar="from-brand_cloud to-[#38A6A0]"
-              />
-              <Testi
-                q="El agente me avisó que un cliente top llevaba 6 semanas sin venir. Le mandamos promo y regresó."
-                name="Ana Téllez"
-                role="Spa Jade · Mérida"
-                avatar="from-[#FFC166] to-[#F19B3D]"
-              />
-            </div>
+            <TestiCarousel />
           </div>
         </section>
         <FinalCta>
@@ -1102,30 +1060,180 @@ function _HowCard({
   )
 }
 
-function Testi({
-  q,
-  name,
-  role,
-  avatar,
-}: {
+type Testimonial = {
   q: string
   name: string
   role: string
   avatar: string
-}) {
+  video?: string
+  poster?: string
+}
+
+const TESTIMONIALS: Testimonial[] = [
+  {
+    q: "El chatbot reservó 23 citas mientras yo cerraba el salón el viernes. Parece mentira — pero es real.",
+    name: "Luisa Flores",
+    role: "Salón Westeros · Monterrey",
+    avatar: "from-[#9DA3FF] to-brand_blue",
+    poster:
+      "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400",
+  },
+  {
+    q: "Mi sitio se armó solo. Le cambié dos fotos, publiqué, y al día siguiente ya tenía reservas.",
+    name: "Brenda Ortega",
+    role: "Estudio Milán · CDMX",
+    avatar: "from-[#FFC166] to-[#F19B3D]",
+    poster:
+      "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=400",
+  },
+  {
+    q: "Le pregunto al agente cómo voy mientras manejo al trabajo. Es como tener socio que sí lleva las cuentas.",
+    name: "Rodrigo Peña",
+    role: "Taller Moto · Guadalajara",
+    avatar: "from-[#78DA89] to-[#3ABE56]",
+    poster:
+      "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=400",
+  },
+  {
+    q: "Pasé de contestar WhatsApp a las 11 PM a dedicar esas horas a mis hijos. Lo recomiendo mil.",
+    name: "Sofía Márquez",
+    role: "Yoga Raíz · Puebla",
+    avatar: "from-brand_cloud to-[#38A6A0]",
+    poster:
+      "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400",
+  },
+  {
+    q: "El agente me avisó que un cliente top llevaba 6 semanas sin venir. Le mandamos promo y regresó.",
+    name: "Ana Téllez",
+    role: "Spa Jade · Mérida",
+    avatar: "from-[#FFC166] to-[#F19B3D]",
+    poster:
+      "https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=400",
+  },
+]
+
+function TestiCarousel() {
+  const scrollerRef = useRef<HTMLDivElement>(null)
+  const [playing, setPlaying] = useState<number | null>(null)
+
+  const scrollByCard = (dir: number) => {
+    const el = scrollerRef.current
+    if (!el) return
+    const card = el.querySelector<HTMLElement>("[data-card]")
+    const amount = card ? card.offsetWidth + 20 : 320
+    el.scrollBy({ left: dir * amount, behavior: "smooth" })
+  }
+
   return (
-    <div className="p-6 rounded-[24px] bg-white border border-black/5 flex flex-col gap-4 shadow-[0_1px_2px_rgba(0,0,0,.04),0_8px_24px_rgba(17,21,26,.04)]">
-      <div className="text-[15px] leading-normal text-brand_dark">{q}</div>
-      <div className="flex gap-2.5 items-center">
-        <div
-          className={`w-10 h-10 rounded-full flex-none bg-gradient-to-br ${avatar}`}
-        />
-        <div>
-          <div className="font-bold text-sm font-satoBold">{name}</div>
-          <div className="text-xs text-brand_gray">{role}</div>
-        </div>
+    <div>
+      <div
+        ref={scrollerRef}
+        className="flex gap-5 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-5 px-5 md:-mx-10 md:px-10 py-6"
+      >
+        {TESTIMONIALS.map((t, i) => (
+          <VideoTesti
+            key={t.name}
+            {...t}
+            playing={playing === i}
+            onPlay={() => setPlaying(i)}
+          />
+        ))}
       </div>
-      <div className="text-[#FFC166] text-sm">★★★★★</div>
+      <div className="flex justify-center gap-3 mt-4">
+        <button
+          type="button"
+          aria-label="Anterior"
+          onClick={() => scrollByCard(-1)}
+          className="w-11 h-11 rounded-full border border-black/10 bg-white grid place-items-center text-brand_dark hover:bg-black/5 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current">
+            <path
+              d="M15 6l-6 6 6 6"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          aria-label="Siguiente"
+          onClick={() => scrollByCard(1)}
+          className="w-11 h-11 rounded-full border border-black/10 bg-white grid place-items-center text-brand_dark hover:bg-black/5 transition-colors"
+        >
+          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-current">
+            <path
+              d="M9 6l6 6-6 6"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
+  )
+}
+
+function VideoTesti({
+  q,
+  name,
+  role,
+  avatar,
+  video,
+  poster,
+  playing,
+  onPlay,
+}: Testimonial & { playing: boolean; onPlay: () => void }) {
+  return (
+    <article
+      data-card
+      className="snap-start shrink-0 w-[260px] md:w-[300px] aspect-[3/4] rounded-[24px] overflow-hidden relative bg-brand_dark"
+    >
+      {video && playing ? (
+        <video
+          src={video}
+          poster={poster}
+          controls
+          autoPlay
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <>
+          {poster ? (
+            <img
+              src={poster}
+              alt={name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div
+              className={`absolute inset-0 bg-gradient-to-br ${avatar}`}
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/10" />
+          <button
+            type="button"
+            aria-label={`Reproducir testimonio de ${name}`}
+            onClick={onPlay}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-white/90 grid place-items-center shadow-lg hover:scale-105 transition-transform"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="w-5 h-5 translate-x-[1px] fill-brand_dark"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
+          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+            <p className="text-[13px] leading-snug text-white/90 mb-3">
+              "{q}"
+            </p>
+            <div className="font-bold text-sm font-satoBold">{name}</div>
+            <div className="text-xs text-white/60">{role}</div>
+          </div>
+        </>
+      )}
+    </article>
   )
 }
