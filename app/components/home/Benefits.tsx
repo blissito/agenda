@@ -64,6 +64,21 @@ export const Benefits = ({ ...props }: { props?: unknown }) => (
           title="Expediente para tus clientes"
           description="Administra la información de tus clientes/pacientes de forma digital, segura y accesible"
         />
+        <ItemCard
+          image="/images/illustrations/id.svg"
+          title="Integraciones que ya usas"
+          description="Conecta Google Calendar, Meet y Zoom para sincronizar tus citas y crear videollamadas automáticas"
+        />
+        <ItemCard
+          image="/images/illustrations/ticket.svg"
+          title="Cupones y descuentos"
+          description="Crea códigos de descuento para atraer nuevos clientes y premiar a los que ya tienes"
+        />
+        <ItemCard
+          image="/images/illustrations/phone.svg"
+          title="Gestiona desde tu móvil"
+          description="Instala Denik en tu celular desde el navegador y lleva tu agenda, clientes y ventas a donde vayas"
+        />
       </div>
     </div>
   </section>

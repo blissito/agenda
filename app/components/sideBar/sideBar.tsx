@@ -13,8 +13,9 @@ import {
 import { Form, Link, useFetcher, useLocation } from "react-router"
 import { twMerge } from "tailwind-merge"
 
-// Tracks whether the user has finished onboarding. Source of truth is
-// `User.onboardingCelebratedAt` (DB) — pasada como prop desde dash_layout.
+// Tracks whether the user has finished onboarding. La verdad la calcula
+// `dash_layout` en el servidor: celebrado O (visitó sitio + compartió link +
+// ≥1 servicio), todo en DB (no localStorage), y se pasa como prop.
 // Escuchamos también el evento `onboarding:celebrated` para reaccionar de
 // inmediato en la misma pestaña que terminó el flujo (antes de revalidate).
 const useOnboardingCelebrated = (initial: boolean) => {
@@ -614,6 +615,7 @@ const MobileBottomNav = ({
   ]
 
   const moreActive =
+    match("asistente") ||
     match("website") ||
     match("chatbot") ||
     match("pagos") ||
@@ -718,6 +720,12 @@ const MobileBottomNav = ({
 
               {/* Menu items */}
               <div className="py-2">
+                <MobileMenuItem
+                  to="/dash/asistente"
+                  icon={<Asistente />}
+                  label="Asistente IA"
+                  active={match("asistente")}
+                />
                 <MobileMenuItem
                   to="/dash/website"
                   icon={<Website />}

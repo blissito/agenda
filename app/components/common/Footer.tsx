@@ -26,12 +26,13 @@ export const Footer = () => {
           </Link>
           <Link to="/blog">
             <p>Blog</p>
+              </Link>
+          <Link to="/instalar">
+            <p>Instala Deník </p>
           </Link>
-          <Link to="/terminosycondiciones">
-            <p>Términos y condiciones</p>
-          </Link>
-          <Link to="/avisodeprivacidad">
-            <p>Aviso de privacidad</p>
+          
+             <Link to="/para-clientes">
+            <p>Para clientes</p>
           </Link>
         </div>
         <div className="text-base text-brand_pale font-satoshi flex flex-col gap-4 w-full md:w-[25%]">
@@ -40,6 +41,12 @@ export const Footer = () => {
           {/* <a href="https://wa.me/527374434444" target="_blank" rel="noopener noreferrer">+52 737 443 44 44</a> */}
           <Link to="/planes#preguntas-frecuentes">
             <p>Preguntas frecuentes</p>
+          </Link>
+             <Link to="/terminosycondiciones">
+            <p>Términos y condiciones</p>
+          </Link>
+          <Link to="/avisodeprivacidad">
+            <p>Aviso de privacidad</p>
           </Link>
         </div>
         <div className="w-full md:w-[25%]">
@@ -51,7 +58,7 @@ export const Footer = () => {
               rel="noopener"
               className="hover:opacity-50 transition-all"
             >
-              <Facebook fill="#707376" className="scale-[70%]" />
+              <Facebook fill="#ffffff" className="scale-[70%]" />
             </a>
             <a
               href="https://www.linkedin.com/company/104767180"
@@ -59,22 +66,22 @@ export const Footer = () => {
               rel="noopener"
               className="hover:opacity-50 transition-all"
             >
-              <Linkedin fill="#707376" />
+              <Linkedin fill="#ffffff" />
             </a>
             <a
               href="https://www.instagram.com/denik_agenda/"
               target="_blank"
               rel="noopener"
-              className="hover:opacity-50 transition-all"
+              className="hover:opacity-50 transition-all scale-[90%]"
             >
-              <Instagram fill="#707376" />
+              <Instagram fill="#ffffff" />
             </a>
             {/* <a
               href="https://www.linkedin.com/company/104767180"
               target="_blank"
               rel="noopener"
             >
-            <Twitter fill="#707376" />
+            <Twitter fill="#ffffff" />
             </a> */}
             <a
               href="https://www.youtube.com/@Den%C3%ADk-v9s"
@@ -82,7 +89,7 @@ export const Footer = () => {
               rel="noopener"
               className="hover:opacity-50 transition-all"
             >
-              <Youtube fill="#707376" />
+              <Youtube fill="#ffffff" />
             </a>
           </div>
         </div>

@@ -14,6 +14,7 @@ import { StepDone } from "~/components/icons/menu/stepdone"
 import { Stripe } from "~/components/icons/menu/stripe"
 import { User } from "~/components/icons/menu/user"
 import { db } from "~/utils/db.server"
+import { isBusinessInfoComplete } from "~/utils/onboarding"
 import { getOrgPublicUrl } from "~/utils/urls"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -34,11 +35,40 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     servicesCount,
     hasPaymentsConfigured,
     onboardingCelebratedAt: user.onboardingCelebratedAt,
+    visitedSite: Boolean(user.onboardingVisitedSiteAt),
+    sharedLink: Boolean(user.onboardingSharedLinkAt),
+    businessInfoComplete: isBusinessInfoComplete(org),
   }
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const { user } = await getUserAndOrgOrRedirect(request)
+  const form = await request.formData()
+  const intent = form.get("intent")
+
+  // Persiste el paso "visitar sitio" (idempotente).
+  if (intent === "visit_site") {
+    if (!user.onboardingVisitedSiteAt) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { onboardingVisitedSiteAt: new Date() },
+      })
+    }
+    return { ok: true }
+  }
+
+  // Persiste el paso "compartir link" (idempotente).
+  if (intent === "share_link") {
+    if (!user.onboardingSharedLinkAt) {
+      await db.user.update({
+        where: { id: user.id },
+        data: { onboardingSharedLinkAt: new Date() },
+      })
+    }
+    return { ok: true }
+  }
+
+  // Default: celebración final.
   if (user.onboardingCelebratedAt) return { ok: true, already: true }
   await db.user.update({
     where: { id: user.id },
@@ -48,14 +78,24 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 }
 
 export default function DashOnboarding() {
-  const { servicesCount, url, hasPaymentsConfigured, onboardingCelebratedAt } =
-    useLoaderData<typeof loader>()
+  const {
+    servicesCount,
+    url,
+    hasPaymentsConfigured,
+    onboardingCelebratedAt,
+    visitedSite,
+    sharedLink,
+    businessInfoComplete,
+  } = useLoaderData<typeof loader>()
   const [toastMessage, setToastMessage] = useState<string | null>(null)
-  const [shareLink, setShareLink] = useState("0")
-  const [sitioWebDone, setSitioWeb] = useState("0")
+  // Estado inicial desde la DB (no localStorage): así el progreso persiste
+  // entre dispositivos y el banner de la sidebar se oculta solo.
+  const [shareLink, setShareLink] = useState(sharedLink ? "1" : "0")
+  const [sitioWebDone, setSitioWeb] = useState(visitedSite ? "1" : "0")
   const [showConfetti, setShowConfetti] = useState(false)
   const navigate = useNavigate()
   const celebrateFetcher = useFetcher()
+  const stepFetcher = useFetcher()
   // Dedupe la celebración dentro de la sesión. Usamos un ref (no localStorage)
   // a propósito: si la escritura a DB falla, NO queremos bloquear el reintento
   // la próxima vez que se monte la página. La verdad cross-device es la columna
@@ -70,7 +110,10 @@ export default function DashOnboarding() {
 
   // Los 4 pasos no-opcionales completos
   const coreDone =
-    sitioWebDone === "1" && servicesCount >= 1 && shareLink === "1"
+    businessInfoComplete &&
+    sitioWebDone === "1" &&
+    servicesCount >= 1 &&
+    shareLink === "1"
   // Pagos es opcional: done si está configurado o si los otros 4 ya están
   const paymentsDone = hasPaymentsConfigured || coreDone
 
@@ -91,7 +134,8 @@ export default function DashOnboarding() {
 
   // Calculate progress
   const getCompletedCount = () => {
-    let count = 1 // Step 1 (account) is always done
+    let count = 0
+    if (businessInfoComplete) count++
     if (sitioWebDone === "1") count++
     if (paymentsDone) count++
     if (servicesCount >= 1) count++
@@ -100,31 +144,20 @@ export default function DashOnboarding() {
   }
 
   const handleSitioWeb = () => {
-    localStorage.setItem("sitioWebDone", "1")
     setSitioWeb("1")
+    stepFetcher.submit({ intent: "visit_site" }, { method: "post" })
     window.open(url, "_blank", "noopener,noreferrer")
   }
 
   const handleCopyURL = () => {
     navigator.clipboard.writeText(url)
     setToastMessage("Link copiado")
-    localStorage.setItem("shareLink", "1")
     setShareLink("1")
+    stepFetcher.submit({ intent: "share_link" }, { method: "post" })
   }
 
-  useEffect(() => {
-    const sitioW = localStorage.getItem("sitioWebDone")
-    const shareL = localStorage.getItem("shareLink")
-    if (sitioW === "1") {
-      setSitioWeb(sitioW)
-    }
-    if (shareL) {
-      setShareLink(shareL)
-    }
-  }, [])
-
   return (
-    <main className="max-w-7xl mx-auto pt-6 md:pt-28 px-4 md:px-0">
+    <main className="max-w-7xl mx-auto pt-0 md:pt-28">
       <div className="max-w-2xl mx-auto bg-white p-5 md:p-8 rounded-2xl border-[#EFEFEF]">
         <div>
           <h3 className="text-xl md:text-2xl font-satoBold">
@@ -154,9 +187,31 @@ export default function DashOnboarding() {
         <div className="flex flex-col gap-8">
           <Step
             icon={<User />}
-            title="Crea tu cuenta y configura tu horario"
-            description="El primer paso ya está hecho "
-            cta={<StepCheck />}
+            title="Completa la información de tu negocio"
+            description="Agrega la foto y la descripción de tu negocio"
+            cta={
+              <AnimatePresence>
+                {!businessInfoComplete ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <PrimaryButton as="Link" to="/dash/ajustes" className="h-10">
+                      Completar
+                    </PrimaryButton>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                  >
+                    <StepCheck />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            }
           />
           <Step
             icon={<Landing />}
@@ -276,8 +331,8 @@ export default function DashOnboarding() {
           />
         </div>
       </div>
-      <div className="max-w-2xl mx-auto items-center bg-white px-5 py-10 md:px-8 mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden gap-4 relative">
-        <p className="text-sm md:text-base max-w-[80%]">
+      <div className="max-w-2xl mx-auto items-center bg-white px-4 py-4 md:py-10 md:px-8 mt-4 md:mt-6 rounded-2xl border-[#EFEFEF] flex justify-between overflow-hidden gap-4 relative">
+        <p className="text-sm md:text-base max-w-[70%] md:max-w-[80%]">
           ¿Tienes alguna duda? Escríbenos a{" "}
           <a href="mailto:hola@denik.me" className="text-brand_blue underline">
             hola@denik.me

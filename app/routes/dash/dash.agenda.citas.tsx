@@ -39,13 +39,13 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }),
   ])
 
-  return { events, services }
+  return { events, services, shopKeeper: org.shopKeeper }
 }
 
 type Filters = CitasFilters
 
 export default function CitasPage({ loaderData }: Route.ComponentProps) {
-  const { events, services } = loaderData
+  const { events, services, shopKeeper } = loaderData
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming")
   const [search, setSearch] = useState("")
   const [showFilters, setShowFilters] = useState(false)
@@ -278,7 +278,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
       </div>
 
       {paginated.length > 0 ? (
-        <CitasTable events={paginated} />
+        <CitasTable events={paginated} defaultEncargado={shopKeeper} />
       ) : (
         <EmptyState search={search} onClear={() => setSearch("")} tab={tab} />
       )}

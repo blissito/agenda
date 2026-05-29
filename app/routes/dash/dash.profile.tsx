@@ -35,13 +35,13 @@ export default function Profile({ loaderData }: Route.ComponentProps) {
     <main className=" ">
       <RouteTitle className="text-2xl md:text-3xl">Mi perfil </RouteTitle>
       <section className="flex gap-3 md:gap-8 items-center bg-white p-4 md:p-6 rounded-2xl max-w-3xl">
-        <div className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full border-[1px] border-brand_stroke relative">
+        <div className="w-16 h-16 md:w-[108px] md:h-[108px] rounded-full border-[1px] border-brand_stroke relative">
           {user.providerId ? null : (
             <Camera className="absolute right-0 bottom-0" />
           )}
 
           <img
-            className="w-20 h-20 md:w-[108px] md:h-[108px] rounded-full object-cover "
+            className="min-w-16 h-16 md:w-[108px] md:h-[108px] rounded-full object-cover "
             src={user.photoURL ? user.photoURL : "/images/avatar.svg"}
             alt="avatar"
           />
@@ -113,7 +113,7 @@ const PlanCard = ({
   const isCanceling = subscriptionStatus === "canceled"
 
   return (
-    <section className="flex flex-col gap-4 bg-white p-4 md:p-6 rounded-2xl max-w-3xl my-4 md:my-8">
+    <section className="flex flex-col gap-4 bg-white p-4 md:p-6 rounded-2xl max-w-3xl mt-4 md:mt-8">
       <div className="flex justify-between items-center flex-wrap">
         <h3 className="mb-0 md:mb-6 text-lg md:text-2xl font-satoBold font-bold">
           {plan}

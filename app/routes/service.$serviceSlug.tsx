@@ -163,6 +163,9 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       where: { id: data.serviceId },
     })
     if (!service) throw new Response("Service not found", { status: 404 })
+    // Servicios desactivados no son agendables (defensa ante POST directo).
+    if (!service.isActive)
+      throw new Response("Service not found", { status: 404 })
 
     // Enforce booking window (min advance / max calendar availability)
     const windowCheck = validateBookingWindow(
@@ -503,6 +506,9 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 
   // Verify service belongs to org
   if (service.orgId !== org.id) throw new Response(null, { status: 404 })
+
+  // Servicios desactivados no son agendables públicamente.
+  if (!service.isActive) throw new Response(null, { status: 404 })
 
   // Normalize weekDays (idempotent: handles both legacy Spanish and English keys)
   const serviceWeekDays = normalizeWeekDays(

@@ -1,8 +1,8 @@
 import type { Customer, Event, Service } from "@prisma/client"
 import { AnimatePresence, motion } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { type ReactNode, useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { useFetcher } from "react-router"
+import { Link, useFetcher } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
 import { useOutsideClick } from "~/components/hooks/useOutsideClick"
@@ -148,6 +148,29 @@ function getAvatarColor(name: string) {
   let hash = 0
   for (const ch of name) hash = ch.charCodeAt(0) + ((hash << 5) - hash)
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
+// Envuelve la identidad del cliente (avatar + nombre) en un link al detalle
+// del cliente cuando hay email. Sin email ("Sin cliente") cae a un <div>.
+const ClientLink = ({
+  email,
+  className,
+  children,
+}: {
+  email?: string | null
+  className?: string
+  children: ReactNode
+}) => {
+  if (!email) return <div className={className}>{children}</div>
+  return (
+    <Link
+      to={`/dash/clientes/${email}`}
+      className={twMerge(className, "group")}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {children}
+    </Link>
+  )
 }
 
 // ── Row menu (delete) ──────────────────────────────────────────
@@ -386,9 +409,13 @@ const GRID_NO_CLIENT =
 export const CitasTable = ({
   events,
   hideClient,
+  defaultEncargado,
 }: {
   events: CitaEvent[]
   hideClient?: boolean
+  // Encargado por defecto (Org.shopKeeper) cuando el servicio no tiene
+  // `employeeName` asignado.
+  defaultEncargado?: string | null
 }) => {
   const GRID = hideClient ? GRID_NO_CLIENT : GRID_WITH_CLIENT
 
@@ -417,6 +444,7 @@ export const CitasTable = ({
                   event={event}
                   hideClient={hideClient}
                   grid={GRID}
+                  defaultEncargado={defaultEncargado}
                   key={event.id}
                 />
               ))
@@ -440,7 +468,11 @@ export const CitasTable = ({
             {events.length > 0 ? (
               events.map((event) => (
                 <div key={event.id} className="p-4">
-                  <CitaCardMobile event={event} hideClient={hideClient} />
+                  <CitaCardMobile
+                    event={event}
+                    hideClient={hideClient}
+                    defaultEncargado={defaultEncargado}
+                  />
                 </div>
               ))
             ) : (
@@ -461,10 +493,12 @@ const CitaRow = ({
   event,
   hideClient,
   grid,
+  defaultEncargado,
 }: {
   event: CitaEvent
   hideClient?: boolean
   grid: string
+  defaultEncargado?: string | null
 }) => {
   const name = event.customer?.displayName || "Sin cliente"
   const isPast = new Date(event.start) < new Date()
@@ -485,7 +519,10 @@ const CitaRow = ({
         </div>
       </div>
       {!hideClient && (
-        <div className="flex items-center gap-3 min-w-0">
+        <ClientLink
+          email={event.customer?.email}
+          className="flex items-center gap-3 min-w-0"
+        >
           <ClientAvatar
             photoUrl={null}
             initials={getInitials(name, event.customer?.email)}
@@ -493,14 +530,14 @@ const CitaRow = ({
             className={getAvatarColor(name)}
           />
           <div className="min-w-0">
-            <p className="text-sm font-satoBold text-brand_dark truncate">
+            <p className="text-sm font-satoBold text-brand_dark truncate group-hover:text-brand_blue transition-colors">
               {name}
             </p>
             <p className="text-[12px] text-brand_iron truncate">
               {event.customer?.email || ""}
             </p>
           </div>
-        </div>
+        </ClientLink>
       )}
       <div className="min-w-0">
         <p className="text-[14px] font-satoBold text-brand_dark truncate">
@@ -509,7 +546,7 @@ const CitaRow = ({
       </div>
       <div className="min-w-0">
         <p className="text-[14px] font-satoMedium text-brand_gray truncate">
-          {event.service?.employeeName || "—"}
+          {event.service?.employeeName || defaultEncargado || "—"}
         </p>
       </div>
       {hideClient && (
@@ -547,9 +584,11 @@ const CitaRow = ({
 const CitaCardMobile = ({
   event,
   hideClient,
+  defaultEncargado,
 }: {
   event: CitaEvent
   hideClient?: boolean
+  defaultEncargado?: string | null
 }) => {
   const name = event.customer?.displayName || "Sin cliente"
   const isPast = new Date(event.start) < new Date()
@@ -564,7 +603,10 @@ const CitaCardMobile = ({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {!hideClient ? (
-            <>
+            <ClientLink
+              email={event.customer?.email}
+              className="flex items-center gap-3 min-w-0"
+            >
               <ClientAvatar
                 photoUrl={null}
                 initials={getInitials(name, event.customer?.email)}
@@ -572,21 +614,21 @@ const CitaCardMobile = ({
                 className={getAvatarColor(name)}
               />
               <div className="min-w-0">
-                <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">
+                <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight group-hover:text-brand_blue transition-colors">
                   {name}
                 </p>
                 <p className="text-[12px] text-brand_gray truncate mt-0.5">
                   {event.service?.name || "—"}
                 </p>
               </div>
-            </>
+            </ClientLink>
           ) : (
             <div className="min-w-0">
               <p className="text-[14px] font-satoBold text-brand_dark truncate leading-tight">
                 {event.service?.name || "—"}
               </p>
               <p className="text-[12px] text-brand_gray truncate mt-0.5">
-                {event.service?.employeeName || "—"}
+                {event.service?.employeeName || defaultEncargado || "—"}
               </p>
             </div>
           )}

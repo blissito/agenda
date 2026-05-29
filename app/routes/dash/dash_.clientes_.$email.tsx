@@ -88,7 +88,7 @@ export const loader = async ({
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { events, stats, customer, services } = loaderData
+  const { events, stats, customer, services, org } = loaderData
   const pluralize = usePluralize()
   const navigation = useNavigation()
 
@@ -457,7 +457,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   : "Este cliente aún no tiene citas."}
               </div>
             ) : (
-              <CitasTable events={paginated} hideClient />
+              <CitasTable
+                events={paginated}
+                hideClient
+                defaultEncargado={org.shopKeeper}
+              />
             )}
             {filteredEvents.length > PER_PAGE && (
               <Pagination

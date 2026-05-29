@@ -12,10 +12,11 @@ import {
 } from "recharts"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { CopyLinkButton } from "~/components/common/CopyLinkButton"
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { CustomerDashboard } from "~/components/dash/CustomerDashboard"
 import { db } from "~/utils/db.server"
-import { getPublicImageUrl } from "~/utils/urls"
+import { getOrgPublicUrl, getPublicImageUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash._index"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -38,6 +39,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     return {
       user,
       isCustomerView: true,
+      hasHistory: false,
+      orgPublicUrl: "",
       myEvents: myEvents.map((e) => ({
         id: e.id,
         start: e.start.toISOString(),
@@ -65,6 +68,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     recentEvents,
     services,
     salesEvents,
+    totalEventsCount,
   ] = await Promise.all([
     // All events this month (to compute sales + scheduled count).
     // Para ventas: incluye canceladas/archivadas mientras NO hayan sido
@@ -138,6 +142,12 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       },
       include: { service: true },
     }),
+    // Lifetime: ¿alguna vez ha tenido citas? Sirve para no mostrar el empty
+    // state de "cuenta nueva" a usuarios con historial aunque el mes en curso
+    // esté tranquilo (sus citas pasadas no caen en el filtro mensual).
+    db.event.count({
+      where: { orgId: org!.id, type: { not: "BLOCK" } },
+    }),
   ])
 
   const scheduledCount = monthlyEvents.filter(
@@ -166,6 +176,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     user,
     isCustomerView: false,
     myEvents: [],
+    hasHistory: totalEventsCount > 0,
+    orgPublicUrl: getOrgPublicUrl(org!.slug, request.url),
     stats: {
       monthlySales,
       newCustomers: newCustomersCount,
@@ -196,6 +208,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     user,
     isCustomerView,
     myEvents,
+    hasHistory,
+    orgPublicUrl,
     stats,
     recentEvents,
     topServices,
@@ -208,7 +222,8 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
   const hasData =
     stats &&
-    (stats.scheduledEvents > 0 ||
+    (hasHistory ||
+      stats.scheduledEvents > 0 ||
       stats.newCustomers > 0 ||
       stats.monthlySales > 0 ||
       recentEvents.length > 0)
@@ -222,6 +237,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             recentEvents={recentEvents}
             topServices={topServices}
             salesTimeline={salesTimeline}
+            orgPublicUrl={orgPublicUrl}
           />
         ) : (
           <EmptyStateDash />
@@ -504,10 +520,12 @@ const DashboardData = ({
   recentEvents,
   topServices,
   salesTimeline,
+  orgPublicUrl,
 }: {
   recentEvents: RecentEvent[]
   topServices: TopService[]
   salesTimeline: SalesPoint[]
+  orgPublicUrl: string
 }) => {
   const totalEvents = topServices.reduce((sum, s) => sum + s.eventCount, 0)
 
@@ -536,7 +554,7 @@ const DashboardData = ({
         )}
         <SalesChart data={salesTimeline} />
       </div>
-      <div className="bg-white rounded-2xl overflow-y-scroll h-full col-span-6 xl:col-span-2 pb-4 lg:pb-6">
+      <div className="bg-white rounded-2xl h-full col-span-6 xl:col-span-2 pb-4 lg:pb-6 flex flex-col overflow-hidden">
         <div className="bg-white/80 z-10 backdrop-blur py-4 sticky top-0 px-4 lg:px-6 flex items-center justify-between">
           <h3 className="text-lg font-satoBold">
             Servicios agendados recientemente
@@ -548,7 +566,7 @@ const DashboardData = ({
             Ver todas
           </Link>
         </div>
-        <div className="mt-0 overflow-y-scroll px-4 lg:px-6">
+        <div className="mt-0 flex-1 overflow-y-auto px-4 lg:px-6 flex flex-col">
           {recentEvents.length > 0 ? (
             recentEvents
               .slice(0, 10)
@@ -563,9 +581,20 @@ const DashboardData = ({
                 />
               ))
           ) : (
-            <p className="px-6 text-brand_gray text-sm">
-              No hay citas recientes
-            </p>
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-8 px-4">
+              <img
+                src="/images/emptyState/clients-empty.webp"
+                className="w-40 md:w-60 mb-4"
+                alt=""
+              />
+              <p className="font-satoBold text-brand_dark text-xl md:text-2xl">
+                Aún no tienes citas agendadas
+              </p>
+              <p className="text-base md:text-lg text-brand_gray mt-2">
+                Comparte tu sitio web y empieza a recibir a tus clientes
+              </p>
+              <CopyLinkButton url={orgPublicUrl} />
+            </div>
           )}
         </div>
       </div>

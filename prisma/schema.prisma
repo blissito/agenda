@@ -564,6 +564,10 @@ model User {
   trialWarningEmailSentAt   DateTime? @db.Date
   trialExpiredEmailSentAt   DateTime? @db.Date
   onboardingCelebratedAt    DateTime? @db.Date
+  // Pasos de onboarding persistidos en DB (no localStorage) para que el banner
+  // de la sidebar se oculte solo y el progreso sobreviva entre dispositivos.
+  onboardingVisitedSiteAt   DateTime? @db.Date
+  onboardingSharedLinkAt    DateTime? @db.Date
   // Platform subscription billing (Stripe Billing — distinct from `stripe` field which is Connect legacy)
   customerId           String?
   subscriptionIds      String[]

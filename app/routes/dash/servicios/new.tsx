@@ -78,6 +78,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   )
   const [photoAction, setPhotoAction] = useState<PhotoAction | undefined>()
   const [addressWarning, setAddressWarning] = useState(false)
+  const [photoUploading, setPhotoUploading] = useState(false)
   const [paymentSelected, setPaymentSelected] = useState(false)
   const fetcher = useFetcher()
   const photoUrlsFetcher = useFetcher<{ photoAction?: PhotoAction }>()
@@ -197,6 +198,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               }}
               formRef={formRef}
               onAddressWarningChange={setAddressWarning}
+              onUploadingChange={setPhotoUploading}
             />
           )}
           {index === 2 && (
@@ -217,6 +219,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             onClick={detonateSubmit}
             isDisabled={
               addressWarning ||
+              (index === 1 && photoUploading) ||
               (index === 3 && servicePrice !== 0 && !paymentSelected)
             }
             onBack={index > 0 ? () => setIndex(index - 1) : undefined}

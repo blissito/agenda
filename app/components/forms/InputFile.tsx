@@ -10,6 +10,9 @@ import type { FieldError, FieldValues, UseFormRegister } from "react-hook-form"
 import { BsThreeDotsVertical } from "react-icons/bs"
 import { FaRegTrashCan } from "react-icons/fa6"
 import { twMerge } from "tailwind-merge"
+import { Spinner } from "~/components/common/Spinner"
+
+type UploadStatus = "idle" | "uploading" | "error"
 
 type Props = {
   action?: {
@@ -30,6 +33,7 @@ type Props = {
   multiple?: boolean
   onUploadComplete?: (key: string) => void
   onUploadStateChange?: (uploading: boolean) => void
+  onUploadError?: () => void
   onDelete?: () => void
 }
 
@@ -47,11 +51,13 @@ export const InputFile = ({
   containerClassName,
   onUploadComplete,
   onUploadStateChange,
+  onUploadError,
   onDelete,
 }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isOver, setIsOver] = useState(false)
   const [preview, setPreview] = useState<string | undefined>(action?.readUrl)
+  const [status, setStatus] = useState<UploadStatus>("idle")
 
   useEffect(() => {
     if (action?.readUrl) {
@@ -64,41 +70,43 @@ export const InputFile = ({
     setIsOver(true)
   }
 
-  const handleDragEnd = async (event: DragEvent<HTMLDivElement>) => {
+  // Sube el archivo y mantiene el estado visible (uploading/error) para dar
+  // feedback claro. Mientras `status === "uploading"` el padre puede bloquear
+  // el botón de continuar (via onUploadStateChange) y así evitar que se avance
+  // antes de que la imagen termine de subir.
+  const handleFile = async (file: File) => {
+    setPreview(URL.createObjectURL(file))
+    setStatus("uploading")
+    onUploadStateChange?.(true)
+    const ok = await putFile(file)
+    onUploadStateChange?.(false)
+    if (ok && action?.logoKey) {
+      setStatus("idle")
+      onUploadComplete?.(action.logoKey)
+    } else {
+      console.error("[InputFile] Upload failed - check Tigris CORS/credentials")
+      setStatus("error")
+      setPreview(undefined)
+      onUploadError?.()
+    }
+  }
+
+  const handleDragEnd = (event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     setIsOver(false)
     const file = event.dataTransfer.files[0]
-    if (file) {
-      setPreview(URL.createObjectURL(file))
-      onUploadStateChange?.(true)
-      const ok = await putFile(file)
-      onUploadStateChange?.(false)
-      if (ok && action?.logoKey) {
-        onUploadComplete?.(action.logoKey)
-      } else if (!ok) {
-        console.error("[InputFile] Upload failed - check Tigris CORS/credentials")
-      }
-    }
+    if (file) handleFile(file)
   }
 
   const handleDelete = () => {
     setPreview(undefined)
+    setStatus("idle")
     onDelete?.()
   }
 
-  const handleChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file) {
-      setPreview(URL.createObjectURL(file))
-      onUploadStateChange?.(true)
-      const ok = await putFile(file)
-      onUploadStateChange?.(false)
-      if (ok && action?.logoKey) {
-        onUploadComplete?.(action.logoKey)
-      } else if (!ok) {
-        console.error("[InputFile] Upload failed - check Tigris CORS/credentials")
-      }
-    }
+    if (file) handleFile(file)
   }
 
   const openFilePicker = () => {
@@ -131,14 +139,18 @@ export const InputFile = ({
       {description && <p className="text-brand_gray text-sm">{description}</p>}
 
       <div
-        onDrop={handleDragEnd}
+        onDrop={status === "uploading" ? undefined : handleDragEnd}
         onDragOver={handleOnDragOver}
         onDragLeave={() => setIsOver(false)}
-        onClick={preview ? undefined : openFilePicker}
+        onClick={
+          preview || status === "uploading" ? undefined : openFilePicker
+        }
         className={twMerge(
           "group relative flex cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-[#CFCFCF] bg-transparent text-center transition-all mt-6 h-[160px]",
           "hover:border-brand_blue",
           isOver && "border-brand_blue scale-105 bg-brand_blue/10",
+          status === "uploading" && "cursor-wait",
+          status === "error" && "border-red-400 border-solid",
           className,
         )}
       >
@@ -164,19 +176,41 @@ export const InputFile = ({
               className="absolute inset-0 h-full w-full object-cover"
               src={preview}
             />
-            {/* Menu overlay */}
-            <div className="absolute right-1 top-1 z-10">
-              <DropdownMenu
-                onDelete={handleDelete}
-                onReplace={openFilePicker}
-              />
-            </div>
+            {/* Menu overlay (oculto mientras sube) */}
+            {status !== "uploading" && (
+              <div className="absolute right-1 top-1 z-10">
+                <DropdownMenu
+                  onDelete={handleDelete}
+                  onReplace={openFilePicker}
+                />
+              </div>
+            )}
           </>
+        ) : status === "error" ? (
+          <div className="text-red-500 px-4">
+            <p className="font-satoMiddle text-sm">No se pudo subir la imagen</p>
+            <p className="text-xs mt-1">Haz clic para intentar de nuevo</p>
+          </div>
         ) : (
           <div className="text-brand_gray">{children}</div>
         )}
+
+        {/* Overlay de subida en progreso */}
+        {status === "uploading" && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 bg-white/70 backdrop-blur-sm">
+            <Spinner className="w-7" />
+            <span className="text-xs font-satoMiddle text-brand_gray">
+              Subiendo imagen…
+            </span>
+          </div>
+        )}
       </div>
 
+      {status === "error" && (
+        <p className="mt-1 text-xs text-red-500 pl-1">
+          La imagen no se subió. Vuelve a intentarlo antes de continuar.
+        </p>
+      )}
       {error?.message && (
         <p className="mt-1 text-xs text-red-500 pl-1">{error.message}</p>
       )}

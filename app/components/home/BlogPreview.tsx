@@ -73,14 +73,14 @@ export const BlogPreview = ({ posts = [] }: { posts?: BlogPostMeta[] }) => {
           <Tile
             post={slots[2]}
             index={2}
-            className="w-[50%] md:w-full lg:w-auto grow block"
+            className="w-[50%] md:w-full lg:w-auto grow min-h-0 block"
           />
         </div>
         <div className="w-full md:w-full lg:w-[25%] flex flex-row lg:flex-col gap-6 box-border	">
           <Tile
             post={slots[3]}
             index={3}
-            className="w-[50%] md:w-auto grow block"
+            className="w-[50%] md:w-auto grow min-h-0 block"
           />
           <Tile
             post={slots[4]}
@@ -89,12 +89,12 @@ export const BlogPreview = ({ posts = [] }: { posts?: BlogPostMeta[] }) => {
           />
         </div>
       </article>
-      <Link
+      {/* <Link
         to="/blog"
         className="inline-block mt-12 px-8 py-3 rounded-full border border-brand_dark text-brand_dark font-satoMedium hover:bg-brand_dark hover:text-white transition-colors"
       >
         Ver todos los artículos
-      </Link>
+      </Link> */}
     </section>
   )
 }

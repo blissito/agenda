@@ -4,16 +4,37 @@ import { getUserOrRedirect } from "~/.server/userGetters"
 import { Spinner } from "~/components/common/Spinner"
 import { InstallAppBanner } from "~/components/pwa/InstallAppBanner"
 import { SideBar } from "~/components/sideBar/sideBar"
+import { db } from "~/utils/db.server"
+import { isBusinessInfoComplete } from "~/utils/onboarding"
 import type { Route } from "./+types/dash_layout"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  return {
-    user: await getUserOrRedirect(request),
+  const user = await getUserOrRedirect(request)
+
+  // Completitud del onboarding como verdad de servidor (sin localStorage):
+  // info del negocio + visitó sitio + compartió link + ≥1 servicio. Una vez
+  // celebrado, corta el camino y evita las queries extra en cada navegación.
+  let onboardingComplete = Boolean(user.onboardingCelebratedAt)
+  if (!onboardingComplete && user.orgId) {
+    const [org, servicesCount] = await Promise.all([
+      db.org.findUnique({
+        where: { id: user.orgId },
+        select: { description: true },
+      }),
+      db.service.count({ where: { orgId: user.orgId } }),
+    ])
+    onboardingComplete =
+      isBusinessInfoComplete(org) &&
+      Boolean(user.onboardingVisitedSiteAt) &&
+      Boolean(user.onboardingSharedLinkAt) &&
+      servicesCount >= 1
   }
+
+  return { user, onboardingComplete }
 }
 
 export default function DashLayout({ loaderData }: Route.ComponentProps) {
-  const { user } = loaderData
+  const { user, onboardingComplete } = loaderData
   const navigation = useNavigation()
 
   // PWA: registra el SW stub acotado a /dash (no toca booking público ni
@@ -48,10 +69,7 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
   if (hideSidebar) return content
 
   return (
-    <SideBar
-      user={user}
-      onboardingCelebrated={Boolean(user.onboardingCelebratedAt)}
-    >
+    <SideBar user={user} onboardingCelebrated={onboardingComplete}>
       {content}
     </SideBar>
   )

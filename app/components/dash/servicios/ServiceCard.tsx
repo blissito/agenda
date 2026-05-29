@@ -54,12 +54,13 @@ export const ServiceCard = ({
   const { ref: copiadoRef, setLink } = useCopyLink<HTMLButtonElement>(link)
 
   const handleToggleDeactivation = () => {
+    setShow(false)
     fetcher.submit(
       {
-        intent: "api_update_service",
-        data: JSON.stringify({ serviceId: id, isActive: !isActive }),
+        intent: "update_service",
+        data: JSON.stringify({ id, isActive: !isActive }),
       },
-      { method: "post", action: "/dash/servicios/nuevo" },
+      { method: "post" },
     )
   }
 

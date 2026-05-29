@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react"
-import { FaRobot } from "react-icons/fa"
 import { type MetaFunction } from "react-router"
 import { WobbleCard } from "~/components/animated/WoobleCard"
 import { Footer } from "~/components/common/Footer"
@@ -178,164 +177,44 @@ export default function IA() {
       <TopBar />
       <main className="bg-white min-h-screen rounded-b-[40px] flex flex-col font-satoshi text-brand_dark antialiased">
         {/* HERO */}
-        {/* pt-28 = altura del TopBar fijo (112px); con pb-0 en desktop,
-            items-center centra el contenido en el área visible bajo el navbar */}
-        <section className="relative min-h-svh flex items-center overflow-hidden pt-28 pb-10 lg:pb-0">
-          <div className="w-full max-w-7xl mx-auto px-5 md:px-10">
-            <div className="grid grid-cols-1 md:grid-cols-[1.05fr_.95fr] items-center gap-10 md:gap-14">
-              <div>
-                <div className="inline-flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-white border border-black/5 text-[13px] font-medium text-brand_gray shadow-[0_1px_2px_rgba(0,0,0,.04),0_8px_24px_rgba(17,21,26,.04)]">
-                  <img
-                    src="/images/nik.svg"
-                    alt="Nik"
-                    className="w-[22px] h-[22px] rounded-full object-contain"
-                  />
-                  Nik IA — incluido en todos los planes
-                </div>
-                <h1 className="group mt-5 text-4xl md:text-5xl lg:text-6xl font-satoBold text-brand_dark  tracking-tight">
-                  Tu negocio
-                  <br />
-                  con un{" "}
-                  <span className="text-brand_blue italic">copiloto</span>{" "}
-                  <StarLights className="inline-block w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 align-middle group-hover:animate-vibration-effect cursor-pointer" />
-                  <br />
-                  que nunca duerme.
-                </h1>
-                <p className="mt-5 md:mt-6 text-lg md:text-2xl text-brand_gray font-satoshi leading-relaxed max-w-[540px]">
-                  Tres herramientas de Inteligencia Artificial que trabajan
-                  contigo: crean tu sitio de reservas, atienden a tus clientes y
-                  te ayudan a tomar decisiones — todo desde un solo lugar.
-                </p>
-                <div className="flex flex-wrap items-center gap-3 mt-7">
-                  <PrimaryButton as="Link" to="/signin">
-                    Empezar gratis <ArrowRight />
-                  </PrimaryButton>
-                  <SecondaryButton className="bg-transparent">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                    Ver demo (1:30)
-                  </SecondaryButton>
-                </div>
+        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px] pb-10 lg:pb-[120px]">
+          <h1 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
+            <span className="mr-3">Tu negocio con un</span>
+            <span className="text-brand_blue italic mr-3">copiloto</span>
+            <StarLights className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
+            <span className="basis-full mt-2">que nunca duerme.</span>
+          </h1>
+          <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[70%]">
+            Tres herramientas de Inteligencia Artificial que trabajan contigo:
+            crean tu sitio de reservas, atienden a tus clientes y te ayudan a
+            tomar decisiones — todo desde un solo lugar.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
+            <PrimaryButton as="Link" to="/signin">
+              Empezar gratis <ArrowRight />
+            </PrimaryButton>
+            <SecondaryButton className="bg-transparent">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Ver demo (1:30)
+            </SecondaryButton>
+          </div>
+
+          {/* Video */}
+          <div className="mt-12 lg:mt-16 w-full max-w-4xl mx-auto aspect-video rounded-[24px] overflow-hidden bg-brand_dark border border-black/5 shadow-[0_20px_50px_rgba(17,21,26,.12)] grid place-items-center">
+            <div className="flex flex-col items-center gap-3 text-white/70">
+              <div className="w-16 h-16 rounded-full bg-white/10 grid place-items-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
               </div>
-
-              {/* Hero visual */}
-              <div className="relative h-[500px] md:h-[560px]">
-                <div className="pointer-events-none absolute left-[-40px] top-10 w-80 h-80 rounded-full blur-[60px] opacity-55 bg-[#E5ECFF]" />
-                <div className="pointer-events-none absolute right-[-20px] bottom-10 w-64 h-64 rounded-full blur-[60px] opacity-55 bg-[#FFF3DC]" />
-                <span className="absolute top-[4%] left-[18%] -rotate-[8deg] text-brand_blue text-[22px] font-['Gloria_Hallelujah',cursive]">
-                  ✨ magia
-                </span>
-                <span className="absolute bottom-[14%] right-[6%] rotate-[6deg] text-brand_dark text-[20px] font-['Gloria_Hallelujah',cursive]">
-                  24/7 activo
-                </span>
-
-                {/* Site card */}
-                <div className="absolute right-[4%] top-[6%] w-[340px] bg-white border border-black/5 rounded-[20px] shadow-[0_8px_32px_rgba(204,204,204,.25)] overflow-hidden ia-floaty-slow">
-                  <div className="flex gap-1.5 px-3.5 py-2.5 border-b border-[#EFEFEF] items-center">
-                    <i className="block w-2.5 h-2.5 rounded-full bg-[#FF6057]" />
-                    <i className="block w-2.5 h-2.5 rounded-full bg-[#FFBD2E]" />
-                    <i className="block w-2.5 h-2.5 rounded-full bg-[#28CA41]" />
-                    <span className="ml-2 text-[11px] text-brand_gray font-mono">
-                      estudiomilan.denik.me
-                    </span>
-                  </div>
-                  <div className="relative h-24 grid place-items-end p-2.5 text-white text-[10px] tracking-widest uppercase font-bold overflow-hidden">
-                    <img
-                      src="/images/img2.jpg"
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <span className="relative">Estudio Milán · Música</span>
-                  </div>
-                  <div className="px-3.5 pt-3 pb-3.5">
-                    <h4 className="m-0 mb-1 text-[15px] font-bold font-satoBold">
-                      Reserva tu clase
-                    </h4>
-                    <div className="text-[11px] text-brand_gray">
-                      Mar–Sáb · CDMX
-                    </div>
-                    <div className="flex gap-1.5 mt-2.5 flex-wrap">
-                      <span className="px-2 py-0.5 rounded-full border border-[#EFEFEF] text-[10px]">
-                        Piano
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full border border-[#EFEFEF] text-[10px]">
-                        Violín
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full border border-[#EFEFEF] text-[10px]">
-                        Canto
-                      </span>
-                    </div>
-                    <div className="flex gap-2 items-center mt-3 p-2 rounded-xl bg-[#F8F8F8]">
-                      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-brand_cloud to-[#38A6A0]" />
-                      <div>
-                        <div className="text-[11px] font-semibold">
-                          Clase de piano
-                        </div>
-                        <div className="text-[10px] text-brand_gray">
-                          45 min · $350
-                        </div>
-                      </div>
-                      <div className="ml-auto px-2.5 py-1.5 rounded-full bg-brand_blue text-white text-[10px] font-semibold">
-                        Reservar
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Chat bubble card */}
-                <div className="absolute left-[8%] top-[36%] w-[280px] bg-white border border-black/5 rounded-[20px] p-3.5 shadow-[0_8px_32px_rgba(204,204,204,.25)] ia-floaty">
-                  <div className="px-3.5 py-2.5 rounded-[14px] rounded-bl text-[13px] leading-snug max-w-[220px] mb-2 bg-[#F3F4F6] text-brand_dark">
-                    ¿Tienen cupo el sábado?
-                  </div>
-                  <div className="px-3.5 py-2.5 rounded-[14px] rounded-br text-[13px] leading-snug max-w-[220px] mb-2 bg-brand_blue text-white ml-auto">
-                    ¡Sí! Te puedo apartar las 11:00 o 13:30 🎶
-                  </div>
-                  <div className="inline-flex gap-0.5 px-3.5 py-2.5 bg-[#F3F4F6] rounded-[14px] rounded-bl ia-typ">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#9CA3AF]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#9CA3AF]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#9CA3AF]" />
-                  </div>
-                </div>
-
-                {/* WhatsApp card */}
-                <div className="absolute left-[28%] bottom-[2%] w-[260px] bg-white border border-black/5 rounded-[20px] p-3 shadow-[0_8px_32px_rgba(204,204,204,.25)] rotate-[3deg] ia-floaty-rot">
-                  <div className="flex gap-2 items-center pb-2 border-b border-[#EFEFEF] mb-2.5">
-                    <div className="w-[30px] h-[30px] rounded-full bg-[#25D366] grid place-items-center text-white">
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                      >
-                        <path d="M17.6 6.32A7.85 7.85 0 0 0 12 4a8 8 0 0 0-6.8 12.16L4 20l3.92-1.2A8 8 0 0 0 12 20a8 8 0 0 0 5.6-13.68z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="text-xs font-bold">Denik Agente</div>
-                      <div className="text-[10px] text-brand_gray">
-                        Ingresos esta semana
-                      </div>
-                    </div>
-                  </div>
-                  <div className="px-2.5 py-2 rounded-[10px] rounded-bl text-xs mb-1.5 max-w-[85%] bg-[#F0F0F0]">
-                    📊 Subiste 18% vs semana pasada
-                  </div>
-                  <div className="px-2.5 py-2 rounded-[10px] rounded-br text-xs mb-1.5 max-w-[85%] bg-[#DCF8C6] ml-auto">
-                    ¡Qué buena onda! Manda reporte
-                  </div>
-                </div>
-              </div>
+              <span className="font-satoshi text-sm">Video próximamente</span>
             </div>
+          </div>
 
-            {/* Pillars */}
-            <div className="grid grid-cols-1 md:grid-cols-3 mt-14 divide-y md:divide-y-0 md:divide-x divide-brand_pale">
+          {/* Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 mt-14 lg:mt-20 text-left divide-y md:divide-y-0 md:divide-x divide-brand_pale">
               <Pillar
                 bg="bg-brand_ash/20"
                 color="text-brand_gray"
@@ -392,7 +271,6 @@ export default function IA() {
                 }
               />
             </div>
-          </div>
         </section>
 
         {/* SECTION HEAD + FEATURE 1 — Landing builder */}
@@ -428,7 +306,7 @@ export default function IA() {
                     "Botones de reserva conectados con tu agenda desde el primer clic",
                     <>
                       Dominio gratis{" "}
-                      <code className="font-mono text-[13px] text-[#7A5512] bg-[#FFF3DC] px-1.5 py-px rounded">
+                      <code className="font-mono text-[13px] text-brand_blue bg-brand_blue/10 px-1.5 py-px rounded">
                         tunegocio.denik.me
                       </code>
                     </>,
@@ -580,7 +458,7 @@ export default function IA() {
               <div className="order-2 md:order-1">
                 <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%] min-h-[600px] grid place-items-center">
                   <div className="w-full max-w-[420px] bg-gray-100 rounded-[22px] overflow-hidden border-brand_stroke border ">
-                    <div className="bg-brand_yellow p-4 flex gap-3 items-center text-brand_dark">
+                    <div className="bg-[#FFAB61] p-4 flex gap-3 items-center text-brand_dark">
                       <div className="relative w-10 h-10">
                         <div className="w-10 h-10 rounded-full bg-white grid place-items-center overflow-hidden">
                           <img
@@ -665,7 +543,7 @@ export default function IA() {
                                 </div>
                                 <button
                                   type="button"
-                                  className="mt-1 bg-brand_yellow text-brand_dark rounded-full px-3 py-2 text-xs font-semibold text-center border-0 cursor-pointer font-satoshi"
+                                  className="mt-1 bg-[#FFAB61] text-brand_dark rounded-full px-3 py-2 text-xs font-semibold text-center border-0 cursor-pointer font-satoshi"
                                 >
                                   Confirmar reserva →
                                 </button>
@@ -700,7 +578,7 @@ export default function IA() {
                       <button
                         type="button"
                         aria-label="Enviar"
-                        className="w-9 h-9 rounded-full bg-brand_yellow grid place-items-center cursor-pointer border-0"
+                        className="w-9 h-9 rounded-full bg-[#FFAB61] grid place-items-center cursor-pointer border-0"
                       >
                         <svg
                           width="14"
@@ -987,7 +865,17 @@ function FeatPoints({ items }: { color?: string; items: React.ReactNode[] }) {
           key={i}
           className="text-brand_gray text-base lg:text-xl font-satoshi flex gap-2 "
         >
-          <FaRobot className="flex-none text-brand_blue text-lg mt-0.5" />
+          <svg
+            className="flex-none w-4 h-4 text-brand_blue mt-1.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
           <span>{it}</span>
         </li>
       ))}

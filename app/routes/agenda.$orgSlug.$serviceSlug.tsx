@@ -157,6 +157,10 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     if (!service || service.orgId !== org.id) {
       throw new Response("Service not found", { status: 404 })
     }
+    // Servicios desactivados no son agendables (defensa ante POST directo).
+    if (!service.isActive) {
+      throw new Response("Service not found", { status: 404 })
+    }
 
     // Enforce booking window (min advance / max calendar availability)
     const windowCheck = validateBookingWindow(
@@ -477,6 +481,11 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 
   // Verify service belongs to org
   if (service.orgId !== org.id) {
+    throw new Response("Service not found", { status: 404 })
+  }
+
+  // Servicios desactivados no son agendables públicamente.
+  if (!service.isActive) {
     throw new Response("Service not found", { status: 404 })
   }
 

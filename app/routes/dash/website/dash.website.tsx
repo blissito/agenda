@@ -226,7 +226,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
         <RouteTitle className="mb-0 md:mb-0 text-2xl md:text-3xl">Sitio web</RouteTitle>
 
         <div className="flex gap-3">
-          <Tooltip label="Ver sitio web">
+          <Tooltip label="Ver sitio web" side="bottom">
             <span className="inline-flex">
               <RoundAction as="a" href={url} label="Abrir sitio web">
                 <WebsiteIcon className="w-5 h-5" />
@@ -234,7 +234,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             </span>
           </Tooltip>
 
-          <Tooltip label="Compartir">
+          <Tooltip label="Compartir" side="bottom">
             <span className="inline-flex">
               <RoundAction label="Compartir" onClick={onShare}>
                 <Share className="w-5 h-5" />
@@ -242,7 +242,7 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             </span>
           </Tooltip>
 
-          <Tooltip label="Editar sitio web">
+          <Tooltip label="Editar sitio web" side="bottom">
             <Link
               to="/dash/website/ai"
               className="inline-flex"

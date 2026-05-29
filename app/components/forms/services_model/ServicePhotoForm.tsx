@@ -73,6 +73,7 @@ export const ServicePhotoForm = ({
   errors = {} as Record<string, { message?: string }>,
   orgAddress,
   onAddressWarningChange,
+  onUploadingChange,
 }: {
   formRef?: RefObject<HTMLFormElement | null>
   photoAction?: PhotoAction
@@ -80,6 +81,7 @@ export const ServicePhotoForm = ({
   defaultValues?: ServicePhotoFormFields
   orgAddress?: string | null
   onAddressWarningChange?: (hasWarning: boolean) => void
+  onUploadingChange?: (uploading: boolean) => void
 }) => {
   const _fetcher = useFetcher()
   const [newPhoto, setNewPhoto] = useState(defaultValues?.gallery || "")
@@ -100,6 +102,11 @@ export const ServicePhotoForm = ({
   }
 
   const handlePhotoDelete = () => {
+    setNewPhoto("")
+    setValue("gallery", "")
+  }
+
+  const handleUploadError = () => {
     setNewPhoto("")
     setValue("gallery", "")
   }
@@ -126,6 +133,8 @@ export const ServicePhotoForm = ({
             : "Cargando configuración de subida..."
         }
         onUploadComplete={handleUploadComplete}
+        onUploadStateChange={onUploadingChange}
+        onUploadError={handleUploadError}
         onDelete={handlePhotoDelete}
       >
         <div className="text-brand_gray group-hover:text-brand_blue transition-colors">

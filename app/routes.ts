@@ -16,6 +16,8 @@ export default [
   route("terminosycondiciones", "routes/terminosycondiciones.tsx"),
   route("avisodeprivacidad", "routes/avisodeprivacidad.tsx"),
   route("privacidad", "routes/privacidad.tsx"),
+  route("instalar", "routes/instalar.tsx"),
+  route("para-clientes", "routes/para-clientes.tsx"),
   route("blog", "routes/help.tsx"),
   route("blog/:slug", "routes/blog.$slug.tsx"),
   //login
