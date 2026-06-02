@@ -470,7 +470,7 @@ function UpcomingAppointments({
   return (
     <div className="bg-white rounded-2xl p-5 flex-1 flex flex-col min-h-0">
       <div className="flex items-center justify-between mb-4">
-        <span className="font-satoMedium text-brand_dark text-sm">
+        <span className="font-satoMedium text-brand_dark text-base">
           Citas agendadas
         </span>
         <a
@@ -495,16 +495,18 @@ function UpcomingAppointments({
         <div className="flex-1 flex flex-col items-center justify-center text-center">
           <img
             src="/images/emptyState/clients-empty.webp"
-            className="w-40 md:w-60 mb-4"
+            className="w-40 md:w-[200px] mb-4"
             alt=""
           />
-          <p className="font-satoBold text-brand_dark text-xl md:text-2xl">
+          <p className="font-satoBold text-brand_dark text-xl">
             Aún no tienes citas agendadas
           </p>
-          <p className="text-base md:text-lg text-brand_gray mt-2 max-w-[200px]">
+          <p className="text-base text-brand_gray mt-2 max-w-[200px]">
             Comparte tu sitio web y empieza a recibir a tus clientes
           </p>
-          <CopyLinkButton url={`https://${orgSlug}.denik.me`} />
+          <div className="mt-8">
+            <CopyLinkButton url={`https://${orgSlug}.denik.me`} />
+          </div>
         </div>
       )}
     </div>
@@ -1100,7 +1102,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
 
     const isDay = viewMode === "day"
     const columnsDates = isDay ? [controls.date] : week
-    const closedColor = "rgba(227, 226, 226, 0.2)" // brand_ash/20
+    const closedColor = "rgba(227, 226, 226, 0.15)" // brand_ash/15
 
     const apply = () => {
       const columns = root.querySelectorAll<HTMLElement>(

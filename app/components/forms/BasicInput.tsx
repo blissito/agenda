@@ -7,7 +7,8 @@ import { REQUIRED_MESSAGE } from "~/routes/login/signup.$stepSlug"
 type Props = {
   name: string
   register?: UseFormRegister<FieldValues> | any
-  error?: FieldError
+  error?: FieldError | string
+  showError?: boolean
   label?: ReactNode
   className?: string
   registerOptions?: { required: string | boolean }
@@ -47,6 +48,7 @@ export const BasicInput = ({
   inputClassName,
   registerOptions = { required: REQUIRED_MESSAGE },
   error,
+  showError,
   label,
   name,
   register,
@@ -57,6 +59,12 @@ export const BasicInput = ({
   onChange,
   ...props
 }: Props) => {
+  // `error` puede ser un FieldError (react-hook-form) o un string (validación
+  // controlada estilo wizard). Con string, solo se muestra si `showError`.
+  const errorMessage = typeof error === "string" ? error : error?.message
+  const hasError =
+    typeof error === "string" ? Boolean(showError && error) : Boolean(error)
+
   return (
     <div className={twMerge("w-full relative", containerClassName)}>
       {label ? (
@@ -89,7 +97,7 @@ export const BasicInput = ({
               "focus:border-brand_blue focus:outline-none focus:ring-0",
               "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
-              !!error && "border-red-500",
+              hasError && "border-red-500",
               icon && "pl-12",
               inputClassName,
             )}
@@ -111,7 +119,7 @@ export const BasicInput = ({
               "focus:border-brand_blue focus:outline-none focus:ring-0",
               "rounded-2xl border-gray-200 w-full h-12",
               "disabled:bg-brand_stroke disabled:cursor-not-allowed",
-              !!error && "border-red-500",
+              hasError && "border-red-500",
               icon && "pl-12",
               inputClassName,
             )}
@@ -122,7 +130,7 @@ export const BasicInput = ({
         )}
       </div>
 
-      <p className="text-xs text-red-500 h-1 pl-1">{error?.message}</p>
+      <p className="text-xs text-red-500 h-1 pl-1">{hasError ? errorMessage : ""}</p>
     </div>
   )
 }

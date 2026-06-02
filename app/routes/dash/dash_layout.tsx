@@ -58,7 +58,7 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
   const content = (
     <div className="relative h-full">
       {isNavigating && (
-        <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-40">
+        <div className="absolute inset-0 bg-brand_light_gray/80 flex items-center justify-center z-40">
           <Spinner className="w-10" />
         </div>
       )}

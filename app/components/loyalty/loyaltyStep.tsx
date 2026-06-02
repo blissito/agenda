@@ -1,7 +1,7 @@
 // loyaltyStep.tsx
 
 import { motion } from "motion/react"
-import type { ChangeEvent, InputHTMLAttributes } from "react"
+import type { ChangeEvent } from "react"
 import { useEffect, useState } from "react"
 import { useRevalidator } from "react-router"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
@@ -17,59 +17,78 @@ import { Modal, ServiceToggleRow } from "./loyaltycupones"
 
 // ==================== SHARED: LEVEL IMAGE UPLOAD ====================
 
-async function uploadLevelImage(file: File): Promise<string | null> {
+const MAX_LEVEL_IMAGE_BYTES = 5 * 1024 * 1024 // 5 MB
+
+// Sube la imagen del nivel y devuelve la `key` en almacenamiento.
+// Lanza un Error con mensaje específico por cada modo de falla para que la UI
+// pueda mostrar qué arreglar (tipo/peso inválido, sesión, red/CORS, status).
+async function uploadLevelImage(file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error(
+      `El archivo "${file.name}" no es una imagen válida (tipo: ${
+        file.type || "desconocido"
+      }). Usa JPG, PNG o WebP.`,
+    )
+  }
+  if (file.size > MAX_LEVEL_IMAGE_BYTES) {
+    throw new Error(
+      `La imagen pesa ${(file.size / 1024 / 1024).toFixed(
+        1,
+      )} MB y el máximo es 5 MB. Comprime o usa una imagen más ligera.`,
+    )
+  }
+
+  // 1) Pedir la URL prefirmada al servidor.
+  let putUrl: string | undefined
+  let key: string | undefined
   try {
     const res = await fetch("/api/loyalty?intent=level-upload-url")
-    const { putUrl, key } = await res.json()
+    if (!res.ok) {
+      throw new Error(
+        `No se pudo preparar la subida (servidor respondió ${res.status}). Si el problema sigue, recarga la página e inicia sesión de nuevo.`,
+      )
+    }
+    const data = await res.json().catch(() => null)
+    putUrl = data?.putUrl
+    key = data?.key
+  } catch (err) {
+    if (err instanceof Error) throw err
+    throw new Error(
+      "No se pudo conectar con el servidor para preparar la subida. Revisa tu conexión e intenta de nuevo.",
+    )
+  }
+  if (!putUrl || !key) {
+    throw new Error(
+      "El servidor no devolvió una URL de subida válida. Intenta de nuevo en unos segundos.",
+    )
+  }
 
-    const upload = await fetch(putUrl, {
+  // 2) Subir el archivo al almacenamiento (Tigris).
+  let upload: Response
+  try {
+    upload = await fetch(putUrl, {
       method: "PUT",
       body: file,
       headers: {
-        "Content-Length": String(file.size),
         "Content-Type": file.type,
         "x-amz-acl": "public-read",
       },
     })
-
-    return upload.ok ? key : null
   } catch {
-    return null
+    throw new Error(
+      "No se pudo subir la imagen al almacenamiento (error de red o CORS). Revisa tu conexión e intenta de nuevo.",
+    )
   }
+  if (!upload.ok) {
+    throw new Error(
+      `La subida de la imagen falló (almacenamiento respondió ${upload.status}). Intenta de nuevo o usa otra imagen.`,
+    )
+  }
+
+  return key
 }
 
 // ==================== SHARED COMPONENTS ====================
-
-const WizardInput = ({
-  label,
-  required = false,
-  error,
-  showError = false,
-  ...props
-}: {
-  label: string
-  required?: boolean
-  error?: string
-  showError?: boolean
-} & InputHTMLAttributes<HTMLInputElement>) => (
-  <div>
-    <label className="mb-2 block font-satoMedium text-[14px] text-brand_dark">
-      {label}
-      {required}
-    </label>
-    <input
-      {...props}
-      className={`h-[44px] w-full rounded-[16px] border px-4 text-[14px] outline-none placeholder:text-brand_silver focus:border-[#615FFF] ${
-        showError && error
-          ? "border-brand_red text-brand_gray"
-          : "border-brand_ash text-brand_gray"
-      } ${props.className || ""}`}
-    />
-    {showError && error && (
-      <p className="mt-1 text-[12px] text-red-500">{error}</p>
-    )}
-  </div>
-)
 
 const CardActionButton = ({
   onClick,
@@ -106,12 +125,17 @@ export function NivelesTab({
   const revalidator = useRevalidator()
   const [editingLevel, setEditingLevel] = useState<Level | null>(null)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [toastType, setToastType] = useState<"success" | "error">("success")
 
   useEffect(() => {
     if (!toastMessage) return
-    const t = setTimeout(() => setToastMessage(null), 2500)
+    // Los errores se quedan más tiempo en pantalla para alcanzar a leerlos.
+    const t = setTimeout(
+      () => setToastMessage(null),
+      toastType === "error" ? 6000 : 2500,
+    )
     return () => clearTimeout(t)
-  }, [toastMessage])
+  }, [toastMessage, toastType])
 
   const apiCall = async (intent: string, payload: Record<string, unknown>) => {
     await fetch(`/api/loyalty?intent=${intent}`, {
@@ -154,23 +178,32 @@ export function NivelesTab({
     if (!editingLevel) return
 
     setIsUpdating(true)
-    let imageKey: string | null = editingLevel.image
-    if (payload.imageFile) {
-      imageKey = await uploadLevelImage(payload.imageFile)
+    try {
+      let imageKey: string | null = editingLevel.image
+      if (payload.imageFile) {
+        imageKey = await uploadLevelImage(payload.imageFile)
+      }
+
+      await apiCall("update-level", {
+        levelId: editingLevel.id,
+        name: payload.name,
+        minPoints: payload.minPoints,
+        discountPercent: payload.discountPercent,
+        serviceIds: payload.serviceIds,
+        image: imageKey,
+      })
+
+      setEditingLevel(null)
+      setToastType("success")
+      setToastMessage("Cambios guardados")
+    } catch (err) {
+      setToastType("error")
+      setToastMessage(
+        err instanceof Error ? err.message : "No se pudieron guardar los cambios.",
+      )
+    } finally {
+      setIsUpdating(false)
     }
-
-    await apiCall("update-level", {
-      levelId: editingLevel.id,
-      name: payload.name,
-      minPoints: payload.minPoints,
-      discountPercent: payload.discountPercent,
-      serviceIds: payload.serviceIds,
-      image: imageKey,
-    })
-
-    setIsUpdating(false)
-    setEditingLevel(null)
-    setToastMessage("Cambios guardados")
   }
 
   if (levels.length === 0 && !isCreateOpen) {
@@ -222,7 +255,7 @@ export function NivelesTab({
         variant="danger"
       />
 
-      <SuccessToast message={toastMessage} />
+      <SuccessToast message={toastMessage} type={toastType} />
     </>
   )
 }
@@ -393,10 +426,9 @@ export function CreateLevelWizard({
     let imageKey: string | null = null
 
     if (imageFile) {
+      // uploadLevelImage lanza un Error con el detalle si algo falla; ese
+      // mensaje se propaga hasta el catch de handleSubmit y se muestra al user.
       imageKey = await uploadLevelImage(imageFile)
-      if (!imageKey) {
-        throw new Error("No se pudo subir la imagen del nivel.")
-      }
     }
 
     const response = await fetch("/api/loyalty?intent=create-level", {
@@ -552,7 +584,8 @@ function WizardStepOne({
 
   return (
     <div className="mx-auto mt-6 w-full max-w-xl pb-6">
-      <WizardInput
+      <BasicInput
+        name="levelName"
         label="Nombre del nivel"
         required
         value={levelName}
@@ -600,8 +633,9 @@ function WizardStepOne({
         </label>
       </div>
 
-      <div className="mt-4 sm:mt-5 grid grid-cols-2 gap-4">
-        <WizardInput
+      <div className="mt-5 sm:mt-6 grid grid-cols-2 gap-4">
+        <BasicInput
+          name="minPoints"
           label="Puntos requeridos"
           required
           type="text"
@@ -616,7 +650,8 @@ function WizardStepOne({
           showError={showValidation}
         />
 
-        <WizardInput
+        <BasicInput
+          name="discountPercent"
           label="Porcentaje de descuento"
           required
           type="text"

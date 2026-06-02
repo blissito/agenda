@@ -4,7 +4,10 @@ import { ArrowRight } from "../icons/arrowRight"
 import { Denik } from "../icons/denik"
 import { PrimaryButton } from "./primaryButton"
 
-const NAV_LINKS = [
+type NavLink = { to: string; label: string }
+type Cta = { to: string; label: string }
+
+const NAV_LINKS: NavLink[] = [
   { to: "/funcionalidades", label: "Funcionalidades" },
   { to: "/ia", label: "IA✨" },
   { to: "/negocios", label: "Negocios" },
@@ -12,7 +15,36 @@ const NAV_LINKS = [
   { to: "/blog", label: "Blog" },
 ]
 
-export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
+const DEFAULT_CTA: Cta = { to: "/signin", label: "Probar gratis" }
+
+// Subrayado dibujado a mano para el link activo
+const ActiveUnderline = () => (
+  <svg
+    viewBox="0 0 100 12"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+    className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/5 h-2 text-brand_blue"
+  >
+    <path
+      d="M2 7 Q 25 2, 50 6 T 98 5"
+      stroke="currentColor"
+      strokeWidth="3"
+      fill="none"
+      strokeLinecap="round"
+      className="animate-underline-draw"
+    />
+  </svg>
+)
+
+export const TopBar = ({
+  withBanner = false,
+  navLinks = NAV_LINKS,
+  cta = DEFAULT_CTA,
+}: {
+  withBanner?: boolean
+  navLinks?: NavLink[]
+  cta?: Cta
+}) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
 
@@ -34,24 +66,25 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6 lg:gap-8 text-brand_dark">
-          {NAV_LINKS.map((link) => {
+          {navLinks.map((link) => {
             const active =
               location.pathname === link.to ||
               location.pathname.startsWith(`${link.to}/`)
             return (
               <Link key={link.to} to={link.to}>
                 <p
-                  className={`font-satoshi font-medium hover:text-brand_blue transition-colors ${
+                  className={`relative inline-block font-satoshi font-medium hover:text-brand_blue transition-colors ${
                     active ? "text-brand_blue" : ""
                   }`}
                 >
                   {link.label}
+                  {active && <ActiveUnderline />}
                 </p>
               </Link>
             )
           })}
-          <PrimaryButton as="Link" to="/signin">
-            Probar gratis <ArrowRight />
+          <PrimaryButton as="Link" to={cta.to}>
+            {cta.label} <ArrowRight />
           </PrimaryButton>
         </div>
 
@@ -80,24 +113,25 @@ export const TopBar = ({ withBanner = false }: { withBanner?: boolean }) => {
             withBanner ? "top-36" : "top-28"
           } left-4 right-4 bg-white/95 backdrop-blur-lg border border-brand_pale rounded-2xl shadow-lg p-6 flex flex-col gap-4`}
         >
-          {NAV_LINKS.map((link) => {
+          {navLinks.map((link) => {
             const active =
               location.pathname === link.to ||
               location.pathname.startsWith(`${link.to}/`)
             return (
               <Link key={link.to} to={link.to}>
                 <p
-                  className={`font-satoshi font-medium text-lg py-2 hover:text-brand_blue transition-colors ${
+                  className={`relative inline-block font-satoshi font-medium text-lg py-2 hover:text-brand_blue transition-colors ${
                     active ? "text-brand_blue" : "text-brand_dark"
                   }`}
                 >
                   {link.label}
+                  {active && <ActiveUnderline />}
                 </p>
               </Link>
             )
           })}
-          <PrimaryButton as="Link" to="/signin" className="mt-2">
-            Probar gratis <ArrowRight />
+          <PrimaryButton as="Link" to={cta.to} className="mt-2">
+            {cta.label} <ArrowRight />
           </PrimaryButton>
         </div>
       )}

@@ -6,8 +6,8 @@ import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { DropdownMenu, MenuButton } from "~/components/common/DropDownMenu"
-import { SecondaryButton } from "~/components/common/secondaryButton"
 import { SuccessToast } from "~/components/common/SuccessToast"
+import { SecondaryButton } from "~/components/common/secondaryButton"
 import { getAvatarColor } from "~/components/dash/AppointmentItem"
 import { useDownloadToast } from "~/components/downloads/downloadToast"
 import { BasicInput } from "~/components/forms/BasicInput"
@@ -175,51 +175,51 @@ const SearchNav = ({
 }) => {
   const pluralize = usePluralize()
   return (
-    <div className="flex items-center mt-4">
+    <div className="flex items-center gap-4 mt-4 md:mt-6">
       <p className="hidden sm:block text-lg font-satoshi text-brand_dark whitespace-nowrap">
-        {count} {pluralize("cliente", count)}{" "}
-        {pluralize("registrado", count)}
+        {count} {pluralize("cliente", count)} {pluralize("registrado", count)}
       </p>
-    <div className="flex gap-4 w-full">
-      <div className="relative w-full">
-        <BasicInput
-          name="search"
-          value={search}
-          onChange={(e) => onSearch(e.target.value)}
-          type="text"
-          placeholder="Buscar"
-          containerClassName="w-full"
-          inputClassName="!rounded-full pl-4 pr-10 border-white font-satoshi py-2 h-12"
-          registerOptions={{ required: false }}
-        />
-        {search ? (
-          <button
-            type="button"
-            onClick={() => onSearch("")}
-            aria-label="Limpiar búsqueda"
-            className="absolute right-2 top-[28px] -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-brand_iron hover:text-brand_dark hover:bg-gray-100 transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
+      <div className="flex items-center gap-4 w-full">
+        <div className="relative w-full">
+          <BasicInput
+            name="search"
+            value={search}
+            onChange={(e) => onSearch(e.target.value)}
+            type="text"
+            placeholder="Buscar"
+            containerClassName="w-full"
+            inputClassName="!rounded-full pl-4 pr-10 border-white font-satoshi py-2 h-12"
+            registerOptions={{ required: false }}
+          />
+          {search ? (
+            <button
+              type="button"
+              onClick={() => onSearch("")}
+              aria-label="Limpiar búsqueda"
+              className="absolute right-2 top-[28px] -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-brand_iron hover:text-brand_dark hover:bg-gray-100 transition-colors"
             >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        ) : (
-          <MagnifyingGlass className="pointer-events-none absolute right-3 top-[28px] -translate-y-1/2 w-5 h-5 text-brand_iron" />
-        )}
+              <svg
+                className="w-4 h-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          ) : (
+            <MagnifyingGlass className="pointer-events-none absolute right-3 top-[28px] -translate-y-1/2 w-5 h-5 text-brand_iron" />
+          )}
+        </div>
+        <ActionButton onClick={onDownload} isDisabled={!canDownload}>
+          <Download />
+        </ActionButton>
       </div>
-      <ActionButton onClick={onDownload} isDisabled={!canDownload}>
-        <Download />
-      </ActionButton>
-    </div></div>
+    </div>
   )
 }
 
@@ -292,7 +292,7 @@ export const ClientRow = ({
   return (
     <div
       className={twMerge(
-        "grid grid-cols-12 border-b border-brand_stroke bg-white hover:bg-slate-50 transition-colors items-center px-2 sm:px-4",
+        "grid grid-cols-12 border-b border-brand_stroke bg-white hover:bg-[#F8F8FF] transition-colors items-center px-2 sm:px-4",
         isLast && "border-b-0 rounded-b-2xl",
       )}
     >
@@ -312,9 +312,7 @@ export const ClientRow = ({
             <p className="font-satoBold text-brand_dark text-sm truncate leading-tight">
               {client.displayName || "—"}
             </p>
-            <p className="text-xs text-brand_iron truncate">
-              {client.email}
-            </p>
+            <p className="text-xs text-brand_iron truncate">{client.email}</p>
           </div>
         </div>
 
@@ -551,7 +549,9 @@ const EmptyStateClients = ({ link }: { link: string }) => {
           src="/images/emptyState/clients-empty.webp"
           alt="illustration"
         />
-        <p className="font-satoBold text-xl md:text-2xl">¡No hay clientes por aquí!</p>
+        <p className="font-satoBold text-xl md:text-2xl">
+          ¡No hay clientes por aquí!
+        </p>
         <p className="mt-2 md:mt-3 text-base md:text-lg font-satoshi text-brand_gray">
           Comparte tu website y deja que lleguen las reservas{" "}
           <span className="text-2xl">🚀</span>

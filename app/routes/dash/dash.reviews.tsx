@@ -142,7 +142,7 @@ const ServiceRow = ({ service }: { service: ServiceReview }) => {
   return (
     <Link
       to={`/dash/evaluaciones/${service.id}`}
-      className="grid grid-cols-3 md:grid-cols-[1fr_180px_220px] items-center gap-0 md:gap-3 py-4 px-4 md:px-10 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors cursor-pointer"
+      className="grid grid-cols-3 md:grid-cols-[1fr_180px_220px] items-center gap-0 md:gap-3 py-4 px-4 md:px-10 border-b border-gray-100 last:border-b-0 hover:bg-[#F8F8FF] transition-colors cursor-pointer"
     >
       {/* Service info */}
       <div className="flex items-center gap-3 min-w-0 col-span-2 md:col-span-1">

@@ -334,6 +334,9 @@ model Customer {
   loyaltyTotalEarned  Int?                 @default(0)
   loyaltyTier         String?              @default("bronze") // deprecated — kept for backward compat
   loyaltyLevelId      String?              @db.ObjectId        // references LoyaltyLevel
+  // Expediente: ficha estructurada (intake) — campos según giro de la org. Las
+  // entradas del timeline viven en el modelo CustomerRecordEntry (scalar-only).
+  intake              Json?
   org                 Org                  @relation(fields: [orgId], references: [id])
   user                User?                @relation(fields: [userId], references: [id])
   events              Event[]
@@ -452,6 +455,10 @@ model Org {
   chatbotConfig         Json?
   googleCalendarToken   Json?
   zoomToken             Json?
+  // Expediente: plantillas de campos personalizables por org. Forma:
+  // { ficha: TemplateField[], atencion: TemplateField[] }. Si es null se
+  // siembra desde los defaults del giro (Org.businessType). Ver customer-record.server.ts
+  recordTemplates       Json?
   customers          Customer[]
   events             Event[]
   services           Service[]
@@ -472,6 +479,31 @@ model WhatsAppLink {
   revokedAt   DateTime? @db.Date
 
   @@index([orgId])
+}
+
+/// Expediente del cliente — timeline clínico/estético. Cada entrada es un
+/// registro de lo realizado (tratamiento, nota, evolución, resultado).
+/// Scalar-only (sin @relation) al estilo WhatsAppLink; se consulta por
+/// customerId/orgId. Acceso: owner + colaboradores. Gating: plan PRO del owner.
+model CustomerRecordEntry {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  orgId       String   @db.ObjectId
+  customerId  String   @db.ObjectId
+  eventId     String?  @db.ObjectId   // liga opcional a la cita donde se realizó
+  authorId    String   @db.ObjectId   // user (owner/colaborador) que la escribió
+  authorName  String?                 // snapshot del nombre del autor al crear
+  type        String                  // "nota" | "tratamiento" | "evolucion" | "resultado"
+  title       String?
+  body        String                  // descripción / observaciones
+  attachments String[]                // keys de Tigris (fotos antes/después) — Fase 2
+  metadata    Json?                   // estructurado por giro/tipo: productos, área, mediciones
+  performedAt DateTime @db.Date        // cuándo se realizó (puede diferir de createdAt)
+  createdAt   DateTime @default(now()) @db.Date
+  updatedAt   DateTime @updatedAt @db.Date
+
+  @@index([orgId])
+  @@index([customerId])
+  @@index([eventId])
 }
 
 model Service {

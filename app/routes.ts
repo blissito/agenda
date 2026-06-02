@@ -99,6 +99,7 @@ export default [
     route("org", "routes/api/api.org.ts"),
     route("domain", "routes/api/api.domain.ts"),
     route("loyalty", "routes/api/loyalty.ts"),
+    route("customer-record", "routes/api/customer-record.ts"),
     route("images", "routes/api/api.images.ts"),
     route("landing-generator", "routes/api/landing-generator.ts"),
     route("stripe-checkout", "routes/api/stripe-checkout.ts"),

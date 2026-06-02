@@ -20,6 +20,20 @@
   animation: fade-in-up 0.4s ease-out;
 }
 
+@keyframes underline-draw {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.animate-underline-draw {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+  animation: underline-draw 0.45s ease-out forwards;
+}
+
 html {
   background: #f8f8f8;
   scrollbar-gutter: stable;

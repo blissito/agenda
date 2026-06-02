@@ -194,6 +194,9 @@ type Pages = {
   "/api/loyalty": {
     params: {};
   };
+  "/api/customer-record": {
+    params: {};
+  };
   "/api/images": {
     params: {};
   };
@@ -335,7 +338,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/funcionalidades" | "/ia" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/instalar" | "/para-clientes" | "/blog" | "/blog/:slug" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/images" | "/api/landing-generator" | "/api/stripe-checkout" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/api/mcp/public" | "/api/whatsapp/link" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/whatsapp/link/callback" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/robots.txt" | "/sitemap.xml" | "/booking/confirm/:token" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/event/:eventId/reschedule" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/admin" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/funcionalidades" | "/ia" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/instalar" | "/para-clientes" | "/blog" | "/blog/:slug" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/customer-record" | "/api/images" | "/api/landing-generator" | "/api/stripe-checkout" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/api/mcp/public" | "/api/whatsapp/link" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/whatsapp/link/callback" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/robots.txt" | "/sitemap.xml" | "/booking/confirm/:token" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/event/:eventId/reschedule" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/admin" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -553,6 +556,10 @@ type RouteFiles = {
     id: "routes/api/loyalty";
     page: "/api/loyalty";
   };
+  "routes/api/customer-record.ts": {
+    id: "routes/api/customer-record";
+    page: "/api/customer-record";
+  };
   "routes/api/api.images.ts": {
     id: "routes/api/api.images";
     page: "/api/images";
@@ -767,6 +774,7 @@ type RouteModules = {
   "routes/api/api.org": typeof import("./app/routes/api/api.org.ts");
   "routes/api/api.domain": typeof import("./app/routes/api/api.domain.ts");
   "routes/api/loyalty": typeof import("./app/routes/api/loyalty.ts");
+  "routes/api/customer-record": typeof import("./app/routes/api/customer-record.ts");
   "routes/api/api.images": typeof import("./app/routes/api/api.images.ts");
   "routes/api/landing-generator": typeof import("./app/routes/api/landing-generator.ts");
   "routes/api/stripe-checkout": typeof import("./app/routes/api/stripe-checkout.ts");

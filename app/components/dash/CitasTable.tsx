@@ -79,11 +79,7 @@ export function getStatusVariant(
   status: string,
 ): "confirmed" | "canceled" | "pending" {
   if (status === "CANCELLED" || status === "canceled") return "canceled"
-  if (
-    status === "confirmed" ||
-    status === "CONFIRMED" ||
-    status === "ACTIVE"
-  )
+  if (status === "confirmed" || status === "CONFIRMED" || status === "ACTIVE")
     return "confirmed"
   return "pending"
 }
@@ -338,8 +334,7 @@ const AttendanceDropdown = ({
       method: "post",
       action: "/api/events?intent=mark_attendance",
     })
-    const parsed =
-      next === "true" ? true : next === "false" ? false : null
+    const parsed = next === "true" ? true : next === "false" ? false : null
     onPicked?.(parsed)
   }
 
@@ -502,10 +497,11 @@ const CitaRow = ({
 }) => {
   const name = event.customer?.displayName || "Sin cliente"
   const isPast = new Date(event.start) < new Date()
+  const isCancelled = getStatusVariant(event.status) === "canceled"
   const canDelete = canDeleteEvent(event.start)
   return (
     <div
-      className={`${grid} items-center px-6 py-3 hover:bg-slate-50 transition-colors`}
+      className={`${grid} items-center px-6 py-3 hover:bg-[#F8F8FF] transition-colors`}
     >
       <div className="flex items-center gap-2">
         <DatePill start={event.start} isPast={isPast} />
@@ -566,7 +562,7 @@ const CitaRow = ({
         <StatusTag variant={event.paid ? "paid" : "unpaid"} />
       </div>
       <div className="flex items-center">
-        {isPast ? (
+        {isPast && !isCancelled ? (
           <AttendanceCell event={event} />
         ) : (
           <span className="text-[12px] text-brand_iron">—</span>
@@ -592,6 +588,7 @@ const CitaCardMobile = ({
 }) => {
   const name = event.customer?.displayName || "Sin cliente"
   const isPast = new Date(event.start) < new Date()
+  const isCancelled = getStatusVariant(event.status) === "canceled"
   const canDelete = canDeleteEvent(event.start)
   const price = event.service
     ? `$${Number(event.service.price).toFixed(2)}`
@@ -661,7 +658,7 @@ const CitaCardMobile = ({
       </div>
 
       {/* Asistencia */}
-      {isPast && (
+      {isPast && !isCancelled && (
         <div className="flex items-center justify-between gap-2 pt-3 border-t border-dotted border-brand_stroke">
           <span className="text-[11px] font-satoMedium text-brand_gray uppercase tracking-wide">
             Asistencia

@@ -1,20 +1,27 @@
 // @ts-nocheck - TODO: Arreglar tipos cuando se edite este archivo
 import * as React from "react"
-import { FiDownload } from "react-icons/fi"
+import { FiDownload, FiPlus, FiSettings } from "react-icons/fi"
 import { Link, useNavigation } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { Avatar } from "~/components/common/Avatar"
 import { Pagination } from "~/components/common/Pagination"
 import { PrimaryButton } from "~/components/common/primaryButton"
+import { TabButton } from "~/components/common/TabButton"
+import { Tooltip } from "~/components/common/Tooltip"
 import {
   CitasFilterPopup,
   type CitasFilters,
   EMPTY_FILTERS,
 } from "~/components/dash/CitasFilter"
 import { type CitaEvent, CitasTable } from "~/components/dash/CitasTable"
+import {
+  ClientExpediente,
+  type ExpedienteFormState,
+} from "~/components/dash/ClientExpediente"
 import { useEventDownloadToast } from "~/components/downloads/downloadToast"
 import { usePluralize } from "~/components/hooks/usePluralize"
 import { Calendar2 } from "~/components/icons/calendar2"
+import { CloudUpload } from "~/components/icons/cloudUpload"
 import { Mail } from "~/components/icons/mail"
 import { MailButton } from "~/components/icons/mailButton"
 import { MapPin } from "~/components/icons/mapPin"
@@ -22,6 +29,13 @@ import { Notes } from "~/components/icons/notes"
 import { Phone } from "~/components/icons/phone"
 import { Settings } from "~/components/icons/settings"
 import { WhatsApp } from "~/components/icons/WhatsApp"
+import {
+  fichaLabelFor,
+  getOrgTemplates,
+  listEntries,
+  listLinkedEventIds,
+  tratamientoLabelFor,
+} from "~/lib/customer-record.server"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash_.clientes_.$email"
 
@@ -73,11 +87,31 @@ export const loader = async ({
     orderBy: { name: "asc" },
   })
 
+  // Expediente (Fase 1): template por giro de la org
+  const recordTemplates = getOrgTemplates(org)
+  const fichaLabel = fichaLabelFor(org.businessType)
+  const tratamientoLabel = tratamientoLabelFor(org.businessType)
+  const { entries: recordEntries, hasMore: recordsHasMore } = await listEntries(
+    org.id,
+    customer.id,
+  )
+  const linkedEventIds = await listLinkedEventIds(org.id, customer.id)
+  const intakeValues =
+    (customer.intake as { values?: Record<string, unknown> } | null)?.values ??
+    {}
+
   return {
     customer,
     org,
     events,
     services,
+    recordTemplates,
+    fichaLabel,
+    tratamientoLabel,
+    recordEntries,
+    recordsHasMore,
+    linkedEventIds,
+    intakeValues,
     stats: {
       eventCount: events.length,
       commentsCount: 0,
@@ -88,14 +122,36 @@ export const loader = async ({
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { events, stats, customer, services, org } = loaderData
+  const {
+    events,
+    stats,
+    customer,
+    services,
+    org,
+    recordTemplates,
+    fichaLabel,
+    tratamientoLabel,
+    recordEntries,
+    recordsHasMore,
+    linkedEventIds,
+    intakeValues,
+  } = loaderData
   const pluralize = usePluralize()
   const navigation = useNavigation()
 
+  const [activeTab, setActiveTab] = React.useState<
+    "historial" | "documentos" | "expediente"
+  >("historial")
+  const [expForm, setExpForm] = React.useState<ExpedienteFormState>({
+    open: false,
+    editing: null,
+  })
+  const [expConfigOpen, setExpConfigOpen] = React.useState(false)
   const [showFilters, setShowFilters] = React.useState(false)
   const [filters, setFilters] = React.useState<CitasFilters>(EMPTY_FILTERS)
   const [draft, setDraft] = React.useState<CitasFilters>(EMPTY_FILTERS)
   const filterRef = React.useRef<HTMLDivElement>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   React.useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -317,7 +373,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   {/* Email */}
                   <div className="col-span-2 flex items-center gap-2 min-w-0 sm:col-span-1">
                     <Mail className="text-brand_gray shrink-0" />
-                    <span className="min-w-0 flex-1 text-[14px] font-satoMedium text-brand_gray leading-[20px] truncate sm:truncate-none">
+                    <span className="min-w-0 flex-1 text-[16px] font-satoMedium text-brand_gray leading-[24px] truncate sm:truncate-none">
                       {customer.email}
                     </span>
                   </div>
@@ -325,7 +381,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   {/* Tel */}
                   <div className="col-span-2 flex items-center gap-2 min-w-0 sm:col-span-1">
                     <Phone className="text-brand_gray shrink-0" />
-                    <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
+                    <span className="text-[16px] font-satoMedium text-brand_gray leading-[24px]">
                       {customer.tel || "Sin teléfono"}
                     </span>
                   </div>
@@ -333,7 +389,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   {/* Dirección */}
                   <div className="col-span-2 flex items-start gap-2 min-w-0 sm:col-span-1">
                     <MapPin className="text-brand_gray mt-0.5 shrink-0" />
-                    <span className="text-[14px] font-satoMedium text-brand_gray leading-[20px]">
+                    <span className="text-[16px] font-satoMedium text-brand_gray leading-[24px]">
                       {"address" in customer && (customer as any).address
                         ? (customer as any).address
                         : "Sin dirección"}
@@ -344,7 +400,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 {/* Notes */}
                 <div className="flex items-start gap-2 mt-4 sm:mt-6">
                   <Notes className="text-brand_gray mt-0.5 shrink-0" />
-                  <p className="text-[14px] font-satoMedium text-brand_gray leading-[20px] max-w-[840px]">
+                  <p className="text-[16px] font-satoMedium text-brand_gray leading-[24px] max-w-[840px]">
                     {customer.comments || "Sin comentarios"}
                   </p>
                 </div>
@@ -397,81 +453,208 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          {/* Filter Section */}
+          {/* Tabs */}
           <div className="flex items-center gap-3 mt-4 sm:mt-8 mb-0">
-            <h2 className="text-lg font-satoBold text-brand_dark">
-              Historial de citas
-            </h2>
+            <div className="flex items-center gap-6">
+              <TabButton
+                label="Historial de citas"
+                active={activeTab === "historial"}
+                onClick={() => setActiveTab("historial")}
+              />
+              <TabButton
+                label="Documentos"
+                active={activeTab === "documentos"}
+                onClick={() => setActiveTab("documentos")}
+              />
+              <TabButton
+                label="Expediente"
+                active={activeTab === "expediente"}
+                onClick={() => setActiveTab("expediente")}
+              />
+            </div>
             <div className="flex-1" />
 
-            <div className="relative" ref={filterRef}>
-              <button
-                type="button"
-                onClick={() => {
-                  setDraft({ ...filters, statuses: new Set(filters.statuses) })
-                  setShowFilters((v) => !v)
-                }}
-                className="relative bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
-                aria-label="Filtros"
-              >
-                <Settings className="w-5 h-5" />
-                {hasActiveFilters && (
-                  <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-brand_blue" />
-                )}
-              </button>
-              {showFilters && (
-                <CitasFilterPopup
-                  draft={draft}
-                  setDraft={setDraft}
-                  services={services}
-                  hasActiveFilters={hasActiveFilters}
-                  onApply={() => {
-                    setFilters(draft)
-                    setShowFilters(false)
+            {activeTab === "historial" && (
+              <>
+                <div className="relative" ref={filterRef}>
+                  <Tooltip label="Filtrar" side="bottom">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDraft({
+                          ...filters,
+                          statuses: new Set(filters.statuses),
+                        })
+                        setShowFilters((v) => !v)
+                      }}
+                      className="relative bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray shadow-sm hover:shadow-md transition-shadow shrink-0"
+                      aria-label="Filtros"
+                    >
+                      <Settings className="w-5 h-5" />
+                      {hasActiveFilters && (
+                        <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-brand_blue" />
+                      )}
+                    </button>
+                  </Tooltip>
+                  {showFilters && (
+                    <CitasFilterPopup
+                      draft={draft}
+                      setDraft={setDraft}
+                      services={services}
+                      hasActiveFilters={hasActiveFilters}
+                      onApply={() => {
+                        setFilters(draft)
+                        setShowFilters(false)
+                      }}
+                      onReset={() => {
+                        setDraft(EMPTY_FILTERS)
+                        setFilters(EMPTY_FILTERS)
+                        setShowFilters(false)
+                      }}
+                    />
+                  )}
+                </div>
+
+                <Tooltip label="Descargar historial" side="bottom">
+                  <button
+                    type="button"
+                    onClick={startDownload}
+                    className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray shadow-sm hover:shadow-md transition-shadow shrink-0"
+                    aria-label="Descargar"
+                  >
+                    <FiDownload size={20} />
+                  </button>
+                </Tooltip>
+              </>
+            )}
+
+            {activeTab === "documentos" && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  onChange={() => {
+                    // TODO: cablear subida a Tigris cuando exista el modelo CustomerDocument
                   }}
-                  onReset={() => {
-                    setDraft(EMPTY_FILTERS)
-                    setFilters(EMPTY_FILTERS)
-                    setShowFilters(false)
-                  }}
+                />
+                <Tooltip label="Subir archivo (próximamente)" side="bottom">
+                  <span className="inline-flex">
+                    <button
+                      type="button"
+                      disabled
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray shadow-sm hover:shadow-md transition-shadow shrink-0 disabled:cursor-not-allowed"
+                      aria-label="Subir archivo"
+                    >
+                      <CloudUpload className="w-5 h-5" />
+                    </button>
+                  </span>
+                </Tooltip>
+              </>
+            )}
+
+            {activeTab === "expediente" && (
+              <>
+                <Tooltip label="Configurar campos" side="bottom">
+                  <button
+                    type="button"
+                    onClick={() => setExpConfigOpen(true)}
+                    className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray shadow-sm hover:shadow-md transition-shadow shrink-0"
+                    aria-label="Configurar campos"
+                  >
+                    <FiSettings size={20} />
+                  </button>
+                </Tooltip>
+                <Tooltip label="Nuevo registro" side="bottom">
+                  <button
+                    type="button"
+                    onClick={() => setExpForm({ open: true, editing: null })}
+                    className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray shadow-sm hover:shadow-md transition-shadow shrink-0"
+                    aria-label="Nuevo registro"
+                  >
+                    <FiPlus size={22} />
+                  </button>
+                </Tooltip>
+              </>
+            )}
+          </div>
+
+          {/* Tab content */}
+          {activeTab === "historial" && (
+            <div className="mt-4">
+              {paginated.length === 0 ? (
+                <div className="bg-white rounded-2xl p-6 text-sm font-satoMedium text-brand_gray">
+                  {hasActiveFilters
+                    ? "No hay citas que coincidan con los filtros."
+                    : "Este cliente aún no tiene citas."}
+                </div>
+              ) : (
+                <CitasTable
+                  events={paginated}
+                  hideClient
+                  defaultEncargado={org.shopKeeper}
+                />
+              )}
+              {filteredEvents.length > PER_PAGE && (
+                <Pagination
+                  total={filteredEvents.length}
+                  page={page}
+                  perPage={PER_PAGE}
+                  onPageChange={setPage}
                 />
               )}
             </div>
+          )}
 
-            <button
-              type="button"
-              onClick={startDownload}
-              className="bg-white rounded-full w-12 h-12 flex items-center justify-center text-brand_gray hover:bg-gray-100 transition shrink-0"
-              aria-label="Descargar"
-            >
-              <FiDownload size={20} />
-            </button>
-          </div>
+          {activeTab === "documentos" && (
+            <div className="mt-4 bg-white rounded-2xl min-h-[360px] flex flex-col items-center justify-center text-center px-6 py-16">
+              <img
+                src="/images/illustrations/no-files.svg"
+                alt=""
+                className="mb-4 w-40 md:w-[200px]"
+              />
+              <p className="text-xl font-satoBold text-brand_dark">
+                Documentos
+              </p>
+              <p className="mt-2 max-w-[360px] text-base font-satoshi text-brand_gray">
+                Próximamente podrás adjuntar archivos y documentos de este
+                cliente.
+              </p>
+            </div>
+          )}
 
-          {/* Events */}
-          <div className="mt-4 sm:mt-6">
-            {paginated.length === 0 ? (
-              <div className="bg-white rounded-2xl p-6 text-sm font-satoMedium text-brand_gray">
-                {hasActiveFilters
-                  ? "No hay citas que coincidan con los filtros."
-                  : "Este cliente aún no tiene citas."}
-              </div>
-            ) : (
-              <CitasTable
-                events={paginated}
-                hideClient
-                defaultEncargado={org.shopKeeper}
-              />
-            )}
-            {filteredEvents.length > PER_PAGE && (
-              <Pagination
-                total={filteredEvents.length}
-                page={page}
-                perPage={PER_PAGE}
-                onPageChange={setPage}
-              />
-            )}
-          </div>
+          {activeTab === "expediente" && (
+            <ClientExpediente
+              customerId={customer.id}
+              templates={recordTemplates}
+              fichaLabel={fichaLabel}
+              tratamientoLabel={tratamientoLabel}
+              intakeValues={intakeValues}
+              entries={recordEntries}
+              hasMore={recordsHasMore}
+              linkedEventIds={linkedEventIds}
+              citas={events
+                .filter(
+                  (e) =>
+                    !e.archived &&
+                    e.status !== "CANCELLED" &&
+                    e.status !== "canceled",
+                )
+                .map((e) => ({
+                  id: e.id,
+                  start:
+                    typeof e.start === "string"
+                      ? e.start
+                      : new Date(e.start).toISOString(),
+                  serviceTitle: e.service?.name ?? "Cita",
+                }))}
+              form={expForm}
+              setForm={setExpForm}
+              configOpen={expConfigOpen}
+              setConfigOpen={setExpConfigOpen}
+            />
+          )}
         </div>
       </div>
 

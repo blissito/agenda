@@ -27,18 +27,12 @@ export const Footer = () => {
           <Link to="/blog">
             <p>Blog</p>
               </Link>
-          <Link to="/instalar">
-            <p>Instala Deník </p>
-          </Link>
-          
              <Link to="/para-clientes">
             <p>Para clientes</p>
           </Link>
         </div>
         <div className="text-base text-brand_pale font-satoshi flex flex-col gap-4 w-full md:w-[25%]">
-          <h3 className="text-brand_iron font-satoshi">Contacto</h3>
-          <a href="mailto:hola@denik.me">hola@denik.me</a>
-          {/* <a href="https://wa.me/527374434444" target="_blank" rel="noopener noreferrer">+52 737 443 44 44</a> */}
+          <h3 className="text-brand_iron font-satoshi">Ayuda</h3>
           <Link to="/planes#preguntas-frecuentes">
             <p>Preguntas frecuentes</p>
           </Link>
@@ -49,22 +43,22 @@ export const Footer = () => {
             <p>Aviso de privacidad</p>
           </Link>
         </div>
-        <div className="w-full md:w-[25%]">
-          <p className="text-brand_iron font-satoshi">Síguenos en redes</p>
-          <div className="flex mt-4">
+        <div className="text-base text-brand_pale font-satoshi w-full md:w-[25%]">
+          <h3 className="text-brand_iron font-satoshi">Síguenos en redes</h3>
+          <div className="flex mt-2">
             <a
               href="https://www.facebook.com/profile.php?id=61563700900314"
               target="_blank"
               rel="noopener"
               className="hover:opacity-50 transition-all"
             >
-              <Facebook fill="#ffffff" className="scale-[70%]" />
+              <Facebook fill="#ffffff" className="scale-[60%]" />
             </a>
             <a
               href="https://www.linkedin.com/company/104767180"
               target="_blank"
               rel="noopener"
-              className="hover:opacity-50 transition-all"
+              className="hover:opacity-50 transition-all scale-[80%]"
             >
               <Linkedin fill="#ffffff" />
             </a>
@@ -72,7 +66,7 @@ export const Footer = () => {
               href="https://www.instagram.com/denik_agenda/"
               target="_blank"
               rel="noopener"
-              className="hover:opacity-50 transition-all scale-[90%]"
+              className="hover:opacity-50 transition-all scale-[70%]"
             >
               <Instagram fill="#ffffff" />
             </a>
@@ -87,11 +81,17 @@ export const Footer = () => {
               href="https://www.youtube.com/@Den%C3%ADk-v9s"
               target="_blank"
               rel="noopener"
-              className="hover:opacity-50 transition-all"
+              className="hover:opacity-50 transition-all scale-[90%]"
             >
               <Youtube fill="#ffffff" />
             </a>
           </div>
+          <a href="mailto:hola@denik.me" className="block mt-4 hover:opacity-70 transition-opacity">
+            hola@denik.me
+          </a>
+          <Link to="/instalar" className="block mt-4 hover:opacity-70 transition-opacity">
+            Instala Deník
+          </Link>
         </div>
       </section>
       <p className="text-brand_iron font-satoshi text-sm text-center py-6">

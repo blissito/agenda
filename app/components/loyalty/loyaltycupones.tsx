@@ -549,7 +549,7 @@ function CouponRow({
   return (
     <div
       className={twMerge(
-        "grid grid-cols-12 items-center bg-white px-2 transition-colors hover:bg-slate-50 sm:px-4",
+        "grid grid-cols-12 items-center bg-white px-2 transition-colors hover:bg-[#F8F8FF] sm:px-4",
         !isLast && "border-b border-brand_stroke",
         isLast && "rounded-b-2xl",
       )}

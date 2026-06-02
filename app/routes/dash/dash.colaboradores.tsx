@@ -157,7 +157,7 @@ export default function Colaboradores() {
 
       {/* Search */}
       {collaborators.length > 0 && (
-        <div className="relative w-full sm:max-w-80 my-4">
+        <div className="relative w-full sm:max-w-80 mb-4 sm:mb-6">
           <BasicInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -189,7 +189,7 @@ export default function Colaboradores() {
               <div
                 key={c.id}
                 className={twMerge(
-                  "grid grid-cols-12 items-center px-4 py-3 hover:bg-slate-50 transition-colors",
+                  "grid grid-cols-12 items-center px-4 py-3 hover:bg-[#F8F8FF] transition-colors",
                   i < filtered.length - 1 && "border-b border-slate-100",
                 )}
               >

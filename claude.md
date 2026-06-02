@@ -506,6 +506,21 @@ Estándares para pantallas del flujo `/signup/*`:
   - Imagen hero: `h-[240px]` (antes 312px)
 - Botones "Continuar" en todo el onboarding: `w-[190px]` (ancho uniforme)
 
+## Empty states — tamaños
+
+Dos escalas según el contexto:
+
+- **Página completa** (ej. lista de clientes sin datos — `EmptyStateClients`/`EmptySearch` en `dash.clientes.tsx`):
+  - Imagen: `w-40 md:w-60` (160px → 240px)
+  - Título: `text-xl md:text-2xl font-satoBold`
+  - Body: `text-base md:text-lg font-satoshi text-brand_gray`
+- **Tabs o secciones pequeñas** (ej. expediente "Sin registros", tab Documentos):
+  - Imagen: **160px en mobile, 200px en web** → `w-40 md:w-[200px]`
+  - Título: **20px** → `text-xl`
+  - Body: **16px** → `text-base`
+  - Botón (si hay): **32px** de separación del body → `mt-8`
+- Ilustraciones en `public/images/illustrations/` (ej. `no-files.svg`) o `public/images/emptyState/`.
+
 ## Componentes/Assets reutilizables
 
 - **`app/components/common/CopyLinkButton.tsx`** — Botón copiar URL con animación de partículas (14 partículas multicolor, state "¡Copiado!" por 1.5s). Uso: `<CopyLinkButton url="..." />`.
