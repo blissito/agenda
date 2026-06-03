@@ -11,6 +11,7 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump"
+import { assertServiceInOrg, requireRole } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.servicios_.$serviceId_.cobros"
 
@@ -22,11 +23,13 @@ export const loader = async ({ params }: Route.LoaderArgs) => {
 }
 
 export const action = async ({ request }: Route.ActionArgs) => {
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   const formData = await request.formData()
   const intent = formData.get("intent")
   if (intent === "update_service") {
     const data = JSON.parse(formData.get("data") as string)
     const { id, config: newConfig, ...rest } = data
+    await assertServiceInOrg(id, org.id)
 
     if (newConfig) {
       const currentService = await db.service.findUnique({ where: { id } })

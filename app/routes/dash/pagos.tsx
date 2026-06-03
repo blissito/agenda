@@ -9,10 +9,7 @@ import {
   searchMpPayments,
 } from "~/.server/mercadopago"
 import { createAccountLink, getOrCreateStripeAccount } from "~/.server/stripe"
-import {
-  getUserAndOrgOrRedirect,
-  getUserOrRedirect,
-} from "~/.server/userGetters"
+import { getUserAndOrgOrRedirect, requireRole } from "~/.server/userGetters"
 import { Pagination } from "~/components/common/Pagination"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Spinner } from "~/components/common/Spinner"
@@ -24,7 +21,8 @@ import { db } from "~/utils/db.server"
 import type { Route } from "./+types/pagos"
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const user = await getUserOrRedirect(request)
+  // Ventas es solo-manager: connect/disconnect de pagos no lo toca un MEMBER.
+  const { user } = await requireRole(request, ["OWNER", "ADMIN"])
   const formData = await request.formData()
   const intent = formData.get("intent")
 

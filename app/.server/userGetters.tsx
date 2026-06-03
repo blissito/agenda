@@ -201,6 +201,18 @@ export const requireRole = async (
   return { user, org }
 }
 
+/**
+ * Verifica que un servicio pertenezca a la org dada. Cierra IDOR: nunca confíes
+ * en el `id` del body para mutar sin comprobar ownership. Throw 404 si no aplica.
+ */
+export const assertServiceInOrg = async (serviceId: string, orgId: string) => {
+  const service = await db.service.findFirst({
+    where: { id: serviceId, orgId },
+  })
+  if (!service) throw new Response("Service not found", { status: 404 })
+  return service
+}
+
 export const getServicefromSearchParams = async (
   request: Request,
   options: any = {},
@@ -443,6 +455,7 @@ export const updateOrg = async (formData: FormData, stepSlug: string) => {
       where: { id: actualOrg.ownerId },
       data: {
         orgId: actualOrg.id,
+        orgIds: { push: actualOrg.id },
       },
     }))
   throw redirect(next)

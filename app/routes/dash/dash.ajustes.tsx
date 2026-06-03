@@ -788,6 +788,11 @@ function ColaboradoresTab({
 }) {
   const [search, setSearch] = useState("")
   const [showInvite, setShowInvite] = useState(false)
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string
+    name: string
+  } | null>(null)
+  const deleteFetcher = useFetcher()
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -836,8 +841,29 @@ function ColaboradoresTab({
         </Form>
       </ConfirmModal>
 
+      <ConfirmModal
+        isOpen={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return
+          deleteFetcher.submit(
+            { intent: "delete", userId: pendingDelete.id },
+            { method: "post" },
+          )
+          setPendingDelete(null)
+        }}
+        variant="danger"
+        emoji="🗑️"
+        title="Eliminar colaborador"
+        description={`¿Seguro que quieres eliminar a ${
+          pendingDelete?.name ?? "este colaborador"
+        } de tu equipo? Perderá acceso a esta organización.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
+
       {/* Search + Invite */}
-      <div className="flex items-center justify-between gap-3 my-4">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <div className="relative w-full sm:max-w-80">
           <BasicInput
             name="search"
@@ -920,25 +946,29 @@ function ColaboradoresTab({
                   {c.email}
                 </p>
                 <p className="col-span-2 hidden sm:block text-sm text-left text-brand_gray capitalize">
-                  {ROLE_LABELS[c.role || "GUEST"] || c.role}
+                  {c.id === ownerId
+                    ? ROLE_LABELS.OWNER
+                    : ROLE_LABELS[c.role || "MEMBER"] || c.role}
                 </p>
                 <div className="col-span-2 flex justify-end sm:justify-center">
-                  <Form method="post">
-                    <input type="hidden" name="intent" value="delete" />
-                    <input type="hidden" name="userId" value={c.id} />
-                    <button
-                      type="submit"
-                      disabled={c.id === ownerId}
-                      className="text-red-400 hover:text-red-600 p-2.5 rounded-full hover:bg-red-50 transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
-                      title={
-                        c.id === ownerId
-                          ? "No puedes remover al owner"
-                          : "Remover del equipo"
-                      }
-                    >
-                      <Trash className="w-8 h-8" />
-                    </button>
-                  </Form>
+                  <button
+                    type="button"
+                    disabled={c.id === ownerId}
+                    onClick={() =>
+                      setPendingDelete({
+                        id: c.id,
+                        name: c.displayName || c.email || "este colaborador",
+                      })
+                    }
+                    className="text-red-400 hover:text-red-600 p-2.5 rounded-full hover:bg-red-50 transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+                    title={
+                      c.id === ownerId
+                        ? "No puedes remover al owner"
+                        : "Remover del equipo"
+                    }
+                  >
+                    <Trash className="w-8 h-8" />
+                  </button>
                 </div>
               </div>
             )

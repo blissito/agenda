@@ -1,5 +1,5 @@
 import type { Prisma, Service } from "@prisma/client"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { getUserAndOrgOrRedirect, requireRole } from "~/.server/userGetters"
 import { ServerServiceConfigFormSchema } from "~/components/forms/services_model/ServiceConfigForm"
 import { generalFormSchema } from "~/components/forms/services_model/ServiceGeneralForm"
 import {
@@ -17,7 +17,7 @@ import { generateUniqueServiceSlug } from "~/utils/slugs.server"
 import type { Route } from "./+types/services"
 
 export const action = async ({ request }: Route.ActionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   if (!org) throw new Response("Org not found", { status: 404 })
 
   const formData = await request.formData()

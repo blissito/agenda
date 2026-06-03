@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from "motion/react"
 import type { ReactNode } from "react"
 import { useEffect, useMemo, useState } from "react"
 import { IoClose } from "react-icons/io5"
@@ -186,18 +187,28 @@ export const ShareWebsiteModal = ({
     }
   }, [open, onClose])
 
-  if (!open) return null
-
   return (
-    <div
-      className="fixed inset-0 z-[999] flex items-center justify-center px-4 bg-black/35 backdrop-blur-[16px]"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="relative w-full max-w-[640px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi">
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[999] flex items-center justify-center px-4 bg-black/35 backdrop-blur-lg"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) onClose()
+          }}
+          role="dialog"
+          aria-modal="true"
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98, y: 6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.98, y: 6 }}
+            transition={{ type: "spring", stiffness: 260, damping: 22 }}
+            className="relative w-full max-w-[640px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi"
+          >
         {/* Badge superior */}
         <div className="absolute left-1/2 -top-10 -translate-x-1/2 z-20">
           <div className="h-20 w-20 rounded-full bg-white flex items-center justify-center">
@@ -290,7 +301,9 @@ export const ShareWebsiteModal = ({
             />
           </div>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

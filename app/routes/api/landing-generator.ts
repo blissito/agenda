@@ -3,7 +3,7 @@ import {
   type Section3,
 } from "@easybits.cloud/html-tailwind-generator"
 import type { ActionFunctionArgs } from "react-router"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { requireRole } from "~/.server/userGetters"
 import {
   generateOrgLanding,
   getLandingUsage,
@@ -15,7 +15,7 @@ import { uploadFileToTigris } from "~/utils/lib/tigris.server"
 import { getPublicImageUrl } from "~/utils/urls"
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   if (!org) throw new Response("Org not found", { status: 404 })
 
   const formData = await request.formData()

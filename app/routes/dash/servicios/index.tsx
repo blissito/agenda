@@ -2,7 +2,12 @@ import type { Service } from "@prisma/client"
 import { AnimatePresence } from "motion/react"
 import { useCallback } from "react"
 import { Outlet } from "react-router"
-import { getServices, getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import {
+  assertServiceInOrg,
+  getServices,
+  getUserAndOrgOrRedirect,
+  requireRole,
+} from "~/.server/userGetters"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import {
   AddService,
@@ -14,12 +19,14 @@ import { getServicePublicUrl } from "~/utils/urls"
 import type { Route } from "./+types"
 
 export const action = async ({ request }: Route.ActionArgs) => {
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   const formData = await request.formData()
   const intent = formData.get("intent")
 
   if (intent === "update_service") {
     const data = JSON.parse(formData.get("data") as string)
     // @todo validate
+    await assertServiceInOrg(data.id as string, org.id)
     await db.service.update({
       where: {
         id: data.id as string,
@@ -27,6 +34,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       data: {
         ...data,
         id: undefined,
+        orgId: undefined, // no permitir reasignar de org via mass-assignment
       },
     })
   }

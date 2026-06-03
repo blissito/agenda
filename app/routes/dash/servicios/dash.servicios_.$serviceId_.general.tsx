@@ -10,11 +10,13 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump"
+import { assertServiceInOrg, requireRole } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
 import { serviceUpdateSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/dash.servicios_.$serviceId_.general"
 
 export const action = async ({ request }: Route.ActionArgs) => {
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   const formData = await request.formData()
   const intent = formData.get("intent")
   if (intent === "update_service") {
@@ -28,6 +30,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     }
     const validData = serviceUpdateSchema.parse(processedForm)
     const { id, slug, orgId, ...updateData } = validData
+    await assertServiceInOrg(id, org.id)
     await db.service.update({
       where: { id },
       data: updateData,

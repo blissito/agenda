@@ -18,6 +18,7 @@ import {
   updateReward,
   useRedemption,
 } from "~/lib/loyalty.server"
+import { db } from "~/utils/db.server"
 import { getPutFileUrl } from "~/utils/lib/tigris.server"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
@@ -73,6 +74,31 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData()
   const data = JSON.parse((formData.get("data") as string) || "{}")
 
+  // Guards de pertenencia: las funciones de loyalty.server mutan por id sin
+  // verificar org. Verificamos aquí que el level/reward sea de ESTA org (cierra
+  // IDOR cross-org). Throw 404 si no aplica.
+  const assertLevelInOrg = async (levelId: string) => {
+    const found = await db.loyaltyLevel.findFirst({
+      where: { id: levelId, orgId: org.id },
+      select: { id: true },
+    })
+    if (!found) throw new Response("Nivel no encontrado", { status: 404 })
+  }
+  const assertRewardInOrg = async (rewardId: string) => {
+    const found = await db.loyaltyReward.findFirst({
+      where: { id: rewardId, orgId: org.id },
+      select: { id: true },
+    })
+    if (!found) throw new Response("Recompensa no encontrada", { status: 404 })
+  }
+  const assertCustomerInOrg = async (customerId: string) => {
+    const found = await db.customer.findFirst({
+      where: { id: customerId, orgId: org.id },
+      select: { id: true },
+    })
+    if (!found) throw new Response("Cliente no encontrado", { status: 404 })
+  }
+
   // ==================== LEVELS ====================
 
   if (intent === "create-level") {
@@ -117,6 +143,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const { levelId, ...updates } = data
     if (!levelId)
       return Response.json({ error: "levelId required" }, { status: 400 })
+    await assertLevelInOrg(levelId)
     return updateLevel(levelId, updates)
   }
 
@@ -124,6 +151,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const { levelId } = data
     if (!levelId)
       return Response.json({ error: "levelId required" }, { status: 400 })
+    await assertLevelInOrg(levelId)
     return deleteLevel(levelId)
   }
 
@@ -144,6 +172,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         { status: 400 },
       )
     }
+    await assertCustomerInOrg(customerId)
     return awardPoints({
       customerId,
       orgId: org.id,
@@ -167,6 +196,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         { status: 400 },
       )
     }
+    await assertCustomerInOrg(customerId)
     return adjustPoints({
       customerId,
       orgId: org.id,
@@ -185,6 +215,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         { status: 400 },
       )
     }
+    await assertCustomerInOrg(customerId)
+    await assertRewardInOrg(rewardId)
     return redeemReward({ customerId, orgId: org.id, rewardId })
   }
 
@@ -238,6 +270,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const { rewardId, ...updates } = data
     if (!rewardId)
       return Response.json({ error: "rewardId required" }, { status: 400 })
+    await assertRewardInOrg(rewardId)
     return updateReward(rewardId, updates)
   }
 
@@ -245,6 +278,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     const { rewardId } = data
     if (!rewardId)
       return Response.json({ error: "rewardId required" }, { status: 400 })
+    await assertRewardInOrg(rewardId)
     return deleteReward(rewardId)
   }
 

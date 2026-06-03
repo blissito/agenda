@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "motion/react"
 import type { ReactNode } from "react"
+import { createPortal } from "react-dom"
 import { IoClose } from "react-icons/io5"
 import { useClickOutside } from "~/utils/hooks/useClickOutside"
 import { PrimaryButton } from "./primaryButton"
@@ -38,7 +39,10 @@ export const ConfirmModal = ({
     includeEscape: true,
   })
 
-  return (
+  // Portal a document.body: evita que un ancestro con `transform` (p.ej. el
+  // SimpleDrawer animado) capture el `position: fixed` y centre el modal dentro
+  // del drawer en vez de la pantalla completa.
+  const content = (
     <AnimatePresence>
       {isOpen && (
         <motion.div
@@ -53,10 +57,11 @@ export const ConfirmModal = ({
           <motion.button
             type="button"
             onClick={onClose}
-            className="absolute inset-0 bg-black/35 backdrop-blur-[16px]"
+            className="absolute inset-0 bg-black/35 backdrop-blur-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             aria-label="Cerrar"
           />
 
@@ -136,4 +141,7 @@ export const ConfirmModal = ({
       )}
     </AnimatePresence>
   )
+
+  if (typeof document === "undefined") return null
+  return createPortal(content, document.body)
 }

@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { requireRole } from "~/.server/userGetters"
 import {
   getMessagesSince,
   resetNanoclawSession,
@@ -9,7 +9,7 @@ import {
 import { db } from "~/utils/db.server"
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   if (!org) throw new Response("Org not found", { status: 404 })
 
   const url = new URL(request.url)
@@ -19,7 +19,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { user, org } = await getUserAndOrgOrRedirect(request)
+  const { user, org } = await requireRole(request, ["OWNER", "ADMIN"])
   if (!org) throw new Response("Org not found", { status: 404 })
 
   const form = await request.formData()

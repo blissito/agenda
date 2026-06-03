@@ -1,7 +1,11 @@
 import { useState } from "react"
 import { FaBolt, FaClipboardList, FaEnvelope } from "react-icons/fa6"
 import { useFetcher } from "react-router"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import {
+  assertServiceInOrg,
+  getUserAndOrgOrRedirect,
+  requireRole,
+} from "~/.server/userGetters"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Spinner } from "~/components/common/Spinner"
 import { Switch } from "~/components/common/Switch"
@@ -80,8 +84,19 @@ export const loader = async ({ params, request }: Route.LoaderArgs) => {
 }
 
 export const action = async ({ request, params }: Route.ActionArgs) => {
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   const formData = await request.formData()
   const intent = formData.get("intent")
+
+  // Verifica que un serviceAction pertenezca a un servicio de esta org.
+  const assertActionInOrg = async (actionId: string) => {
+    const existing = await db.serviceAction.findUnique({
+      where: { id: actionId },
+      select: { serviceId: true },
+    })
+    if (!existing) throw new Response("Action not found", { status: 404 })
+    await assertServiceInOrg(existing.serviceId, org.id)
+  }
 
   if (intent === "update_action") {
     const data = JSON.parse(formData.get("data") as string)
@@ -89,12 +104,14 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
     if (id) {
       // Update existing action
+      await assertActionInOrg(id)
       await db.serviceAction.update({
         where: { id },
         data: { enabled, config },
       })
     } else {
       // Create new action
+      await assertServiceInOrg(params.serviceId!, org.id)
       await db.serviceAction.create({
         data: {
           serviceId: params.serviceId!,
@@ -108,6 +125,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
 
   if (intent === "delete_action") {
     const id = formData.get("id") as string
+    await assertActionInOrg(id)
     await db.serviceAction.delete({ where: { id } })
   }
 

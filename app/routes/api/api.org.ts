@@ -1,5 +1,6 @@
 import { redirect } from "react-router"
 import { z } from "zod"
+import { requireRole } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
 import { orgUpdateSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/api.org"
@@ -37,6 +38,12 @@ const slugSchema = z
   })
 
 export const action = async ({ request }: Route.ActionArgs) => {
+  // Auth + rol: solo OWNER/ADMIN. Además ignoramos cualquier `id` del body y
+  // operamos SIEMPRE sobre la org de la sesión (cierra el IDOR previo donde
+  // cualquiera podía editar otra org pasando su id).
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
+  const orgId = org.id
+
   const formData = await request.formData()
   const intent = formData.get("intent")
 
@@ -54,7 +61,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
     const existing = await db.org.findUnique({
       where: { slug: result.data.slug },
     })
-    if (existing && existing.id !== result.data.id) {
+    if (existing && existing.id !== orgId) {
       return { errors: { slug: "Este nombre ya está en uso" } }
     }
     return null
@@ -70,7 +77,8 @@ export const action = async ({ request }: Route.ActionArgs) => {
         { status: 400 },
       )
     }
-    const { id, weekDays, social, config, ...restData } = result.data
+    // `id` del body se descarta a propósito: usamos `orgId` de la sesión.
+    const { id: _ignoredId, weekDays, social, config, ...restData } = result.data
 
     // Validate slug if being updated
     if (restData.slug) {
@@ -83,7 +91,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
         )
       }
       const existing = await db.org.findUnique({ where: { slug: normalized } })
-      if (existing && existing.id !== id) {
+      if (existing && existing.id !== orgId) {
         return Response.json(
           { error: "Este nombre ya está en uso" },
           { status: 400 },
@@ -113,7 +121,7 @@ export const action = async ({ request }: Route.ActionArgs) => {
       ...(config && { config: { set: config } }),
     }
 
-    await db.org.update({ where: { id }, data: prismaData })
+    await db.org.update({ where: { id: orgId }, data: prismaData })
 
     if (intent === "org_update_and_redirect") {
       const next = formData.get("next") as string

@@ -95,15 +95,15 @@ const OpenedModal = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
-      className="fixed bg-black/50 backdrop-blur-sm z-50 inset-0 grid place-content-center"
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="fixed bg-black/35 backdrop-blur-lg z-50 inset-0 grid place-content-center"
     >
       <motion.section
         onClick={(event: ReactMouseEvent) => event.stopPropagation()}
-        initial={{ y: 8, opacity: 0, scale: 0.98 }}
-        animate={{ y: 0, opacity: 1, scale: 1 }}
-        exit={{ y: 8, opacity: 0, scale: 0.98 }}
-        transition={{ duration: 0.15 }}
+        initial={{ opacity: 0, scale: 0.98, y: 6 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.98, y: 6 }}
+        transition={{ type: "spring", stiffness: 260, damping: 22 }}
         className="bg-white px-6 py-6 overflow-auto rounded-xl mx-auto w-max max-h-[80vh]"
         style={{ scrollbarWidth: "none" }}
       >

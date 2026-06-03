@@ -6,7 +6,7 @@ import {
   deleteCertificate,
   mapFlyStatusToDbStatus,
 } from "~/.server/fly"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { requireRole } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
 
 // Reserved domains that cannot be used as custom domains
@@ -51,7 +51,7 @@ export const domainDnsSchema = z.object({
 export type DomainDns = z.infer<typeof domainDnsSchema>
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   if (!org) {
     throw new Response("Organization not found", { status: 404 })
   }

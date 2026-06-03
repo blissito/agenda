@@ -93,6 +93,7 @@ export default [
   // api
   ...prefix("api", [
     route("customers", "routes/api/customers.ts"),
+    route("switch-org", "routes/api/switch-org.ts"),
     route("services", "routes/api/services.ts"),
     route("employees", "routes/api/employees.ts"),
     route("events", "routes/api/events.ts"),

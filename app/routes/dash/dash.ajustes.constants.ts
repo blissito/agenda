@@ -48,11 +48,24 @@ export const TIMES: Choice[] = [
   { value: "unlimited", label: "Ilimitadas" },
 ]
 
+// Roles canónicos del equipo de una org.
+// OWNER se deriva de `Org.ownerId` (no se guarda en `User.role`); ADMIN y MEMBER
+// sí se guardan en `User.role`. Usar siempre estas constantes al invitar/asignar.
+export const ROLE = {
+  OWNER: "OWNER",
+  ADMIN: "ADMIN",
+  MEMBER: "MEMBER",
+} as const
+
+export type Role = (typeof ROLE)[keyof typeof ROLE]
+
 export const ROLE_LABELS: Record<string, string> = {
+  OWNER: "Propietario",
+  ADMIN: "Administrador",
+  MEMBER: "Miembro",
+  // Aliases legacy (datos creados antes de homologar el rol)
   user: "Miembro",
   GUEST: "Miembro",
-  ADMIN: "Administrador",
-  OWNER: "Propietario",
 }
 
 export function getDefaultTermsAndConditions(params: {

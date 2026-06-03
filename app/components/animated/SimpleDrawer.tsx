@@ -62,7 +62,7 @@ export const Drawer = ({
       <motion.button
         onClick={onClose}
         id="overlay"
-        className="fixed inset-0 bg-slate-900/40 z-40"
+        className="fixed inset-0 bg-slate-900/40 backdrop-blur-lg z-[60]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -75,7 +75,7 @@ export const Drawer = ({
         transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
         style={{ willChange: "transform" }}
         className={cn(
-          "bg-white md:max-w-[540px] lg:w-[40%] md:w-[60%] w-full z-50 h-screen fixed top-0 right-0 shadow-xl md:rounded-tl-3xl md:rounded-bl-3xl p-6 md:p-8 flex flex-col",
+          "bg-white md:max-w-[540px] lg:w-[40%] md:w-[60%] w-full z-[70] h-screen fixed top-0 right-0 shadow-xl md:rounded-tl-3xl md:rounded-bl-3xl p-6 md:p-8 flex flex-col",
           {
             "md:max-w-[580px] md:w-[580px] lg:w-[580px]": size === "big",
           },

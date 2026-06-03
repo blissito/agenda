@@ -10,8 +10,11 @@ import {
   useRef,
   useState,
 } from "react"
+import { createPortal } from "react-dom"
 import { Form, Link, useFetcher, useLocation } from "react-router"
 import { twMerge } from "tailwind-merge"
+import { getPublicImageUrl } from "~/utils/urls"
+import { useOutsideClick } from "../hooks/useOutsideClick"
 
 // Tracks whether the user has finished onboarding. La verdad la calcula
 // `dash_layout` en el servidor: celebrado O (visitó sitio + compartió link +
@@ -90,14 +93,27 @@ import { Services } from "../icons/menu/services"
 import { Settings } from "../icons/menu/settings"
 import { Website } from "../icons/menu/webiste"
 
+export type OrgLite = {
+  id: string
+  name: string | null
+  logo: string | null
+  slug?: string | null
+}
+
 export function SideBar({
   user,
+  orgs = [],
+  activeOrg = null,
+  canManage = true,
   onboardingCelebrated = false,
   children,
   ...props
 }: {
   children?: ReactNode
   user: PrismaUser
+  orgs?: OrgLite[]
+  activeOrg?: OrgLite | null
+  canManage?: boolean
   onboardingCelebrated?: boolean
   props?: unknown
 }) {
@@ -122,8 +138,13 @@ export function SideBar({
         style={{ x: sidebar.x }}
         className="hidden md:flex w-[320px] bg-white fixed rounded-e-3xl flex-col justify-end h-screen overflow-hidden"
       >
-        <Header user={user} className="pl-6" />
-        <MainMenu className="mb-auto" />
+        <Header
+          user={user}
+          org={activeOrg}
+          orgs={orgs}
+          className="pl-6"
+        />
+        <MainMenu className="mb-auto" canManage={canManage} />
         <SidebarBottomCards onboardingCelebrated={onboardingCelebrated} />
         <Footer />
       </motion.aside>
@@ -156,7 +177,13 @@ export function SideBar({
       >
         {children}
       </motion.section>
-      <MobileBottomNav user={user} onboardingCelebrated={onboardingCelebrated} />
+      <MobileBottomNav
+        user={user}
+        org={activeOrg}
+        orgs={orgs}
+        canManage={canManage}
+        onboardingCelebrated={onboardingCelebrated}
+      />
     </article>
   )
 }
@@ -164,14 +191,22 @@ export function SideBar({
 const Header = ({
   className,
   user,
+  org,
+  orgs = [],
 }: {
   className?: string
   user: Partial<PrismaUser>
+  org?: OrgLite | null
+  orgs?: OrgLite[]
 }) => {
   return (
     <header className={twMerge("relative", className)}>
       <Denik className="mb-6 mt-6" />
-      {user && <UserAvatar user={user} />}
+      {org ? (
+        <OrgSwitcher org={org} orgs={orgs} />
+      ) : (
+        user && <UserAvatar user={user} />
+      )}
       <hr className="my-4 max-w-[80%]" />
     </header>
   )
@@ -299,7 +334,13 @@ const Title = ({
 MenuButton.Icon = Icon
 MenuButton.Title = Title
 
-const MainMenu = ({ className }: { className?: string }) => {
+const MainMenu = ({
+  className,
+  canManage = true,
+}: {
+  className?: string
+  canManage?: boolean
+}) => {
   const location = useLocation()
   const match = (string: string) => location.pathname.includes(string)
   const matchIndex = (string: string = location.pathname) =>
@@ -309,14 +350,16 @@ const MainMenu = ({ className }: { className?: string }) => {
     <div className={twMerge("overflow-auto mb-auto h-full", className)}>
       <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
       <section className="gri ">
-        <MenuButton to="/dash/asistente" isActive={match("asistente")}>
-          <MenuButton.Icon isActive={match("asistente")}>
-            <Asistente />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("asistente")}>
-            Asistente IA
-          </MenuButton.Title>
-        </MenuButton>
+        {canManage && (
+          <MenuButton to="/dash/asistente" isActive={match("asistente")}>
+            <MenuButton.Icon isActive={match("asistente")}>
+              <Asistente />
+            </MenuButton.Icon>
+            <MenuButton.Title isActive={match("asistente")}>
+              Asistente IA
+            </MenuButton.Title>
+          </MenuButton>
+        )}
         <MenuButton isActive={matchIndex()} to="/dash">
           <MenuButton.Icon isActive={matchIndex()}>
             <Dashboard />
@@ -329,18 +372,20 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("agenda")}>Agenda</MenuButton.Title>
         </MenuButton>
-        <MenuButton
-          to="/dash/website"
-          isActive={match("website")}
-          prefetch="render" // @todo is this necessary?
-        >
-          <MenuButton.Icon isActive={match("website")}>
-            <Website />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("website")}>
-            Sitio web
-          </MenuButton.Title>
-        </MenuButton>
+        {canManage && (
+          <MenuButton
+            to="/dash/website"
+            isActive={match("website")}
+            prefetch="render" // @todo is this necessary?
+          >
+            <MenuButton.Icon isActive={match("website")}>
+              <Website />
+            </MenuButton.Icon>
+            <MenuButton.Title isActive={match("website")}>
+              Sitio web
+            </MenuButton.Title>
+          </MenuButton>
+        )}
         <MenuButton to="/dash/chatbot" isActive={match("chatbot")}>
           <MenuButton.Icon isActive={match("chatbot")}>
             <Chatbot />
@@ -349,15 +394,17 @@ const MainMenu = ({ className }: { className?: string }) => {
             Chatbot IA
           </MenuButton.Title>
         </MenuButton>
-        <MenuButton to="/dash/servicios" isActive={match("servicios")}>
-          <MenuButton.Icon isActive={match("servicios")}>
-            <Services />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("servicios")}>
-            Servicios
-          </MenuButton.Title>
-        </MenuButton>
-        <NavButton pathname="ventas" icon={<Financial />} />
+        {canManage && (
+          <MenuButton to="/dash/servicios" isActive={match("servicios")}>
+            <MenuButton.Icon isActive={match("servicios")}>
+              <Services />
+            </MenuButton.Icon>
+            <MenuButton.Title isActive={match("servicios")}>
+              Servicios
+            </MenuButton.Title>
+          </MenuButton>
+        )}
+        {canManage && <NavButton pathname="ventas" icon={<Financial />} />}
         <NavButton pathname="clientes" />
         <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
           <MenuButton.Icon isActive={match("lealtad")}>
@@ -368,7 +415,7 @@ const MainMenu = ({ className }: { className?: string }) => {
           </MenuButton.Title>
         </MenuButton>
         <NavButton pathname="evaluaciones" icon={<Rank />} />
-        <NavButton pathname="ajustes" icon={<Settings />} />
+        {canManage && <NavButton pathname="ajustes" icon={<Settings />} />}
       </section>
     </div>
   )
@@ -424,6 +471,151 @@ const UserAvatar = ({ user }: { user: Partial<PrismaUser> }) => (
     </div>
   </div>
 )
+
+const ORG_LOGO_FALLBACK = "/images/avatar.svg"
+
+const OrgLogo = ({
+  org,
+  size = "md",
+}: {
+  org: OrgLite
+  size?: "sm" | "md"
+}) => {
+  const [error, setError] = useState(false)
+  const dim = size === "sm" ? "w-9 h-9" : "w-12 h-12"
+  const src = (!error && getPublicImageUrl(org.logo)) || ORG_LOGO_FALLBACK
+  return (
+    <img
+      className={twMerge("object-cover rounded-full shrink-0", dim)}
+      alt={org.name ?? "Organización"}
+      src={src}
+      onError={() => setError(true)}
+    />
+  )
+}
+
+// Dos chevrons (arriba/abajo) tipo selector
+const UpDownArrows = ({ className }: { className?: string }) => (
+  <svg
+    className={twMerge("w-4 h-4 shrink-0 text-gray-400", className)}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M8 9l4-4 4 4" />
+    <path d="M16 15l-4 4-4-4" />
+  </svg>
+)
+
+// Bloque de la org activa + popup para cambiar entre las orgs del usuario.
+// El popup se renderiza con createPortal a document.body para no ser clippeado
+// por el `overflow-hidden` del aside (mismo patrón que DropDownMenu).
+const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
+  const [open, setOpen] = useState(false)
+  const [pos, setPos] = useState<{
+    top: number
+    left: number
+    width: number
+  } | null>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const fetcher = useFetcher()
+  const panelRef = useOutsideClick<HTMLDivElement>({
+    isActive: open,
+    onClickOutside: () => setOpen(false),
+    keyboardListener: true,
+  })
+  const others = orgs.filter((o) => o.id !== org.id)
+
+  useEffect(() => {
+    if (!open || !btnRef.current) return
+    const update = () => {
+      if (!btnRef.current) return
+      const r = btnRef.current.getBoundingClientRect()
+      setPos({ top: r.bottom + 6, left: r.left, width: r.width })
+    }
+    update()
+    window.addEventListener("scroll", update, true)
+    window.addEventListener("resize", update)
+    return () => {
+      window.removeEventListener("scroll", update, true)
+      window.removeEventListener("resize", update)
+    }
+  }, [open])
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        type="button"
+        onClick={() => setOpen((s) => !s)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center gap-2 w-[85%] text-left text-brand_dark rounded-xl hover:bg-brand_blue/5 transition-colors py-1 pr-2"
+      >
+        <OrgLogo org={org} />
+        <p className="text-lg font-satoMiddle truncate flex-1 min-w-0">
+          {org.name || "Mi organización"}
+        </p>
+        <UpDownArrows />
+      </button>
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {open && pos && (
+              <motion.div
+                ref={panelRef}
+                role="menu"
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                style={{
+                  position: "fixed",
+                  top: pos.top,
+                  left: pos.left,
+                  width: Math.max(pos.width, 240),
+                }}
+                className="z-[600] bg-white shadow-lg rounded-2xl p-2 flex flex-col gap-1 max-h-[60vh] overflow-auto"
+              >
+                <p className="px-3 pt-1 pb-0.5 text-[11px] uppercase tracking-wide text-gray-300">
+                  Cambiar organización
+                </p>
+                {others.length === 0 && (
+                  <p className="px-3 py-2 text-sm text-brand_gray">
+                    Solo tienes esta organización
+                  </p>
+                )}
+                {others.map((o) => (
+                  <fetcher.Form
+                    method="post"
+                    action="/api/switch-org"
+                    key={o.id}
+                    onSubmit={() => setOpen(false)}
+                  >
+                    <input type="hidden" name="orgId" value={o.id} />
+                    <button
+                      type="submit"
+                      role="menuitem"
+                      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand_blue/5 transition-colors text-left"
+                    >
+                      <OrgLogo org={o} size="sm" />
+                      <span className="text-sm text-brand_dark truncate">
+                        {o.name || "Organización"}
+                      </span>
+                    </button>
+                  </fetcher.Form>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
+    </>
+  )
+}
 
 type PendingAttendanceEvent = {
   id: string
@@ -576,9 +768,15 @@ const OnboardingBanner = () => {
 
 const MobileBottomNav = ({
   user,
+  org,
+  orgs = [],
+  canManage = true,
   onboardingCelebrated: initialCelebrated,
 }: {
   user: Partial<PrismaUser>
+  org?: OrgLite | null
+  orgs?: OrgLite[]
+  canManage?: boolean
   onboardingCelebrated: boolean
 }) => {
   const location = useLocation()
@@ -600,12 +798,16 @@ const MobileBottomNav = ({
       icon: <Agenda />,
       active: match("agenda"),
     },
-    {
-      to: "/dash/servicios",
-      label: "Servicios",
-      icon: <Services />,
-      active: match("servicios"),
-    },
+    ...(canManage
+      ? [
+          {
+            to: "/dash/servicios",
+            label: "Servicios",
+            icon: <Services />,
+            active: match("servicios"),
+          },
+        ]
+      : []),
     {
       to: "/dash/clientes",
       label: "Clientes",
@@ -713,37 +915,47 @@ const MobileBottomNav = ({
                 <div className="w-10 h-1 bg-gray-300 rounded-full" />
               </div>
 
-              {/* User info */}
+              {/* Org switcher / user info */}
               <div className="px-6 pb-4 border-b border-gray-100">
-                <UserAvatar user={user} />
+                {org ? (
+                  <OrgSwitcher org={org} orgs={orgs} />
+                ) : (
+                  <UserAvatar user={user} />
+                )}
               </div>
 
               {/* Menu items */}
               <div className="py-2">
-                <MobileMenuItem
-                  to="/dash/asistente"
-                  icon={<Asistente />}
-                  label="Asistente IA"
-                  active={match("asistente")}
-                />
-                <MobileMenuItem
-                  to="/dash/website"
-                  icon={<Website />}
-                  label="Sitio web"
-                  active={match("website")}
-                />
+                {canManage && (
+                  <MobileMenuItem
+                    to="/dash/asistente"
+                    icon={<Asistente />}
+                    label="Asistente IA"
+                    active={match("asistente")}
+                  />
+                )}
+                {canManage && (
+                  <MobileMenuItem
+                    to="/dash/website"
+                    icon={<Website />}
+                    label="Sitio web"
+                    active={match("website")}
+                  />
+                )}
                 <MobileMenuItem
                   to="/dash/chatbot"
                   icon={<Chatbot />}
                   label="Chatbot IA"
                   active={match("chatbot")}
                 />
-                <MobileMenuItem
-                  to="/dash/ventas"
-                  icon={<Financial />}
-                  label="Ventas"
-                  active={match("ventas")}
-                />
+                {canManage && (
+                  <MobileMenuItem
+                    to="/dash/ventas"
+                    icon={<Financial />}
+                    label="Ventas"
+                    active={match("ventas")}
+                  />
+                )}
                 <MobileMenuItem
                   to="/dash/lealtad"
                   icon={<Loyalty />}
@@ -756,12 +968,14 @@ const MobileBottomNav = ({
                   label="Evaluaciones"
                   active={match("evaluaciones")}
                 />
-                <MobileMenuItem
-                  to="/dash/ajustes"
-                  icon={<Settings />}
-                  label="Ajustes"
-                  active={match("ajustes")}
-                />
+                {canManage && (
+                  <MobileMenuItem
+                    to="/dash/ajustes"
+                    icon={<Settings />}
+                    label="Ajustes"
+                    active={match("ajustes")}
+                  />
+                )}
               </div>
 
               <div className="border-t border-gray-100 py-2">

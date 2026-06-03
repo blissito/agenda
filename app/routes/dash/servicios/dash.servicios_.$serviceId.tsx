@@ -17,7 +17,7 @@ import { CSS } from "@dnd-kit/utilities"
 import type { Service } from "@prisma/client"
 import * as React from "react"
 import * as ReactRouter from "react-router"
-import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import { getUserAndOrgOrRedirect, requireRole } from "~/.server/userGetters"
 import { formatRange } from "~/components/common/FormatRange"
 import { SuccessToast } from "~/components/common/SuccessToast"
 import { SecondaryButton } from "~/components/common/secondaryButton"
@@ -35,7 +35,7 @@ import { DAY_LABELS, WEEK_DAYS } from "~/utils/weekDays"
 import type { Route } from "./+types/dash.servicios_.$serviceId"
 
 export const action = async ({ params, request }: Route.ActionArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request)
+  const { org } = await requireRole(request, ["OWNER", "ADMIN"])
   if (!org) throw new Response("Organization not found", { status: 404 })
 
   const service = await db.service.findFirst({
@@ -559,7 +559,7 @@ const WeekDayRow = ({
 
 const EditButton = ({ to, label }: { to: string; label: string }) => (
   <SecondaryButton
-    className="!h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-brand_light_gray"
+    className="!h-10 !w-10 !min-w-0 !p-0 !rounded-full overflow-hidden flex items-center justify-center bg-brand_light_gray hover:translate-y-0 active:translate-y-0 hover:shadow-sm"
     as="Link"
     to={to}
     aria-label={label}

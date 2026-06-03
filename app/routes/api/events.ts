@@ -154,8 +154,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
       }
     }
 
-    const customer = await db.customer.findUnique({
-      where: { id: validData.customerId as string },
+    // Cross-org guard: el cliente debe pertenecer a esta org.
+    const customer = await db.customer.findFirst({
+      where: { id: validData.customerId as string, orgId: org.id },
       select: { displayName: true },
     })
     invariant(customer)
@@ -210,10 +211,19 @@ export const action = async ({ request }: Route.ActionArgs) => {
       }
     }
 
-    const customer = await db.customer.findUnique({
-      where: { id: validData.customerId as string },
-      select: { displayName: true },
-    })
+    // Cross-org guard: si se manda customerId, debe ser de esta org.
+    const customer = validData.customerId
+      ? await db.customer.findFirst({
+          where: { id: validData.customerId as string, orgId: org.id },
+          select: { displayName: true },
+        })
+      : null
+    if (validData.customerId && !customer) {
+      return Response.json(
+        { error: "Cliente no encontrado o no pertenece a esta organización" },
+        { status: 403 },
+      )
+    }
     const now = new Date()
     const event = await db.event.create({
       data: {
