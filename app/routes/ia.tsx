@@ -182,12 +182,12 @@ export default function IA() {
             <span className="mr-3">Tu negocio con un</span>
             <span className="text-brand_blue italic mr-3">copiloto</span>
             <StarLights className="group-hover:animate-vibration-effect cursor-pointer w-12 h-12 lg:w-16 lg:h-16" />
-            <span className="basis-full mt-2">que nunca duerme.</span>
+            <span className="basis-full mt-2">que nunca duerme</span>
           </h1>
-          <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:w-[70%]">
+          <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-6 w-full mx-auto md:max-w-6xl]">
             Tres herramientas de Inteligencia Artificial que trabajan contigo:
             crean tu sitio de reservas, atienden a tus clientes y te ayudan a
-            tomar decisiones — todo desde un solo lugar.
+            tomar decisiones — todo desde Deník.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
             <PrimaryButton as="Link" to="/signin">
@@ -378,7 +378,7 @@ export default function IA() {
                   <div className="px-4 pt-3">
                     <button
                       type="button"
-                      className="w-full bg-brand_lime text-brand_dark rounded-full px-4 py-2.5 text-[12px] font-satoBold font-bold shadow-[0_6px_16px_rgba(191,221,120,.35)]"
+                      className="w-full bg-brand_yellow text-brand_dark rounded-full px-4 py-2.5 text-[12px] font-satoBold font-bold shadow-[0_6px_16px_rgba(255,215,94,.35)]"
                     >
                       Reservar ahora →
                     </button>
@@ -394,7 +394,7 @@ export default function IA() {
                       </span>
                     </div>
                     <div className="flex gap-2 p-2 rounded-[10px] bg-[#FAFAFA] mb-1.5 items-center">
-                      <div className="w-[36px] h-[36px] rounded-lg bg-gradient-to-br from-brand_blue to-[#9DA3FF] grid place-items-center text-white text-base">
+                      <div className="w-[36px] h-[36px] rounded-lg bg-brand_dark grid place-items-center text-white text-base">
                         ♫
                       </div>
                       <div className="flex-1 min-w-0">
@@ -415,7 +415,7 @@ export default function IA() {
                       </div>
                     </div>
                     <div className="flex gap-2 p-2 rounded-[10px] bg-[#FAFAFA] mb-1.5 items-center">
-                      <div className="w-[36px] h-[36px] rounded-lg bg-gradient-to-br from-[#FFC166] to-[#F19B3D] grid place-items-center text-white text-base">
+                      <div className="w-[36px] h-[36px] rounded-lg bg-brand_dark grid place-items-center text-white text-base">
                         𝄞
                       </div>
                       <div className="flex-1 min-w-0">
@@ -458,7 +458,7 @@ export default function IA() {
               <div className="order-2 md:order-1">
                 <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%] min-h-[600px] grid place-items-center">
                   <div className="w-full max-w-[420px] bg-gray-100 rounded-[22px] overflow-hidden border-brand_stroke border ">
-                    <div className="bg-[#FFAB61] p-4 flex gap-3 items-center text-brand_dark">
+                    <div className="bg-brand_dark p-4 flex gap-3 items-center text-white">
                       <div className="relative w-10 h-10">
                         <div className="w-10 h-10 rounded-full bg-white grid place-items-center overflow-hidden">
                           <img
@@ -477,7 +477,7 @@ export default function IA() {
                           En línea · responde al instante
                         </div>
                       </div>
-                      <div className="ml-auto w-7 h-7 rounded-full bg-brand_dark/10 grid place-items-center cursor-pointer">
+                      <div className="ml-auto w-7 h-7 rounded-full bg-white/10 grid place-items-center cursor-pointer">
                         <svg
                           width="14"
                           height="14"
@@ -543,7 +543,7 @@ export default function IA() {
                                 </div>
                                 <button
                                   type="button"
-                                  className="mt-1 bg-[#FFAB61] text-brand_dark rounded-full px-3 py-2 text-xs font-semibold text-center border-0 cursor-pointer font-satoshi"
+                                  className="mt-1 bg-brand_cloud text-brand_dark rounded-full px-3 py-2 text-xs font-semibold text-center border-0 cursor-pointer font-satoshi"
                                 >
                                   Confirmar reserva →
                                 </button>
@@ -614,12 +614,7 @@ export default function IA() {
                     "Escala a humano cuando la conversación lo amerita",
                   ]}
                 />
-                <div className="flex flex-wrap gap-2.5 items-center">
-                  <PrimaryButton as="Link" to="/signin">
-                    Activar chatbot
-                  </PrimaryButton>
-              
-                </div>
+             
               </div>
             </div>
           </div>

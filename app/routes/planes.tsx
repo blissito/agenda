@@ -477,7 +477,7 @@ const FEATURES_ENTERPRISE = [
   ),
   "Agente personal IA en WhatsApp",
   "Gestión de equipo y permisos",
-  "Landing page con IA (15 generaciones / 60 refinamientos al mes)",
+  "Landing page con IA (10 generaciones / 20 refinamientos al mes)",
   "Chatbot de agendamiento con IA (250 conversaciones al mes)",
   "Soporte prioritario",
 ]
@@ -495,7 +495,7 @@ export const yearlyItems = [
   {
     plan: "Enterprise",
     description: "Para negocios con equipo y necesidades avanzadas.",
-    price: "$479 mxn",
+    price: "$799 mxn",
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
     popular: true,
     cta: (
@@ -522,7 +522,7 @@ export const monthlyItems = [
   {
     plan: "Enterprise",
     description: "Para negocios con equipo y necesidades avanzadas.",
-    price: "$599 mxn",
+    price: "$999 mxn",
     priceNote: "Cancela cuando quieras.",
     popular: true,
     cta: (
