@@ -1,9 +1,8 @@
-import type { ReactNode } from "react"
+import { type ReactNode, useEffect, useState } from "react"
 import { Parallax } from "react-scroll-parallax"
 import { twMerge } from "tailwind-merge"
 import { WobbleCard } from "../animated/WoobleCard"
 import { PrimaryButton } from "../common/primaryButton"
-import { SecondaryButton } from "../common/secondaryButton"
 import { Arrow } from "../icons/arrow"
 import { ArrowRight } from "../icons/arrowRight"
 import { Calendar } from "../icons/calendar"
@@ -48,9 +47,94 @@ function Sparkles() {
   )
 }
 
+// Fecha de estreno de Denik: 6 de julio de 2026, 12:00 PM
+const LAUNCH_DATE = new Date(2026, 6, 6, 12, 0, 0)
+
+function getTimeLeft() {
+  const diff = LAUNCH_DATE.getTime() - Date.now()
+  const clamped = Math.max(diff, 0)
+  return {
+    days: Math.floor(clamped / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((clamped / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((clamped / (1000 * 60)) % 60),
+    seconds: Math.floor((clamped / 1000) % 60),
+    done: diff <= 0,
+  }
+}
+
+function CountdownUnit({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative flex h-20 w-16 items-center justify-center rounded-2xl border border-brand_stroke bg-brand_light_gray md:h-28 md:w-24">
+        <span className="font-satoBold text-3xl tabular-nums text-brand_dark md:text-5xl">
+          {String(value).padStart(2, "0")}
+        </span>
+        <span className="absolute left-0 right-0 top-1/2 h-px bg-black/5" />
+      </div>
+      <span className="font-satoshi text-xs uppercase tracking-widest text-brand_gray md:text-sm">
+        {label}
+      </span>
+    </div>
+  )
+}
+
+function Countdown() {
+  const [time, setTime] = useState<ReturnType<typeof getTimeLeft> | null>(null)
+
+  useEffect(() => {
+    setTime(getTimeLeft())
+    const id = setInterval(() => setTime(getTimeLeft()), 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <div className="mt-12 flex flex-col items-center gap-8">
+      <p className="font-satoshi text-sm uppercase tracking-[0.2em] text-brand_gray">
+        ✨ La espera está por terminar{" "}
+        <span className="font-satoBold text-brand_lime">6 de julio · 12:00 PM</span>
+      </p>
+      {time?.done ? (
+        <p className="font-satoBold text-2xl text-brand_dark md:text-3xl">
+          ¡Ya estamos en vivo! 🎉
+        </p>
+      ) : (
+        <div className="flex items-end gap-3 md:gap-5">
+          <CountdownUnit value={time?.days ?? 0} label="Días" />
+          <span className="pb-9 font-satoBold text-3xl text-brand_silver md:pb-12 md:text-5xl">
+            :
+          </span>
+          <CountdownUnit value={time?.hours ?? 0} label="Horas" />
+          <span className="pb-9 font-satoBold text-3xl text-brand_silver md:pb-12 md:text-5xl">
+            :
+          </span>
+          <CountdownUnit value={time?.minutes ?? 0} label="Min" />
+          <span className="pb-9 font-satoBold text-3xl text-brand_silver md:pb-12 md:text-5xl">
+            :
+          </span>
+          <CountdownUnit value={time?.seconds ?? 0} label="Seg" />
+        </div>
+      )}
+      <div className="mt-2 flex flex-col items-center gap-3">
+        <PrimaryButton
+          as="a"
+          href="https://www.formmy.app/preview/6a2b05f7c4c269b38adb14fb"
+          target="_blank"
+          rel="noreferrer"
+          className="w-fit px-8"
+        >
+          Aparta tu lugar <ArrowRight />
+        </PrimaryButton>
+        <p className="font-satoshi text-sm text-brand_gray">
+          Sé de los primeros · Regístrate antes del estreno
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export const Hero = () => (
-  <section className="min-h-[74vh] flex flex-col pt-40 lg:pt-[320px] justify-center text-center  ">
-    <div className="w-full h-full px-[5%] xl:px-[18%]">
+  <section className="min-h-[74vh] flex flex-col pt-40 lg:pt-[240px] justify-center text-center  ">
+    <div className="w-full h-full max-w-7xl mx-auto px-4 xl:px-0">
       <h1 className="hidden md:flex group text-4xl md:text-6xl lg:text-[68px]	font-satoBold text-brand_dark  flex-wrap items-center text-center justify-center ">
         <span>Administra la</span>
         <Calendar className="group-hover:animate-vibration-effect cursor-pointer w-[40px] h-[40px] mx-4  md:w-14 md:h-14 lg:w-16 lg:h-16" />{" "}
@@ -75,18 +159,7 @@ export const Hero = () => (
         Agenda de manera sencilla con ayuda de tu agente IA, realiza cobros,
         manda recordatorios a tus clientes y envía encuestas de satisfacción
       </p>
-      <div className="flex gap-8 mt-12 justify-center ">
-        <PrimaryButton as="Link" to="/signin">
-          Probar gratis <span className="hidden md:block">por 30 días</span> <ArrowRight />
-        </PrimaryButton>
-        <a
-          href="https://wa.me/525539111285?text=¡Hola!%20Quiero%20agendar%20un%20demo."
-          target="_blank"
-          rel="noreferrer"
-        >
-          <SecondaryButton>Agendar demo </SecondaryButton>
-        </a>
-      </div>
+      <Countdown />
     </div>
   </section>
 )
@@ -450,14 +523,9 @@ export const Features = () => (
     <div className="flex justify-between items-center mt-[120px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0 ">
       <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
         <img
-          alt="notificación"
-          className="w-full md:hidden block "
-          src="/images/notification.png"
-        />
-        <img
-          alt="notificación"
-          className="w-full hidden md:block "
-          src="/images/notification.svg"
+          alt="agente IA"
+          className="h-[80%]"
+          src="/images/illustrations/ia-img.svg"
         />
       </WobbleCard>
       <div className="pl-0 lg:pl-12 w-[100%] ">
@@ -465,8 +533,8 @@ export const Features = () => (
           Tu negocio funcionando, incluso cuando no estás
         </h2>
         <p className="text-brand_gray text-xl lg:text-2xl font-satoshi mt-6 mb-0 md:mb-16">
-          Tu agente IA responde y agenda a tus clientes, y te ayuda a actualizar
-          tu sitio web de reservas.
+          Tu agente IA atiende y agenda a tus clientes, organiza tu negocio y
+          actualiza tu sitio web.
         </p>
         <PrimaryButton as="Link" to="/signin" className="w-fit mt-6 lg:mt-12">
           Crear cuenta <ArrowRight />
