@@ -590,10 +590,10 @@ const DashboardData = ({
               <p className="font-satoBold text-brand_dark text-xl md:text-2xl">
                 Aún no tienes citas agendadas
               </p>
-              <p className="text-base md:text-lg text-brand_gray mt-2">
+              <p className="text-base md:text-lg text-brand_gray mt-2 mb-8">
                 Comparte tu sitio web y empieza a recibir a tus clientes
               </p>
-              <CopyLinkButton url={orgPublicUrl} />
+              <CopyLinkButton url={orgPublicUrl}  />
             </div>
           )}
         </div>

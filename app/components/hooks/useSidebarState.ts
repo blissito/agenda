@@ -1,18 +1,33 @@
-import { useAnimate, useMotionValue, useTransform } from "motion/react"
-import { useCallback, useEffect, useRef } from "react"
-import { useLocalStorage } from "./useLocalStorage"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-// Constantes centralizadas
+// Nombre de la cookie con el estado del sidebar. Usamos cookie (no localStorage)
+// para que el SERVIDOR pueda leer el estado y renderizar el HTML inicial con el
+// ancho correcto → sin flash de "abierto → colapsa" al refrescar. El loader la
+// parsea (ver `readSidebarOpenCookie`) y la siembra como estado inicial.
+export const SIDEBAR_COOKIE = "denik_sidebar_open"
+
+// Lee el estado del sidebar desde el header Cookie de una request (server-side).
+// Default: abierto (true) si no hay cookie.
+export function readSidebarOpenCookie(request: Request): boolean {
+  const cookie = request.headers.get("Cookie")
+  if (!cookie) return true
+  const match = cookie
+    .split(";")
+    .map((c) => c.trim())
+    .find((c) => c.startsWith(`${SIDEBAR_COOKIE}=`))
+  if (!match) return true
+  return match.slice(SIDEBAR_COOKIE.length + 1) !== "false"
+}
+
+// Constantes centralizadas. En web el sidebar ya no se traslada fuera de
+// pantalla al colapsar: pasa de `width.open` (320) a `width.rail` (88), un rail
+// angosto que conserva los iconos. Solo cambia el ancho; el contenido se
+// reposiciona con `content.{open,rail}`.
 const SIDEBAR = {
-  width: 320,
-  closedX: -290,
-  openX: 0,
-  threshold: -180,
-  spring: {
-    open: { type: "spring" as const, bounce: 0.2 },
-    close: { type: "spring" as const, bounce: 0.5 },
-  },
-  padding: { min: 60, mid: 360, max: 660 },
+  width: { open: 320, rail: 88 },
+  // padding-left del contenido principal según el estado del sidebar
+  content: { open: 360, rail: 116 },
+  spring: { type: "spring" as const, bounce: 0.2 },
   swipe: {
     edgeThreshold: 30, // px desde el borde para detectar swipe
     minDistance: 50, // distancia mínima del swipe
@@ -20,59 +35,40 @@ const SIDEBAR = {
   },
 } as const
 
-export function useSidebarState() {
-  const [_hasVisited, setHasVisited] = useLocalStorage(
-    "denik_sidebar_visited",
-    false,
+export function useSidebarState(initialOpen = true) {
+  // El estado inicial llega del servidor (cookie), así SSR y el primer render de
+  // cliente coinciden → sin flash ni hydration mismatch.
+  const [isOpen, setIsOpenState] = useState(initialOpen)
+
+  const setIsOpen = useCallback(
+    (updater: boolean | ((prev: boolean) => boolean)) => {
+      setIsOpenState((prev) => {
+        const next = typeof updater === "function" ? updater(prev) : updater
+        // Persistimos en cookie (1 año) para que el próximo SSR sepa el estado.
+        // Preferencia de UI, no sensible: acotada a /dash (único consumidor) y
+        // con Secure en HTTPS. SameSite=Lax evita envío cross-site innecesario.
+        try {
+          const secure =
+            window.location.protocol === "https:" ? "; Secure" : ""
+          document.cookie = `${SIDEBAR_COOKIE}=${
+            next ? "true" : "false"
+          }; path=/dash; max-age=31536000; SameSite=Lax${secure}`
+        } catch {}
+        return next
+      })
+    },
+    [],
   )
-  const [isOpen, setIsOpen] = useLocalStorage("denik_sidebar_open", false)
-  const x = useMotionValue<number>(SIDEBAR.closedX)
-  const [scope, animate] = useAnimate()
-  const contentPadding = useTransform(
-    x,
-    [SIDEBAR.closedX - 10, SIDEBAR.openX, SIDEBAR.closedX * -1],
-    [SIDEBAR.padding.min, SIDEBAR.padding.mid, SIDEBAR.padding.max],
-  )
 
-  // Read directly from localStorage to avoid race with useLocalStorage hydration
-  useEffect(() => {
-    let storedVisited = false
-    let storedOpen = false
-    try {
-      const v = localStorage.getItem("denik_sidebar_visited")
-      if (v !== null) storedVisited = JSON.parse(v)
-      const o = localStorage.getItem("denik_sidebar_open")
-      if (o !== null) storedOpen = JSON.parse(o)
-    } catch {}
+  const toggle = useCallback(() => {
+    setIsOpen((o) => !o)
+  }, [setIsOpen])
 
-    const shouldOpen = !storedVisited || storedOpen
-    if (!storedVisited) {
-      setHasVisited(true)
-      setIsOpen(true)
-    }
-    const target = shouldOpen ? SIDEBAR.openX : SIDEBAR.closedX
-    if (scope.current && x.get() !== target) {
-      animate(scope.current, { x: target }, SIDEBAR.spring.open)
-    } else {
-      x.set(target)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Usar ref para toggle estable en listeners
+  // Ref estable para listeners (swipe usa el valor actual sin recrear el efecto)
   const isOpenRef = useRef(isOpen)
   useEffect(() => {
     isOpenRef.current = isOpen
   }, [isOpen])
-
-  const toggle = useCallback(() => {
-    const opening = x.get() < SIDEBAR.threshold
-    const target = opening ? SIDEBAR.openX : SIDEBAR.closedX
-    const config = opening ? SIDEBAR.spring.open : SIDEBAR.spring.close
-
-    animate(scope.current, { x: target }, config)
-    setIsOpen(opening)
-  }, [animate, scope, setIsOpen, x])
 
   // Keyboard shortcut: Cmd/Ctrl + B
   useEffect(() => {
@@ -86,7 +82,7 @@ export function useSidebarState() {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [toggle])
 
-  // Swipe desde el borde izquierdo para abrir/cerrar
+  // Swipe desde el borde izquierdo para abrir / hacia la izquierda para colapsar
   useEffect(() => {
     let startX = 0
     let startY = 0
@@ -112,12 +108,12 @@ export function useSidebarState() {
       ) {
         toggle()
       }
-      // Swipe hacia izquierda para cerrar (desde el área del sidebar)
+      // Swipe hacia izquierda para colapsar (desde el área del sidebar)
       if (
         deltaX < -minDistance &&
         deltaY < maxVertical &&
         isOpenRef.current &&
-        startX < SIDEBAR.width
+        startX < SIDEBAR.width.open
       ) {
         toggle()
       }
@@ -132,22 +128,10 @@ export function useSidebarState() {
     }
   }, [toggle])
 
-  const onDragEnd = useCallback(() => {
-    const opening = x.get() >= SIDEBAR.threshold
-    const target = opening ? SIDEBAR.openX : SIDEBAR.closedX
-    const config = opening ? SIDEBAR.spring.open : SIDEBAR.spring.close
-
-    animate(scope.current, { x: target }, config)
-    setIsOpen(opening)
-  }, [animate, scope, setIsOpen, x])
-
   return {
-    x,
-    scope,
-    contentPadding,
+    collapsed: !isOpen,
     isOpen,
     toggle,
-    onDragEnd,
     config: SIDEBAR,
   }
 }

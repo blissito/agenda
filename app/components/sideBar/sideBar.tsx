@@ -3,9 +3,11 @@ import { AnimatePresence, motion, type Transition } from "motion/react"
 import {
   Children,
   cloneElement,
+  createContext,
   isValidElement,
   type ReactElement,
   type ReactNode,
+  useContext,
   useEffect,
   useRef,
   useState,
@@ -100,12 +102,19 @@ export type OrgLite = {
   slug?: string | null
 }
 
+// Estado colapsado del sidebar (rail de iconos). Lo consumen MenuButton, Title,
+// Header, Footer y las cards inferiores para alternar entre layout completo y
+// rail sin tener que prop-drillear en cada call-site.
+const CollapsedContext = createContext(false)
+const useCollapsed = () => useContext(CollapsedContext)
+
 export function SideBar({
   user,
   orgs = [],
   activeOrg = null,
   canManage = true,
   onboardingCelebrated = false,
+  sidebarOpen = true,
   children,
   ...props
 }: {
@@ -115,76 +124,79 @@ export function SideBar({
   activeOrg?: OrgLite | null
   canManage?: boolean
   onboardingCelebrated?: boolean
+  sidebarOpen?: boolean
   props?: unknown
 }) {
-  const sidebar = useSidebarState()
+  const sidebar = useSidebarState(sidebarOpen)
+  const { collapsed, config } = sidebar
+  const transition = config.spring
 
   return (
-    <article
-      className="bg-brand_light_gray flex h-auto min-h-screen relative z-500 "
-      {...props}
-    >
-      <motion.aside
-        id="sidebar-nav"
-        role="navigation"
-        aria-label="Navegación principal"
-        dragElastic={0.5}
-        whileTap={{ cursor: "grabbing" }}
-        ref={sidebar.scope}
-        onDragEnd={sidebar.onDragEnd}
-        dragSnapToOrigin
-        drag="x"
-        dragConstraints={{ right: 0, left: sidebar.config.closedX }}
-        style={{ x: sidebar.x }}
-        className="hidden md:flex w-[320px] bg-white fixed rounded-e-3xl flex-col justify-end h-screen overflow-hidden"
+    <CollapsedContext.Provider value={collapsed}>
+      <article
+        className="bg-brand_light_gray flex h-auto min-h-screen relative z-500 "
+        {...props}
       >
-        <Header
+        <motion.aside
+          id="sidebar-nav"
+          role="navigation"
+          aria-label="Navegación principal"
+          initial={false}
+          animate={{ width: collapsed ? config.width.rail : config.width.open }}
+          transition={transition}
+          className="hidden md:flex bg-white fixed rounded-e-3xl flex-col justify-end h-screen overflow-hidden"
+        >
+          <Header user={user} org={activeOrg} orgs={orgs} />
+          <MainMenu className="mb-auto" canManage={canManage} />
+          <SidebarBottomCards onboardingCelebrated={onboardingCelebrated} />
+          <Footer />
+        </motion.aside>
+        {/* Botón toggle fuera del aside para evitar overflow-hidden */}
+        <motion.button
+          onClick={sidebar.toggle}
+          aria-expanded={sidebar.isOpen}
+          aria-controls="sidebar-nav"
+          aria-label={sidebar.isOpen ? "Colapsar menú" : "Expandir menú"}
+          initial={false}
+          animate={{
+            left: (collapsed ? config.width.rail : config.width.open) - 25,
+          }}
+          transition={transition}
+          className="hidden md:flex h-10 w-10 rounded-full bg-white items-center justify-center
+            hover:bg-gray-50 transition-colors fixed top-1/2 -translate-y-1/2 z-50
+            shadow-md border border-gray-200 cursor-pointer group"
+        >
+          <span className="text-gray-500 group-hover:text-brand_blue transition-colors">
+            <ChevronIcon isOpen={sidebar.isOpen} />
+          </span>
+          {/* Tooltip */}
+          <span
+            className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded
+              opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+          >
+            {sidebar.isOpen ? "Colapsar menú" : "Expandir menú"}
+            <kbd className="ml-1 px-1 bg-gray-700 rounded text-[10px]">⌘B</kbd>
+          </span>
+        </motion.button>
+        <motion.section
+          initial={false}
+          animate={{
+            paddingLeft: collapsed ? config.content.rail : config.content.open,
+          }}
+          transition={transition}
+          className="dash-content max-md:!pl-0 lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-[88px] md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
+        >
+          {children}
+        </motion.section>
+        <MobileBottomNav
           user={user}
           org={activeOrg}
           orgs={orgs}
-          className="pl-6"
+          canManage={canManage}
+          onboardingCelebrated={onboardingCelebrated}
         />
-        <MainMenu className="mb-auto" canManage={canManage} />
-        <SidebarBottomCards onboardingCelebrated={onboardingCelebrated} />
-        <Footer />
-      </motion.aside>
-      {/* Botón toggle fuera del aside para evitar overflow-hidden */}
-      <motion.button
-        onClick={sidebar.toggle}
-        aria-expanded={sidebar.isOpen}
-        aria-controls="sidebar-nav"
-        aria-label={sidebar.isOpen ? "Cerrar menú" : "Abrir menú"}
-        style={{ x: sidebar.x }}
-        className="hidden md:flex h-10 w-10 rounded-full bg-white items-center justify-center
-          hover:bg-gray-50 transition-colors fixed left-[295px] top-1/2 -translate-y-1/2 z-50
-          shadow-md border border-gray-200 cursor-pointer group"
-      >
-        <span className="text-gray-500 group-hover:text-brand_blue transition-colors">
-          <ChevronIcon isOpen={sidebar.isOpen} />
-        </span>
-        {/* Tooltip */}
-        <span
-          className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded
-            opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
-        >
-          {sidebar.isOpen ? "Cerrar menú" : "Abrir menú"}
-          <kbd className="ml-1 px-1 bg-gray-700 rounded text-[10px]">⌘B</kbd>
-        </span>
-      </motion.button>
-      <motion.section
-        style={{ paddingLeft: sidebar.contentPadding }}
-        className="dash-content pl-[360px] lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-[88px] md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
-      >
-        {children}
-      </motion.section>
-      <MobileBottomNav
-        user={user}
-        org={activeOrg}
-        orgs={orgs}
-        canManage={canManage}
-        onboardingCelebrated={onboardingCelebrated}
-      />
-    </article>
+      </article>
+    </CollapsedContext.Provider>
   )
 }
 
@@ -199,8 +211,24 @@ const Header = ({
   org?: OrgLite | null
   orgs?: OrgLite[]
 }) => {
+  const collapsed = useCollapsed()
+
+  if (collapsed) {
+    return (
+      <header className="relative flex flex-col items-center gap-3 pt-6 pb-1">
+        <img src="/images/isotipo.svg" alt="Denik" className="w-9 h-9" />
+        {org ? (
+          <OrgSwitcher org={org} orgs={orgs} />
+        ) : (
+          user && <OrgLogoFallbackAvatar user={user} />
+        )}
+        <hr className="w-8 my-1" />
+      </header>
+    )
+  }
+
   return (
-    <header className={twMerge("relative", className)}>
+    <header className={twMerge("relative pl-6", className)}>
       <Denik className="mb-6 mt-6" />
       {org ? (
         <OrgSwitcher org={org} orgs={orgs} />
@@ -212,12 +240,28 @@ const Header = ({
   )
 }
 
+// Avatar compacto (solo imagen, sin nombre/email) para el header del rail
+const OrgLogoFallbackAvatar = ({ user }: { user: Partial<PrismaUser> }) => (
+  <img
+    className="w-9 h-9 object-cover rounded-full"
+    alt="avatar"
+    src={user.photoURL ?? "https://loremflickr.com/640/480?lock=1234"}
+    onError={(e) => {
+      ;(e.target as HTMLImageElement).src =
+        "https://loremflickr.com/640/480?lock=1234"
+    }}
+  />
+)
+
 const Footer = () => {
   const location = useLocation()
   const match = (string: string) => location.pathname.includes(string)
+  const collapsed = useCollapsed()
   return (
     <div className="">
-      <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3>
+      {!collapsed && (
+        <h3 className="pl-10 uppercase text-xs text-gray-300">Ajustes</h3>
+      )}
       <MenuButton to="/dash/perfil" isActive={match("profile")}>
         <MenuButton.Icon isActive={match("profile")}>
           <Profile />
@@ -228,9 +272,13 @@ const Footer = () => {
         href="/blog"
         target="_blank"
         rel="noopener noreferrer"
-        className="relative h-12 flex items-center gap-3 cursor-pointer"
+        title="Ayuda"
+        className={twMerge(
+          "relative h-12 flex items-center gap-3 cursor-pointer",
+          collapsed && "justify-center",
+        )}
       >
-        <span className="mr-2 w-1 h-11" />
+        <span className={twMerge("mr-2 w-1 h-11", collapsed && "hidden")} />
         <MenuButton.Icon>
           <Help />
         </MenuButton.Icon>
@@ -241,10 +289,14 @@ const Footer = () => {
           type="submit"
           name="intent"
           value="logout"
-          className="flex pl-6 gap-3 text-base pb-3 hover:text-gray-700  h-12 items-center"
+          title="Cerrar sesión"
+          className={twMerge(
+            "flex gap-3 text-base pb-3 hover:text-gray-700 h-12 items-center",
+            collapsed ? "justify-center w-full" : "pl-6",
+          )}
         >
           <Out />
-          Cerrar sesión
+          {!collapsed && "Cerrar sesión"}
         </button>
       </Form>
     </div>
@@ -264,16 +316,19 @@ const MenuButton = ({
   children?: ReactNode
   prefetch?: "intent" | "render" | "none" | "viewport"
 }) => {
+  const collapsed = useCollapsed()
   const sharedClassName = twMerge(
     isActive && "text-brand_blue",
-    className,
     "relative h-12 flex items-center gap-3 cursor-pointer",
+    collapsed && "justify-center",
+    className,
   )
   const content = (
     <>
       <span
         className={twMerge(
           "mr-2 w-1 h-11",
+          collapsed && "hidden",
           isActive && "bg-brand_blue rounded-e-lg font-satoshi",
         )}
       />
@@ -319,18 +374,22 @@ const Title = ({
 }: {
   isActive?: boolean
   children?: ReactNode
-}) => (
-  <h3
-    className={twMerge(
-      "hover:opacity-70 capitalize",
-      "text-base text-brand_dark",
-      isActive && "text-brand_blue",
-    )}
-    {...props}
-  >
-    {children}
-  </h3>
-)
+}) => {
+  const collapsed = useCollapsed()
+  if (collapsed) return null
+  return (
+    <h3
+      className={twMerge(
+        "hover:opacity-70 capitalize",
+        "text-base text-brand_dark",
+        isActive && "text-brand_blue",
+      )}
+      {...props}
+    >
+      {children}
+    </h3>
+  )
+}
 MenuButton.Icon = Icon
 MenuButton.Title = Title
 
@@ -345,10 +404,13 @@ const MainMenu = ({
   const match = (string: string) => location.pathname.includes(string)
   const matchIndex = (string: string = location.pathname) =>
     /^\/dash$/.test(string)
+  const collapsed = useCollapsed()
 
   return (
     <div className={twMerge("overflow-auto mb-auto h-full", className)}>
-      <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
+      {!collapsed && (
+        <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
+      )}
       <section className="gri ">
         {canManage && (
           <MenuButton to="/dash/asistente" isActive={match("asistente")}>
@@ -523,6 +585,7 @@ const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
   } | null>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
   const fetcher = useFetcher()
+  const collapsed = useCollapsed()
   const panelRef = useOutsideClick<HTMLDivElement>({
     isActive: open,
     onClickOutside: () => setOpen(false),
@@ -554,13 +617,21 @@ const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
         onClick={() => setOpen((s) => !s)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2 w-[85%] text-left text-brand_dark rounded-xl hover:bg-brand_blue/5 transition-colors py-1 pr-2"
+        title={collapsed ? org.name || "Mi organización" : undefined}
+        className={twMerge(
+          "flex items-center gap-2 text-left text-brand_dark rounded-xl hover:bg-brand_blue/5 transition-colors py-1",
+          collapsed ? "justify-center px-0" : "w-[85%] pr-2",
+        )}
       >
-        <OrgLogo org={org} />
-        <p className="text-lg font-satoMiddle truncate flex-1 min-w-0">
-          {org.name || "Mi organización"}
-        </p>
-        <UpDownArrows />
+        <OrgLogo org={org} size={collapsed ? "sm" : "md"} />
+        {!collapsed && (
+          <>
+            <p className="text-lg font-satoMiddle truncate flex-1 min-w-0">
+              {org.name || "Mi organización"}
+            </p>
+            <UpDownArrows />
+          </>
+        )}
       </button>
       {typeof document !== "undefined" &&
         createPortal(
@@ -637,6 +708,7 @@ const SidebarBottomCards = ({
   const markFetcher = useFetcher()
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set())
   const celebrated = useOnboardingCelebrated(onboardingCelebrated)
+  const collapsed = useCollapsed()
 
   useEffect(() => {
     if (listFetcher.state === "idle" && listFetcher.data === undefined) {
@@ -668,6 +740,8 @@ const SidebarBottomCards = ({
     })
   }
 
+  // En rail no hay ancho para las cards; se ocultan hasta expandir.
+  if (collapsed) return null
   if (events.length > 0) {
     return <PendingAttendanceCard events={events} onMark={mark} />
   }

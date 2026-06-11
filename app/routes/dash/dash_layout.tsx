@@ -4,6 +4,7 @@ import { getUserOrRedirect } from "~/.server/userGetters"
 import { Spinner } from "~/components/common/Spinner"
 import { InstallAppBanner } from "~/components/pwa/InstallAppBanner"
 import { SideBar } from "~/components/sideBar/sideBar"
+import { readSidebarOpenCookie } from "~/components/hooks/useSidebarState"
 import { db } from "~/utils/db.server"
 import { isBusinessInfoComplete } from "~/utils/onboarding"
 import type { Route } from "./+types/dash_layout"
@@ -84,11 +85,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     canManage,
     orgs: orgs.map(toLite),
     activeOrg: activeOrg ? toLite(activeOrg) : null,
+    // Estado del sidebar leído de la cookie → el HTML inicial ya viene con el
+    // ancho correcto (sin flash al refrescar).
+    sidebarOpen: readSidebarOpenCookie(request),
   }
 }
 
 export default function DashLayout({ loaderData }: Route.ComponentProps) {
-  const { user, onboardingComplete, canManage, orgs, activeOrg } = loaderData
+  const { user, onboardingComplete, canManage, orgs, activeOrg, sidebarOpen } =
+    loaderData
   const navigation = useNavigation()
 
   // PWA: registra el SW stub acotado a /dash (no toca booking público ni
@@ -129,6 +134,7 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
       activeOrg={activeOrg}
       canManage={canManage}
       onboardingCelebrated={onboardingComplete}
+      sidebarOpen={sidebarOpen}
     >
       {content}
     </SideBar>
