@@ -1,4 +1,5 @@
-import { DialogButton } from "../common/DialogButton"
+import { FORMMY_WAITLIST_URL } from "~/utils/urls"
+import { PrimaryButton } from "../common/primaryButton"
 import { SecondaryButton } from "../common/secondaryButton"
 import { ArrowRight } from "../icons/arrowRight"
 import { Meteors } from "./Meteors"
@@ -16,12 +17,15 @@ export const Banner = () => {
         mientras tú te enfocas en lo que mejor haces.
       </p>
       <div className="relative flex flex-col md:flex-row gap-6 md:gap-8 mt-12 justify-center">
-        {/* <PrimaryButton className="w-full md:w-[180px]">
-          Probar gratis <ArrowRight />{" "}
-        </PrimaryButton> */}
-        <DialogButton>
-          Crear una cuenta gratis <ArrowRight />{" "}
-        </DialogButton>
+        <PrimaryButton
+          as="a"
+          href={FORMMY_WAITLIST_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="w-full md:w-fit"
+        >
+          Aparta tu lugar <ArrowRight />{" "}
+        </PrimaryButton>
         <a href="https://wa.me/525539111285?text=¡Hola!%20Quiero%agendar%20un%demo.">
           <SecondaryButton className="w-full md:w-[180px]">
             Agendar demo{" "}

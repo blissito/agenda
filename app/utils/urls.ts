@@ -8,6 +8,14 @@ const TIGRIS_BUCKET = "easybits-public"
 export const DEFAULT_OG_IMAGE = "https://i.imgur.com/zlnq8Jd.png"
 
 /**
+ * Formmy waitlist form — CTA de pre-lanzamiento ("Aparta tu lugar").
+ * Reemplaza los antiguos CTAs de "Probar gratis" / "Crear cuenta" en las
+ * rutas públicas mientras Denik está en pre-estreno.
+ */
+export const FORMMY_WAITLIST_URL =
+  "https://www.formmy.app/preview/6a2b05f7c4c269b38adb14fb"
+
+/**
  * Generates the public URL for an image stored in Tigris/S3
  * The bucket is public, so no signed URLs are needed.
  */

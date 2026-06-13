@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { FORMMY_WAITLIST_URL } from "~/utils/urls"
 import { PrimaryButton } from "../common/primaryButton"
 import { ArrowRight } from "../icons/arrowRight"
 import { LineSteak } from "../icons/lineSteak"
@@ -9,8 +10,13 @@ export const FinalCta = ({ children }: { children?: ReactNode }) => (
     <section className="max-w-7xl w-full mx-auto h-[440px] md:h-[800px]  text-center  relative ">
       <div className="flex flex-col justify-center h-full items-center -mt-20 md:-mt-16 leading-normal ">
         {children}
-        <PrimaryButton as="Link" to="/signin">
-          Probar gratis <ArrowRight />
+        <PrimaryButton
+          as="a"
+          href={FORMMY_WAITLIST_URL}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Aparta tu lugar <ArrowRight />
         </PrimaryButton>
       </div>
       <div className="w-full flex justify-between text-left  absolute -bottom-80 md:-bottom-60 gap-4 ">

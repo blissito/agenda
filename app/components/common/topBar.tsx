@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
 import { Link, useLocation } from "react-router"
+import { FORMMY_WAITLIST_URL } from "~/utils/urls"
 import { ArrowRight } from "../icons/arrowRight"
 import { Denik } from "../icons/denik"
 import { PrimaryButton } from "./primaryButton"
 
 type NavLink = { to: string; label: string }
-type Cta = { to: string; label: string }
+// `href` (link externo) tiene prioridad sobre `to` (link interno)
+type Cta = { to?: string; href?: string; label: string }
 
 const NAV_LINKS: NavLink[] = [
   { to: "/funcionalidades", label: "Funcionalidades" },
@@ -15,7 +17,25 @@ const NAV_LINKS: NavLink[] = [
   { to: "/blog", label: "Blog" },
 ]
 
-const DEFAULT_CTA: Cta = { to: "/signin", label: "Probar gratis" }
+const DEFAULT_CTA: Cta = { href: FORMMY_WAITLIST_URL, label: "Aparta tu lugar" }
+
+// Renderiza el CTA como link externo (formmy) o interno (react-router) según props
+const CtaButton = ({ cta, className }: { cta: Cta; className?: string }) =>
+  cta.href ? (
+    <PrimaryButton
+      as="a"
+      href={cta.href}
+      target="_blank"
+      rel="noreferrer"
+      className={className}
+    >
+      {cta.label} <ArrowRight />
+    </PrimaryButton>
+  ) : (
+    <PrimaryButton as="Link" to={cta.to ?? "/"} className={className}>
+      {cta.label} <ArrowRight />
+    </PrimaryButton>
+  )
 
 // Subrayado dibujado a mano para el link activo
 const ActiveUnderline = () => (
@@ -83,9 +103,7 @@ export const TopBar = ({
               </Link>
             )
           })}
-          <PrimaryButton as="Link" to={cta.to}>
-            {cta.label} <ArrowRight />
-          </PrimaryButton>
+          <CtaButton cta={cta} />
         </div>
 
         {/* Mobile hamburger */}
@@ -130,9 +148,7 @@ export const TopBar = ({
               </Link>
             )
           })}
-          <PrimaryButton as="Link" to={cta.to} className="mt-2">
-            {cta.label} <ArrowRight />
-          </PrimaryButton>
+          <CtaButton cta={cta} className="mt-2" />
         </div>
       )}
     </section>

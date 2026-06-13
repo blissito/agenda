@@ -13,6 +13,7 @@ import { Rocket } from "../icons/rocket"
 import { Search } from "../icons/search"
 import { Thunder } from "../icons/thunder"
 import { Waves } from "../icons/waves"
+import { FORMMY_WAITLIST_URL } from "~/utils/urls"
 
 function Sparkles() {
   return (
@@ -88,7 +89,7 @@ function Countdown() {
   }, [])
 
   return (
-    <div className="mt-12 flex flex-col items-center gap-8">
+    <div className="mt-6 md:mt-12 flex flex-col items-center gap-8">
       <p className="font-satoshi text-sm uppercase tracking-[0.2em] text-brand_gray">
         ✨ La espera está por terminar{" "}
         <span className="font-satoBold text-brand_lime">6 de julio · 12:00 PM</span>
@@ -117,7 +118,7 @@ function Countdown() {
       <div className="mt-2 flex flex-col items-center gap-3">
         <PrimaryButton
           as="a"
-          href="https://www.formmy.app/preview/6a2b05f7c4c269b38adb14fb"
+          href={FORMMY_WAITLIST_URL}
           target="_blank"
           rel="noreferrer"
           className="w-fit px-8"
@@ -165,7 +166,7 @@ export const Hero = () => (
 )
 
 export const ScrollReviews = ({ ...props }: { props?: unknown }) => (
-  <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-x-clip overflow-y-visible pb-12 w-full items-start md:items-center mt-10 md:mt-0 ">
+  <section className="flex flex-col gap-6 md:gap-10 lg:gap-40 z-60 overflow-x-clip overflow-y-visible pb-12 w-full items-start md:items-center mt-20 md:mt-20 ">
     <div className="flex justify-center xl:justify-between pr-0  gap-6 lg:gap-20 ">
       <div className="w-[120px] lg:w-[320px] md:flex justify-center hidden">
         <LineSteak />
@@ -456,8 +457,14 @@ export const Features = () => (
           Agenda sesiones con tus clientes, agrega notas y envía recordatorios.
           ¡Ahora tienes el control!
         </p>
-        <PrimaryButton as="Link" to="/signin" className="w-fit">
-          Crear cuenta <ArrowRight />
+        <PrimaryButton
+          as="a"
+          href={FORMMY_WAITLIST_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="w-fit"
+        >
+          Aparta tu lugar <ArrowRight />
         </PrimaryButton>
       </div>
       <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%]">
@@ -536,8 +543,14 @@ export const Features = () => (
           Tu agente IA atiende y agenda a tus clientes, organiza tu negocio y
           actualiza tu sitio web.
         </p>
-        <PrimaryButton as="Link" to="/signin" className="w-fit mt-6 lg:mt-12">
-          Crear cuenta <ArrowRight />
+        <PrimaryButton
+          as="a"
+          href={FORMMY_WAITLIST_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="w-fit mt-6 lg:mt-12"
+        >
+          Aparta tu lugar <ArrowRight />
         </PrimaryButton>
       </div>
     </div>

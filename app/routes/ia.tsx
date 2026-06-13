@@ -11,6 +11,7 @@ import { ArrowRight } from "~/components/icons/arrowRight"
 import { Lamp } from "~/components/icons/lamp"
 import { People } from "~/components/icons/people"
 import { StarLights } from "~/components/icons/starLights"
+import { FORMMY_WAITLIST_URL } from "~/utils/urls"
 
 export const meta: MetaFunction = () => [
   { title: "IA en Denik — Tu copiloto para tu negocio" },
@@ -190,8 +191,13 @@ export default function IA() {
             tomar decisiones — todo desde Deník.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
-            <PrimaryButton as="Link" to="/signin">
-              Empezar gratis <ArrowRight />
+            <PrimaryButton
+              as="a"
+              href={FORMMY_WAITLIST_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Aparta tu lugar <ArrowRight />
             </PrimaryButton>
             <SecondaryButton className="bg-transparent">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -314,8 +320,13 @@ export default function IA() {
                   ]}
                 />
                 <div className="flex flex-wrap gap-2.5 items-center">
-                  <PrimaryButton as="Link" to="/signin">
-                    Probar el constructor
+                  <PrimaryButton
+                    as="a"
+                    href={FORMMY_WAITLIST_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Aparta tu lugar
                   </PrimaryButton>
                   <SecondaryButton className="bg-transparent">
                     Ver ejemplos

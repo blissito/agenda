@@ -13,6 +13,7 @@ import React, {
 import { BiCloset } from "react-icons/bi"
 import { cn } from "~/utils/cn"
 import { useOutsideClick } from "~/utils/hooks/use-outside-click"
+import { FORMMY_WAITLIST_URL } from "~/utils/urls"
 import { PrimaryButton } from "../common/primaryButton"
 import { SecondaryButton } from "../common/secondaryButton"
 import { ArrowRight } from "../icons/arrowRight"
@@ -261,11 +262,13 @@ export const Card = ({
               </div>
               <div className="flex flex-col md:flex-row gap-4 pt-2">
                 <PrimaryButton
-                  as="Link"
-                  to="/signin"
+                  as="a"
+                  href={FORMMY_WAITLIST_URL}
+                  target="_blank"
+                  rel="noreferrer"
                   className="w-full md:w-auto"
                 >
-                  Crear cuenta <ArrowRight />
+                  Aparta tu lugar <ArrowRight />
                 </PrimaryButton>
                 <SecondaryButton
                   as="a"

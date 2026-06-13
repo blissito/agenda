@@ -18,7 +18,11 @@ import { buildDefaultSections } from "~/lib/default-landing"
 import { getMetaTags } from "~/utils/getMetaTags"
 import { resolveHostForIndex } from "~/utils/host.server"
 import { withExternalLinksFix } from "~/utils/landingHtml"
-import { DEFAULT_OG_IMAGE, getPublicImageUrl } from "~/utils/urls"
+import {
+  DEFAULT_OG_IMAGE,
+  FORMMY_WAITLIST_URL,
+  getPublicImageUrl,
+} from "~/utils/urls"
 import type { Route } from "./+types/home"
 
 // Social/SEO crawlers that scrape og tags. Bypass rate limit so previews
@@ -140,12 +144,14 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   }
   return (
     <main className="bg-brand_dark">
-      <Link
-        to="/signin"
+      <a
+        href={FORMMY_WAITLIST_URL}
+        target="_blank"
+        rel="noreferrer"
         className="fixed top-0 left-0 right-0 z-50 h-10 flex items-center justify-center bg-brand_dark text-white text-xs md:text-sm font-satoMedium px-4 hover:bg-black transition-colors"
       >
-        ✨ Prueba Deník gratis por 30 días — sin tarjeta de crédito
-      </Link>
+        ✨ Aparta tu lugar antes del estreno — sé de los primeros
+      </a>
       <div className="bg-white rounded-b-[40px] overflow-x-clip">
         <TopBar withBanner />
         <ParallaxHero>

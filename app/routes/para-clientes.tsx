@@ -12,6 +12,7 @@ import { Rocket } from "~/components/icons/rocket"
 import { Thunder } from "~/components/icons/thunder"
 import { Waves } from "~/components/icons/waves"
 import { getMetaTags } from "~/utils/getMetaTags"
+import { FORMMY_WAITLIST_URL } from "~/utils/urls"
 
 export const meta: MetaFunction = () =>
   getMetaTags({
@@ -41,7 +42,7 @@ export default function ParaClientes() {
             { to: "/blog", label: "Blog" },
             { to: "/signin", label: "Iniciar sesión" },
           ]}
-          cta={{ to: "/mi-cuenta", label: "Crear cuenta" }}
+          cta={{ href: FORMMY_WAITLIST_URL, label: "Aparta tu lugar" }}
         />
         <Hero />
         <BusinessCta />
@@ -354,8 +355,13 @@ const BusinessCta = () => (
           reserven solos. Gratis y listo en menos de un minuto.
         </p>
         <div className="flex justify-center mt-10">
-          <PrimaryButton as="Link" to="/signin">
-            Crear mi cuenta gratis <ArrowRight />
+          <PrimaryButton
+            as="a"
+            href={FORMMY_WAITLIST_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Aparta tu lugar <ArrowRight />
           </PrimaryButton>
         </div>
       </div>
