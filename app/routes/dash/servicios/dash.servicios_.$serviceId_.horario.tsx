@@ -15,6 +15,9 @@ import {
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.servicios_.$serviceId_.horario"
 
+// Edición full screen en mobile: ocultamos la bottom bar para dar espacio al form.
+export const handle = { hideMobileNav: true }
+
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId
   const service = await db.service.findUnique({ where: { id: serviceId } })

@@ -144,6 +144,16 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
   const hideSidebar = matches.some(
     (m) => (m.handle as any)?.hideSidebar === true,
   )
+  // Oculta la bottom bar en mobile (conserva el padding normal de página). El
+  // sidebar de desktop se mantiene.
+  const hideMobileNav = matches.some(
+    (m) => (m.handle as any)?.hideMobileNav === true,
+  )
+  // Full bleed: además de ocultar la bottom bar, quita todo el padding mobile
+  // (ej. el chat del asistente que ocupa el 100dvh).
+  const fullBleedMobile = matches.some(
+    (m) => (m.handle as any)?.fullBleedMobile === true,
+  )
 
   const content = (
     <div className="relative h-full">
@@ -168,6 +178,8 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
       canManage={canManage}
       onboardingCelebrated={onboardingComplete}
       sidebarOpen={sidebarOpen}
+      hideMobileNav={hideMobileNav}
+      fullBleedMobile={fullBleedMobile}
     >
       {content}
     </SideBar>

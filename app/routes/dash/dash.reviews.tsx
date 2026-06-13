@@ -120,7 +120,7 @@ const SummaryCard = ({ average }: { average: number }) => {
 
 const ReviewsTable = ({ services }: { services: ServiceReview[] }) => {
   return (
-    <section className="bg-white rounded-2xl mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] overflow-hidden max-w-6xl">
+    <section className="bg-white rounded-2xl mt-4 md:mt-6 shadow-[0px_4px_16px_0px_rgba(204,204,204,0.15)] overflow-hidden max-w-6xl">
       {/* Header */}
       <div className="grid grid-cols-3 md:grid-cols-[1fr_180px_220px] items-center gap-3 text-xs text-brand_gray font-satoMedium py-3 px-4 md:px-10">
         <span>Servicio</span>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import type { LoaderFunctionArgs } from "react-router"
-import { useFetcher, useLoaderData } from "react-router"
+import { IoClose } from "react-icons/io5"
+import { Link, useFetcher, useLoaderData } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
 import { getMessagesSince } from "~/lib/nanoclaw.server"
 import { db } from "~/utils/db.server"
@@ -18,6 +19,10 @@ const SUGGESTIONS: { icon: string; text: string }[] = [
   { icon: "💰", text: "Resume mis ventas de la semana" },
   { icon: "🔔", text: "Recuérdame mis próximos pendientes" },
 ]
+
+// En mobile la conversación ocupa toda la pantalla (sin bottom bar ni padding):
+// el chat necesita el 100dvh y la barra inferior estorba la caja de texto.
+export const handle = { fullBleedMobile: true }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request)
@@ -157,15 +162,25 @@ export default function AsistenteIA() {
   }
 
   return (
-    <main className="flex flex-col h-[calc(100vh-5rem)] max-w-3xl mx-auto px-6 pt-4 gap-4 min-h-0">
-      <header className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-satoBold text-brand_dark">
-            Nik - Tu asistente IA
-          </h1>
-          <p className="text-sm text-brand_iron mt-1">
-            Tu asistente personal conectado a tu agenda.
-          </p>
+    <main className="flex flex-col h-[100dvh] md:h-[calc(100vh-5rem)] max-w-3xl mx-auto px-4 md:px-6 pt-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:pb-0 gap-4 min-h-0">
+      <header className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-satoBold text-brand_dark">
+              Nik - Tu asistente IA
+            </h1>
+            <p className="text-sm text-brand_iron mt-1">
+              Tu asistente personal conectado a tu agenda.
+            </p>
+          </div>
+          {/* Solo mobile: sin bottom bar, este es el único camino de salida */}
+          <Link
+            to="/dash"
+            aria-label="Cerrar"
+            className="md:hidden shrink-0 text-brand_gray rounded-full border border-ash h-8 w-8 flex items-center justify-center transition-all active:scale-95"
+          >
+            <IoClose className="text-2xl" />
+          </Link>
         </div>
         <div className="flex items-center gap-2">
           {messages.length > 0 && (

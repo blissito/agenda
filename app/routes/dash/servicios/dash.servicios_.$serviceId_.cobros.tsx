@@ -15,6 +15,9 @@ import { assertServiceInOrg, requireRole } from "~/.server/userGetters"
 import { db } from "~/utils/db.server"
 import type { Route } from "./+types/dash.servicios_.$serviceId_.cobros"
 
+// Edición full screen en mobile: ocultamos la bottom bar para dar espacio al form.
+export const handle = { hideMobileNav: true }
+
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId
   const service = await db.service.findUnique({ where: { id: serviceId } })
@@ -141,7 +144,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
-      <div className="bg-white rounded-2xl max-w-3xl p-4 md:p-8 mt-6">
+      <div className="bg-white rounded-2xl max-w-3xl p-4 md:p-8 mt-4 md:mt-6">
         <h2 className="font-satoBold mb-4 md:mb-8 text-xl">
           Actualiza tus cobros y recordatorios
         </h2>

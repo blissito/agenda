@@ -175,7 +175,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
         </Breadcrumb>
       </div>
 
-      <div className="mt-6 grid grid-cols-1 gap-6">
+      <div className="mt-4 md:mt-6 grid grid-cols-1 gap-6">
         <ServiceDetail
           service={service}
           galleryImages={galleryImages}
@@ -613,7 +613,7 @@ export const ServiceDetail = ({
               label="Agendamiento simultáneo"
               value={
                 service.allowMultiple
-                  ? `hasta ${service.limit?.bookings || 6} citas`
+                  ? `hasta ${Number(service.seats) || 2} citas`
                   : "Desactivado"
               }
             />
@@ -655,7 +655,7 @@ export const ServiceDetail = ({
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-12">
         <div className="bg-white rounded-2xl p-4 md:p-6 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
-            <h3 className="font-satoBold text-lg text-brand_dark">Horario</h3>
+            <h3 className="font-satoBold text-xl text-brand_dark">Horario</h3>
             <EditButton
               to={`/dash/servicios/${service.id}/horario`}
               label="Editar horario"
@@ -691,7 +691,7 @@ export const ServiceDetail = ({
 
         <div className="bg-white rounded-2xl p-4 md:p-6 lg:col-span-6 border border-brand_stroke/60">
           <div className="flex items-center justify-between">
-            <h3 className="font-satoBold text-lg text-brand_dark">
+            <h3 className="font-satoBold text-xl text-brand_dark">
               Recordatorios y pago
             </h3>
             <EditButton

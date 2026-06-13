@@ -1,5 +1,6 @@
 import type { User } from "@prisma/client"
-import { useEffect, useRef } from "react"
+import { AnimatePresence, motion } from "motion/react"
+import { useEffect, useRef, useState } from "react"
 import { useFetcher, useNavigate } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
@@ -12,6 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrump"
 import { assertServiceInOrg, requireRole } from "~/.server/userGetters"
+import { cn } from "~/utils/cn"
 import { db } from "~/utils/db.server"
 import { serviceUpdateSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/dash.servicios_.$serviceId_.general"
@@ -31,6 +33,13 @@ export const action = async ({ request }: Route.ActionArgs) => {
     }
     const validData = serviceUpdateSchema.parse(processedForm)
     const { id, slug, orgId, ...updateData } = validData
+    // Capacidad simultánea: solo aplica si allowMultiple (mínimo 2); si no, 1.
+    // Mismo criterio que el alta de servicio (api/services → photo_form).
+    if (updateData.allowMultiple !== undefined) {
+      updateData.seats = updateData.allowMultiple
+        ? Math.max(2, Math.floor(Number(updateData.seats ?? 2)))
+        : 1
+    }
     await assertServiceInOrg(id, org.id)
     await db.service.update({
       where: { id },
@@ -40,6 +49,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
   return null
 }
+
+// Edición full screen en mobile: ocultamos la bottom bar para dar espacio al form.
+export const handle = { hideMobileNav: true }
 
 export const loader = async ({ params }: Route.LoaderArgs) => {
   const serviceId = params.serviceId
@@ -81,6 +93,14 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   const employees = employeesFetcher.data?.employees ?? []
   const showEmployeeSelect = employees.length > 1
 
+  // Toggles controlados: en un form plano los checkboxes sin marcar no se
+  // envían, así que mandamos su estado vía inputs hidden ("true"/"false").
+  const [isActive, setIsActive] = useState(service.isActive)
+  const [allowMultiple, setAllowMultiple] = useState(service.allowMultiple)
+  // El link de llamada solo aplica a servicios en línea; presencial/domicilio
+  // no tienen videollamada.
+  const [place, setPlace] = useState((service.place || "INPLACE").toUpperCase())
+
   useEffect(() => {
     if (
       fetcher.state === "idle" &&
@@ -116,7 +136,7 @@ export default function Index({ loaderData }: Route.ComponentProps) {
       </Breadcrumb>
       <fetcher.Form
         method="post"
-        className="bg-white rounded-2xl max-w-3xl p-4 md:p-8 mt-6"
+        className="bg-white rounded-2xl max-w-3xl p-4 md:p-8 mt-4 md:mt-6"
       >
         <input type="hidden" name="id" value={service.id} />
         <input type="hidden" name="slug" value={service.slug} />
@@ -185,7 +205,25 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             label="Descripción"
             defaultValue={service.description ?? undefined}
           />
-          {(hasMeet || hasZoom) && (
+          <div className="w-full relative">
+            <label htmlFor="place" className="text-brand_dark font-satoMedium">
+              ¿En dónde se realiza el servicio?
+            </label>
+            <div className="relative mt-1">
+              <select
+                id="place"
+                name="place"
+                value={place}
+                onChange={(e) => setPlace(e.currentTarget.value)}
+                className="text-brand_gray font-satoshi rounded-2xl border-gray-200 w-full h-12 bg-white px-4 focus:border-brand_blue focus:outline-none focus:ring-0"
+              >
+                <option value="INPLACE">En el negocio</option>
+                <option value="ONLINE">En línea</option>
+                <option value="ATHOME">A domicilio</option>
+              </select>
+            </div>
+          </div>
+          {place === "ONLINE" && (hasMeet || hasZoom) && (
             <div className="w-full relative">
               <label
                 htmlFor="videoProvider"
@@ -212,6 +250,51 @@ export default function Index({ loaderData }: Route.ComponentProps) {
               </p>
             </div>
           )}
+
+          <input
+            type="hidden"
+            name="isActive"
+            value={isActive ? "true" : "false"}
+          />
+          <input
+            type="hidden"
+            name="allowMultiple"
+            value={allowMultiple ? "true" : "false"}
+          />
+          <Toggle
+            checked={isActive}
+            onChange={setIsActive}
+            title="Permitir que este servicio se agende en línea"
+          />
+          <Toggle
+            checked={allowMultiple}
+            onChange={setAllowMultiple}
+            title="Permitir que 2 o más clientes agenden al mismo tiempo"
+          />
+          <AnimatePresence>
+            {allowMultiple && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <label htmlFor="seats" className="text-brand_dark font-satoMedium">
+                  ¿Cuántas personas pueden agendar al mismo tiempo?
+                </label>
+                <input
+                  id="seats"
+                  type="number"
+                  min={2}
+                  name="seats"
+                  placeholder="2"
+                  defaultValue={Math.max(2, Number(service.seats) || 2)}
+                  className="rounded-2xl border-gray-200 h-12 w-full mt-1 text-brand_gray focus:border-brand_blue focus:outline-none focus:ring-0"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="flex mt-12 justify-end gap-6">
@@ -235,3 +318,34 @@ export default function Index({ loaderData }: Route.ComponentProps) {
     </section>
   )
 }
+
+const Toggle = ({
+  title,
+  checked,
+  onChange,
+}: {
+  title: string
+  checked: boolean
+  onChange: (next: boolean) => void
+}) => (
+  <button
+    type="button"
+    onClick={() => onChange(!checked)}
+    className="flex justify-between items-center w-full gap-4 text-left"
+  >
+    <p className="text-brand_dark font-satoMedium">{title}</p>
+    <div
+      className={cn("flex bg-gray-100 w-7 p-1 rounded-full shrink-0", {
+        "justify-end bg-brand_blue/30 shadow": checked,
+      })}
+    >
+      <motion.div
+        layout
+        transition={{ type: "spring" }}
+        className={cn("bg-gray-300 h-3 w-3 rounded-full", {
+          "bg-brand_blue": checked,
+        })}
+      />
+    </div>
+  </button>
+)

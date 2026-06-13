@@ -105,7 +105,7 @@ export const SimpleTimeSelector = ({
   }
 
   return (
-    <article className="my-3 rounded-2xl bg-white shadow p-4 md:p-8 max-w-3xl flex flex-col">
+    <article className="mt-4 md:mt-6 mb-3 rounded-2xl bg-white shadow p-4 md:p-8 max-w-3xl flex flex-col">
       <h2 className="font-satoBold text-xl text-brand_dark mb-4 md:mb-8">
         Horario
       </h2>
@@ -246,15 +246,15 @@ const DaySelector = ({
   }
 
   return (
-    <section className="flex items-start gap-8 py-[5px]">
-      <header className="flex gap-4 py-[5px] min-w-[180px]">
+    <section className="flex flex-col md:flex-row md:items-start gap-2 md:gap-8 py-[5px]">
+      <header className="flex gap-4 py-[5px] md:min-w-[180px] shrink-0">
         <h4 className="w-20 text-brand_dark">
           {DAY_LABELS[dayName as keyof typeof DAY_LABELS] || dayName}
         </h4>
         <SimpleSwitch value={isActive} onChange={handleActivation} />
       </header>
       {isActive && (
-        <main className="flex items-start">
+        <main className="flex items-start flex-wrap">
           <section>
             <AnimatePresence>
               {gaps.map((gap, i) => (
@@ -353,12 +353,14 @@ const Gap = ({
       <div className="flex items-center gap-2">
         <span>De</span>
         <SelectInput
+          className="w-[88px] shrink-0"
           onChange={handleChange(0)}
           value={range[0]}
           options={options}
         />
         <span>a</span>
         <SelectInput
+          className="w-[88px] shrink-0"
           onChange={handleChange(1)}
           value={range[1]}
           options={options}

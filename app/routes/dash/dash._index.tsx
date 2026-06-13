@@ -432,7 +432,7 @@ const SalesChart = ({ data }: { data: SalesPoint[] }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl p-4 lg:p-6 mt-6 flex-1 min-h-0 flex flex-col">
+    <div className="bg-white rounded-2xl p-4 lg:p-6 mt-4 md:mt-6 flex-1 min-h-0 flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-satoBold">Ventas</h3>
         <div

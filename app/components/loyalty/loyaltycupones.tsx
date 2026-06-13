@@ -593,7 +593,7 @@ function CouponRow({
             <div className="mt-1 truncate text-[12px] text-brand_gray sm:hidden">
               {getCouponDiscountLabel(reward)} · {getDurationLabel(meta)} ·{" "}
               {getServicesLabel(meta, services)} · {reward.currentRedemptions}{" "}
-              canjes
+              {reward.currentRedemptions === 1 ? "canje" : "canjes"}
             </div>
           </div>
         </div>

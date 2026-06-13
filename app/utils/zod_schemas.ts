@@ -19,6 +19,18 @@ export const serviceUpdateSchema = z.object({
   lat: optionalNumber.optional(),
   lng: optionalNumber.optional(),
   videoProvider: z.enum(["auto", "meet", "zoom", "none"]).optional(),
+  place: z.string().optional(),
+  // Checkboxes/toggles llegan como "true"/"false" (o "on"); normalizamos a bool.
+  isActive: z
+    .enum(["true", "false", "on"])
+    .optional()
+    .transform((v) => v === "true" || v === "on"),
+  allowMultiple: z
+    .enum(["true", "false", "on"])
+    .optional()
+    .transform((v) => v === "true" || v === "on"),
+  // Capacidad simultánea (Service.seats). El action la normaliza según allowMultiple.
+  seats: z.coerce.number().optional(),
 })
 export type ServiceUpdateSchema = z.infer<typeof signup2Schema>
 

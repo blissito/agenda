@@ -133,6 +133,8 @@ export function SideBar({
   canManage = true,
   onboardingCelebrated = false,
   sidebarOpen = true,
+  hideMobileNav = false,
+  fullBleedMobile = false,
   children,
   ...props
 }: {
@@ -145,6 +147,8 @@ export function SideBar({
   canManage?: boolean
   onboardingCelebrated?: boolean
   sidebarOpen?: boolean
+  hideMobileNav?: boolean
+  fullBleedMobile?: boolean
   props?: unknown
 }) {
   const sidebar = useSidebarState(sidebarOpen)
@@ -211,17 +215,29 @@ export function SideBar({
                 : config.content.open,
             }}
             transition={transition}
-            className="dash-content max-md:!pl-4 lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-[88px] md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
+            className={`dash-content md:pr-6 lg:pr-10 md:pt-6 lg:pt-10 md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border ${
+              fullBleedMobile
+                ? // Chat full screen: sin padding en mobile (pl con ! para ganarle
+                  // al paddingLeft inline animado del offset del sidebar).
+                  "max-md:!pl-0 max-md:!pr-0 max-md:!pt-0 max-md:!pb-0"
+                : hideMobileNav
+                  ? // Sin bottom bar pero con padding normal de página en mobile.
+                    "max-md:!pl-4 max-md:pr-4 max-md:pt-6 max-md:pb-6"
+                  : // Default: reserva espacio (88px) para la bottom bar.
+                    "max-md:!pl-4 max-md:pr-4 max-md:pt-6 max-md:pb-[88px]"
+            }`}
           >
             {children}
           </motion.section>
-          <MobileBottomNav
-            user={user}
-            org={activeOrg}
-            orgs={orgs}
-            canManage={canManage}
-            onboardingCelebrated={onboardingCelebrated}
-          />
+          {!hideMobileNav && !fullBleedMobile && (
+            <MobileBottomNav
+              user={user}
+              org={activeOrg}
+              orgs={orgs}
+              canManage={canManage}
+              onboardingCelebrated={onboardingCelebrated}
+            />
+          )}
         </article>
       </CollapsedContext.Provider>
     </BranchesContext.Provider>
@@ -722,7 +738,17 @@ const PlusIcon = ({ className }: { className?: string }) => (
 // Bloque de la org activa + popup para cambiar entre las orgs del usuario.
 // El popup se renderiza con createPortal a document.body para no ser clippeado
 // por el `overflow-hidden` del aside (mismo patrón que DropDownMenu).
-const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
+const OrgSwitcher = ({
+  org,
+  orgs,
+  forceExpanded = false,
+}: {
+  org: OrgLite
+  orgs: OrgLite[]
+  // El bottom sheet de mobile siempre va expandido; ignora el estado colapsado
+  // del sidebar de desktop (que viene del CollapsedContext).
+  forceExpanded?: boolean
+}) => {
   const { branches, activeBranchId } = useBranches()
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState<{
@@ -732,7 +758,7 @@ const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
   } | null>(null)
   const btnRef = useRef<HTMLButtonElement>(null)
   const fetcher = useFetcher()
-  const collapsed = useCollapsed()
+  const collapsed = useCollapsed() && !forceExpanded
   const panelRef = useOutsideClick<HTMLDivElement>({
     isActive: open,
     onClickOutside: () => setOpen(false),
@@ -1235,7 +1261,7 @@ const MobileBottomNav = ({
               {/* Org switcher / user info */}
               <div className="px-6 pb-4 border-b border-gray-100">
                 {org ? (
-                  <OrgSwitcher org={org} orgs={orgs} />
+                  <OrgSwitcher org={org} orgs={orgs} forceExpanded />
                 ) : (
                   <UserAvatar user={user} />
                 )}

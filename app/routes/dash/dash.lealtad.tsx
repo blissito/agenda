@@ -188,7 +188,7 @@ export default function Lealtad() {
               onClick={() => setIsCreateCouponOpen(true)}
               className="h-10 px-5 text-sm"
             >
-              + Agregar cupón
+              + <span className="hidden sm:inline">Agregar </span>Cupón
             </PrimaryButton>
           </div>
         )}
