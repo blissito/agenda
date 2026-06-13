@@ -148,9 +148,9 @@ export default function Index({ loaderData }: Route.ComponentProps) {
         href={FORMMY_WAITLIST_URL}
         target="_blank"
         rel="noreferrer"
-        className="fixed top-0 left-0 right-0 z-50 h-10 flex items-center justify-center bg-brand_dark text-white text-xs md:text-sm font-satoMedium px-4 hover:bg-black transition-colors"
+        className="fixed top-0 left-0 right-0 z-50 h-8 flex items-center justify-center bg-brand_lime text-brand_dark text-xs md:text-sm font-satoMedium px-4 hover:bg-yellow-400 transition-colors"
       >
-        ✨ Aparta tu lugar antes del estreno — sé de los primeros
+        🚀 Aparta tu lugar antes del estreno — sé de los primeros
       </a>
       <div className="bg-white rounded-b-[40px] overflow-x-clip">
         <TopBar withBanner />
