@@ -99,15 +99,28 @@ const Platform = ({ platform }: { platform: PlatformData }) => (
 
     <ol className="mt-10 flex flex-col gap-10">
       {platform.steps.map((step, i) => (
-        <Step key={step.title} index={i + 1} step={step} />
+        <Step
+          key={step.title}
+          index={i + 1}
+          step={step}
+          isPhone={platform.id === "ios" || platform.id === "android"}
+        />
       ))}
     </ol>
   </section>
 )
 
-type StepItem = { title: string; description: string }
+type StepItem = { title: string; description: string; image?: string }
 
-const Step = ({ index, step }: { index: number; step: StepItem }) => (
+const Step = ({
+  index,
+  step,
+  isPhone,
+}: {
+  index: number
+  step: StepItem
+  isPhone: boolean
+}) => (
   <li className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
     {/* Texto del paso */}
     <div className="flex gap-4">
@@ -122,8 +135,29 @@ const Step = ({ index, step }: { index: number; step: StepItem }) => (
       </div>
     </div>
 
-    {/* Espacio para imagen / captura */}
-    <ImagePlaceholder index={index} title={step.title} />
+    {/* Espacio para imagen / captura.
+        En iOS/Android las capturas son verticales (de teléfono): ocupan el
+        alto con width auto, sin recortar (nada de object-cover). En navegador
+        son landscape, así que llenan el ancho con aspect 16/10. */}
+    {step.image ? (
+      isPhone ? (
+        <div className="w-full aspect-[16/10] flex items-center justify-center">
+          <img
+            src={step.image}
+            alt={step.title}
+            className="h-full w-auto rounded-2xl object-contain border border-gray-100"
+          />
+        </div>
+      ) : (
+        <img
+          src={step.image}
+          alt={step.title}
+          className="w-full aspect-[16/10] rounded-2xl object-cover border border-gray-100"
+        />
+      )
+    ) : (
+      <ImagePlaceholder index={index} title={step.title} />
+    )}
   </li>
 )
 
@@ -161,27 +195,31 @@ const PLATFORMS: PlatformData[] = [
     tab: "Navegador",
     title: "Navegador (Chrome / Edge)",
     description:
-      "Instala Deník como app de escritorio para abrirla en su propia ventana, sin pestañas ni barra de direcciones.",
+      "Instala Deník como app de escritorio para abrirla en su propia ventana, sin pestañas ni barra de navegación.",
     steps: [
       {
         title: "Abre Deník en Chrome o Edge",
         description:
           "Entra a denik.me e inicia sesión en tu cuenta. La instalación se hace desde el dashboard (www.denik.me/dash).",
+        image: "/images/pwa-1.webp",
       },
       {
         title: "Busca el ícono de instalar",
         description:
           "En la barra de direcciones, del lado derecho, aparece un ícono de instalar (una pantalla con una flecha). Haz clic en él.",
+                      image: "/images/pwa-2.webp",
       },
       {
         title: "Confirma “Instalar”",
         description:
           "Se abrirá un cuadro de diálogo. Presiona “Instalar” y Deník se agregará como una app de escritorio.",
+                      image: "/images/pwa-3.webp",
       },
       {
         title: "Ábrela como app",
         description:
           "Deník aparecerá en tu menú de aplicaciones y se abrirá en su propia ventana, sin barra del navegador.",
+        image: "/images/pwa-4.webp",
       },
     ],
   },
@@ -196,21 +234,25 @@ const PLATFORMS: PlatformData[] = [
         title: "Abre Deník en tu navegador",
         description:
           "Entra a denik.me desde Safari o Chrome en tu iPhone o iPad e inicia sesión.",
+                  image: "/images/pwa-5.webp",
       },
       {
         title: "Toca el botón Compartir",
         description:
           "Toca el ícono de compartir (un cuadro con una flecha hacia arriba). En Safari está en la barra inferior; en Chrome, dentro del menú o junto a la barra de direcciones.",
-      },
+             image: "/images/pwa-6.webp",
+        },
       {
         title: "Elige “Agregar a inicio”",
         description:
           "Desliza el menú y selecciona “Agregar a pantalla de inicio”. Puedes editar el nombre antes de confirmar.",
+        image: "/images/pwa-7.webp",
       },
       {
         title: "Confirma con “Agregar”",
         description:
           "Toca “Agregar” en la esquina superior derecha. El ícono de Deník aparecerá en tu pantalla de inicio como una app más.",
+        image: "/images/pwa-8.webp",
       },
     ],
   },
@@ -219,27 +261,31 @@ const PLATFORMS: PlatformData[] = [
     tab: "Android",
     title: "Android (Chrome)",
     description:
-      "En Android, Chrome detecta Deník como app instalable y te ofrece agregarla a tu pantalla de inicio.",
+      "En Android, Chrome detecta Deník como app instalable y te ofrece agregarla a tu pantalla de inicio en un par de toques.",
     steps: [
       {
         title: "Abre Deník en Chrome",
         description:
-          "Entra a denik.me en Chrome para Android e inicia sesión en tu cuenta.",
+          "Entra a denik.me desde Chrome en tu Android e inicia sesión. Verás tu dashboard (denik.me/dash) con tu agenda y tus métricas.",
+        image: "/images/pwa-9.webp",
       },
       {
-        title: "Abre el menú de Chrome",
+        title: "Toca “Instalar app” en el aviso de Chrome",
         description:
-          "Toca los tres puntos (⋮) en la esquina superior derecha del navegador.",
+          "Chrome muestra abajo un aviso “Instala Deník como app”. Toca el botón azul “Instalar app”. Si no aparece, ábrelo desde el menú de tres puntos (⋮) → “Instalar app”.",
+        image: "/images/pwa-10.webp",
       },
       {
-        title: "Elige “Instalar app” o “Agregar a inicio”",
+        title: "Confirma con “Instalar”",
         description:
-          "Selecciona la opción de instalar. A veces Chrome muestra automáticamente un banner de “Agregar Deník a la pantalla principal”.",
+          "Se abre el cuadro “Instalar aplicación” con el ícono de Deník. Toca “Instalar” para agregarla a tu teléfono.",
+        image: "/images/pwa-11.webp",
       },
       {
-        title: "Confirma la instalación",
+        title: "Abre Deník desde tu pantalla de inicio",
         description:
-          "Presiona “Instalar”. Deník quedará en tu cajón de apps y pantalla de inicio, lista para abrirse a pantalla completa.",
+          "El ícono de Deník quedará en tu pantalla de inicio y en el cajón de apps, listo para abrirse a pantalla completa, sin barra del navegador.",
+        image: "/images/pwa-12.webp",
       },
     ],
   },

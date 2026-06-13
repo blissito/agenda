@@ -10,6 +10,10 @@ import {
 } from "~/.server/mercadopago"
 import { createAccountLink, getOrCreateStripeAccount } from "~/.server/stripe"
 import { getUserAndOrgOrRedirect, requireRole } from "~/.server/userGetters"
+import {
+  branchEventFilter,
+  getActiveBranchFromRequest,
+} from "~/lib/branches.server"
 import { Pagination } from "~/components/common/Pagination"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { Spinner } from "~/components/common/Spinner"
@@ -83,6 +87,8 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     }
   }
 
+  const activeBranch = await getActiveBranchFromRequest(request, org.id)
+
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
@@ -96,6 +102,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
       orgId: org.id,
       type: { not: "BLOCK" },
       refundedAt: { isSet: false },
+      ...branchEventFilter(activeBranch),
     },
     include: { service: true, customer: true },
     orderBy: { start: "desc" },

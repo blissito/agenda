@@ -64,6 +64,10 @@ export default [
           "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx",
         ),
       ]),
+      ...prefix("sucursales", [
+        index("routes/dash/sucursales/index.tsx"),
+        route("nueva", "routes/dash/sucursales/nueva.tsx"),
+      ]),
       route("chatbot", "routes/dash/dash.chatbot.tsx"),
       route("website", "routes/dash/website/dash.website.tsx"),
       route("website/ai", "routes/dash/dash.website_.ai.tsx"),
@@ -94,6 +98,8 @@ export default [
   ...prefix("api", [
     route("customers", "routes/api/customers.ts"),
     route("switch-org", "routes/api/switch-org.ts"),
+    route("switch-branch", "routes/api/switch-branch.ts"),
+    route("branches", "routes/api/branches.ts"),
     route("services", "routes/api/services.ts"),
     route("employees", "routes/api/employees.ts"),
     route("events", "routes/api/events.ts"),

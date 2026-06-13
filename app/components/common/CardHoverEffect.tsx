@@ -12,6 +12,7 @@ export const HoverEffect = ({
     priceNote?: string
     popular?: boolean
     cta: ReactNode
+    includesNote?: string
     features: string[]
   }[]
   className?: string
@@ -19,7 +20,7 @@ export const HoverEffect = ({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch",
+        "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch",
         className,
       )}
     >
@@ -93,6 +94,16 @@ export const HoverEffect = ({
 
           {/* Features */}
           <div className="px-6 md:px-8 pb-8 flex-1">
+            {item.includesNote && (
+              <p
+                className={cn(
+                  "text-sm font-satoshi_bold mb-3",
+                  item.popular ? "text-white" : "text-brand_dark",
+                )}
+              >
+                {item.includesNote}
+              </p>
+            )}
             <ul className="flex flex-col gap-3">
               {item.features.map((feature) => (
                 <li

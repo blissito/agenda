@@ -118,18 +118,25 @@ export const Faq = () => (
         question="¿Cuáles son los planes y precios?"
         answer={
           <p>
-            Deník ofrece dos planes:{" "}
-            <strong className="font-satoBold"> Profesional y Enterprise</strong>
+            Deník ofrece tres planes:{" "}
+            <strong className="font-satoBold">
+              {" "}
+              Profesional, Growth y Enterprise
+            </strong>
             . Te recomendamos el Plan Profesional si eres un emprendedor
-            independiente que no requiere manejar sucursales o staff, y el Plan
-            Enterprise si tu negocio cuenta con sucursales o staff con un
-            calendario independiente cada uno. En cuanto al precio, el Plan
-            Profesional tiene un costo de{" "}
+            independiente que no requiere manejar staff; el Plan Growth si
+            trabajas con staff en una sola sede y quieres chatbot de
+            agendamiento; y el Plan Enterprise si tu negocio cuenta con varias
+            sucursales con un calendario independiente cada una. En cuanto al
+            precio, el Plan Profesional tiene un costo de{" "}
             <strong className="font-satoBold">$249 mxn al mes</strong> (o{" "}
             <strong className="font-satoBold">$199 mxn al mes</strong> facturado
+            anualmente), el Plan Growth de{" "}
+            <strong className="font-satoBold">$549 mxn al mes</strong> (o{" "}
+            <strong className="font-satoBold">$439 mxn al mes</strong> facturado
             anualmente), y el Plan Enterprise de{" "}
-            <strong className="font-satoBold">$599 mxn al mes</strong> (o{" "}
-            <strong className="font-satoBold">$479 mxn al mes</strong> facturado
+            <strong className="font-satoBold">$999 mxn al mes</strong> (o{" "}
+            <strong className="font-satoBold">$799 mxn al mes</strong> facturado
             anualmente). Al contratar el plan anual ahorras hasta un 20%.
           </p>
         }
@@ -349,6 +356,8 @@ export const Pricing = () => (
 type PlanIntent =
   | "pro_monthly"
   | "pro_annual"
+  | "team_monthly"
+  | "team_annual"
   | "enterprise_monthly"
   | "enterprise_annual"
 
@@ -366,7 +375,11 @@ function PlanCTA({
   const navigation = useNavigation()
   const promo = searchParams.get("promo") || ""
 
-  const planFromIntent = intent.startsWith("pro_") ? "PRO" : "ENTERPRISE"
+  const planFromIntent = intent.startsWith("pro_")
+    ? "PRO"
+    : intent.startsWith("team_")
+      ? "TEAM"
+      : "ENTERPRISE"
   const isCurrent = currentPlan === planFromIntent
 
   if (!isLoggedIn) {
@@ -468,16 +481,24 @@ const FEATURES_PRO = [
   "Agente personal IA en WhatsApp (limitado)",
   "Encuesta de satisfacción",
   "Expediente de clientes",
+  "Invita hasta 2 colaboradores",
   "Landing page con IA (5 generaciones / 20 refinamientos al mes)",
 ]
 
-const FEATURES_ENTERPRISE = [
-  ...FEATURES_PRO.filter(
-    (f) => !f.startsWith("Landing page") && !f.startsWith("Agente personal"),
-  ),
-  "Agente personal IA en WhatsApp",
+// Growth y Enterprise muestran solo los extras respecto al plan anterior
+// (la tarjeta lleva una nota "Todo lo del plan X, y además:").
+const FEATURES_GROWTH = [
+  "Agente personal IA en WhatsApp sin límites",
   "Gestión de equipo y permisos",
+  "Invita hasta 5 colaboradores",
   "Landing page con IA (10 generaciones / 20 refinamientos al mes)",
+  "Chatbot de agendamiento con IA (100 conversaciones al mes)",
+]
+
+const FEATURES_ENTERPRISE = [
+  "Administración de sucursales",
+  "Invita hasta 15 colaboradores",
+  "Landing page con IA (15 generaciones / 30 refinamientos al mes)",
   "Chatbot de agendamiento con IA (250 conversaciones al mes)",
   "Soporte prioritario",
 ]
@@ -493,18 +514,26 @@ export const yearlyItems = [
     features: FEATURES_PRO,
   },
   {
-    plan: "Enterprise",
-    description: "Para negocios con equipo y necesidades avanzadas.",
-    price: "$799 mxn",
+    plan: "Growth",
+    description: "Para equipos en una sola sede que quieren probar la IA y gestionar su staff.",
+    price: "$439 mxn",
     priceNote: "Facturado anualmente.\nCancela cuando quieras.",
     popular: true,
     cta: (
-      <PlanCTA
-        intent="enterprise_annual"
-        label="Escala sin límites"
-        popular
-      />
+      <PlanCTA intent="team_annual" label="Crece con tu equipo" popular />
     ),
+    includesNote: "Todo lo del plan Profesional, y además:",
+    features: FEATURES_GROWTH,
+  },
+  {
+    plan: "Enterprise",
+    description: "Para negocios con varias sucursales, equipos grandes y necesidades avanzadas.",
+    price: "$799 mxn",
+    priceNote: "Facturado anualmente.\nCancela cuando quieras.",
+    cta: (
+      <PlanCTA intent="enterprise_annual" label="Escala sin límites" />
+    ),
+    includesNote: "Todo lo del plan Growth, y además:",
     features: FEATURES_ENTERPRISE,
   },
 ]
@@ -520,18 +549,26 @@ export const monthlyItems = [
     features: FEATURES_PRO,
   },
   {
-    plan: "Enterprise",
-    description: "Para negocios con equipo y necesidades avanzadas.",
-    price: "$999 mxn",
+    plan: "Growth",
+    description: "Para equipos en una sola sede que quieren probar la IA y gestionar su staff.",
+    price: "$549 mxn",
     priceNote: "Cancela cuando quieras.",
     popular: true,
     cta: (
-      <PlanCTA
-        intent="enterprise_monthly"
-        label="Escala sin límites"
-        popular
-      />
+      <PlanCTA intent="team_monthly" label="Crece con tu equipo" popular />
     ),
+    includesNote: "Todo lo del plan Profesional, y además:",
+    features: FEATURES_GROWTH,
+  },
+  {
+    plan: "Enterprise",
+    description: "Para negocios con varias sucursales, equipos grandes y necesidades avanzadas.",
+    price: "$999 mxn",
+    priceNote: "Cancela cuando quieras.",
+    cta: (
+      <PlanCTA intent="enterprise_monthly" label="Escala sin límites" />
+    ),
+    includesNote: "Todo lo del plan Growth, y además:",
     features: FEATURES_ENTERPRISE,
   },
 ]

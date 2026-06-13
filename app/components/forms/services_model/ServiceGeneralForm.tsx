@@ -1,13 +1,15 @@
-import type { RefObject } from "react"
+import type { User } from "@prisma/client"
+import { type RefObject, useEffect } from "react"
 import {
   type FieldError,
   type FieldValues,
   type UseFormRegister,
   useForm,
 } from "react-hook-form"
-import { Form, Link } from "react-router"
+import { Form, useFetcher } from "react-router"
 import { z } from "zod"
 import { BasicInput } from "../BasicInput"
+import { SelectInput } from "../SelectInput"
 import { TextAreaInput } from "../TextAreaInput"
 
 // Type stuff
@@ -19,6 +21,7 @@ export const generalFormSchema = z.object({
     .number({ error: "Ingresa un precio válido" })
     .min(0, "El precio debe ser mayor o igual a 0"),
   points: z.coerce.number().optional(),
+  employeeName: z.string().optional(),
   description: z
     .string({ error: "La descripción es obligatoria" })
     .min(5, "La descripción debe tener al menos 5 caracteres"),
@@ -51,6 +54,15 @@ export const ServiceGeneralForm = ({
   const { handleSubmit, register } = useForm({
     defaultValues,
   })
+
+  // Si la org tiene más de un colaborador, dejamos elegir el encargado del servicio
+  const employeesFetcher = useFetcher<{ employees?: User[] }>()
+  useEffect(() => {
+    employeesFetcher.load("/api/employees")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const employees = employeesFetcher.data?.employees ?? []
+  const showEmployeeSelect = employees.length > 1
   const submit = (values: GeneralFormFields) => {
     const parsedVals = generalFormSchema.parse(values) as GeneralFormFields // revisit
     // fetcher.submit({ ...values, intent: "general_form" }, { method: "post" });
@@ -80,31 +92,29 @@ export const ServiceGeneralForm = ({
           type="number"
         />
       </div>
-      {/* <SelectInput
-        label="Categoría"
-        options={OPTIONS.map((o) => ({ value: o, title: o }))}
-      /> */}
-      <BasicInput
-        error={errors.points}
-        registerOptions={{ required: false }}
-        register={register}
-        placeholder="100"
-        isDisabled={!loyaltyEnabled}
-        label={
-          <>
-            ¿A cuántos puntos de lealtad equivale el servicio?{" "}
-            {!loyaltyEnabled && (
-              <span className="font-satoshi text-brand_gray text-sm">
-                <Link to="/dash/lealtad" className="text-brand_blue underline">
-                  Activa el programa
-                </Link>{" "}
-                de lealtad para activar
-              </span>
-            )}
-          </>
-        }
-        name="points"
-      />
+      {showEmployeeSelect && (
+        <SelectInput
+          name="employeeName"
+          register={register}
+          registerOptions={{ required: false }}
+          label="Encargado del servicio (opcional)"
+          placeholder="Sin encargado asignado"
+          options={employees.map((e) => {
+            const label = e.displayName || e.email || ""
+            return { value: label, title: label }
+          })}
+        />
+      )}
+      {loyaltyEnabled && (
+        <BasicInput
+          error={errors.points}
+          registerOptions={{ required: false }}
+          register={register}
+          placeholder="100"
+          label="¿A cuántos puntos de lealtad equivale el servicio?"
+          name="points"
+        />
+      )}
       <TextAreaInput
         error={errors.description}
         register={register as unknown as UseFormRegister<FieldValues>}

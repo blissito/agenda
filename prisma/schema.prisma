@@ -33,6 +33,28 @@ type OrgWeekDays {
   sunday    Json?
 }
 
+// Horarios propios de una sucursal (mismo shape que OrgWeekDays).
+type BranchWeekDays {
+  monday    Json?
+  tuesday   Json?
+  wednesday Json?
+  thursday  Json?
+  friday    Json?
+  saturday  Json?
+  sunday    Json?
+}
+
+// Override de horario de un servicio en una sucursal específica.
+type ServiceBranchWeekDays {
+  monday    Json?
+  tuesday   Json?
+  wednesday Json?
+  thursday  Json?
+  friday    Json?
+  saturday  Json?
+  sunday    Json?
+}
+
 type OrgConfig {
   country              String?
   calendarAvailability String?
@@ -337,6 +359,9 @@ model Customer {
   // Expediente: ficha estructurada (intake) — campos según giro de la org. Las
   // entradas del timeline viven en el modelo CustomerRecordEntry (scalar-only).
   intake              Json?
+  // Sede preferida del cliente (opcional). El cliente sigue siendo org-wide;
+  // esto solo pre-selecciona la sucursal en el booking.
+  preferredBranchId   String?              @db.ObjectId
   org                 Org                  @relation(fields: [orgId], references: [id])
   user                User?                @relation(fields: [userId], references: [id])
   events              Event[]
@@ -386,17 +411,27 @@ model Event {
   surveySentAt             DateTime? @db.Date  // null = survey not sent yet
   refundedAt               DateTime? @db.Date  // null = no refund. Set al cancelar una cita pagada cuando el dueño marca reembolso
   rescheduleCount          Int       @default(0)   // veces que el cliente ha reagendado este evento
+  // Snapshot de la sede donde ocurre la cita (como videoProvider). Nullable
+  // durante la migración; se vuelve required tras el backfill (Fase 2).
+  branchId         String?   @db.ObjectId
+  // "Carril" del slot para capacidad simultánea (Service.seats). Cada reserva
+  // del mismo (serviceId, branchId, start) toma un índice 0..capacidad-1. Con
+  // capacidad 1 siempre es 0 ⇒ equivale al unique_slot histórico.
+  slotIndex        Int       @default(0)
   customer                 Customer?       @relation(fields: [customerId], references: [id])
   org              Org       @relation(fields: [orgId], references: [id])
   service          Service?  @relation(fields: [serviceId], references: [id])
+  branch           Branch?   @relation(fields: [branchId], references: [id])
   surveyResponse   SurveyResponse?
 
-  // Previene doble reserva del mismo slot
-  @@unique([serviceId, start], name: "unique_slot")
+  // Previene doble reserva del mismo carril. Branch-aware (multi-sede) y
+  // capacity-aware (slotIndex): permite hasta `seats` reservas por slot.
+  @@unique([serviceId, branchId, start, slotIndex], name: "unique_slot")
 
   @@index([orgId])
   @@index([customerId])
   @@index([status])
+  @@index([branchId])
 }
 
 model Job {
@@ -459,9 +494,12 @@ model Org {
   // { ficha: TemplateField[], atencion: TemplateField[] }. Si es null se
   // siembra desde los defaults del giro (Org.businessType). Ver customer-record.server.ts
   recordTemplates       Json?
+  // Sede creada en el backfill (sucursal "Principal"). Default para la sede activa.
+  defaultBranchId    String?           @db.ObjectId
   customers          Customer[]
   events             Event[]
   services           Service[]
+  branches           Branch[]
 }
 
 /// Link entre una Org y un grupo de WhatsApp provisionado vía Nanoclaw.
@@ -536,6 +574,9 @@ model Service {
   org           Org              @relation(fields: [orgId], references: [id])
   events        Event[]
   actions       ServiceAction[]
+  // Sedes donde se ofrece el servicio (M2M). Campos del Service son los defaults
+  // heredables; cada ServiceBranch puede sobrescribir price/weekDays/isActive.
+  serviceBranches ServiceBranch[]
 
   @@index([orgId])
 }
@@ -549,6 +590,50 @@ model ServiceAction {
   service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@index([serviceId])
+}
+
+// Sucursal (sede física) de una Org. Dueño natural de dirección + horarios +
+// timezone (lo que hoy vive plano en Org para orgs single-location).
+model Branch {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  orgId     String          @db.ObjectId
+  name      String
+  slug      String // único dentro de la org (@@unique([orgId, slug]))
+  isActive  Boolean         @default(true)
+  isDefault Boolean         @default(false) // sede "Principal" creada en el backfill
+  address   String?
+  lat       Float?
+  lng       Float?
+  timezone  String?
+  weekDays  BranchWeekDays?
+  tel       String?
+  email     String?
+  createdAt DateTime        @default(now()) @db.Date
+
+  org             Org             @relation(fields: [orgId], references: [id])
+  serviceBranches ServiceBranch[]
+  events          Event[]
+
+  @@unique([orgId, slug])
+  @@index([orgId])
+}
+
+// Tabla pivote Service<->Branch (M2M). Un servicio puede ofrecerse en varias
+// sedes o en una sola. Los overrides (price/weekDays/isActive) son opcionales:
+// null = hereda del Service.
+model ServiceBranch {
+  id        String                 @id @default(auto()) @map("_id") @db.ObjectId
+  serviceId String                 @db.ObjectId
+  branchId  String                 @db.ObjectId
+  isActive  Boolean                @default(true) // pausar el servicio en una sede
+  price     BigInt? // override de precio en esta sede
+  weekDays  ServiceBranchWeekDays? // override de horario en esta sede
+  service   Service                @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  branch    Branch                 @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, branchId])
+  @@index([serviceId])
+  @@index([branchId])
 }
 
 model SurveyResponse {
@@ -585,6 +670,8 @@ model User {
   emailVerified Boolean
   orgId         String?          @db.ObjectId
   orgIds        String[]
+  // Sedes donde atiende el colaborador (vacío = todas las sedes de la org).
+  branchIds     String[]         @db.ObjectId
   /// Could not determine type: the field only had null or empty values in the sample set.
   phoneNumber   Json?
   photoURL      String?

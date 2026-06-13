@@ -21,9 +21,10 @@ import { getOrgPublicUrl } from "~/utils/urls"
 import type { Route } from "./+types/dash.website"
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
-  const { org } = await getUserAndOrgOrRedirect(request, {
+  const { user, org } = await getUserAndOrgOrRedirect(request, {
     select: {
       id: true,
+      ownerId: true,
       name: true,
       slug: true,
       email: true,
@@ -84,7 +85,13 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     previewHtml = renderSections(buildDefaultSections(org as any, services))
   }
 
-  return { org, url, previewUrl: null, previewHtml }
+  // Members ven el sitio en solo-lectura: pueden ver el preview y compartir,
+  // pero no editar. canManage = owner de la org activa o rol ADMIN/OWNER.
+  const role = (user.role || "").toUpperCase()
+  const canManage =
+    role === "ADMIN" || role === "OWNER" || org.ownerId === user.id
+
+  return { org, url, previewUrl: null, previewHtml, canManage }
 }
 
 type RoundActionProps =
@@ -184,7 +191,7 @@ const ScaledPreview = ({ html }: { html: string }) => {
 }
 
 export default function Website({ loaderData }: Route.ComponentProps) {
-  const { org, url, previewUrl, previewHtml } = loaderData
+  const { org, url, previewUrl, previewHtml, canManage } = loaderData
 
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
@@ -242,17 +249,19 @@ export default function Website({ loaderData }: Route.ComponentProps) {
             </span>
           </Tooltip>
 
-          <Tooltip label="Editar sitio web" side="bottom">
-            <Link
-              to="/dash/website/ai"
-              className="inline-flex"
-              onClick={handleEditClick}
-            >
-              <RoundAction label="Editar sitio web">
-                <Edit2 className="w-5 h-5" />
-              </RoundAction>
-            </Link>
-          </Tooltip>
+          {canManage && (
+            <Tooltip label="Editar sitio web" side="bottom">
+              <Link
+                to="/dash/website/ai"
+                className="inline-flex"
+                onClick={handleEditClick}
+              >
+                <RoundAction label="Editar sitio web">
+                  <Edit2 className="w-5 h-5" />
+                </RoundAction>
+              </Link>
+            </Tooltip>
+          )}
         </div>
       </div>
 

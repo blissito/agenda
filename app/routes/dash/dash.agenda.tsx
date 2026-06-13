@@ -3,6 +3,7 @@ import {
   type CalendarEvent,
   completeWeek,
   isToday as isTodayFn,
+  type Resource,
   useCalendarControls,
 } from "@hectorbliss/denik-calendar"
 import { type Event as PrismaEvent } from "@prisma/client"
@@ -10,9 +11,14 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { IoChevronBackOutline, IoChevronForward } from "react-icons/io5"
 import { useFetcher, useNavigate, useSearchParams } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import {
+  branchEventFilter,
+  getActiveBranchFromRequest,
+} from "~/lib/branches.server"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
 import { CopyLinkButton } from "~/components/common/CopyLinkButton"
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
+import { UNASSIGNED_EMPLOYEE } from "~/components/dash/CitasFilter"
 import {
   EventHoverCard,
   type EventHoverData,
@@ -26,10 +32,10 @@ import { computeCalendarHoursRange, isHourOpen } from "~/utils/weekDays"
 import { newEventSchema } from "~/utils/zod_schemas"
 import type { Route } from "./+types/dash.agenda"
 
-type AgendaView = "week" | "day" | "month"
+type AgendaView = "week" | "day" | "staff" | "month"
 
 type EventWithRelations = PrismaEvent & {
-  service: { name: string } | null
+  service: { name: string; employeeName: string | null } | null
   customer: { displayName: string; email: string; tel: string } | null
 }
 
@@ -204,6 +210,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     throw new Response("Organization not found", { status: 404 })
   }
 
+  // Filtro de sede (null = "Todas las sucursales").
+  const activeBranch = await getActiveBranchFromRequest(request, org.id)
+  const branchFilter = branchEventFilter(activeBranch)
+
   const url = new URL(request.url)
   const mondayParam = url.searchParams.get("monday")
   const sundayParam = url.searchParams.get("sunday")
@@ -255,11 +265,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         orgId: org.id,
         archived: false,
         start: { gte: monday, lte: sundayEnd },
+        ...branchFilter,
       },
       include: { service: true, customer: true },
     }),
     db.customer.findMany({ where: { orgId: org.id } }),
-    db.user.findMany({ where: { orgId: org.id } }),
+    // Incluye colaboradores multi-org (ligados vía orgIds) además del owner.
+    db.user.findMany({
+      where: { OR: [{ orgIds: { has: org.id } }, { orgId: org.id }] },
+    }),
     db.service.findMany({ where: { orgId: org.id, archived: false } }),
     db.event.findMany({
       where: {
@@ -268,6 +282,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         type: { not: "BLOCK" },
         status: { not: "CANCELLED" },
         start: { gte: new Date() },
+        ...branchFilter,
       },
       include: { service: true, customer: true },
       orderBy: { start: "asc" },
@@ -279,6 +294,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         archived: false,
         type: { not: "BLOCK" },
         start: { gte: monthStart, lte: monthEnd },
+        ...branchFilter,
       },
       select: { start: true },
     }),
@@ -519,6 +535,7 @@ const VIEW_OPTIONS: { value: AgendaView; label: string }[] = [
   { value: "week", label: "Semanal" },
   { value: "day", label: "Diario" },
   { value: "month", label: "Mensual" },
+  { value: "staff", label: "Staff" },
 ]
 
 function AgendaControls({
@@ -804,6 +821,11 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   const [editableEvent, setEditableEvent] =
     useState<Partial<PrismaEvent> | null>(null)
   const [optimisticOps, setOptimisticOps] = useState<OptimisticOp[]>([])
+  // Movimiento de drag&drop a la espera de confirmación del usuario
+  const [pendingMove, setPendingMove] = useState<{
+    eventId: string
+    newStart: Date
+  } | null>(null)
 
   // Open drawer with pre-selected customer from URL param
   useEffect(() => {
@@ -829,13 +851,31 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     locale: "es-MX",
   })
   const [viewMode, setViewMode] = useState<AgendaView>("week")
+  // Filtro por encargado: solo aplica en la vista diaria
+  const [employeeFilter, setEmployeeFilter] = useState("")
 
   const handleViewChange = (view: AgendaView) => {
     setViewMode(view)
     if (view === "week" || view === "day") {
       controls.setView(view)
+    } else if (view === "staff") {
+      // La vista Staff es de un solo día con columnas por colaborador.
+      controls.setView("day")
     }
   }
+
+  // Encargados distintos presentes en las citas de la semana cargada
+  const encargados = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          events
+            .map((e) => e.service?.employeeName)
+            .filter((n): n is string => !!n),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    [events],
+  )
 
   // Derive week from controls
   const week = controls.week
@@ -887,6 +927,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     if (mutationFetcher.state === "idle") {
       setOptimisticOps([])
+      setPendingMove(null)
     }
   }, [mutationFetcher.state])
 
@@ -905,21 +946,77 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     return result
   }, [events, optimisticOps])
 
+  // Filtro por encargado del servicio (employeeName): solo aplica en la vista
+  // diaria. En semanal/staff/mensual se ignora y se muestran todas las citas.
+  const visibleEvents = useMemo(() => {
+    if (viewMode !== "day" || !employeeFilter) return displayEvents
+    return displayEvents.filter((e) => {
+      const name = e.service?.employeeName || ""
+      if (employeeFilter === UNASSIGNED_EMPLOYEE) return !name
+      return name === employeeFilter
+    })
+  }, [displayEvents, viewMode, employeeFilter])
+
   // Lookup map for full event data (used by hover card)
   const eventsMap = useMemo(() => {
     const map = new Map<string, EventWithRelations>()
-    for (const e of displayEvents) map.set(e.id, e)
+    for (const e of visibleEvents) map.set(e.id, e)
     return map
-  }, [displayEvents])
+  }, [visibleEvents])
 
-  // Day view: single resource so Calendar renders one column
+  // Day view: single resource so Calendar renders one column.
+  // Staff view: one resource column per colaborador (+ "Sin asignar").
   const isDayView = viewMode === "day"
-  const dayResources = isDayView ? [{ id: "day", name: "" }] : undefined
+  const isStaffView = viewMode === "staff"
+
+  // Las citas se asignan a un staff por el "encargado" de su servicio
+  // (Service.employeeName), no por Event.employeeId (que suele venir null).
+  // ¿Hay citas en la semana cargada sin encargado?
+  const hasUnassigned = useMemo(
+    () =>
+      isStaffView &&
+      displayEvents.some((e) => e.type !== "BLOCK" && !e.service?.employeeName),
+    [isStaffView, displayEvents],
+  )
+
+  // Recursos del calendario. En vista Staff las columnas son la unión del
+  // equipo (colaboradores) y los encargados de servicios; las citas se agrupan
+  // por Service.employeeName. Se añade "Sin asignar" si hay citas sin encargado.
+  const calendarResources = useMemo<Resource[] | undefined>(() => {
+    if (isDayView) return [{ id: "day", name: "" }]
+    if (!isStaffView) return undefined
+    const names = new Set<string>()
+    for (const u of employees) {
+      const n = (u.displayName || "").trim()
+      if (n) names.add(n)
+    }
+    for (const s of services) {
+      const n = (s.employeeName || "").trim()
+      if (n) names.add(n)
+    }
+    const base: Resource[] = Array.from(names)
+      .sort((a, b) => a.localeCompare(b))
+      .map((name) => ({ id: name, name }))
+    if (hasUnassigned) {
+      base.push({ id: UNASSIGNED_EMPLOYEE, name: "Sin asignar" })
+    }
+    return base
+  }, [isDayView, isStaffView, employees, services, hasUnassigned])
+
+  // Foto de cada staff por nombre (para el encabezado de columna en vista Staff)
+  const staffPhotos = useMemo(() => {
+    const map: Record<string, string> = {}
+    for (const u of employees) {
+      const n = (u.displayName || "").trim()
+      if (n && u.photoURL) map[n] = u.photoURL
+    }
+    return map
+  }, [employees])
 
   // Map to CalendarEvent format
   const calendarEvents: CalendarEvent[] = useMemo(
     () =>
-      displayEvents.map((e) => ({
+      visibleEvents.map((e) => ({
         id: e.id,
         start: new Date(e.start),
         duration: Number(e.duration),
@@ -932,13 +1029,17 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             : e.status === "confirmed"
               ? "#BFDD78"
               : "#FFD75E",
-        ...(isDayView ? { resourceId: "day" } : {}),
+        ...(isDayView
+          ? { resourceId: "day" }
+          : isStaffView
+            ? { resourceId: e.service?.employeeName || UNASSIGNED_EMPLOYEE }
+            : {}),
       })),
-    [displayEvents, isDayView],
+    [visibleEvents, isDayView, isStaffView],
   )
 
   const handleEventClick = (event: CalendarEvent) => {
-    const fullEvent = displayEvents.find((e) => e.id === event.id)
+    const fullEvent = visibleEvents.find((e) => e.id === event.id)
     if (fullEvent) {
       setEditableEvent(fullEvent)
     }
@@ -948,12 +1049,38 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     setEditableEvent({ start: date })
   }
 
+  // Al soltar: mostramos el cambio de forma optimista pero NO lo guardamos.
+  // El usuario debe confirmar (o cancelar) desde el toast.
   const handleEventMove = (eventId: string, newStart: Date) => {
-    setOptimisticOps((prev) => [...prev, { type: "move", eventId, newStart }])
+    setOptimisticOps((prev) => [
+      ...prev.filter((op) => !(op.type === "move" && op.eventId === eventId)),
+      { type: "move", eventId, newStart },
+    ])
+    setPendingMove({ eventId, newStart })
+  }
+
+  const confirmMove = () => {
+    if (!pendingMove) return
     mutationFetcher.submit(
-      { intent: "move_event", eventId, newStart: newStart.toISOString() },
+      {
+        intent: "move_event",
+        eventId: pendingMove.eventId,
+        newStart: pendingMove.newStart.toISOString(),
+      },
       { method: "POST" },
     )
+    setPendingMove(null)
+  }
+
+  const cancelMove = () => {
+    if (!pendingMove) return
+    // Revertimos: quitamos la op optimista para que la cita vuelva a su lugar
+    setOptimisticOps((prev) =>
+      prev.filter(
+        (op) => !(op.type === "move" && op.eventId === pendingMove.eventId),
+      ),
+    )
+    setPendingMove(null)
   }
 
   const handleAddBlock = (start: Date) => {
@@ -1101,7 +1228,13 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     if (viewMode === "month") return
 
     const isDay = viewMode === "day"
-    const columnsDates = isDay ? [controls.date] : week
+    const isStaff = viewMode === "staff"
+    // En vista Staff todas las columnas son el mismo día (una por colaborador).
+    const columnsDates = isStaff
+      ? (calendarResources ?? []).map(() => controls.date)
+      : isDay
+        ? [controls.date]
+        : week
     const closedColor = "rgba(227, 226, 226, 0.15)" // brand_ash/15
 
     const apply = () => {
@@ -1140,7 +1273,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       cancelAnimationFrame(raf)
       obs.disconnect()
     }
-  }, [viewMode, controls.date, week, weekDays, hoursStart, hoursEnd])
+  }, [
+    viewMode,
+    controls.date,
+    week,
+    weekDays,
+    hoursStart,
+    hoursEnd,
+    calendarResources,
+  ])
 
   // Pin the timezone label inside Calendar — observer re-applies the short
   // form whenever the lib re-renders the long name internally.
@@ -1190,6 +1331,30 @@ export default function Page({ loaderData }: Route.ComponentProps) {
             viewMode={viewMode}
             onViewChange={handleViewChange}
           />
+          {isDayView && encargados.length > 0 && (
+            <div className="flex items-center gap-2 pb-2">
+              <label
+                htmlFor="employeeFilter"
+                className="text-sm text-brand_gray shrink-0"
+              >
+                Encargado
+              </label>
+              <select
+                id="employeeFilter"
+                value={employeeFilter}
+                onChange={(e) => setEmployeeFilter(e.target.value)}
+                className="h-10 rounded-full border border-brand_stroke bg-white px-4 text-sm text-brand_dark focus:border-brand_blue focus:outline-none focus:ring-0"
+              >
+                <option value="">Todos</option>
+                {encargados.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+                <option value={UNASSIGNED_EMPLOYEE}>Sin asignar</option>
+              </select>
+            </div>
+          )}
           {viewMode === "month" ? (
             <MonthCalendar
               date={controls.date}
@@ -1205,7 +1370,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
               onNewEvent={handleNewEvent}
               events={calendarEvents}
               date={controls.date}
-              resources={dayResources}
+              resources={calendarResources}
               onEventClick={handleEventClick}
               onEventMove={handleEventMove}
               onAddBlock={handleAddBlock}
@@ -1215,26 +1380,51 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                 hoursEnd,
                 cellHeight,
                 locale: "es-MX",
-                renderColumnHeader: isDayView
-                  ? ({ date, isToday, locale }) => (
-                      <p className="grid place-items-center">
-                        <span className="text-sm text-gray-500">
-                          {date.toLocaleDateString(locale, {
-                            weekday: "short",
-                          })}
-                        </span>
-                        <span
-                          className={`text-2xl font-bold ${
-                            isToday
-                              ? "bg-brand_blue text-white rounded-full w-10 h-10 flex items-center justify-center"
-                              : ""
-                          }`}
-                        >
-                          {date.getDate()}
-                        </span>
-                      </p>
-                    )
-                  : undefined,
+                renderColumnHeader: isStaffView
+                  ? ({ resource }) => {
+                      const name = resource?.name || "Sin asignar"
+                      const photo = resource
+                        ? staffPhotos[resource.id]
+                        : undefined
+                      return (
+                        <p className="grid place-items-center gap-1 py-1">
+                          {photo ? (
+                            <img
+                              src={photo}
+                              alt={name}
+                              className="h-8 w-8 rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="grid h-8 w-8 place-items-center rounded-full bg-brand_blue/10 text-sm font-bold text-brand_blue">
+                              {(name.trim()[0] || "?").toUpperCase()}
+                            </span>
+                          )}
+                          <span className="max-w-[140px] truncate px-1 text-sm font-medium text-brand_dark">
+                            {name}
+                          </span>
+                        </p>
+                      )
+                    }
+                  : isDayView
+                    ? ({ date, isToday, locale }) => (
+                        <p className="grid place-items-center">
+                          <span className="text-sm text-gray-500">
+                            {date.toLocaleDateString(locale, {
+                              weekday: "short",
+                            })}
+                          </span>
+                          <span
+                            className={`text-2xl font-bold ${
+                              isToday
+                                ? "bg-brand_blue text-white rounded-full w-10 h-10 flex items-center justify-center"
+                                : ""
+                            }`}
+                          >
+                            {date.getDate()}
+                          </span>
+                        </p>
+                      )
+                    : undefined,
                 renderEvent: ({ event, isDragging }) => {
                   const full = eventsMap.get(event.id)
                   const isBlock = event.type === "BLOCK"
@@ -1380,6 +1570,40 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           </label>
         )}
       </ConfirmModal>
+      {pendingMove && (
+        <div className="fixed bottom-6 left-0 right-0 z-[600] flex justify-center pointer-events-none">
+          <div className="px-4 py-3 bg-white text-brand_dark rounded-2xl shadow-lg flex items-center gap-4 max-w-[90vw] pointer-events-auto border border-gray-100">
+            <div className="text-sm">
+              <p className="font-medium">¿Mover la cita a este horario?</p>
+              <p className="text-xs text-brand_gray mt-0.5 capitalize">
+                {pendingMove.newStart.toLocaleString("es-MX", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={cancelMove}
+                className="px-3 py-1.5 text-sm font-medium text-brand_gray hover:text-brand_dark rounded-full transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmMove}
+                className="px-4 py-1.5 text-sm font-medium text-white bg-brand_blue rounded-full hover:opacity-90 transition-opacity"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

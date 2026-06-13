@@ -29,3 +29,31 @@ export async function generateUniqueServiceSlug(
     counter++
   }
 }
+
+/**
+ * Generates a unique slug for a branch within an org.
+ * Unlike services, branch slugs are unique per-org (@@unique([orgId, slug])).
+ */
+export async function generateUniqueBranchSlug(
+  name: string,
+  orgId: string,
+): Promise<string> {
+  const baseSlug = slugify(name, { lower: true, strict: true }) || "sucursal"
+
+  const existing = await db.branch.findFirst({
+    where: { orgId, slug: baseSlug },
+    select: { id: true },
+  })
+  if (!existing) return baseSlug
+
+  let counter = 2
+  while (true) {
+    const candidateSlug = `${baseSlug}-${counter}`
+    const exists = await db.branch.findFirst({
+      where: { orgId, slug: candidateSlug },
+      select: { id: true },
+    })
+    if (!exists) return candidateSlug
+    counter++
+  }
+}

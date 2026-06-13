@@ -1,5 +1,6 @@
+import type { User } from "@prisma/client"
 import { useEffect, useRef } from "react"
-import { Link, useFetcher, useNavigate } from "react-router"
+import { useFetcher, useNavigate } from "react-router"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import { BasicInput } from "~/components/forms/BasicInput"
@@ -71,6 +72,15 @@ export default function Index({ loaderData }: Route.ComponentProps) {
   const handledRef = useRef<unknown>(null)
   const isFetching = fetcher.state !== "idle"
 
+  // Si la org tiene más de un colaborador, dejamos elegir el encargado
+  const employeesFetcher = useFetcher<{ employees?: User[] }>()
+  useEffect(() => {
+    employeesFetcher.load("/api/employees")
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const employees = employeesFetcher.data?.employees ?? []
+  const showEmployeeSelect = employees.length > 1
+
   useEffect(() => {
     if (
       fetcher.state === "idle" &&
@@ -132,28 +142,42 @@ export default function Index({ loaderData }: Route.ComponentProps) {
             type="number"
             defaultValue={Number(service.price)}
           />
-          <BasicInput
-            name="points"
-            placeholder="100"
-            isDisabled={!loyaltyEnabled}
-            label={
-              <>
-                ¿A cuántos puntos de lealtad equivale el servicio?{" "}
-                {!loyaltyEnabled && (
-                  <span className="font-satoshi text-brand_gray text-sm">
-                    <Link
-                      to="/dash/lealtad"
-                      className="text-brand_blue underline"
-                    >
-                      Activa el programa
-                    </Link>{" "}
-                    de lealtad para activar
-                  </span>
-                )}
-              </>
-            }
-            defaultValue={Number(service.points)}
-          />
+          {showEmployeeSelect && (
+            <div className="w-full relative">
+              <label
+                htmlFor="employeeName"
+                className="text-brand_dark font-satoMedium"
+              >
+                Encargado del servicio (opcional)
+              </label>
+              <div className="relative mt-1">
+                <select
+                  id="employeeName"
+                  name="employeeName"
+                  defaultValue={service.employeeName ?? ""}
+                  className="text-brand_gray font-satoshi rounded-2xl border-gray-200 w-full h-12 bg-white px-4 focus:border-brand_blue focus:outline-none focus:ring-0"
+                >
+                  <option value="">Sin encargado asignado</option>
+                  {employees.map((e) => {
+                    const label = e.displayName || e.email || ""
+                    return (
+                      <option key={e.id} value={label}>
+                        {label}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+            </div>
+          )}
+          {loyaltyEnabled && (
+            <BasicInput
+              name="points"
+              placeholder="100"
+              label="¿A cuántos puntos de lealtad equivale el servicio?"
+              defaultValue={Number(service.points)}
+            />
+          )}
           <BasicInput
             as="textarea"
             name="description"

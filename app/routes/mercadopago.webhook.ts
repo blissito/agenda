@@ -2,6 +2,10 @@ import { getPayment, validateWebhookSignature } from "~/.server/mercadopago"
 import { incrementCouponRedemption } from "~/lib/coupons.server"
 import { createMeetLink } from "~/lib/google-meet.server"
 import { awardPoints } from "~/lib/loyalty.server"
+import {
+  branchIdFilter,
+  createEventInFreeSlot,
+} from "~/lib/slot-capacity.server"
 import { createZoomMeeting } from "~/lib/zoom.server"
 import { db } from "~/utils/db.server"
 import {
@@ -47,12 +51,14 @@ export const action = async ({ request }: Route.ActionArgs) => {
       const {
         serviceId,
         customerId,
+        branchId,
         start,
         end,
         couponRewardId,
       }: {
         serviceId: string
         customerId: string
+        branchId?: string | null
         start: string
         end: string
         couponRewardId?: string | null
@@ -86,32 +92,78 @@ export const action = async ({ request }: Route.ActionArgs) => {
           return new Response("OK", { status: 200 })
         }
 
-        let event = await db.event.create({
-          data: {
+        const buildEventData = (slotIndex: number) => ({
+          start: new Date(start),
+          end: new Date(end),
+          duration: service.duration,
+          slotIndex,
+          serviceId: service.id,
+          title: service.name,
+          status: "pending",
+          orgId: service.orgId,
+          customerId: customer.id,
+          // Snapshot de la sede (si el booking la envió y pertenece a la org).
+          ...(branchId ? { branchId } : {}),
+          paid: true,
+          mp_payment_id: String(paymentId),
+          mp_preference_id: (payment as any).preference_id || null,
+          payment_method: "mercadopago",
+          allDay: false,
+          archived: false,
+          type: "appointment",
+          userId: service.org.ownerId,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        })
+        const eventInclude = {
+          customer: true,
+          service: { include: { org: true } },
+        }
+
+        const slotResult = await createEventInFreeSlot(
+          {
+            org: service.org,
+            service,
+            branchId: branchId ?? null,
+            branchWhere: {
+              orgId: service.orgId,
+              ...(branchId ? { branchId } : {}),
+            },
             start: new Date(start),
             end: new Date(end),
-            duration: service.duration,
-            serviceId: service.id,
-            title: service.name,
-            status: "pending",
-            orgId: service.orgId,
-            customerId: customer.id,
-            paid: true,
-            mp_payment_id: String(paymentId),
-            mp_preference_id: (payment as any).preference_id || null,
-            payment_method: "mercadopago",
-            allDay: false,
-            archived: false,
-            type: "appointment",
-            userId: service.org.ownerId,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           },
-          include: {
-            customer: true,
-            service: { include: { org: true } },
-          },
-        })
+          (slotIndex) =>
+            db.event.create({
+              data: buildEventData(slotIndex),
+              include: eventInclude,
+            }),
+        )
+
+        let event
+        if (slotResult.ok) {
+          event = slotResult.event
+        } else {
+          // El cliente YA pagó: no perdemos la reserva. La creamos en un carril
+          // de overflow (más allá de la capacidad) y avisamos para revisión.
+          console.warn(
+            "MP Webhook: slot lleno/cruzado para reserva pagada, creando overflow",
+            { serviceId, start, reason: slotResult.reason },
+          )
+          const top = await db.event.findFirst({
+            where: {
+              serviceId: service.id,
+              start: new Date(start),
+              ...branchIdFilter(branchId ?? null),
+              archived: false,
+            },
+            orderBy: { slotIndex: "desc" },
+            select: { slotIndex: true },
+          })
+          event = await db.event.create({
+            data: buildEventData((top?.slotIndex ?? -1) + 1),
+            include: eventInclude,
+          })
+        }
 
         // Crear link de llamada (Meet/Zoom) según videoProvider del servicio
         const provider = resolveVideoProvider({ org: service.org, service })

@@ -2,7 +2,7 @@ import type { Org, Service } from "@prisma/client"
 import { PrimaryButton } from "~/components/common/primaryButton"
 import { ServiceList } from "~/components/forms/agenda/DateAndTimePicker"
 import type { SupportedTimezone } from "~/utils/timezone"
-import { getPublicImageUrl } from "~/utils/urls"
+import { getOrgPublicUrl, getPublicImageUrl } from "~/utils/urls"
 
 const FALLBACK_LOGO = "/images/avatar.svg"
 
@@ -14,13 +14,29 @@ type OrgLike = Pick<Org, "name"> & {
 type ServiceLike = Pick<Service, "name"> & { [key: string]: unknown }
 
 export const Header = ({ org }: { org: OrgLike }) => {
+  const slug = typeof org?.slug === "string" ? org.slug : null
+  const logo = (
+    <img
+      className="h-16 w-16 rounded-full object-cover"
+      alt={org?.name ? `Logo de ${org.name}` : "org logo"}
+      src={getPublicImageUrl(org?.logo) || FALLBACK_LOGO}
+    />
+  )
   return (
     <div className="flex gap-3 items-center justify-center py-4 md:py-12">
-      <img
-        className="h-16 w-16 rounded-full object-cover"
-        alt="org logo"
-        src={getPublicImageUrl(org?.logo) || FALLBACK_LOGO}
-      />
+      {slug ? (
+        <a
+          href={getOrgPublicUrl(slug)}
+          aria-label={
+            org?.name ? `Ir al sitio de ${org.name}` : "Ir al sitio del negocio"
+          }
+          className="transition-transform hover:scale-105 active:scale-95"
+        >
+          {logo}
+        </a>
+      ) : (
+        logo
+      )}
     </div>
   )
 }

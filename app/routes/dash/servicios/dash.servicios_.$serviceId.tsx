@@ -617,6 +617,9 @@ export const ServiceDetail = ({
                   : "Desactivado"
               }
             />
+            {service.employeeName && (
+              <DetailItem label="Encargado" value={service.employeeName} />
+            )}
           </div>
 
           <div className="mt-auto pt-10">

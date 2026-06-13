@@ -10,6 +10,7 @@
  *   owner notification fire (see `/booking/confirm/$token`)
  */
 import type { Org } from "@prisma/client"
+import { createEventInFreeSlot } from "~/lib/slot-capacity.server"
 import { db } from "~/utils/db.server"
 import { sendBookingConfirmationLink } from "~/utils/emails/sendBookingConfirmationLink"
 import { generateEventActionToken } from "~/utils/tokens"
@@ -120,44 +121,47 @@ export async function createPublicBooking(
     },
   })
 
-  let event
-  try {
-    event = await db.event.create({
-      data: {
-        start,
-        end,
-        duration: durationMinutes,
-        service: { connect: { id: service.id } },
-        title: service.name,
-        status: "pending",
-        org: { connect: { id: org.id } },
-        customer: { connect: { id: dbCustomer.id } },
-        allDay: false,
-        archived: false,
-        createdAt: now,
-        paid: price === 0,
-        type: "appointment",
-        userId: org.ownerId,
-        updatedAt: now,
-        notes: customer.notes || null,
-        confirmedAt: null,
-      },
-      include: {
-        customer: true,
-        service: { include: { org: true } },
-      },
-    })
-  } catch (e: unknown) {
-    if (
-      e &&
-      typeof e === "object" &&
-      "code" in e &&
-      (e as { code: string }).code === "P2002"
-    ) {
-      return { status: "error", error: "slot already taken" }
-    }
-    throw e
+  const slotResult = await createEventInFreeSlot(
+    {
+      org,
+      service,
+      branchId: null,
+      branchWhere: { orgId: org.id },
+      start,
+      end,
+    },
+    (slotIndex) =>
+      db.event.create({
+        data: {
+          start,
+          end,
+          duration: durationMinutes,
+          slotIndex,
+          service: { connect: { id: service.id } },
+          title: service.name,
+          status: "pending",
+          org: { connect: { id: org.id } },
+          customer: { connect: { id: dbCustomer.id } },
+          allDay: false,
+          archived: false,
+          createdAt: now,
+          paid: price === 0,
+          type: "appointment",
+          userId: org.ownerId,
+          updatedAt: now,
+          notes: customer.notes || null,
+          confirmedAt: null,
+        },
+        include: {
+          customer: true,
+          service: { include: { org: true } },
+        },
+      }),
+  )
+  if (!slotResult.ok) {
+    return { status: "error", error: "slot already taken" }
   }
+  const event = slotResult.event
 
   const token = generateEventActionToken({
     eventId: event.id,

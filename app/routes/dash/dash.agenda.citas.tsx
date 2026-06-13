@@ -1,12 +1,17 @@
 import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import {
+  branchEventFilter,
+  getActiveBranchFromRequest,
+} from "~/lib/branches.server"
 import { Pagination } from "~/components/common/Pagination"
 import { SecondaryButton } from "~/components/common/secondaryButton"
 import {
   CitasFilterPopup,
   type CitasFilters,
   EMPTY_FILTERS,
+  UNASSIGNED_EMPLOYEE,
 } from "~/components/dash/CitasFilter"
 import { CitasTable, getStatusVariant } from "~/components/dash/CitasTable"
 import { BasicInput } from "~/components/forms/BasicInput"
@@ -22,12 +27,15 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   const { org } = await getUserAndOrgOrRedirect(request)
   if (!org) throw new Response("Org not found", { status: 404 })
 
+  const activeBranch = await getActiveBranchFromRequest(request, org.id)
+
   const [events, services] = await Promise.all([
     db.event.findMany({
       where: {
         orgId: org.id,
         archived: false,
         type: { not: "BLOCK" },
+        ...branchEventFilter(activeBranch),
       },
       include: { service: true, customer: true },
       orderBy: { start: "desc" },
@@ -52,6 +60,15 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS)
   const filterRef = useRef<HTMLDivElement>(null)
+
+  // Encargados distintos presentes en las citas (para el filtro "Por encargado")
+  const employees = Array.from(
+    new Set(
+      events
+        .map((e) => e.service?.employeeName)
+        .filter((n): n is string => !!n),
+    ),
+  ).sort((a, b) => a.localeCompare(b))
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -85,6 +102,14 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
       if (new Date(e.start) > to) return false
     }
     if (filters.serviceId && e.serviceId !== filters.serviceId) return false
+    if (filters.employeeName) {
+      const encargado = e.service?.employeeName || ""
+      if (filters.employeeName === UNASSIGNED_EMPLOYEE) {
+        if (encargado) return false
+      } else if (encargado !== filters.employeeName) {
+        return false
+      }
+    }
     if (filters.statuses.size > 0) {
       const variant = getStatusVariant(e.status)
       const payVariant = e.paid ? "paid" : "unpaid"
@@ -119,6 +144,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
     filters.from !== "" ||
     filters.to !== "" ||
     filters.serviceId !== "" ||
+    filters.employeeName !== "" ||
     filters.statuses.size > 0
 
   const handleDownloadCSV = () => {
@@ -253,6 +279,7 @@ export default function CitasPage({ loaderData }: Route.ComponentProps) {
                 draft={draft}
                 setDraft={setDraft}
                 services={services}
+                employees={employees}
                 hasActiveFilters={hasActiveFilters}
                 onApply={() => {
                   setFilters(draft)

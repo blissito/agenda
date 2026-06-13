@@ -1,4 +1,11 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react"
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import {
   FaCheck,
   FaFacebookF,
@@ -7,7 +14,7 @@ import {
   FaTiktok,
   FaYoutube,
 } from "react-icons/fa6"
-import { Form, useFetcher, useLoaderData, useSearchParams } from "react-router"
+import { Form, Link, useFetcher, useLoaderData, useSearchParams } from "react-router"
 import { twMerge } from "tailwind-merge"
 import { ClientAvatar } from "~/components/common/ClientAvatar"
 import { ConfirmModal } from "~/components/common/ConfirmModal"
@@ -45,6 +52,7 @@ import type { loader } from "./dash.ajustes.server"
 const TABS = [
   "general",
   "horarios",
+  "sucursales",
   "configuracion",
   "integraciones",
   "colaboradores",
@@ -54,14 +62,22 @@ type Tab = (typeof TABS)[number]
 const TAB_LABELS: Record<Tab, string> = {
   general: "Info General",
   horarios: "Horarios",
+  sucursales: "Sucursales",
   configuracion: "Configuración",
   integraciones: "Integraciones",
   colaboradores: "Colaboradores",
 }
 
 export default function Ajustes() {
-  const { countries, timeZones, collaborators, org, logoAction } =
-    useLoaderData<typeof loader>()
+  const {
+    countries,
+    timeZones,
+    collaborators,
+    branches,
+    activeBranch,
+    org,
+    logoAction,
+  } = useLoaderData<typeof loader>()
   const [searchParams, setSearchParams] = useSearchParams()
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
@@ -111,7 +127,15 @@ export default function Ajustes() {
       {activeTab === "horarios" && (
         <HorariosTab
           org={org}
+          activeBranch={activeBranch}
           onSaved={() => setToastMessage("Horario guardado")}
+        />
+      )}
+      {activeTab === "sucursales" && (
+        <SucursalesTab
+          branches={branches}
+          org={org}
+          onToggled={() => setToastMessage("Sucursal actualizada")}
         />
       )}
       {activeTab === "configuracion" && (
@@ -124,7 +148,11 @@ export default function Ajustes() {
       )}
       {activeTab === "integraciones" && <IntegracionesTab org={org} />}
       {activeTab === "colaboradores" && (
-        <ColaboradoresTab collaborators={collaborators} ownerId={org.ownerId} />
+        <ColaboradoresTab
+          collaborators={collaborators}
+          ownerId={org.ownerId}
+          branches={branches}
+        />
       )}
       <SuccessToast message={toastMessage} />
     </main>
@@ -357,7 +385,20 @@ function InfoGeneralTab({
 
 /* ==================== Horarios Tab ==================== */
 
-function HorariosTab({ org, onSaved }: { org: any; onSaved?: () => void }) {
+function HorariosTab({
+  org,
+  activeBranch,
+  onSaved,
+}: {
+  org: any
+  activeBranch?: {
+    id: string
+    name: string
+    isDefault: boolean
+    weekDays?: any
+  } | null
+  onSaved?: () => void
+}) {
   const fetcher = useFetcher()
   const prevState = useRef(fetcher.state)
   useEffect(() => {
@@ -372,21 +413,40 @@ function HorariosTab({ org, onSaved }: { org: any; onSaved?: () => void }) {
     weekDaysOrgSchema.parse({ weekDays })
     fetcher.submit(
       {
-        data: JSON.stringify({ weekDays }),
+        data: JSON.stringify({
+          weekDays,
+          ...(activeBranch ? { branchId: activeBranch.id } : {}),
+        }),
         intent: "update_weekdays",
       },
       { method: "POST" },
     )
   }
 
+  // La sede es la fuente de verdad del horario. Sembramos el editor con el
+  // horario de la sucursal activa; si aún no tiene, hereda el del Org.
+  const seedOrg = {
+    ...org,
+    weekDays: activeBranch?.weekDays ?? org.weekDays,
+  }
+  const isBranchScoped = activeBranch && !activeBranch.isDefault
+
   return (
     <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
       <div className="p-4 md:p-6 lg:p-8">
         <h3 className="text-lg font-satoBold mb-2">
-          Horario: Actualiza los días y horarios en los que ofreces servicio
+          {isBranchScoped
+            ? `Horario de ${activeBranch?.name}`
+            : "Horario: Actualiza los días y horarios en los que ofreces servicio"}
         </h3>
+        {isBranchScoped && (
+          <p className="text-brand_gray text-sm">
+            Estás editando los horarios de esta sucursal. Cambia de sede en el
+            menú de organización.
+          </p>
+        )}
         <div className="mt-6 [&>form]:mx-0 [&>form]:px-0 [&>form]:pt-0 [&>form]:max-w-none">
-          <TimesForm org={org} onSubmit={handleSubmit}>
+          <TimesForm org={seedOrg} onSubmit={handleSubmit}>
             <div className="flex justify-end mt-12">
               <PrimaryButton
                 type="submit"
@@ -399,6 +459,261 @@ function HorariosTab({ org, onSaved }: { org: any; onSaved?: () => void }) {
           </TimesForm>
         </div>
       </div>
+    </section>
+  )
+}
+
+/* ==================== Sucursales Tab ==================== */
+
+type BranchRow = {
+  id: string
+  name: string
+  slug: string
+  address: string | null
+  tel: string | null
+  email: string | null
+  weekDays: any
+  isActive: boolean
+  isDefault: boolean
+}
+
+function SucursalesTab({
+  branches,
+  org,
+  onToggled,
+}: {
+  branches: BranchRow[]
+  org: any
+  onToggled?: () => void
+}) {
+  const fetcher = useFetcher()
+  const [searchParams] = useSearchParams()
+  const created = searchParams.get("created")
+  const [editingBranch, setEditingBranch] = useState<BranchRow | null>(null)
+  const [editName, setEditName] = useState("")
+  const [editAddress, setEditAddress] = useState("")
+  const [editTel, setEditTel] = useState("")
+  const [editEmail, setEditEmail] = useState("")
+  const editWeekDays = useRef<WeekSchema | null>(null)
+  const orgAddress = org?.address || ""
+  const prevState = useRef(fetcher.state)
+  useEffect(() => {
+    if (prevState.current !== "idle" && fetcher.state === "idle") {
+      const data = fetcher.data as any
+      if (!data || !data.error) {
+        setEditingBranch(null)
+        onToggled?.()
+      }
+    }
+    prevState.current = fetcher.state
+  }, [fetcher.state, fetcher.data, onToggled])
+
+  // Siembra los campos de contacto al abrir el modal de una sucursal.
+  useEffect(() => {
+    if (!editingBranch) return
+    setEditName(editingBranch.name)
+    setEditAddress(editingBranch.address || "")
+    setEditTel(editingBranch.tel || "")
+    setEditEmail(editingBranch.email || "")
+    editWeekDays.current = (editingBranch.weekDays as WeekSchema) ?? null
+  }, [editingBranch])
+
+  // TimesForm reporta los horarios vigentes vía onChange (también al montar).
+  const handleWeekDaysChange = useCallback((weekDays: WeekSchema) => {
+    editWeekDays.current = weekDays
+  }, [])
+
+  const handleSaveBranch = () => {
+    if (!editingBranch) return
+    fetcher.submit(
+      {
+        intent: "update_branch",
+        branchId: editingBranch.id,
+        name: editName,
+        address: editAddress,
+        tel: editTel,
+        email: editEmail,
+        weekDays: JSON.stringify(editWeekDays.current ?? {}),
+      },
+      { method: "post" },
+    )
+  }
+
+  return (
+    <section className="bg-white rounded-2xl max-w-4xl overflow-hidden">
+      <div className="p-4 md:p-6 lg:p-8">
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <h3 className="text-lg font-satoBold">Sucursales</h3>
+        </div>
+        <p className="text-brand_gray text-sm mb-6">
+          Cada sucursal es una sede de tu negocio. Selecciónala en el menú de
+          organización para filtrar tu agenda por sede. La sucursal principal se
+          edita desde la pestaña Info General.
+        </p>
+
+        {created && (
+          <div className="mb-4 rounded-xl bg-green-50 text-green-700 px-4 py-3 text-sm">
+            Sucursal creada correctamente.
+          </div>
+        )}
+
+        <ul className="flex flex-col gap-3">
+          {branches.map((b) => {
+            // La Principal refleja la dirección del Org cuando la suya es vacía.
+            const shownAddress =
+              b.address || (b.isDefault ? orgAddress : "") || "Sin dirección"
+            return (
+              <li
+                key={b.id}
+                className="flex items-center gap-3 rounded-2xl border border-brand_stroke px-4 py-3"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-satoMedium text-brand_dark truncate">
+                      {b.name}
+                    </span>
+                    {b.isDefault && (
+                      <span className="text-[11px] uppercase tracking-wide text-brand_blue bg-brand_blue/10 rounded px-1.5 py-0.5">
+                        Principal
+                      </span>
+                    )}
+                    {!b.isActive && (
+                      <span className="text-[11px] uppercase tracking-wide text-brand_gray bg-gray-100 rounded px-1.5 py-0.5">
+                        Inactiva
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-brand_gray truncate">
+                    {shownAddress}
+                  </p>
+                </div>
+                {!b.isDefault && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setEditingBranch(b)}
+                      className="text-sm text-brand_gray hover:text-brand_dark px-3 py-1.5 rounded-lg hover:bg-gray-50"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        fetcher.submit(
+                          { intent: "toggle_branch", branchId: b.id },
+                          { method: "post" },
+                        )
+                      }
+                      className="text-sm text-brand_gray hover:text-brand_dark px-3 py-1.5 rounded-lg hover:bg-gray-50"
+                    >
+                      {b.isActive ? "Desactivar" : "Activar"}
+                    </button>
+                  </>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+
+        <Link
+          to="/dash/sucursales/nueva"
+          className="mt-3 w-full flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand_blue/5 transition-colors text-left text-brand_gray"
+        >
+          <svg
+            className="w-4 h-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          <span className="text-sm">Crear sucursal</span>
+        </Link>
+      </div>
+
+      <ConfirmModal
+        isOpen={!!editingBranch}
+        onClose={() => setEditingBranch(null)}
+        onConfirm={() => {}}
+        title={editingBranch ? `Editar ${editingBranch.name}` : "Editar sucursal"}
+        emoji="🏢"
+        hideButtons
+        panelClassName="max-w-[900px]"
+      >
+        {editingBranch && (
+          <div
+            key={editingBranch.id}
+            className="w-full mt-6 max-h-[70vh] overflow-y-auto text-left"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Columna 1: datos de contacto */}
+              <div>
+                <h4 className="text-base font-satoBold mb-4">Datos</h4>
+                <div className="flex flex-col gap-3">
+                  <BasicInput
+                    name="name"
+                    label="Nombre"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                  />
+                  <BasicInput
+                    name="address"
+                    label="Dirección"
+                    placeholder="Calle, número, colonia, ciudad"
+                    value={editAddress}
+                    onChange={(e) => setEditAddress(e.target.value)}
+                  />
+                  <BasicInput
+                    name="tel"
+                    label="Teléfono"
+                    placeholder="55 1234 5678"
+                    value={editTel}
+                    onChange={(e) => setEditTel(e.target.value)}
+                  />
+                  <BasicInput
+                    name="email"
+                    type="email"
+                    label="Correo"
+                    placeholder="sucursal@ejemplo.com"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Columna 2: horarios */}
+              <div className="md:border-l md:border-brand_stroke md:pl-6">
+                <h4 className="text-base font-satoBold mb-4">Horarios</h4>
+                <div className="[&>form]:mx-0 [&>form]:px-0 [&>form]:pt-0 [&>form]:max-w-none">
+                  <TimesForm
+                    org={{
+                      ...org,
+                      weekDays: editingBranch.weekDays ?? org.weekDays,
+                    }}
+                    onChange={handleWeekDaysChange}
+                    noSubmit
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-center">
+              <PrimaryButton
+                type="button"
+                onClick={handleSaveBranch}
+                isLoading={fetcher.state !== "idle"}
+                className="h-11 min-h-0 w-[200px]"
+              >
+                Guardar
+              </PrimaryButton>
+            </div>
+          </div>
+        )}
+      </ConfirmModal>
     </section>
   )
 }
@@ -776,6 +1091,7 @@ function IntegracionesTab({ org }: { org: any }) {
 function ColaboradoresTab({
   collaborators,
   ownerId,
+  branches,
 }: {
   collaborators: Array<{
     id: string
@@ -785,6 +1101,7 @@ function ColaboradoresTab({
     role: string | null
   }>
   ownerId: string
+  branches: BranchRow[]
 }) {
   const [search, setSearch] = useState("")
   const [showInvite, setShowInvite] = useState(false)
@@ -833,6 +1150,29 @@ function ColaboradoresTab({
             placeholder="correo@ejemplo.com"
             required
           />
+          {branches.length > 1 && (
+            <div className="w-full">
+              <label
+                htmlFor="branchScope"
+                className="text-brand_dark font-satoMedium"
+              >
+                Acceso
+              </label>
+              <select
+                id="branchScope"
+                name="branchScope"
+                defaultValue="all"
+                className="mt-1 rounded-2xl border-gray-200 w-full h-12 text-brand_gray font-satoshi focus:border-brand_blue focus:outline-none focus:ring-0"
+              >
+                <option value="all">Todo el negocio</option>
+                {branches.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    Solo {b.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="flex justify-center mt-4">
             <PrimaryButton type="submit" className="w-[160px] h-10">
               Invitar

@@ -44,7 +44,6 @@ export default function ParaClientes() {
           cta={{ to: "/mi-cuenta", label: "Crear cuenta" }}
         />
         <Hero />
-        <Showcase />
         <BusinessCta />
         <Steps />
         <Highlight />
@@ -57,7 +56,7 @@ export default function ParaClientes() {
 // ==================== HERO ====================
 
 const Hero = () => (
-  <section className="relative min-h-[100svh] max-w-[90%] xl:max-w-7xl mx-auto pt-40 pb-20 md:pb-[160px] grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+  <section className="relative min-h-[100svh] max-w-[90%] xl:max-w-7xl mx-auto pt-40 pb-12 md:pb-20 grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
     {/* Figuras decorativas (mismas del parallax de /) */}
     <Rocket className="hidden md:block absolute z-20 top-1/4 right-[32%] w-9 h-9 rotate-12 pointer-events-none" />
     <Thunder className="hidden md:block absolute bottom-32 left-[14%] w-7 h-10 -rotate-12 pointer-events-none" />

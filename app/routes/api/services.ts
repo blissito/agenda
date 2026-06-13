@@ -105,11 +105,15 @@ export const action = async ({ request }: Route.ActionArgs) => {
       serverServicePhotoFormSchema.safeParse(data)
     if (!success) throw new Response("Error in form fields", { status: 400 })
 
-    // Build update data, handling gallery as array
+    // Build update data, handling gallery as array. `seats` = capacidad
+    // simultánea del servicio (Eje 2): solo aplica si allowMultiple, mínimo 2.
     const updateData: Prisma.ServiceUpdateInput = {
       place: parsedData.place,
       allowMultiple: parsedData.allowMultiple,
       isActive: parsedData.isActive,
+      seats: parsedData.allowMultiple
+        ? Math.max(2, Math.floor(Number(parsedData.seats ?? 2)))
+        : 1,
     }
 
     // If a new photo key was provided, set it as the first gallery item

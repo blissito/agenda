@@ -127,6 +127,12 @@ type Pages = {
       "serviceId": string;
     };
   };
+  "/dash/sucursales": {
+    params: {};
+  };
+  "/dash/sucursales/nueva": {
+    params: {};
+  };
   "/dash/chatbot": {
     params: {};
   };
@@ -177,6 +183,12 @@ type Pages = {
     params: {};
   };
   "/api/switch-org": {
+    params: {};
+  };
+  "/api/switch-branch": {
+    params: {};
+  };
+  "/api/branches": {
     params: {};
   };
   "/api/services": {
@@ -341,7 +353,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/planes" | "/funcionalidades" | "/ia" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/instalar" | "/para-clientes" | "/blog" | "/blog/:slug" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/switch-org" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/customer-record" | "/api/images" | "/api/landing-generator" | "/api/stripe-checkout" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/api/mcp/public" | "/api/whatsapp/link" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/whatsapp/link/callback" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/robots.txt" | "/sitemap.xml" | "/booking/confirm/:token" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/event/:eventId/reschedule" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/admin" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
+    page: "/" | "/planes" | "/funcionalidades" | "/ia" | "/negocios" | "/community" | "/terminosycondiciones" | "/avisodeprivacidad" | "/privacidad" | "/instalar" | "/para-clientes" | "/blog" | "/blog/:slug" | "/signin" | "/signup" | "/signup/:stepSlug" | "/auth/:provider" | "/auth/callback/:provider" | "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/sucursales" | "/dash/sucursales/nueva" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas" | "/api/customers" | "/api/switch-org" | "/api/switch-branch" | "/api/branches" | "/api/services" | "/api/employees" | "/api/events" | "/api/org" | "/api/domain" | "/api/loyalty" | "/api/customer-record" | "/api/images" | "/api/landing-generator" | "/api/stripe-checkout" | "/api/asistente" | "/api/mcp/events" | "/api/mcp/services" | "/api/mcp/customers" | "/api/mcp/org" | "/api/mcp/landing" | "/api/mcp/public" | "/api/whatsapp/link" | "/stripe" | "/stripe/webhook" | "/mercadopago/oauth" | "/mercadopago/webhook" | "/mercadopago/success" | "/mercadopago/pending" | "/mercadopago/failure" | "/zoom/webhook" | "/whatsapp/webhook" | "/whatsapp/link/callback" | "/demo/smatch" | "/agenda/:orgSlug" | "/agenda/:orgSlug/:serviceSlug" | "/error" | "/robots.txt" | "/sitemap.xml" | "/booking/confirm/:token" | "/event/action" | "/event/:eventId/confirm" | "/event/:eventId/modify" | "/event/:eventId/cancel" | "/event/:eventId/reschedule" | "/survey" | "/mi-cuenta/perfil/resena/:eventId" | "/admin" | "/mi-cuenta" | "/mi-cuenta/perfil" | "/:serviceSlug";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -417,7 +429,7 @@ type RouteFiles = {
   };
   "routes/dash/dash_layout.tsx": {
     id: "routes/dash/dash_layout";
-    page: "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas";
+    page: "/dash" | "/dash/asistente" | "/dash/perfil" | "/dash/agenda" | "/dash/agenda/citas" | "/dash/onboarding" | "/dash/servicios" | "/dash/servicios/nuevo" | "/dash/servicios/:serviceId" | "/dash/servicios/:serviceId/general" | "/dash/servicios/:serviceId/agendamiento" | "/dash/servicios/:serviceId/horario" | "/dash/servicios/:serviceId/cobros" | "/dash/servicios/:serviceId/acciones" | "/dash/sucursales" | "/dash/sucursales/nueva" | "/dash/chatbot" | "/dash/website" | "/dash/website/ai" | "/dash/clientes/:email" | "/dash/clientes" | "/dash/lealtad" | "/dash/evaluaciones" | "/dash/evaluaciones/:serviceId" | "/dash/ajustes" | "/dash/google-calendar/connect" | "/dash/google-calendar/callback" | "/dash/zoom/connect" | "/dash/zoom/callback" | "/dash/ventas";
   };
   "routes/dash/dash._index.tsx": {
     id: "routes/dash/dash._index";
@@ -474,6 +486,14 @@ type RouteFiles = {
   "routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx": {
     id: "routes/dash/servicios/dash.servicios_.$serviceId_.acciones";
     page: "/dash/servicios/:serviceId/acciones";
+  };
+  "routes/dash/sucursales/index.tsx": {
+    id: "routes/dash/sucursales/index";
+    page: "/dash/sucursales";
+  };
+  "routes/dash/sucursales/nueva.tsx": {
+    id: "routes/dash/sucursales/nueva";
+    page: "/dash/sucursales/nueva";
   };
   "routes/dash/dash.chatbot.tsx": {
     id: "routes/dash/dash.chatbot";
@@ -538,6 +558,14 @@ type RouteFiles = {
   "routes/api/switch-org.ts": {
     id: "routes/api/switch-org";
     page: "/api/switch-org";
+  };
+  "routes/api/switch-branch.ts": {
+    id: "routes/api/switch-branch";
+    page: "/api/switch-branch";
+  };
+  "routes/api/branches.ts": {
+    id: "routes/api/branches";
+    page: "/api/branches";
   };
   "routes/api/services.ts": {
     id: "routes/api/services";
@@ -760,6 +788,8 @@ type RouteModules = {
   "routes/dash/servicios/dash.servicios_.$serviceId_.horario": typeof import("./app/routes/dash/servicios/dash.servicios_.$serviceId_.horario.tsx");
   "routes/dash/servicios/dash.servicios_.$serviceId_.cobros": typeof import("./app/routes/dash/servicios/dash.servicios_.$serviceId_.cobros.tsx");
   "routes/dash/servicios/dash.servicios_.$serviceId_.acciones": typeof import("./app/routes/dash/servicios/dash.servicios_.$serviceId_.acciones.tsx");
+  "routes/dash/sucursales/index": typeof import("./app/routes/dash/sucursales/index.tsx");
+  "routes/dash/sucursales/nueva": typeof import("./app/routes/dash/sucursales/nueva.tsx");
   "routes/dash/dash.chatbot": typeof import("./app/routes/dash/dash.chatbot.tsx");
   "routes/dash/website/dash.website": typeof import("./app/routes/dash/website/dash.website.tsx");
   "routes/dash/dash.website_.ai": typeof import("./app/routes/dash/dash.website_.ai.tsx");
@@ -776,6 +806,8 @@ type RouteModules = {
   "routes/dash/pagos": typeof import("./app/routes/dash/pagos.tsx");
   "routes/api/customers": typeof import("./app/routes/api/customers.ts");
   "routes/api/switch-org": typeof import("./app/routes/api/switch-org.ts");
+  "routes/api/switch-branch": typeof import("./app/routes/api/switch-branch.ts");
+  "routes/api/branches": typeof import("./app/routes/api/branches.ts");
   "routes/api/services": typeof import("./app/routes/api/services.ts");
   "routes/api/employees": typeof import("./app/routes/api/employees.ts");
   "routes/api/events": typeof import("./app/routes/api/events.ts");

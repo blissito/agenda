@@ -12,6 +12,9 @@ type SessionData = {
   userId: string
   customerEventAccess?: CustomerEventAccess
   newUserCreated?: boolean
+  // Sucursal activa del dashboard (filtra agenda/clientes por sede). Se valida
+  // contra la org activa en cada loader vía getActiveBranch().
+  activeBranchId?: string
 }
 
 type SessionFlashData = {

@@ -13,7 +13,12 @@ import {
   AddService,
   ServiceCard,
 } from "~/components/dash/servicios/ServiceCard"
+import { BranchServiceToggle } from "~/components/dash/servicios/BranchServiceToggle"
 import { RouteTitle } from "~/components/sideBar/routeTitle"
+import {
+  assertBranchInOrg,
+  getActiveBranchFromRequest,
+} from "~/lib/branches.server"
 import { db } from "~/utils/db.server"
 import { getServicePublicUrl } from "~/utils/urls"
 import type { Route } from "./+types"
@@ -38,6 +43,27 @@ export const action = async ({ request }: Route.ActionArgs) => {
       },
     })
   }
+
+  // Activa/desactiva un servicio en la sucursal activa (crea/elimina ServiceBranch).
+  if (intent === "toggle_service_branch") {
+    const serviceId = formData.get("serviceId") as string
+    const branchId = formData.get("branchId") as string
+    const offered = formData.get("offered") === "true"
+    await assertServiceInOrg(serviceId, org.id)
+    await assertBranchInOrg(branchId, org.id)
+    if (offered) {
+      const existing = await db.serviceBranch.findFirst({
+        where: { serviceId, branchId },
+        select: { id: true },
+      })
+      if (!existing) {
+        await db.serviceBranch.create({ data: { serviceId, branchId } })
+      }
+    } else {
+      await db.serviceBranch.deleteMany({ where: { serviceId, branchId } })
+    }
+    return { ok: true }
+  }
 }
 
 export const loader = async ({ request }: Route.LoaderArgs) => {
@@ -46,11 +72,30 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   if (!org) {
     throw new Response("Organization not found", { status: 404 })
   }
-  return { services, org }
+  // Sede activa: si es una sucursal no-principal, exponemos qué servicios ofrece
+  // para mostrar el toggle por-sede en cada card.
+  const activeBranch = await getActiveBranchFromRequest(request, org.id)
+  const isBranchScoped = Boolean(activeBranch && !activeBranch.isDefault)
+  const offeredServiceIds =
+    isBranchScoped && activeBranch
+      ? (
+          await db.serviceBranch.findMany({
+            where: { branchId: activeBranch.id },
+            select: { serviceId: true },
+          })
+        ).map((sb) => sb.serviceId)
+      : []
+  return {
+    services,
+    org,
+    activeBranch: isBranchScoped ? activeBranch : null,
+    offeredServiceIds,
+  }
 }
 
 export default function Services({ loaderData }: Route.ComponentProps) {
-  const { services, org } = loaderData
+  const { services, org, activeBranch, offeredServiceIds } = loaderData
+  const offeredSet = new Set(offeredServiceIds)
 
   const getLink = useCallback(
     (service: Service) => getServicePublicUrl(org.slug, service.slug),
@@ -63,6 +108,13 @@ export default function Services({ loaderData }: Route.ComponentProps) {
         Servicios{" "}
       </RouteTitle>
 
+      {activeBranch && (
+        <div className="mb-6 rounded-2xl bg-brand_blue/5 border border-brand_blue/20 px-4 py-3 text-sm text-brand_dark">
+          Estás viendo la sucursal <strong>{activeBranch.name}</strong>. Activa o
+          desactiva qué servicios de tu catálogo se ofrecen en esta sede.
+        </div>
+      )}
+
       {!services.length ? (
         <EmptyStateServices />
       ) : (
@@ -70,24 +122,32 @@ export default function Services({ loaderData }: Route.ComponentProps) {
           <AnimatePresence>
             <AddService />
             {services.map((service, index) => (
-              <ServiceCard
-                service={service}
-                isActive={service.isActive}
-                id={service.id}
-                image={service.gallery?.[0]}
-                key={service.id}
-                index={index}
-                title={service.name}
-                duration={Number(service.duration)} // @TODO: format function this is minutes for now
-                price={`${service.price} mxn`}
-                status={service.isActive ? "Activo" : "Desactivado"}
-                link={getLink(service)} // for copy link action
-                path={
-                  service.isActive
-                    ? `/dash/servicios/${service.id}`
-                    : `/dash/servicios/nuevo?id=${service.id}`
-                }
-              />
+              <div key={service.id} className="relative">
+                {activeBranch && (
+                  <BranchServiceToggle
+                    serviceId={service.id}
+                    branchId={activeBranch.id}
+                    offered={offeredSet.has(service.id)}
+                  />
+                )}
+                <ServiceCard
+                  service={service}
+                  isActive={service.isActive}
+                  id={service.id}
+                  image={service.gallery?.[0]}
+                  index={index}
+                  title={service.name}
+                  duration={Number(service.duration)} // @TODO: format function this is minutes for now
+                  price={`${service.price} mxn`}
+                  status={service.isActive ? "Activo" : "Desactivado"}
+                  link={getLink(service)} // for copy link action
+                  path={
+                    service.isActive
+                      ? `/dash/servicios/${service.id}`
+                      : `/dash/servicios/nuevo?id=${service.id}`
+                  }
+                />
+              </div>
             ))}
           </AnimatePresence>
         </div>

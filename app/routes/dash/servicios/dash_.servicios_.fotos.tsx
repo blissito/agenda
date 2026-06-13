@@ -12,6 +12,7 @@ type ServicePhotoData = {
   place: string
   allowMultiple: boolean
   isActive: boolean
+  seats: bigint
   gallery: string[]
 }
 
@@ -22,6 +23,7 @@ export const loader = async ({ request }: { request: Request }) => {
       place: true,
       allowMultiple: true,
       isActive: true,
+      seats: true,
       gallery: true,
     },
   })
@@ -65,6 +67,7 @@ export default function NewServicePhotos() {
           place: service.place,
           allowMultiple: service.allowMultiple,
           isActive: service.isActive,
+          seats: Number(service.seats) || 2,
           gallery: service.gallery?.[0] ?? "",
         }}
       />

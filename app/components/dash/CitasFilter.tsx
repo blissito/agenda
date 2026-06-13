@@ -5,10 +5,14 @@ import { SecondaryButton } from "~/components/common/secondaryButton"
 import { BasicInput } from "~/components/forms/BasicInput"
 import { SelectInput } from "~/components/forms/SelectInput"
 
+// Valor centinela para filtrar citas cuyo servicio no tiene encargado asignado
+export const UNASSIGNED_EMPLOYEE = "__unassigned__"
+
 export type CitasFilters = {
   from: string
   to: string
   serviceId: string
+  employeeName: string
   statuses: Set<string>
 }
 
@@ -16,6 +20,7 @@ export const EMPTY_FILTERS: CitasFilters = {
   from: "",
   to: "",
   serviceId: "",
+  employeeName: "",
   statuses: new Set(),
 }
 
@@ -31,6 +36,7 @@ export const CitasFilterPopup = ({
   draft,
   setDraft,
   services,
+  employees,
   onApply,
   onReset,
   hasActiveFilters,
@@ -38,6 +44,7 @@ export const CitasFilterPopup = ({
   draft: CitasFilters
   setDraft: Dispatch<SetStateAction<CitasFilters>>
   services: { id: string; name: string }[]
+  employees: string[]
   onApply: () => void
   onReset: () => void
   hasActiveFilters: boolean
@@ -88,6 +95,22 @@ export const CitasFilterPopup = ({
         value={draft.serviceId}
         onChange={(e) => setDraft((p) => ({ ...p, serviceId: e.target.value }))}
         options={services.map((s) => ({ value: s.id, title: s.name }))}
+        registerOptions={{ required: false }}
+      />
+
+      {/* Por encargado */}
+      <SelectInput
+        label="Por encargado"
+        name="employeeName"
+        placeholder="Selecciona un encargado"
+        value={draft.employeeName}
+        onChange={(e) =>
+          setDraft((p) => ({ ...p, employeeName: e.target.value }))
+        }
+        options={[
+          ...employees.map((name) => ({ value: name, title: name })),
+          { value: UNASSIGNED_EMPLOYEE, title: "Sin asignar" },
+        ]}
         registerOptions={{ required: false }}
       />
 

@@ -296,11 +296,13 @@ export const ServiceList = ({
         icon={<Money />}
         text={`$${service.price} ${service.currency?.toLocaleLowerCase()}`}
       />
-      <ServiceListItem
-        key={"provider"}
-        icon={<Id />}
-        text={`Con ${org?.shopKeeper || service.employeeName} `}
-      />
+      {(service.employeeName || org?.shopKeeper) && (
+        <ServiceListItem
+          key={"provider"}
+          icon={<Id />}
+          text={`Con ${service.employeeName || org?.shopKeeper} `}
+        />
+      )}
       <ServiceListItem
         icon={<Location />}
         text={

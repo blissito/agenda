@@ -102,16 +102,34 @@ export type OrgLite = {
   slug?: string | null
 }
 
+export type BranchLite = {
+  id: string
+  name: string
+  slug: string
+  isActive: boolean
+  isDefault: boolean
+}
+
 // Estado colapsado del sidebar (rail de iconos). Lo consumen MenuButton, Title,
 // Header, Footer y las cards inferiores para alternar entre layout completo y
 // rail sin tener que prop-drillear en cada call-site.
 const CollapsedContext = createContext(false)
 const useCollapsed = () => useContext(CollapsedContext)
 
+// Sucursales de la org activa + sede activa. Lo consume OrgSwitcher (que se
+// renderiza en Header y en MobileBottomNav) sin prop-drilling.
+const BranchesContext = createContext<{
+  branches: BranchLite[]
+  activeBranchId: string | null
+}>({ branches: [], activeBranchId: null })
+const useBranches = () => useContext(BranchesContext)
+
 export function SideBar({
   user,
   orgs = [],
   activeOrg = null,
+  branches = [],
+  activeBranchId = null,
   canManage = true,
   onboardingCelebrated = false,
   sidebarOpen = true,
@@ -122,6 +140,8 @@ export function SideBar({
   user: PrismaUser
   orgs?: OrgLite[]
   activeOrg?: OrgLite | null
+  branches?: BranchLite[]
+  activeBranchId?: string | null
   canManage?: boolean
   onboardingCelebrated?: boolean
   sidebarOpen?: boolean
@@ -132,71 +152,79 @@ export function SideBar({
   const transition = config.spring
 
   return (
-    <CollapsedContext.Provider value={collapsed}>
-      <article
-        className="bg-brand_light_gray flex h-auto min-h-screen relative z-500 "
-        {...props}
-      >
-        <motion.aside
-          id="sidebar-nav"
-          role="navigation"
-          aria-label="Navegación principal"
-          initial={false}
-          animate={{ width: collapsed ? config.width.rail : config.width.open }}
-          transition={transition}
-          className="hidden md:flex bg-white fixed rounded-e-3xl flex-col justify-end h-screen overflow-hidden"
+    <BranchesContext.Provider value={{ branches, activeBranchId }}>
+      <CollapsedContext.Provider value={collapsed}>
+        <article
+          className="bg-brand_light_gray flex h-auto min-h-screen relative z-500 "
+          {...props}
         >
-          <Header user={user} org={activeOrg} orgs={orgs} />
-          <MainMenu className="mb-auto" canManage={canManage} />
-          <SidebarBottomCards onboardingCelebrated={onboardingCelebrated} />
-          <Footer />
-        </motion.aside>
-        {/* Botón toggle fuera del aside para evitar overflow-hidden */}
-        <motion.button
-          onClick={sidebar.toggle}
-          aria-expanded={sidebar.isOpen}
-          aria-controls="sidebar-nav"
-          aria-label={sidebar.isOpen ? "Colapsar menú" : "Expandir menú"}
-          initial={false}
-          animate={{
-            left: (collapsed ? config.width.rail : config.width.open) - 25,
-          }}
-          transition={transition}
-          className="hidden md:flex h-10 w-10 rounded-full bg-white items-center justify-center
+          <motion.aside
+            id="sidebar-nav"
+            role="navigation"
+            aria-label="Navegación principal"
+            initial={false}
+            animate={{
+              width: collapsed ? config.width.rail : config.width.open,
+            }}
+            transition={transition}
+            className="hidden md:flex bg-white fixed rounded-e-3xl flex-col justify-end h-screen overflow-hidden"
+          >
+            <Header user={user} org={activeOrg} orgs={orgs} />
+            <MainMenu className="mb-auto" canManage={canManage} />
+            <SidebarBottomCards onboardingCelebrated={onboardingCelebrated} />
+            <Footer />
+          </motion.aside>
+          {/* Botón toggle fuera del aside para evitar overflow-hidden */}
+          <motion.button
+            onClick={sidebar.toggle}
+            aria-expanded={sidebar.isOpen}
+            aria-controls="sidebar-nav"
+            aria-label={sidebar.isOpen ? "Colapsar menú" : "Expandir menú"}
+            initial={false}
+            animate={{
+              left: (collapsed ? config.width.rail : config.width.open) - 25,
+            }}
+            transition={transition}
+            className="hidden md:flex h-10 w-10 rounded-full bg-white items-center justify-center
             hover:bg-gray-50 transition-colors fixed top-1/2 -translate-y-1/2 z-50
             shadow-md border border-gray-200 cursor-pointer group"
-        >
-          <span className="text-gray-500 group-hover:text-brand_blue transition-colors">
-            <ChevronIcon isOpen={sidebar.isOpen} />
-          </span>
-          {/* Tooltip */}
-          <span
-            className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded
-              opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
           >
-            {sidebar.isOpen ? "Colapsar menú" : "Expandir menú"}
-            <kbd className="ml-1 px-1 bg-gray-700 rounded text-[10px]">⌘B</kbd>
-          </span>
-        </motion.button>
-        <motion.section
-          initial={false}
-          animate={{
-            paddingLeft: collapsed ? config.content.rail : config.content.open,
-          }}
-          transition={transition}
-          className="dash-content max-md:!pl-0 lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-[88px] md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
-        >
-          {children}
-        </motion.section>
-        <MobileBottomNav
-          user={user}
-          org={activeOrg}
-          orgs={orgs}
-          canManage={canManage}
-          onboardingCelebrated={onboardingCelebrated}
-        />
-      </article>
-    </CollapsedContext.Provider>
+            <span className="text-gray-500 group-hover:text-brand_blue transition-colors">
+              <ChevronIcon isOpen={sidebar.isOpen} />
+            </span>
+            {/* Tooltip */}
+            <span
+              className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded
+              opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+            >
+              {sidebar.isOpen ? "Colapsar menú" : "Expandir menú"}
+              <kbd className="ml-1 px-1 bg-gray-700 rounded text-[10px]">
+                ⌘B
+              </kbd>
+            </span>
+          </motion.button>
+          <motion.section
+            initial={false}
+            animate={{
+              paddingLeft: collapsed
+                ? config.content.rail
+                : config.content.open,
+            }}
+            transition={transition}
+            className="dash-content max-md:!pl-4 lg:pr-10 pr-4 md:pr-6 pt-6 lg:pt-10 pb-[88px] md:pb-6 lg:pb-10 w-full min-h-screen h-auto box-border"
+          >
+            {children}
+          </motion.section>
+          <MobileBottomNav
+            user={user}
+            org={activeOrg}
+            orgs={orgs}
+            canManage={canManage}
+            onboardingCelebrated={onboardingCelebrated}
+          />
+        </article>
+      </CollapsedContext.Provider>
+    </BranchesContext.Provider>
   )
 }
 
@@ -405,14 +433,35 @@ const MainMenu = ({
   const matchIndex = (string: string = location.pathname) =>
     /^\/dash$/.test(string)
   const collapsed = useCollapsed()
+  const { branches } = useBranches()
+  // Con >1 sucursal mostramos los labels Sede/Negocio (misma lista, sin ocultar
+  // nada). Con una sola sede el menú queda como siempre ("Tu negocio").
+  const grouped = branches.length > 1
+
+  const GroupLabel = ({
+    children,
+    className: cn,
+  }: {
+    children: ReactNode
+    className?: string
+  }) =>
+    collapsed ? null : (
+      <h3
+        className={twMerge(
+          "pl-6 pb-0 uppercase text-xs text-gray-300",
+          cn,
+        )}
+      >
+        {children}
+      </h3>
+    )
 
   return (
     <div className={twMerge("overflow-auto mb-auto h-full", className)}>
-      {!collapsed && (
-        <h3 className="pl-6 pb-0 uppercase text-xs text-gray-300">Tu negocio</h3>
-      )}
       <section className="gri ">
-        {canManage && (
+        <GroupLabel>{grouped ? "Sede" : "Tu negocio"}</GroupLabel>
+        {/* En agrupado, Asistente IA vive en "Negocio"; en plano va primero. */}
+        {!grouped && canManage && (
           <MenuButton to="/dash/asistente" isActive={match("asistente")}>
             <MenuButton.Icon isActive={match("asistente")}>
               <Asistente />
@@ -434,7 +483,9 @@ const MainMenu = ({
           </MenuButton.Icon>
           <MenuButton.Title isActive={match("agenda")}>Agenda</MenuButton.Title>
         </MenuButton>
-        {canManage && (
+        {/* Web/Chatbot solo van aquí (entre los items operativos) en modo plano.
+            Sitio web es visible para todos (members lo ven en solo-lectura). */}
+        {!grouped && (
           <MenuButton
             to="/dash/website"
             isActive={match("website")}
@@ -448,14 +499,16 @@ const MainMenu = ({
             </MenuButton.Title>
           </MenuButton>
         )}
-        <MenuButton to="/dash/chatbot" isActive={match("chatbot")}>
-          <MenuButton.Icon isActive={match("chatbot")}>
-            <Chatbot />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("chatbot")}>
-            Chatbot IA
-          </MenuButton.Title>
-        </MenuButton>
+        {!grouped && (
+          <MenuButton to="/dash/chatbot" isActive={match("chatbot")}>
+            <MenuButton.Icon isActive={match("chatbot")}>
+              <Chatbot />
+            </MenuButton.Icon>
+            <MenuButton.Title isActive={match("chatbot")}>
+              Chatbot IA
+            </MenuButton.Title>
+          </MenuButton>
+        )}
         {canManage && (
           <MenuButton to="/dash/servicios" isActive={match("servicios")}>
             <MenuButton.Icon isActive={match("servicios")}>
@@ -468,15 +521,64 @@ const MainMenu = ({
         )}
         {canManage && <NavButton pathname="ventas" icon={<Financial />} />}
         <NavButton pathname="clientes" />
-        <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
-          <MenuButton.Icon isActive={match("lealtad")}>
-            <Loyalty />
-          </MenuButton.Icon>
-          <MenuButton.Title isActive={match("lealtad")}>
-            Lealtad
-          </MenuButton.Title>
-        </MenuButton>
+        {/* En plano, Lealtad va aquí; en agrupado se mueve a "Negocio". */}
+        {!grouped && (
+          <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
+            <MenuButton.Icon isActive={match("lealtad")}>
+              <Loyalty />
+            </MenuButton.Icon>
+            <MenuButton.Title isActive={match("lealtad")}>
+              Lealtad
+            </MenuButton.Title>
+          </MenuButton>
+        )}
         <NavButton pathname="evaluaciones" icon={<Rank />} />
+
+        {/* ===== Sección Negocio (solo en agrupado) ===== */}
+        {grouped && (
+          <>
+            <GroupLabel className="pt-4">Negocio</GroupLabel>
+            {canManage && (
+              <MenuButton to="/dash/asistente" isActive={match("asistente")}>
+                <MenuButton.Icon isActive={match("asistente")}>
+                  <Asistente />
+                </MenuButton.Icon>
+                <MenuButton.Title isActive={match("asistente")}>
+                  Asistente IA
+                </MenuButton.Title>
+              </MenuButton>
+            )}
+            <MenuButton
+              to="/dash/website"
+              isActive={match("website")}
+              prefetch="render"
+            >
+              <MenuButton.Icon isActive={match("website")}>
+                <Website />
+              </MenuButton.Icon>
+              <MenuButton.Title isActive={match("website")}>
+                Sitio web
+              </MenuButton.Title>
+            </MenuButton>
+            <MenuButton to="/dash/chatbot" isActive={match("chatbot")}>
+              <MenuButton.Icon isActive={match("chatbot")}>
+                <Chatbot />
+              </MenuButton.Icon>
+              <MenuButton.Title isActive={match("chatbot")}>
+                Chatbot IA
+              </MenuButton.Title>
+            </MenuButton>
+            <MenuButton to="/dash/lealtad" isActive={match("lealtad")}>
+              <MenuButton.Icon isActive={match("lealtad")}>
+                <Loyalty />
+              </MenuButton.Icon>
+              <MenuButton.Title isActive={match("lealtad")}>
+                Lealtad
+              </MenuButton.Title>
+            </MenuButton>
+          </>
+        )}
+
         {canManage && <NavButton pathname="ajustes" icon={<Settings />} />}
       </section>
     </div>
@@ -517,9 +619,7 @@ const NavButton = ({
 const UserAvatar = ({ user }: { user: Partial<PrismaUser> }) => (
   <div className="flex  text-brand_dark">
     <img
-      className={twMerge(
-        "w-12 h-12 object-cover rounded-full mr-2",
-      )}
+      className={twMerge("w-12 h-12 object-cover rounded-full mr-2")}
       alt="avatar"
       src={user.photoURL ?? "https://loremflickr.com/640/480?lock=1234"}
       onError={(e) => {
@@ -573,10 +673,57 @@ const UpDownArrows = ({ className }: { className?: string }) => (
   </svg>
 )
 
+const PinIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 21s-6-5.686-6-10a6 6 0 0 1 12 0c0 4.314-6 10-6 10z" />
+    <circle cx="12" cy="11" r="2" />
+  </svg>
+)
+
+const CheckIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2.5}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M20 6L9 17l-5-5" />
+  </svg>
+)
+
+const PlusIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+)
+
 // Bloque de la org activa + popup para cambiar entre las orgs del usuario.
 // El popup se renderiza con createPortal a document.body para no ser clippeado
 // por el `overflow-hidden` del aside (mismo patrón que DropDownMenu).
 const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
+  const { branches, activeBranchId } = useBranches()
   const [open, setOpen] = useState(false)
   const [pos, setPos] = useState<{
     top: number
@@ -592,6 +739,13 @@ const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
     keyboardListener: true,
   })
   const others = orgs.filter((o) => o.id !== org.id)
+  const activeBranch = branches.find((b) => b.id === activeBranchId)
+  const scopeLabel =
+    branches.length > 1
+      ? activeBranch
+        ? activeBranch.name
+        : "Todas las sucursales"
+      : null
 
   useEffect(() => {
     if (!open || !btnRef.current) return
@@ -626,9 +780,16 @@ const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
         <OrgLogo org={org} size={collapsed ? "sm" : "md"} />
         {!collapsed && (
           <>
-            <p className="text-lg font-satoMiddle truncate flex-1 min-w-0">
-              {org.name || "Mi organización"}
-            </p>
+            <span className="flex flex-col flex-1 min-w-0">
+              <span className="text-lg font-satoMiddle truncate leading-tight">
+                {org.name || "Mi organización"}
+              </span>
+              {scopeLabel && (
+                <span className="text-xs text-brand_gray truncate leading-tight">
+                  {scopeLabel}
+                </span>
+              )}
+            </span>
             <UpDownArrows />
           </>
         )}
@@ -651,34 +812,117 @@ const OrgSwitcher = ({ org, orgs }: { org: OrgLite; orgs: OrgLite[] }) => {
                 }}
                 className="z-[600] bg-white shadow-lg rounded-2xl p-2 flex flex-col gap-1 max-h-[60vh] overflow-auto"
               >
-                <p className="px-3 pt-1 pb-0.5 text-[11px] uppercase tracking-wide text-gray-300">
-                  Cambiar organización
-                </p>
-                {others.length === 0 && (
-                  <p className="px-3 py-2 text-sm text-brand_gray">
-                    Solo tienes esta organización
-                  </p>
+                {others.length > 0 && (
+                  <>
+                    <p className="px-3 pt-1 pb-0.5 text-[11px] uppercase tracking-wide text-gray-300">
+                      Cambiar organización
+                    </p>
+                    {others.map((o) => (
+                      <fetcher.Form
+                        method="post"
+                        action="/api/switch-org"
+                        key={o.id}
+                        onSubmit={() => setOpen(false)}
+                      >
+                        <input type="hidden" name="orgId" value={o.id} />
+                        <button
+                          type="submit"
+                          role="menuitem"
+                          className="w-full flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand_blue/5 transition-colors text-left"
+                        >
+                          <OrgLogo org={o} size="sm" />
+                          <span className="text-sm text-brand_dark truncate">
+                            {o.name || "Organización"}
+                          </span>
+                        </button>
+                      </fetcher.Form>
+                    ))}
+                  </>
                 )}
-                {others.map((o) => (
-                  <fetcher.Form
-                    method="post"
-                    action="/api/switch-org"
-                    key={o.id}
-                    onSubmit={() => setOpen(false)}
-                  >
-                    <input type="hidden" name="orgId" value={o.id} />
-                    <button
-                      type="submit"
-                      role="menuitem"
-                      className="w-full flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand_blue/5 transition-colors text-left"
+
+                {branches.length > 1 && (
+                  <>
+                    {others.length > 0 && (
+                      <hr className="my-1 border-gray-100" />
+                    )}
+                    <p className="px-3 pt-1 pb-0.5 text-[11px] uppercase tracking-wide text-gray-300">
+                      Sucursales
+                    </p>
+                    <fetcher.Form
+                      method="post"
+                      action="/api/switch-branch"
+                      onSubmit={() => setOpen(false)}
                     >
-                      <OrgLogo org={o} size="sm" />
-                      <span className="text-sm text-brand_dark truncate">
-                        {o.name || "Organización"}
-                      </span>
-                    </button>
-                  </fetcher.Form>
-                ))}
+                      <input type="hidden" name="branchId" value="all" />
+                      <button
+                        type="submit"
+                        role="menuitemradio"
+                        aria-checked={activeBranchId === null}
+                        className={twMerge(
+                          "w-full flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand_blue/5 transition-colors text-left",
+                          activeBranchId === null && "bg-brand_blue/5",
+                        )}
+                      >
+                        <OrgLogo org={org} size="sm" />
+                        <span className="text-sm text-brand_dark truncate flex-1 min-w-0">
+                          {org.name || "Mi organización"}
+                        </span>
+                        {activeBranchId === null && (
+                          <CheckIcon className="w-4 h-4 shrink-0 text-brand_blue" />
+                        )}
+                      </button>
+                    </fetcher.Form>
+                    {branches.map((b) => {
+                      const isActive = b.id === activeBranchId
+                      return (
+                        <fetcher.Form
+                          method="post"
+                          action="/api/switch-branch"
+                          key={b.id}
+                          onSubmit={() => setOpen(false)}
+                        >
+                          <input type="hidden" name="branchId" value={b.id} />
+                          <button
+                            type="submit"
+                            role="menuitemradio"
+                            aria-checked={isActive}
+                            className={twMerge(
+                              "w-full flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand_blue/5 transition-colors text-left",
+                              isActive && "bg-brand_blue/5",
+                            )}
+                          >
+                            <PinIcon className="w-4 h-4 shrink-0 text-brand_gray" />
+                            <span className="text-sm text-brand_dark truncate flex-1 min-w-0">
+                              {b.name}
+                              {!b.isActive && (
+                                <span className="text-brand_gray">
+                                  {" "}
+                                  (inactiva)
+                                </span>
+                              )}
+                            </span>
+                            {isActive && (
+                              <CheckIcon className="w-4 h-4 shrink-0 text-brand_blue" />
+                            )}
+                          </button>
+                        </fetcher.Form>
+                      )
+                    })}
+                  </>
+                )}
+
+                {(others.length > 0 || branches.length > 1) && (
+                  <hr className="my-1 border-gray-100" />
+                )}
+                <Link
+                  to="/dash/sucursales/nueva"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="w-full flex items-center gap-2 rounded-lg px-3 py-2 hover:bg-brand_blue/5 transition-colors text-left text-brand_dark"
+                >
+                  <PlusIcon className="w-4 h-4 shrink-0 text-brand_blue" />
+                  <span className="text-sm">Crear sucursal</span>
+                </Link>
               </motion.div>
             )}
           </AnimatePresence>,
@@ -818,7 +1062,6 @@ const PendingAttendanceCard = ({
 }
 
 const OnboardingBanner = () => {
-
   return (
     <section className="bg-onboarding  pb-4 rounded-2xl bg-cover mx-6 mb-4 relative">
       <div className="mt-12 px-4 text-white">

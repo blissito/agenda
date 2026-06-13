@@ -26,6 +26,7 @@ export default function TimeView({
   orgTimezone = DEFAULT_TIMEZONE,
   selectedTime,
   minBookingAdvance,
+  branchId,
 }: {
   onSelect?: (timeString: string) => void
   selected: Date
@@ -37,6 +38,7 @@ export default function TimeView({
   orgTimezone?: SupportedTimezone
   selectedTime?: string
   minBookingAdvance?: number
+  branchId?: string | null
 }) {
   const [time, setTime] = useState(selectedTime || "")
   const fetcher = useFetcher()
@@ -58,13 +60,14 @@ export default function TimeView({
             selected.getMonth(),
             selected.getDate(),
           ).toISOString(),
+          ...(branchId ? { branchId } : {}),
         },
         { method: "post", action },
       )
     }
     // fetcher is intentionally excluded - including it causes infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selected, action, intent])
+  }, [selected, action, intent, branchId])
 
   const dayString = convertDayToString(selected.getDay())
   const dayRanges = (weekDays as Record<string, DayTuple>)[dayString]
@@ -85,7 +88,7 @@ export default function TimeView({
   }
 
   // Convert scheduled events to time strings in the correct timezone
-  const scheduledEvents =
+  const scheduledEvents: string[] =
     fetcher.data &&
     Array.isArray(fetcher.data.events) &&
     fetcher.data.events.length > 0
@@ -93,6 +96,21 @@ export default function TimeView({
           formatTimeOnly(new Date(event.start), timezone),
         )
       : []
+
+  // Capacidad del servicio (cuántas reservas del mismo servicio caben por slot).
+  // Cuento cuántas citas hay en cada hora y bloqueo cuando se alcanza la capacidad.
+  const capacity: number = fetcher.data?.capacity ?? 1
+  const slotCounts = new Map<string, number>()
+  for (const t of scheduledEvents) {
+    slotCounts.set(t, (slotCounts.get(t) ?? 0) + 1)
+  }
+
+  // Eje 1 (recurso único): intervalos ocupados de cualquier servicio en la sede.
+  const busy: { start: string; end: string | null }[] = Array.isArray(
+    fetcher.data?.busy,
+  )
+    ? fetcher.data.busy
+    : []
 
   // Check if selected date is today to filter passed times
   const isToday = (() => {
@@ -104,16 +122,28 @@ export default function TimeView({
     )
   })()
 
-  // Filter out scheduled events and passed times (for today)
+  // Filter out full slots (capacity reached), overlapping busy times (single
+  // resource), and passed times (for today)
   const availableRanges = ranges?.filter((t) => {
-    if (scheduledEvents.includes(t)) return false
+    if ((slotCounts.get(t) ?? 0) >= capacity) return false
+    const [hours, minutes] = t.split(":").map(Number)
+    const slotStart = new Date(selected)
+    slotStart.setHours(hours, minutes, 0, 0)
+    const slotEnd = new Date(slotStart.getTime() + slotDuration * 60 * 1000)
+    if (busy.length) {
+      const overlaps = busy.some((b) => {
+        const bs = new Date(b.start).getTime()
+        const be = b.end
+          ? new Date(b.end).getTime()
+          : bs + slotDuration * 60 * 1000
+        return bs < slotEnd.getTime() && be > slotStart.getTime()
+      })
+      if (overlaps) return false
+    }
     if (isToday && isTimePassed(t, timezone)) return false
     if (minBookingAdvance && minBookingAdvance > 0) {
-      const [hours, minutes] = t.split(":").map(Number)
-      const slotDate = new Date(selected)
-      slotDate.setHours(hours, minutes, 0, 0)
       const advanceMs = minBookingAdvance * 60 * 1000
-      if (slotDate.getTime() < Date.now() + advanceMs) return false
+      if (slotStart.getTime() < Date.now() + advanceMs) return false
     }
     return true
   })

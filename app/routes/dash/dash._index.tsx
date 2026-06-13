@@ -12,6 +12,10 @@ import {
 } from "recharts"
 import { twMerge } from "tailwind-merge"
 import { getUserAndOrgOrRedirect } from "~/.server/userGetters"
+import {
+  branchEventFilter,
+  getActiveBranchFromRequest,
+} from "~/lib/branches.server"
 import { CopyLinkButton } from "~/components/common/CopyLinkButton"
 import { AppointmentItem } from "~/components/dash/AppointmentItem"
 import { CustomerDashboard } from "~/components/dash/CustomerDashboard"
@@ -56,6 +60,10 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
   }
 
   // Dashboard stats for org owners
+  // Filtro de sede (null = "Todas las sucursales") aplicado a métricas de citas.
+  const activeBranch = await getActiveBranchFromRequest(request, org!.id)
+  const branchFilter = branchEventFilter(activeBranch)
+
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
 
@@ -81,6 +89,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         type: { not: "BLOCK" },
         refundedAt: { isSet: false },
         createdAt: { gte: startOfMonth },
+        ...branchFilter,
       },
       include: { service: true },
     }),
@@ -90,6 +99,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         orgId: org!.id,
         status: "CANCELLED",
         createdAt: { gte: startOfMonth },
+        ...branchFilter,
       },
     }),
     // New customers this month
@@ -117,6 +127,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
           type: { not: "BLOCK" },
           status: { not: "CANCELLED" },
           createdAt: { gte: yesterdayStart, lt: tomorrowStart },
+          ...branchFilter,
         },
         include: {
           service: true,
@@ -139,6 +150,7 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
         paid: true,
         refundedAt: { isSet: false },
         createdAt: { gte: oneYearAgo },
+        ...branchFilter,
       },
       include: { service: true },
     }),

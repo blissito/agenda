@@ -155,7 +155,7 @@ export const Hero = () => (
           <Sparkles />
         </span>
       </h1>
-      <p className="text-xl lg:text-2xl text-brand_gray font-satoshi mt-6">
+      <p className="text-lg lg:text-2xl text-brand_gray font-satoshi mt-6">
         Agenda de manera sencilla con ayuda de tu agente IA, realiza cobros,
         manda recordatorios a tus clientes y envía encuestas de satisfacción
       </p>

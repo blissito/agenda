@@ -10,6 +10,11 @@ import { twMerge } from "tailwind-merge"
 import { z } from "zod"
 import { createPreference, getValidAccessToken } from "~/.server/mercadopago"
 import { getService, getUserOrNull } from "~/.server/userGetters"
+import {
+  branchEventFilter,
+  resolveServiceBookingContext,
+} from "~/lib/branches.server"
+import { BookingScopeBar } from "~/components/agenda/BookingScopeBar"
 import { Footer, Header, InfoShower } from "~/components/agenda/components"
 import { CouponField } from "~/components/agenda/CouponField"
 import { Success } from "~/components/agenda/success"
@@ -23,6 +28,10 @@ import type { WeekTuples } from "~/components/forms/TimesForm"
 import { validateCouponByCode, type ValidCoupon } from "~/lib/coupons.server"
 import { createMeetLink } from "~/lib/google-meet.server"
 import { getLevelDiscount } from "~/lib/loyalty.server"
+import {
+  createEventInFreeSlot,
+  getServiceCapacity,
+} from "~/lib/slot-capacity.server"
 import { createZoomMeeting } from "~/lib/zoom.server"
 import { DEFAULT_ORG_CONFIG } from "~/routes/dash/dash.ajustes.constants"
 import { db } from "~/utils/db.server"
@@ -79,15 +88,57 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     const selectedDate = new Date(dateStr)
     const tommorrow = new Date(selectedDate)
     tommorrow.setDate(selectedDate.getDate() + 1)
+
+    // Scope por sede: si el booking envía branchId válido de la misma org,
+    // filtramos por esa sede (la principal atrapa también eventos sin branchId).
+    const branchId = formData.get("branchId")
+    let branchFilter = {}
+    if (typeof branchId === "string" && branchId) {
+      const branch = await db.branch.findFirst({
+        where: { id: branchId, orgId: service.orgId },
+        select: { id: true, isDefault: true },
+      })
+      if (branch) branchFilter = branchEventFilter(branch)
+    }
+
+    // Solo retornamos `start` y SOLO de este servicio (cierra fuga de PII: antes
+    // devolvía el objeto Event completo de toda la plataforma en esa fecha).
     const events = await db.event.findMany({
       where: {
+        serviceId: service.id,
+        status: { notIn: ["CANCELLED", "canceled"] },
         start: {
           gte: new Date(selectedDate),
           lte: new Date(tommorrow),
         },
+        ...branchFilter,
       },
+      select: { start: true },
     })
-    return { events }
+
+    const capacity = getServiceCapacity(service)
+
+    // Eje 1 (recurso único): por default (toggle OFF) la org NO permite
+    // servicios distintos en simultáneo. Intervalos ocupados de OTROS servicios.
+    let busy: { start: Date; end: Date | null }[] = []
+    const orgCfg = await db.org.findUnique({
+      where: { id: service.orgId },
+      select: { config: true },
+    })
+    if (orgCfg?.config?.simultaneousServices !== true) {
+      busy = await db.event.findMany({
+        where: {
+          orgId: service.orgId,
+          serviceId: { not: service.id },
+          status: { notIn: ["CANCELLED", "canceled"] },
+          archived: false,
+          start: { gte: new Date(selectedDate), lte: new Date(tommorrow) },
+          ...branchFilter,
+        },
+        select: { start: true, end: true },
+      })
+    }
+    return { events, capacity, busy }
   }
   if (intent === "validate_coupon") {
     const code = formData.get("code")
@@ -167,6 +218,25 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
     if (!service.isActive)
       throw new Response("Service not found", { status: 404 })
 
+    // Sede del booking: validar que pertenezca a la org (cierra IDOR). Si es
+    // válida, se snapshotea en el Event y se resuelve el precio por capa.
+    let validBranchId: string | null = null
+    let branchPrice: bigint | null = null
+    if (typeof data.branchId === "string" && data.branchId) {
+      const branch = await db.branch.findFirst({
+        where: { id: data.branchId, orgId: org.id },
+        select: { id: true },
+      })
+      if (branch) {
+        validBranchId = branch.id
+        const sb = await db.serviceBranch.findFirst({
+          where: { serviceId: service.id, branchId: branch.id },
+          select: { price: true },
+        })
+        branchPrice = sb?.price ?? null
+      }
+    }
+
     // Enforce booking window (min advance / max calendar availability)
     const windowCheck = validateBookingWindow(
       org.config as any,
@@ -218,7 +288,8 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       console.error("Loyalty discount lookup failed:", e)
     }
 
-    const basePrice = Number(service.price)
+    // Precio efectivo: override de la sede (ServiceBranch.price) ?? Service.price
+    const basePrice = Number(branchPrice ?? service.price)
     const loyaltyDiscountAmount =
       discountPercent > 0 ? basePrice * (discountPercent / 100) : 0
 
@@ -279,6 +350,7 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
           serviceName: service.name,
           price: coupon ? basePrice : effectivePrice,
           customerId: customer.id,
+          branchId: validBranchId,
           start: startDate.toISOString(),
           end: endDate.toISOString(),
           backUrl: appUrl,
@@ -306,48 +378,59 @@ export const action = async ({ request, params }: Route.ActionArgs) => {
       }
     }
 
-    // Servicio gratuito o sin MP configurado: crear evento directamente
-    let event
-    try {
-      event = await db.event.create({
-        data: {
-          start: startDate,
-          end: endDate,
-          duration: data.duration,
-          service: { connect: { id: data.serviceId } },
-          title: data.title,
-          status: data.status,
-          org: { connect: { id: org.id } },
-          customer: { connect: { id: customer.id } },
-          allDay: false,
-          archived: false,
-          createdAt: new Date(),
-          paid: Number(service.price) === 0, // true solo si es realmente gratis
-          type: "appointment",
-          userId: org.ownerId,
-          updatedAt: new Date(),
+    // Servicio gratuito o sin MP configurado: crear evento directamente,
+    // respetando capacidad (seats) y bloqueo cross-service (recurso único).
+    const slotResult = await createEventInFreeSlot(
+      {
+        org,
+        service,
+        branchId: validBranchId ?? null,
+        branchWhere: {
+          orgId: org.id,
+          ...(validBranchId ? { branchId: validBranchId } : {}),
         },
-        include: {
-          customer: true,
-          service: { include: { org: true } },
-        },
-      })
-    } catch (e: unknown) {
-      // Handle unique constraint violation (slot already taken)
-      if (
-        e &&
-        typeof e === "object" &&
-        "code" in e &&
-        (e as { code: string }).code === "P2002"
-      ) {
-        return {
-          success: false,
-          error:
-            "Este horario acaba de ser reservado. Por favor selecciona otro.",
-        }
+        start: startDate,
+        end: endDate,
+      },
+      (slotIndex) =>
+        db.event.create({
+          data: {
+            start: startDate,
+            end: endDate,
+            duration: data.duration,
+            slotIndex,
+            service: { connect: { id: data.serviceId } },
+            title: data.title,
+            status: data.status,
+            org: { connect: { id: org.id } },
+            customer: { connect: { id: customer.id } },
+            ...(validBranchId
+              ? { branch: { connect: { id: validBranchId } } }
+              : {}),
+            allDay: false,
+            archived: false,
+            createdAt: new Date(),
+            paid: basePrice === 0, // true solo si es realmente gratis
+            type: "appointment",
+            userId: org.ownerId,
+            updatedAt: new Date(),
+          },
+          include: {
+            customer: true,
+            service: { include: { org: true } },
+          },
+        }),
+    )
+    if (!slotResult.ok) {
+      return {
+        success: false,
+        error:
+          slotResult.reason === "conflict"
+            ? "Ese horario se cruza con otra cita. Por favor selecciona otro."
+            : "Este horario acaba de ser reservado. Por favor selecciona otro.",
       }
-      throw e
     }
+    let event = slotResult.event
 
     // Crear link de llamada (Meet/Zoom) según videoProvider del servicio
     const provider = resolveVideoProvider({ org, service })
@@ -510,31 +593,71 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
   // Servicios desactivados no son agendables públicamente.
   if (!service.isActive) throw new Response(null, { status: 404 })
 
-  // Normalize weekDays (idempotent: handles both legacy Spanish and English keys)
+  // Contexto de sede: sedes activas que ofrecen este servicio + sede activa
+  // (de `?sucursal=` o la default) + override del ServiceBranch. Para orgs
+  // single-location queda 1 sola sede y el booking se comporta como antes.
+  const sucursalSlug = new URL(request.url).searchParams.get("sucursal")
+  const { branches, activeBranch, activeServiceBranch } =
+    await resolveServiceBookingContext({
+      serviceId: service.id,
+      orgId: org.id,
+      branchSlug: sucursalSlug,
+    })
+
+  // Resolución por capas (horario/precio/timezone):
+  //   weekDays  = ServiceBranch ?? Service ?? Branch ?? Org
+  //   price     = ServiceBranch ?? Service
+  //   timezone  = Branch ?? Org
+  const effectiveServiceWeekDays =
+    (activeServiceBranch?.weekDays as Record<string, any> | null) ??
+    (service.weekDays as Record<string, any> | null) ??
+    (activeBranch?.weekDays as Record<string, any> | null) ??
+    null
   const serviceWeekDays = normalizeWeekDays(
-    service.weekDays as Record<string, any>,
+    effectiveServiceWeekDays as Record<string, any>,
     false,
   )
   const orgWeekDays = normalizeWeekDays(
     org.weekDays as Record<string, any>,
     true,
   )
+  const effectivePrice = Number(activeServiceBranch?.price ?? service.price)
+  const effectiveTimezone =
+    (activeBranch?.timezone as SupportedTimezone) ||
+    (org.timezone as SupportedTimezone) ||
+    DEFAULT_TIMEZONE
+
+  // Servicios activos de la org para el switcher del step 1.
+  const orgServices = await db.service.findMany({
+    where: { orgId: org.id, isActive: true, archived: false },
+    select: { name: true, slug: true },
+    orderBy: { name: "asc" },
+  })
 
   const serviceWithEnglishDays = {
     ...service,
     weekDays: Object.keys(serviceWeekDays).length > 0 ? serviceWeekDays : null,
     // Convert BigInt to Number for client-side usage
     duration: Number(service.duration),
-    price: Number(service.price),
+    price: effectivePrice,
     points: Number(service.points),
     seats: Number(service.seats),
   }
   const orgWithNormalizedDays = {
     ...org,
     weekDays: orgWeekDays,
-    // Include timezone from org or use default
-    timezone: (org.timezone as SupportedTimezone) || DEFAULT_TIMEZONE,
+    // Include timezone from org or use default (branch-aware)
+    timezone: effectiveTimezone,
   }
+  const branchOptions = branches.map((b) => ({
+    id: b.id,
+    name: b.name,
+    slug: b.slug,
+    address: b.address,
+  }))
+  const activeBranchLite = activeBranch
+    ? { id: activeBranch.id, name: activeBranch.name, slug: activeBranch.slug }
+    : null
 
   // CSRF token for booking form
   const { generateCsrfToken, setCsrfCookie } = await import("~/.server/csrf")
@@ -548,6 +671,9 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
     {
       org: orgWithNormalizedDays,
       service: serviceWithEnglishDays,
+      branches: branchOptions,
+      activeBranch: activeBranchLite,
+      orgServices,
       csrfToken,
       isLoggedIn: !!user,
     },
@@ -556,7 +682,7 @@ export const loader = async ({ request, params }: Route.LoaderArgs) => {
 }
 
 export default function Page({ loaderData }: Route.ComponentProps) {
-  const { org, service } = loaderData
+  const { org, service, branches, activeBranch, orgServices } = loaderData
   const [time, setTime] = useState<string>()
   const [date, setDate] = useState<Date>()
   const [show, setShow] = useState("")
@@ -589,6 +715,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
           customer,
           duration: service.duration,
           serviceId: service.id,
+          branchId: activeBranch?.id ?? null,
           title: service.name,
           status: "pending",
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
@@ -617,6 +744,14 @@ export default function Page({ loaderData }: Route.ComponentProps) {
       }
     }
   }, [fetcher.state, fetcher.data])
+
+  // Al cambiar de sede (navegación con `?sucursal=`) la disponibilidad cambia:
+  // reseteamos fecha/hora para no arrastrar un slot de otra sucursal.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setDate(undefined)
+    setTime(undefined)
+  }, [activeBranch?.id])
 
   const maxDate = getMaxDate(
     org.config?.calendarAvailability ?? DEFAULT_ORG_CONFIG.calendarAvailability,
@@ -696,6 +831,15 @@ export default function Page({ loaderData }: Route.ComponentProps) {
     <article className="bg-[#f8f8f8] min-h-svh relative pb-24 md:pb-0">
       <Header org={org} />
       <main className="bg-white shadow mx-auto rounded-xl p-4 md:p-8 min-h-[506px] md:w-max w-full max-w-[calc(100vw-2rem)] md:max-w-none">
+        {show !== "user_info" && (
+          <BookingScopeBar
+            services={orgServices}
+            currentServiceSlug={service.slug}
+            serviceUrlFor={(slug) => `/${slug}`}
+            branches={branches}
+            activeBranchSlug={activeBranch?.slug ?? null}
+          />
+        )}
         <section className={twMerge("flex flex-wrap")}>
           <InfoShower
             service={service}
@@ -725,6 +869,7 @@ export default function Page({ loaderData }: Route.ComponentProps) {
                   timezone={timezone}
                   orgTimezone={org.timezone as SupportedTimezone}
                   selectedTime={time}
+                  branchId={activeBranch?.id ?? null}
                   minBookingAdvance={parseInt(
                     org.config?.minBookingAdvance ??
                       DEFAULT_ORG_CONFIG.minBookingAdvance,

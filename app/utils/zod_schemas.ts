@@ -14,6 +14,7 @@ export const serviceUpdateSchema = z.object({
   description: z.string().optional().nullable(),
   price: z.coerce.number().optional(),
   points: z.coerce.number().optional(),
+  employeeName: z.string().optional().nullable(),
   address: z.string().optional().nullable(),
   lat: optionalNumber.optional(),
   lng: optionalNumber.optional(),

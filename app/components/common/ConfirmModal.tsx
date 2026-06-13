@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react"
 import type { ReactNode } from "react"
 import { createPortal } from "react-dom"
 import { IoClose } from "react-icons/io5"
+import { twMerge } from "tailwind-merge"
 import { useClickOutside } from "~/utils/hooks/useClickOutside"
 import { PrimaryButton } from "./primaryButton"
 import { SecondaryButton } from "./secondaryButton"
@@ -18,6 +19,7 @@ type ConfirmModalProps = {
   variant?: "danger" | "default"
   emoji?: string
   hideButtons?: boolean
+  panelClassName?: string
 }
 
 export const ConfirmModal = ({
@@ -32,6 +34,7 @@ export const ConfirmModal = ({
   variant = "default",
   emoji = "🗑️",
   hideButtons,
+  panelClassName,
 }: ConfirmModalProps) => {
   const ref = useClickOutside<HTMLDivElement>({
     onOutsideClick: onClose,
@@ -72,7 +75,10 @@ export const ConfirmModal = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 6 }}
             transition={{ type: "spring", stiffness: 260, damping: 22 }}
-            className="relative w-full max-w-[640px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi"
+            className={twMerge(
+              "relative w-full max-w-[640px] rounded-2xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.18)] font-satoshi",
+              panelClassName,
+            )}
           >
             {/* badge superior (agregado) */}
             <div className="absolute left-1/2 -top-10 -translate-x-1/2 z-20">

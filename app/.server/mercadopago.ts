@@ -25,6 +25,7 @@ export const createPreference = async (
     serviceName: string
     price: number // precio base del servicio en pesos (MXN), sin descuento
     customerId: string
+    branchId?: string | null // sede donde se agenda (snapshot en el Event)
     start: string
     end: string
     backUrl: string
@@ -87,6 +88,7 @@ export const createPreference = async (
       external_reference: JSON.stringify({
         serviceId: data.serviceId,
         customerId: data.customerId,
+        branchId: data.branchId ?? null,
         start: data.start,
         end: data.end,
         couponRewardId: data.coupon?.rewardId ?? null,

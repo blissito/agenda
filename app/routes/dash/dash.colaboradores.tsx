@@ -54,7 +54,9 @@ export const action = async ({ request }: Route.ActionArgs) => {
   }
 
   if (intent === "invite") {
-    const email = (formData.get("email") as string)?.trim()
+    // Normalizamos a minúsculas: los emails se guardan lowercase en todo el
+    // sistema; sin esto un invite con mayúsculas crea una cuenta duplicada.
+    const email = (formData.get("email") as string)?.trim().toLowerCase()
     const displayName = (formData.get("displayName") as string)?.trim()
     const role = (formData.get("role") as string) || "user"
     if (!email) return { error: "Email requerido" }
@@ -65,10 +67,15 @@ export const action = async ({ request }: Route.ActionArgs) => {
       if (existing.orgId === org.id) {
         return { error: "Este colaborador ya pertenece a tu organización" }
       }
-      // Add existing user to org
+      // Add existing user to org. Si el usuario existente no tenía nombre,
+      // usamos el ingresado al invitarlo (sin sobreescribir uno ya existente).
       await db.user.update({
         where: { id: existing.id },
-        data: { orgId: org.id, role },
+        data: {
+          orgId: org.id,
+          role,
+          ...(!existing.displayName && displayName ? { displayName } : {}),
+        },
       })
     } else {
       // Create new user with orgId

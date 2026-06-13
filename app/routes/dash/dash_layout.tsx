@@ -5,6 +5,8 @@ import { Spinner } from "~/components/common/Spinner"
 import { InstallAppBanner } from "~/components/pwa/InstallAppBanner"
 import { SideBar } from "~/components/sideBar/sideBar"
 import { readSidebarOpenCookie } from "~/components/hooks/useSidebarState"
+import { listBranches } from "~/lib/branches.server"
+import { getSession } from "~/sessions"
 import { db } from "~/utils/db.server"
 import { isBusinessInfoComplete } from "~/utils/onboarding"
 import type { Route } from "./+types/dash_layout"
@@ -27,10 +29,21 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
           slug: true,
           ownerId: true,
           description: true,
+          defaultBranchId: true,
         },
       })
     : []
   const activeOrg = orgs.find((o) => o.id === user.orgId) ?? orgs[0] ?? null
+
+  // Sucursales de la org activa + filtro de sede. null = "Todas las sucursales"
+  // (agregado), que es el default. Solo hay sede activa si la sesión la fijó.
+  const branches = activeOrg ? await listBranches(activeOrg.id) : []
+  const session = await getSession(request.headers.get("Cookie"))
+  const sessionBranchId = session.get("activeBranchId")
+  const activeBranchId =
+    sessionBranchId && branches.some((b) => b.id === sessionBranchId)
+      ? sessionBranchId
+      : null
 
   // ¿Puede gestionar el negocio? Owner de la org activa o rol ADMIN/OWNER.
   // (El rol es global en User.role; la propiedad es por org via ownerId.)
@@ -46,7 +59,9 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     "/dash/ajustes",
     "/dash/ventas",
     "/dash/servicios",
-    "/dash/website",
+    // El preview del sitio (/dash/website) es visible para members; solo el
+    // editor con IA (/dash/website/ai) queda bloqueado a OWNER/ADMIN.
+    "/dash/website/ai",
     "/dash/asistente",
   ]
   const { pathname } = new URL(request.url)
@@ -85,6 +100,14 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
     canManage,
     orgs: orgs.map(toLite),
     activeOrg: activeOrg ? toLite(activeOrg) : null,
+    branches: branches.map((b) => ({
+      id: b.id,
+      name: b.name,
+      slug: b.slug,
+      isActive: b.isActive,
+      isDefault: b.isDefault,
+    })),
+    activeBranchId,
     // Estado del sidebar leído de la cookie → el HTML inicial ya viene con el
     // ancho correcto (sin flash al refrescar).
     sidebarOpen: readSidebarOpenCookie(request),
@@ -92,8 +115,16 @@ export const loader = async ({ request }: Route.LoaderArgs) => {
 }
 
 export default function DashLayout({ loaderData }: Route.ComponentProps) {
-  const { user, onboardingComplete, canManage, orgs, activeOrg, sidebarOpen } =
-    loaderData
+  const {
+    user,
+    onboardingComplete,
+    canManage,
+    orgs,
+    activeOrg,
+    branches,
+    activeBranchId,
+    sidebarOpen,
+  } = loaderData
   const navigation = useNavigation()
 
   // PWA: registra el SW stub acotado a /dash (no toca booking público ni
@@ -132,6 +163,8 @@ export default function DashLayout({ loaderData }: Route.ComponentProps) {
       user={user}
       orgs={orgs}
       activeOrg={activeOrg}
+      branches={branches}
+      activeBranchId={activeBranchId}
       canManage={canManage}
       onboardingCelebrated={onboardingComplete}
       sidebarOpen={sidebarOpen}
