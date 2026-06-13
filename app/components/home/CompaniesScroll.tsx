@@ -2,7 +2,7 @@ import { StarLights } from "../icons/starLights"
 import { muchos, pocos } from "./utils"
 
 export const CompaniesScroll = ({ ...props }: { props?: unknown }) => (
-  <section className=" relative ">
+  <section className=" relative pb-0 md:pb-20">
     <h2 className="group overlay !leading-snug text-4xl lg:text-6xl font-satoBold  sticky top-[32%] w-full md:max-w-6xl mx-auto flex flex-wrap items-center text-center justify-center ">
       La solución perfecta para
       <span className="flex flex-wrap items-center text-center justify-center">

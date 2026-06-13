@@ -442,13 +442,13 @@ export const CardImage = ({
 )
 
 export const Features = () => (
-  <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:pt-[80px]">
+  <section className="max-w-[90%] xl:max-w-7xl mx-auto pt-[0px] lg:py-[80px]">
     <h2 className="group text-4xl lg:text-6xl	font-satoBold text-brand_dark flex flex-wrap items-center text-center justify-center ">
       <span className="mr-4"> Impulsa</span>
       <Rocket className="group-hover:animate-vibration-effect cursor-pointer w-10 h-10 lg:w-16 lg:h-16" />{" "}
       <span className="ml-4 mr-4"> tu </span> negocio con Deník
     </h2>
-    <div className="flex justify-between items-center mt-[80px] lg:mt-[120px] flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
+    <div className="flex justify-between items-center mt-12 lg:mt-[120px] flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
       <div className="pr-0 lg:pr-12">
         <h2 className="font-satoBold text-2xl lg:text-4xl text-brand_dark !leading-tight">
           No más citas olvidadas: Controla y automatiza tu agenda{" "}
@@ -480,7 +480,7 @@ export const Features = () => (
         />
       </WobbleCard>
     </div>
-    <div className="flex justify-between items-center mt-[120px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0">
+    <div className="flex justify-between items-center mt-20 lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0">
       <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
         <img
           alt="notificación"
@@ -503,7 +503,7 @@ export const Features = () => (
         </p>
       </div>
     </div>
-    <div className="flex justify-between items-center mt-[120px] lg:mt-[160px]  flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
+    <div className="flex justify-between items-center mt-20 lg:mt-[160px]  flex-wrap-reverse lg:flex-nowrap gap-10 lg:gap-0">
       <div className="pr-0 lg:pr-12">
         <h2 className="font-satoBold text-2xl lg:text-4xl text-brand_dark !leading-tight">
           No pierdas más clientes, recibe pagos en línea
@@ -527,7 +527,7 @@ export const Features = () => (
         />
       </WobbleCard>
     </div>
-    <div className="flex justify-between items-center mt-[120px] lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0 ">
+    <div className="flex justify-between items-center mt-20 lg:mt-[160px] flex-wrap lg:flex-nowrap gap-10 lg:gap-0 ">
       <WobbleCard className="w-full  lg:w-[100%] min-h-auto lg:min-h-[520px] flex justify-center items-center">
         <img
           alt="agente IA"

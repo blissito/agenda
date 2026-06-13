@@ -178,7 +178,7 @@ export default function IA() {
       <TopBar />
       <main className="bg-white min-h-screen rounded-b-[40px] flex flex-col font-satoshi text-brand_dark antialiased">
         {/* HERO */}
-        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px] pb-10 lg:pb-[120px]">
+        <section className="flex flex-col justify-center text-center max-w-[90%] xl:max-w-7xl mx-auto pt-40 lg:pt-[320px] pb-0 lg:pb-[120px]">
           <h1 className="group text-4xl lg:text-6xl font-satoBold text-brand_dark leading-tight flex flex-wrap items-center text-center justify-center">
             <span className="mr-3">Tu negocio con un</span>
             <span className="text-brand_blue italic mr-3">copiloto</span>
@@ -280,7 +280,7 @@ export default function IA() {
         </section>
 
         {/* SECTION HEAD + FEATURE 1 — Landing builder */}
-        <section className="py-20 md:py-[80px]">
+        <section className="py-12 md:py-[80px]">
           <div className="max-w-7xl mx-auto px-5 md:px-10">
             <SectionHead>
               Nik
@@ -465,7 +465,7 @@ export default function IA() {
         {/* FEATURE 2 — Chatbot */}
         <section className="pt-5 pb-20 md:py-20">
           <div className="max-w-7xl mx-auto px-5 md:px-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-20">
+            <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4 md:gap-20">
               <div className="order-2 md:order-1">
                 <WobbleCard className="w-full md:w-[80%] mx-auto lg:w-[90%] min-h-[600px] grid place-items-center">
                   <div className="w-full max-w-[420px] bg-gray-100 rounded-[22px] overflow-hidden border-brand_stroke border ">
@@ -606,7 +606,7 @@ export default function IA() {
               </div>
 
               <div className="order-1 md:order-2">
-                <h3 className="font-satoBold text-2xl lg:text-4xl text-brand_dark leading-[1.02] tracking-tight my-3.5">
+                <h3 className="font-satoBold text-2xl lg:text-4xl text-brand_dark  tracking-tight my-3.5">
                   Un asistente que{" "}
                   <Highlight color="bg-[#78DA89]">atiende y reserva</Highlight>{" "}
                   por ti
@@ -636,11 +636,11 @@ export default function IA() {
           <div className="max-w-7xl mx-auto px-5 md:px-10">
             <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-10 md:gap-20">
               <div>
-                <h3 className="font-satoBold text-2xl lg:text-4xl text-brand_dark leading-[1.02] tracking-tight my-3.5">
+                <h3 className="font-satoBold text-2xl lg:text-4xl text-brand_dark  tracking-tight my-3.5">
                   Tu <Highlight color="bg-brand_cloud">mano derecha</Highlight>,
                   directo en WhatsApp.
                 </h3>
-                <p className="text-xl lg:text-2xl leading-relaxed text-brand_gray mb-6 max-w-[540px]">
+                <p className="text-xl lg:text-2xl text-brand_gray mb-6 max-w-[540px]">
                   Háblale cuando quieras. Conecta tu número y pidele agendar una
                   cita o pregúntale por ganancias, clientes y servicios.
                 </p>
@@ -839,7 +839,7 @@ function SectionHead({
           {tag}
         </span>
       )}
-      <h2 className="group font-satoBold text-3xl lg:text-6xl leading-[1.02] tracking-tight mt-4 mb-3 text-brand_dark">
+      <h2 className="group font-satoBold text-3xl lg:text-6xl  tracking-tight mt-4 mb-3 text-brand_dark">
         {children}
       </h2>
     </div>
@@ -865,11 +865,11 @@ function Highlight({
 
 function FeatPoints({ items }: { color?: string; items: React.ReactNode[] }) {
   return (
-    <ul className="list-none p-0 grid gap-3 mb-12">
+    <ul className="list-none p-0 grid gap-3 mb-12 ">
       {items.map((it, i) => (
         <li
           key={i}
-          className="text-brand_gray text-base lg:text-xl font-satoshi flex gap-2 "
+          className="text-brand_gray text-lg lg:text-xl font-satoshi flex gap-2 "
         >
           <svg
             className="flex-none w-4 h-4 text-brand_blue mt-1.5"
